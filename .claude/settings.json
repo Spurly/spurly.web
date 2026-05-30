@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 90 npx vite build)",
+      "Bash(npx vite *)",
+      "Read(//Users/sarthakvats/.nvm/versions/node/**)",
+      "Read(//opt/homebrew/opt/**)",
+      "Read(//usr/local/**)",
+      "Bash(grep -E \"^tailwindcss$|^@tailwindcss$|autoprefixer\")",
+      "Bash(ls -la /Users/sarthakvats/Startup/spurly.backend/)",
+      "Read(//Users/sarthakvats/Startup/spurly.backend/**)",
+      "Bash(npm install *)"
+    ],
+    "additionalDirectories": [
+      "/Users/sarthakvats/Startup/spurly.backend/src"
+    ]
+  }
+}
