@@ -1,41 +1,27 @@
-import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import { useDataTable } from './useDataTable';
 import { TableToolbar } from './TableToolbar';
 import { TablePagination } from './TablePagination';
+import { Header, Body, Colgroup } from './components';
 
 /**
  * Reusable, server-side oriented data table for spurly.web.
+ * Uses modular components for Header, Body, Row, and Cell.
  *
- * Driven by a `columns` config + `data`. All heavy lifting (filtering,
- * sorting, paging) is delegated to the parent via callbacks so it stays
- * in sync with the backend.
+ * Single-table layout with a sticky <thead>, so header and body
+ * columns always stay aligned and content sizes naturally.
  *
  * COLUMN SHAPE:
  *   {
  *     key:        string,                      // unique + maps to row[key]
  *     label:      string | node,               // header label
- *     render?:    (value, row) => node,        // custom cell
+ *     render?:    (value, row) => node,        // custom cell component
  *     sortable?:  boolean,                      // show sort control
  *     align?:     'left' | 'center' | 'right',
  *     width?:     string,                       // e.g. '120px'
+ *     minWidth?:  string,                       // e.g. '120px'
  *     headerClassName?: string,
  *     cellClassName?: string,
  *   }
- *
- * @example
- *   <DataTable
- *     columns={columns}
- *     data={rows}
- *     rowKey={(r) => r._id}
- *     loading={loading}
- *     error={error}
- *     selectable
- *     onRowClick={openDetail}
- *     toolbar={{ onSearch, searchPlaceholder: 'Search leads...' }}
- *     sort={sort}
- *     onSortChange={setSort}
- *     pagination={{ page, pageSize, total, onPageChange, onPageSizeChange }}
- *   />
  */
 export function DataTable({
   columns = [],
@@ -53,6 +39,7 @@ export function DataTable({
   toolbar,
   emptyMessage = 'No records found',
   emptyHint,
+  maxHeight = '70vh',
   className = '',
 }) {
   const table = useDataTable({
@@ -65,18 +52,6 @@ export function DataTable({
   });
 
   const colCount = columns.length + (selectable ? 1 : 0);
-  const alignClass = { left: 'text-left', center: 'text-center', right: 'text-right' };
-
-  const renderSortIcon = (col) => {
-    if (!col.sortable) return null;
-    const active = table.sort.key === col.key;
-    if (!active) return <ChevronsUpDown size={14} className="text-spurly-text-secondary opacity-50" />;
-    return table.sort.direction === 'asc' ? (
-      <ChevronUp size={14} className="text-spurly-purple" />
-    ) : (
-      <ChevronDown size={14} className="text-spurly-purple" />
-    );
-  };
 
   return (
     <div className={`flex flex-col bg-white ${className}`}>
@@ -94,98 +69,30 @@ export function DataTable({
         </div>
       )}
 
-      <div className="flex-1 overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-spurly-border">
-              {selectable && (
-                <th className="px-6 py-4 text-left w-px">
-                  <input
-                    type="checkbox"
-                    checked={table.allSelected}
-                    ref={(el) => el && (el.indeterminate = table.someSelected)}
-                    onChange={table.toggleAll}
-                    className="rounded cursor-pointer"
-                  />
-                </th>
-              )}
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  style={col.width ? { width: col.width } : undefined}
-                  className={`px-6 py-4 text-label font-semibold text-spurly-navy-light ${
-                    alignClass[col.align] || 'text-left'
-                  } ${col.headerClassName || ''}`}
-                >
-                  {col.sortable ? (
-                    <button
-                      onClick={() => table.requestSort(col.key)}
-                      className="inline-flex items-center gap-1 hover:text-spurly-purple transition"
-                    >
-                      {col.label}
-                      {renderSortIcon(col)}
-                    </button>
-                  ) : (
-                    col.label
-                  )}
-                </th>
-              ))}
-            </tr>
-          </thead>
-
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={colCount} className="px-6 py-16 text-center">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-spurly-purple" />
-                  <p className="mt-4 text-spurly-text-secondary">Loading...</p>
-                </td>
-              </tr>
-            ) : data.length === 0 ? (
-              <tr>
-                <td colSpan={colCount} className="px-6 py-16 text-center">
-                  <p className="text-spurly-text-secondary text-lg">{emptyMessage}</p>
-                  {emptyHint && (
-                    <p className="text-spurly-text-secondary text-sm mt-2">{emptyHint}</p>
-                  )}
-                </td>
-              </tr>
-            ) : (
-              data.map((row) => {
-                const key = rowKey(row);
-                return (
-                  <tr
-                    key={key}
-                    onClick={onRowClick ? () => onRowClick(row) : undefined}
-                    className={`border-b border-spurly-border transition last:border-b-0 ${
-                      onRowClick ? 'hover:bg-spurly-surface-bg cursor-pointer' : ''
-                    } ${table.isRowSelected(key) ? 'bg-spurly-purple/5' : ''}`}
-                  >
-                    {selectable && (
-                      <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          checked={table.isRowSelected(key)}
-                          onChange={() => table.toggleRow(key)}
-                          className="rounded cursor-pointer"
-                        />
-                      </td>
-                    )}
-                    {columns.map((col) => (
-                      <td
-                        key={col.key}
-                        className={`px-6 py-4 text-label text-spurly-navy-light ${
-                          alignClass[col.align] || 'text-left'
-                        } ${col.cellClassName || ''}`}
-                      >
-                        {col.render ? col.render(row[col.key], row) : row[col.key]}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
+      <div className="overflow-auto" style={{ maxHeight }}>
+        <table className="w-full border-collapse" style={{ tableLayout: 'auto' }}>
+          <Colgroup columns={columns} selectable={selectable} />
+          <Header
+            columns={columns}
+            selectable={selectable}
+            sort={table.sort}
+            onSort={table.requestSort}
+            allSelected={table.allSelected}
+            onSelectAll={table.toggleAll}
+          />
+          <Body
+            data={data}
+            columns={columns}
+            rowKey={rowKey}
+            selectable={selectable}
+            selectedKeys={table.selected}
+            onSelectionChange={table.toggleRow}
+            onRowClick={onRowClick}
+            loading={loading}
+            emptyMessage={emptyMessage}
+            emptyHint={emptyHint}
+            colCount={colCount}
+          />
         </table>
       </div>
 

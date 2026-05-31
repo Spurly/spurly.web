@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/hooks/useAuth.js';
-import { Button } from 'src/common/components/Button.jsx';
-import { Input } from 'src/common/components/Input.jsx';
+import { Button } from 'src/common/components/Button';
+import { Input } from 'src/common/components/Input';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');

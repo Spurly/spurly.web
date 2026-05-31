@@ -4,7 +4,8 @@ import { Tabs } from 'src/common/components/Tabs';
 import { DataTable, FilterButton } from 'src/common/components/DataTable';
 import { LeadDetailSidebar } from 'src/components/LeadDetailSidebar';
 import { useAllProfiles } from 'src/hooks/useAllProfiles';
-import { capturedLeadsColumns, buildCapturedLeadsTabs } from './helpers.jsx';
+import { columns } from './columns.jsx';
+import { buildCapturedLeadsTabs } from './helpers';
 
 export function CapturedLeadsPage() {
   const [activeTab, setActiveTab] = useState('all');
@@ -54,7 +55,7 @@ export function CapturedLeadsPage() {
           {/* Reusable DataTable */}
           <div className="flex-1 overflow-y-auto">
             <DataTable
-              columns={capturedLeadsColumns}
+              columns={columns}
               data={filteredProfiles}
               rowKey={(row) => row._id}
               loading={loading}

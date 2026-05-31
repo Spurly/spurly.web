@@ -1,22 +1,16 @@
 import { useAuth } from 'src/hooks/useAuth';
+import { useMetrics } from 'src/hooks/useMetrics';
 import { DashboardLayout } from 'src/components/DashboardLayout';
 import { MetricCard } from 'src/common/components/MetricCard';
 import { Table } from 'src/common/components/Table';
-import { Badge } from 'src/common/components/Badge';
 import { SectionCard } from 'src/common/components/SectionCard';
+import { RecentCaptures } from './components/RecentCaptures';
 import { Users, CheckCircle, Mail, Download, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 
 export function HomePage() {
   const { user } = useAuth();
-
-  const [recentCaptures] = useState([
-    { id: 1, name: 'Sarah Chen', role: 'VP of Marketing', company: 'Clearbit', time: '2m ago', status: 'Enriched' },
-    { id: 2, name: 'Arjun Patel', role: 'Founder & CEO', company: 'VerifAI', time: '5m ago', status: 'Enriching' },
-    { id: 3, name: 'Michael Torres', role: 'Head of Growth', company: 'Expandly', time: '12m ago', status: 'Queued' },
-    { id: 4, name: 'Emily Johnson', role: 'Growth Lead', company: 'Laminar', time: '18m ago', status: 'Enriched' },
-    { id: 5, name: 'James Wilson', role: 'COO', company: 'Finwise', time: '25m ago', status: 'Enriched' },
-  ]);
+  const { metrics, loading: metricsLoading } = useMetrics();
 
   const [activeLists] = useState([
     { id: 1, name: 'SaaS Founders - US', leads: 248, updated: '2h ago' },
@@ -32,25 +26,6 @@ export function HomePage() {
     { id: 3, title: 'Expandly CEO posted about revenue growth', icon: TrendingUp, type: 'Engagement signal', time: '6h ago' },
     { id: 4, title: 'Laminar is hiring a Head of Sales', icon: Users, type: 'Hiring signal', time: '8h ago' },
   ]);
-
-  const captureColumns = [
-    { key: 'name', label: 'Name' },
-    { key: 'role', label: 'Role' },
-    { key: 'company', label: 'Company', render: (company) => (
-      <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-spurly bg-spurly-surface-bg flex items-center justify-center text-xs font-semibold">
-          {company.charAt(0)}
-        </div>
-        {company}
-      </div>
-    )},
-    { key: 'time', label: 'Time' },
-    { key: 'status', label: 'Status', render: (status) => (
-      <Badge variant={status === 'Enriched' ? 'success' : status === 'Enriching' ? 'primary' : 'warning'}>
-        {status}
-      </Badge>
-    )},
-  ];
 
   const listColumns = [
     { key: 'name', label: 'Name' },
@@ -77,20 +52,20 @@ export function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricCard
             label="Leads Captured"
-            value="1,248"
-            change="18.5"
+            value={metricsLoading ? '—' : metrics.leadsCapture.thisWeek.toLocaleString()}
+            change={metricsLoading ? '0' : metrics.leadsCapture.percentageChange.toFixed(1)}
             icon={Users}
           />
           <MetricCard
             label="Enriched"
-            value="892"
-            change="22.4"
+            value={metricsLoading ? '—' : metrics.enriched.thisWeek.toLocaleString()}
+            change={metricsLoading ? '0' : metrics.enriched.percentageChange.toFixed(1)}
             icon={CheckCircle}
           />
           <MetricCard
             label="Verified Emails"
-            value="643"
-            change="16.7"
+            value={metricsLoading ? '—' : metrics.verifiedEmails.thisWeek.toLocaleString()}
+            change={metricsLoading ? '0' : metrics.verifiedEmails.percentageChange.toFixed(1)}
             icon={Mail}
           />
           <MetricCard
@@ -106,12 +81,7 @@ export function HomePage() {
           {/* Left Column - 2 columns wide */}
           <div className="lg:col-span-2 space-y-6">
             {/* Recent Captures */}
-            <SectionCard
-              title="Recent Captures"
-              onViewAll={() => console.log('View all captures')}
-            >
-              <Table columns={captureColumns} data={recentCaptures} />
-            </SectionCard>
+            <RecentCaptures pageSize={5} />
 
             {/* Active Lists */}
             <SectionCard
