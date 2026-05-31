@@ -1,5 +1,5 @@
-import authApi from '../api/authApi.js';
-import apiGateway from '../gateway/apiGateway.js';
+import authApi from 'src/api/authApi.js';
+import apiGateway from 'src/gateway/apiGateway.js';
 
 /**
  * Auth Controller

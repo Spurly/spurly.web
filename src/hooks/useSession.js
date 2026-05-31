@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import sessionsApi from '../api/sessionsApi.js';
+import sessionsApi from 'src/api/sessionsApi.js';
 
 /**
  * Custom hook for managing sessions

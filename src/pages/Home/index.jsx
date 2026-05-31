@@ -1,9 +1,9 @@
-import { useAuth } from '../hooks/useAuth';
-import { DashboardLayout } from '../components/DashboardLayout';
-import { MetricCard } from '../components/ui/MetricCard';
-import { Table } from '../components/ui/Table';
-import { Badge } from '../components/ui/Badge';
-import { SectionCard } from '../components/ui/SectionCard';
+import { useAuth } from 'src/hooks/useAuth';
+import { DashboardLayout } from 'src/components/DashboardLayout';
+import { MetricCard } from 'src/common/components/MetricCard';
+import { Table } from 'src/common/components/Table';
+import { Badge } from 'src/common/components/Badge';
+import { SectionCard } from 'src/common/components/SectionCard';
 import { Users, CheckCircle, Mail, Download, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 

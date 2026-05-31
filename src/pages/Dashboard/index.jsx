@@ -1,6 +1,6 @@
-import { useAuth } from '../hooks/useAuth';
-import { DashboardLayout } from '../components/DashboardLayout';
-import { Card, CardContent, CardTitle } from '../components/ui/Card';
+import { useAuth } from 'src/hooks/useAuth';
+import { DashboardLayout } from 'src/components/DashboardLayout';
+import { Card, CardContent, CardTitle } from 'src/common/components/Card';
 
 export function DashboardPage() {
   const { user } = useAuth();

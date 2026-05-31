@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth.js';
-import { Button } from '../components/ui/Button.jsx';
-import { Input } from '../components/ui/Input.jsx';
+import { useAuth } from 'src/hooks/useAuth.js';
+import { Button } from 'src/common/components/Button.jsx';
+import { Input } from 'src/common/components/Input.jsx';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -31,7 +31,7 @@ export function LoginPage() {
 
   const handleLinkedInLogin = async () => {
     try {
-      const authUrl = await import('../controllers/authController.js').then(
+      const authUrl = await import('src/controllers/authController.js').then(
         (module) => module.default.getLinkedInAuthUrl()
       );
 

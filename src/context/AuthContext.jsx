@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import authController from '../controllers/authController.js';
+import authController from 'src/controllers/authController.js';
 
 export const AuthContext = createContext();
 

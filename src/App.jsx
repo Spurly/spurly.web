@@ -1,16 +1,16 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { LoginPage } from './pages/LoginPage';
-import { HomePage } from './pages/HomePage';
-import { CapturedLeadsPage } from './pages/CapturedLeadsPage';
-import { LeadDetailPage } from './pages/LeadDetailPage';
-import { EnrichmentQueuePage } from './pages/EnrichmentQueuePage';
-import { DiscoverPage } from './pages/DiscoverPage';
-import { ListsPage } from './pages/ListsPage';
-import { SignalsPage } from './pages/SignalsPage';
-import { ExportsPage } from './pages/ExportsPage';
-import { SettingsPage } from './pages/SettingsPage';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import { AuthProvider } from 'src/context/AuthContext';
+import { LoginPage } from 'src/pages/Login';
+import { HomePage } from 'src/pages/Home';
+import { CapturedLeadsPage } from 'src/pages/CapturedLeads';
+import { LeadDetailPage } from 'src/pages/LeadDetail';
+import { EnrichmentQueuePage } from 'src/pages/EnrichmentQueue';
+import { DiscoverPage } from 'src/pages/Discover';
+import { ListsPage } from 'src/pages/Lists';
+import { SignalsPage } from 'src/pages/Signals';
+import { ExportsPage } from 'src/pages/Exports';
+import { SettingsPage } from 'src/pages/Settings';
+import { ProtectedRoute } from 'src/components/ProtectedRoute';
 
 function App() {
   return (

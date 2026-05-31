@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import profilesApi from '../api/profilesApi.js';
+import capturedLeadsController from 'src/capturedleads/controllers/capturedLeadsController.js';
 
 /**
- * Custom hook for fetching ALL profiles across all user sessions
- * Uses the optimized /api/profiles/all endpoint
- * Includes full session data with each profile
+ * Custom hook for fetching ALL profiles across all user sessions.
+ * Talks to the CapturedLeads controller (not the API directly).
  */
 export function useAllProfiles() {
   const [profiles, setProfiles] = useState([]);
@@ -18,58 +17,49 @@ export function useAllProfiles() {
     hasMore: false,
   });
 
-  // Fetch all profiles from backend
   const fetchAllProfiles = useCallback(async (options = {}) => {
     setLoading(true);
     setError(null);
 
     try {
-      const limit = options.limit || pagination.limit;
-      const skip = options.skip || pagination.skip;
+      const limit = options.limit ?? 100;
+      const skip = options.skip ?? 0;
 
-      const response = await profilesApi.getAllProfiles({ limit, skip });
+      const { profiles: list, pagination: pag } =
+        await capturedLeadsController.getAllProfiles({ limit, skip });
 
-      if (response.success && response.data) {
-        setProfiles(response.data.profiles || []);
-        if (response.data.pagination) {
-          setPagination({
-            limit: response.data.pagination.limit,
-            skip: response.data.pagination.skip,
-            total: response.data.pagination.total,
-            pages: response.data.pagination.pages,
-            hasMore: response.data.pagination.hasMore,
-          });
-        }
-      } else {
-        setError(response.message || 'Failed to fetch profiles');
-        setProfiles([]);
-      }
+      setProfiles(list);
+      setPagination({
+        limit: pag.limit,
+        skip: pag.skip,
+        total: pag.total,
+        pages: pag.pages,
+        hasMore: pag.hasMore,
+      });
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch profiles';
-      setError(errorMessage);
+      const message =
+        err.response?.data?.message || err.message || 'Failed to fetch profiles';
+      setError(message);
+      setProfiles([]);
       console.error('[useAllProfiles] Fetch error:', err);
     } finally {
       setLoading(false);
     }
-  }, [pagination.limit, pagination.skip]);
-
-  // Fetch profiles on mount
-  useEffect(() => {
-    fetchAllProfiles();
   }, []);
 
-  // Change page
+  useEffect(() => {
+    fetchAllProfiles();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const goToPage = useCallback((pageNum) => {
     const newSkip = (pageNum - 1) * pagination.limit;
     fetchAllProfiles({ skip: newSkip });
   }, [pagination.limit, fetchAllProfiles]);
 
-  // Change items per page
   const setPageSize = useCallback((newLimit) => {
     fetchAllProfiles({ limit: newLimit, skip: 0 });
   }, [fetchAllProfiles]);
 
-  // Refresh profiles
   const refresh = useCallback(() => {
     fetchAllProfiles({ skip: 0 });
   }, [fetchAllProfiles]);

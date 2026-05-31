@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { DashboardLayout } from '../components/DashboardLayout';
-import { Badge } from '../components/ui/Badge';
+import { DashboardLayout } from 'src/components/DashboardLayout';
+import { Badge } from 'src/common/components/Badge';
 import { ChevronLeft, ChevronRight, Mail, Phone, Linkedin, MapPin, Clock, ExternalLink, Plus } from 'lucide-react';
 
 export function LeadDetailPage() {

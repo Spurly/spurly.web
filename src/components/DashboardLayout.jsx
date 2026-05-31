@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth.js';
+import { useAuth } from 'src/hooks/useAuth.js';
 import { Menu, LogOut, Home, Eye, List, Radio, Settings, Send, TrendingUp, Zap } from 'lucide-react';
 import { useState } from 'react';
 

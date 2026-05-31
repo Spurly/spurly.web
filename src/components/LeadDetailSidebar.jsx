@@ -1,5 +1,5 @@
 import { X, Briefcase, MapPin, Clock, Mail, Phone, Linkedin, ExternalLink } from 'lucide-react';
-import { Badge } from './ui/Badge';
+import { Badge } from 'src/common/components/Badge';
 import { useNavigate } from 'react-router-dom';
 
 export function LeadDetailSidebar({ lead, onClose }) {

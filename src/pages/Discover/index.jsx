@@ -1,4 +1,4 @@
-import { DashboardLayout } from '../components/DashboardLayout';
+import { DashboardLayout } from 'src/components/DashboardLayout';
 
 export function DiscoverPage() {
   return (

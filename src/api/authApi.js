@@ -1,5 +1,5 @@
-import apiGateway from '../gateway/apiGateway.js';
-import { AuthResponse, User } from '../entities/User.js';
+import apiGateway from 'src/gateway/apiGateway.js';
+import { AuthResponse, User } from 'src/entities/User.js';
 
 /**
  * Auth API Client
