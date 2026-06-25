@@ -1,173 +1,246 @@
-import { X, Briefcase, MapPin, Clock, Mail, Phone, Linkedin, ExternalLink } from 'lucide-react';
+import { X, MapPin, Mail, Phone, Linkedin, ExternalLink, Briefcase } from 'lucide-react';
 import { Badge } from 'src/common/components/Badge';
+import { Button } from 'src/common/components/Button';
 import { useNavigate } from 'react-router-dom';
+
+function ContactRow({ icon: Icon, value, empty }) {
+  return (
+    <div className="flex items-center gap-2.5 h-9">
+      <Icon size={15} style={{ color: 'var(--text-tertiary)', flexShrink: 0 }} />
+      <span
+        className="text-[13px]"
+        style={value ? { color: 'var(--text-primary)', fontWeight: 500 } : { color: 'var(--text-tertiary)', fontStyle: 'italic' }}
+      >
+        {value || empty}
+      </span>
+    </div>
+  );
+}
 
 export function LeadDetailSidebar({ lead, onClose }) {
   const navigate = useNavigate();
   if (!lead) return null;
 
+  const statusTone =
+    lead.scrapingStatus === 'complete' ? 'success'
+    : lead.scrapingStatus === 'partial' ? 'warning'
+    : lead.scrapingStatus === 'failed' ? 'danger'
+    : 'neutral';
+
+  const statusLabel =
+    lead.scrapingStatus === 'complete' ? 'Complete'
+    : lead.scrapingStatus === 'partial' ? 'Partial'
+    : lead.scrapingStatus === 'failed' ? 'Failed'
+    : lead.scrapingStatus;
+
+  const initials = (lead.name || '').charAt(0).toUpperCase();
+
   return (
-    <div className="w-96 bg-white border-l border-spurly-border flex flex-col overflow-y-auto">
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-spurly-border flex items-start justify-between">
-        <div className="flex-1">
-          <h3 className="text-dashboard-title font-bold text-spurly-navy-light">{lead.name}</h3>
-          <p className="text-label text-spurly-text-secondary mt-1">{lead.title}</p>
-          <p className="text-label text-spurly-text-secondary">{lead.location}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate(`/dashboard/leads/${lead.id}`)}
-            className="p-2 hover:bg-spurly-surface-bg rounded-spurly transition"
-            title="Open full profile"
-          >
-            <ExternalLink size={20} className="text-spurly-text-secondary hover:text-spurly-navy-light" />
-          </button>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-spurly-surface-bg rounded-spurly transition"
-          >
-            <X size={20} className="text-spurly-text-secondary" />
-          </button>
-        </div>
-      </div>
+    <>
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 z-[50]"
+        style={{ background: 'rgba(20,20,28,0.18)' }}
+        onClick={onClose}
+      />
 
-      {/* Profile Avatar */}
-      <div className="px-6 py-4 border-b border-spurly-border">
-        <div className="flex items-center gap-4">
-          <img
-            src={lead.avatar}
-            alt={lead.name}
-            className="w-16 h-16 rounded-spurly object-cover"
-          />
-          <div>
-            <div className="flex gap-2 mb-2">
-              {lead.badges?.map((badge) => (
-                <Badge key={badge} variant="primary">
-                  {badge}
-                </Badge>
-              ))}
+      {/* Drawer */}
+      <div
+        className="absolute right-0 top-0 bottom-0 z-[60] flex flex-col w-[400px] h-full overflow-hidden"
+        style={{
+          background: 'var(--glass-thick)',
+          backdropFilter: 'blur(40px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+          borderLeft: '1px solid var(--border-glass)',
+          boxShadow: 'var(--shadow-xl)',
+          animation: 'sidebar-slide 320ms cubic-bezier(0.16,1,0.3,1)',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Sticky header */}
+        <div
+          className="flex items-center justify-between px-5 shrink-0 border-b border-[var(--separator)]"
+          style={{ height: 60, background: 'var(--glass-chrome)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+        >
+          <span className="text-[13px] font-semibold text-[var(--text-secondary)]">Lead profile</span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => navigate(`/dashboard/leads/${lead._id || lead.id}`)}
+              className="w-8 h-8 grid place-items-center rounded-[9px] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
+            >
+              <ExternalLink size={16} />
+            </button>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 grid place-items-center rounded-[9px] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto p-5">
+          {/* Avatar + Name */}
+          <div className="flex items-start gap-3.5 mb-4">
+            <div
+              className="w-14 h-14 rounded-[14px] grid place-items-center text-white text-[22px] font-bold shrink-0"
+              style={{ background: 'var(--brand-gradient-vivid)' }}
+            >
+              {lead.avatar ? (
+                <img src={lead.avatar} alt={lead.name} className="w-14 h-14 rounded-[14px] object-cover" />
+              ) : initials}
             </div>
-            <div className="text-label font-medium text-spurly-navy-light">{lead.company}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* AI Score Section */}
-      <div className="px-6 py-4 border-b border-spurly-border">
-        <div className="mb-4">
-          <p className="text-label font-semibold text-spurly-text-secondary mb-2">AI Score</p>
-          <div className="flex items-baseline gap-2">
-            <div className="text-section-heading font-bold text-spurly-navy-light">{lead.aiScore}</div>
-            <p className="text-label font-semibold text-spurly-success">{lead.aiGrade}</p>
-          </div>
-        </div>
-        <div className="space-y-2">
-          {lead.signals?.map((signal) => (
-            <div key={signal} className="flex items-center gap-2 text-label text-spurly-text-secondary">
-              <span className="w-2 h-2 rounded-full bg-spurly-success"></span>
-              {signal}
+            <div className="min-w-0 pt-1">
+              <h2 className="text-[19px] font-bold tracking-[-0.014em] text-[var(--text-primary)] leading-tight">{lead.name}</h2>
+              <p className="text-[13.5px] text-[var(--text-secondary)] mt-0.5">
+                {lead.title}{lead.company ? ` · ${lead.company}` : ''}
+              </p>
+              {lead.location && (
+                <p className="flex items-center gap-1 text-[12.5px] text-[var(--text-tertiary)] mt-1">
+                  <MapPin size={13} /> {lead.location}
+                </p>
+              )}
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex border-b border-spurly-border px-6">
-        <button className="text-label font-semibold text-spurly-navy-light border-b-2 border-spurly-purple pb-4 px-4">
-          Overview
-        </button>
-        <button className="text-label font-semibold text-spurly-text-secondary hover:text-spurly-navy-light pb-4 px-4">
-          Contact & Enrichment
-        </button>
-        <button className="text-label font-semibold text-spurly-text-secondary hover:text-spurly-navy-light pb-4 px-4">
-          Company
-        </button>
-        <button className="text-label font-semibold text-spurly-text-secondary hover:text-spurly-navy-light pb-4 px-4">
-          Activity
-        </button>
-      </div>
-
-      {/* Content */}
-      <div className="px-6 py-4 space-y-6 flex-1 overflow-y-auto">
-        {/* AI Summary */}
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <h4 className="text-label font-bold text-spurly-navy-light">AI Summary</h4>
-            <Badge variant="primary">BETA</Badge>
           </div>
-          <p className="text-body text-spurly-text-secondary leading-relaxed">
-            {lead.aiSummary}
-          </p>
-        </div>
 
-        {/* Key Signals */}
-        <div>
-          <h4 className="text-label font-bold text-spurly-navy-light mb-3">Key Signals</h4>
-          <ul className="space-y-2">
-            {lead.keySignals?.map((signal, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-label text-spurly-text-secondary">
-                <span className="text-spurly-success mt-1">•</span>
-                {signal}
-              </li>
+          {lead.headline && (
+            <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed mb-4">{lead.headline}</p>
+          )}
+
+          <div className="flex items-center gap-2 mb-5">
+            {lead.connectionDegree && (
+              <Badge tone="neutral">{lead.connectionDegree} degree</Badge>
+            )}
+            {lead.scrapingStatus && (
+              <Badge tone={statusTone} dot>{statusLabel}</Badge>
+            )}
+            {lead.badges?.map((badge) => (
+              <Badge key={badge} tone="primary">{badge}</Badge>
             ))}
-          </ul>
-        </div>
+          </div>
 
-        {/* Quick Info */}
-        <div>
-          <h4 className="text-label font-bold text-spurly-navy-light mb-3">Quick Info</h4>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Mail size={16} className="text-spurly-text-secondary flex-shrink-0" />
-              <div>
-                <p className="text-label text-spurly-text-secondary">Email</p>
-                <p className="text-label font-medium text-spurly-navy-light">{lead.email}</p>
+          {/* AI Score */}
+          {(lead.aiScore !== undefined || lead.quality !== undefined) && (
+            <div className="mb-5 p-4 rounded-[14px]" style={{ background: 'var(--surface-sunken)' }}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--text-tertiary)]">
+                  {lead.aiScore !== undefined ? 'AI Score' : 'Quality score'}
+                </span>
+                <span className="text-[15px] font-bold text-[var(--text-primary)] tabular-nums">
+                  {lead.aiScore ?? lead.quality}
+                  {lead.aiGrade && <span className="text-[13px] font-semibold ml-1.5" style={{ color: 'var(--green)' }}>{lead.aiGrade}</span>}
+                </span>
+              </div>
+              {/* Progress bar */}
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border-hairline)' }}>
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${lead.aiScore ?? lead.quality ?? 0}%`,
+                    background: 'var(--brand-gradient-vivid)',
+                  }}
+                />
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Phone size={16} className="text-spurly-text-secondary flex-shrink-0" />
-              <div>
-                <p className="text-label text-spurly-text-secondary">Phone</p>
-                <p className="text-label font-medium text-spurly-navy-light">{lead.phone}</p>
+          )}
+
+          {/* AI Summary */}
+          {lead.aiSummary && (
+            <div className="mb-5">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="text-[12px] font-semibold uppercase tracking-[0.04em] text-[var(--text-tertiary)]">AI Summary</h4>
+                <Badge tone="accent">Beta</Badge>
               </div>
+              <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{lead.aiSummary}</p>
             </div>
-            <div className="flex items-center gap-3">
-              <Linkedin size={16} className="text-spurly-text-secondary flex-shrink-0" />
-              <div>
-                <p className="text-label text-spurly-text-secondary">LinkedIn</p>
-                <a href={lead.linkedin} className="text-label font-medium text-spurly-purple hover:text-spurly-blue transition">
-                  View Profile
+          )}
+
+          {/* Signals */}
+          {lead.signals?.length > 0 && (
+            <div className="mb-5">
+              <h4 className="text-[12px] font-semibold uppercase tracking-[0.04em] text-[var(--text-tertiary)] mb-2">Key signals</h4>
+              <ul className="flex flex-col gap-1.5">
+                {lead.signals.map((s, i) => (
+                  <li key={i} className="flex items-start gap-2 text-[13px] text-[var(--text-secondary)]">
+                    <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: 'var(--green)' }} />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Contact */}
+          <h4 className="text-[12px] font-semibold uppercase tracking-[0.04em] text-[var(--text-tertiary)] mb-2">Contact</h4>
+          <div className="flex flex-col mb-5">
+            <ContactRow icon={Mail} value={lead.email} empty="No email — enrich to reveal" />
+            <ContactRow icon={Phone} value={lead.phone} empty="No phone on file" />
+            {lead.linkedin && (
+              <div className="flex items-center gap-2.5 h-9">
+                <Linkedin size={15} style={{ color: 'var(--text-tertiary)', flexShrink: 0 }} />
+                <a
+                  href={lead.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[13px] font-semibold"
+                  style={{ color: 'var(--brand-purple)' }}
+                >
+                  View profile
                 </a>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <MapPin size={16} className="text-spurly-text-secondary flex-shrink-0" />
-              <div>
-                <p className="text-label text-spurly-text-secondary">Location</p>
-                <p className="text-label font-medium text-spurly-navy-light">{lead.location}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Clock size={16} className="text-spurly-text-secondary flex-shrink-0" />
-              <div>
-                <p className="text-label text-spurly-text-secondary">Time in Role</p>
-                <p className="text-label font-medium text-spurly-navy-light">{lead.timeInRole}</p>
-              </div>
-            </div>
+            )}
           </div>
+
+          {/* Experience */}
+          {lead.experiences?.length > 0 && (
+            <div className="mb-5">
+              <h4 className="text-[12px] font-semibold uppercase tracking-[0.04em] text-[var(--text-tertiary)] mb-2.5">Experience</h4>
+              <div className="flex flex-col gap-3">
+                {lead.experiences.map((exp, i) => (
+                  <div key={i} className="flex gap-3">
+                    <span
+                      className="w-9 h-9 rounded-[10px] grid place-items-center shrink-0"
+                      style={{ background: 'var(--surface-sunken)', color: 'var(--text-secondary)' }}
+                    >
+                      <Briefcase size={16} />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="text-[13.5px] font-semibold text-[var(--text-primary)]">{exp.title}</div>
+                      <div className="text-[12.5px] text-[var(--text-secondary)]">{exp.company}</div>
+                      {(exp.startDate || exp.duration) && (
+                        <div className="text-[11.5px] text-[var(--text-tertiary)]">
+                          {exp.startDate}{exp.endDate ? ` – ${exp.endDate}` : ''}{exp.duration ? ` · ${exp.duration}` : ''}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Sticky footer actions */}
+        <div
+          className="flex gap-2.5 p-4 border-t border-[var(--separator)] shrink-0"
+          style={{ background: 'var(--glass-chrome)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+        >
+          <Button variant="secondary" fullWidth>
+            Add to list
+          </Button>
+          <Button variant="primary" fullWidth>
+            Enrich
+          </Button>
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="px-6 py-4 border-t border-spurly-border space-y-3">
-        <button className="w-full px-4 py-3 rounded-spurly bg-spurly-surface-bg hover:bg-spurly-border text-spurly-navy-light font-medium text-label transition">
-          View Full Profile
-        </button>
-        <button className="w-full px-4 py-3 rounded-spurly bg-spurly-purple hover:bg-spurly-blue text-white font-medium text-label transition">
-          Enrich Again
-        </button>
-      </div>
-    </div>
+      <style>{`
+        @keyframes sidebar-slide {
+          from { transform: translateX(24px); opacity: 0; }
+          to   { transform: none; opacity: 1; }
+        }
+      `}</style>
+    </>
   );
 }

@@ -1,61 +1,76 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from 'src/hooks/useAuth.js';
-import { Menu, LogOut, Home, Eye, List, Radio, Settings, Send, TrendingUp, Zap } from 'lucide-react';
-import { useState } from 'react';
+import { Menu, LogOut, Home, Radio, Settings, Users } from 'lucide-react';
+import { useState, useRef } from 'react';
 
-export function DashboardLayout({ children }) {
+const navItems = [
+  { label: 'Home',           icon: Home,   href: '/dashboard' },
+  { label: 'Captured Leads', icon: Users,  href: '/dashboard/leads' },
+  { label: 'Signals',        icon: Radio,  href: '/dashboard/signals' },
+];
+
+export function DashboardLayout({ children, title, subtitle }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [hoverExpanded, setHoverExpanded] = useState(false);
+  const hoverTimerRef = useRef(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isExpanded = sidebarOpen || hoverExpanded;
+
+  const handleSidebarMouseEnter = () => {
+    if (sidebarOpen) return;
+    hoverTimerRef.current = setTimeout(() => setHoverExpanded(true), 1000);
+  };
+
+  const handleSidebarMouseLeave = () => {
+    clearTimeout(hoverTimerRef.current);
+    setHoverExpanded(false);
+  };
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const navItems = [
-    { label: 'Home', icon: Home, href: '/dashboard' },
-    { label: 'Discover', icon: Eye, href: '/dashboard/discover' },
-    { label: 'Captured Leads', icon: TrendingUp, href: '/dashboard/leads' },
-    { label: 'Lists', icon: List, href: '/dashboard/lists' },
-    { label: 'Enrichment Queue', icon: Zap, href: '/dashboard/enrichment' },
-    { label: 'Signals', icon: Radio, href: '/dashboard/signals' },
-    { label: 'Exports', icon: Send, href: '/dashboard/exports' },
-  ];
-
   const isActive = (href) => location.pathname === href;
 
   return (
-    <div className="flex h-screen bg-spurly-surface-bg">
-      {/* Sidebar */}
-      <div
-        className={`${
-          sidebarOpen ? 'w-64' : 'w-20'
-        } bg-spurly-navy text-white transition-all duration-300 flex flex-col border-r border-spurly-navy-light/10 overflow-y-auto`}
+    <div className="flex h-screen overflow-hidden canvas-mesh">
+      {/* Sidebar — frosted glass chrome */}
+      <aside
+        className="flex flex-col h-full shrink-0 glass-chrome border-r border-[var(--separator)] transition-all duration-300 z-[var(--z-sticky)]"
+        style={{ width: isExpanded ? 264 : 76 }}
+        onMouseEnter={handleSidebarMouseEnter}
+        onMouseLeave={handleSidebarMouseLeave}
       >
-        {/* Logo Area */}
-        <div className="px-6 py-8 flex items-center justify-between flex-shrink-0">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            {sidebarOpen ? (
-              <>
-                <img src="/Spurly icon.png" alt="Spurly" className="w-12 h-12 flex-shrink-0 object-contain" />
-                <span className="text-2xl font-bold truncate">Spurly</span>
-              </>
-            ) : (
-              <img src="/Spurly icon.png" alt="Spurly" className="w-12 h-12 mx-auto object-contain" />
-            )}
+        {/* Logo */}
+        <div className="flex items-center gap-2.5 h-[60px] px-5 shrink-0 border-b border-[var(--separator)]">
+          <div className="flex-shrink-0 overflow-hidden" style={{ width: 48, height: 48 }}>
+            <img
+              src="/Spurly icon.png"
+              alt="Spurly"
+              className="w-full h-full object-contain"
+              style={{ transform: 'scale(2.4)', transformOrigin: 'center' }}
+            />
           </div>
+          {isExpanded && (
+            <span className="text-[20px] font-bold tracking-[-0.02em] text-[var(--text-primary)] truncate">
+              Spurly
+            </span>
+          )}
+          <div className="flex-1" />
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-spurly-navy-light/10 rounded-spurly transition flex-shrink-0"
+            className="p-1.5 rounded-[10px] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
           >
-            <Menu size={20} />
+            <Menu size={17} />
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 space-y-2">
+        <nav className="flex flex-col gap-1 px-3 mt-3 flex-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -63,85 +78,95 @@ export function DashboardLayout({ children }) {
               <button
                 key={item.label}
                 onClick={() => navigate(item.href)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-spurly transition text-sm font-medium ${
+                className={`group flex items-center gap-3 h-10 px-3 rounded-[12px] text-[14px] font-medium transition-all duration-200 ${
                   active
-                    ? 'bg-spurly-purple text-white'
-                    : 'text-spurly-text-secondary hover:bg-spurly-navy-light/10'
+                    ? 'bg-[var(--accent-tint)] text-[var(--brand-purple)] font-semibold'
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                <Icon size={20} />
-                {sidebarOpen && <span>{item.label}</span>}
+                <span className="shrink-0 grid place-items-center" style={{ width: 19, height: 19 }}>
+                  <Icon size={19} />
+                </span>
+                {isExpanded && <span className="truncate">{item.label}</span>}
               </button>
             );
           })}
         </nav>
 
-        {/* Workspace Section */}
-        {sidebarOpen && (
-          <div className="px-4 py-4 border-t border-spurly-navy-light/10">
-            <p className="text-xs text-spurly-text-secondary font-semibold mb-3 px-4">WORKSPACE</p>
-            <div className="px-4 py-2">
-              <div className="text-sm font-medium mb-1">Acme Growth</div>
-              <p className="text-xs text-spurly-text-secondary">Workspace</p>
-            </div>
-          </div>
-        )}
 
-        {/* Settings & User */}
-        <div className="p-4 border-t border-spurly-navy-light/10 space-y-3 flex-shrink-0">
+        {/* Bottom actions */}
+        <div className="px-3 pb-4 flex flex-col gap-1 border-t border-[var(--separator)] pt-3">
           <button
             onClick={() => navigate('/dashboard/settings')}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-spurly hover:bg-spurly-navy-light/10 text-spurly-text-secondary transition text-sm font-medium"
+            className="flex items-center gap-3 h-10 px-3 rounded-[12px] text-[14px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-all"
           >
-            <Settings size={18} />
-            {sidebarOpen && <span>Settings</span>}
+            <span className="shrink-0 grid place-items-center" style={{ width: 19, height: 19 }}>
+              <Settings size={19} />
+            </span>
+            {isExpanded && <span>Settings</span>}
           </button>
-          {sidebarOpen && (
-            <div className="px-4 py-3 border-t border-spurly-navy-light/10">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-spurly-purple to-spurly-blue rounded-spurly flex items-center justify-center text-white text-xs font-semibold">
-                  {user?.name?.charAt(0) || 'U'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold truncate">{user?.name || 'User'}</div>
-                  <div className="text-xs text-spurly-text-secondary truncate">{user?.email}</div>
-                </div>
-              </div>
+
+          {/* User avatar row */}
+          <div className="flex items-center gap-2.5 h-12 px-2 mt-1">
+            <div
+              className="w-8 h-8 rounded-[9px] grid place-items-center text-white text-[13px] font-bold shrink-0"
+              style={{ background: 'var(--brand-gradient-vivid)' }}
+            >
+              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
             </div>
-          )}
+            {isExpanded && (
+              <div className="min-w-0 flex-1">
+                <div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{user?.name || 'User'}</div>
+                <div className="text-[11px] text-[var(--text-tertiary)] truncate">{user?.email}</div>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-spurly hover:bg-spurly-error/10 text-spurly-error transition text-sm font-medium"
+            className="flex items-center gap-3 h-10 px-3 rounded-[12px] text-[14px] font-medium text-[var(--red)] hover:bg-[var(--red-tint)] transition-all"
           >
-            <LogOut size={18} />
-            {sidebarOpen && <span>Logout</span>}
+            <span className="shrink-0 grid place-items-center" style={{ width: 19, height: 19 }}>
+              <LogOut size={18} />
+            </span>
+            {isExpanded && <span>Log out</span>}
           </button>
         </div>
-      </div>
+      </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar */}
-        <header className="bg-white border-b border-spurly-border px-8 py-4 flex justify-between items-center flex-shrink-0">
-          <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <span className="text-label text-spurly-text-secondary">Search leads, lists, companies...</span>
-            </div>
+      {/* Main area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Top bar — glass chrome */}
+        <header className="glass-chrome border-b border-[var(--separator)] px-7 flex items-center gap-4 shrink-0 z-[var(--z-sticky)]" style={{ minHeight: 60 }}>
+          <div className="flex-1 min-w-0 py-2.5">
+            {title && (
+              <h1 className="text-[19px] font-bold tracking-[-0.02em] text-[var(--text-primary)] leading-tight truncate">
+                {title}
+              </h1>
+            )}
+            {subtitle && (
+              <p className="text-[12.5px] text-[var(--text-secondary)] leading-tight truncate mt-0.5">
+                {subtitle}
+              </p>
+            )}
           </div>
-          <div className="flex items-center gap-6">
-            <button className="text-sm font-medium text-spurly-navy-light hover:text-spurly-purple transition">
+          <div className="flex items-center gap-3">
+            <button className="text-[13px] font-semibold text-[var(--brand-purple)] hover:text-[var(--brand-purple-700)] transition-colors">
               Add to Chrome
             </button>
-            <button className="text-sm font-medium text-spurly-navy-light hover:text-spurly-purple transition">
-              Invite Team
+            <button className="text-[13px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+              Invite team
             </button>
-            <div className="w-10 h-10 bg-gradient-to-br from-spurly-purple to-spurly-blue rounded-spurly flex items-center justify-center text-white font-semibold">
-              {user?.name?.charAt(0) || 'U'}
+            <div
+              className="w-9 h-9 rounded-[11px] grid place-items-center text-white text-[13px] font-bold"
+              style={{ background: 'var(--brand-gradient-vivid)' }}
+            >
+              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
             </div>
           </div>
         </header>
 
-        {/* Content Area */}
+        {/* Content */}
         <main className="flex-1 overflow-auto">
           {children}
         </main>

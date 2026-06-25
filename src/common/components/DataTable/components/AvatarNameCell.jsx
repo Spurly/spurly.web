@@ -1,26 +1,45 @@
+const degreeTone = { '1st': 'accent', '2nd': 'info' };
+
 export function AvatarNameCell({ value, row = {} }) {
   const avatar = row.avatar || null;
   const name = value || '';
+  const degree = row.connectionDegree || null;
+
+  const degreeStyles = {
+    accent: { background: 'var(--accent-tint)', color: 'var(--brand-purple)' },
+    info:   { background: 'var(--sky-tint)',    color: 'var(--sky)' },
+    neutral:{ background: 'var(--surface-sunken)', color: 'var(--text-tertiary)' },
+  };
+  const tone = degreeTone[degree] || 'neutral';
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2.5">
       {avatar ? (
         <img
           src={avatar}
           alt={name}
-          className="w-8 h-8 rounded-spurly object-cover flex-shrink-0"
-          onError={(e) => {
-            e.target.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Crect fill=%22%23e0e0e0%22 width=%2224%22 height=%2224%22/%3E%3C/svg%3E';
-          }}
+          className="w-8 h-8 rounded-[9px] object-cover flex-shrink-0"
+          onError={(e) => { e.target.style.display = 'none'; }}
         />
       ) : (
-        <div className="w-8 h-8 rounded-spurly bg-spurly-surface-bg flex items-center justify-center text-xs font-semibold text-spurly-navy-light flex-shrink-0">
+        <div
+          className="w-8 h-8 rounded-[9px] grid place-items-center text-white text-[12px] font-bold flex-shrink-0"
+          style={{ background: 'var(--brand-gradient-vivid)' }}
+        >
           {name.charAt(0).toUpperCase()}
         </div>
       )}
-      <span className="text-label font-semibold text-spurly-navy-light truncate">
-        {name}
-      </span>
+      <div className="min-w-0">
+        <span className="block text-[13.5px] font-semibold text-[var(--text-primary)] truncate">{name}</span>
+        {degree && (
+          <span
+            className="inline-block mt-0.5 px-1.5 py-px rounded-[999px] text-[10.5px] font-semibold leading-tight"
+            style={degreeStyles[tone]}
+          >
+            {degree}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

@@ -54,7 +54,7 @@ export function DataTable({
   const colCount = columns.length + (selectable ? 1 : 0);
 
   return (
-    <div className={`flex flex-col bg-white ${className}`}>
+    <div className={`flex flex-col bg-[var(--surface-card)] ${className}`}>
       {toolbar && (
         <TableToolbar
           {...toolbar}
@@ -64,8 +64,9 @@ export function DataTable({
       )}
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 m-4 rounded-spurly">
-          <p className="font-semibold">Error: {error}</p>
+        <div className="m-4 px-4 py-3 rounded-[12px] text-[13px] font-medium"
+          style={{ background: 'var(--red-tint)', color: 'var(--red)', border: '1px solid rgba(255,69,58,0.2)' }}>
+          {error}
         </div>
       )}
 

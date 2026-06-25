@@ -9,25 +9,19 @@ export function Row({
   onRowClick = null,
   onSelectionChange = null,
 }) {
-  const handleRowClick = () => {
-    if (onRowClick) {
-      onRowClick(row);
-    }
-  };
+  const handleRowClick = () => onRowClick && onRowClick(row);
 
   const handleCheckboxChange = (e) => {
     e.stopPropagation();
-    if (onSelectionChange) {
-      onSelectionChange(row._id);
-    }
+    onSelectionChange && onSelectionChange(row._id);
   };
 
   return (
     <tr
       onClick={handleRowClick}
-      className={`border-b border-spurly-border transition last:border-b-0 ${
-        onRowClick ? 'hover:bg-spurly-surface-bg cursor-pointer' : ''
-      } ${isSelected ? 'bg-spurly-purple/5' : ''}`}
+      className={`border-b border-[var(--separator)] transition-colors last:border-b-0 ${
+        onRowClick ? 'hover:bg-[var(--surface-hover)] cursor-pointer' : ''
+      } ${isSelected ? 'bg-[var(--accent-tint)]' : ''}`}
     >
       {selectable && (
         <td className="px-4 py-3 align-middle" onClick={(e) => e.stopPropagation()}>

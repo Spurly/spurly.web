@@ -5,7 +5,8 @@ export function Checkbox({ checked = false, onChange = () => {} }) {
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="w-4 h-4 rounded border-spurly-border accent-spurly-purple cursor-pointer"
+        className="w-4 h-4 rounded-[5px] cursor-pointer"
+        style={{ accentColor: 'var(--brand-purple)', borderColor: 'var(--border-default)' }}
       />
     </label>
   );

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import apiGateway from 'src/gateway/apiGateway.js';
+import apiGateway from 'src/core/gateway/apiGateway.js';
 
 /**
  * Fetches dashboard metrics (leads captured, enriched, verified emails).
@@ -10,6 +10,9 @@ export function useMetrics() {
     leadsCapture: { thisWeek: 0, lastWeek: 0, percentageChange: 0 },
     enriched: { thisWeek: 0, lastWeek: 0, percentageChange: 0 },
     verifiedEmails: { thisWeek: 0, lastWeek: 0, percentageChange: 0 },
+    sessions: { thisWeek: 0, lastWeek: 0, percentageChange: 0, total: 0, active: 0 },
+    connectionDegrees: { first: 0, second: 0, third: 0, unknown: 0 },
+    topTitles: [],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

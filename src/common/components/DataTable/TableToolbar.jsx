@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Search, Filter, X } from 'lucide-react';
 
-/**
- * Toolbar above the table: optional title, debounced search, filter chips,
- * bulk actions (shown when rows are selected), and a custom right-side slot.
- */
 export function TableToolbar({
   searchValue,
   onSearch,
@@ -18,12 +14,8 @@ export function TableToolbar({
 }) {
   const [localSearch, setLocalSearch] = useState(searchValue || '');
 
-  // Keep local state in sync if parent resets it.
-  useEffect(() => {
-    setLocalSearch(searchValue || '');
-  }, [searchValue]);
+  useEffect(() => { setLocalSearch(searchValue || ''); }, [searchValue]);
 
-  // Debounce search emit.
   useEffect(() => {
     if (!onSearch) return;
     const id = setTimeout(() => {
@@ -35,43 +27,44 @@ export function TableToolbar({
   const hasSelection = selectedCount > 0;
 
   return (
-    <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-spurly-border">
-      <div className="flex items-center gap-4 flex-1 min-w-0">
+    <div className="flex items-center justify-between gap-4 px-5 py-3.5 border-b border-[var(--separator)] glass-chrome">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
         {hasSelection ? (
           <div className="flex items-center gap-3">
-            <span className="text-label font-medium text-spurly-navy-light">
+            <span className="text-[13px] font-semibold text-[var(--text-primary)]">
               {selectedCount} selected
             </span>
             {bulkActions}
             {onClearSelection && (
               <button
                 onClick={onClearSelection}
-                className="flex items-center gap-1 text-label text-spurly-text-secondary hover:text-spurly-navy-light transition"
+                className="inline-flex items-center gap-1 text-[13px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
               >
-                <X size={14} /> Clear
+                <X size={13} /> Clear
               </button>
             )}
           </div>
         ) : (
           onSearch && (
-            <div className="relative max-w-sm flex-1">
+            <div className="relative max-w-xs flex-1">
               <Search
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-spurly-text-secondary"
+                size={15}
+                className="absolute left-3 top-1/2 -translate-y-1/2"
+                style={{ color: 'var(--text-tertiary)' }}
               />
               <input
                 type="text"
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full pl-9 pr-3 py-2 bg-spurly-surface-bg border border-spurly-border rounded-spurly text-label text-spurly-navy-light placeholder-spurly-text-secondary focus:outline-none focus:border-spurly-purple focus:ring-2 focus:ring-spurly-purple/20 transition"
+                className="w-full h-9 pl-9 pr-3 rounded-[10px] text-[13px] bg-[var(--surface-sunken)] border border-[var(--border-hairline)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--focus-ring)] transition-all"
               />
             </div>
           )
         )}
       </div>
 
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         {filters}
         {actions}
       </div>
@@ -79,18 +72,17 @@ export function TableToolbar({
   );
 }
 
-/** Small reusable filter-trigger button to keep page code tidy. */
 export function FilterButton({ onClick, label = 'Filters', active = false }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-spurly font-medium text-label transition ${
+      className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-[10px] text-[13px] font-medium transition-colors ${
         active
-          ? 'bg-spurly-purple/10 text-spurly-purple'
-          : 'hover:bg-spurly-surface-bg text-spurly-navy-light'
+          ? 'bg-[var(--accent-tint)] text-[var(--brand-purple)]'
+          : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
       }`}
     >
-      <Filter size={16} />
+      <Filter size={14} />
       {label}
     </button>
   );

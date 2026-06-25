@@ -9,6 +9,7 @@ import {
   LinkedInCell,
 } from 'src/common/components/DataTable/components';
 
+
 /**
  * Column definitions for the Captured Leads DataTable.
  * Defines the structure, rendering, and behavior of each column.

@@ -1,10 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import capturedLeadsController from 'src/capturedleads/controllers/capturedLeadsController.js';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import capturedLeadsController from 'src/core/controllers/capturedLeadsController.js';
 
-/**
- * Custom hook for fetching ALL profiles across all user sessions.
- * Talks to the CapturedLeads controller (not the API directly).
- */
 export function useAllProfiles() {
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -17,16 +13,19 @@ export function useAllProfiles() {
     hasMore: false,
   });
 
+  // Tracks the last-used fetch options so goToPage / setPageSize
+  // preserve the active connectionDegree filter across pagination.
+  const lastOptionsRef = useRef({ limit: 100, skip: 0 });
+
   const fetchAllProfiles = useCallback(async (options = {}) => {
+    const opts = { ...options };
+    lastOptionsRef.current = opts;
     setLoading(true);
     setError(null);
 
     try {
-      const limit = options.limit ?? 100;
-      const skip = options.skip ?? 0;
-
       const { profiles: list, pagination: pag } =
-        await capturedLeadsController.getAllProfiles({ limit, skip });
+        await capturedLeadsController.getAllProfiles(opts);
 
       setProfiles(list);
       setPagination({
@@ -48,20 +47,20 @@ export function useAllProfiles() {
   }, []);
 
   useEffect(() => {
-    fetchAllProfiles();
+    fetchAllProfiles({ limit: 100, skip: 0 });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const goToPage = useCallback((pageNum) => {
-    const newSkip = (pageNum - 1) * pagination.limit;
-    fetchAllProfiles({ skip: newSkip });
-  }, [pagination.limit, fetchAllProfiles]);
+    const skip = (pageNum - 1) * lastOptionsRef.current.limit;
+    fetchAllProfiles({ ...lastOptionsRef.current, skip });
+  }, [fetchAllProfiles]);
 
   const setPageSize = useCallback((newLimit) => {
-    fetchAllProfiles({ limit: newLimit, skip: 0 });
+    fetchAllProfiles({ ...lastOptionsRef.current, limit: newLimit, skip: 0 });
   }, [fetchAllProfiles]);
 
   const refresh = useCallback(() => {
-    fetchAllProfiles({ skip: 0 });
+    fetchAllProfiles({ ...lastOptionsRef.current, skip: 0 });
   }, [fetchAllProfiles]);
 
   return {

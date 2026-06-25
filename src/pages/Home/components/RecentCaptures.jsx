@@ -7,7 +7,7 @@ import { useRecentCaptures } from 'src/hooks/useRecentCaptures';
  * Recent Captures widget for the dashboard.
  * Fetches all recent captured leads from the latest session with pagination.
  */
-export function RecentCaptures({ pageSize = 10 }) {
+export function RecentCaptures({ pageSize = 10, onViewAll }) {
   const {
     profiles,
     loading,
@@ -28,7 +28,7 @@ export function RecentCaptures({ pageSize = 10 }) {
   return (
     <SectionCard
       title="Recent Captures"
-      onViewAll={() => console.log('View all captures')}
+      onViewAll={onViewAll}
     >
       <DataTable
         columns={columns}

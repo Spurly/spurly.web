@@ -1,21 +1,21 @@
-import { ChevronRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
-export function SectionCard({ title, onViewAll, children }) {
+export function SectionCard({ title, onViewAll, children, noPadding = false }) {
   return (
-    <div className="bg-white rounded-spurly-lg border border-spurly-border shadow-spurly overflow-hidden">
-      <div className="px-6 py-4 border-b border-spurly-border flex justify-between items-center">
-        <h3 className="text-dashboard-title font-bold text-spurly-navy-light">{title}</h3>
+    <div className="rounded-[18px] bg-[var(--surface-card)] border border-[var(--border-hairline)] shadow-[var(--shadow-sm)] overflow-hidden">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--separator)]">
+        <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">{title}</h3>
         {onViewAll && (
           <button
             onClick={onViewAll}
-            className="flex items-center gap-1 text-label font-medium text-spurly-purple hover:text-spurly-blue transition"
+            className="inline-flex items-center gap-1 text-[13px] font-semibold text-[var(--brand-purple)] hover:text-[var(--brand-purple-700)] transition-colors cursor-pointer"
           >
             View all
-            <ChevronRight size={16} />
+            <ArrowRight size={14} />
           </button>
         )}
       </div>
-      <div className="px-6 py-4">
+      <div className={noPadding ? '' : 'px-5 py-4'}>
         {children}
       </div>
     </div>

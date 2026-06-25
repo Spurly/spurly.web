@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import capturedLeadsController from 'src/capturedleads/controllers/capturedLeadsController.js';
+import capturedLeadsController from 'src/core/controllers/capturedLeadsController.js';
 
 /**
  * Custom hook for fetching profiles for a single session.

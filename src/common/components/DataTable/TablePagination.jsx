@@ -1,7 +1,3 @@
-/**
- * Server-side pagination footer.
- * Matches the existing CapturedLeads pagination styling.
- */
 export function TablePagination({
   page,
   pageSize,
@@ -18,17 +14,20 @@ export function TablePagination({
     (p) => p >= 1 && p <= totalPages
   );
 
+  const navBtn =
+    'w-8 h-8 grid place-items-center rounded-[9px] text-[13px] font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
+
   return (
-    <div className="bg-white border-t border-spurly-border px-6 py-4 flex items-center justify-between">
-      <p className="text-label text-spurly-text-secondary">
-        {start}-{end} of {total} results
+    <div className="glass-chrome border-t border-[var(--separator)] px-5 py-3 flex items-center justify-between">
+      <p className="text-[12px] text-[var(--text-tertiary)] tabular-nums">
+        {start}–{end} of {total}
       </p>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="p-2 hover:bg-spurly-surface-bg rounded-spurly transition text-spurly-text-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`${navBtn} text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]`}
         >
           ←
         </button>
@@ -36,20 +35,22 @@ export function TablePagination({
           <button
             key={p}
             onClick={() => onPageChange(p)}
-            className={`px-3 py-2 rounded-spurly transition text-label font-medium ${
+            className={`${navBtn} ${
               page === p
-                ? 'bg-spurly-purple text-white'
-                : 'hover:bg-spurly-surface-bg text-spurly-navy-light'
+                ? 'bg-[var(--accent)] text-white'
+                : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
             }`}
           >
             {p}
           </button>
         ))}
-        {totalPages > 5 && <span className="px-3 py-2 text-spurly-text-secondary">...</span>}
+        {totalPages > 5 && (
+          <span className="px-2 text-[var(--text-tertiary)] text-[12px]">…</span>
+        )}
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="p-2 hover:bg-spurly-surface-bg rounded-spurly transition text-spurly-text-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`${navBtn} text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]`}
         >
           →
         </button>
@@ -57,16 +58,14 @@ export function TablePagination({
 
       {onPageSizeChange && (
         <div className="flex items-center gap-2">
-          <span className="text-label text-spurly-text-secondary">Rows per page:</span>
+          <span className="text-[12px] text-[var(--text-tertiary)]">Rows:</span>
           <select
             value={pageSize}
             onChange={(e) => onPageSizeChange(parseInt(e.target.value, 10))}
-            className="px-3 py-2 rounded-spurly border border-spurly-border text-label font-medium text-spurly-navy-light"
+            className="h-7 px-2 rounded-[8px] border border-[var(--border-hairline)] text-[12px] font-medium text-[var(--text-primary)] bg-[var(--surface-card)] focus:outline-none focus:border-[var(--accent)]"
           >
             {pageSizeOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
+              <option key={opt} value={opt}>{opt}</option>
             ))}
           </select>
         </div>

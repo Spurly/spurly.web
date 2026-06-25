@@ -3,9 +3,12 @@ export function Table({ columns, data, onRowClick }) {
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-spurly-border">
+          <tr className="border-b border-[var(--separator)]">
             {columns.map((col) => (
-              <th key={col.key} className="text-left px-6 py-4 text-label font-semibold text-spurly-navy-light">
+              <th
+                key={col.key}
+                className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--text-tertiary)] whitespace-nowrap"
+              >
                 {col.label}
               </th>
             ))}
@@ -16,10 +19,12 @@ export function Table({ columns, data, onRowClick }) {
             <tr
               key={idx}
               onClick={() => onRowClick?.(row)}
-              className="border-b border-spurly-border hover:bg-spurly-surface-bg transition cursor-pointer last:border-b-0"
+              className={`border-b border-[var(--separator)] transition-colors last:border-b-0 ${
+                onRowClick ? 'hover:bg-[var(--surface-hover)] cursor-pointer' : ''
+              }`}
             >
               {columns.map((col) => (
-                <td key={col.key} className="px-6 py-4 text-body text-spurly-navy-light">
+                <td key={col.key} className="px-5 py-3.5 text-[13.5px] text-[var(--text-primary)]">
                   {col.render ? col.render(row[col.key], row) : row[col.key]}
                 </td>
               ))}
