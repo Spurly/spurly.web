@@ -1,0 +1,818 @@
+/* ============================================================
+   SPURLY — Marketing site
+   Apple "Liquid Glass" language, light cool canvas, purple→blue brand.
+   Self-contained: tokens inlined from the Spurly design system.
+   ============================================================ */
+
+/* ---------- Tokens ---------- */
+body.mkt{
+  --gray-0:#fff;  --gray-50:#fbfbfd; --gray-100:#f5f5f7; --gray-150:#eeeef1;
+  --gray-200:#e4e4e9; --gray-300:#d6d6dc; --gray-400:#b4b4bd; --gray-500:#8a8a93;
+  --gray-600:#6b6b73; --gray-700:#48484e; --gray-800:#2b2b30; --gray-900:#1c1c1f; --gray-950:#0c0c0e;
+
+  --purple:#7c3aed; --purple-700:#6d28d9; --purple-300:#c4b5fd;
+  --blue:#38bdf8;   --blue-600:#0ea5e9; --indigo:#5b54e6;
+  --grad:linear-gradient(135deg,#7c3aed 0%,#38bdf8 100%);
+  --grad-vivid:linear-gradient(135deg,#8b46f0 0%,#4aa9f5 100%);
+  --grad-soft:linear-gradient(135deg,rgba(124,58,237,.14),rgba(56,189,248,.14));
+
+  --green:#2fb457; --amber:#f59e0b; --red:#ff453a; --sky:#0a84ff;
+
+  --glass-thin:rgba(255,255,255,.60);
+  --glass:rgba(255,255,255,.72);
+  --glass-thick:rgba(255,255,255,.86);
+  --glass-chrome:rgba(250,250,252,.70);
+  --edge-light:rgba(255,255,255,.70);
+  --inner-glow:inset 0 1px 0 rgba(255,255,255,.65), inset 0 -1px 0 rgba(0,0,0,.04);
+
+  --text-1:var(--gray-900); --text-2:var(--gray-600); --text-3:var(--gray-500);
+  --border:var(--gray-300); --hairline:var(--gray-200); --sep:rgba(0,0,0,.07);
+  --accent:var(--purple); --accent-tint:rgba(124,58,237,.10); --ring:rgba(124,58,237,.40);
+
+  --canvas:#f4f5f8;
+  --shadow-sm:0 2px 8px rgba(16,18,32,.06);
+  --shadow:0 16px 40px rgba(16,18,32,.12);
+  --shadow-lg:0 40px 90px rgba(16,18,32,.18);
+  --shadow-accent:0 14px 38px rgba(124,58,237,.34);
+
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+
+  --maxw:1200px;
+  --r-ctl:14px; --r-card:18px; --r-panel:24px; --r-hero:32px;
+}
+
+/* ---------- Reset ---------- */
+body.mkt, body.mkt *{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body.mkt{
+  font-family:Georgia,"Times New Roman",Times,serif;
+  color:var(--text-1);
+  background:var(--canvas);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  font-feature-settings:"ss01","cv01";
+  overflow-x:hidden;
+}
+body.mkt img{display:block;max-width:100%}
+body.mkt a{color:inherit;text-decoration:none}
+body.mkt button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+body.mkt :focus-visible{outline:3px solid var(--ring);outline-offset:2px;border-radius:6px}
+body.mkt ::selection{background:rgba(124,58,237,.18)}
+
+/* ---------- Restore UA element defaults stripped by the dashboard's Tailwind
+   Preflight, so the marketing subtree renders exactly like the standalone site
+   (which shipped without Tailwind). Declared here, before component rules, so
+   explicit classes (.h1/.h2/.h3, .prose h2, .blog-card h2, .foot-col h4, the
+   list-style:none lists, etc.) keep winning by specificity / source order. */
+body.mkt h1{font-size:2em}
+body.mkt h2{font-size:1.5em}
+body.mkt h3{font-size:1.17em}
+body.mkt h4{font-size:1em}
+body.mkt h5{font-size:.83em}
+body.mkt h6{font-size:.67em}
+body.mkt h1,body.mkt h2,body.mkt h3,body.mkt h4,body.mkt h5,body.mkt h6{font-weight:bold}
+body.mkt ul{list-style:disc}
+body.mkt ol{list-style:decimal}
+body.mkt svg{display:inline;vertical-align:baseline}
+
+/* Cool mesh atmosphere behind everything */
+body.mkt::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(900px 620px at 10% -8%, var(--glow-a), transparent 60%),
+    radial-gradient(820px 600px at 100% -4%, var(--glow-b), transparent 55%),
+    radial-gradient(760px 760px at 62% 112%, var(--glow-c), transparent 60%),
+    var(--canvas);
+}
+
+/* ---------- Type scale ---------- */
+body.mkt .eyebrow{
+  font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);display:inline-flex;align-items:center;gap:8px;
+}
+body.mkt h1,body.mkt h2,body.mkt h3{letter-spacing:-.02em;line-height:1.05;font-weight:700;color:var(--text-1);text-wrap:balance}
+body.mkt .display{font-size:clamp(40px,6.4vw,76px);letter-spacing:-.03em;line-height:1.02}
+body.mkt .h2{font-size:clamp(30px,4.2vw,50px);letter-spacing:-.025em}
+body.mkt .h3{font-size:clamp(20px,2.4vw,26px);letter-spacing:-.02em}
+body.mkt .lead{font-size:clamp(17px,1.7vw,21px);color:var(--text-2);line-height:1.55;text-wrap:pretty}
+body.mkt .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+body.mkt .tnum{font-variant-numeric:tabular-nums}
+
+/* ---------- Layout ---------- */
+body.mkt .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+body.mkt section{position:relative}
+body.mkt .section-pad{padding:clamp(72px,11vw,140px) 0}
+body.mkt .center{text-align:center}
+body.mkt .sec-head{max-width:740px;margin:0 auto clamp(40px,5vw,64px)}
+body.mkt .sec-head.center{margin-inline:auto}
+body.mkt .sec-head .lead{margin-top:18px}
+
+/* ---------- Glass surfaces ---------- */
+body.mkt .glass{
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid var(--edge-light);
+  box-shadow:var(--shadow),var(--inner-glow);
+}
+body.mkt .glass-thin{
+  background:var(--glass-thin);
+  -webkit-backdrop-filter:blur(14px) saturate(170%);
+  backdrop-filter:blur(14px) saturate(170%);
+  border:1px solid var(--edge-light);
+  box-shadow:var(--shadow-sm),var(--inner-glow);
+}
+
+/* ---------- Buttons ---------- */
+body.mkt .btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-weight:600;font-size:15px;letter-spacing:-.01em;
+  padding:0 22px;height:48px;border-radius:999px;
+  transition:transform .18s var(--ease-spring),box-shadow .24s var(--ease-out),background .2s;
+  white-space:nowrap;
+}
+body.mkt .btn svg{width:18px;height:18px}
+body.mkt .btn:active{transform:scale(.97)}
+body.mkt .btn-primary{background:var(--grad-vivid);color:#fff;box-shadow:var(--shadow-accent)}
+body.mkt .btn-primary:hover{box-shadow:0 18px 46px rgba(124,58,237,.46);transform:translateY(-1px)}
+body.mkt .btn-ghost{
+  background:var(--glass-thick);color:var(--text-1);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid var(--edge-light);box-shadow:var(--shadow-sm),var(--inner-glow);
+}
+body.mkt .btn-ghost:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+body.mkt .btn-lg{height:56px;font-size:16px;padding:0 30px}
+body.mkt .btn-sm{height:40px;font-size:14px;padding:0 18px}
+
+/* ---------- Nav ---------- */
+body.mkt .nav{
+  position:fixed;top:14px;left:0;right:0;z-index:100;
+  display:flex;justify-content:center;padding:0 16px;
+  transition:top .3s var(--ease-out);
+}
+body.mkt .nav-inner{
+  width:100%;max-width:var(--maxw);
+  display:flex;align-items:center;gap:18px;
+  height:62px;padding:0 12px 0 18px;border-radius:999px;
+  background:var(--glass-chrome);
+  -webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);
+  border:1px solid var(--edge-light);
+  box-shadow:0 8px 30px rgba(16,18,32,.10),var(--inner-glow);
+  transition:box-shadow .3s,border-color .3s;
+}
+body.mkt .nav.scrolled .nav-inner{box-shadow:0 12px 40px rgba(16,18,32,.16),var(--inner-glow)}
+body.mkt .brand{display:flex;align-items:center;gap:0;font-weight:700;font-size:19px;letter-spacing:-.02em}
+body.mkt .brand img{height:56px;width:auto;margin-right:-18px}
+body.mkt .nav-links{display:flex;gap:4px;margin-left:8px}
+body.mkt .nav-links a{
+  font-size:14.5px;font-weight:500;color:var(--text-2);padding:9px 14px;border-radius:999px;
+  transition:color .2s,background .2s;
+}
+body.mkt .nav-links a:hover{color:var(--text-1);background:rgba(0,0,0,.04)}
+body.mkt .nav-cta{margin-left:auto;display:flex;align-items:center;gap:8px}
+body.mkt .nav-toggle{display:none;width:42px;height:42px;border-radius:12px;align-items:center;justify-content:center}
+body.mkt .nav-toggle svg{width:22px;height:22px}
+
+/* ---------- Hero ---------- */
+body.mkt .hero{padding:140px 0 60px}
+body.mkt .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* globe-led hero */
+body.mkt .hero-globe{display:grid;grid-template-columns:1.04fr .96fr;gap:clamp(28px,4vw,56px);align-items:center}
+body.mkt .hero-globe .hero-copy{text-align:left;margin:0;max-width:none}
+body.mkt .hero-globe .display{margin:18px 0 6px}
+body.mkt .hero-globe .lead{margin:18px 0 0;max-width:560px}
+body.mkt .hero-globe .hero-actions{justify-content:flex-start}
+body.mkt .hero-globe .flap-board{justify-content:flex-start}
+body.mkt .hero-globe-stage{display:flex;justify-content:center}
+@media (max-width:960px){
+  body.mkt .hero-globe{grid-template-columns:1fr;gap:30px;text-align:center}
+  body.mkt .hero-globe .hero-copy{text-align:center}
+  body.mkt .hero-globe .hero-actions,body.mkt .hero-globe .flap-board,body.mkt .hero-globe .globe-stat{justify-content:center}
+  body.mkt .hero-globe-stage{order:-1}
+  body.mkt .hero-globe .globe-stage{max-width:380px}
+}
+body.mkt .hero-grid{display:grid;gap:clamp(36px,5vw,60px);align-items:center}
+body.mkt .hero-copy{max-width:680px;margin:0 auto;text-align:center}
+body.mkt .hero-copy .display{margin:20px 0}
+body.mkt .hero-copy .lead{max-width:600px;margin:0 auto}
+body.mkt .hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:30px}
+body.mkt .hero-trust{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:26px;color:var(--text-3);font-size:13.5px}
+body.mkt .hero-trust span{display:inline-flex;align-items:center;gap:7px}
+body.mkt .hero-trust svg{width:15px;height:15px;color:var(--green)}
+
+body.mkt .chip{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:7px 15px 7px 11px;border-radius:999px;font-size:13px;font-weight:500;color:var(--text-2);
+  background:var(--glass-thick);
+  -webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);
+  border:1px solid var(--edge-light);box-shadow:var(--shadow-sm),var(--inner-glow);
+}
+body.mkt .chip .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(47,180,87,.18)}
+body.mkt .chip b{color:var(--text-1);font-weight:600}
+
+/* Hero product shot */
+body.mkt .shot-stage{position:relative;margin-top:clamp(40px,6vw,72px);display:flex;justify-content:center}
+body.mkt .browser{
+  width:100%;max-width:1080px;border-radius:var(--r-hero);overflow:hidden;
+  background:var(--glass-thick);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
+  border:1px solid var(--edge-light);
+  box-shadow:var(--shadow-lg),var(--inner-glow);
+}
+body.mkt .browser-bar{display:flex;align-items:center;gap:8px;padding:13px 18px;border-bottom:1px solid var(--sep)}
+body.mkt .browser-bar .tl{display:flex;gap:7px}
+body.mkt .browser-bar .tl i{width:11px;height:11px;border-radius:50%;background:var(--gray-300)}
+body.mkt .browser-bar .tl i:nth-child(1){background:#ff5f57}
+body.mkt .browser-bar .tl i:nth-child(2){background:#febc2e}
+body.mkt .browser-bar .tl i:nth-child(3){background:#28c840}
+body.mkt .browser-bar .url{
+  margin:0 auto;font-size:12.5px;color:var(--text-3);background:rgba(0,0,0,.04);
+  padding:5px 16px;border-radius:8px;display:flex;align-items:center;gap:7px;max-width:60%;
+}
+body.mkt .browser-bar .url svg{width:12px;height:12px}
+body.mkt .browser img{width:100%;display:block}
+body.mkt .shot-float{
+  position:absolute;z-index:3;
+  padding:12px 16px;border-radius:16px;
+  background:var(--glass-thick);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
+  border:1px solid var(--edge-light);box-shadow:var(--shadow),var(--inner-glow);
+  display:flex;align-items:center;gap:11px;
+}
+body.mkt .shot-float .ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--grad);color:#fff}
+body.mkt .shot-float .ico svg{width:18px;height:18px}
+body.mkt .shot-float small{display:block;font-size:11px;color:var(--text-3);font-weight:500}
+body.mkt .shot-float strong{display:block;font-size:16px;letter-spacing:-.01em}
+body.mkt .fl-1{left:-10px;top:24%}
+body.mkt .fl-2{right:-14px;bottom:18%}
+
+/* product showcase — capped frame + auto-rotating tabs */
+body.mkt #product .shot-stage{flex-direction:column;align-items:center;gap:24px;margin-top:clamp(36px,5vw,56px)}
+body.mkt .browser-wrap{position:relative;width:100%;max-width:660px;display:flex;justify-content:center}
+body.mkt #product .browser{width:100%;max-width:660px}
+body.mkt .shot-view{position:relative;width:100%;aspect-ratio:2276/1980;background:var(--gray-50);overflow:hidden}
+body.mkt .shot-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;opacity:0;transform:scale(1.012);transition:opacity .6s var(--ease-out),transform .8s var(--ease-out)}
+body.mkt .shot-img.is-on{opacity:1;transform:none}
+body.mkt .shot-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+body.mkt .shot-tab{display:inline-flex;align-items:center;gap:9px;height:42px;padding:0 18px;border-radius:999px;font-weight:600;font-size:14.5px;color:var(--text-2);
+  background:var(--glass-thin);-webkit-backdrop-filter:blur(14px) saturate(170%);backdrop-filter:blur(14px) saturate(170%);
+  border:1px solid var(--edge-light);box-shadow:var(--shadow-sm),var(--inner-glow);
+  transition:transform .25s var(--ease-spring),color .25s,box-shadow .25s,background .25s}
+body.mkt .shot-tab:hover{transform:translateY(-2px);color:var(--text-1)}
+body.mkt .shot-tab .st-i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;
+  background:rgba(0,0,0,.06);color:var(--text-3);transition:background .25s,color .25s}
+body.mkt .shot-tab.is-on{color:#fff;background:var(--grad-vivid);border-color:transparent;box-shadow:var(--shadow-accent)}
+body.mkt .shot-tab.is-on .st-i{background:rgba(255,255,255,.28);color:#fff}
+
+/* logo strip */
+body.mkt .logos{margin-top:clamp(50px,6vw,76px);text-align:center}
+body.mkt .logos p{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);font-weight:600}
+body.mkt .logos-row{display:flex;gap:clamp(26px,5vw,56px);justify-content:center;align-items:center;flex-wrap:wrap;margin-top:22px;opacity:.62}
+body.mkt .logos-row span{font-size:clamp(16px,2vw,22px);font-weight:700;letter-spacing:-.02em;color:var(--gray-700)}
+
+/* ---------- How it works ---------- */
+body.mkt .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;counter-reset:step}
+body.mkt .step{
+  position:relative;padding:30px;border-radius:var(--r-panel);counter-increment:step;
+}
+body.mkt .step .num{
+  font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.04em;
+  display:flex;align-items:center;gap:10px;margin-bottom:18px;
+}
+body.mkt .step .num::before{content:"0" counter(step);font-variant-numeric:tabular-nums}
+body.mkt .step .num .line{flex:1;height:1px;background:linear-gradient(90deg,var(--accent-tint),transparent)}
+body.mkt .step .s-ico{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;background:var(--grad-soft);color:var(--accent);margin-bottom:16px}
+body.mkt .step .s-ico svg{width:23px;height:23px}
+body.mkt .step h3{margin-bottom:8px}
+body.mkt .step p{color:var(--text-2);font-size:15px}
+
+/* ---------- Audiences ---------- */
+body.mkt .aud-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+body.mkt .aud{
+  position:relative;padding:32px;border-radius:var(--r-panel);overflow:hidden;
+  transition:transform .35s var(--ease-out),box-shadow .35s var(--ease-out);
+}
+body.mkt .aud:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg),var(--inner-glow)}
+body.mkt .aud::after{content:"";position:absolute;inset:0;border-radius:inherit;opacity:0;transition:opacity .35s;
+  background:radial-gradient(420px 300px at 50% -10%,var(--accent-tint),transparent 70%);pointer-events:none}
+body.mkt .aud:hover::after{opacity:1}
+body.mkt .aud .a-ico{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;color:#fff;margin-bottom:20px;box-shadow:var(--shadow-sm)}
+body.mkt .aud .a-ico svg{width:26px;height:26px}
+body.mkt .aud h3{margin-bottom:10px}
+body.mkt .aud p{color:var(--text-2);font-size:15px;margin-bottom:20px}
+body.mkt .aud ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+body.mkt .aud li{display:flex;gap:11px;font-size:14.5px;color:var(--text-1);align-items:flex-start}
+body.mkt .aud li svg{width:17px;height:17px;color:var(--accent);flex:none;margin-top:2px}
+body.mkt .aud .tag{position:relative;z-index:1;display:inline-block;margin-bottom:18px;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--text-3);text-transform:uppercase}
+
+/* ---------- Globe ---------- */
+body.mkt .globe-sec{overflow:hidden}
+body.mkt .globe-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,5vw,64px);align-items:center}
+body.mkt .globe-stage{position:relative;aspect-ratio:1;max-width:560px;width:100%;margin:0 auto}
+body.mkt #globe{width:100%;height:100%;display:block}
+body.mkt .globe-stat{display:flex;gap:30px;margin-top:30px;flex-wrap:wrap}
+body.mkt .globe-stat .gs{}
+body.mkt .globe-stat .gs b{display:block;font-size:clamp(28px,3.4vw,40px);font-weight:700;letter-spacing:-.02em;line-height:1}
+body.mkt .globe-stat .gs span{font-size:13.5px;color:var(--text-2)}
+
+/* ---------- Live demo ---------- */
+body.mkt .demo-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:18px;align-items:stretch}
+body.mkt .demo-pane{border-radius:var(--r-panel);overflow:hidden;display:flex;flex-direction:column;min-height:0}
+body.mkt .demo-pane .ph{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--sep)}
+body.mkt .demo-pane .ph .ttl{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)}
+body.mkt .demo-body{padding:22px;flex:1}
+body.mkt .insert-row{display:flex;gap:8px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+body.mkt .insert-row .lbl{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);font-weight:600;margin-right:4px}
+body.mkt .var-chip{
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--purple-700);
+  padding:6px 11px;border-radius:9px;background:var(--accent-tint);border:1px solid rgba(124,58,237,.16);
+}
+body.mkt .compose{font-size:15.5px;line-height:1.7;color:var(--text-1);min-height:200px}
+body.mkt .compose .v{color:var(--purple-700);font-weight:600;background:var(--accent-tint);padding:1px 5px;border-radius:6px}
+body.mkt .caret{display:inline-block;width:2px;height:1.05em;background:var(--accent);vertical-align:-3px;margin-left:1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+body.mkt .demo-foot{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-top:1px solid var(--sep);font-size:13px;color:var(--text-3)}
+
+/* preview card */
+body.mkt .preview-card{margin:22px;border-radius:var(--r-card);padding:22px;background:var(--gray-50);border:1px solid var(--hairline);flex:1}
+body.mkt .pv-head{display:flex;gap:13px;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--sep);margin-bottom:16px}
+body.mkt .pv-av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:15px;flex:none}
+body.mkt .pv-head .nm{font-weight:600;font-size:16px}
+body.mkt .pv-head .ro{font-size:13.5px;color:var(--text-2)}
+body.mkt .pv-sub{font-weight:700;font-size:16px;margin-bottom:12px;letter-spacing:-.01em}
+body.mkt .pv-body{font-size:14.5px;color:var(--text-1);line-height:1.6;white-space:pre-line}
+body.mkt .recip-row{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+body.mkt .recip{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 7px;border-radius:999px;background:var(--gray-50);border:1px solid var(--hairline);font-size:13px;font-weight:500;transition:all .3s var(--ease-out);cursor:default}
+body.mkt .recip.active{background:var(--accent-tint);border-color:rgba(124,58,237,.24);color:var(--purple-700)}
+body.mkt .recip .mini{width:22px;height:22px;border-radius:50%;color:#fff;display:grid;place-items:center;font-size:10px;font-weight:700}
+
+/* ---------- Pricing ---------- */
+body.mkt .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+body.mkt .price{position:relative;display:flex;flex-direction:column;padding:32px 28px;border-radius:var(--r-panel)}
+body.mkt .price.feat{border:1px solid rgba(124,58,237,.3);box-shadow:0 30px 70px rgba(124,58,237,.20),var(--inner-glow)}
+body.mkt .price .badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--grad-vivid);color:#fff;font-size:11.5px;font-weight:600;letter-spacing:.04em;padding:6px 14px;border-radius:999px;box-shadow:var(--shadow-accent)}
+body.mkt .price .pname{font-size:14px;font-weight:600;letter-spacing:.02em;color:var(--text-2);text-transform:uppercase}
+body.mkt .price .pamt{display:flex;align-items:baseline;gap:6px;margin:16px 0 4px}
+body.mkt .price .pamt b{font-size:46px;font-weight:700;letter-spacing:-.03em}
+body.mkt .price .pamt span{color:var(--text-3);font-size:15px}
+body.mkt .price .pdesc{color:var(--text-2);font-size:14.5px;min-height:42px;margin-bottom:22px}
+body.mkt .price .btn{width:100%}
+body.mkt .price ul{list-style:none;display:flex;flex-direction:column;gap:13px;margin-top:24px}
+body.mkt .price li{display:flex;gap:11px;font-size:14.5px;align-items:flex-start}
+body.mkt .price li svg{width:17px;height:17px;color:var(--accent);flex:none;margin-top:2px}
+body.mkt .price li.off{color:var(--text-3)}
+body.mkt .price li.off svg{color:var(--gray-400)}
+
+/* ---------- Final CTA ---------- */
+body.mkt .cta-panel{
+  position:relative;overflow:hidden;border-radius:var(--r-hero);text-align:center;
+  padding:clamp(48px,7vw,88px) 24px;
+  background:linear-gradient(135deg,rgba(124,58,237,.10),rgba(56,189,248,.12)),var(--glass-thick);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
+  border:1px solid var(--edge-light);box-shadow:var(--shadow-lg),var(--inner-glow);
+}
+body.mkt .cta-panel::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(600px 300px at 50% -20%,rgba(124,58,237,.22),transparent 70%)}
+body.mkt .cta-panel>*{position:relative;z-index:1}
+body.mkt .cta-panel .lead{margin:18px auto 0;max-width:540px}
+body.mkt .cta-panel .hero-actions{margin-top:32px}
+
+/* ---------- Footer ---------- */
+body.mkt .footer{padding:60px 0 40px;border-top:1px solid var(--sep);margin-top:20px}
+body.mkt .foot-grid{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap;align-items:flex-start}
+body.mkt .foot-brand{max-width:280px}
+body.mkt .foot-brand .brand{margin-bottom:14px}
+body.mkt .foot-brand p{color:var(--text-2);font-size:14px}
+body.mkt .foot-cols{display:flex;gap:clamp(36px,6vw,72px);flex-wrap:wrap}
+body.mkt .foot-col h4{font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:14px;font-weight:600}
+body.mkt .foot-col a{display:block;color:var(--text-2);font-size:14.5px;padding:5px 0;transition:color .2s}
+body.mkt .foot-col a:hover{color:var(--accent)}
+body.mkt .foot-bottom{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:48px;padding-top:24px;border-top:1px solid var(--sep);color:var(--text-3);font-size:13px}
+body.mkt .foot-bottom .priv{display:inline-flex;align-items:center;gap:7px}
+body.mkt .foot-bottom .priv svg{width:14px;height:14px;color:var(--green)}
+
+/* ---------- Scroll reveal ---------- */
+body.mkt .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s var(--ease-out),transform .7s var(--ease-out)}
+body.mkt .reveal.in{opacity:1;transform:none}
+body.mkt .reveal.d1{transition-delay:.08s}body.mkt .reveal.d2{transition-delay:.16s}body.mkt .reveal.d3{transition-delay:.24s}
+@media (prefers-reduced-motion:reduce){
+  body.mkt .reveal{opacity:1;transform:none;transition:none}
+  body.mkt .caret{animation:none}
+  body.mkt, body.mkt *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width:960px){
+  body.mkt .nav-links{display:none}
+  body.mkt .nav-toggle{display:flex}
+  body.mkt .globe-grid{grid-template-columns:1fr;gap:36px}
+  body.mkt .globe-stage{max-width:420px}
+  body.mkt .demo-grid{grid-template-columns:1fr}
+  body.mkt .steps{grid-template-columns:1fr;gap:16px}
+  body.mkt .aud-grid{grid-template-columns:1fr}
+  body.mkt .price-grid{grid-template-columns:1fr;max-width:460px;margin:0 auto}
+  body.mkt .price.feat{order:-1}
+  body.mkt .fl-1{left:-4px;top:auto;bottom:-18px}
+  body.mkt .fl-2{right:-6px;bottom:auto;top:-18px}
+}
+@media (max-width:560px){
+  body.mkt .wrap{padding:0 18px}
+  body.mkt .hero{padding:118px 0 40px}
+  body.mkt .hero-actions .btn{width:100%}
+  body.mkt .browser-bar .url{display:none}
+  body.mkt .shot-float{display:none}
+  body.mkt .nav{top:8px}
+  body.mkt .nav-inner{height:58px}
+  body.mkt .globe-stat{gap:22px}
+}
+
+/* mobile menu */
+body.mkt .mobile-menu{
+  position:fixed;inset:0;z-index:99;display:flex;flex-direction:column;
+  padding:90px 24px 40px;gap:6px;
+  background:var(--glass-thick);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
+  opacity:0;visibility:hidden;transform:translateY(-12px);
+  transition:opacity .3s,transform .3s,visibility .3s;
+}
+body.mkt .mobile-menu.open{opacity:1;visibility:visible;transform:none}
+body.mkt .mobile-menu a{font-size:22px;font-weight:600;padding:14px 4px;border-bottom:1px solid var(--sep)}
+body.mkt .mobile-menu .btn{margin-top:20px}
+
+/* ============================================================
+   PALETTE ENGINE  — default: LinkedIn-style azure on warm sand.
+   Tweaks panel sets body[data-palette] / [data-frost] / [data-energy].
+   ============================================================ */
+body.mkt{
+  --purple:#2d6ae0; --purple-700:#2459c4; --purple-300:#9cc2f5;
+  --blue:#38bdf8;  --blue-600:#0ea5e9; --indigo:#3f7fe6;
+  --grad:linear-gradient(135deg,#2d6ae0 0%,#38bdf8 100%);
+  --grad-vivid:linear-gradient(135deg,#3b78f0 0%,#4ec0f7 100%);
+  --grad-soft:linear-gradient(135deg,rgba(45,106,224,.14),rgba(56,189,248,.14));
+  --accent-tint:rgba(45,106,224,.10); --ring:rgba(45,106,224,.38);
+  --canvas:#f1efe9;
+  --glow-a:rgba(214,188,140,.22);   /* warm sand bloom */
+  --glow-b:rgba(45,106,224,.16);    /* azure bloom */
+  --glow-c:rgba(120,150,210,.10);
+  --flap-ink:#1a2230;               /* split-flap cell */
+  --anim-scale:1;                   /* energy: duration multiplier */
+}
+body.mkt[data-palette="sand"]{
+  --purple:#b07d2e; --purple-700:#8a5f1f; --purple-300:#e2c98f;
+  --blue:#d9a441; --blue-600:#c08a3a; --indigo:#c08a3a;
+  --grad:linear-gradient(135deg,#a9762f,#d9a441);
+  --grad-vivid:linear-gradient(135deg,#b9842f,#e6b454);
+  --grad-soft:linear-gradient(135deg,rgba(176,125,46,.16),rgba(217,164,65,.16));
+  --accent-tint:rgba(176,125,46,.12); --ring:rgba(176,125,46,.40);
+  --canvas:#efe8db;
+  --glow-a:rgba(217,180,110,.28); --glow-b:rgba(176,125,46,.16); --glow-c:rgba(150,120,70,.10);
+  --flap-ink:#2a2114;
+}
+body.mkt[data-palette="green"]{
+  --purple:#1f8a5b; --purple-700:#16704a; --purple-300:#9ad9bd;
+  --blue:#34d399; --blue-600:#10b981; --indigo:#1fa06a;
+  --grad:linear-gradient(135deg,#1f8a5b,#34d399);
+  --grad-vivid:linear-gradient(135deg,#1f9a64,#46e0a8);
+  --grad-soft:linear-gradient(135deg,rgba(31,138,91,.14),rgba(52,211,153,.14));
+  --accent-tint:rgba(31,138,91,.10); --ring:rgba(31,138,91,.38);
+  --canvas:#edf1ec;
+  --glow-a:rgba(180,212,180,.22); --glow-b:rgba(31,138,91,.16); --glow-c:rgba(52,211,153,.10);
+  --flap-ink:#10241b;
+}
+body.mkt[data-palette="violet"]{
+  --purple:#7c3aed; --purple-700:#6d28d9; --purple-300:#c4b5fd;
+  --blue:#38bdf8; --blue-600:#0ea5e9; --indigo:#5b54e6;
+  --grad:linear-gradient(135deg,#7c3aed,#38bdf8);
+  --grad-vivid:linear-gradient(135deg,#8b46f0,#4aa9f5);
+  --grad-soft:linear-gradient(135deg,rgba(124,58,237,.14),rgba(56,189,248,.14));
+  --accent-tint:rgba(124,58,237,.10); --ring:rgba(124,58,237,.40);
+  --canvas:#eef0f6;
+  --glow-a:rgba(124,58,237,.14); --glow-b:rgba(56,189,248,.16); --glow-c:rgba(91,84,230,.10);
+  --flap-ink:#1a1830;
+}
+
+/* Frost — glass material weight */
+body.mkt[data-frost="clear"]{
+  --glass:rgba(255,255,255,.52); --glass-thin:rgba(255,255,255,.40);
+  --glass-thick:rgba(255,255,255,.70); --glass-chrome:rgba(252,252,254,.50);
+}
+body.mkt[data-frost="solid"]{
+  --glass:rgba(255,255,255,.95); --glass-thin:rgba(255,255,255,.92);
+  --glass-thick:rgba(255,255,255,.99); --glass-chrome:rgba(252,252,253,.97);
+}
+
+/* ============================================================
+   SPLIT-FLAP BOARD (Text Flipping Board)
+   ============================================================ */
+body.mkt .flap-board{display:inline-flex;gap:clamp(4px,.7vw,7px);flex-wrap:nowrap;justify-content:center;margin:6px 0}
+body.mkt .flap-cell{
+  position:relative;width:clamp(30px,5.6vw,64px);height:clamp(44px,8vw,88px);
+  border-radius:clamp(7px,1vw,11px);overflow:hidden;perspective:340px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--flap-ink) 82%,#3a4658),var(--flap-ink));
+  box-shadow:0 12px 26px rgba(16,18,32,.24),inset 0 1px 0 rgba(255,255,255,.10),inset 0 -8px 16px rgba(0,0,0,.28);
+}
+body.mkt .flap-cell::after{content:"";position:absolute;left:0;right:0;top:50%;height:2px;transform:translateY(-1px);
+  background:rgba(0,0,0,.5);z-index:4;box-shadow:0 1px 0 rgba(255,255,255,.05)}
+body.mkt .flap-cell .ch{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-weight:700;
+  font-size:clamp(22px,4.2vw,50px);color:#fff;transform-origin:center top;backface-visibility:hidden;
+}
+body.mkt .flap-cell .ch.is-flap{animation:flapDrop .17s cubic-bezier(.3,.8,.4,1)}
+@keyframes flapDrop{0%{transform:rotateX(82deg);opacity:.25}60%{opacity:1}100%{transform:rotateX(0);opacity:1}}
+body.mkt .flap-cell.blank{background:linear-gradient(180deg,#0f1620,#0b1119);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),inset 0 -6px 14px rgba(0,0,0,.3)}
+
+/* ============================================================
+   DOTTED GLOW (hero background)
+   ============================================================ */
+body.mkt .dotglow{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+body.mkt .dotglow canvas{width:100%;height:100%;display:block}
+body.mkt .hero{position:relative;z-index:1}
+body.mkt .hero .wrap{position:relative;z-index:2}
+
+/* ============================================================
+   LOGO CLOUD (works-on) + AUDIENCE CLOUD marquee
+   ============================================================ */
+body.mkt .cloud-sec{padding:14px 0 4px}
+body.mkt .cloud-label{text-align:center;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);font-weight:600;margin-bottom:22px}
+body.mkt .logo-cloud{display:flex;gap:clamp(10px,2.4vw,26px);justify-content:center;align-items:center;flex-wrap:wrap}
+body.mkt .logo-pill{
+  display:inline-flex;align-items:center;gap:12px;padding:11px 20px;border-radius:999px;
+  font-weight:600;font-size:clamp(15px,1.7vw,18px);color:var(--text-2);cursor:default;
+  background:var(--glass-thin);-webkit-backdrop-filter:blur(14px) saturate(170%);backdrop-filter:blur(14px) saturate(170%);
+  border:1px solid var(--edge-light);box-shadow:var(--shadow-sm),var(--inner-glow);
+  transition:transform .3s var(--ease-spring),color .3s,box-shadow .3s;
+}
+body.mkt .logo-pill:hover{transform:translateY(-4px);color:var(--text-1);box-shadow:var(--shadow)}
+body.mkt .logo-pill .mk{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;flex:none;filter:grayscale(.5) opacity(.85);transition:filter .35s,transform .35s var(--ease-spring)}
+body.mkt .logo-pill:hover .mk{filter:none;transform:scale(1.08) rotate(-4deg)}
+body.mkt .mk-li{background:#0a66c2}
+body.mkt .mk-sn{background:linear-gradient(135deg,#1283b8,#0a3d5c)}
+body.mkt .mk-cr{background:linear-gradient(135deg,#4285f4,#34a853)}
+
+body.mkt .aud-cloud{position:relative;overflow:hidden;margin-top:8px;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
+body.mkt .aud-cloud-track{display:flex;gap:14px;width:max-content;animation:marquee calc(34s * var(--anim-scale)) linear infinite}
+body.mkt .aud-cloud:hover .aud-cloud-track{animation-play-state:paused}
+@keyframes marquee{to{transform:translateX(-50%)}}
+body.mkt .cloud-chip{display:inline-flex;align-items:center;gap:9px;padding:11px 19px;border-radius:999px;white-space:nowrap;
+  font-weight:600;font-size:15px;color:var(--text-1);
+  background:var(--glass-thin);border:1px solid var(--edge-light);box-shadow:var(--shadow-sm),var(--inner-glow);
+  -webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%)}
+body.mkt .cloud-chip i{width:8px;height:8px;border-radius:50%;background:var(--grad);flex:none}
+
+/* ============================================================
+   WEBCAM PIXEL GRID
+   ============================================================ */
+body.mkt .webcam-stage{position:relative;border-radius:var(--r-hero);overflow:hidden;max-width:820px;margin:0 auto;
+  aspect-ratio:16/10;background:#0c1018;
+  border:1px solid var(--edge-light);box-shadow:var(--shadow-lg),var(--inner-glow)}
+body.mkt .webcam-stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+body.mkt .webcam-overlay{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;text-align:center;padding:24px;color:#fff;transition:opacity .4s,visibility .4s;
+  background:radial-gradient(120% 120% at 50% 40%,rgba(20,28,44,.35),rgba(8,11,18,.78))}
+body.mkt .webcam-overlay.hidden{opacity:0;visibility:hidden}
+body.mkt .webcam-overlay h3{color:#fff}
+body.mkt .webcam-overlay p{color:rgba(255,255,255,.7);max-width:380px;font-size:14.5px}
+body.mkt .webcam-badge{position:absolute;top:14px;left:14px;z-index:3;display:none;align-items:center;gap:8px;
+  padding:7px 13px;border-radius:999px;font-size:12.5px;font-weight:600;color:#fff;
+  background:rgba(12,16,24,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14)}
+body.mkt .webcam-badge.show{display:inline-flex}
+body.mkt .webcam-badge .rec{width:8px;height:8px;border-radius:50%;background:#ff453a;box-shadow:0 0 0 4px rgba(255,69,58,.25);animation:pulseRec calc(1.4s * var(--anim-scale)) ease-in-out infinite}
+@keyframes pulseRec{50%{opacity:.4}}
+body.mkt .webcam-stop{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:3;display:none}
+body.mkt .webcam-stop.show{display:inline-flex}
+body.mkt .webcam-note{text-align:center;margin-top:18px;color:var(--text-3);font-size:13px;display:inline-flex;align-items:center;gap:8px;justify-content:center;width:100%}
+body.mkt .webcam-note svg{width:14px;height:14px;color:var(--green)}
+
+/* ============================================================
+   TWEAKS PANEL (vanilla)
+   ============================================================ */
+body.mkt .twk{position:fixed;right:18px;bottom:18px;z-index:2147483646;width:272px;
+  display:none;flex-direction:column;border-radius:18px;overflow:hidden;
+  background:var(--glass-thick);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);
+  border:1px solid var(--edge-light);box-shadow:var(--shadow-lg),var(--inner-glow);
+  font-size:12px;color:var(--text-1)}
+body.mkt .twk.show{display:flex}
+body.mkt .twk-hd{display:flex;align-items:center;justify-content:space-between;padding:13px 12px 13px 16px;border-bottom:1px solid var(--sep)}
+body.mkt .twk-hd b{font-size:13px;font-weight:600;letter-spacing:-.01em}
+body.mkt .twk-hd .tag{font-size:10.5px;color:var(--text-3);font-weight:500}
+body.mkt .twk-x{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:var(--text-3)}
+body.mkt .twk-x:hover{background:rgba(0,0,0,.05);color:var(--text-1)}
+body.mkt .twk-bd{padding:14px 16px 16px;display:flex;flex-direction:column;gap:16px}
+body.mkt .twk-grp .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+body.mkt .twk-lbl span:first-child{font-weight:600;font-size:12px}
+body.mkt .twk-lbl span:last-child{font-size:11px;color:var(--text-3)}
+body.mkt .twk-seg{display:flex;padding:3px;gap:3px;border-radius:11px;background:rgba(0,0,0,.06)}
+body.mkt .twk-seg button{flex:1;border-radius:8px;padding:7px 4px;font-size:11.5px;font-weight:600;color:var(--text-2);transition:color .2s,background .2s,box-shadow .2s}
+body.mkt .twk-seg button.on{background:var(--gray-0);color:var(--text-1);box-shadow:var(--shadow-sm)}
+body.mkt .twk-sw{display:flex;gap:8px}
+body.mkt .twk-sw button{flex:1;height:38px;border-radius:10px;position:relative;border:1.5px solid transparent;transition:transform .2s var(--ease-spring),border-color .2s}
+body.mkt .twk-sw button:hover{transform:translateY(-2px)}
+body.mkt .twk-sw button.on{border-color:var(--text-1)}
+body.mkt .twk-sw button.on::after{content:"";position:absolute;inset:0;border-radius:8px;border:2px solid var(--gray-0)}
+body.mkt .twk-foot{padding:0 16px 14px}
+body.mkt .twk-reset{width:100%;height:34px;border-radius:10px;font-size:12px;font-weight:600;color:var(--text-2);background:rgba(0,0,0,.04)}
+body.mkt .twk-reset:hover{background:rgba(0,0,0,.07);color:var(--text-1)}
+
+/* energy-scaled looping anims */
+body.mkt .caret{animation:blink calc(1s * var(--anim-scale)) steps(1) infinite}
+
+/* on-page Tweaks launcher */
+body.mkt .twk-fab{position:fixed;right:18px;bottom:18px;z-index:2147483645;overflow:visible;
+  display:inline-flex;align-items:center;gap:9px;height:46px;padding:0 18px 0 16px;border-radius:999px;
+  font-weight:600;font-size:14px;color:#fff;background:var(--grad-vivid);
+  box-shadow:var(--shadow-accent),var(--inner-glow);
+  transition:transform .25s var(--ease-spring),box-shadow .25s,opacity .25s,visibility .25s}
+body.mkt .twk-fab:hover{transform:translateY(-2px);box-shadow:0 18px 46px rgba(45,106,224,.46)}
+body.mkt .twk-fab.hidden{opacity:0;visibility:hidden;transform:translateY(8px)}
+body.mkt .twk-fab .twk-fab-pulse{position:absolute;inset:0;border-radius:999px;pointer-events:none;
+  box-shadow:0 0 0 0 rgba(45,106,224,.45);animation:twkPulse calc(2.6s * var(--anim-scale)) ease-out infinite}
+@keyframes twkPulse{0%{box-shadow:0 0 0 0 rgba(45,106,224,.40)}70%,100%{box-shadow:0 0 0 14px rgba(45,106,224,0)}}
+@media (prefers-reduced-motion:reduce){body.mkt .twk-fab .twk-fab-pulse{animation:none}}
+@media (max-width:560px){
+  body.mkt .twk-fab{right:12px;bottom:12px;padding:0 14px}
+  body.mkt .twk-fab .twk-fab-tx{display:none}
+}
+
+@media (max-width:560px){
+  body.mkt .twk{right:10px;left:10px;bottom:10px;width:auto}
+  body.mkt .flap-cell{width:clamp(26px,8.4vw,40px);height:clamp(38px,12vw,58px)}
+  body.mkt .flap-cell .ch{font-size:clamp(18px,7vw,30px)}
+}
+
+/* ---------- Content pages (legal, support, blog) ---------- */
+body.mkt .content-page{padding-top:clamp(110px,14vw,150px);padding-bottom:clamp(60px,9vw,110px);min-height:60vh}
+body.mkt .prose{max-width:760px}
+body.mkt .prose .h1{font-size:clamp(30px,4.4vw,46px);line-height:1.08;letter-spacing:-.02em;margin:6px 0 10px}
+body.mkt .prose-meta{color:var(--text-3);font-size:14px;margin:0 0 28px}
+body.mkt .prose-meta a{color:var(--accent);font-weight:600}
+body.mkt .prose p{color:var(--text-2);font-size:16.5px;line-height:1.7;margin:0 0 18px}
+body.mkt .prose h2{font-size:clamp(21px,2.6vw,27px);letter-spacing:-.01em;color:var(--text-1);margin:38px 0 12px}
+body.mkt .prose h3{font-size:18px;color:var(--text-1);margin:26px 0 8px}
+body.mkt .prose ul{margin:0 0 18px;padding-left:22px}
+body.mkt .prose li{color:var(--text-2);font-size:16.5px;line-height:1.7;margin:0 0 8px}
+body.mkt .prose a{color:var(--accent);font-weight:600;text-decoration:none}
+body.mkt .prose a:hover{text-decoration:underline}
+body.mkt .prose code{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.88em;background:var(--grad-soft);padding:2px 7px;border-radius:6px;color:var(--purple-700)}
+body.mkt .prose .eyebrow{margin-bottom:6px}
+body.mkt .faq-item{margin:0 0 22px}
+body.mkt .faq-item h3{margin-bottom:6px}
+
+/* blog index */
+body.mkt .blog-list{margin-top:34px;display:grid;gap:8px}
+body.mkt .blog-card{padding:24px 0;border-top:1px solid var(--hairline)}
+body.mkt .blog-card h2{margin:6px 0 10px;font-size:clamp(20px,2.4vw,25px)}
+body.mkt .blog-card h2 a{color:var(--text-1);font-weight:700}
+body.mkt .blog-card h2 a:hover{color:var(--accent);text-decoration:none}
+body.mkt .blog-readmore{display:inline-block;margin-top:4px;font-size:14.5px}
+
+/* blog post extras */
+body.mkt .blog-cta{margin:44px 0 12px;padding:28px;border-radius:18px;background:var(--grad-soft);border:1px solid var(--edge-light)}
+body.mkt .blog-cta h2{margin:0 0 10px}
+body.mkt .blog-cta p{margin-bottom:18px}
+body.mkt .blog-related{margin-top:36px;padding-top:24px;border-top:1px solid var(--hairline)}
+body.mkt .blog-related ul{list-style:none;padding:0}
+body.mkt .blog-related li{margin:0 0 10px}
+body.mkt .blog-related a{font-size:16px}
+@media (max-width:640px){body.mkt .content-nav .nav-links{display:none}}
+
+/* ---------- Sound toggle (speaker) ---------- */
+body.mkt .sound-toggle{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;
+  background:var(--glass);border:1px solid var(--border);color:var(--text-2);position:relative;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transition:color .2s ease,background .2s ease,border-color .2s ease,transform .15s ease,box-shadow .2s ease}
+body.mkt .sound-toggle svg{width:18px;height:18px}
+body.mkt .sound-toggle:hover{color:var(--text-1);transform:translateY(-1px)}
+body.mkt .sound-toggle.on{color:#fff;background:var(--grad-vivid);border-color:transparent;box-shadow:var(--inner-glow)}
+body.mkt .sound-toggle.attn{animation:soundAttn 1.05s ease-in-out 3}
+@keyframes soundAttn{0%,100%{box-shadow:0 0 0 0 var(--ring)}50%{box-shadow:0 0 0 9px rgba(124,58,237,0)}}
+body.mkt .sound-toggle.ripple::after{content:"";position:absolute;inset:-4px;border-radius:50%;
+  border:2px solid var(--accent);animation:soundRipple .65s ease-out;pointer-events:none}
+@keyframes soundRipple{from{transform:scale(.8);opacity:.7}to{transform:scale(1.85);opacity:0}}
+@media (prefers-reduced-motion:reduce){body.mkt .sound-toggle.attn{animation:none}}
+
+/* ---------- Wobbling CTA icon (Add to Chrome) ---------- */
+body.mkt .cta-wobble{transform-origin:center;animation:ctaWobble 5s ease-in-out infinite}
+@keyframes ctaWobble{
+  0%{transform:rotate(0)}
+  4%{transform:rotate(-7deg)}
+  9%{transform:rotate(6deg)}
+  14%{transform:rotate(-4deg)}
+  19%{transform:rotate(2deg)}
+  23%{transform:rotate(0)}
+  100%{transform:rotate(0)}
+}
+@media (prefers-reduced-motion:reduce){body.mkt .cta-wobble{animation:none}}
+
+/* ---------- First-visit onboarding cursor ---------- */
+body.mkt .intro-cursor{position:fixed;top:0;left:0;z-index:2147483646;pointer-events:none;
+  margin:-3px 0 0 -3px;will-change:transform,opacity;filter:drop-shadow(0 2px 5px rgba(0,0,0,.32))}
+body.mkt .intro-cursor .ic-in{display:block}
+body.mkt .intro-cursor.tap .ic-in{animation:introTap .35s ease}
+@keyframes introTap{0%{transform:scale(1)}40%{transform:scale(.7)}100%{transform:scale(1)}}
+
+/* ============================================================
+   AUTH MODAL (sign in / sign up / reset) — web app entry point
+   ============================================================ */
+body.mkt .nav-signin{
+  height:38px;padding:0 16px;border-radius:999px;
+  font-size:14px;font-weight:600;color:var(--text-1);
+  background:transparent;border:1px solid var(--hairline);
+  transition:background .2s var(--ease-out),border-color .2s var(--ease-out),transform .2s var(--ease-out);
+}
+body.mkt .nav-signin:hover{background:var(--glass-thin);border-color:var(--border);transform:translateY(-1px)}
+
+body.mkt .auth-overlay{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  background:rgba(20,22,34,.34);
+  -webkit-backdrop-filter:blur(8px) saturate(120%);
+  backdrop-filter:blur(8px) saturate(120%);
+  animation:authFade .25s var(--ease-out);
+}
+body.mkt .auth-modal{
+  position:relative;width:clamp(340px,40%,460px);max-height:calc(100vh - 48px);overflow:auto;
+  background:var(--glass-thick);
+  border:1px solid var(--edge-light);
+  border-radius:var(--r-panel);
+  box-shadow:var(--shadow-lg),var(--inner-glow);
+  padding:30px 32px 26px;
+  animation:authPop .32s var(--ease-spring);
+}
+body.mkt .auth-close{
+  position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:999px;
+  display:flex;align-items:center;justify-content:center;color:var(--text-3);
+  background:transparent;transition:background .2s,color .2s;
+}
+body.mkt .auth-close:hover{background:var(--glass-thin);color:var(--text-1)}
+body.mkt .auth-close svg{display:block}
+
+body.mkt .auth-head{text-align:center;margin-bottom:16px}
+body.mkt .auth-brand{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:20px;letter-spacing:-.02em;color:var(--text-1);margin-bottom:10px}
+body.mkt .auth-brand img{height:30px;width:auto;display:block}
+body.mkt .auth-title{font-size:22px;letter-spacing:-.02em;font-weight:700;color:var(--text-1)}
+body.mkt .auth-sub{margin-top:4px;font-size:14.5px;color:var(--text-2)}
+
+body.mkt .auth-tabs{
+  display:flex;gap:4px;padding:4px;margin:0 0 16px;
+  background:var(--glass-thin);border:1px solid var(--hairline);border-radius:999px;
+}
+body.mkt .auth-tab{
+  flex:1;height:38px;border-radius:999px;font-size:14px;font-weight:600;color:var(--text-2);
+  transition:color .2s,background .2s,box-shadow .2s;
+}
+body.mkt .auth-tab.is-active{background:var(--gray-0);color:var(--text-1);box-shadow:var(--shadow-sm)}
+
+body.mkt .auth-form{display:flex;flex-direction:column;gap:13px}
+body.mkt .auth-field{display:flex;flex-direction:column;gap:6px}
+body.mkt .auth-field>span{font-size:13px;font-weight:600;color:var(--text-2)}
+body.mkt .auth-opt{font-style:normal;font-weight:500;color:var(--text-3)}
+body.mkt .auth-field input{
+  height:46px;padding:0 14px;border-radius:var(--r-ctl);
+  background:var(--gray-0);border:1px solid var(--border);
+  font-size:15px;color:var(--text-1);width:100%;
+  transition:border-color .2s,box-shadow .2s;
+}
+body.mkt .auth-field input::placeholder{color:var(--text-3)}
+body.mkt .auth-field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--ring)}
+body.mkt .auth-code{letter-spacing:.4em;font-weight:600;text-align:center}
+
+body.mkt .auth-submit{width:100%;margin-top:6px;justify-content:center}
+body.mkt .auth-submit:disabled{opacity:.65;cursor:default;transform:none}
+
+body.mkt .auth-link{
+  background:none;color:var(--accent);font-size:14px;font-weight:600;cursor:pointer;
+}
+body.mkt .auth-link:hover{text-decoration:underline}
+body.mkt .auth-link-right{align-self:flex-end;margin-top:-4px;font-size:13px}
+
+body.mkt .auth-foot{margin-top:18px;text-align:center;font-size:14px;color:var(--text-2)}
+
+body.mkt .auth-notice{
+  margin-bottom:14px;padding:10px 14px;border-radius:var(--r-ctl);font-size:13.5px;
+  background:var(--grad-soft);border:1px solid var(--hairline);color:var(--text-1);
+}
+body.mkt .auth-error{
+  margin-bottom:14px;padding:10px 14px;border-radius:var(--r-ctl);font-size:13.5px;
+  background:rgba(255,69,58,.10);border:1px solid rgba(255,69,58,.30);color:#c0271d;
+}
+
+@keyframes authFade{from{opacity:0}to{opacity:1}}
+@keyframes authPop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  body.mkt .auth-overlay,body.mkt .auth-modal{animation:none}
+}
+@media (max-width:560px){
+  body.mkt .auth-modal{width:100%;padding:26px 20px 20px}
+}
+
+/* Sign-in lives in the mobile menu on small screens, not the nav bar */
+body.mkt .mobile-signin{width:100%;height:50px;margin-top:8px}
+@media (max-width:960px){
+  body.mkt .nav .nav-signin{display:none}
+}
