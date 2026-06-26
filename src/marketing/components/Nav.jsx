@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Button from "./Button.jsx";
 import SoundToggle from "./SoundToggle.jsx";
 import { MenuIcon } from "../icons.jsx";
 import { useAuthModal } from "../auth/AuthModalContext.jsx";
+import { useAuth } from "src/hooks/useAuth";
 
 const LINKS = [
   { href: "#product", label: "Product" },
@@ -14,6 +16,7 @@ const LINKS = [
 export default function Nav({ menuOpen, onToggleMenu }) {
   const [scrolled, setScrolled] = useState(false);
   const { openAuth } = useAuthModal();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     function onScroll() {
@@ -38,8 +41,14 @@ export default function Nav({ menuOpen, onToggleMenu }) {
         </div>
         <div className="nav-cta">
           <SoundToggle />
-          <button type="button" className="nav-signin" onClick={() => openAuth("signin")}>Sign in</button>
-<Button variant="primary" size="sm" magnetic href="https://chromewebstore.google.com/detail/dcohpfeaohfiiinjjiinojlbnnfmihoh?utm_source=item-share-cb" target="_blank" rel="noopener">Start free</Button>
+          {!loading && (user ? (
+            <Link to="/dashboard" className="nav-signin">Dashboard</Link>
+          ) : (
+            <button type="button" className="nav-signin" onClick={() => openAuth("signin")}>Sign in</button>
+          ))}
+          {!loading && !user && (
+            <Button variant="primary" size="sm" magnetic href="https://chromewebstore.google.com/detail/dcohpfeaohfiiinjjiinojlbnnfmihoh?utm_source=item-share-cb" target="_blank" rel="noopener">Start free</Button>
+          )}
           <button className="nav-toggle" aria-label="Open menu" aria-expanded={menuOpen ? "true" : "false"} onClick={onToggleMenu}>
             <MenuIcon />
           </button>

@@ -94,6 +94,7 @@ export function DashboardLayout({ children, title, subtitle }) {
 
         {/* Bottom actions */}
         <div className="px-3 pb-4 flex flex-col gap-1 border-t border-[var(--separator)] pt-3">
+          {/* Settings — temporarily hidden
           <button
             onClick={() => navigate('/dashboard/settings')}
             className="flex items-center gap-3 h-10 px-3 rounded-[12px] text-[14px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-all"
@@ -103,6 +104,7 @@ export function DashboardLayout({ children, title, subtitle }) {
             </span>
             {isExpanded && <span>Settings</span>}
           </button>
+          */}
 
           {/* User avatar row */}
           <div className="flex items-center gap-2.5 h-12 px-2 mt-1">
@@ -149,12 +151,14 @@ export function DashboardLayout({ children, title, subtitle }) {
             )}
           </div>
           <div className="flex items-center gap-3">
-            <button className="text-[13px] font-semibold text-[var(--brand-purple)] hover:text-[var(--brand-purple-700)] transition-colors">
+            <a
+              href="https://chromewebstore.google.com/detail/dcohpfeaohfiiinjjiinojlbnnfmihoh?utm_source=item-share-cb"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[13px] font-semibold text-[var(--brand-purple)] hover:text-[var(--brand-purple-700)] transition-colors"
+            >
               Add to Chrome
-            </button>
-            <button className="text-[13px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-              Invite team
-            </button>
+            </a>
             <div
               className="w-9 h-9 rounded-[11px] grid place-items-center text-white text-[13px] font-bold"
               style={{ background: 'var(--brand-gradient-vivid)' }}

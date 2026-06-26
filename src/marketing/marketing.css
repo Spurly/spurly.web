@@ -720,12 +720,15 @@ body.mkt .intro-cursor.tap .ic-in{animation:introTap .35s ease}
    AUTH MODAL (sign in / sign up / reset) — web app entry point
    ============================================================ */
 body.mkt .nav-signin{
-  height:38px;padding:0 16px;border-radius:999px;
-  font-size:14px;font-weight:600;color:var(--text-1);
-  background:transparent;border:1px solid var(--hairline);
-  transition:background .2s var(--ease-out),border-color .2s var(--ease-out),transform .2s var(--ease-out);
+  display:inline-flex;align-items:center;justify-content:center;
+  height:40px;padding:0 18px;border-radius:999px;line-height:1;
+  font-size:14px;font-weight:600;color:var(--text-1);text-decoration:none;white-space:nowrap;
+  background:var(--glass-thin);border:1px solid var(--edge-light);
+  -webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);
+  box-shadow:var(--shadow-sm),var(--inner-glow);
+  transition:background .2s var(--ease-out),border-color .2s var(--ease-out),transform .2s var(--ease-out),box-shadow .2s var(--ease-out);
 }
-body.mkt .nav-signin:hover{background:var(--glass-thin);border-color:var(--border);transform:translateY(-1px)}
+body.mkt .nav-signin:hover{background:var(--glass);border-color:var(--border);transform:translateY(-1px);box-shadow:var(--shadow)}
 
 body.mkt .auth-overlay{
   position:fixed;inset:0;z-index:1000;

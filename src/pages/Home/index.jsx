@@ -50,56 +50,7 @@ export function HomePage() {
       subtitle="Here's what's happening with your outbound today."
     >
       <div className="p-7 flex flex-col gap-6 w-full">
-        {/* Chrome promo — signature gradient hero banner */}
-        <div
-          className="relative overflow-hidden rounded-[20px] p-6 text-white glass-sheen flex items-center gap-5"
-          style={{
-            background: "var(--brand-gradient-vivid)",
-            boxShadow: "var(--shadow-lg)",
-          }}
-        >
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "linear-gradient(160deg, rgba(255,255,255,0.28), rgba(255,255,255,0) 45%)",
-            }}
-          />
-          <span
-            className="relative grid place-items-center w-12 h-12 rounded-[14px] shrink-0"
-            style={{ background: "rgba(255,255,255,0.2)" }}
-          >
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
-              <circle
-                cx="12"
-                cy="12"
-                r="10"
-                fill="none"
-                stroke="white"
-                strokeWidth="2"
-              />
-              <circle cx="12" cy="12" r="4" fill="white" />
-            </svg>
-          </span>
-          <div className="relative min-w-0 flex-1">
-            <h3 className="text-[18px] font-bold tracking-[-0.014em]">
-              Capture leads in one click
-            </h3>
-            <p
-              className="text-[13.5px] mt-1 leading-relaxed"
-              style={{ color: "rgba(255,255,255,0.85)" }}
-            >
-              Add Spurly to Chrome and pull profiles straight from LinkedIn
-              &amp; Sales Navigator.
-            </p>
-          </div>
-          <button
-            className="relative shrink-0 h-11 px-6 rounded-[13px] bg-white font-bold text-[14px] transition-transform active:scale-[0.97] hover:-translate-y-px"
-            style={{ color: "var(--brand-purple)" }}
-          >
-            Add to Chrome — it's free
-          </button>
-        </div>
+        {/* Chrome promo banner — removed per request */}
 
         {/* Metrics row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
