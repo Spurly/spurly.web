@@ -20,14 +20,14 @@ export function LinkedInCallbackPage() {
         // Check for errors from LinkedIn
         if (errorParam) {
           setError(`LinkedIn login failed: ${errorParam}`);
-          setTimeout(() => navigate('/login'), 3000);
+          setTimeout(() => navigate('/?auth=signin'), 3000);
           return;
         }
 
         // Check if we have the code
         if (!code) {
           setError('No authorization code received from LinkedIn');
-          setTimeout(() => navigate('/login'), 3000);
+          setTimeout(() => navigate('/?auth=signin'), 3000);
           return;
         }
 
@@ -41,12 +41,12 @@ export function LinkedInCallbackPage() {
           navigate('/dashboard');
         } else {
           setError('Failed to complete LinkedIn login');
-          setTimeout(() => navigate('/login'), 3000);
+          setTimeout(() => navigate('/?auth=signin'), 3000);
         }
       } catch (err) {
         console.error('LinkedIn callback error:', err);
         setError(err.message || 'LinkedIn login failed. Please try again.');
-        setTimeout(() => navigate('/login'), 3000);
+        setTimeout(() => navigate('/?auth=signin'), 3000);
       }
     };
 

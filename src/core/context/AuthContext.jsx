@@ -96,6 +96,56 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const requestSignupOtp = async (params) => {
+    setError(null);
+    try {
+      return await authController.requestSignupOtp(params);
+    } catch (err) {
+      setError(err.message || 'Could not send verification code');
+      throw err;
+    }
+  };
+
+  const verifySignupOtp = async ({ email, code }) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { user, token } = await authController.verifySignupOtp({ email, code });
+      setUser(user);
+      return { user, token };
+    } catch (err) {
+      setError(err.message || 'Verification failed');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const forgotPassword = async (email) => {
+    setError(null);
+    try {
+      return await authController.forgotPassword(email);
+    } catch (err) {
+      setError(err.message || 'Could not send reset code');
+      throw err;
+    }
+  };
+
+  const resetPassword = async (params) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { user, token } = await authController.resetPassword(params);
+      setUser(user);
+      return { user, token };
+    } catch (err) {
+      setError(err.message || 'Could not reset password');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     setLoading(true);
     try {
@@ -147,6 +197,10 @@ export function AuthProvider({ children }) {
         error,
         login,
         register,
+        requestSignupOtp,
+        verifySignupOtp,
+        forgotPassword,
+        resetPassword,
         logout,
         updateProfile,
         refetchUser,

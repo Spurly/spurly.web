@@ -31,7 +31,7 @@ export function DashboardLayout({ children, title, subtitle }) {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   const isActive = (href) => location.pathname === href;
@@ -46,15 +46,13 @@ export function DashboardLayout({ children, title, subtitle }) {
         onMouseLeave={handleSidebarMouseLeave}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5 h-[60px] px-5 shrink-0 border-b border-[var(--separator)]">
-          <div className="flex-shrink-0 overflow-hidden" style={{ width: 48, height: 48 }}>
-            <img
-              src="/Spurly icon.png"
-              alt="Spurly"
-              className="w-full h-full object-contain"
-              style={{ transform: 'scale(2.4)', transformOrigin: 'center' }}
-            />
-          </div>
+        <div className="flex items-center gap-0 h-[60px] px-5 shrink-0 border-b border-[var(--separator)]">
+          <img
+            src="/Spurly icon copy.png"
+            alt="Spurly"
+            className="flex-shrink-0"
+            style={{ height: 52, width: 'auto', marginRight: -16 }}
+          />
           {isExpanded && (
             <span className="text-[20px] font-bold tracking-[-0.02em] text-[var(--text-primary)] truncate">
               Spurly

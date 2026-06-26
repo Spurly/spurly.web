@@ -53,6 +53,84 @@ class AuthApi {
   }
 
   /**
+   * Step 1 of OTP signup: validate details and email a 6-digit code.
+   * No account is created yet.
+   * POST /auth/signup/request-otp
+   * @param {Object} params - { name, email, password, confirmPassword, referralCode? }
+   * @returns {Promise<AuthResponse>} data: { email }
+   */
+  async requestSignupOtp({ name, email, password, confirmPassword, referralCode }) {
+    try {
+      const response = await apiGateway.post('/auth/signup/request-otp', {
+        name,
+        email,
+        password,
+        confirmPassword,
+        referralCode,
+      });
+
+      return AuthResponse.fromResponse(response.data);
+    } catch (error) {
+      throw this._handleError(error);
+    }
+  }
+
+  /**
+   * Step 2 of OTP signup: verify the code and create the account (signed in).
+   * POST /auth/signup/verify-otp
+   * @param {Object} params - { email, code }
+   * @returns {Promise<AuthResponse>} data: { user, token }
+   */
+  async verifySignupOtp({ email, code }) {
+    try {
+      const response = await apiGateway.post('/auth/signup/verify-otp', {
+        email,
+        code,
+      });
+
+      return AuthResponse.fromResponse(response.data);
+    } catch (error) {
+      throw this._handleError(error);
+    }
+  }
+
+  /**
+   * Request a password reset code (emailed to the user).
+   * POST /auth/forgot-password
+   * @param {Object} params - { email }
+   * @returns {Promise<AuthResponse>}
+   */
+  async forgotPassword({ email }) {
+    try {
+      const response = await apiGateway.post('/auth/forgot-password', { email });
+      return AuthResponse.fromResponse(response.data);
+    } catch (error) {
+      throw this._handleError(error);
+    }
+  }
+
+  /**
+   * Set a new password using the emailed 6-digit code (signed in on success).
+   * POST /auth/reset-password
+   * @param {Object} params - { email, code, password, confirmPassword }
+   * @returns {Promise<AuthResponse>} data: { user, token }
+   */
+  async resetPassword({ email, code, password, confirmPassword }) {
+    try {
+      const response = await apiGateway.post('/auth/reset-password', {
+        email,
+        code,
+        password,
+        confirmPassword,
+      });
+
+      return AuthResponse.fromResponse(response.data);
+    } catch (error) {
+      throw this._handleError(error);
+    }
+  }
+
+  /**
    * Logout user
    * POST /auth/logout
    * @returns {Promise<AuthResponse>}

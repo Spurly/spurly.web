@@ -71,6 +71,97 @@ class AuthController {
   }
 
   /**
+   * Step 1 of OTP signup: request a verification code. No account yet.
+   * @param {Object} params - { name, email, password, confirmPassword, referralCode? }
+   * @returns {Promise<{email: string}>}
+   */
+  async requestSignupOtp({ name, email, password, confirmPassword, referralCode }) {
+    const authResponse = await authApi.requestSignupOtp({
+      name,
+      email,
+      password,
+      confirmPassword,
+      referralCode,
+    });
+
+    if (!authResponse.success) {
+      throw new Error(authResponse.message);
+    }
+
+    return { email: authResponse.data?.email || email };
+  }
+
+  /**
+   * Step 2 of OTP signup: verify the code, create the account, sign in.
+   * @param {Object} params - { email, code }
+   * @returns {Promise<{user, token}>}
+   */
+  async verifySignupOtp({ email, code }) {
+    const authResponse = await authApi.verifySignupOtp({ email, code });
+
+    if (!authResponse.success) {
+      throw new Error(authResponse.message);
+    }
+
+    const token = authResponse.getToken();
+    const user = authResponse.getUser();
+
+    if (!token || !user) {
+      throw new Error('Invalid response from server');
+    }
+
+    apiGateway.setToken(token);
+    localStorage.setItem('user', JSON.stringify(user.toJSON()));
+
+    return { user, token };
+  }
+
+  /**
+   * Request a password reset code (emailed to the user).
+   * @param {string} email
+   * @returns {Promise<{message: string}>}
+   */
+  async forgotPassword(email) {
+    const authResponse = await authApi.forgotPassword({ email });
+
+    if (!authResponse.success) {
+      throw new Error(authResponse.message);
+    }
+
+    return { message: authResponse.message };
+  }
+
+  /**
+   * Set a new password using the emailed code, then sign in.
+   * @param {Object} params - { email, code, password, confirmPassword }
+   * @returns {Promise<{user, token}>}
+   */
+  async resetPassword({ email, code, password, confirmPassword }) {
+    const authResponse = await authApi.resetPassword({
+      email,
+      code,
+      password,
+      confirmPassword,
+    });
+
+    if (!authResponse.success) {
+      throw new Error(authResponse.message);
+    }
+
+    const token = authResponse.getToken();
+    const user = authResponse.getUser();
+
+    if (!token || !user) {
+      throw new Error('Invalid response from server');
+    }
+
+    apiGateway.setToken(token);
+    localStorage.setItem('user', JSON.stringify(user.toJSON()));
+
+    return { user, token };
+  }
+
+  /**
    * Handle logout
    */
   async logout() {
