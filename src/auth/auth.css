@@ -318,6 +318,9 @@
 .sp-btn--google:disabled { opacity: .6; cursor: not-allowed; }
 .sp-btn--google .gicon { width: 20px; height: 20px; }
 .sp-btn--ghost { background: transparent; color: var(--sp-primary); box-shadow: none; height: auto; }
+.sp-btn--full { width: 100%; justify-content: center; }
+
+.sp-ext-manual { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
 
 .sp-soon {
   font-size: 11px; font-weight: 700; color: var(--sp-muted);
@@ -422,6 +425,23 @@
 .sp-checklist { display: grid; gap: 10px; margin-top: 14px; }
 .sp-check { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--sp-ink-soft); }
 .sp-check__ic { color: var(--sp-green); flex: none; }
+
+/* extension detection states */
+.sp-ext-installed {
+  margin-top: 20px; display: flex; align-items: center; gap: 10px;
+  background: var(--sp-green-tint, #f0faf4); border: 1px solid var(--sp-green, #22c55e);
+  color: var(--sp-green, #22c55e); border-radius: 10px; padding: 14px 18px;
+  font-size: 15px; font-weight: 600;
+}
+.sp-ext-hint {
+  margin-top: 10px; text-align: center; font-size: 13px; color: var(--sp-muted); line-height: 1.5;
+}
+.sp-ext-hint--warn { color: var(--sp-warn, #f59e0b); }
+.sp-spinner {
+  display: inline-block; width: 16px; height: 16px; border-radius: 50%; flex: none;
+  border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+  animation: sp-rotate .7s linear infinite;
+}
 
 /* spinner */
 .sp-spin {
