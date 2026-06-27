@@ -6,6 +6,14 @@ import { LeadDetailPage } from 'src/pages/LeadDetail';
 import { SignalsPage } from 'src/pages/Signals';
 import { SettingsPage } from 'src/pages/Settings';
 
+import SignupPage from 'src/auth/SignupPage.jsx';
+import VerifyEmailPage from 'src/auth/VerifyEmailPage.jsx';
+import LoginPage from 'src/auth/LoginPage.jsx';
+import ForgotPasswordPage from 'src/auth/ForgotPasswordPage.jsx';
+import ResetPasswordPage from 'src/auth/ResetPasswordPage.jsx';
+import OnboardingSurveyPage from 'src/auth/OnboardingSurveyPage.jsx';
+import InstallExtensionPage from 'src/auth/InstallExtensionPage.jsx';
+
 import { MarketingLayout } from 'src/marketing/MarketingLayout';
 import MarketingHome from 'src/marketing/MarketingHome.jsx';
 import Privacy from 'src/marketing/pages/Privacy.jsx';
@@ -30,6 +38,15 @@ export function AppRoutes() {
         <Route path="/blog/free-linkedin-outreach-pipeline-founders" element={<FoundersPost />} />
         <Route path="/blog/sales-navigator-candidate-pipelines-recruiters" element={<RecruitersPost />} />
       </Route>
+
+      {/* Auth + onboarding (full-page, outside the marketing chrome) */}
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/signup/verify" element={<VerifyEmailPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/onboarding" element={<ProtectedRoute><OnboardingSurveyPage /></ProtectedRoute>} />
+      <Route path="/onboarding/install" element={<ProtectedRoute><InstallExtensionPage /></ProtectedRoute>} />
 
       {/* Dashboard (protected) */}
       <Route path="/dashboard" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
