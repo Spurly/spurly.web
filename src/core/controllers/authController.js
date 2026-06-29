@@ -224,11 +224,34 @@ class AuthController {
   }
 
   /**
+   * Complete the onboarding survey and persist the updated user.
+   * @param {Object} data - { role, teamSizeRange, primaryGoal, monthlyActivity, companyName, companyWebsite? }
+   * @returns {Promise<User>}
+   */
+  async completeOnboarding(data) {
+    const user = await authApi.completeOnboarding(data);
+
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user.toJSON()));
+    }
+
+    return user;
+  }
+
+  /**
    * Get LinkedIn OAuth redirect URL
    * @returns {Promise<string>}
    */
   async getLinkedInAuthUrl() {
     return await authApi.getLinkedInAuthUrl();
+  }
+
+  /**
+   * Get Google OAuth redirect URL (web flow)
+   * @returns {Promise<string>}
+   */
+  async getGoogleAuthUrl() {
+    return await authApi.getGoogleAuthUrl();
   }
 
   /**

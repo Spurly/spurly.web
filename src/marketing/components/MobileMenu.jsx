@@ -1,6 +1,4 @@
 import { Link } from "react-router-dom";
-import { ChromeLink } from "./Button.jsx";
-import { useAuthModal } from "../auth/AuthModalContext.jsx";
 import { useAuth } from "src/hooks/useAuth";
 
 const LINKS = [
@@ -11,7 +9,6 @@ const LINKS = [
 ];
 
 export default function MobileMenu({ open, onClose }) {
-  const { openAuth } = useAuthModal();
   const { user, loading } = useAuth();
   return (
     <div className={"mobile-menu" + (open ? " open" : "")} aria-hidden={open ? "false" : "true"}>
@@ -21,18 +18,12 @@ export default function MobileMenu({ open, onClose }) {
       {!loading && (user ? (
         <Link to="/dashboard" className="nav-signin mobile-signin" onClick={onClose}>Dashboard</Link>
       ) : (
-        <button
-          type="button"
-          className="nav-signin mobile-signin"
-          onClick={() => { onClose(); openAuth("signin"); }}
-        >
-          Sign in
-        </button>
+        <Link to="/login" className="nav-signin mobile-signin" onClick={onClose}>Sign in</Link>
       ))}
       {!loading && !user && (
-        <ChromeLink variant="primary" size="lg" onClick={onClose}>
+        <Link to="/signup" className="btn btn-primary btn-lg" onClick={onClose}>
           Start free — 100 credits
-        </ChromeLink>
+        </Link>
       )}
     </div>
   );

@@ -131,6 +131,26 @@ class AuthApi {
   }
 
   /**
+   * Complete the onboarding survey ("Tell us about you" step).
+   * POST /auth/onboarding
+   * @param {Object} data - { role, teamSizeRange, primaryGoal, monthlyActivity, companyName, companyWebsite? }
+   * @returns {Promise<User>} The updated user
+   */
+  async completeOnboarding(data) {
+    try {
+      const response = await apiGateway.post('/auth/onboarding', data);
+      // /auth/onboarding returns the user directly in `data` (not data.user)
+      const userData = response.data?.data;
+      if (!userData) {
+        throw new Error(response.data?.message || 'Could not save your details');
+      }
+      return User.fromResponse(userData);
+    } catch (error) {
+      throw this._handleError(error);
+    }
+  }
+
+  /**
    * Logout user
    * POST /auth/logout
    * @returns {Promise<AuthResponse>}
@@ -187,6 +207,21 @@ class AuthApi {
       // client=web tells the backend callback to set an httpOnly cookie and
       // redirect to the dashboard (instead of the extension's postMessage flow)
       const response = await apiGateway.get('/auth/linkedin/request?client=web');
+      const authResponse = AuthResponse.fromResponse(response.data);
+      return authResponse.data?.redirectUrl;
+    } catch (error) {
+      throw this._handleError(error);
+    }
+  }
+
+  /**
+   * Get the Google OAuth authorization URL (web flow).
+   * GET /auth/google/request?client=web
+   * @returns {Promise<string>} The Google redirect URL
+   */
+  async getGoogleAuthUrl() {
+    try {
+      const response = await apiGateway.get('/auth/google/request?client=web');
       const authResponse = AuthResponse.fromResponse(response.data);
       return authResponse.data?.redirectUrl;
     } catch (error) {

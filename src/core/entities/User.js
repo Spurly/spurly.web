@@ -14,6 +14,12 @@ export class User {
     this.sector = data.sector;
     this.location = data.location;
     this.teamSize = data.teamSize;
+    this.role = data.role;
+    this.teamSizeRange = data.teamSizeRange;
+    this.primaryGoal = data.primaryGoal;
+    this.monthlyActivity = data.monthlyActivity;
+    this.companyWebsite = data.companyWebsite;
+    this.onboardingComplete = data.onboardingComplete ?? false;
     this.tier = data.tier || 'free';
     this.creditBalance = data.creditBalance ?? 0;
     this.createdAt = data.createdAt;
@@ -35,6 +41,12 @@ export class User {
       sector: this.sector,
       location: this.location,
       teamSize: this.teamSize,
+      role: this.role,
+      teamSizeRange: this.teamSizeRange,
+      primaryGoal: this.primaryGoal,
+      monthlyActivity: this.monthlyActivity,
+      companyWebsite: this.companyWebsite,
+      onboardingComplete: this.onboardingComplete,
       tier: this.tier,
       creditBalance: this.creditBalance,
       createdAt: this.createdAt,

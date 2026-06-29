@@ -146,6 +146,22 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const getGoogleAuthUrl = async () => {
+    return authController.getGoogleAuthUrl();
+  };
+
+  const completeOnboarding = async (data) => {
+    setError(null);
+    try {
+      const updatedUser = await authController.completeOnboarding(data);
+      if (updatedUser) setUser(updatedUser);
+      return updatedUser;
+    } catch (err) {
+      setError(err.message || 'Could not save your details');
+      throw err;
+    }
+  };
+
   const logout = async () => {
     setLoading(true);
     try {
@@ -201,6 +217,8 @@ export function AuthProvider({ children }) {
         verifySignupOtp,
         forgotPassword,
         resetPassword,
+        completeOnboarding,
+        getGoogleAuthUrl,
         logout,
         updateProfile,
         refetchUser,

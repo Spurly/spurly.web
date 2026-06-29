@@ -37,14 +37,15 @@ class ApiGateway {
     this.client.interceptors.response.use(
       (response) => response,
       (error) => {
-        // Handle 401 - clear auth and bounce to the marketing home with the
-        // sign-in modal open, but only from inside the dashboard. Public
-        // marketing routes must never be redirected by a stray probe.
+        // Handle 401 - clear auth and bounce to the sign-in page, but only from
+        // inside the dashboard or onboarding flow. Public marketing routes must
+        // never be redirected by a stray probe.
         if (error.response?.status === 401) {
           localStorage.removeItem('authToken');
           localStorage.removeItem('user');
-          if (window.location.pathname.startsWith('/dashboard')) {
-            window.location.href = '/?auth=signin';
+          const path = window.location.pathname;
+          if (path.startsWith('/dashboard') || path.startsWith('/onboarding')) {
+            window.location.href = '/login';
           }
         }
 
