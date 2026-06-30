@@ -167,7 +167,7 @@ export default function InstallExtensionPage() {
           </div>
           <div className="sp-store__rate">
             <div className="sp-store__stars">★★★★★</div>
-            <div className="sp-store__count">4.9/5 from 500+ users</div>
+            {/* <div className="sp-store__count">4.9/5 from 500+ users</div> */}
           </div>
         </div>
 
@@ -192,35 +192,22 @@ export default function InstallExtensionPage() {
             <CheckCircleIcon s={22} />
             <span>Extension installed! Redirecting to your dashboard…</span>
           </div>
+        ) : isDetecting || isTimeout ? (
+          <Link
+            className="sp-btn sp-btn--primary"
+            to="/dashboard"
+            style={{ marginTop: 20, textDecoration: "none" }}
+          >
+            I've installed it — Go to Dashboard <ArrowRightIcon s={16} />
+          </Link>
         ) : (
           <button
             className="sp-btn sp-btn--primary"
             onClick={handleCTAClick}
-            disabled={isDetecting}
-            style={{ marginTop: 20, opacity: isDetecting ? 0.75 : 1 }}
+            style={{ marginTop: 20 }}
           >
-            {isDetecting ? (
-              <>
-                <span className="sp-spinner" /> Waiting for installation…
-              </>
-            ) : (
-              <>
-                <ChromeIcon s={22} /> Add Spurly to Chrome{" "}
-                <ArrowRightIcon s={18} />
-              </>
-            )}
+            <ChromeIcon s={22} /> Add Spurly to Chrome <ArrowRightIcon s={18} />
           </button>
-        )}
-
-        {(isDetecting || isTimeout) && (
-          <div className="sp-ext-manual">
-            <p className="sp-ext-hint" style={{ marginTop: 0 }}>
-              Installed? Click below to go to your dashboard.
-            </p>
-            <Link className="sp-btn sp-btn--ghost sp-btn--full" to="/dashboard">
-              I've installed it — Go to Dashboard <ArrowRightIcon s={16} />
-            </Link>
-          </div>
         )}
 
         <div className="sp-install-meta">

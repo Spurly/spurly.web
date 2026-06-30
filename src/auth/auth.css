@@ -239,7 +239,9 @@
 .sp-input-wrap { position: relative; display: flex; align-items: center; }
 .sp-input-wrap .sp-ic-left {
   position: absolute; left: 14px; color: #9a9aab; display: grid; place-items: center; pointer-events: none;
+  transition: color .15s ease;
 }
+.sp-input-wrap:focus-within .sp-ic-left { color: var(--sp-primary); }
 .sp-input,
 .sp-select {
   width: 100%;
@@ -265,13 +267,149 @@
 
 .sp-select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236b6b7b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%236b6b7b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
-  padding-right: 42px;
+  background-color: #fff;
+  padding-right: 44px;
   cursor: pointer;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.sp-select:hover {
+  border-color: #c4c4d0;
+  background-color: #fafafc;
+}
+.sp-select:focus {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
 }
 .sp-select.placeholder { color: #a6a6b4; }
+.sp-select option {
+  color: var(--sp-ink);
+  background: #fff;
+  padding: 10px 14px;
+  font-size: 14.5px;
+}
+.sp-select option:checked {
+  background: var(--sp-primary-soft);
+  color: var(--sp-primary);
+}
+
+/* ---------- Custom Dropdown ---------- */
+.sp-dropdown {
+  position: relative;
+  width: 100%;
+}
+.sp-dropdown__trigger {
+  width: 100%;
+  height: 52px;
+  border: 1px solid var(--sp-line-strong);
+  border-radius: 12px;
+  background: #fff;
+  font-size: 15px;
+  color: var(--sp-ink);
+  padding: 0 44px 0 16px;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  text-align: left;
+  font-family: inherit;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.sp-dropdown__trigger.has-left { padding-left: 44px; }
+.sp-dropdown__trigger.placeholder .sp-dropdown__value { color: #a6a6b4; }
+.sp-dropdown__trigger:hover {
+  border-color: #c4c4d0;
+  background-color: #fafafc;
+}
+.sp-dropdown.is-open .sp-dropdown__trigger,
+.sp-dropdown__trigger:focus {
+  border-color: var(--sp-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.16);
+  background-color: #fff;
+}
+.sp-dropdown.is-error .sp-dropdown__trigger { border-color: #e5484d; }
+
+.sp-dropdown__icon {
+  position: absolute;
+  left: 14px;
+  color: #9a9aab;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  transition: color .15s ease;
+}
+.sp-dropdown.is-open .sp-dropdown__icon { color: var(--sp-primary); }
+
+.sp-dropdown__value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-dropdown__chevron {
+  position: absolute;
+  right: 14px;
+  color: #6b6b7b;
+  display: grid;
+  place-items: center;
+  transition: transform .2s ease, color .15s ease;
+}
+.sp-dropdown.is-open .sp-dropdown__chevron {
+  transform: rotate(180deg);
+  color: var(--sp-primary);
+}
+
+.sp-dropdown__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #fff;
+  border: 1px solid var(--sp-line);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 12px 36px rgba(28, 28, 60, 0.12), 0 4px 12px rgba(28, 28, 60, 0.06);
+  list-style: none;
+  margin: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  animation: sp-dropdown-in .15s ease;
+}
+@keyframes sp-dropdown-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sp-dropdown__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-size: 14.5px;
+  color: var(--sp-ink);
+  cursor: pointer;
+  transition: background .1s ease, color .1s ease;
+}
+.sp-dropdown__item:hover {
+  background: var(--sp-primary-soft);
+  color: var(--sp-primary);
+}
+.sp-dropdown__item.is-selected {
+  background: var(--sp-primary-soft);
+  color: var(--sp-primary);
+  font-weight: 600;
+}
+.sp-dropdown__check {
+  flex: none;
+  color: var(--sp-primary);
+}
 
 .sp-eye {
   position: absolute; right: 12px;
@@ -374,19 +512,19 @@
   border-radius: var(--sp-radius);
   padding: 18px 20px;
 }
-.sp-bonus__head { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; }
+.sp-bonus__head { display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 700; font-size: 15px; }
 .sp-bonus__head .star { color: var(--sp-primary); display: grid; place-items: center; }
 .sp-bonus__head .acc { color: var(--sp-primary); }
 .sp-bonus__grid {
-  margin-top: 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  margin-top: 16px; display: flex; justify-content: center; gap: 40px;
 }
-.sp-bonus__item { display: flex; gap: 10px; align-items: flex-start; }
+.sp-bonus__item { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; }
 .sp-bonus__ic {
   width: 34px; height: 34px; border-radius: 9px; flex: none;
   display: grid; place-items: center; background: #fff; color: var(--sp-primary);
   box-shadow: 0 2px 8px rgba(28, 28, 60, 0.06);
 }
-.sp-bonus__t { font-size: 12.5px; color: var(--sp-ink-soft); line-height: 1.35; }
+.sp-bonus__t { font-size: 12.5px; color: var(--sp-ink-soft); line-height: 1.35; text-align: center; }
 .sp-bonus__c { font-size: 12px; font-weight: 700; color: var(--sp-primary); }
 
 /* install steps */

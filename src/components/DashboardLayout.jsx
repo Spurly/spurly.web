@@ -1,12 +1,12 @@
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from 'src/hooks/useAuth.js';
-import { Menu, LogOut, Home, Radio, Settings, Users } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "src/hooks/useAuth.js";
+import { Menu, LogOut, Home, Radio, Settings, Users } from "lucide-react";
+import { useState, useRef } from "react";
 
 const navItems = [
-  { label: 'Home',           icon: Home,   href: '/dashboard' },
-  { label: 'Captured Leads', icon: Users,  href: '/dashboard/leads' },
-  { label: 'Signals',        icon: Radio,  href: '/dashboard/signals' },
+  { label: "Home", icon: Home, href: "/dashboard" },
+  { label: "People", icon: Users, href: "/dashboard/leads" },
+  // { label: "Signals", icon: Radio, href: "/dashboard/signals" },
 ];
 
 export function DashboardLayout({ children, title, subtitle }) {
@@ -31,7 +31,7 @@ export function DashboardLayout({ children, title, subtitle }) {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   const isActive = (href) => location.pathname === href;
@@ -51,7 +51,7 @@ export function DashboardLayout({ children, title, subtitle }) {
             src="/Spurly icon copy.png"
             alt="Spurly"
             className="flex-shrink-0"
-            style={{ height: 52, width: 'auto', marginRight: -16 }}
+            style={{ height: 52, width: "auto", marginRight: -16 }}
           />
           {isExpanded && (
             <span className="text-[20px] font-bold tracking-[-0.02em] text-[var(--text-primary)] truncate">
@@ -78,11 +78,14 @@ export function DashboardLayout({ children, title, subtitle }) {
                 onClick={() => navigate(item.href)}
                 className={`group flex items-center gap-3 h-10 px-3 rounded-[12px] text-[14px] font-medium transition-all duration-200 ${
                   active
-                    ? 'bg-[var(--accent-tint)] text-[var(--brand-purple)] font-semibold'
-                    : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
+                    ? "bg-[var(--accent-tint)] text-[var(--brand-purple)] font-semibold"
+                    : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                 }`}
               >
-                <span className="shrink-0 grid place-items-center" style={{ width: 19, height: 19 }}>
+                <span
+                  className="shrink-0 grid place-items-center"
+                  style={{ width: 19, height: 19 }}
+                >
                   <Icon size={19} />
                 </span>
                 {isExpanded && <span className="truncate">{item.label}</span>}
@@ -90,7 +93,6 @@ export function DashboardLayout({ children, title, subtitle }) {
             );
           })}
         </nav>
-
 
         {/* Bottom actions */}
         <div className="px-3 pb-4 flex flex-col gap-1 border-t border-[var(--separator)] pt-3">
@@ -110,14 +112,18 @@ export function DashboardLayout({ children, title, subtitle }) {
           <div className="flex items-center gap-2.5 h-12 px-2 mt-1">
             <div
               className="w-8 h-8 rounded-[9px] grid place-items-center text-white text-[13px] font-bold shrink-0"
-              style={{ background: 'var(--brand-gradient-vivid)' }}
+              style={{ background: "var(--brand-gradient-vivid)" }}
             >
-              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              {user?.name?.charAt(0)?.toUpperCase() || "U"}
             </div>
             {isExpanded && (
               <div className="min-w-0 flex-1">
-                <div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{user?.name || 'User'}</div>
-                <div className="text-[11px] text-[var(--text-tertiary)] truncate">{user?.email}</div>
+                <div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">
+                  {user?.name || "User"}
+                </div>
+                <div className="text-[11px] text-[var(--text-tertiary)] truncate">
+                  {user?.email}
+                </div>
               </div>
             )}
           </div>
@@ -126,7 +132,10 @@ export function DashboardLayout({ children, title, subtitle }) {
             onClick={handleLogout}
             className="flex items-center gap-3 h-10 px-3 rounded-[12px] text-[14px] font-medium text-[var(--red)] hover:bg-[var(--red-tint)] transition-all"
           >
-            <span className="shrink-0 grid place-items-center" style={{ width: 19, height: 19 }}>
+            <span
+              className="shrink-0 grid place-items-center"
+              style={{ width: 19, height: 19 }}
+            >
               <LogOut size={18} />
             </span>
             {isExpanded && <span>Log out</span>}
@@ -137,7 +146,10 @@ export function DashboardLayout({ children, title, subtitle }) {
       {/* Main area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar — glass chrome */}
-        <header className="glass-chrome border-b border-[var(--separator)] px-7 flex items-center gap-4 shrink-0 z-[var(--z-sticky)]" style={{ minHeight: 60 }}>
+        <header
+          className="glass-chrome border-b border-[var(--separator)] px-7 flex items-center gap-4 shrink-0 z-[var(--z-sticky)]"
+          style={{ minHeight: 60 }}
+        >
           <div className="flex-1 min-w-0 py-2.5">
             {title && (
               <h1 className="text-[19px] font-bold tracking-[-0.02em] text-[var(--text-primary)] leading-tight truncate">
@@ -161,17 +173,15 @@ export function DashboardLayout({ children, title, subtitle }) {
             </a>
             <div
               className="w-9 h-9 rounded-[11px] grid place-items-center text-white text-[13px] font-bold"
-              style={{ background: 'var(--brand-gradient-vivid)' }}
+              style={{ background: "var(--brand-gradient-vivid)" }}
             >
-              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              {user?.name?.charAt(0)?.toUpperCase() || "U"}
             </div>
           </div>
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto">{children}</main>
       </div>
     </div>
   );

@@ -146,7 +146,7 @@ export function TrustBadges() {
       d: "No credit card required",
     },
     { Icon: LockIcon, t: "GDPR Compliant", d: "Your data is safe" },
-    { Icon: CheckCircleIcon, t: "Cancel anytime", d: "No hidden charges" },
+    // { Icon: CheckCircleIcon, t: "Cancel anytime", d: "No hidden charges" },
   ];
   return (
     <div className="sp-trust">
