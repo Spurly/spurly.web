@@ -9,6 +9,17 @@ class SessionsApi {
     });
     return response.data;
   }
+
+  /**
+   * Create an empty session.
+   * POST /sessions  Body: { name, description? }
+   * Returns the standard { success, message, data: session, status } envelope,
+   * where data is the created session document (contains _id).
+   */
+  async createSession({ name, description }) {
+    const response = await apiGateway.post('/sessions', { name, description });
+    return response.data;
+  }
 }
 
 export default new SessionsApi();

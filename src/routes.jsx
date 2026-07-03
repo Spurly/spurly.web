@@ -5,6 +5,7 @@ import { CapturedLeadsPage } from 'src/pages/CapturedLeads';
 import { LeadDetailPage } from 'src/pages/LeadDetail';
 import { SignalsPage } from 'src/pages/Signals';
 import { SettingsPage } from 'src/pages/Settings';
+import { ImportPage } from 'src/pages/Import';
 
 import SignupPage from 'src/auth/SignupPage.jsx';
 import VerifyEmailPage from 'src/auth/VerifyEmailPage.jsx';
@@ -51,6 +52,7 @@ export function AppRoutes() {
       {/* Dashboard (protected) */}
       <Route path="/dashboard" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
       <Route path="/dashboard/leads" element={<ProtectedRoute><CapturedLeadsPage /></ProtectedRoute>} />
+      <Route path="/dashboard/import" element={<ProtectedRoute><ImportPage /></ProtectedRoute>} />
       <Route path="/dashboard/leads/:leadId" element={<ProtectedRoute><LeadDetailPage /></ProtectedRoute>} />
       <Route path="/dashboard/signals" element={<ProtectedRoute><SignalsPage /></ProtectedRoute>} />
       <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />

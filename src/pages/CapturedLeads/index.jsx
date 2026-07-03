@@ -5,6 +5,8 @@ import { DataTable, FilterButton } from "src/common/components/DataTable";
 import { LeadDetailSidebar } from "src/components/LeadDetailSidebar";
 import { useAllProfiles } from "src/hooks/useAllProfiles";
 import { useMetrics } from "src/hooks/useMetrics";
+import capturedLeadsController from "src/core/controllers/capturedLeadsController";
+import { exportProfilesAsCSV } from "src/common/utils/csvExport";
 import { columns } from "./columns.jsx";
 import { buildCapturedLeadsTabs } from "./helpers";
 import { CreateSessionModal } from "./CreateSessionModal";
@@ -16,6 +18,7 @@ export function CapturedLeadsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [enrichmentFilter, setEnrichmentFilter] = useState(null);
   const [showSessionModal, setShowSessionModal] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const {
     profiles,
@@ -72,6 +75,48 @@ export function CapturedLeadsPage() {
     stats.connectionDegrees,
   );
 
+  // Export as CSV — same column set, ordering, and escaping as the
+  // "Download CSV" button in spurly.extension (see
+  // src/common/utils/csvExport.js). Profile entity instances expose `.raw`,
+  // the original backend payload the CSV columns are built from
+  // (experiences, skills, _captureStatus, profileUrl, etc.) — same shape
+  // the extension exports from.
+  //
+  // With a selection: export just those rows (no extra fetch needed).
+  // With no selection: export every lead matching the current tab/search
+  // filter, not just the current page — `profiles` in state only holds one
+  // page (pagination.limit rows), so we re-fetch the full filtered set in
+  // one shot before exporting.
+  const handleExport = async () => {
+    if (selectedLeads.size > 0) {
+      const rows = profiles
+        .filter((p) => selectedLeads.has(p._id))
+        .map((p) => p.raw ?? p);
+      const date = new Date().toISOString().split("T")[0];
+      exportProfilesAsCSV(rows, `captured-leads-${date}.csv`);
+      return;
+    }
+
+    if (pagination.total === 0) return;
+
+    setIsExporting(true);
+    try {
+      const opts = { limit: pagination.total, skip: 0 };
+      if (activeTab !== "all") opts.connectionDegree = Number(activeTab);
+      if (searchQuery.trim()) opts.search = searchQuery.trim();
+
+      const { profiles: allProfiles } =
+        await capturedLeadsController.getAllProfiles(opts);
+      const rows = allProfiles.map((p) => p.raw ?? p);
+      const date = new Date().toISOString().split("T")[0];
+      exportProfilesAsCSV(rows, `captured-leads-${date}.csv`);
+    } catch (e) {
+      console.error("[CapturedLeads] Export error:", e);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="relative flex flex-col h-full overflow-hidden">
@@ -115,30 +160,40 @@ export function CapturedLeadsPage() {
               onSearch: setSearchQuery,
               searchPlaceholder: "Search by name, email, company...",
               bulkActions: (
-                <>
-                  <button
-                    onClick={() => setShowSessionModal(true)}
-                    className="h-8 px-3 rounded-[10px] text-[13px] font-semibold transition-colors"
-                    style={{
-                      background: "var(--accent-tint)",
-                      color: "var(--brand-purple)",
-                    }}
-                  >
-                    Create session
-                  </button>
-                  <button className="h-8 px-3 rounded-[10px] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors">
-                    Enrich
-                  </button>
-                  <button className="h-8 px-3 rounded-[10px] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors">
-                    Export
-                  </button>
-                </>
+                <button
+                  onClick={() => setShowSessionModal(true)}
+                  className="h-8 px-3 rounded-[10px] text-[13px] font-semibold transition-colors"
+                  style={{
+                    background: "var(--accent-tint)",
+                    color: "var(--brand-purple)",
+                  }}
+                >
+                  Create session
+                </button>
               ),
               actions: (
-                <FilterButton
-                  onClick={() => setEnrichmentFilter(!enrichmentFilter)}
-                  active={enrichmentFilter}
-                />
+                <>
+                  <button
+                    onClick={handleExport}
+                    disabled={
+                      isExporting ||
+                      (selectedLeads.size === 0 && pagination.total === 0)
+                    }
+                    className="h-8 px-3 rounded-[10px] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                  >
+                    {isExporting
+                      ? "Exporting…"
+                      : selectedLeads.size > 0
+                        ? `Export (${selectedLeads.size})`
+                        : "Export"}
+                  </button>
+                  {/* Filters disabled for now — re-enable when needed.
+                  <FilterButton
+                    onClick={() => setEnrichmentFilter(!enrichmentFilter)}
+                    active={enrichmentFilter}
+                  />
+                  */}
+                </>
               ),
             }}
             pagination={{

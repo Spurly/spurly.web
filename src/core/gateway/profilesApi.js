@@ -30,6 +30,20 @@ class ProfilesApi {
     const response = await apiGateway.get(`/profiles/session/${sessionId}`);
     return response.data;
   }
+
+  /**
+   * Batch-save profiles into a session.
+   * POST /sessions/:sessionId/profiles/batch  Body: { mode, profiles }
+   * mode 'enrich' (CSV import) only requires profileUrl per row; 'capture'
+   * (default) requires name + profileUrl. Mirrors the extension's import call.
+   */
+  async batchSaveProfiles(sessionId, profiles, mode = 'enrich') {
+    const response = await apiGateway.post(
+      `/sessions/${sessionId}/profiles/batch`,
+      { mode, profiles },
+    );
+    return response.data;
+  }
 }
 
 export default new ProfilesApi();

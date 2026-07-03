@@ -18,9 +18,21 @@ class CapturedLeadsController {
       throw new Error(res?.message || 'Failed to fetch profiles');
     }
 
-    const raw = res.data.entities || res.data.profiles || [];
+    // profilesApi already builds `entities` by wrapping the raw `profiles`
+    // JSON in `Profile` instances once. Re-wrapping `entities` here (as this
+    // used to do via `Profile.fromList(res.data.entities || res.data.profiles)`)
+    // ran a *second* Profile constructor pass over already-built Profile
+    // objects instead of the raw JSON. Fields the constructor renames
+    // (profileUrl -> linkedInUrl, _captureStatus -> enrichmentStatus) don't
+    // exist under their original key on a first-pass Profile instance, and
+    // fields kept only in `.raw` (experiences, _captureStatus, profileUrl)
+    // vanished entirely because `.raw` ended up pointing at the first-pass
+    // Profile object, not the true backend payload — which is exactly why
+    // `row.raw.profileUrl` was undefined in CSV export. Build from the raw
+    // JSON array directly instead.
+    const rawProfiles = res.data.profiles || [];
     return {
-      profiles: Profile.fromList(raw),
+      profiles: res.data.entities || Profile.fromList(rawProfiles),
       pagination: res.data.pagination || {
         limit,
         skip,
@@ -43,9 +55,10 @@ class CapturedLeadsController {
       throw new Error(res?.message || 'Failed to fetch recent captures');
     }
 
-    const raw = res.data.entities || res.data.profiles || [];
+    // See getAllProfiles() above — avoid double-wrapping already-built entities.
+    const rawProfiles = res.data.profiles || [];
     return {
-      profiles: Profile.fromList(raw),
+      profiles: res.data.entities || Profile.fromList(rawProfiles),
       pagination: res.data.pagination || { limit, skip: 0, total: 0, pages: 0, hasMore: false },
     };
   }

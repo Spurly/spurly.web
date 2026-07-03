@@ -1,11 +1,12 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "src/hooks/useAuth.js";
-import { Menu, LogOut, Home, Radio, Settings, Users } from "lucide-react";
+import { Menu, LogOut, Home, Radio, Settings, Users, Upload } from "lucide-react";
 import { useState, useRef } from "react";
 
 const navItems = [
   { label: "Home", icon: Home, href: "/dashboard" },
   { label: "People", icon: Users, href: "/dashboard/leads" },
+  { label: "Import", icon: Upload, href: "/dashboard/import" },
   // { label: "Signals", icon: Radio, href: "/dashboard/signals" },
 ];
 
