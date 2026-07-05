@@ -1,11 +1,15 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from 'src/components/ProtectedRoute';
+import { AdminRoute } from 'src/components/AdminRoute';
 import { HomePage } from 'src/pages/Home';
 import { CapturedLeadsPage } from 'src/pages/CapturedLeads';
 import { LeadDetailPage } from 'src/pages/LeadDetail';
 import { SignalsPage } from 'src/pages/Signals';
 import { SettingsPage } from 'src/pages/Settings';
 import { ImportPage } from 'src/pages/Import';
+import { AdminUsersPage } from 'src/pages/Admin/Users';
+import { AdminTransactionsPage } from 'src/pages/Admin/Transactions';
+import { AdminPricingPage } from 'src/pages/Admin/Pricing';
 
 import SignupPage from 'src/auth/SignupPage.jsx';
 import VerifyEmailPage from 'src/auth/VerifyEmailPage.jsx';
@@ -56,6 +60,12 @@ export function AppRoutes() {
       <Route path="/dashboard/leads/:leadId" element={<ProtectedRoute><LeadDetailPage /></ProtectedRoute>} />
       <Route path="/dashboard/signals" element={<ProtectedRoute><SignalsPage /></ProtectedRoute>} />
       <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+
+      {/* Admin console (admin-only; backend also enforces via adminMiddleware) */}
+      <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
+      <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
+      <Route path="/admin/transactions" element={<AdminRoute><AdminTransactionsPage /></AdminRoute>} />
+      <Route path="/admin/pricing" element={<AdminRoute><AdminPricingPage /></AdminRoute>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

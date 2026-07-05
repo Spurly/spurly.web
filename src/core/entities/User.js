@@ -20,6 +20,7 @@ export class User {
     this.monthlyActivity = data.monthlyActivity;
     this.companyWebsite = data.companyWebsite;
     this.onboardingComplete = data.onboardingComplete ?? false;
+    this.isAdmin = data.isAdmin ?? false;
     this.tier = data.tier || 'free';
     this.creditBalance = data.creditBalance ?? 0;
     this.createdAt = data.createdAt;
@@ -47,6 +48,7 @@ export class User {
       monthlyActivity: this.monthlyActivity,
       companyWebsite: this.companyWebsite,
       onboardingComplete: this.onboardingComplete,
+      isAdmin: this.isAdmin,
       tier: this.tier,
       creditBalance: this.creditBalance,
       createdAt: this.createdAt,

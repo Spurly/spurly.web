@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "src/hooks/useAuth.js";
-import { Menu, LogOut, Home, Radio, Settings, Users, Upload } from "lucide-react";
+import { Menu, LogOut, Home, Radio, Settings, Users, Upload, Shield } from "lucide-react";
 import { useState, useRef } from "react";
 
 const navItems = [
@@ -9,6 +9,10 @@ const navItems = [
   { label: "Import", icon: Upload, href: "/dashboard/import" },
   // { label: "Signals", icon: Radio, href: "/dashboard/signals" },
 ];
+
+// Shown only to admins (user.isAdmin). Links into the admin console, which is
+// also enforced server-side by adminMiddleware.
+const adminNavItem = { label: "Admin", icon: Shield, href: "/admin/users" };
 
 export function DashboardLayout({ children, title, subtitle }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -36,6 +40,8 @@ export function DashboardLayout({ children, title, subtitle }) {
   };
 
   const isActive = (href) => location.pathname === href;
+
+  const items = user?.isAdmin ? [...navItems, adminNavItem] : navItems;
 
   return (
     <div className="flex h-screen overflow-hidden canvas-mesh">
@@ -70,9 +76,11 @@ export function DashboardLayout({ children, title, subtitle }) {
 
         {/* Navigation */}
         <nav className="flex flex-col gap-1 px-3 mt-3 flex-1">
-          {navItems.map((item) => {
+          {items.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item.href);
+            const active = item.href.startsWith("/admin")
+              ? location.pathname.startsWith("/admin")
+              : isActive(item.href);
             return (
               <button
                 key={item.label}

@@ -1,0 +1,121 @@
+/*
+ * Admin console styles — scoped under `.admin-scope`.
+ *
+ * Ported from the standalone admin.dashboard app, rewritten as plain CSS so it
+ * works regardless of the host Tailwind version and never leaks into the rest
+ * of spurly.web. The old app relied on `primary`/`secondary` theme colors;
+ * those are inlined here as an indigo->purple gradient.
+ */
+
+.admin-scope {
+  --admin-primary: #6366f1;
+  --admin-secondary: #8b5cf6;
+}
+
+/* Buttons */
+.admin-scope .btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+}
+.admin-scope .btn-primary {
+  background-image: linear-gradient(to right, var(--admin-primary), var(--admin-secondary));
+  color: #fff;
+}
+.admin-scope .btn-primary:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+.admin-scope .btn-secondary {
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+.admin-scope .btn-secondary:hover {
+  background-color: #d1d5db;
+}
+.admin-scope .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Card */
+.admin-scope .card {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+/* Inputs */
+.admin-scope .input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  outline: none;
+  background: #fff;
+}
+.admin-scope .input:focus {
+  border-color: var(--admin-primary);
+}
+
+/* Tables */
+.admin-scope .table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.admin-scope .table th {
+  background-color: #f3f4f6;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+.admin-scope .table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+.admin-scope .table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Badge */
+.admin-scope .badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Modal */
+.admin-scope .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.admin-scope .modal {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  max-width: 28rem;
+  width: 100%;
+  margin: 0 1rem;
+}
+
+/* The `text-primary` accents used by loaders/icons in the ported pages */
+.admin-scope .text-primary {
+  color: var(--admin-primary);
+}
+.admin-scope .focus\:ring-primary:focus {
+  --tw-ring-color: var(--admin-primary);
+}
