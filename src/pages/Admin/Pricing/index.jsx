@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react';
-import { getActionCosts, updateActionCost, updateActionBilling } from 'src/core/gateway/adminApi';
-import { Loader, Save, Check, AlertCircle } from 'lucide-react';
+import {
+  getActionCosts,
+  updateActionCost,
+  updateActionBilling,
+  getPlans,
+} from 'src/core/gateway/adminApi';
+import { Loader, Save, Check, AlertCircle, Plus } from 'lucide-react';
 import { AdminLayout } from 'src/admin/AdminLayout';
+import { DataTable } from 'src/common/components/DataTable';
+import { Button } from 'src/common/components/Button';
+import PlanFormModal from 'src/pages/Admin/components/PlanFormModal';
+import { buildPlanColumns } from './planColumns.jsx';
 
 export function AdminPricingPage() {
   const [costs, setCosts] = useState([]);
@@ -12,9 +21,50 @@ export function AdminPricingPage() {
   const [error, setError] = useState('');
   const [savedFeature, setSavedFeature] = useState(null);
 
+  // Plans management
+  const [plans, setPlans] = useState([]);
+  const [plansLoading, setPlansLoading] = useState(true);
+  const [plansError, setPlansError] = useState('');
+  const [showPlanModal, setShowPlanModal] = useState(false);
+  const [editingPlan, setEditingPlan] = useState(null); // null => create mode
+
   useEffect(() => {
     fetchCosts();
+    fetchPlans();
   }, []);
+
+  const fetchPlans = async () => {
+    setPlansLoading(true);
+    setPlansError('');
+    try {
+      const result = await getPlans();
+      if (result.success) {
+        setPlans(result.data.plans || []);
+      } else {
+        setPlansError(result.message || 'Failed to load plans');
+      }
+    } catch (err) {
+      setPlansError(err.response?.data?.message || err.message || 'An error occurred');
+    } finally {
+      setPlansLoading(false);
+    }
+  };
+
+  const handleCreatePlan = () => {
+    setEditingPlan(null);
+    setShowPlanModal(true);
+  };
+
+  const handleEditPlan = (plan) => {
+    setEditingPlan(plan);
+    setShowPlanModal(true);
+  };
+
+  const handlePlanSuccess = () => {
+    setShowPlanModal(false);
+    setEditingPlan(null);
+    fetchPlans();
+  };
 
   const fetchCosts = async () => {
     setLoading(true);
@@ -109,13 +159,63 @@ export function AdminPricingPage() {
   const isDirty = (c) => String(drafts[c.feature]) !== String(c.cost);
 
   return (
-    <AdminLayout title="Pricing" subtitle="Credit cost per action">
+    <AdminLayout title="Pricing" subtitle="Plans & credit cost per action">
+      {/* ============================ PLANS ============================ */}
+      <div className="mb-12">
+        <div className="flex items-start justify-between gap-4 mb-5">
+          <div className="max-w-2xl">
+            <h3 className="text-[17px] font-semibold text-[var(--text-primary)]">
+              Subscription plans
+            </h3>
+            <p className="text-[var(--text-secondary)] text-[13px] leading-relaxed mt-1">
+              Create custom plans with daily action limits. The{' '}
+              <span className="font-medium text-[var(--text-primary)]">default</span> plan is
+              assigned to every new user automatically. Allocate specific plans to users from the
+              Users tab.
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            size="md"
+            leadingIcon={<Plus size={16} />}
+            onClick={handleCreatePlan}
+            className="flex-shrink-0"
+          >
+            New Plan
+          </Button>
+        </div>
+
+        {plansError && (
+          <div className="mb-4 flex items-center gap-2 p-3 rounded-[12px] text-[13px] font-medium"
+            style={{ background: 'var(--red-tint)', color: 'var(--red)', border: '1px solid rgba(255,69,58,0.2)' }}>
+            <AlertCircle size={18} />
+            <span>{plansError}</span>
+          </div>
+        )}
+
+        <div className="rounded-[16px] border border-[var(--border-hairline)] overflow-hidden shadow-sm">
+          <DataTable
+            columns={buildPlanColumns(handleEditPlan)}
+            data={plans}
+            rowKey={(row) => row._id}
+            loading={plansLoading}
+            emptyMessage="No plans yet"
+            emptyHint="Create a plan to get started"
+            maxHeight="none"
+          />
+        </div>
+      </div>
+
+      {/* ======================= ACTION COSTS ========================= */}
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <Loader className="animate-spin text-primary" size={32} />
         </div>
       ) : (
         <div className="max-w-3xl">
+          <h3 className="text-[17px] font-semibold text-[var(--text-primary)] mb-3">
+            Credit cost per action
+          </h3>
           <div className="mb-6">
             <p className="text-gray-600">
               Set how many credits each action costs, and toggle billing per action. Changes are the
@@ -233,6 +333,17 @@ export function AdminPricingPage() {
             </table>
           </div>
         </div>
+      )}
+
+      {showPlanModal && (
+        <PlanFormModal
+          plan={editingPlan}
+          onClose={() => {
+            setShowPlanModal(false);
+            setEditingPlan(null);
+          }}
+          onSuccess={handlePlanSuccess}
+        />
       )}
     </AdminLayout>
   );

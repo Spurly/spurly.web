@@ -172,14 +172,6 @@ export function DashboardLayout({ children, title, subtitle }) {
             )}
           </div>
           <div className="flex items-center gap-3">
-            <a
-              href="https://chromewebstore.google.com/detail/dcohpfeaohfiiinjjiinojlbnnfmihoh?utm_source=item-share-cb"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[13px] font-semibold text-[var(--brand-purple)] hover:text-[var(--brand-purple-700)] transition-colors"
-            >
-              Add to Chrome
-            </a>
             <div
               className="w-9 h-9 rounded-[11px] grid place-items-center text-white text-[13px] font-bold"
               style={{ background: "var(--brand-gradient-vivid)" }}

@@ -118,18 +118,11 @@ export function CapturedLeadsPage() {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      title="Captured People"
+      subtitle="All People captured from LinkedIn & Sales Navigator."
+    >
       <div className="relative flex flex-col h-full overflow-hidden">
-        {/* Page header */}
-        <div className="glass-chrome border-b border-[var(--separator)] px-6 py-5 shrink-0">
-          <h1 className="text-[20px] font-bold tracking-[-0.018em] text-[var(--text-primary)]">
-            Captured People
-          </h1>
-          <p className="text-[13px] text-[var(--text-secondary)] mt-0.5">
-            All People captured from LinkedIn &amp; Sales Navigator.
-          </p>
-        </div>
-
         {/* Tabs */}
         <Tabs tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
 

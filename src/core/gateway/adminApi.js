@@ -70,3 +70,40 @@ export async function updateActionBilling(feature, billingEnabled) {
   const res = await apiGateway.put(`/admin/credits/costs/${feature}`, { billingEnabled });
   return res.data;
 }
+
+/**
+ * Plans Management
+ * Admin-only CRUD for subscription plans + per-user plan assignment.
+ * Backend enforces auth + admin; these mirror the admin/credits endpoints.
+ */
+
+/** List all plans. */
+export async function getPlans() {
+  const res = await apiGateway.get('/admin/plans');
+  return res.data;
+}
+
+/**
+ * Create a new plan.
+ * @param {{ name: string, displayName: string, isActive?: boolean, isDefault?: boolean,
+ *   limits: { captureCardsPerDay: number, sendConnectionsPerDay: number, sendMessagesPerDay: number } }} plan
+ */
+export async function createPlan(plan) {
+  const res = await apiGateway.post('/admin/plans', plan);
+  return res.data;
+}
+
+/**
+ * Update an existing plan. Pass any subset of
+ * { displayName, isActive, isDefault, limits }.
+ */
+export async function updatePlan(planId, updates) {
+  const res = await apiGateway.put(`/admin/plans/${planId}`, updates);
+  return res.data;
+}
+
+/** Assign a plan to a user. */
+export async function assignUserPlan(userId, planId) {
+  const res = await apiGateway.post(`/admin/users/${userId}/plan`, { planId });
+  return res.data;
+}
