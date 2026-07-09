@@ -6,6 +6,7 @@ import { DataTable } from 'src/common/components/DataTable';
 import { Button } from 'src/common/components/Button';
 import CreditsModal from 'src/pages/Admin/components/CreditsModal';
 import PlanAssignModal from 'src/pages/Admin/components/PlanAssignModal';
+import UserDetailsModal from 'src/pages/Admin/components/UserDetailsModal';
 import { buildUserColumns } from './userColumns.jsx';
 
 export function AdminUsersPage() {
@@ -17,6 +18,7 @@ export function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [showPlanModal, setShowPlanModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
@@ -64,6 +66,16 @@ export function AdminUsersPage() {
     setRefreshTrigger((prev) => prev + 1);
   };
 
+  const handleRowClick = (user) => {
+    setSelectedUser(user);
+    setShowDetailsModal(true);
+  };
+
+  const handleDetailsClose = () => {
+    setShowDetailsModal(false);
+    setSelectedUser(null);
+  };
+
   const filteredUsers = searchTerm
     ? users.filter((u) => {
         const q = searchTerm.toLowerCase();
@@ -99,6 +111,7 @@ export function AdminUsersPage() {
             columns={columns}
             data={filteredUsers}
             rowKey={(row) => row._id}
+            onRowClick={handleRowClick}
             loading={loading}
             emptyMessage={searchTerm ? 'No users match your search' : 'No users found'}
             emptyHint={searchTerm ? 'Try a different search term' : undefined}
@@ -142,6 +155,10 @@ export function AdminUsersPage() {
             onClose={() => setShowPlanModal(false)}
             onSuccess={handlePlanSuccess}
           />
+        )}
+
+        {showDetailsModal && selectedUser && (
+          <UserDetailsModal user={selectedUser} onClose={handleDetailsClose} />
         )}
       </div>
     </AdminLayout>

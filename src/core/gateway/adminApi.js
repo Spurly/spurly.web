@@ -27,6 +27,16 @@ export async function getUserCredits(userId, limit = 50, skip = 0) {
 }
 
 /**
+ * Full user record — every field stored for the user in the users collection
+ * (excluding sensitive select:false fields). Used by the admin user-details view.
+ * Returns { success, data: { user }, message, status }.
+ */
+export async function getUserDetails(userId) {
+  const res = await apiGateway.get(`/admin/users/${userId}/details`);
+  return res.data;
+}
+
+/**
  * Credits Management
  * action: 'add' | 'deduct'. Amount is always positive; direction is the action.
  */
