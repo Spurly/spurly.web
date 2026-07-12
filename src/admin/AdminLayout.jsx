@@ -1,10 +1,11 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Users, TrendingUp, DollarSign, ArrowLeft } from 'lucide-react';
+import { Users, TrendingUp, DollarSign, ArrowLeft, BarChart3 } from 'lucide-react';
 import { DashboardLayout } from 'src/components/DashboardLayout';
 import './admin.css';
 
 const tabs = [
   { label: 'Users', icon: Users, href: '/admin/users' },
+  { label: 'Insights', icon: BarChart3, href: '/admin/insights' },
   { label: 'Transactions', icon: TrendingUp, href: '/admin/transactions' },
   { label: 'Pricing', icon: DollarSign, href: '/admin/pricing' },
 ];

@@ -50,6 +50,27 @@ export async function updateCredits(userId, amount, action, reason) {
 }
 
 /**
+ * Analytics / Insights (Admin)
+ * Founder-facing extension usage insights. All admin-gated server-side.
+ */
+export async function getAnalyticsOverview() {
+  const res = await apiGateway.get('/admin/analytics/overview');
+  return res.data;
+}
+
+export async function getUserUsageAnalytics(limit = 25, skip = 0, search = '', sort = 'lastActive') {
+  let url = `/admin/analytics/users?limit=${limit}&skip=${skip}&sort=${sort}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  const res = await apiGateway.get(url);
+  return res.data;
+}
+
+export async function getUserDailyActivity(userId, days = 30) {
+  const res = await apiGateway.get(`/admin/analytics/users/${userId}/daily?days=${days}`);
+  return res.data;
+}
+
+/**
  * Transactions
  */
 export async function getTransactions(limit = 50, skip = 0, type = null) {

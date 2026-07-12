@@ -8,6 +8,7 @@ import { SignalsPage } from 'src/pages/Signals';
 import { SettingsPage } from 'src/pages/Settings';
 import { ImportPage } from 'src/pages/Import';
 import { AdminUsersPage } from 'src/pages/Admin/Users';
+import { AdminInsightsPage } from 'src/pages/Admin/Insights';
 import { AdminTransactionsPage } from 'src/pages/Admin/Transactions';
 import { AdminPricingPage } from 'src/pages/Admin/Pricing';
 
@@ -64,6 +65,7 @@ export function AppRoutes() {
       {/* Admin console (admin-only; backend also enforces via adminMiddleware) */}
       <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
       <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
+      <Route path="/admin/insights" element={<AdminRoute><AdminInsightsPage /></AdminRoute>} />
       <Route path="/admin/transactions" element={<AdminRoute><AdminTransactionsPage /></AdminRoute>} />
       <Route path="/admin/pricing" element={<AdminRoute><AdminPricingPage /></AdminRoute>} />
 
