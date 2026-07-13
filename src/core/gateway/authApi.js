@@ -56,16 +56,17 @@ class AuthApi {
    * Step 1 of OTP signup: validate details and email a 6-digit code.
    * No account is created yet.
    * POST /auth/signup/request-otp
-   * @param {Object} params - { name, email, password, confirmPassword, referralCode? }
+   * @param {Object} params - { name, email, password, confirmPassword, phone, referralCode? }
    * @returns {Promise<AuthResponse>} data: { email }
    */
-  async requestSignupOtp({ name, email, password, confirmPassword, referralCode }) {
+  async requestSignupOtp({ name, email, password, confirmPassword, phone, referralCode }) {
     try {
       const response = await apiGateway.post('/auth/signup/request-otp', {
         name,
         email,
         password,
         confirmPassword,
+        phone,
         referralCode,
       });
 

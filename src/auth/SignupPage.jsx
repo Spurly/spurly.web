@@ -4,7 +4,9 @@ import { useAuth } from 'src/hooks/useAuth';
 import { AuthShell, FeaturesAside } from './AuthShell.jsx';
 import {
   GoogleButton, PasswordField, PasswordRules, passwordMeetsRules, TrustBadges,
+  PhoneField, phoneIsValid, buildE164,
 } from './widgets.jsx';
+import { DEFAULT_COUNTRY } from './countryCodes.js';
 import { UserIcon, MailIcon, GiftIcon } from './icons.jsx';
 
 /**
@@ -18,7 +20,10 @@ export default function SignupPage() {
   const [params] = useSearchParams();
   const { requestSignupOtp } = useAuth();
 
-  const [form, setForm] = useState({ name: '', email: '', password: '', referralCode: '' });
+  const [form, setForm] = useState({
+    name: '', email: '', password: '', referralCode: '',
+    phoneCountry: DEFAULT_COUNTRY, phoneNumber: '',
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -29,13 +34,19 @@ export default function SignupPage() {
   }, [params]);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
-  const canSubmit = form.name.trim() && form.email.trim() && passwordMeetsRules(form.password) && !loading;
+  const phoneOk = phoneIsValid(form.phoneCountry, form.phoneNumber);
+  const canSubmit = form.name.trim() && form.email.trim() && phoneOk
+    && passwordMeetsRules(form.password) && !loading;
 
   async function onSubmit(e) {
     e.preventDefault();
     setError('');
     if (!passwordMeetsRules(form.password)) {
       setError('Please choose a password that meets all the requirements.');
+      return;
+    }
+    if (!phoneOk) {
+      setError('Please enter a valid phone number.');
       return;
     }
     setLoading(true);
@@ -46,6 +57,7 @@ export default function SignupPage() {
         password: form.password,
         // Single-field UI: confirmation mirrors the password (rules enforced above).
         confirmPassword: form.password,
+        phone: buildE164(form.phoneCountry, form.phoneNumber),
         referralCode: form.referralCode.trim() || undefined,
       });
       navigate('/signup/verify', {
@@ -98,6 +110,17 @@ export default function SignupPage() {
                 autoComplete="email" placeholder="you@company.com" required
               />
             </div>
+          </div>
+
+          <div className="sp-field">
+            <label className="sp-label" htmlFor="su-phone">Phone Number</label>
+            <PhoneField
+              id="su-phone"
+              country={form.phoneCountry}
+              number={form.phoneNumber}
+              onCountryChange={(code) => setForm((f) => ({ ...f, phoneCountry: code }))}
+              onNumberChange={(num) => setForm((f) => ({ ...f, phoneNumber: num }))}
+            />
           </div>
 
           <div className="sp-field">

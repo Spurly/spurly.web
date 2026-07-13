@@ -7,7 +7,9 @@ import {
   LockIcon,
   ShieldIcon,
   CheckCircleIcon,
+  PhoneIcon,
 } from "./icons.jsx";
+import COUNTRY_CODES, { findCountry } from "./countryCodes.js";
 
 /**
  * "Continue with Google" button. Fetches the Google OAuth authorization URL
@@ -100,6 +102,100 @@ export function PasswordField({
       >
         {show ? <EyeOffIcon s={18} /> : <EyeIcon s={18} />}
       </button>
+    </div>
+  );
+}
+
+/**
+ * Strip everything except digits from a raw phone input string.
+ * @param {string} v
+ * @returns {string} digits only
+ */
+export function digitsOnly(v) {
+  return String(v || "").replace(/\D/g, "");
+}
+
+/**
+ * Build a full E.164 phone string from a selected country ISO code and the
+ * national number the user typed. Returns "" if the country is unknown.
+ * @param {string} countryCode - ISO alpha-2 code (e.g. "US")
+ * @param {string} national - the local number (any formatting is stripped)
+ * @returns {string} e.g. "+14155552671"
+ */
+export function buildE164(countryCode, national) {
+  const country = findCountry(countryCode);
+  if (!country) return "";
+  return `${country.dial}${digitsOnly(national)}`;
+}
+
+/**
+ * Validate a national number against the selected country. The combined E.164
+ * string (dial code + national number) must satisfy the backend's
+ * `^\+[1-9]\d{6,14}$` rule — i.e. 7–15 total digits — and the national part
+ * must be a sensible length on its own.
+ * @param {string} countryCode - ISO alpha-2 code
+ * @param {string} national - the local number
+ * @returns {boolean}
+ */
+export function phoneIsValid(countryCode, national) {
+  const country = findCountry(countryCode);
+  if (!country) return false;
+  const nat = digitsOnly(national);
+  if (nat.length < 4 || nat.length > 14) return false;
+  return /^\+[1-9]\d{6,14}$/.test(`${country.dial}${nat}`);
+}
+
+/**
+ * Phone number field: a country-code dropdown next to a national-number input.
+ * The parent owns the state; this component only renders and reports changes.
+ *
+ * @param {Object} props
+ * @param {string} props.country - selected ISO country code
+ * @param {string} props.number - national number (digits, possibly partial)
+ * @param {(code: string) => void} props.onCountryChange
+ * @param {(number: string) => void} props.onNumberChange - receives digits only
+ * @param {boolean} [props.error] - render the error border
+ * @param {string} [props.id]
+ */
+export function PhoneField({
+  country,
+  number,
+  onCountryChange,
+  onNumberChange,
+  error,
+  id = "su-phone",
+}) {
+  const selected = findCountry(country);
+  return (
+    <div className="sp-phone">
+      <select
+        className={"sp-select sp-phone__cc" + (error ? " is-error" : "")}
+        value={country}
+        onChange={(e) => onCountryChange(e.target.value)}
+        aria-label="Country calling code"
+      >
+        {COUNTRY_CODES.map((c) => (
+          <option key={c.code} value={c.code}>
+            {c.flag} {c.code} {c.dial}
+          </option>
+        ))}
+      </select>
+      <div className="sp-input-wrap sp-phone__num">
+        <span className="sp-ic-left">
+          <PhoneIcon s={18} />
+        </span>
+        <input
+          id={id}
+          type="tel"
+          inputMode="numeric"
+          autoComplete="tel-national"
+          className={"sp-input has-left" + (error ? " is-error" : "")}
+          value={number}
+          onChange={(e) => onNumberChange(digitsOnly(e.target.value))}
+          placeholder={selected ? `${selected.dial} phone number` : "Phone number"}
+          required
+        />
+      </div>
     </div>
   );
 }

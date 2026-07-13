@@ -296,6 +296,17 @@
   color: var(--sp-primary);
 }
 
+/* ---------- Phone field (country code + number) ---------- */
+.sp-phone { display: flex; gap: 10px; align-items: stretch; }
+.sp-phone__cc {
+  flex: 0 0 132px;
+  width: 132px;
+  padding-left: 12px;
+  padding-right: 34px;
+  background-position: right 10px center;
+}
+.sp-phone__num { flex: 1 1 auto; min-width: 0; }
+
 /* ---------- Custom Dropdown ---------- */
 .sp-dropdown {
   position: relative;

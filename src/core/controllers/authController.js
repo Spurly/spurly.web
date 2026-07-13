@@ -72,15 +72,16 @@ class AuthController {
 
   /**
    * Step 1 of OTP signup: request a verification code. No account yet.
-   * @param {Object} params - { name, email, password, confirmPassword, referralCode? }
+   * @param {Object} params - { name, email, password, confirmPassword, phone, referralCode? }
    * @returns {Promise<{email: string}>}
    */
-  async requestSignupOtp({ name, email, password, confirmPassword, referralCode }) {
+  async requestSignupOtp({ name, email, password, confirmPassword, phone, referralCode }) {
     const authResponse = await authApi.requestSignupOtp({
       name,
       email,
       password,
       confirmPassword,
+      phone,
       referralCode,
     });
 
