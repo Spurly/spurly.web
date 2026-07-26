@@ -10,11 +10,15 @@ body.mkt{
   --gray-200:#e4e4e9; --gray-300:#d6d6dc; --gray-400:#b4b4bd; --gray-500:#8a8a93;
   --gray-600:#6b6b73; --gray-700:#48484e; --gray-800:#2b2b30; --gray-900:#1c1c1f; --gray-950:#0c0c0e;
 
-  --purple:#7c3aed; --purple-700:#6d28d9; --purple-300:#c4b5fd;
-  --blue:#38bdf8;   --blue-600:#0ea5e9; --indigo:#5b54e6;
-  --grad:linear-gradient(135deg,#7c3aed 0%,#38bdf8 100%);
-  --grad-vivid:linear-gradient(135deg,#8b46f0 0%,#4aa9f5 100%);
-  --grad-soft:linear-gradient(135deg,rgba(124,58,237,.14),rgba(56,189,248,.14));
+  /* Brand teal, matched to the app and the extension. The --purple-* names are
+     kept as aliases so the ~29 existing call sites in this file reskin rather
+     than break; rename them when this file is next touched properly. */
+  --teal:#0d9bb5; --teal-700:#0a7d92; --teal-300:#7dd3e8;
+  --purple:#0d9bb5; --purple-700:#0a7d92; --purple-300:#7dd3e8;
+  --blue:#38bdf8;   --blue-600:#0ea5e9; --indigo:#0ea5e9;
+  --grad:linear-gradient(135deg,#0d9bb5 0%,#38bdf8 100%);
+  --grad-vivid:linear-gradient(135deg,#12aecb 0%,#4aa9f5 100%);
+  --grad-soft:linear-gradient(135deg,rgba(13,155,181,.14),rgba(56,189,248,.14));
 
   --green:#2fb457; --amber:#f59e0b; --red:#ff453a; --sky:#0a84ff;
 
@@ -27,13 +31,15 @@ body.mkt{
 
   --text-1:var(--gray-900); --text-2:var(--gray-600); --text-3:var(--gray-500);
   --border:var(--gray-300); --hairline:var(--gray-200); --sep:rgba(0,0,0,.07);
-  --accent:var(--purple); --accent-tint:rgba(124,58,237,.10); --ring:rgba(124,58,237,.40);
+  --accent:var(--teal); --accent-tint:rgba(13,155,181,.10); --ring:rgba(13,155,181,.40);
+  /* Text-safe accent — --teal alone is 3.4:1 on white and fails AA for copy. */
+  --accent-text:var(--teal-700);
 
-  --canvas:#f4f5f8;
+  --canvas:#f7f8fa;
   --shadow-sm:0 2px 8px rgba(16,18,32,.06);
   --shadow:0 16px 40px rgba(16,18,32,.12);
   --shadow-lg:0 40px 90px rgba(16,18,32,.18);
-  --shadow-accent:0 14px 38px rgba(124,58,237,.34);
+  --shadow-accent:0 14px 38px rgba(13,155,181,.34);
 
   --ease-out:cubic-bezier(.16,1,.3,1);
   --ease-spring:cubic-bezier(.34,1.56,.64,1);
@@ -60,7 +66,7 @@ body.mkt img{display:block;max-width:100%}
 body.mkt a{color:inherit;text-decoration:none}
 body.mkt button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
 body.mkt :focus-visible{outline:3px solid var(--ring);outline-offset:2px;border-radius:6px}
-body.mkt ::selection{background:rgba(124,58,237,.18)}
+body.mkt ::selection{background:rgba(13,155,181,.18)}
 
 /* ---------- Restore UA element defaults stripped by the dashboard's Tailwind
    Preflight, so the marketing subtree renders exactly like the standalone site
@@ -137,7 +143,7 @@ body.mkt .btn{
 body.mkt .btn svg{width:18px;height:18px}
 body.mkt .btn:active{transform:scale(.97)}
 body.mkt .btn-primary{background:var(--grad-vivid);color:#fff;box-shadow:var(--shadow-accent)}
-body.mkt .btn-primary:hover{box-shadow:0 18px 46px rgba(124,58,237,.46);transform:translateY(-1px)}
+body.mkt .btn-primary:hover{box-shadow:0 18px 46px rgba(13,155,181,.46);transform:translateY(-1px)}
 body.mkt .btn-ghost{
   background:var(--glass-thick);color:var(--text-1);
   -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
@@ -328,7 +334,7 @@ body.mkt .insert-row{display:flex;gap:8px;align-items:center;margin-bottom:18px;
 body.mkt .insert-row .lbl{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);font-weight:600;margin-right:4px}
 body.mkt .var-chip{
   font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--purple-700);
-  padding:6px 11px;border-radius:9px;background:var(--accent-tint);border:1px solid rgba(124,58,237,.16);
+  padding:6px 11px;border-radius:9px;background:var(--accent-tint);border:1px solid rgba(13,155,181,.16);
 }
 body.mkt .compose{font-size:15.5px;line-height:1.7;color:var(--text-1);min-height:200px}
 body.mkt .compose .v{color:var(--purple-700);font-weight:600;background:var(--accent-tint);padding:1px 5px;border-radius:6px}
@@ -346,13 +352,13 @@ body.mkt .pv-sub{font-weight:700;font-size:16px;margin-bottom:12px;letter-spacin
 body.mkt .pv-body{font-size:14.5px;color:var(--text-1);line-height:1.6;white-space:pre-line}
 body.mkt .recip-row{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
 body.mkt .recip{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 7px;border-radius:999px;background:var(--gray-50);border:1px solid var(--hairline);font-size:13px;font-weight:500;transition:all .3s var(--ease-out);cursor:default}
-body.mkt .recip.active{background:var(--accent-tint);border-color:rgba(124,58,237,.24);color:var(--purple-700)}
+body.mkt .recip.active{background:var(--accent-tint);border-color:rgba(13,155,181,.24);color:var(--purple-700)}
 body.mkt .recip .mini{width:22px;height:22px;border-radius:50%;color:#fff;display:grid;place-items:center;font-size:10px;font-weight:700}
 
 /* ---------- Pricing ---------- */
 body.mkt .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
 body.mkt .price{position:relative;display:flex;flex-direction:column;padding:32px 28px;border-radius:var(--r-panel)}
-body.mkt .price.feat{border:1px solid rgba(124,58,237,.3);box-shadow:0 30px 70px rgba(124,58,237,.20),var(--inner-glow)}
+body.mkt .price.feat{border:1px solid rgba(13,155,181,.3);box-shadow:0 30px 70px rgba(13,155,181,.20),var(--inner-glow)}
 body.mkt .price .badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--grad-vivid);color:#fff;font-size:11.5px;font-weight:600;letter-spacing:.04em;padding:6px 14px;border-radius:999px;box-shadow:var(--shadow-accent)}
 body.mkt .price .pname{font-size:14px;font-weight:600;letter-spacing:.02em;color:var(--text-2);text-transform:uppercase}
 body.mkt .price .pamt{display:flex;align-items:baseline;gap:6px;margin:16px 0 4px}
@@ -370,12 +376,12 @@ body.mkt .price li.off svg{color:var(--gray-400)}
 body.mkt .cta-panel{
   position:relative;overflow:hidden;border-radius:var(--r-hero);text-align:center;
   padding:clamp(48px,7vw,88px) 24px;
-  background:linear-gradient(135deg,rgba(124,58,237,.10),rgba(56,189,248,.12)),var(--glass-thick);
+  background:linear-gradient(135deg,rgba(13,155,181,.10),rgba(56,189,248,.12)),var(--glass-thick);
   -webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
   border:1px solid var(--edge-light);box-shadow:var(--shadow-lg),var(--inner-glow);
 }
 body.mkt .cta-panel::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-  background:radial-gradient(600px 300px at 50% -20%,rgba(124,58,237,.22),transparent 70%)}
+  background:radial-gradient(600px 300px at 50% -20%,rgba(13,155,181,.22),transparent 70%)}
 body.mkt .cta-panel>*{position:relative;z-index:1}
 body.mkt .cta-panel .lead{margin:18px auto 0;max-width:540px}
 body.mkt .cta-panel .hero-actions{margin-top:32px}
@@ -446,17 +452,22 @@ body.mkt .mobile-menu .btn{margin-top:20px}
    PALETTE ENGINE  — default: LinkedIn-style azure on warm sand.
    Tweaks panel sets body[data-palette] / [data-frost] / [data-energy].
    ============================================================ */
+/* NOTE: this block re-declares the brand tokens set at the top of the file and,
+   being later in source order, is the one that actually renders. Edit brand
+   colours HERE — changing only the block at the top has no effect. */
 body.mkt{
-  --purple:#2d6ae0; --purple-700:#2459c4; --purple-300:#9cc2f5;
-  --blue:#38bdf8;  --blue-600:#0ea5e9; --indigo:#3f7fe6;
-  --grad:linear-gradient(135deg,#2d6ae0 0%,#38bdf8 100%);
-  --grad-vivid:linear-gradient(135deg,#3b78f0 0%,#4ec0f7 100%);
-  --grad-soft:linear-gradient(135deg,rgba(45,106,224,.14),rgba(56,189,248,.14));
-  --accent-tint:rgba(45,106,224,.10); --ring:rgba(45,106,224,.38);
-  --canvas:#f1efe9;
-  --glow-a:rgba(214,188,140,.22);   /* warm sand bloom */
-  --glow-b:rgba(45,106,224,.16);    /* azure bloom */
-  --glow-c:rgba(120,150,210,.10);
+  --teal:#0d9bb5; --teal-700:#0a7d92; --teal-300:#7dd3e8;
+  --purple:#0d9bb5; --purple-700:#0a7d92; --purple-300:#7dd3e8;
+  --blue:#38bdf8;  --blue-600:#0ea5e9; --indigo:#0ea5e9;
+  --grad:linear-gradient(135deg,#0d9bb5 0%,#38bdf8 100%);
+  --grad-vivid:linear-gradient(135deg,#12aecb 0%,#4ec0f7 100%);
+  --grad-soft:linear-gradient(135deg,rgba(13,155,181,.14),rgba(56,189,248,.14));
+  --accent-tint:rgba(13,155,181,.10); --ring:rgba(13,155,181,.38);
+  --accent-text:var(--teal-700);
+  --canvas:#f6f8f9;
+  --glow-a:rgba(13,155,181,.14);    /* teal bloom */
+  --glow-b:rgba(56,189,248,.16);    /* azure bloom */
+  --glow-c:rgba(120,190,210,.10);
   --flap-ink:#1a2230;               /* split-flap cell */
   --anim-scale:1;                   /* energy: duration multiplier */
 }
@@ -628,11 +639,11 @@ body.mkt .twk-fab{position:fixed;right:18px;bottom:18px;z-index:2147483645;overf
   font-weight:600;font-size:14px;color:#fff;background:var(--grad-vivid);
   box-shadow:var(--shadow-accent),var(--inner-glow);
   transition:transform .25s var(--ease-spring),box-shadow .25s,opacity .25s,visibility .25s}
-body.mkt .twk-fab:hover{transform:translateY(-2px);box-shadow:0 18px 46px rgba(45,106,224,.46)}
+body.mkt .twk-fab:hover{transform:translateY(-2px);box-shadow:0 18px 46px rgba(13,155,181,.46)}
 body.mkt .twk-fab.hidden{opacity:0;visibility:hidden;transform:translateY(8px)}
 body.mkt .twk-fab .twk-fab-pulse{position:absolute;inset:0;border-radius:999px;pointer-events:none;
-  box-shadow:0 0 0 0 rgba(45,106,224,.45);animation:twkPulse calc(2.6s * var(--anim-scale)) ease-out infinite}
-@keyframes twkPulse{0%{box-shadow:0 0 0 0 rgba(45,106,224,.40)}70%,100%{box-shadow:0 0 0 14px rgba(45,106,224,0)}}
+  box-shadow:0 0 0 0 rgba(13,155,181,.45);animation:twkPulse calc(2.6s * var(--anim-scale)) ease-out infinite}
+@keyframes twkPulse{0%{box-shadow:0 0 0 0 rgba(13,155,181,.40)}70%,100%{box-shadow:0 0 0 14px rgba(13,155,181,0)}}
 @media (prefers-reduced-motion:reduce){body.mkt .twk-fab .twk-fab-pulse{animation:none}}
 @media (max-width:560px){
   body.mkt .twk-fab{right:12px;bottom:12px;padding:0 14px}
@@ -690,7 +701,7 @@ body.mkt .sound-toggle svg{width:18px;height:18px}
 body.mkt .sound-toggle:hover{color:var(--text-1);transform:translateY(-1px)}
 body.mkt .sound-toggle.on{color:#fff;background:var(--grad-vivid);border-color:transparent;box-shadow:var(--inner-glow)}
 body.mkt .sound-toggle.attn{animation:soundAttn 1.05s ease-in-out 3}
-@keyframes soundAttn{0%,100%{box-shadow:0 0 0 0 var(--ring)}50%{box-shadow:0 0 0 9px rgba(124,58,237,0)}}
+@keyframes soundAttn{0%,100%{box-shadow:0 0 0 0 var(--ring)}50%{box-shadow:0 0 0 9px rgba(13,155,181,0)}}
 body.mkt .sound-toggle.ripple::after{content:"";position:absolute;inset:-4px;border-radius:50%;
   border:2px solid var(--accent);animation:soundRipple .65s ease-out;pointer-events:none}
 @keyframes soundRipple{from{transform:scale(.8);opacity:.7}to{transform:scale(1.85);opacity:0}}

@@ -1,52 +1,51 @@
-import sessionsApi from 'src/core/gateway/sessionsApi.js';
-import profilesApi from 'src/core/gateway/profilesApi.js';
+import importedLeadsApi from 'src/core/gateway/importedLeadsApi.js';
 
 /**
  * Import Controller
- * Orchestrates the CSV-import save flow for spurly.web, mirroring the
- * extension's enrich path: create a session, then batch-save the parsed
- * profiles into it in 'enrich' mode.
  *
- * The backend batch endpoint requires an existing session, so unlike the
- * extension (which reuses a local/active session) the web always creates a
- * fresh session per import.
+ * Orchestrates the CSV-import save flow for spurly.web. Parsed rows go into
+ * the IMPORTED LEADS staging area — not straight into People. Staging is free;
+ * the user then enriches the rows they care about (visiting each profile via
+ * the extension) and promotes the finished ones into People, which is where
+ * the PROFILE_CARD charge and the daily capture limit apply.
  */
 class ImportController {
   /**
    * @param {Object} args
-   * @param {string} args.sessionName    Name for the new session (required).
-   * @param {string} [args.description]  Optional session description.
-   * @param {Array}  args.profiles       Enrich-mode profile objects to save.
-   * @returns {Promise<{ sessionId, savedCount, failedCount, totalCount }>}
+   * @param {Array}  args.profiles   Parsed rows: { name, title, company, location, profileUrl, ... }
+   * @param {string} [args.sourceFile] Original filename, shown in the staging table.
+   * @returns {Promise<{ savedCount, failedCount, totalCount, importBatchId }>}
    * @throws {Error} with a user-readable message on any failure.
    */
-  async importProfiles({ sessionName, description, profiles }) {
-    const name = sessionName?.trim();
-    if (!name) throw new Error('Session name is required');
+  async importProfiles({ profiles, sourceFile = '' }) {
     if (!Array.isArray(profiles) || profiles.length === 0) {
       throw new Error('No profiles to import');
     }
 
-    // 1. Create the session.
-    const sessionRes = await sessionsApi.createSession({ name, description });
-    if (!sessionRes?.success || !sessionRes?.data?._id) {
-      throw new Error(sessionRes?.message || 'Failed to create session');
-    }
-    const sessionId = sessionRes.data._id;
-
-    // 2. Batch-save the profiles into it (enrich mode).
-    const saveRes = await profilesApi.batchSaveProfiles(sessionId, profiles, 'enrich');
-    if (!saveRes?.success) {
-      throw new Error(saveRes?.message || 'Failed to save imported profiles');
+    // Staging requires a profileUrl on every row (it's the dedupe key); drop
+    // rows without one rather than failing the whole import.
+    const valid = profiles.filter((p) => p?.profileUrl && p.profileUrl.toString().trim());
+    const droppedForUrl = profiles.length - valid.length;
+    if (valid.length === 0) {
+      throw new Error('None of the rows had a LinkedIn profile URL');
     }
 
-    const d = saveRes.data || {};
+    const res = await importedLeadsApi.stageLeads(valid, sourceFile);
+    if (!res?.success) {
+      throw new Error(res?.message || 'Failed to import leads');
+    }
+
+    const d = res.data || {};
+    // `inserted` + `updated` is what actually landed in staging. A row that
+    // matched an existing staged lead unchanged counts as saved too — it IS
+    // in the staging list, which is all this number is telling the user.
+    const saved = (d.inserted ?? 0) + (d.updated ?? 0);
+
     return {
-      sessionId,
-      sessionName: name,
-      savedCount: d.savedCount ?? profiles.length,
-      failedCount: d.failedCount ?? 0,
-      totalCount: d.totalCount ?? profiles.length,
+      savedCount: saved || valid.length,
+      failedCount: droppedForUrl + (d.skipped ?? 0),
+      totalCount: profiles.length,
+      importBatchId: d.importBatchId || null,
     };
   }
 }

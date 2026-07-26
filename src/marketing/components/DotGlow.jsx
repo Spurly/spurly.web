@@ -24,7 +24,7 @@ export default function DotGlow() {
     var ctx = cv.getContext("2d");
     var DPR = Math.min(window.devicePixelRatio || 1, 2);
     var w = 0, h = 0, gap = 28, t = 0, running = false, raf = null;
-    var colA = "#2d6ae0", colB = "#38bdf8";
+    var colA = "#0d9bb5", colB = "#38bdf8";
     function readCol() { colA = cssVar("--purple", colA); colB = cssVar("--blue", colB); }
     readCol();
     window.addEventListener("spurly:repaint", readCol);

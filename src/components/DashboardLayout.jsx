@@ -1,13 +1,13 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "src/hooks/useAuth.js";
-import { Menu, LogOut, Home, Radio, Settings, Users, Upload, Shield } from "lucide-react";
+import { Menu, LogOut, Settings, Users, Sparkles, Shield, Send, FileText } from "lucide-react";
 import { useState, useRef } from "react";
 
 const navItems = [
-  { label: "Home", icon: Home, href: "/dashboard" },
-  { label: "People", icon: Users, href: "/dashboard/leads" },
-  { label: "Import", icon: Upload, href: "/dashboard/import" },
-  // { label: "Signals", icon: Radio, href: "/dashboard/signals" },
+  { label: "People", icon: Users, href: "/dashboard/people" },
+  { label: "Campaigns", icon: Send, href: "/dashboard/campaigns" },
+  { label: "Templates", icon: FileText, href: "/dashboard/templates" },
+  { label: "Enrich", icon: Sparkles, href: "/dashboard/enrich" },
 ];
 
 // Shown only to admins (user.isAdmin). Links into the admin console, which is
@@ -39,7 +39,10 @@ export function DashboardLayout({ children, title, subtitle }) {
     navigate("/");
   };
 
-  const isActive = (href) => location.pathname === href;
+  // Prefix match so detail pages (/dashboard/people/:id, /dashboard/campaigns/:id)
+  // keep their parent nav item lit.
+  const isActive = (href) =>
+    location.pathname === href || location.pathname.startsWith(`${href}/`);
 
   const items = user?.isAdmin ? [...navItems, adminNavItem] : navItems;
 
@@ -105,17 +108,19 @@ export function DashboardLayout({ children, title, subtitle }) {
 
         {/* Bottom actions */}
         <div className="px-3 pb-4 flex flex-col gap-1 border-t border-[var(--separator)] pt-3">
-          {/* Settings — temporarily hidden
           <button
             onClick={() => navigate('/dashboard/settings')}
-            className="flex items-center gap-3 h-10 px-3 rounded-[12px] text-[14px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-all"
+            className={`flex items-center gap-3 h-10 px-3 rounded-[12px] text-[14px] font-medium transition-all ${
+              isActive('/dashboard/settings')
+                ? 'bg-[var(--accent-tint)] text-[var(--accent)] font-semibold'
+                : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
+            }`}
           >
             <span className="shrink-0 grid place-items-center" style={{ width: 19, height: 19 }}>
               <Settings size={19} />
             </span>
             {isExpanded && <span>Settings</span>}
           </button>
-          */}
 
           {/* User avatar row */}
           <div className="flex items-center gap-2.5 h-12 px-2 mt-1">

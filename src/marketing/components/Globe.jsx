@@ -15,7 +15,7 @@ export default function Globe() {
     let size = 0, R = 0, cx = 0, cy = 0;
     let rot = -0.5, running = false, raf = null, last = 0;
 
-    let A = "#2d6ae0", B = "#38bdf8", I2 = "#3f7fe6";
+    let A = "#0d9bb5", B = "#38bdf8", I2 = "#0ea5e9";
     function hexRgb(h) { h = (h || "").trim(); if (h[0] === "#") h = h.slice(1); if (h.length === 3) h = h.split("").map(function (c) { return c + c; }).join(""); var n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
     function rgba(h, a) { var c = hexRgb(h); return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")"; }
     function readCol() { var s = getComputedStyle(document.body); A = (s.getPropertyValue("--purple") || A).trim() || A; B = (s.getPropertyValue("--blue") || B).trim() || B; I2 = (s.getPropertyValue("--indigo") || I2).trim() || I2; }

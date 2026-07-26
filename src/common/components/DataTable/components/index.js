@@ -12,3 +12,4 @@ export { SkillsCell } from './SkillsCell';
 export { AvatarNameCell } from './AvatarNameCell';
 export { CompanyCell } from './CompanyCell';
 export { LinkedInCell } from './LinkedInCell';
+export { OutreachStatusCell } from './OutreachStatusCell';

@@ -1,3 +1,22 @@
+/** Default per-channel outreach state for a person we've never reached. */
+function emptyChannel() {
+  return { status: 'none', lastSentAt: null, lastCampaignId: null, count: 0, lastError: '' };
+}
+
+/**
+ * Rows captured before outreach tracking existed have no `outreach` field, so
+ * fill in the "never contacted" shape rather than leaking undefined into the UI.
+ */
+function normalizeOutreach(outreach) {
+  return {
+    status: outreach?.status ?? 'none',
+    connection: { ...emptyChannel(), ...(outreach?.connection ?? {}) },
+    message: { ...emptyChannel(), ...(outreach?.message ?? {}) },
+    lastTouchedAt: outreach?.lastTouchedAt ?? null,
+    repliedAt: outreach?.repliedAt ?? null,
+  };
+}
+
 /**
  * Profile entity — represents a captured LinkedIn lead.
  * Wraps raw backend responses so the UI has a stable shape.
@@ -21,6 +40,9 @@ export class Profile {
     this.source = data.source ?? 'linkedin';
     this.linkedInUrl = data.linkedInUrl ?? data.profileUrl ?? '';
     this.connectionDegree = data.connectionDegree ?? null;
+    // Outreach rollup derived server-side from the OutreachEvent log. Always
+    // present in shape so the table can render a pill without null-checking.
+    this.outreach = normalizeOutreach(data.outreach);
     // Keep the original payload for anything not explicitly mapped.
     this.raw = data;
   }

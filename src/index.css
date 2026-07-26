@@ -22,17 +22,33 @@
   --gray-900: #1c1c1f;
   --gray-950: #0c0c0e;
 
-  /* Brand */
-  --brand-purple:     #7c3aed;
-  --brand-purple-700: #6d28d9;
-  --brand-purple-300: #c4b5fd;
+  /* Brand — teal, matched to the extension's LinkedIn embed accent
+     (oklch(0.62 0.13 205)) so the web app and the extension read as one product.
+
+     Contrast note: --brand-teal on white is 3.4:1. That passes for large
+     fills (buttons, badges, active nav) with white text on top, but FAILS
+     WCAG AA for text. Any teal *text* must use --brand-teal-700 (5.1:1),
+     which is what --text-accent and --text-link resolve to below. */
+  --brand-teal:      #0d9bb5;
+  --brand-teal-700:  #0a7d92;
+  --brand-teal-300:  #7dd3e8;
+  --brand-teal-050:  #e6f7fa;
   --brand-blue:       #38bdf8;
   --brand-blue-600:   #0ea5e9;
-  --brand-indigo:     #5b54e6;
+  --brand-indigo:     #0ea5e9;
 
-  --brand-gradient:       linear-gradient(135deg, #7c3aed 0%, #38bdf8 100%);
-  --brand-gradient-soft:  linear-gradient(135deg, rgba(124,58,237,0.14) 0%, rgba(56,189,248,0.14) 100%);
-  --brand-gradient-vivid: linear-gradient(135deg, #8b46f0 0%, #4aa9f5 100%);
+  /* Legacy purple aliases.
+     There are ~60 call sites still writing var(--brand-purple) inline. Aliasing
+     rather than deleting means the reskin lands everywhere at once and nothing
+     can break on a call site we missed. Remove these once the call sites are
+     migrated to --accent / --text-accent. */
+  --brand-purple:     var(--brand-teal);
+  --brand-purple-700: var(--brand-teal-700);
+  --brand-purple-300: var(--brand-teal-300);
+
+  --brand-gradient:       linear-gradient(135deg, #0d9bb5 0%, #38bdf8 100%);
+  --brand-gradient-soft:  linear-gradient(135deg, rgba(13,155,181,0.14) 0%, rgba(56,189,248,0.14) 100%);
+  --brand-gradient-vivid: linear-gradient(135deg, #12aecb 0%, #4aa9f5 100%);
 
   /* Semantic */
   --green:      #2fb457;
@@ -60,12 +76,14 @@
   --glass-inner-glow: inset 0 1px 0 rgba(255,255,255,0.65), inset 0 -1px 0 rgba(0,0,0,0.04);
 
   /* Canvas */
-  --canvas: #f4f5f8;
+  --canvas: #f7f8fa;
+  /* Toned well down from the previous purple/blue mesh. A loud gradient canvas
+     reads consumer; data tools want a calm ground so the data carries the
+     colour. Kept as a whisper rather than removed outright. */
   --canvas-mesh:
-    radial-gradient(900px 600px at 12% -8%,  rgba(124,58,237,0.10), transparent 60%),
-    radial-gradient(800px 600px at 100% 0%,  rgba(56,189,248,0.12), transparent 55%),
-    radial-gradient(700px 700px at 60% 110%, rgba(91,84,230,0.08),  transparent 60%),
-    #f4f5f8;
+    radial-gradient(900px 600px at 12% -8%,  rgba(13,155,181,0.055), transparent 60%),
+    radial-gradient(800px 600px at 100% 0%,  rgba(56,189,248,0.05),  transparent 55%),
+    #f7f8fa;
 
   /* Semantic aliases */
   --text-primary:   var(--gray-900);
@@ -75,8 +93,9 @@
   --text-on-accent: #ffffff;
   --text-on-dark:   rgba(255,255,255,0.92);
   --text-on-dark-2: rgba(255,255,255,0.58);
-  --text-accent:    var(--brand-purple);
-  --text-link:      var(--brand-purple-700);
+  /* Text-safe accent (5.1:1 on white). Never use --brand-teal for text. */
+  --text-accent:    var(--brand-teal-700);
+  --text-link:      var(--brand-teal-700);
 
   --surface-canvas:  var(--canvas);
   --surface-card:    var(--gray-0);
@@ -94,11 +113,13 @@
   --border-glass:    var(--glass-edge-light);
   --separator:       rgba(0,0,0,0.07);
 
-  --accent:        var(--brand-purple);
-  --accent-hover:  var(--brand-purple-700);
-  --accent-tint:   rgba(124,58,237,0.10);
-  --accent-tint-2: rgba(124,58,237,0.16);
-  --focus-ring:    rgba(124,58,237,0.35);
+  /* --accent is a FILL colour (white text sits on it). For accent-coloured
+     text use --text-accent. */
+  --accent:        var(--brand-teal);
+  --accent-hover:  var(--brand-teal-700);
+  --accent-tint:   rgba(13,155,181,0.10);
+  --accent-tint-2: rgba(13,155,181,0.16);
+  --focus-ring:    rgba(13,155,181,0.35);
 
   --success: var(--green);
   --warning: var(--amber);
@@ -127,7 +148,7 @@
   --shadow-lg:    0 16px 40px rgba(16,18,32,0.12);
   --shadow-xl:    0 28px 70px rgba(16,18,32,0.18);
   --shadow-glass: 0 10px 34px rgba(31,34,54,0.14), var(--glass-inner-glow);
-  --shadow-accent: 0 8px 24px rgba(124,58,237,0.30);
+  --shadow-accent: 0 6px 18px rgba(13,155,181,0.26);
 
   /* Focus */
   --ring-width: 3px;
@@ -227,6 +248,67 @@ table { font-variant-numeric: tabular-nums; }
     background: var(--accent-tint-2);
     color: var(--text-primary);
   }
+}
+
+/* ============================================================
+   Campaign flow canvas — dotted workspace + connector motion
+   ============================================================ */
+.campaign-canvas {
+  background-color: var(--surface-canvas);
+  background-image: radial-gradient(var(--border-default) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+}
+
+/* Idle connector — dim static dashes */
+.campaign-line-idle {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--border-default) 0 4px,
+    transparent 4px 8px
+  );
+}
+
+/* Completed connector — solid, coloured by state */
+.campaign-line-solid {
+  background: var(--line-color, var(--brand-purple));
+  box-shadow: 0 0 6px color-mix(in srgb, var(--line-color, var(--brand-purple)) 40%, transparent);
+}
+
+/* Active connector — dashes flowing toward the profile node */
+.campaign-line-flow {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--line-color, var(--brand-purple)) 0 6px,
+    transparent 6px 12px
+  );
+  background-size: 24px 100%;
+  animation: campaign-dash-flow 0.7s linear infinite;
+}
+
+@keyframes campaign-dash-flow {
+  from { background-position: 0 0; }
+  to   { background-position: 24px 0; }
+}
+
+/* Glow ring on the node being processed */
+.campaign-node-glow {
+  animation: campaign-node-glow 1.4s ease-in-out infinite;
+}
+@keyframes campaign-node-glow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-tint); }
+  50%      { box-shadow: 0 0 0 6px transparent; }
+}
+
+/* Pulse that travels down the spine during a live run */
+.campaign-spine-pulse {
+  animation: campaign-spine-travel 2.4s ease-in-out infinite;
+}
+@keyframes campaign-spine-travel {
+  0%   { top: 8px;  opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { top: calc(100% - 16px); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,12 +1,12 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from 'src/components/ProtectedRoute';
 import { AdminRoute } from 'src/components/AdminRoute';
-import { HomePage } from 'src/pages/Home';
 import { CapturedLeadsPage } from 'src/pages/CapturedLeads';
-import { LeadDetailPage } from 'src/pages/LeadDetail';
-import { SignalsPage } from 'src/pages/Signals';
+import { CampaignsPage } from 'src/pages/Campaigns';
+import { CampaignDetailPage } from 'src/pages/Campaigns/CampaignDetailPage.jsx';
+import { TemplatesPage } from 'src/pages/Templates';
 import { SettingsPage } from 'src/pages/Settings';
-import { ImportPage } from 'src/pages/Import';
+import { EnrichPage } from 'src/pages/Enrich';
 import { AdminUsersPage } from 'src/pages/Admin/Users';
 import { AdminInsightsPage } from 'src/pages/Admin/Insights';
 import { AdminTransactionsPage } from 'src/pages/Admin/Transactions';
@@ -54,13 +54,31 @@ export function AppRoutes() {
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingSurveyPage /></ProtectedRoute>} />
       <Route path="/onboarding/install" element={<ProtectedRoute><InstallExtensionPage /></ProtectedRoute>} />
 
-      {/* Dashboard (protected) */}
-      <Route path="/dashboard" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-      <Route path="/dashboard/leads" element={<ProtectedRoute><CapturedLeadsPage /></ProtectedRoute>} />
-      <Route path="/dashboard/import" element={<ProtectedRoute><ImportPage /></ProtectedRoute>} />
-      <Route path="/dashboard/leads/:leadId" element={<ProtectedRoute><LeadDetailPage /></ProtectedRoute>} />
-      <Route path="/dashboard/signals" element={<ProtectedRoute><SignalsPage /></ProtectedRoute>} />
+      {/* Dashboard (protected).
+          People is the landing surface — there is no separate Home page. Login,
+          password reset, onboarding, the LinkedIn callback and the marketing nav
+          all send users to bare /dashboard, so it stays alive as a redirect
+          rather than making all of those know about /dashboard/people. */}
+      <Route path="/dashboard" element={<Navigate to="/dashboard/people" replace />} />
+      <Route path="/dashboard/people" element={<ProtectedRoute><CapturedLeadsPage /></ProtectedRoute>} />
+      <Route path="/dashboard/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
+      <Route path="/dashboard/campaigns/:campaignId" element={<ProtectedRoute><CampaignDetailPage /></ProtectedRoute>} />
+      <Route path="/dashboard/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
+      <Route path="/dashboard/enrich" element={<ProtectedRoute><EnrichPage /></ProtectedRoute>} />
       <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+
+      {/* Legacy /leads paths — kept permanently so existing bookmarks and any
+          extension deep links keep working after the rename to /people. The
+          per-lead page no longer exists (details open in a drawer on the list),
+          so old detail links land on the list rather than 404. */}
+      <Route path="/dashboard/leads" element={<Navigate to="/dashboard/people" replace />} />
+      <Route path="/dashboard/leads/:leadId" element={<Navigate to="/dashboard/people" replace />} />
+      <Route path="/dashboard/people/:leadId" element={<Navigate to="/dashboard/people" replace />} />
+
+      {/* Legacy /import path — same reasoning as /leads above. The page was
+          renamed to Enrich because importing is just how leads arrive; the
+          enrichment step is what the page is for. */}
+      <Route path="/dashboard/import" element={<Navigate to="/dashboard/enrich" replace />} />
 
       {/* Admin console (admin-only; backend also enforces via adminMiddleware) */}
       <Route path="/admin" element={<Navigate to="/admin/users" replace />} />

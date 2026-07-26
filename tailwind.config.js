@@ -8,13 +8,19 @@ export default {
     extend: {
       colors: {
         spurly: {
-          /* Brand — unchanged */
-          purple:       '#7C3AED',
-          'purple-700': '#6D28D9',
-          'purple-300': '#C4B5FD',
+          /* Brand — teal, matched to the extension. `purple:` keys are kept as
+             aliases pointing at the teal values so existing utility classes
+             (text-spurly-purple, bg-spurly-purple) reskin instead of breaking. */
+          teal:         '#0D9BB5',
+          'teal-700':   '#0A7D92',
+          'teal-300':   '#7DD3E8',
+          'teal-050':   '#E6F7FA',
+          purple:       '#0D9BB5',
+          'purple-700': '#0A7D92',
+          'purple-300': '#7DD3E8',
           blue:         '#38BDF8',
           'blue-600':   '#0EA5E9',
-          indigo:       '#5B54E6',
+          indigo:       '#0EA5E9',
 
           /* Neutrals — updated to Apple cool-gray ramp */
           navy:           '#0c0c0e',  /* deepest ink / sidebar fill when needed */
@@ -22,7 +28,7 @@ export default {
           'text-secondary': '#6b6b73',
           'text-tertiary':  '#8a8a93',
           'text-disabled':  '#b4b4bd',
-          'surface-bg':   '#f4f5f8',  /* app canvas */
+          'surface-bg':   '#f7f8fa',  /* app canvas */
           border:         '#d6d6dc',  /* default border */
           'border-hairline': '#e4e4e9',
           separator:      'rgba(0,0,0,0.07)',
@@ -85,7 +91,7 @@ export default {
         'spurly-lg':    '0 16px 40px rgba(16,18,32,0.12)',
         'spurly-xl':    '0 28px 70px rgba(16,18,32,0.18)',
         'spurly-glass': '0 10px 34px rgba(31,34,54,0.14)',
-        'spurly-accent':'0 8px 24px rgba(124,58,237,0.30)',
+        'spurly-accent':'0 6px 18px rgba(13,155,181,0.26)',
       },
       spacing: {
         'spurly-gutter': '24px',

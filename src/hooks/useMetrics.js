@@ -7,10 +7,10 @@ import apiGateway from 'src/core/gateway/apiGateway.js';
  */
 export function useMetrics() {
   const [metrics, setMetrics] = useState({
+    total: 0,
     leadsCapture: { thisWeek: 0, lastWeek: 0, percentageChange: 0 },
     enriched: { thisWeek: 0, lastWeek: 0, percentageChange: 0 },
     verifiedEmails: { thisWeek: 0, lastWeek: 0, percentageChange: 0 },
-    sessions: { thisWeek: 0, lastWeek: 0, percentageChange: 0, total: 0, active: 0 },
     connectionDegrees: { first: 0, second: 0, third: 0, unknown: 0 },
     topTitles: [],
   });
@@ -22,7 +22,7 @@ export function useMetrics() {
     setError(null);
 
     try {
-      const response = await apiGateway.get('/profiles/statistics');
+      const response = await apiGateway.get('/people/statistics');
       const data = response.data;
 
       if (data?.success && data?.data?.statistics) {

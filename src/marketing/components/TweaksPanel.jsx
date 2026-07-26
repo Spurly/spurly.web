@@ -9,7 +9,7 @@ const KEY = "spurly_tweaks_v1";
 const DEFAULTS = { palette: "violet", frost: "frosted", energy: "balanced" };
 
 const SWATCHES = {
-  azure: "linear-gradient(135deg,#2d6ae0,#38bdf8)",
+  azure: "linear-gradient(135deg,#0d9bb5,#38bdf8)",
   sand: "linear-gradient(135deg,#a9762f,#d9a441)",
   green: "linear-gradient(135deg,#1f8a5b,#34d399)",
   violet: "linear-gradient(135deg,#7c3aed,#38bdf8)",

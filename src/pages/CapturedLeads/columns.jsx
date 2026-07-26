@@ -7,12 +7,19 @@ import {
   PhoneCell,
   SkillsCell,
   LinkedInCell,
+  OutreachStatusCell,
 } from 'src/common/components/DataTable/components';
+import { absoluteTime, relativeTime } from 'src/common/utils/outreach';
 
 
 /**
- * Column definitions for the Captured Leads DataTable.
- * Defines the structure, rendering, and behavior of each column.
+ * Column definitions for the Captured People DataTable.
+ * People is a full clone of the old Profile model (minus sessions), so the
+ * enrichment columns (email, phone, headline, skills) are back.
+ *
+ * Outreach state is rendered as ONE status pill rather than separate
+ * "connection sent" / "message sent" date columns — see
+ * common/utils/outreach.js for why (repeat outreach, scannability).
  */
 export const columns = [
   {
@@ -32,6 +39,13 @@ export const columns = [
     minWidth: '160px',
     sortable: true,
     render: (value, row) => <AvatarNameCell value={value} row={row} />,
+  },
+  {
+    key: 'outreach',
+    label: 'Status',
+    width: '150px',
+    minWidth: '140px',
+    render: (value) => <OutreachStatusCell outreach={value} />,
   },
   {
     key: 'title',
@@ -94,5 +108,23 @@ export const columns = [
     width: '220px',
     minWidth: '180px',
     render: (value) => <SkillsCell value={value} />,
+  },
+  {
+    // The raw date, for when "3d" isn't precise enough. Reads off the same
+    // rollup as the status pill so the two can never disagree.
+    key: 'lastTouched',
+    label: 'Last touched',
+    width: '130px',
+    minWidth: '120px',
+    render: (_value, row) => {
+      const at = row?.outreach?.lastTouchedAt;
+      if (!at) return <span className="text-[13px] text-[var(--text-tertiary)]">—</span>;
+      const rel = relativeTime(at);
+      return (
+        <span className="text-[13px] text-[var(--text-secondary)] tabular-nums" title={absoluteTime(at)}>
+          {rel === 'just now' ? 'Just now' : `${rel} ago`}
+        </span>
+      );
+    },
   },
 ];

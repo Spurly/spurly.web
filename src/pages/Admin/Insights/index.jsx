@@ -46,7 +46,7 @@ import {
 } from 'src/core/gateway/adminApi';
 
 const CHART = {
-  captures: '#7c3aed', // brand purple
+  captures: '#0d9bb5', // brand teal
   connections: '#0a84ff', // sky
   messages: '#f59e0b', // amber
   active: '#2fb457', // green

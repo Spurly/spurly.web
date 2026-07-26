@@ -1,7 +1,7 @@
-import { X, MapPin, Mail, Phone, Linkedin, ExternalLink, Briefcase } from 'lucide-react';
+import { X, MapPin, Mail, Phone, Linkedin, Briefcase } from 'lucide-react';
 import { Badge } from 'src/common/components/Badge';
-import { Button } from 'src/common/components/Button';
-import { useNavigate } from 'react-router-dom';
+import { OutreachTimeline } from 'src/components/OutreachTimeline';
+import { OutreachStatusCell } from 'src/common/components/DataTable/components';
 
 function ContactRow({ icon: Icon, value, empty }) {
   return (
@@ -18,7 +18,6 @@ function ContactRow({ icon: Icon, value, empty }) {
 }
 
 export function LeadDetailSidebar({ lead, onClose }) {
-  const navigate = useNavigate();
   if (!lead) return null;
 
   const statusTone =
@@ -63,20 +62,12 @@ export function LeadDetailSidebar({ lead, onClose }) {
           style={{ height: 60, background: 'var(--glass-chrome)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
         >
           <span className="text-[13px] font-semibold text-[var(--text-secondary)]">Lead profile</span>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => navigate(`/dashboard/leads/${lead._id || lead.id}`)}
-              className="w-8 h-8 grid place-items-center rounded-[9px] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
-            >
-              <ExternalLink size={16} />
-            </button>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 grid place-items-center rounded-[9px] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
-            >
-              <X size={18} />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 grid place-items-center rounded-[9px] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
+          >
+            <X size={18} />
+          </button>
         </div>
 
         {/* Scrollable body */}
@@ -108,7 +99,8 @@ export function LeadDetailSidebar({ lead, onClose }) {
             <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed mb-4">{lead.headline}</p>
           )}
 
-          <div className="flex items-center gap-2 mb-5">
+          <div className="flex items-center gap-2 mb-5 flex-wrap">
+            <OutreachStatusCell outreach={lead.outreach} />
             {lead.connectionDegree && (
               <Badge tone="neutral">{lead.connectionDegree} degree</Badge>
             )}
@@ -119,31 +111,6 @@ export function LeadDetailSidebar({ lead, onClose }) {
               <Badge key={badge} tone="primary">{badge}</Badge>
             ))}
           </div>
-
-          {/* AI Score */}
-          {(lead.aiScore !== undefined || lead.quality !== undefined) && (
-            <div className="mb-5 p-4 rounded-[14px]" style={{ background: 'var(--surface-sunken)' }}>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--text-tertiary)]">
-                  {lead.aiScore !== undefined ? 'AI Score' : 'Quality score'}
-                </span>
-                <span className="text-[15px] font-bold text-[var(--text-primary)] tabular-nums">
-                  {lead.aiScore ?? lead.quality}
-                  {lead.aiGrade && <span className="text-[13px] font-semibold ml-1.5" style={{ color: 'var(--green)' }}>{lead.aiGrade}</span>}
-                </span>
-              </div>
-              {/* Progress bar */}
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border-hairline)' }}>
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{
-                    width: `${lead.aiScore ?? lead.quality ?? 0}%`,
-                    background: 'var(--brand-gradient-vivid)',
-                  }}
-                />
-              </div>
-            </div>
-          )}
 
           {/* AI Summary */}
           {lead.aiSummary && (
@@ -170,6 +137,12 @@ export function LeadDetailSidebar({ lead, onClose }) {
               </ul>
             </div>
           )}
+
+          {/* Outreach activity — what we've actually sent this person, and when */}
+          <OutreachTimeline
+            personId={lead._id || lead.id}
+            profileUrl={lead.linkedInUrl || lead.profileUrl}
+          />
 
           {/* Contact */}
           <h4 className="text-[12px] font-semibold uppercase tracking-[0.04em] text-[var(--text-tertiary)] mb-2">Contact</h4>
@@ -219,19 +192,6 @@ export function LeadDetailSidebar({ lead, onClose }) {
               </div>
             </div>
           )}
-        </div>
-
-        {/* Sticky footer actions */}
-        <div
-          className="flex gap-2.5 p-4 border-t border-[var(--separator)] shrink-0"
-          style={{ background: 'var(--glass-chrome)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
-        >
-          <Button variant="secondary" fullWidth>
-            Add to list
-          </Button>
-          <Button variant="primary" fullWidth>
-            Enrich
-          </Button>
         </div>
       </div>
 

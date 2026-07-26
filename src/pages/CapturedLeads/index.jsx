@@ -5,20 +5,27 @@ import { DataTable, FilterButton } from "src/common/components/DataTable";
 import { LeadDetailSidebar } from "src/components/LeadDetailSidebar";
 import { useAllProfiles } from "src/hooks/useAllProfiles";
 import { useMetrics } from "src/hooks/useMetrics";
+import { useOutreachSummary } from "src/hooks/useOutreachSummary";
 import capturedLeadsController from "src/core/controllers/capturedLeadsController";
 import { exportProfilesAsCSV } from "src/common/utils/csvExport";
 import { columns } from "./columns.jsx";
 import { buildCapturedLeadsTabs } from "./helpers";
-import { CreateSessionModal } from "./CreateSessionModal";
+import { CreateCampaignModal } from "./CreateCampaignModal";
+import { OutreachFilterBar } from "./OutreachFilterBar";
 
 export function CapturedLeadsPage() {
   const [activeTab, setActiveTab] = useState("all");
+  const [outreachFilter, setOutreachFilter] = useState("all");
   const [selectedLeads, setSelectedLeads] = useState(new Set());
   const [selectedLead, setSelectedLead] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [enrichmentFilter, setEnrichmentFilter] = useState(null);
-  const [showSessionModal, setShowSessionModal] = useState(false);
+  const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  // Column sort from the table headers. `key: null` means "no column sort" —
+  // the list falls back to the server's default (newest captured first), which
+  // is what this page wants after a capture run.
+  const [sort, setSort] = useState({ key: null, direction: null });
 
   const {
     profiles,
@@ -33,15 +40,52 @@ export function CapturedLeadsPage() {
 
   const { metrics: stats } = useMetrics();
 
-  // Refs so the debounce effect can read current tab/limit without re-triggering
+  // Status counts + weekly invite budget. The extension writes send results
+  // back asynchronously, so poll while the page is open to avoid stale counts
+  // sitting there while a campaign is mid-flight.
+  const { summary: outreachSummary, refresh: refreshOutreach } = useOutreachSummary({
+    pollMs: 30000,
+  });
+
+  // Refs so the debounce effect can read current tab/filter/limit without
+  // re-triggering
   const activeTabRef = useRef(activeTab);
+  const outreachFilterRef = useRef(outreachFilter);
   const pageLimitRef = useRef(pagination.limit);
+  const sortRef = useRef(sort);
+  useEffect(() => {
+    sortRef.current = sort;
+  }, [sort]);
   useEffect(() => {
     activeTabRef.current = activeTab;
   }, [activeTab]);
   useEffect(() => {
+    outreachFilterRef.current = outreachFilter;
+  }, [outreachFilter]);
+  useEffect(() => {
     pageLimitRef.current = pagination.limit;
   }, [pagination.limit]);
+
+  // Build the fetch options for the current tab + chip + search state.
+  const buildFetchOptions = (overrides = {}) => {
+    const tab = overrides.tab ?? activeTabRef.current;
+    const chip = overrides.outreachStatus ?? outreachFilterRef.current;
+    const search = overrides.search ?? searchQuery;
+
+    const activeSort = overrides.sort ?? sortRef.current;
+
+    const opts = { limit: overrides.limit ?? pageLimitRef.current, skip: overrides.skip ?? 0 };
+    if (tab !== "all") opts.connectionDegree = Number(tab);
+    if (chip && chip !== "all") opts.outreachStatus = chip;
+    if (search && search.trim()) opts.search = search.trim();
+    // Sorting is server-side: the table only holds one page, so ordering it
+    // client-side would sort 50 rows out of 126 and look wrong.
+    if (activeSort?.key && activeSort?.direction) {
+      opts.sortBy = activeSort.key;
+      opts.sortDir = activeSort.direction;
+    }
+    return opts;
+  };
 
   // Debounced server-side search — fires 350ms after the user stops typing
   useEffect(() => {
@@ -49,7 +93,15 @@ export function CapturedLeadsPage() {
       const opts = { limit: pageLimitRef.current, skip: 0 };
       if (activeTabRef.current !== "all")
         opts.connectionDegree = Number(activeTabRef.current);
+      if (outreachFilterRef.current !== "all")
+        opts.outreachStatus = outreachFilterRef.current;
       if (searchQuery.trim()) opts.search = searchQuery.trim();
+      // Read from the ref so changing sort doesn't re-run the search debounce.
+      const activeSort = sortRef.current;
+      if (activeSort?.key && activeSort?.direction) {
+        opts.sortBy = activeSort.key;
+        opts.sortDir = activeSort.direction;
+      }
       fetchAllProfiles(opts);
     }, 350);
     return () => clearTimeout(timer);
@@ -59,19 +111,30 @@ export function CapturedLeadsPage() {
     setActiveTab(tabId);
     setSearchQuery("");
     setSelectedLeads(new Set());
-    if (tabId === "all") {
-      fetchAllProfiles({ limit: pagination.limit, skip: 0 });
-    } else {
-      fetchAllProfiles({
-        limit: pagination.limit,
-        skip: 0,
-        connectionDegree: Number(tabId),
-      });
-    }
+    fetchAllProfiles(buildFetchOptions({ tab: tabId, search: "", limit: pagination.limit }));
   };
 
+  // A third click on the same header clears the sort (direction: null), which
+  // drops back to the server default of newest-captured-first.
+  const handleSortChange = (next) => {
+    setSort(next);
+    setSelectedLeads(new Set());
+    fetchAllProfiles(buildFetchOptions({ sort: next, limit: pagination.limit }));
+  };
+
+  const handleOutreachFilterChange = (filterId) => {
+    setOutreachFilter(filterId);
+    setSelectedLeads(new Set());
+    fetchAllProfiles(
+      buildFetchOptions({ outreachStatus: filterId, limit: pagination.limit }),
+    );
+  };
+
+  // `pagination.total` reflects the CURRENT query, so with a status chip active
+  // it would show e.g. "All Leads 4" next to unfiltered degree counts. The
+  // outreach summary carries the unfiltered total, which is what this tab means.
   const tabs = buildCapturedLeadsTabs(
-    pagination.total,
+    outreachSummary?.total || pagination.total,
     stats.connectionDegrees,
   );
 
@@ -101,9 +164,7 @@ export function CapturedLeadsPage() {
 
     setIsExporting(true);
     try {
-      const opts = { limit: pagination.total, skip: 0 };
-      if (activeTab !== "all") opts.connectionDegree = Number(activeTab);
-      if (searchQuery.trim()) opts.search = searchQuery.trim();
+      const opts = buildFetchOptions({ limit: pagination.total, skip: 0 });
 
       const { profiles: allProfiles } =
         await capturedLeadsController.getAllProfiles(opts);
@@ -126,6 +187,13 @@ export function CapturedLeadsPage() {
         {/* Tabs */}
         <Tabs tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
 
+        {/* Outreach status chips + weekly LinkedIn invite budget */}
+        <OutreachFilterBar
+          activeFilter={outreachFilter}
+          onFilterChange={handleOutreachFilterChange}
+          summary={outreachSummary}
+        />
+
         {/* DataTable */}
         <div className="flex-1 overflow-y-auto">
           <DataTable
@@ -138,32 +206,39 @@ export function CapturedLeadsPage() {
             selectedKeys={selectedLeads}
             onSelectionChange={setSelectedLeads}
             onRowClick={setSelectedLead}
+            sort={sort}
+            onSortChange={handleSortChange}
             emptyMessage={
               searchQuery
                 ? "No People match your search"
-                : "No People captured yet"
+                : outreachFilter !== "all"
+                  ? "No People in this status"
+                  : "No People captured yet"
             }
             emptyHint={
               searchQuery
                 ? "Try a different search term"
-                : "Leads captured from LinkedIn will appear here"
+                : outreachFilter !== "all"
+                  ? "Try a different status filter"
+                  : "Leads captured from LinkedIn will appear here"
             }
             toolbar={{
               searchValue: searchQuery,
               onSearch: setSearchQuery,
-              searchPlaceholder: "Search by name, email, company...",
-              bulkActions: (
-                <button
-                  onClick={() => setShowSessionModal(true)}
-                  className="h-8 px-3 rounded-[10px] text-[13px] font-semibold transition-colors"
-                  style={{
-                    background: "var(--accent-tint)",
-                    color: "var(--brand-purple)",
-                  }}
-                >
-                  Create session
-                </button>
-              ),
+              searchPlaceholder: "Search by name, company, location...",
+              bulkActions:
+                selectedLeads.size > 0 ? (
+                  <button
+                    onClick={() => setShowCampaignModal(true)}
+                    className="h-8 px-3 rounded-[10px] text-[13px] font-semibold transition-colors"
+                    style={{
+                      background: "var(--accent-tint)",
+                      color: "var(--brand-purple)",
+                    }}
+                  >
+                    Create campaign ({selectedLeads.size})
+                  </button>
+                ) : null,
               actions: (
                 <>
                   <button
@@ -207,12 +282,17 @@ export function CapturedLeadsPage() {
           />
         )}
 
-        {/* Create session modal */}
-        {showSessionModal && (
-          <CreateSessionModal
-            profileIds={Array.from(selectedLeads)}
-            onClose={() => setShowSessionModal(false)}
-            onSuccess={() => setSelectedLeads(new Set())}
+        {/* Create campaign modal — receives the selected rows (not just ids) so
+            it can warn about people who have already been contacted. */}
+        {showCampaignModal && (
+          <CreateCampaignModal
+            people={profiles.filter((p) => selectedLeads.has(p._id))}
+            personIds={Array.from(selectedLeads)}
+            onClose={() => setShowCampaignModal(false)}
+            onSuccess={() => {
+              setSelectedLeads(new Set());
+              refreshOutreach();
+            }}
           />
         )}
       </div>

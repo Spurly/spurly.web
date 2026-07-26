@@ -47,7 +47,7 @@ export default function Webcam() {
       var data;
       try { data = sctx.getImageData(0, 0, COLS, rows).data; } catch (e) { return; }
 
-      colA = hexRgb(cssVar("--purple", "#2d6ae0"));
+      colA = hexRgb(cssVar("--purple", "#0d9bb5"));
       colB = hexRgb(cssVar("--blue", "#38bdf8"));
       ctx.clearRect(0, 0, r.width, r.height);
       ctx.fillStyle = "#0c1018"; ctx.fillRect(0, 0, r.width, r.height);
