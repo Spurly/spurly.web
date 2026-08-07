@@ -356,7 +356,10 @@ body.mkt .recip.active{background:var(--accent-tint);border-color:rgba(13,155,18
 body.mkt .recip .mini{width:22px;height:22px;border-radius:50%;color:#fff;display:grid;place-items:center;font-size:10px;font-weight:700}
 
 /* ---------- Pricing ---------- */
-body.mkt .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+body.mkt .currency-toggle{display:flex;justify-content:center;gap:4px;margin:28px auto 8px;padding:4px;width:max-content;border-radius:999px;background:var(--gray-50);border:1px solid var(--hairline)}
+body.mkt .currency-toggle button{padding:7px 20px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--text-2);transition:all .2s var(--ease-out)}
+body.mkt .currency-toggle button.on{background:var(--grad-vivid);color:#fff;box-shadow:var(--shadow-accent)}
+body.mkt .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch;margin-top:24px}
 body.mkt .price{position:relative;display:flex;flex-direction:column;padding:32px 28px;border-radius:var(--r-panel)}
 body.mkt .price.feat{border:1px solid rgba(13,155,181,.3);box-shadow:0 30px 70px rgba(13,155,181,.20),var(--inner-glow)}
 body.mkt .price .badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--grad-vivid);color:#fff;font-size:11.5px;font-weight:600;letter-spacing:.04em;padding:6px 14px;border-radius:999px;box-shadow:var(--shadow-accent)}
@@ -392,6 +395,7 @@ body.mkt .foot-grid{display:flex;justify-content:space-between;gap:40px;flex-wra
 body.mkt .foot-brand{max-width:280px}
 body.mkt .foot-brand .brand{margin-bottom:14px}
 body.mkt .foot-brand p{color:var(--text-2);font-size:14px}
+body.mkt .foot-brand .legal-name{margin-top:8px;font-size:12.5px;color:var(--text-3)}
 body.mkt .foot-cols{display:flex;gap:clamp(36px,6vw,72px);flex-wrap:wrap}
 body.mkt .foot-col h4{font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:14px;font-weight:600}
 body.mkt .foot-col a{display:block;color:var(--text-2);font-size:14.5px;padding:5px 0;transition:color .2s}

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ChromeLink } from "./Button.jsx";
 import { CheckItem } from "../icons.jsx";
 
@@ -6,6 +7,7 @@ const PLANS = [
     cls: "glass-thin reveal d1",
     name: "Free",
     amt: "$0",
+    amtInr: "₹0",
     per: "forever",
     desc: "Everything you need to run your first outreach campaign.",
     cta: { label: "Add to Chrome", variant: "ghost" },
@@ -25,6 +27,7 @@ const PLANS = [
     badge: "Most popular",
     name: "Pro",
     amt: "$29",
+    amtInr: "₹2,399",
     per: "/ month",
     desc: "For job-seekers and founders running steady, daily outreach.",
     cta: { label: "Start free trial", variant: "primary", magnetic: true },
@@ -43,6 +46,7 @@ const PLANS = [
     cls: "glass-thin reveal d3",
     name: "Agency",
     amt: "$99",
+    amtInr: "₹8,199",
     per: "/ month",
     desc: "For recruiting teams and agencies running high-volume pipelines.",
     cta: { label: "Talk to us", variant: "ghost" },
@@ -60,6 +64,8 @@ const PLANS = [
 ];
 
 export default function Pricing() {
+  const [currency, setCurrency] = useState("usd");
+
   return (
     <section id="pricing" className="section-pad">
       <div className="wrap">
@@ -68,12 +74,16 @@ export default function Pricing() {
           <h2 className="h2" style={{ marginTop: 14 }}>Start free. Scale when it's working.</h2>
           <p className="lead">Every plan includes prospecting, connections, and messaging. Credits are spent only when Spurly does work for you.</p>
         </div>
+        <div className="currency-toggle reveal" role="group" aria-label="Currency">
+          <button type="button" className={currency === "usd" ? "on" : ""} onClick={() => setCurrency("usd")}>USD</button>
+          <button type="button" className={currency === "inr" ? "on" : ""} onClick={() => setCurrency("inr")}>INR</button>
+        </div>
         <div className="price-grid">
           {PLANS.map((p) => (
             <article key={p.name} className={"price " + p.cls}>
               {p.badge && <span className="badge">{p.badge}</span>}
               <div className="pname">{p.name}</div>
-              <div className="pamt"><b className="tnum">{p.amt}</b><span>{p.per}</span></div>
+              <div className="pamt"><b className="tnum">{currency === "usd" ? p.amt : p.amtInr}</b><span>{p.per}</span></div>
               <p className="pdesc">{p.desc}</p>
               <ChromeLink variant={p.cta.variant} magnetic={p.cta.magnetic}>{p.cta.label}</ChromeLink>
               <ul>

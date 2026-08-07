@@ -10,6 +10,7 @@ export default function Footer() {
           <div className="foot-brand">
             <Link className="brand" to="/" aria-label="Spurly home"><img src="/assets/spurly-icon.png" alt="Spurly" width="56" height="56" /><span>Spurly</span></Link>
             <p>The LinkedIn prospecting &amp; outreach tool that lives in your browser. Capture, connect, reach out — at scale.</p>
+            <p className="legal-name">Spurly is a product of ArkTech Catalyst.</p>
           </div>
           <div className="foot-cols">
             <div className="foot-col">
@@ -35,7 +36,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="foot-bottom">
-          <span>© <span id="yr">{new Date().getFullYear()}</span> Spurly. All rights reserved.</span>
+          <span>© <span id="yr">{new Date().getFullYear()}</span> ArkTech Catalyst. All rights reserved.</span>
           <span className="priv"><ShieldIcon />Local-only · your data never leaves your device without you</span>
         </div>
       </div>
