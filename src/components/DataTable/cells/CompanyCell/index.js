@@ -1,0 +1,1 @@
+export { CompanyCell } from './CompanyCell';

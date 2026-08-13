@@ -23,6 +23,10 @@ const ACTIONS = {
   ENRICH_STATE: 'GET_ENRICH_STATE',
   ENRICH_PROGRESS: 'ENRICH_PROGRESS',
   ENRICH_COMPLETE: 'ENRICH_COMPLETE',
+  // Manual "Sync now" on the Connections tab
+  SYNC_START: 'SYNC_CONNECTIONS_START',
+  SYNC_STATE: 'GET_SYNC_CONNECTIONS_STATE',
+  SYNC_COMPLETE: 'SYNC_CONNECTIONS_COMPLETE',
 };
 
 /**
@@ -57,6 +61,32 @@ export function supportsEnrichment(version) {
 const pending = new Map(); // id -> { resolve }
 const eventListeners = new Set();
 let seq = 0;
+
+/**
+ * Turn a bridge-level error code into something a user can act on.
+ *
+ * Two of these are protocol codes rather than descriptions, because the raw
+ * browser text is actively misleading:
+ *
+ * - EXTENSION_RELOADED: the extension was updated or reloaded while this tab was
+ *   open, so the injected bridge is orphaned. Chrome words this as "Extension
+ *   context invalidated", which reads like the request failed — it never left.
+ *   Only a page reload re-injects the bridge.
+ * - UNSUPPORTED_ACTION: an older build's bridge doesn't know this action.
+ *
+ * @param {string} error
+ * @param {string} fallback
+ */
+export function describeBridgeError(error, fallback = 'Extension error') {
+  const code = String(error || '');
+  if (code.startsWith('EXTENSION_RELOADED')) {
+    return 'Reload this page — the Spurly extension was updated since you opened it';
+  }
+  if (code.startsWith('UNSUPPORTED_ACTION')) {
+    return 'Update the Spurly extension to use this feature';
+  }
+  return code || fallback;
+}
 
 if (typeof window !== 'undefined') {
   window.addEventListener('message', (ev) => {
@@ -153,7 +183,7 @@ export async function startCampaign(campaignId, timeoutMs = 3000) {
   // caller can retry quickly when a message to a sleeping worker is dropped.
   const res = await request(ACTIONS.START, { campaignId }, timeoutMs);
   if (!res) return { started: false, error: 'Extension did not respond' };
-  if (!res.ok) return { started: false, error: res.error || 'Extension error' };
+  if (!res.ok) return { started: false, error: describeBridgeError(res.error) };
   return res.data || { started: false, error: 'No response' };
 }
 
@@ -193,7 +223,7 @@ export async function startEnrichment(timeoutMs = 5000) {
   // campaign start, so this timeout is a little more generous.
   const res = await request(ACTIONS.ENRICH_START, {}, timeoutMs);
   if (!res) return { started: false, error: 'Extension did not respond' };
-  if (!res.ok) return { started: false, error: res.error || 'Extension error' };
+  if (!res.ok) return { started: false, error: describeBridgeError(res.error) };
   return res.data || { started: false, error: 'No response' };
 }
 
@@ -217,3 +247,32 @@ export const ENRICH_EVENTS = {
   PROGRESS: ACTIONS.ENRICH_PROGRESS,
   COMPLETE: ACTIONS.ENRICH_COMPLETE,
 };
+
+/**
+ * Ask the extension to read the LinkedIn connections page now, rather than
+ * waiting for its daily run.
+ *
+ * Resolves as soon as the sweep STARTS, not when it finishes — a full sweep
+ * runs for minutes, well past any sane request timeout. The outcome arrives
+ * later as a SYNC_CONNECTIONS_COMPLETE event; subscribe with onExtensionEvent.
+ *
+ * Resolves { started, error? }.
+ */
+export async function startConnectionsSync(timeoutMs = 5000) {
+  const res = await request(ACTIONS.SYNC_START, {}, timeoutMs);
+  if (!res) return { started: false, error: 'Extension did not respond' };
+  if (!res.ok) return { started: false, error: describeBridgeError(res.error) };
+  return res.data || { started: false, error: 'No response' };
+}
+
+/**
+ * Is a connections sweep still in flight? Used on mount, because the page
+ * unmounts on navigation while the background worker keeps going.
+ * Resolves { running }.
+ */
+export async function getConnectionsSyncState() {
+  const res = await request(ACTIONS.SYNC_STATE, {}, 2000);
+  return res?.data || { running: false };
+}
+
+export const SYNC_EVENTS = { COMPLETE: ACTIONS.SYNC_COMPLETE };

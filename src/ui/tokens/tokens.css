@@ -1,0 +1,204 @@
+/* ============================================================
+   SPURLY UI — DIRECTION A TOKENS
+   Dense neutral, light canvas. Linear / Attio register.
+
+   Every variable is prefixed `--ui-` so this layer cannot collide
+   with the legacy token layer in index.css. Legacy tokens stay
+   untouched while pages migrate; once every page reads from --ui-*,
+   the old layer is deleted.
+
+   Dark mode is a single block at the bottom of this file. Nothing
+   else in the codebase should ever branch on colour scheme.
+   ============================================================ */
+
+:root {
+  /* ---- Neutral ramp -------------------------------------- */
+  --ui-neutral-0:   #ffffff;
+  --ui-neutral-50:  #fafafa;
+  --ui-neutral-100: #f4f4f5;
+  --ui-neutral-150: #ececee;
+  --ui-neutral-200: #e4e4e7;
+  --ui-neutral-300: #d4d4d8;
+  --ui-neutral-400: #a1a1aa;
+  --ui-neutral-500: #71717a;
+  --ui-neutral-600: #52525b;
+  --ui-neutral-700: #3f3f46;
+  --ui-neutral-800: #27272a;
+  --ui-neutral-900: #18181b;
+
+  /* ---- Text ---------------------------------------------- */
+  --ui-text-primary:   var(--ui-neutral-900);
+  --ui-text-secondary: var(--ui-neutral-600);
+  --ui-text-tertiary:  var(--ui-neutral-400);
+  --ui-text-disabled:  var(--ui-neutral-300);
+  --ui-text-inverse:   var(--ui-neutral-0);
+
+  /* ---- Surfaces ------------------------------------------ */
+  --ui-surface-page:    var(--ui-neutral-50);
+  --ui-surface-card:    var(--ui-neutral-0);
+  --ui-surface-sunken:  var(--ui-neutral-100);
+  --ui-surface-hover:   var(--ui-neutral-100);
+  --ui-surface-active:  var(--ui-neutral-150);
+  --ui-surface-inverse: var(--ui-neutral-900);
+
+  /* ---- Borders ------------------------------------------- */
+  --ui-border-hairline: var(--ui-neutral-150);
+  --ui-border:          var(--ui-neutral-200);
+  --ui-border-strong:   var(--ui-neutral-300);
+
+  /* ---- Ink (primary action) ------------------------------
+     Direction A puts the dominant action in near-black, not the
+     brand colour. Teal is reserved for signal, so it keeps meaning. */
+  --ui-ink:       var(--ui-neutral-900);
+  --ui-ink-hover: var(--ui-neutral-800);
+
+  /* ---- Accent (signal only) ------------------------------
+     Active nav, counts, links, selection. Never a default button.
+     --ui-accent is a FILL (white text sits on it).
+     --ui-accent-fg is the text-safe stop (5.1:1 on white). */
+  --ui-accent:      #0ea5be;
+  --ui-accent-hover:#0b8ba3;
+  --ui-accent-fg:   #0e7490;
+  --ui-accent-dot:  #06b6d4;
+  --ui-accent-tint: #ecfdff;
+  --ui-accent-tint-strong: #cff6fd;
+  /* Kept so existing call sites keep resolving. */
+  --ui-accent-text: var(--ui-accent-fg);
+
+  /* ---- Semantic ------------------------------------------
+     Tints are OPAQUE, not rgba. A translucent dark-mustard tint
+     over a white row mixes to beige and over a hovered gray row
+     mixes to something else again -- that muddiness is what read
+     as dated. Flat light hexes stay clean on every background.
+
+     Each role carries three stops:
+       --ui-<role>       fill, white text sits on it
+       --ui-<role>-fg    text on the tint
+       --ui-<role>-dot   the dot in a minimal status
+       --ui-<role>-tint  the tint itself */
+  --ui-success:      #059669;
+  --ui-success-fg:   #047857;
+  --ui-success-dot:  #10b981;
+  --ui-success-tint: #ecfdf5;
+
+  --ui-warning:      #d97706;
+  --ui-warning-fg:   #b45309;
+  --ui-warning-dot:  #f59e0b;
+  --ui-warning-tint: #fffbeb;
+
+  --ui-danger:       #dc2626;
+  --ui-danger-fg:    #b91c1c;
+  --ui-danger-dot:   #ef4444;
+  --ui-danger-tint:  #fef2f2;
+
+  --ui-info:         #2563eb;
+  --ui-info-fg:      #1d4ed8;
+  --ui-info-dot:     #3b82f6;
+  --ui-info-tint:    #eff6ff;
+
+  /* ---- Interaction ---------------------------------------
+     Hover picks up the accent on the border before it does on the fill, so a
+     control announces itself without shouting. */
+  --ui-accent-border: #7cd4e4;
+  --ui-ink-halo: rgba(24, 24, 27, 0.10);
+
+  /* ---- Identity colours -----------------------------------
+     Avatar hues, assigned by hashing the person's name. Stable across
+     sessions, so the same person is always the same colour and rows become
+     recognisable before they're read. Functional, not decorative — which is
+     why this is the one place colour is allowed to be plentiful. */
+  --ui-av-1-bg: #ede9fe; --ui-av-1-fg: #5b21b6;
+  --ui-av-2-bg: #fce7f3; --ui-av-2-fg: #9d174d;
+  --ui-av-3-bg: #d1fae5; --ui-av-3-fg: #065f46;
+  --ui-av-4-bg: #ffedd5; --ui-av-4-fg: #9a3412;
+  --ui-av-5-bg: #dbeafe; --ui-av-5-fg: #1e40af;
+  --ui-av-6-bg: #fef3c7; --ui-av-6-fg: #854d0e;
+  --ui-av-7-bg: #ccfbf1; --ui-av-7-fg: #115e59;
+  --ui-av-8-bg: #ffe4e6; --ui-av-8-fg: #9f1239;
+
+  /* ---- Radii ---------------------------------------------
+     Direction A is 6-8px. Nothing in the app UI is rounder. */
+  --ui-radius-xs: 4px;
+  --ui-radius-sm: 6px;
+  --ui-radius-md: 8px;
+  --ui-radius-lg: 10px;
+  --ui-radius-pill: 999px;
+
+  /* ---- Density -------------------------------------------
+     Row heights. Consumed by Row, Cell and HeaderCell. Never
+     overridden per column — that is what broke the old table. */
+  --ui-row-compact:     32px;
+  --ui-row-default:     38px;
+  --ui-row-comfortable: 46px;
+
+  /* ---- Control heights ----------------------------------- */
+  --ui-control-sm: 28px;
+  --ui-control-md: 32px;
+  --ui-control-lg: 36px;
+
+  /* ---- Focus --------------------------------------------- */
+  --ui-focus-ring: 0 0 0 2px var(--ui-surface-card), 0 0 0 4px var(--ui-accent-tint-strong);
+  --ui-ring-inset: inset 0 0 0 1px var(--ui-border);
+
+  /* ---- Elevation ----------------------------------------- */
+  --ui-shadow-sm: 0 1px 2px rgba(24, 24, 27, 0.06);
+  --ui-shadow-md: 0 4px 12px rgba(24, 24, 27, 0.08);
+  --ui-shadow-lg: 0 12px 32px rgba(24, 24, 27, 0.12);
+
+  /* ---- Motion --------------------------------------------
+     Fast and flat. Nothing in a data tool should ease for 400ms. */
+  --ui-dur-fast: 100ms;
+  --ui-dur-base: 160ms;
+  --ui-ease: cubic-bezier(0.2, 0, 0.1, 1);
+
+  /* ---- Layers -------------------------------------------- */
+  --ui-z-sticky:  100;
+  --ui-z-drawer:  900;
+  --ui-z-overlay: 1000;
+  --ui-z-modal:   1100;
+  --ui-z-popover: 1200;
+  --ui-z-toast:   1300;
+}
+
+[data-theme="dark"] {
+  --ui-neutral-0:   #18181b;
+  --ui-neutral-50:  #1c1c1f;
+  --ui-neutral-100: #232327;
+  --ui-neutral-150: #2a2a2f;
+  --ui-neutral-200: #32323a;
+  --ui-neutral-300: #3f3f46;
+  --ui-neutral-400: #71717a;
+  --ui-neutral-500: #8f8f99;
+  --ui-neutral-600: #a1a1aa;
+  --ui-neutral-700: #d4d4d8;
+  --ui-neutral-800: #ececee;
+  --ui-neutral-900: #fafafa;
+
+  --ui-surface-page: #0e0e11;
+  --ui-ink:       var(--ui-neutral-0);
+  --ui-ink-hover: var(--ui-neutral-100);
+
+  --ui-accent:      #22d3ee;
+  --ui-accent-fg:   #67e8f9;
+  --ui-accent-dot:  #22d3ee;
+  --ui-accent-tint: rgba(34, 211, 238, 0.12);
+  --ui-accent-tint-strong: rgba(34, 211, 238, 0.22);
+
+  --ui-success-fg: #34d399; --ui-success-dot: #34d399; --ui-success-tint: rgba(52, 211, 153, 0.12);
+  --ui-warning-fg: #fbbf24; --ui-warning-dot: #fbbf24; --ui-warning-tint: rgba(251, 191, 36, 0.12);
+  --ui-danger-fg:  #f87171; --ui-danger-dot:  #f87171; --ui-danger-tint:  rgba(248, 113, 113, 0.12);
+  --ui-info-fg:    #60a5fa; --ui-info-dot:    #60a5fa; --ui-info-tint:    rgba(96, 165, 250, 0.12);
+  --ui-text-inverse: #0e0e11;
+
+  --ui-accent-border: rgba(34, 211, 238, 0.45);
+  --ui-ink-halo: rgba(255, 255, 255, 0.14);
+
+  --ui-av-1-bg: rgba(167,139,250,.18); --ui-av-1-fg: #c4b5fd;
+  --ui-av-2-bg: rgba(244,114,182,.18); --ui-av-2-fg: #f9a8d4;
+  --ui-av-3-bg: rgba(52,211,153,.18);  --ui-av-3-fg: #6ee7b7;
+  --ui-av-4-bg: rgba(251,146,60,.18);  --ui-av-4-fg: #fdba74;
+  --ui-av-5-bg: rgba(96,165,250,.18);  --ui-av-5-fg: #93c5fd;
+  --ui-av-6-bg: rgba(250,204,21,.18);  --ui-av-6-fg: #fde047;
+  --ui-av-7-bg: rgba(45,212,191,.18);  --ui-av-7-fg: #5eead4;
+  --ui-av-8-bg: rgba(251,113,133,.18); --ui-av-8-fg: #fda4af;
+}

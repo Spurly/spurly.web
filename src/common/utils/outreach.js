@@ -8,51 +8,38 @@
  */
 
 /**
- * Overall status meta, ordered as the outreach funnel:
- * not contacted -> invite sent -> connected -> messaged -> replied.
+ * Overall status meta.
  *
- * `replied` is kept here (not in OUTREACH_FILTERS) so that if a reply event is
- * ever recorded the pill and timeline render it correctly — it just isn't
- * offered as a filter while nothing can produce it.
+ * Every status here describes something the USER did — nothing more. There is
+ * deliberately no 'connected' or 'replied' state: the product never sees the
+ * recipient's side of the interaction, so any such status would be a guess
+ * dressed up as a fact.
  */
 export const OUTREACH_STATUS_META = {
   none: { label: 'Not contacted', tone: 'neutral', short: 'Not contacted' },
-  invited: { label: 'Invite sent', tone: 'warning', short: 'Invited' },
-  connected: { label: 'Connected', tone: 'info', short: 'Connected' },
-  messaged: { label: 'Messaged', tone: 'primary', short: 'Messaged' },
-  replied: { label: 'Replied', tone: 'success', short: 'Replied' },
+  invited: { label: 'Connection sent', tone: 'warning', short: 'Connection sent' },
+  messaged: { label: 'Message sent', tone: 'primary', short: 'Message sent' },
   failed: { label: 'Failed', tone: 'danger', short: 'Failed' },
 };
 
 /**
- * The filter chips shown above the People table, in funnel order.
+ * The filter chips shown above the People table.
  *
- * Two statuses are deliberately absent:
- *
- * - 'replied' — fully supported end-to-end (schema, rollup precedence, pill,
- *   timeline) but nothing WRITES it yet: LinkedIn's messaging inbox exposes
- *   thread IDs rather than profile URLs, so reply detection isn't built. A chip
- *   that can only ever read 0 is worse than no chip. Add it back the moment
- *   something emits a `replied` event — no migration needed.
- *
- * - 'failed' — this one IS written, but a permanent "0" chip is noise. It's
- *   surfaced instead as a conditional alert in OutreachFilterBar that only
- *   appears when there's something to act on. Filtering by `outreachStatus=failed`
- *   still works server-side; it's just not a always-on chip.
+ * 'failed' is deliberately absent: it IS written, but a permanent "0" chip is
+ * noise on a healthy account. It's surfaced instead as a conditional alert in
+ * OutreachFilterBar that only appears when there's something to act on.
+ * Filtering by `outreachStatus=failed` still works server-side.
  */
 export const OUTREACH_FILTERS = [
   { id: 'all', label: 'All' },
   { id: 'none', label: 'Not contacted' },
-  { id: 'invited', label: 'Invite sent' },
-  { id: 'connected', label: 'Connected' },
-  { id: 'messaged', label: 'Messaged' },
+  { id: 'invited', label: 'Connection sent' },
+  { id: 'messaged', label: 'Message sent' },
 ];
 
 /** Per-event meta for the activity timeline. */
 export const OUTREACH_EVENT_META = {
   sent: { label: 'Sent', tone: 'primary' },
-  accepted: { label: 'Accepted', tone: 'success' },
-  replied: { label: 'Replied', tone: 'success' },
   failed: { label: 'Failed', tone: 'danger' },
   skipped: { label: 'Skipped', tone: 'neutral' },
 };
@@ -118,15 +105,13 @@ export function describeOutreach(outreach) {
 
   // Which date belongs next to this label.
   let when = null;
-  if (status === 'replied') when = outreach?.repliedAt || message.lastSentAt;
-  else if (status === 'messaged') when = message.lastSentAt;
-  else if (status === 'connected') when = outreach?.lastTouchedAt || connection.lastSentAt;
+  if (status === 'messaged') when = message.lastSentAt;
   else if (status === 'invited') when = connection.lastSentAt;
 
-  // "Messaged 2×" — the repeat count is the whole reason a single date column
-  // isn't enough, so surface it.
+  // "Message sent 2×" — the repeat count is the whole reason a single date
+  // column isn't enough, so surface it.
   let label = meta.label;
-  if (status === 'messaged' && message.count > 1) label = `Messaged ${message.count}×`;
+  if (status === 'messaged' && message.count > 1) label = `Message sent ${message.count}×`;
 
   const titleParts = [];
   if (connection.count > 0) {
@@ -135,14 +120,12 @@ export function describeOutreach(outreach) {
         (connection.lastSentAt ? ` · last ${absoluteTime(connection.lastSentAt)}` : ''),
     );
   }
-  if (connection.status === 'accepted') titleParts.push('Connection accepted');
   if (message.count > 0) {
     titleParts.push(
       `${message.count} message${message.count === 1 ? '' : 's'}` +
         (message.lastSentAt ? ` · last ${absoluteTime(message.lastSentAt)}` : ''),
     );
   }
-  if (outreach?.repliedAt) titleParts.push(`Replied ${absoluteTime(outreach.repliedAt)}`);
   const lastError = connection.lastError || message.lastError;
   if (status === 'failed' && lastError) titleParts.push(lastError);
 

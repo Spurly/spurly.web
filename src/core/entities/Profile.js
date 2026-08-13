@@ -13,7 +13,6 @@ function normalizeOutreach(outreach) {
     connection: { ...emptyChannel(), ...(outreach?.connection ?? {}) },
     message: { ...emptyChannel(), ...(outreach?.message ?? {}) },
     lastTouchedAt: outreach?.lastTouchedAt ?? null,
-    repliedAt: outreach?.repliedAt ?? null,
   };
 }
 
@@ -40,6 +39,9 @@ export class Profile {
     this.source = data.source ?? 'linkedin';
     this.linkedInUrl = data.linkedInUrl ?? data.profileUrl ?? '';
     this.connectionDegree = data.connectionDegree ?? null;
+    // When LinkedIn says you connected, per its "Connected on <date>" line.
+    // Present on connections; null on leads who aren't confirmed connections.
+    this.connectedAt = data.connectedAt ?? null;
     // Outreach rollup derived server-side from the OutreachEvent log. Always
     // present in shape so the table can render a pill without null-checking.
     this.outreach = normalizeOutreach(data.outreach);

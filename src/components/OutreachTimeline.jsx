@@ -1,13 +1,20 @@
-import { Send, UserCheck, MessageSquare, AlertCircle, SkipForward } from 'lucide-react';
+import { Send, AlertCircle, SkipForward } from 'lucide-react';
 import { useOutreachTimeline } from 'src/hooks/useOutreachTimeline';
 import { absoluteTime, relativeTime, OUTREACH_TYPE_LABEL } from 'src/common/utils/outreach';
 
+/**
+ * The timeline is a log of what YOU did — sent, failed, skipped. It never
+ * claims anything about how the other person responded, because nothing in the
+ * product observes that.
+ */
 const EVENT_STYLE = {
-  sent: { icon: Send, color: 'var(--brand-purple)', tint: 'var(--accent-tint)', verb: 'Sent' },
-  accepted: { icon: UserCheck, color: 'var(--green)', tint: 'var(--green-tint)', verb: 'Accepted' },
-  replied: { icon: MessageSquare, color: 'var(--green)', tint: 'var(--green-tint)', verb: 'Replied' },
-  failed: { icon: AlertCircle, color: 'var(--red)', tint: 'var(--red-tint)', verb: 'Failed' },
-  skipped: { icon: SkipForward, color: 'var(--text-tertiary)', tint: 'var(--surface-sunken)', verb: 'Skipped' },
+  sent: { icon: Send, color: 'var(--ui-accent-fg)', tint: 'var(--ui-accent-tint)' },
+  failed: { icon: AlertCircle, color: 'var(--ui-danger-fg)', tint: 'var(--ui-danger-tint)' },
+  skipped: {
+    icon: SkipForward,
+    color: 'var(--ui-text-tertiary)',
+    tint: 'var(--ui-surface-sunken)',
+  },
 };
 
 function headline(event) {
@@ -15,10 +22,6 @@ function headline(event) {
   switch (event.status) {
     case 'sent':
       return `${type} sent`;
-    case 'accepted':
-      return 'Connection accepted';
-    case 'replied':
-      return 'They replied';
     case 'failed':
       return `${type} failed`;
     case 'skipped':
@@ -32,13 +35,11 @@ function headline(event) {
 function SentCopy({ payload }) {
   const body = payload?.body || payload?.note;
   if (!body) return null;
+
   return (
-    <div
-      className="mt-1.5 px-2.5 py-2 rounded-[8px] text-[12px] leading-relaxed whitespace-pre-wrap"
-      style={{ background: 'var(--surface-sunken)', color: 'var(--text-secondary)' }}
-    >
+    <div className="mt-1.5 px-2.5 py-2 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] text-[12px] leading-relaxed text-[var(--ui-text-secondary)] whitespace-pre-wrap">
       {payload?.subject && (
-        <div className="font-semibold text-[var(--text-primary)] mb-1">{payload.subject}</div>
+        <div className="font-medium text-[var(--ui-text-primary)] mb-1">{payload.subject}</div>
       )}
       {body}
     </div>
@@ -51,25 +52,24 @@ function TimelineRow({ event, isLast }) {
 
   return (
     <li className="flex gap-2.5">
-      {/* Rail */}
       <div className="flex flex-col items-center shrink-0">
         <span
-          className="w-7 h-7 rounded-full grid place-items-center"
+          className="grid place-items-center w-6 h-6 rounded-full shrink-0"
           style={{ background: style.tint, color: style.color }}
+          aria-hidden="true"
         >
-          <Icon size={13} />
+          <Icon size={12} />
         </span>
-        {!isLast && <span className="w-px flex-1 my-1" style={{ background: 'var(--separator)' }} />}
+        {!isLast && <span className="w-px flex-1 my-1 bg-[var(--ui-border)]" aria-hidden="true" />}
       </div>
 
-      {/* Content */}
-      <div className={`min-w-0 flex-1 ${isLast ? '' : 'pb-4'}`}>
+      <div className={`min-w-0 flex-1 ${isLast ? '' : 'pb-3'}`}>
         <div className="flex items-baseline justify-between gap-2">
-          <span className="text-[13px] font-semibold text-[var(--text-primary)]">
+          <span className="text-[13px] font-medium text-[var(--ui-text-primary)]">
             {headline(event)}
           </span>
           <span
-            className="text-[11.5px] shrink-0 tabular-nums text-[var(--text-tertiary)]"
+            className="text-[11.5px] shrink-0 tabular-nums text-[var(--ui-text-tertiary)]"
             title={absoluteTime(event.occurredAt)}
           >
             {relativeTime(event.occurredAt)}
@@ -77,7 +77,7 @@ function TimelineRow({ event, isLast }) {
         </div>
 
         {event.campaignName && (
-          <div className="text-[12px] text-[var(--text-tertiary)] mt-0.5 truncate">
+          <div className="text-[12px] text-[var(--ui-text-tertiary)] mt-0.5 truncate">
             {event.campaignName}
           </div>
         )}
@@ -85,9 +85,7 @@ function TimelineRow({ event, isLast }) {
         {event.status === 'sent' && <SentCopy payload={event.payload} />}
 
         {event.error && (
-          <div className="text-[12px] mt-1" style={{ color: 'var(--red)' }}>
-            {event.error}
-          </div>
+          <div className="text-[12px] mt-1 text-[var(--ui-danger-fg)]">{event.error}</div>
         )}
       </div>
     </li>
@@ -95,47 +93,44 @@ function TimelineRow({ event, isLast }) {
 }
 
 /**
- * Full outreach history for one person: every send, failure, acceptance and
- * reply, with the exact note/message body that went out.
+ * Full outreach history for one person: every send and failure, with the exact
+ * note or message body that went out.
  *
- * This answers "what did I already say to them" — unanswerable from a status
- * column alone, and the reason outreach is stored as an event log rather than
- * a couple of date fields on the person.
+ * Answers "what did I already say to them" — unanswerable from a status column
+ * alone, and the reason outreach is stored as an event log rather than a couple
+ * of date fields on the person.
+ *
+ * Renders no heading of its own. The caller owns the section title; when this
+ * component also drew one the drawer showed "Outreach activity" twice.
  */
 export function OutreachTimeline({ personId, profileUrl }) {
   const { events, loading, error } = useOutreachTimeline({ personId, profileUrl });
 
+  if (loading) {
+    return <p className="text-[13px] text-[var(--ui-text-tertiary)]">Loading activity…</p>;
+  }
+
+  if (error) {
+    return <p className="text-[13px] text-[var(--ui-danger-fg)]">{error}</p>;
+  }
+
+  if (events.length === 0) {
+    return (
+      <p className="text-[13px] text-[var(--ui-text-tertiary)]">
+        Not contacted yet.
+      </p>
+    );
+  }
+
   return (
-    <div className="mb-5">
-      <h4 className="text-[12px] font-semibold uppercase tracking-[0.04em] text-[var(--text-tertiary)] mb-2.5">
-        Outreach activity
-      </h4>
-
-      {loading && <p className="text-[13px] text-[var(--text-tertiary)]">Loading activity…</p>}
-
-      {!loading && error && (
-        <p className="text-[13px]" style={{ color: 'var(--red)' }}>
-          {error}
-        </p>
-      )}
-
-      {!loading && !error && events.length === 0 && (
-        <p className="text-[13px] text-[var(--text-tertiary)] italic">
-          No outreach yet — this person hasn't been contacted.
-        </p>
-      )}
-
-      {!loading && !error && events.length > 0 && (
-        <ul className="flex flex-col">
-          {events.map((event, i) => (
-            <TimelineRow
-              key={event._id || `${event.occurredAt}-${i}`}
-              event={event}
-              isLast={i === events.length - 1}
-            />
-          ))}
-        </ul>
-      )}
-    </div>
+    <ul className="flex flex-col">
+      {events.map((event, i) => (
+        <TimelineRow
+          key={event._id || `${event.occurredAt}-${i}`}
+          event={event}
+          isLast={i === events.length - 1}
+        />
+      ))}
+    </ul>
   );
 }

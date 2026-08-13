@@ -1,16 +1,18 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from 'src/components/ProtectedRoute';
 import { AdminRoute } from 'src/components/AdminRoute';
-import { CapturedLeadsPage } from 'src/pages/CapturedLeads';
-import { CampaignsPage } from 'src/pages/Campaigns';
-import { CampaignDetailPage } from 'src/pages/Campaigns/CampaignDetailPage.jsx';
-import { TemplatesPage } from 'src/pages/Templates';
-import { SettingsPage } from 'src/pages/Settings';
-import { EnrichPage } from 'src/pages/Enrich';
-import { AdminUsersPage } from 'src/pages/Admin/Users';
-import { AdminInsightsPage } from 'src/pages/Admin/Insights';
-import { AdminTransactionsPage } from 'src/pages/Admin/Transactions';
-import { AdminPricingPage } from 'src/pages/Admin/Pricing';
+import { PeoplePage } from 'src/features/people';
+import { UiPreview } from 'src/dev/UiPreview.jsx';
+import { ConnectionsPage } from 'src/features/connections';
+import { CampaignsPage } from 'src/features/campaigns';
+import { CampaignDetailPage } from 'src/features/campaigns/CampaignDetailPage.jsx';
+import { TemplatesPage } from 'src/features/templates';
+import { SettingsPage } from 'src/features/settings';
+import { EnrichPage } from 'src/features/enrich';
+import { AdminUsersPage } from 'src/features/admin/Users';
+import { AdminInsightsPage } from 'src/features/admin/Insights';
+import { AdminTransactionsPage } from 'src/features/admin/Transactions';
+import { AdminPricingPage } from 'src/features/admin/Pricing';
 
 import SignupPage from 'src/auth/SignupPage.jsx';
 import VerifyEmailPage from 'src/auth/VerifyEmailPage.jsx';
@@ -60,7 +62,8 @@ export function AppRoutes() {
           all send users to bare /dashboard, so it stays alive as a redirect
           rather than making all of those know about /dashboard/people. */}
       <Route path="/dashboard" element={<Navigate to="/dashboard/people" replace />} />
-      <Route path="/dashboard/people" element={<ProtectedRoute><CapturedLeadsPage /></ProtectedRoute>} />
+      <Route path="/dashboard/people" element={<ProtectedRoute><PeoplePage /></ProtectedRoute>} />
+      <Route path="/dashboard/connections" element={<ProtectedRoute><ConnectionsPage /></ProtectedRoute>} />
       <Route path="/dashboard/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
       <Route path="/dashboard/campaigns/:campaignId" element={<ProtectedRoute><CampaignDetailPage /></ProtectedRoute>} />
       <Route path="/dashboard/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
@@ -86,6 +89,11 @@ export function AppRoutes() {
       <Route path="/admin/insights" element={<AdminRoute><AdminInsightsPage /></AdminRoute>} />
       <Route path="/admin/transactions" element={<AdminRoute><AdminTransactionsPage /></AdminRoute>} />
       <Route path="/admin/pricing" element={<AdminRoute><AdminPricingPage /></AdminRoute>} />
+
+      {/* Every primitive in every state, on one page. Dev only — the route
+          isn't registered in a production build, so it can't be reached and
+          the component tree-shakes out. */}
+      {import.meta.env.DEV && <Route path="/dev/ui" element={<UiPreview />} />}
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -4,7 +4,7 @@ import { useAuth } from 'src/hooks/useAuth.js';
 import { useMessageTemplates } from 'src/hooks/useMessageTemplates.js';
 import { TYPE_FOR_ACTION } from 'src/core/controllers/messageTemplatesController.js';
 import { previewTemplate } from 'src/common/utils/templateTokens.js';
-import { TemplateEditor } from 'src/pages/Templates/TemplateEditor.jsx';
+import { TemplateEditor } from 'src/features/templates/TemplateEditor.jsx';
 
 /**
  * Pick a saved template to drop into a campaign's note / message fields.
