@@ -31,7 +31,7 @@ DOT.primary = DOT.accent; DOT.default = DOT.neutral; DOT.error = DOT.danger;
 
 const SIZES = {
   sm: 'h-[18px] text-[11px] gap-1',
-  md: 'h-[20px] text-[11.5px] gap-1.5',
+  md: 'h-[20px] text-[11px] gap-1.5',
 };
 
 const PAD = { sm: 'px-1.5', md: 'px-2' };

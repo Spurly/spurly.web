@@ -78,7 +78,7 @@ export function UiPreview() {
   return (
     <div className="min-h-screen bg-[var(--ui-surface-page)] p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-[18px] font-medium text-[var(--ui-text-primary)] mb-1">UI preview</h1>
+        <h1 className="text-[17px] font-medium text-[var(--ui-text-primary)] mb-1">UI preview</h1>
         <p className="text-[13px] text-[var(--ui-text-tertiary)] mb-8">
           Every primitive in every state. Dev only.
         </p>
@@ -286,7 +286,7 @@ export function UiPreview() {
             <Button variant="secondary" onClick={() => setNestedOpen(true)}>
               Open a second dialog (tests stacking)
             </Button>
-            <p className="text-[12.5px] text-[var(--ui-text-tertiary)]">
+            <p className="text-[12px] text-[var(--ui-text-tertiary)]">
               Escape should close only the topmost. Tab should never leave this panel.
             </p>
           </div>

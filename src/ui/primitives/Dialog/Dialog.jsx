@@ -55,7 +55,7 @@ export function Dialog({
               </h2>
             )}
             {description && (
-              <p id={descId} className="mt-1 text-[12.5px] text-[var(--ui-text-secondary)] leading-relaxed">
+              <p id={descId} className="mt-1 text-[12px] text-[var(--ui-text-secondary)] leading-relaxed">
                 {description}
               </p>
             )}

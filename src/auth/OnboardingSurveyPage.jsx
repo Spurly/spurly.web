@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "src/hooks/useAuth";
+import { useToast } from "src/ui/primitives";
+import { getToastError } from "src/common/utils/apiError";
 import { AuthShell, WelcomeAside, Stepper } from "./AuthShell.jsx";
 import { Dropdown } from "src/common/components/Dropdown";
 import {
@@ -66,6 +68,7 @@ const BONUS = [
 export default function OnboardingSurveyPage() {
   const navigate = useNavigate();
   const { user, completeOnboarding } = useAuth();
+  const toast = useToast();
 
   const [form, setForm] = useState({
     role: "",
@@ -76,7 +79,6 @@ export default function OnboardingSurveyPage() {
     companyWebsite: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   // Already onboarded? Skip ahead. Otherwise prefill anything we know.
   useEffect(() => {
@@ -110,7 +112,6 @@ export default function OnboardingSurveyPage() {
 
   async function onSubmit(e) {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       await completeOnboarding({
@@ -121,9 +122,10 @@ export default function OnboardingSurveyPage() {
         companyName: form.companyName.trim(),
         companyWebsite: form.companyWebsite.trim() || undefined,
       });
+      toast.success("Details saved");
       navigate("/onboarding/install", { replace: true });
     } catch (err) {
-      setError(err.message || "Could not save your details. Please try again.");
+      toast.error(getToastError(err, "Couldn't save your details"));
     } finally {
       setLoading(false);
     }
@@ -143,16 +145,6 @@ export default function OnboardingSurveyPage() {
             This helps us personalize your experience and recommendations.
           </p>
         </div>
-
-        {error && (
-          <div
-            className="sp-notice sp-notice--error"
-            role="alert"
-            style={{ marginBottom: 16 }}
-          >
-            {error}
-          </div>
-        )}
 
         <form className="sp-form" onSubmit={onSubmit} noValidate>
           <div className="sp-grid-2">

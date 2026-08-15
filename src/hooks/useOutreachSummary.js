@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import outreachController from 'src/core/controllers/outreachController.js';
+import { useErrorToast } from 'src/ui/primitives';
 
 const EMPTY_SUMMARY = {
   total: 0,
@@ -58,6 +59,12 @@ export function useOutreachSummary({ pollMs = 0 } = {}) {
     const id = setInterval(refresh, pollMs);
     return () => clearInterval(id);
   }, [pollMs, refresh]);
+
+  /* Reported twice on purpose: the inline block the page renders (which
+     persists next to the empty table) and one toast (which catches the eye
+     if that block is off screen). The toast gets fixed copy — the server's
+     text goes inline, where there's room for it. */
+  useErrorToast(error, "Couldn't load outreach activity");
 
   return { summary, loading, error, refresh };
 }

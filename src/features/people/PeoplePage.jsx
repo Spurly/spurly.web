@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Download, Send } from 'lucide-react';
 import { DashboardLayout } from 'src/components/DashboardLayout';
 import { DataTable } from 'src/components/DataTable';
-import { Button } from 'src/ui/primitives';
+import { Button, useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 import { LeadDetailSidebar } from 'src/components/LeadDetailSidebar';
 import { useAllProfiles } from 'src/hooks/useAllProfiles';
 import { useMetrics } from 'src/hooks/useMetrics';
@@ -27,6 +28,8 @@ import { StatusFilter } from './components/StatusFilter';
  * invite budget, and the outreach status filter moved into the table toolbar.
  */
 export function PeoplePage() {
+  const toast = useToast();
+
   const [activeTab, setActiveTab] = useState('all');
   const [outreachFilter, setOutreachFilter] = useState('all');
   const [selectedPeople, setSelectedPeople] = useState(new Set());
@@ -144,6 +147,7 @@ export function PeoplePage() {
     if (selectedPeople.size > 0) {
       const rows = profiles.filter((p) => selectedPeople.has(p._id)).map((p) => p.raw ?? p);
       exportProfilesAsCSV(rows, `people-${new Date().toISOString().split('T')[0]}.csv`);
+      toast.success(`Exported ${rows.length.toLocaleString()} selected`);
       return;
     }
 
@@ -155,8 +159,10 @@ export function PeoplePage() {
       const { profiles: allProfiles } = await capturedLeadsController.getAllProfiles(opts);
       const rows = allProfiles.map((p) => p.raw ?? p);
       exportProfilesAsCSV(rows, `people-${new Date().toISOString().split('T')[0]}.csv`);
+      toast.success(`Exported ${rows.length.toLocaleString()} people`);
     } catch (e) {
       console.error('[People] Export error:', e);
+      toast.error(getToastError(e, "Couldn't export your people"));
     } finally {
       setIsExporting(false);
     }

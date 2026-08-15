@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Megaphone, CheckCircle, ShieldAlert } from 'lucide-react';
 import { Input } from 'src/common/components/Input';
+import { useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 import campaignsController from 'src/core/controllers/campaignsController.js';
 import { describeOutreach, isContacted } from 'src/common/utils/outreach';
 
@@ -16,10 +18,10 @@ import { describeOutreach, isContacted } from 'src/common/utils/outreach';
  */
 export function CreateCampaignModal({ people = [], personIds, onClose, onSuccess }) {
   const navigate = useNavigate();
+  const toast = useToast();
   const [name, setName] = useState('');
   const [excludeContacted, setExcludeContacted] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
   const [done, setDone] = useState(null); // { campaign, memberCount, skippedContacted }
 
   const { contacted, hasFullPreview } = useMemo(() => {
@@ -41,7 +43,6 @@ export function CreateCampaignModal({ people = [], personIds, onClose, onSuccess
     if (!name.trim() || submitting) return;
 
     setSubmitting(true);
-    setError(null);
     try {
       const result = await campaignsController.createCampaign({
         name: name.trim(),
@@ -50,8 +51,12 @@ export function CreateCampaignModal({ people = [], personIds, onClose, onSuccess
       });
       setDone(result);
       onSuccess?.();
+      /* The result panel below says more than this does. The toast fires anyway
+         so that "every completed action confirms the same way" holds without
+         exception — a rule with carve-outs isn't one users can rely on. */
+      toast.success(`Campaign "${name.trim()}" created`);
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.');
+      toast.error(getToastError(err, "Couldn't create the campaign"));
     } finally {
       setSubmitting(false);
     }
@@ -66,20 +71,20 @@ export function CreateCampaignModal({ people = [], personIds, onClose, onSuccess
       }}
     >
       <div
-        className="relative w-full max-w-md rounded-[20px] shadow-[var(--shadow-lg)] overflow-hidden"
+        className="relative w-full max-w-md rounded-[var(--ui-radius-lg)] shadow-[var(--shadow-lg)] overflow-hidden"
         style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-5 border-b border-[var(--separator)]">
+        <div className="flex items-center justify-between px-[var(--ui-pad-lg)] pt-[var(--ui-pad-lg)] pb-[var(--ui-pad-lg)] border-b border-[var(--separator)]">
           <div className="flex items-center gap-3">
             <div
-              className="w-9 h-9 rounded-[11px] grid place-items-center shrink-0"
+              className="w-9 h-9 rounded-[var(--ui-radius-lg)] grid place-items-center shrink-0"
               style={{ background: 'var(--accent-tint)' }}
             >
               <Megaphone size={17} style={{ color: 'var(--brand-purple)' }} />
             </div>
             <div>
-              <h2 className="text-[16px] font-bold text-[var(--text-primary)] tracking-[-0.014em]">
+              <h2 className="text-[14px] font-medium text-[var(--text-primary)] tracking-[-0.012em]">
                 Create campaign
               </h2>
               <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">
@@ -89,14 +94,14 @@ export function CreateCampaignModal({ people = [], personIds, onClose, onSuccess
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 grid place-items-center rounded-[9px] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
+            className="w-8 h-8 grid place-items-center rounded-[var(--ui-radius-md)] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
           >
             <X size={16} />
           </button>
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5">
+        <div className="px-[var(--ui-pad-lg)] py-5">
           {done ? (
             <div className="flex flex-col items-center gap-3 py-4 text-center">
               <div
@@ -106,14 +111,14 @@ export function CreateCampaignModal({ people = [], personIds, onClose, onSuccess
                 <CheckCircle size={24} style={{ color: 'var(--green)' }} />
               </div>
               <div>
-                <p className="text-[15px] font-semibold text-[var(--text-primary)]">Campaign created</p>
+                <p className="text-[14px] font-medium text-[var(--text-primary)]">Campaign created</p>
                 <p className="text-[13px] text-[var(--text-secondary)] mt-1">
-                  <span className="font-semibold">"{done.campaign.name}"</span> was created with{' '}
-                  <span className="font-semibold">{done.memberCount}</span> lead
+                  <span className="font-medium">"{done.campaign.name}"</span> was created with{' '}
+                  <span className="font-medium">{done.memberCount}</span> lead
                   {done.memberCount !== 1 ? 's' : ''}.
                 </p>
                 {done.skippedContacted > 0 && (
-                  <p className="text-[12.5px] mt-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                  <p className="text-[12px] mt-1.5" style={{ color: 'var(--text-tertiary)' }}>
                     {done.skippedContacted} already-contacted{' '}
                     {done.skippedContacted === 1 ? 'person was' : 'people were'} skipped.
                   </p>
@@ -122,13 +127,13 @@ export function CreateCampaignModal({ people = [], personIds, onClose, onSuccess
               <div className="flex items-center gap-2 mt-2">
                 <button
                   onClick={onClose}
-                  className="h-10 px-5 rounded-[12px] text-[14px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
+                  className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   Close
                 </button>
                 <button
                   onClick={() => navigate(`/dashboard/campaigns/${done.campaign._id}`)}
-                  className="h-10 px-6 rounded-[12px] text-[14px] font-semibold text-white"
+                  className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-white"
                   style={{ background: 'var(--brand-purple)' }}
                 >
                   Open campaign
@@ -151,7 +156,7 @@ export function CreateCampaignModal({ people = [], personIds, onClose, onSuccess
               {/* Dedupe guard */}
               {contactedCount > 0 ? (
                 <div
-                  className="rounded-[12px] p-3.5"
+                  className="rounded-[var(--ui-radius-lg)] p-3.5"
                   style={{ background: 'var(--amber-tint)', border: '1px solid rgba(245,158,11,0.25)' }}
                 >
                   <div className="flex items-start gap-2.5">
@@ -160,12 +165,12 @@ export function CreateCampaignModal({ people = [], personIds, onClose, onSuccess
                       style={{ color: 'var(--amber)', flexShrink: 0, marginTop: 1 }}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-semibold" style={{ color: 'var(--amber)' }}>
+                      <p className="text-[13px] font-medium" style={{ color: 'var(--amber)' }}>
                         {hasFullPreview
                           ? `${newCount} new, ${contactedCount} already contacted`
                           : `${contactedCount} of the loaded rows were already contacted`}
                       </p>
-                      <p className="text-[12.5px] mt-1 text-[var(--text-secondary)] leading-snug">
+                      <p className="text-[12px] mt-1 text-[var(--text-secondary)] leading-snug">
                         Re-inviting someone you've already reached can get your LinkedIn account
                         restricted.
                       </p>
@@ -202,9 +207,9 @@ export function CreateCampaignModal({ people = [], personIds, onClose, onSuccess
                           checked={excludeContacted}
                           onChange={(e) => setExcludeContacted(e.target.checked)}
                           disabled={submitting}
-                          className="w-3.5 h-3.5 rounded-[4px] accent-[var(--brand-purple)] cursor-pointer"
+                          className="w-3.5 h-3.5 rounded-[var(--ui-radius-xs)] accent-[var(--brand-purple)] cursor-pointer"
                         />
-                        <span className="text-[12.5px] font-medium text-[var(--text-primary)]">
+                        <span className="text-[12px] font-medium text-[var(--text-primary)]">
                           Exclude already-contacted people
                         </span>
                       </label>
@@ -219,22 +224,13 @@ export function CreateCampaignModal({ people = [], personIds, onClose, onSuccess
                       checked={excludeContacted}
                       onChange={(e) => setExcludeContacted(e.target.checked)}
                       disabled={submitting}
-                      className="w-3.5 h-3.5 rounded-[4px] accent-[var(--brand-purple)] cursor-pointer"
+                      className="w-3.5 h-3.5 rounded-[var(--ui-radius-xs)] accent-[var(--brand-purple)] cursor-pointer"
                     />
-                    <span className="text-[12.5px] font-medium text-[var(--text-secondary)]">
+                    <span className="text-[12px] font-medium text-[var(--text-secondary)]">
                       Exclude anyone already contacted
                     </span>
                   </label>
                 )
-              )}
-
-              {error && (
-                <p
-                  className="text-[13px] font-medium px-3 py-2.5 rounded-[10px]"
-                  style={{ background: 'var(--red-tint)', color: 'var(--red)' }}
-                >
-                  {error}
-                </p>
               )}
 
               <div className="flex items-center justify-end gap-2 pt-1">
@@ -242,14 +238,14 @@ export function CreateCampaignModal({ people = [], personIds, onClose, onSuccess
                   type="button"
                   onClick={onClose}
                   disabled={submitting}
-                  className="h-10 px-4 rounded-[12px] text-[14px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50"
+                  className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting || !name.trim() || (hasFullPreview && willSend === 0)}
-                  className="h-10 px-5 rounded-[12px] text-[14px] font-semibold text-white transition-opacity disabled:opacity-50"
+                  className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-white transition-opacity disabled:opacity-50"
                   style={{ background: 'var(--brand-purple)' }}
                 >
                   {submitting

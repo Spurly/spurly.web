@@ -63,8 +63,18 @@ export function CampaignFlowCanvas({ members = [], actionType, sending = false, 
   return (
     <div className="campaign-canvas relative h-full w-full overflow-y-auto">
       {/* Live stat strip */}
-      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-2 px-6 py-3 backdrop-blur-md"
-        style={{ background: 'color-mix(in srgb, var(--surface-canvas) 78%, transparent)', borderBottom: '1px solid var(--separator)' }}>
+      {/* Solid, not a blurred translucent bar. A 78%-opaque strip over a dotted
+          canvas picks up the dots underneath it, so the numbers sat on texture
+          and the whole strip shimmered while the list scrolled behind it. */}
+      <div
+        className="sticky top-0 z-20 flex flex-wrap items-center gap-2"
+        style={{
+          paddingInline: 'var(--ui-pad-x)',
+          paddingBlock: 8,
+          background: 'var(--ui-surface-card)',
+          borderBottom: '1px solid var(--ui-border-hairline)',
+        }}
+      >
         <Stat label="Total" value={total} icon={Users} color="var(--text-secondary)" />
         <Stat label="Sent" value={counts.sent} icon={Check} color="var(--brand-purple)" />
         <Stat label="Pending" value={counts.pending} icon={Clock} color="var(--text-tertiary)" />
@@ -77,13 +87,13 @@ export function CampaignFlowCanvas({ members = [], actionType, sending = false, 
             <div className="h-full rounded-full transition-[width] duration-700 ease-out"
               style={{ width: `${pct}%`, background: 'linear-gradient(90deg, var(--brand-purple), var(--green))' }} />
           </div>
-          <span className="text-[12px] font-semibold tabular-nums" style={{ color: 'var(--text-secondary)' }}>
+          <span className="text-[12px] font-medium tabular-nums" style={{ color: 'var(--text-secondary)' }}>
             {done}/{total}
           </span>
         </div>
       </div>
 
-      <div className="relative px-6 pt-6 pb-24 min-h-[calc(100%-52px)]">
+      <div className="relative px-[var(--ui-pad-lg)] pt-[var(--ui-pad-lg)] pb-24 min-h-[calc(100%-52px)]">
         {/* ---- Spine + top nodes ---- */}
         <div className="relative pl-[26px]">
           {/* Vertical spine track */}
@@ -105,31 +115,31 @@ export function CampaignFlowCanvas({ members = [], actionType, sending = false, 
 
           {/* Start node */}
           <SpineNode dotColor="var(--text-secondary)">
-            <div className="flex items-center gap-2.5 rounded-[12px] px-3.5 py-2.5"
+            <div className="flex items-center gap-2.5 rounded-[var(--ui-radius-lg)] px-3.5 py-2.5"
               style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)', boxShadow: 'var(--shadow-xs, 0 1px 2px rgba(0,0,0,0.04))' }}>
-              <span className="grid place-items-center w-8 h-8 rounded-[9px]" style={{ background: 'var(--surface-sunken)', color: 'var(--text-secondary)' }}>
+              <span className="grid place-items-center w-8 h-8 rounded-[var(--ui-radius-md)]" style={{ background: 'var(--surface-sunken)', color: 'var(--text-secondary)' }}>
                 <Users size={16} />
               </span>
               <div>
-                <div className="text-[10.5px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-tertiary)' }}>Leads list</div>
-                <div className="text-[13.5px] font-bold" style={{ color: 'var(--text-primary)' }}>{total} lead{total === 1 ? '' : 's'}</div>
+                <div className="text-[10px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-tertiary)' }}>Leads list</div>
+                <div className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>{total} lead{total === 1 ? '' : 's'}</div>
               </div>
             </div>
           </SpineNode>
 
           {/* Action node */}
           <SpineNode dotColor="var(--brand-purple)" glow={sending}>
-            <div className="flex items-center gap-2.5 rounded-[12px] px-3.5 py-2.5"
+            <div className="flex items-center gap-2.5 rounded-[var(--ui-radius-lg)] px-3.5 py-2.5"
               style={{ background: 'var(--surface-card)', border: '1.5px solid var(--brand-purple)', boxShadow: '0 4px 16px var(--accent-tint)' }}>
-              <span className="grid place-items-center w-8 h-8 rounded-[9px] text-white" style={{ background: 'var(--brand-purple)' }}>
+              <span className="grid place-items-center w-8 h-8 rounded-[var(--ui-radius-md)] text-white" style={{ background: 'var(--brand-purple)' }}>
                 <ActionIcon size={16} />
               </span>
               <div>
-                <div className="text-[10.5px] font-semibold uppercase tracking-wide" style={{ color: 'var(--brand-purple)' }}>Action</div>
-                <div className="text-[13.5px] font-bold" style={{ color: 'var(--text-primary)' }}>{actionLabel}</div>
+                <div className="text-[10px] font-medium uppercase tracking-wide" style={{ color: 'var(--brand-purple)' }}>Action</div>
+                <div className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>{actionLabel}</div>
               </div>
               {sending && (
-                <span className="ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold"
+                <span className="ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium"
                   style={{ background: 'var(--accent-tint)', color: 'var(--brand-purple)' }}>
                   <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--brand-purple)' }} /> Running
                 </span>
@@ -201,7 +211,7 @@ function ProfileBranch({ member, state, active }) {
 
       {/* Profile card */}
       <div
-        className="flex items-center gap-3 rounded-[13px] px-3.5 py-2.5 w-full max-w-[420px] transition-all"
+        className="flex items-center gap-3 rounded-[var(--ui-radius-lg)] px-3.5 py-2.5 w-full max-w-[420px] transition-colors"
         style={{
           background: 'var(--surface-card)',
           border: `1.5px solid ${active ? meta.color : done ? 'color-mix(in srgb, ' + meta.color + ' 45%, var(--border-hairline))' : 'var(--border-hairline)'}`,
@@ -209,22 +219,22 @@ function ProfileBranch({ member, state, active }) {
         }}
       >
         {member.avatar ? (
-          <img src={member.avatar} alt={name} className="w-9 h-9 rounded-[10px] object-cover flex-shrink-0"
+          <img src={member.avatar} alt={name} className="w-9 h-9 rounded-[var(--ui-radius-lg)] object-cover flex-shrink-0"
             onError={(e) => { e.currentTarget.style.display = 'none'; }} />
         ) : (
-          <div className="w-9 h-9 rounded-[10px] grid place-items-center text-white text-[13px] font-bold flex-shrink-0"
+          <div className="w-9 h-9 rounded-[var(--ui-radius-lg)] grid place-items-center text-white text-[13px] font-medium flex-shrink-0"
             style={{ background: 'var(--brand-gradient-vivid, var(--brand-purple))' }}>
             {name.charAt(0).toUpperCase()}
           </div>
         )}
 
         <div className="min-w-0 flex-1">
-          <div className="text-[13.5px] font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{name}</div>
-          {sub && <div className="text-[11.5px] truncate" style={{ color: 'var(--text-tertiary)' }}>{sub}</div>}
+          <div className="text-[13px] font-medium truncate" style={{ color: 'var(--text-primary)' }}>{name}</div>
+          {sub && <div className="text-[11px] truncate" style={{ color: 'var(--text-tertiary)' }}>{sub}</div>}
         </div>
 
         {/* Status pill */}
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold whitespace-nowrap"
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap"
           style={{ background: meta.tint, color: meta.color }}>
           <Icon size={11} className={state === 'sending' ? 'animate-spin' : ''} />
           {meta.label}
@@ -232,7 +242,7 @@ function ProfileBranch({ member, state, active }) {
 
         {member.profileUrl && (
           <a href={member.profileUrl} target="_blank" rel="noreferrer"
-            className="grid place-items-center w-7 h-7 rounded-[8px] flex-shrink-0 transition-colors"
+            className="grid place-items-center w-7 h-7 rounded-[var(--ui-radius-md)] flex-shrink-0 transition-colors"
             style={{ color: 'var(--text-tertiary)' }}
             onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-tertiary)'; }}
@@ -247,10 +257,10 @@ function ProfileBranch({ member, state, active }) {
 
 function Stat({ label, value, icon: Icon, color }) {
   return (
-    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[9px]" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}>
+    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--ui-radius-md)]" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}>
       <Icon size={13} style={{ color }} />
-      <span className="text-[13px] font-bold tabular-nums" style={{ color: 'var(--text-primary)' }}>{value}</span>
-      <span className="text-[11.5px]" style={{ color: 'var(--text-tertiary)' }}>{label}</span>
+      <span className="text-[13px] font-medium tabular-nums" style={{ color: 'var(--text-primary)' }}>{value}</span>
+      <span className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>{label}</span>
     </div>
   );
 }

@@ -27,11 +27,25 @@
   --ui-neutral-900: #18181b;
 
   /* ---- Text ---------------------------------------------- */
-  --ui-text-primary:   var(--ui-neutral-900);
-  --ui-text-secondary: var(--ui-neutral-600);
-  --ui-text-tertiary:  var(--ui-neutral-400);
-  --ui-text-disabled:  var(--ui-neutral-300);
-  --ui-text-inverse:   var(--ui-neutral-0);
+  /* Four steps, and the third one moved.
+
+     --ui-text-tertiary was neutral-400 (#a1a1aa), which is 2.4:1 on
+     white — below the 4.5:1 minimum for any text at these sizes. It was
+     being used for column headers, page subtitles, counts and the
+     "Rows" label, i.e. real information, all of it under-contrast. That
+     greyness is also a large part of why the app read as flat: when the
+     secondary and tertiary tiers are both too pale, size is the only
+     hierarchy left and there isn't enough of it.
+
+     Tertiary is now neutral-500 (4.8:1) and still clearly recedes.
+     Anything genuinely decorative — the em-dash in an empty cell —
+     uses quaternary, which is what neutral-400 is for. */
+  --ui-text-primary:    var(--ui-neutral-900);
+  --ui-text-secondary:  var(--ui-neutral-600);
+  --ui-text-tertiary:   var(--ui-neutral-500);
+  --ui-text-quaternary: var(--ui-neutral-400);
+  --ui-text-disabled:   var(--ui-neutral-300);
+  --ui-text-inverse:    var(--ui-neutral-0);
 
   /* ---- Surfaces ------------------------------------------ */
   --ui-surface-page:    var(--ui-neutral-50);
@@ -40,6 +54,13 @@
   --ui-surface-hover:   var(--ui-neutral-100);
   --ui-surface-active:  var(--ui-neutral-150);
   --ui-surface-inverse: var(--ui-neutral-900);
+
+  /* The sidebar sits on the sunken plane, which is the same colour as
+     --ui-surface-hover. Hovering a nav row against it would be
+     invisible, so the rail gets its own hover one step further down
+     the ramp. Any surface that itself sits on sunken needs this. */
+  --ui-surface-rail-hover:  var(--ui-neutral-150);
+  --ui-surface-rail-active: var(--ui-neutral-200);
 
   /* ---- Borders ------------------------------------------- */
   --ui-border-hairline: var(--ui-neutral-150);
@@ -116,6 +137,41 @@
   --ui-av-7-bg: #ccfbf1; --ui-av-7-fg: #115e59;
   --ui-av-8-bg: #ffe4e6; --ui-av-8-fg: #9f1239;
 
+  /* ---- Type scale ----------------------------------------
+     Six steps, and only six. The previous app carried seventeen
+     distinct px sizes, five of which sat inside a 2.5px band
+     (11.5 / 12 / 12.5 / 13 / 13.5) — the eye cannot resolve those
+     as separate levels, so what was built as five tiers rendered
+     as one flat mass. That is what "no hierarchy" actually was.
+
+     Each step here is at least 1.15x the last, which is the
+     minimum ratio that reads as a different level.
+
+       page    the page title. The only 17px on a screen.
+       section a card or section heading.
+       body    the default. Table cells, form values, buttons.
+       label   supporting copy, subtitles, secondary lines.
+       meta    counts, timestamps, column headers.
+       micro   nav section labels. Nothing else. */
+  --ui-t-metric:  24px;  /* the number on a metric card. Nothing else. */
+  --ui-t-page:    17px;
+  --ui-t-section: 14px;
+  --ui-t-body:    13px;
+  --ui-t-label:   12px;
+  --ui-t-meta:    11px;
+  --ui-t-micro:   10px;
+
+  /* Two weights. Emphasis is carried by size and colour; weight is
+     the third lever and using all three at once is what makes a UI
+     shout. There is no semibold and no bold in the app chrome. */
+  --ui-w-normal: 400;
+  --ui-w-strong: 500;
+
+  /* Optical tracking. Larger text needs to be pulled in, smaller
+     text needs to breathe. */
+  --ui-track-tight: -0.012em;
+  --ui-track-base:  -0.006em;
+
   /* ---- Radii ---------------------------------------------
      Direction A is 6-8px. Nothing in the app UI is rounder. */
   --ui-radius-xs: 4px;
@@ -124,17 +180,43 @@
   --ui-radius-lg: 10px;
   --ui-radius-pill: 999px;
 
-  /* ---- Density -------------------------------------------
-     Row heights. Consumed by Row, Cell and HeaderCell. Never
-     overridden per column — that is what broke the old table. */
-  --ui-row-compact:     32px;
-  --ui-row-default:     38px;
-  --ui-row-comfortable: 46px;
+  /* ---- Layout gutters ------------------------------------
+     One ladder, so everything in a page's left rail lands on the
+     same vertical line.
 
-  /* ---- Control heights ----------------------------------- */
-  --ui-control-sm: 28px;
-  --ui-control-md: 32px;
-  --ui-control-lg: 36px;
+     Previously the page title sat at 16px (the shell padding), the
+     card border also at 16px, the tab label at 39px, the search box
+     at 29px and the first column header at 69px — five different
+     left edges in one viewport, with the title aligned to the card's
+     BORDER rather than to any content.
+
+     --ui-content-x is the line everything aligns to:
+       shell padding (16) + card border (1) + card padding (12) */
+  --ui-shell-x:   16px;
+  --ui-pad-x:     12px;
+  --ui-content-x: 29px;
+
+  /* Content pages (Settings, Templates, Enrich) and dialogs need more
+     air than a table row does. One value for all of them.
+
+     They previously ran p-7 (28), px-6 (24) and px-5 (20) depending
+     on which page you were on, so the page gutter changed as you
+     moved through the nav. That alone made the product feel like
+     three products. */
+  --ui-pad-lg: 20px;
+
+  /* ---- Bands ---------------------------------------------
+     Every horizontal chrome band in the app — page header, filter
+     bar, table toolbar, table header, pagination — is this height.
+     They used to be 48 / 40 / 44 / 34 / 44, and the 40-vs-44 pair
+     stacked directly on top of each other produced a visible wobble
+     down the right edge where the buttons sit.
+
+     Row height and control height are NOT declared here. They used
+     to be, duplicating the values in ui/tokens/density.js and in the
+     per-primitive variants files, which is a guaranteed drift. Those
+     files are the source of truth; this one owns the bands. */
+  --ui-band: 40px;
 
   /* ---- Focus --------------------------------------------- */
   --ui-focus-ring: 0 0 0 2px var(--ui-surface-card), 0 0 0 4px var(--ui-accent-tint-strong);
@@ -175,6 +257,8 @@
   --ui-neutral-900: #fafafa;
 
   --ui-surface-page: #0e0e11;
+  --ui-surface-rail-hover:  var(--ui-neutral-200);
+  --ui-surface-rail-active: var(--ui-neutral-300);
   --ui-ink:       var(--ui-neutral-0);
   --ui-ink-hover: var(--ui-neutral-100);
 

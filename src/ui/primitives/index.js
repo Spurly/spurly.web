@@ -12,4 +12,5 @@ export { Tabs } from './Tabs';
 export { Overlay } from './Overlay';
 export { Dialog } from './Dialog';
 export { Drawer } from './Drawer';
-export { ToastProvider, useToast } from './Toast';
+export { ToastProvider, useToast, useErrorToast } from './Toast';
+export { ConfirmProvider, useConfirm } from './Confirm';

@@ -24,7 +24,7 @@ export function buildPlanColumns(onEdit) {
       label: 'Key',
       width: 160,
       render: (value) => (
-        <code className="truncate font-mono text-[11.5px] px-1.5 py-0.5 rounded-[var(--ui-radius-xs)] bg-[var(--ui-surface-sunken)] text-[var(--ui-text-secondary)]">
+        <code className="truncate font-mono text-[11px] px-1.5 py-0.5 rounded-[var(--ui-radius-xs)] bg-[var(--ui-surface-sunken)] text-[var(--ui-text-secondary)]">
           {value}
         </code>
       ),

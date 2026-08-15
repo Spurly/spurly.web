@@ -50,7 +50,7 @@ export function Cell({ row = {}, column = {}, density = 'default' }) {
           }
           style={{ width: '100%', textAlign: column.align || 'left' }}
         >
-          {content ?? <span className="text-[var(--ui-text-tertiary)]">—</span>}
+          {content ?? <span className="text-[var(--ui-text-quaternary)]">—</span>}
         </span>
       </div>
     </td>

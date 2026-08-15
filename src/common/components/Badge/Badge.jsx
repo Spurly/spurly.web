@@ -4,13 +4,13 @@ export function Badge({ children, variant = 'default', tone, dot = false }) {
   const styles = {
     default:  'bg-[var(--surface-sunken)] text-[var(--text-secondary)]',
     neutral:  'bg-[var(--surface-sunken)] text-[var(--text-secondary)]',
-    success:  'bg-[var(--green-tint)] text-[var(--green)]',
-    warning:  'bg-[var(--amber-tint)] text-[var(--amber)]',
+    success:  'bg-[var(--ui-success-tint)] text-[var(--ui-success-fg)]',
+    warning:  'bg-[var(--ui-warning-tint)] text-[var(--ui-warning-fg)]',
     error:    'bg-[var(--red-tint)] text-[var(--red)]',
     danger:   'bg-[var(--red-tint)] text-[var(--red)]',
-    primary:  'bg-[var(--accent-tint)] text-[var(--brand-purple)]',
-    accent:   'bg-[var(--accent-tint)] text-[var(--brand-purple)]',
-    info:     'bg-[var(--sky-tint)] text-[var(--sky)]',
+    primary:  'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)]',
+    accent:   'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)]',
+    info:     'bg-[var(--ui-info-tint)] text-[var(--ui-info-fg)]',
   };
 
   const dotColors = {
@@ -27,7 +27,7 @@ export function Badge({ children, variant = 'default', tone, dot = false }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[999px] text-[12px] font-semibold tracking-[0.01em] ${styles[key] || styles.default}`}
+      className={`inline-flex items-center gap-1.5 h-[20px] px-2 rounded-full text-[11px] font-medium ${styles[key] || styles.default}`}
     >
       {dot && (
         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColors[key] || dotColors.default}`} />

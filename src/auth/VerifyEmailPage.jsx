@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/hooks/useAuth';
+import { useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 import { AuthShell, FeaturesAside } from './AuthShell.jsx';
 
 /**
@@ -12,16 +14,18 @@ import { AuthShell, FeaturesAside } from './AuthShell.jsx';
 export default function VerifyEmailPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { verifySignupOtp, requestSignupOtp } = useAuth();
+  const { verifySignupOtp } = useAuth();
+  const toast = useToast();
 
   const email = location.state?.email || '';
   const name = location.state?.name || '';
 
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [notice, setNotice] = useState(email ? `We emailed a 6-digit code to ${email}.` : '');
   const [resending, setResending] = useState(false);
+  /* Persistent page context, not an API result — stays inline so it's still
+     readable while the user switches to their mail client and back. */
+  const notice = email ? `We emailed a 6-digit code to ${email}.` : '';
 
   // No email in state → the user didn't come from the signup form. Send them back.
   useEffect(() => {
@@ -32,21 +36,19 @@ export default function VerifyEmailPage() {
 
   async function onSubmit(e) {
     e.preventDefault();
-    setError('');
     setLoading(true);
     try {
       await verifySignupOtp({ email, code: code.trim() });
+      toast.success('Account created', { description: 'Welcome to Spurly.' });
       navigate('/onboarding', { replace: true });
     } catch (err) {
-      setError(err.message || 'Verification failed. Please check the code and try again.');
+      toast.error(getToastError(err, "That code didn't work. Check it and try again."));
     } finally {
       setLoading(false);
     }
   }
 
   async function onResend() {
-    setError('');
-    setNotice('');
     setResending(true);
     try {
       // We don't keep the password around on this page, so a true resend isn't
@@ -69,7 +71,6 @@ export default function VerifyEmailPage() {
         </div>
 
         {notice && <div className="sp-notice sp-notice--info" style={{ marginBottom: 16 }}>{notice}</div>}
-        {error && <div className="sp-notice sp-notice--error" role="alert" style={{ marginBottom: 16 }}>{error}</div>}
 
         <form className="sp-form" onSubmit={onSubmit} noValidate>
           <div className="sp-field">

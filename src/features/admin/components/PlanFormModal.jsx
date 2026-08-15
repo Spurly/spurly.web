@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { X, Loader } from 'lucide-react';
 import { createPlan, updatePlan } from 'src/core/gateway/adminApi';
+import { useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 
 /**
  * PlanFormModal
@@ -29,8 +31,9 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
   );
 
   const [loading, setLoading] = useState(false);
+  /* Field validation only — these point at specific inputs. */
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const toast = useToast();
 
   const validNumber = (v) => {
     const n = Number(v);
@@ -40,7 +43,6 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
     if (!isEdit && !name.trim()) {
       setError('Plan name (internal key) is required');
@@ -84,13 +86,17 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
       }
 
       if (result.success) {
-        setSuccess(isEdit ? 'Plan updated successfully!' : 'Plan created successfully!');
-        setTimeout(() => onSuccess(), 900);
+        toast.success(
+          isEdit ? `Updated ${displayName.trim()}` : `Created ${displayName.trim()}`,
+        );
+        onSuccess();
       } else {
-        setError(result.message || 'Operation failed');
+        toast.error(getToastError(result, isEdit ? "Couldn't update the plan" : "Couldn't create the plan"));
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'An error occurred');
+      toast.error(
+        getToastError(err, isEdit ? "Couldn't update the plan" : "Couldn't create the plan"),
+      );
     } finally {
       setLoading(false);
     }
@@ -100,22 +106,22 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">
+        <div className="flex items-center justify-between p-[var(--ui-pad-lg)] border-b border-[var(--ui-border-hairline)]">
+          <h2 className="text-[17px] font-medium text-[var(--ui-text-primary)]">
             {isEdit ? 'Edit Plan' : 'Create New Plan'}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-secondary)] transition-colors"
           >
             <X size={24} />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-[var(--ui-pad-lg)] space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-2">
               Internal name (key)
             </label>
             <input
@@ -126,7 +132,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
               className="input"
               disabled={loading || isEdit}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-[11px] text-[var(--ui-text-tertiary)] mt-1">
               {isEdit
                 ? 'The internal key cannot be changed after creation.'
                 : 'Lowercase key used internally (e.g. free, solopreneur, agency).'}
@@ -134,7 +140,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Display name</label>
+            <label className="block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-2">Display name</label>
             <input
               type="text"
               value={displayName}
@@ -148,7 +154,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
           {/* Limits */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Captures / day</label>
+              <label className="block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-2">Captures / day</label>
               <input
                 type="number"
                 min="0"
@@ -160,7 +166,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-2">
                 Connections / day
               </label>
               <input
@@ -174,7 +180,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Messages / day</label>
+              <label className="block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-2">Messages / day</label>
               <input
                 type="number"
                 min="0"
@@ -188,7 +194,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
           </div>
 
           {/* Active toggle */}
-          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+          <label className="flex items-center gap-2 text-[12px] text-[var(--ui-text-secondary)] cursor-pointer">
             <input
               type="checkbox"
               checked={isActive}
@@ -200,16 +206,10 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
           </label>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[12px]">
               {error}
             </div>
           )}
-          {success && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-              {success}
-            </div>
-          )}
-
           <div className="flex gap-3 pt-4">
             <button
               type="button"

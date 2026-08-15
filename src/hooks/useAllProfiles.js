@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import capturedLeadsController from 'src/core/controllers/capturedLeadsController.js';
+import { useErrorToast } from 'src/ui/primitives';
 
 export function useAllProfiles() {
   const [profiles, setProfiles] = useState([]);
@@ -62,6 +63,12 @@ export function useAllProfiles() {
   const refresh = useCallback(() => {
     fetchAllProfiles({ ...lastOptionsRef.current, skip: 0 });
   }, [fetchAllProfiles]);
+
+  /* Reported twice on purpose: the inline block the page renders (which
+     persists next to the empty table) and one toast (which catches the eye
+     if that block is off screen). The toast gets fixed copy — the server's
+     text goes inline, where there's room for it. */
+  useErrorToast(error, "Couldn't load your people");
 
   return {
     profiles,

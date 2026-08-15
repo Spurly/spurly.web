@@ -6,10 +6,10 @@ export function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-spurly-surface-bg">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--ui-surface-page)]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-spurly-purple mx-auto mb-4"></div>
-          <p className="text-spurly-text-secondary text-body">Loading...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--ui-accent)] mx-auto mb-4"></div>
+          <p className="text-[var(--ui-text-secondary)] text-[13px]">Loading...</p>
         </div>
       </div>
     );

@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
-import { User as UserIcon, CreditCard, Puzzle, Check, RefreshCw, ExternalLink } from 'lucide-react';
+import { User as UserIcon, CreditCard, Puzzle, RefreshCw, ExternalLink } from 'lucide-react';
 import { DashboardLayout } from 'src/components/DashboardLayout';
 import { useAuth } from 'src/hooks/useAuth';
 import { useExtension } from 'src/hooks/useExtension';
 import { Tabs } from 'src/common/components/Tabs';
 import { Input } from 'src/common/components/Input';
-import { Button } from 'src/ui/primitives';
+import { Button, useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 import { SectionCard } from 'src/common/components/SectionCard';
+import { AiContextTab } from './AiContextTab.jsx';
 
 const TABS = [
   { id: 'profile', label: 'Profile' },
+  { id: 'ai', label: 'AI context' },
   { id: 'billing', label: 'Billing & credits' },
   { id: 'extension', label: 'Extension' },
 ];
@@ -28,8 +31,9 @@ export function SettingsPage() {
   return (
     <DashboardLayout title="Settings" subtitle="Manage your account, credits and extension.">
       <Tabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="p-7 max-w-[720px]">
+      <div className="p-[var(--ui-pad-lg)] max-w-[720px]">
         {activeTab === 'profile' && <ProfileTab />}
+        {activeTab === 'ai' && <AiContextTab />}
         {activeTab === 'billing' && <BillingTab />}
         {activeTab === 'extension' && <ExtensionTab />}
       </div>
@@ -42,11 +46,11 @@ export function SettingsPage() {
 function ProfileTab() {
   const { user, updateProfile } = useAuth();
 
+  const toast = useToast();
+
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [saving, setSaving] = useState(false);
-  const [savedAt, setSavedAt] = useState(null);
-  const [error, setError] = useState(null);
 
   // `user` arrives asynchronously (AuthContext refetches on mount), so seed the
   // fields once it lands rather than at first render.
@@ -64,24 +68,15 @@ function ProfileTab() {
     if (!dirty || saving) return;
 
     setSaving(true);
-    setError(null);
     try {
       await updateProfile({ name: name.trim(), companyName: companyName.trim() });
-      setSavedAt(Date.now());
+      toast.success('Profile saved');
     } catch (err) {
-      setError(err.message || 'Could not save your changes. Please try again.');
+      toast.error(getToastError(err, "Couldn't save your profile"));
     } finally {
       setSaving(false);
     }
   };
-
-  // Clear the "Saved" confirmation after a few seconds so it doesn't linger and
-  // get mistaken for the state of a later, unsaved edit.
-  useEffect(() => {
-    if (!savedAt) return undefined;
-    const id = setTimeout(() => setSavedAt(null), 3000);
-    return () => clearTimeout(id);
-  }, [savedAt]);
 
   return (
     <SectionCard title="Your details">
@@ -105,11 +100,11 @@ function ProfileTab() {
         />
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-[13px] font-semibold text-[var(--text-primary)] tracking-[-0.006em]">
+          <label className="text-[13px] font-medium text-[var(--text-primary)] tracking-[-0.006em]">
             Email
           </label>
           <div
-            className="h-11 px-4 flex items-center rounded-[12px] text-[14px] text-[var(--text-secondary)]"
+            className="h-8 px-3 flex items-center rounded-[var(--ui-radius-sm)] text-[13px] text-[var(--text-secondary)]"
             style={{ background: 'var(--surface-sunken)', border: '1px solid var(--border-hairline)' }}
           >
             {user?.email || '—'}
@@ -119,28 +114,10 @@ function ProfileTab() {
           </p>
         </div>
 
-        {error && (
-          <p
-            className="text-[13px] font-medium px-3 py-2.5 rounded-[10px]"
-            style={{ background: 'var(--red-tint)', color: 'var(--red)' }}
-          >
-            {error}
-          </p>
-        )}
-
         <div className="flex items-center gap-3 pt-1">
           <Button type="submit" disabled={!dirty || saving}>
             {saving ? 'Saving…' : 'Save changes'}
           </Button>
-          {savedAt && (
-            <span
-              className="flex items-center gap-1.5 text-[13px] font-medium"
-              style={{ color: 'var(--green)' }}
-            >
-              <Check size={15} />
-              Saved
-            </span>
-          )}
         </div>
       </form>
     </SectionCard>
@@ -162,12 +139,12 @@ function BillingTab() {
           <div>
             <div className="flex items-baseline gap-2">
               <span
-                className="text-[40px] font-bold tabular-nums leading-none tracking-[-0.02em]"
+                className="text-[24px] font-medium tabular-nums leading-none tracking-[-0.012em]"
                 style={{ color: low ? 'var(--amber)' : 'var(--text-primary)' }}
               >
                 {balance.toLocaleString()}
               </span>
-              <span className="text-[15px] text-[var(--text-secondary)]">credits left</span>
+              <span className="text-[14px] text-[var(--text-secondary)]">credits left</span>
             </div>
             <p className="text-[13px] text-[var(--text-secondary)] mt-2 max-w-[380px] leading-relaxed">
               One credit enriches one person with their email, phone and company details.
@@ -191,7 +168,7 @@ function BillingTab() {
       </SectionCard>
 
       <SectionCard title="Plan">
-        <div className="text-[15px] font-semibold text-[var(--text-primary)] capitalize">
+        <div className="text-[14px] font-medium text-[var(--text-primary)] capitalize">
           {tier} plan
         </div>
         <p className="text-[13px] text-[var(--text-secondary)] mt-1">
@@ -222,13 +199,13 @@ function ExtensionTab() {
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-3">
           <span
-            className="w-10 h-10 rounded-[12px] grid place-items-center shrink-0"
+            className="w-10 h-10 rounded-[var(--ui-radius-lg)] grid place-items-center shrink-0"
             style={{ background: status.tint, color: status.color }}
           >
             <Puzzle size={19} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="text-[15px] font-semibold" style={{ color: status.color }}>
+            <div className="text-[14px] font-medium" style={{ color: status.color }}>
               {status.label}
             </div>
             <p className="text-[13px] text-[var(--text-secondary)] mt-0.5">
@@ -248,7 +225,7 @@ function ExtensionTab() {
 
         {!checking && !installed && (
           <div
-            className="rounded-[12px] p-4"
+            className="rounded-[var(--ui-radius-lg)] p-4"
             style={{ background: 'var(--red-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
           >
             <p className="text-[13px] text-[var(--text-primary)] leading-relaxed">
@@ -259,7 +236,7 @@ function ExtensionTab() {
               href="https://chromewebstore.google.com/"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 mt-3 text-[13px] font-semibold"
+              className="inline-flex items-center gap-1.5 mt-3 text-[13px] font-medium"
               style={{ color: 'var(--text-accent)' }}
             >
               Install the extension
@@ -270,7 +247,7 @@ function ExtensionTab() {
 
         {!checking && installed && !loggedIn && (
           <div
-            className="rounded-[12px] p-4"
+            className="rounded-[var(--ui-radius-lg)] p-4"
             style={{ background: 'var(--amber-tint)', border: '1px solid rgba(245,158,11,0.25)' }}
           >
             <p className="text-[13px] text-[var(--text-primary)] leading-relaxed">

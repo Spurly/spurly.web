@@ -27,7 +27,7 @@ function CampaignNameCell({ value, row }) {
       <span className="truncate font-medium text-[var(--ui-text-primary)]">
         {value || 'Untitled campaign'}
       </span>
-      <span className="shrink-0 text-[11.5px] text-[var(--ui-text-tertiary)]">
+      <span className="shrink-0 text-[11px] text-[var(--ui-text-tertiary)]">
         {ACTION_LABELS[row.actionType] || 'No action set'}
       </span>
     </span>

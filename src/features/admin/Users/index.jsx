@@ -3,13 +3,15 @@ import { getAllUsers } from 'src/core/gateway/adminApi';
 import { RefreshCw } from 'lucide-react';
 import { AdminLayout } from 'src/admin/AdminLayout';
 import { DataTable } from 'src/components/DataTable';
-import { Button } from 'src/ui/primitives';
+import { Button, useToast } from 'src/ui/primitives';
+import { getToastError, getApiErrorMessage } from 'src/common/utils/apiError';
 import CreditsModal from 'src/features/admin/components/CreditsModal';
 import PlanAssignModal from 'src/features/admin/components/PlanAssignModal';
 import UserDetailsModal from 'src/features/admin/components/UserDetailsModal';
 import { buildUserColumns } from './userColumns.jsx';
 
 export function AdminUsersPage() {
+  const toast = useToast();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -35,10 +37,15 @@ export function AdminUsersPage() {
         setUsers(result.data.users);
         setPagination(result.data.pagination);
       } else {
+        /* Load failures are toasted AND kept inline: the table behind this is
+           empty, and an empty admin table with no explanation reads as "no
+           users" rather than "we couldn't fetch them". */
         setError(result.message || 'Failed to load users');
+        toast.error(getToastError(result, "Couldn't load users"));
       }
     } catch (err) {
-      setError(err.message || 'An error occurred');
+      setError(getApiErrorMessage(err, 'Failed to load users'));
+      toast.error(getToastError(err, "Couldn't load users"));
     } finally {
       setLoading(false);
     }
@@ -95,7 +102,7 @@ export function AdminUsersPage() {
       <div className="space-y-6">
         {error && (
           <div
-            className="p-3 rounded-[12px] text-[13px] font-medium"
+            className="p-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium"
             style={{
               background: 'var(--red-tint)',
               color: 'var(--red)',
@@ -106,7 +113,7 @@ export function AdminUsersPage() {
           </div>
         )}
 
-        <div className="rounded-[16px] border border-[var(--border-hairline)] overflow-hidden shadow-sm">
+        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--border-hairline)] overflow-hidden shadow-sm">
           <DataTable
             columns={columns}
             data={filteredUsers}

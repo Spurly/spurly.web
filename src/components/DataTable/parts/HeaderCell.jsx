@@ -15,7 +15,7 @@ const JUSTIFY = { left: 'justify-start', center: 'justify-center', right: 'justi
  * Sentence case, not uppercase micro-caps. Letter-spaced all-caps headers are
  * the single most dating detail in a data table.
  */
-const LABEL = 'text-[11.5px] font-medium text-[var(--ui-text-tertiary)]';
+const LABEL = 'text-[11px] font-medium text-[var(--ui-text-tertiary)]';
 
 export function HeaderCell({ column = {}, sort = {}, onSort, density = 'default' }) {
   const d = resolveDensity(density);

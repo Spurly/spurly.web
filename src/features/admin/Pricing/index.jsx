@@ -8,11 +8,13 @@ import {
 import { Loader, Save, Check, AlertCircle, Plus } from 'lucide-react';
 import { AdminLayout } from 'src/admin/AdminLayout';
 import { DataTable } from 'src/components/DataTable';
-import { Button } from 'src/ui/primitives';
+import { Button, useToast } from 'src/ui/primitives';
+import { getToastError, getApiErrorMessage } from 'src/common/utils/apiError';
 import PlanFormModal from 'src/features/admin/components/PlanFormModal';
 import { buildPlanColumns } from './planColumns.jsx';
 
 export function AdminPricingPage() {
+  const toast = useToast();
   const [costs, setCosts] = useState([]);
   const [drafts, setDrafts] = useState({}); // feature -> string value being edited
   const [loading, setLoading] = useState(true);
@@ -42,9 +44,11 @@ export function AdminPricingPage() {
         setPlans(result.data.plans || []);
       } else {
         setPlansError(result.message || 'Failed to load plans');
+        toast.error(getToastError(result, "Couldn't load plans"));
       }
     } catch (err) {
-      setPlansError(err.response?.data?.message || err.message || 'An error occurred');
+      setPlansError(getApiErrorMessage(err, 'Failed to load plans'));
+      toast.error(getToastError(err, "Couldn't load plans"));
     } finally {
       setPlansLoading(false);
     }
@@ -80,9 +84,11 @@ export function AdminPricingPage() {
         setDrafts(initialDrafts);
       } else {
         setError(result.message || 'Failed to load action costs');
+        toast.error(getToastError(result, "Couldn't load action costs"));
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'An error occurred');
+      setError(getApiErrorMessage(err, 'Failed to load action costs'));
+      toast.error(getToastError(err, "Couldn't load action costs"));
     } finally {
       setLoading(false);
     }
@@ -96,6 +102,7 @@ export function AdminPricingPage() {
   const handleSave = async (feature) => {
     const raw = drafts[feature];
     const value = Number(raw);
+    /* Field validation — stays inline, next to the input it's about. */
     if (!Number.isFinite(value) || value < 0) {
       setError(`Cost for ${feature} must be a number ≥ 0`);
       return;
@@ -114,11 +121,12 @@ export function AdminPricingPage() {
         );
         setSavedFeature(feature);
         setTimeout(() => setSavedFeature(null), 2500);
+        toast.success(`${feature} now costs ${value} credit${value === 1 ? '' : 's'}`);
       } else {
-        setError(result.message || 'Failed to update cost');
+        toast.error(getToastError(result, "Couldn't update the cost"));
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'An error occurred');
+      toast.error(getToastError(err, "Couldn't update the cost"));
     } finally {
       setSavingFeature(null);
     }
@@ -136,7 +144,9 @@ export function AdminPricingPage() {
         setCosts((prev) =>
           prev.map((c) => (c.feature === feature ? { ...c, billingEnabled: !nextEnabled } : c))
         );
-        setError(result.message || 'Failed to update billing');
+        /* The optimistic toggle above has just been rolled back. A toast is the
+           only signal the user gets that the switch flipped back on purpose. */
+        toast.error(getToastError(result, "Couldn't update billing"));
       } else {
         setCosts((prev) =>
           prev.map((c) =>
@@ -145,12 +155,13 @@ export function AdminPricingPage() {
               : c
           )
         );
+        toast.success(`Billing ${nextEnabled ? 'enabled' : 'disabled'} for ${feature}`);
       }
     } catch (err) {
       setCosts((prev) =>
         prev.map((c) => (c.feature === feature ? { ...c, billingEnabled: !nextEnabled } : c))
       );
-      setError(err.response?.data?.message || err.message || 'An error occurred');
+      toast.error(getToastError(err, "Couldn't update billing"));
     } finally {
       setTogglingFeature(null);
     }
@@ -164,7 +175,7 @@ export function AdminPricingPage() {
       <div className="mb-12">
         <div className="flex items-start justify-between gap-4 mb-5">
           <div className="max-w-2xl">
-            <h3 className="text-[17px] font-semibold text-[var(--text-primary)]">
+            <h3 className="text-[17px] font-medium text-[var(--text-primary)]">
               Subscription plans
             </h3>
             <p className="text-[var(--text-secondary)] text-[13px] leading-relaxed mt-1">
@@ -186,14 +197,14 @@ export function AdminPricingPage() {
         </div>
 
         {plansError && (
-          <div className="mb-4 flex items-center gap-2 p-3 rounded-[12px] text-[13px] font-medium"
+          <div className="mb-4 flex items-center gap-2 p-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium"
             style={{ background: 'var(--red-tint)', color: 'var(--red)', border: '1px solid rgba(255,69,58,0.2)' }}>
             <AlertCircle size={18} />
             <span>{plansError}</span>
           </div>
         )}
 
-        <div className="rounded-[16px] border border-[var(--border-hairline)] overflow-hidden shadow-sm">
+        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--border-hairline)] overflow-hidden shadow-sm">
           <DataTable
             columns={buildPlanColumns(handleEditPlan)}
             data={plans}
@@ -213,16 +224,16 @@ export function AdminPricingPage() {
         </div>
       ) : (
         <div className="max-w-3xl">
-          <h3 className="text-[17px] font-semibold text-[var(--text-primary)] mb-3">
+          <h3 className="text-[17px] font-medium text-[var(--text-primary)] mb-3">
             Credit cost per action
           </h3>
           <div className="mb-6">
-            <p className="text-gray-600">
+            <p className="text-[var(--ui-text-secondary)]">
               Set how many credits each action costs, and toggle billing per action. Changes are the
               source of truth and take effect for all users within a few minutes (backend cache
               refresh). The extension reads these values too.
             </p>
-            <p className="text-gray-500 text-sm mt-2">
+            <p className="text-[var(--ui-text-tertiary)] text-[12px] mt-2">
               When an action's billing is <span className="font-medium">Off</span>, that action is
               free — no credits are deducted and users are never blocked for it. Turn it back{' '}
               <span className="font-medium">On</span> to resume charging at the cost shown.
@@ -230,33 +241,33 @@ export function AdminPricingPage() {
           </div>
 
           {error && (
-            <div className="mb-4 flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
+            <div className="mb-4 flex items-center gap-2 p-3 bg-[var(--ui-danger-tint)] text-[var(--ui-danger-fg)] rounded-[var(--ui-radius-md)] border border-[var(--ui-danger-tint)]">
               <AlertCircle size={18} />
               <span>{error}</span>
             </div>
           )}
 
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-white rounded-[var(--ui-radius-lg)] shadow-sm overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 text-left text-sm text-gray-500">
-                  <th className="px-6 py-3 font-medium">Action</th>
-                  <th className="px-6 py-3 font-medium">Feature key</th>
-                  <th className="px-6 py-3 font-medium">Billing</th>
-                  <th className="px-6 py-3 font-medium">Cost (credits)</th>
-                  <th className="px-6 py-3 font-medium"></th>
+                <tr className="bg-[var(--ui-surface-page)] text-left text-[12px] text-[var(--ui-text-tertiary)]">
+                  <th className="px-[var(--ui-pad-lg)] py-3 font-medium">Action</th>
+                  <th className="px-[var(--ui-pad-lg)] py-3 font-medium">Feature key</th>
+                  <th className="px-[var(--ui-pad-lg)] py-3 font-medium">Billing</th>
+                  <th className="px-[var(--ui-pad-lg)] py-3 font-medium">Cost (credits)</th>
+                  <th className="px-[var(--ui-pad-lg)] py-3 font-medium"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[var(--ui-border-hairline)]">
                 {costs.map((c) => (
-                  <tr key={c.feature} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-900">{c.label}</td>
-                    <td className="px-6 py-4">
-                      <code className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+                  <tr key={c.feature} className="hover:bg-[var(--ui-surface-page)]">
+                    <td className="px-[var(--ui-pad-lg)] py-4 font-medium text-[var(--ui-text-primary)]">{c.label}</td>
+                    <td className="px-[var(--ui-pad-lg)] py-4">
+                      <code className="text-[11px] bg-[var(--ui-surface-sunken)] px-2 py-1 rounded text-[var(--ui-text-secondary)]">
                         {c.feature}
                       </code>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-[var(--ui-pad-lg)] py-4">
                       <div className="flex items-center gap-3">
                         <button
                           type="button"
@@ -267,7 +278,7 @@ export function AdminPricingPage() {
                             handleToggleBilling(c.feature, !(c.billingEnabled !== false))
                           }
                           className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none ${
-                            c.billingEnabled !== false ? 'bg-green-500' : 'bg-gray-300'
+                            c.billingEnabled !== false ? 'bg-[var(--ui-success)]' : 'bg-[var(--ui-border-strong)]'
                           } ${togglingFeature === c.feature ? 'opacity-60 cursor-wait' : 'cursor-pointer'}`}
                         >
                           <span
@@ -277,15 +288,15 @@ export function AdminPricingPage() {
                           />
                         </button>
                         <span
-                          className={`text-sm font-medium ${
-                            c.billingEnabled !== false ? 'text-green-600' : 'text-gray-400'
+                          className={`text-[12px] font-medium ${
+                            c.billingEnabled !== false ? 'text-[var(--ui-success-fg)]' : 'text-[var(--ui-text-quaternary)]'
                           }`}
                         >
                           {c.billingEnabled !== false ? 'On' : 'Off — free'}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-[var(--ui-pad-lg)] py-4">
                       <input
                         type="number"
                         min="0"
@@ -298,22 +309,22 @@ export function AdminPricingPage() {
                             ? 'Billing is off for this action — turn it on to edit the cost'
                             : undefined
                         }
-                        className={`w-28 px-3 py-2 border rounded-lg focus:outline-none ${
+                        className={`w-28 px-3 py-2 border rounded-[var(--ui-radius-md)] focus:outline-none ${
                           c.billingEnabled === false
-                            ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'border-gray-300'
+                            ? 'border-[var(--ui-border-hairline)] bg-[var(--ui-surface-sunken)] text-[var(--ui-text-quaternary)] cursor-not-allowed'
+                            : 'border-[var(--ui-border)]'
                         }`}
                       />
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-[var(--ui-pad-lg)] py-4">
                       <button
                         onClick={() => handleSave(c.feature)}
                         disabled={
                           c.billingEnabled === false || !isDirty(c) || savingFeature === c.feature
                         }
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-[var(--ui-radius-md)] text-[12px] font-medium transition-colors ${
                           c.billingEnabled === false || !isDirty(c)
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            ? 'bg-[var(--ui-surface-sunken)] text-[var(--ui-text-quaternary)] cursor-not-allowed'
                             : 'btn btn-primary'
                         }`}
                       >

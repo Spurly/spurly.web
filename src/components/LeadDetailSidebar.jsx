@@ -2,12 +2,13 @@ import { MapPin, Mail, Phone, Linkedin, Briefcase } from 'lucide-react';
 import { Avatar, Badge, Drawer } from 'src/ui/primitives';
 import { OutreachTimeline } from 'src/components/OutreachTimeline';
 import { OutreachStatusCell } from 'src/features/people/cells/OutreachStatusCell';
+import { ResearchPanel } from 'src/features/research/ResearchPanel.jsx';
 
 function Section({ title, children, action = null }) {
   return (
     <section className="px-4 py-3 border-t border-[var(--ui-border-hairline)]">
       <div className="flex items-center gap-2 mb-2">
-        <h3 className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)]">
+        <h3 className="text-[10px] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)]">
           {title}
         </h3>
         {action}
@@ -84,7 +85,7 @@ export function LeadDetailSidebar({
         <div className="flex items-start gap-3">
           <Avatar src={lead.avatar} name={lead.name} size={44} shape="square" />
           <div className="min-w-0 flex-1">
-            <h2 className="text-[16px] font-medium tracking-[-0.01em] text-[var(--ui-text-primary)] leading-tight">
+            <h2 className="text-[14px] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] leading-tight">
               {lead.name}
             </h2>
             {(lead.title || lead.company) && (
@@ -126,6 +127,15 @@ export function LeadDetailSidebar({
           ))}
         </div>
       </div>
+
+      {/* Live web research. Gated on showOutreach because that flag already
+          marks "this is a Person row" — the Connections page reuses this drawer
+          with a Connection, whose _id is not a Person id and would 404. */}
+      {showOutreach && lead._id && (
+        <Section title="Web research" action={<Badge size="sm" tone="accent">Beta</Badge>}>
+          <ResearchPanel personId={lead._id} />
+        </Section>
+      )}
 
       {lead.aiSummary && (
         <Section title="Summary" action={<Badge size="sm" tone="accent">Beta</Badge>}>
@@ -199,11 +209,11 @@ export function LeadDetailSidebar({
                   <p className="text-[13px] font-medium text-[var(--ui-text-primary)] leading-snug">
                     {exp.title}
                   </p>
-                  <p className="text-[12.5px] text-[var(--ui-text-secondary)] leading-snug">
+                  <p className="text-[12px] text-[var(--ui-text-secondary)] leading-snug">
                     {exp.company}
                   </p>
                   {(exp.startDate || exp.duration) && (
-                    <p className="text-[11.5px] text-[var(--ui-text-tertiary)] leading-snug mt-0.5">
+                    <p className="text-[11px] text-[var(--ui-text-tertiary)] leading-snug mt-0.5">
                       {exp.startDate}
                       {exp.endDate ? ` – ${exp.endDate}` : ''}
                       {exp.duration ? ` · ${exp.duration}` : ''}

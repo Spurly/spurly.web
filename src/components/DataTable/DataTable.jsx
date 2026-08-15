@@ -103,7 +103,7 @@ export function DataTable({
       {error && (
         <div
           role="alert"
-          className="mx-3 my-2 px-3 py-2 rounded-[var(--ui-radius-sm)] text-[12.5px] bg-[var(--ui-danger-tint)] text-[var(--ui-danger-fg)]"
+          className="mx-3 my-2 px-3 py-2 rounded-[var(--ui-radius-sm)] text-[12px] bg-[var(--ui-danger-tint)] text-[var(--ui-danger-fg)]"
         >
           {error}
         </div>

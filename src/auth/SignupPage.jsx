@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from 'src/hooks/useAuth';
+import { useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 import { AuthShell, FeaturesAside } from './AuthShell.jsx';
 import {
   GoogleButton, PasswordField, PasswordRules, passwordMeetsRules, TrustBadges,
@@ -19,12 +21,15 @@ export default function SignupPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { requestSignupOtp } = useAuth();
+  const toast = useToast();
 
   const [form, setForm] = useState({
     name: '', email: '', password: '', referralCode: '',
     phoneCountry: DEFAULT_COUNTRY, phoneNumber: '',
   });
   const [loading, setLoading] = useState(false);
+  /* Field-level validation only. Anything the server rejects is a toast —
+     an inline block can't point at a field, so it earns nothing here. */
   const [error, setError] = useState('');
 
   // Prefill a referral code from a referral link, e.g. /signup?ref=K7P3M9QX.
@@ -60,11 +65,14 @@ export default function SignupPage() {
         phone: buildE164(form.phoneCountry, form.phoneNumber),
         referralCode: form.referralCode.trim() || undefined,
       });
+      toast.success('Verification code sent', {
+        description: `We emailed a code to ${form.email.trim()}.`,
+      });
       navigate('/signup/verify', {
         state: { email: form.email.trim(), name: form.name.trim() },
       });
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.');
+      toast.error(getToastError(err, "Couldn't create your account"));
     } finally {
       setLoading(false);
     }
@@ -83,7 +91,7 @@ export default function SignupPage() {
 
         {error && <div className="sp-notice sp-notice--error" role="alert" style={{ marginBottom: 16 }}>{error}</div>}
 
-        <GoogleButton onError={setError} />
+        <GoogleButton onError={(msg) => toast.error(getToastError(msg, "Google sign-in failed"))} />
 
         <div className="sp-or" style={{ margin: '18px 0' }}>or</div>
 

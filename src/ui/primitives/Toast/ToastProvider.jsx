@@ -3,8 +3,10 @@ import { createPortal } from 'react-dom';
 import { ToastContext } from './ToastContext';
 import { Toast } from './Toast';
 
-const DEFAULT_DURATION = 5000;
-const MAX_VISIBLE = 4;
+const DEFAULT_DURATION = 4500;
+const ERROR_DURATION = 7000; /* failures need longer — there's usually something to read */
+const EXIT_MS = 140; /* must match .sp-toast-exit in index.css */
+const MAX_VISIBLE = 3;
 
 /**
  * Toast queue.
@@ -17,57 +19,101 @@ const MAX_VISIBLE = 4;
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
   const timers = useRef(new Map());
+  const exitTimers = useRef(new Map());
   const nextId = useRef(0);
 
-  const dismiss = useCallback((id) => {
+  const clearTimer = useCallback((id) => {
     const timer = timers.current.get(id);
     if (timer) {
       clearTimeout(timer);
       timers.current.delete(id);
     }
-    setToasts((list) => list.filter((t) => t.id !== id));
   }, []);
+
+  /* Two-phase removal: flag the toast as exiting so it can animate out, then
+     drop it from state once the animation has run. Removing it immediately
+     would make it disappear with no transition. */
+  const dismiss = useCallback(
+    (id) => {
+      clearTimer(id);
+      if (exitTimers.current.has(id)) return; /* already leaving */
+
+      setToasts((list) => list.map((t) => (t.id === id ? { ...t, exiting: true } : t)));
+
+      const exit = setTimeout(() => {
+        exitTimers.current.delete(id);
+        setToasts((list) => list.filter((t) => t.id !== id));
+      }, EXIT_MS);
+      exitTimers.current.set(id, exit);
+    },
+    [clearTimer],
+  );
 
   const schedule = useCallback(
     (id, duration) => {
       if (duration === Infinity) return;
-      const timer = setTimeout(() => dismiss(id), duration);
-      timers.current.set(id, timer);
+      timers.current.set(id, setTimeout(() => dismiss(id), duration));
     },
     [dismiss],
   );
 
   const show = useCallback(
     (message, options = {}) => {
+      if (!message) return null;
+
       const id = ++nextId.current;
+      const tone = options.tone ?? 'info';
       const toast = {
         id,
         message,
-        tone: options.tone ?? 'info',
+        tone,
         description: options.description,
         action: options.action,
-        duration: options.duration ?? DEFAULT_DURATION,
+        duration: options.duration ?? (tone === 'error' ? ERROR_DURATION : DEFAULT_DURATION),
+        exiting: false,
       };
 
-      setToasts((list) => [...list, toast].slice(-MAX_VISIBLE));
+      setToasts((list) => {
+        /* Collapse an identical message that is already on screen instead of
+           stacking duplicates — a failing request retried three times should
+           read as one problem, not three. */
+        const duplicate = list.find(
+          (t) => !t.exiting && t.message === message && t.tone === tone,
+        );
+        if (duplicate) {
+          clearTimer(duplicate.id);
+          schedule(duplicate.id, toast.duration);
+          return list;
+        }
+
+        const next = [...list, toast];
+        /* Trim the oldest non-exiting toasts past the cap. */
+        const overflow = next.filter((t) => !t.exiting).length - MAX_VISIBLE;
+        if (overflow <= 0) return next;
+
+        let toDrop = overflow;
+        return next.filter((t) => {
+          if (toDrop > 0 && !t.exiting && t.id !== id) {
+            toDrop -= 1;
+            clearTimer(t.id);
+            return false;
+          }
+          return true;
+        });
+      });
+
       schedule(id, toast.duration);
       return id;
     },
-    [schedule],
+    [schedule, clearTimer],
   );
 
-  const pause = useCallback((id) => {
-    const timer = timers.current.get(id);
-    if (timer) {
-      clearTimeout(timer);
-      timers.current.delete(id);
-    }
-  }, []);
+  const pause = useCallback((id) => clearTimer(id), [clearTimer]);
 
   const resume = useCallback(
     (id) => {
       const toast = toasts.find((t) => t.id === id);
-      if (toast && !timers.current.has(id)) schedule(id, toast.duration);
+      if (toast && !toast.exiting && !timers.current.has(id)) schedule(id, toast.duration);
     },
     [toasts, schedule],
   );
@@ -75,9 +121,12 @@ export function ToastProvider({ children }) {
   /* Clear every pending timer if the provider itself unmounts. */
   useEffect(() => {
     const pending = timers.current;
+    const exiting = exitTimers.current;
     return () => {
       pending.forEach(clearTimeout);
       pending.clear();
+      exiting.forEach(clearTimeout);
+      exiting.clear();
     };
   }, []);
 
@@ -87,6 +136,7 @@ export function ToastProvider({ children }) {
       dismiss,
       success: (message, options) => show(message, { ...options, tone: 'success' }),
       error: (message, options) => show(message, { ...options, tone: 'error' }),
+      warning: (message, options) => show(message, { ...options, tone: 'warning' }),
       info: (message, options) => show(message, { ...options, tone: 'info' }),
     }),
     [show, dismiss],
@@ -99,7 +149,10 @@ export function ToastProvider({ children }) {
         createPortal(
           <div
             aria-live="polite"
-            className="fixed bottom-4 right-4 flex flex-col-reverse gap-2 pointer-events-none"
+            /* Top-centre. `inset-x-0` + `mx-auto` on a max-content column keeps
+               the stack centred without a transform, so the entry animation can
+               own transform outright and not fight a centring translate. */
+            className="fixed top-4 inset-x-0 z-[1300] flex flex-col-reverse items-center gap-2 px-4 pointer-events-none"
             style={{ zIndex: 'var(--ui-z-toast)' }}
           >
             {toasts.map((toast) => (

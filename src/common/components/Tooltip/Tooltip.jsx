@@ -16,7 +16,7 @@ export function Tooltip({ text, children }) {
           style={{ minWidth: 220 }}
         >
           <span
-            className="block px-3 py-2 rounded-[10px] text-[12px] font-medium leading-snug text-white text-center whitespace-normal"
+            className="block px-3 py-2 rounded-[var(--ui-radius-lg)] text-[12px] font-medium leading-snug text-white text-center whitespace-normal"
             style={{
               background: 'rgba(28,28,31,0.92)',
               backdropFilter: 'blur(12px)',

@@ -45,7 +45,7 @@ export function EnrichPage() {
         <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="flex-1 overflow-y-auto">
-          <div className="p-7 flex flex-col gap-6 w-full max-w-[1400px]">
+          <div className="p-[var(--ui-pad-lg)] flex flex-col gap-6 w-full max-w-[1400px]">
             {activeTab === 'upload' ? (
               <div className="max-w-[1100px] flex flex-col gap-6">
                 <UploadPanel onStaged={handleStaged} />

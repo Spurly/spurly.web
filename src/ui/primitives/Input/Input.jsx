@@ -1,9 +1,9 @@
 import { forwardRef } from 'react';
 
 const SIZES = {
-  sm: 'h-7 text-[12.5px]',
+  sm: 'h-7 text-[12px]',
   md: 'h-8 text-[13px]',
-  lg: 'h-9 text-[13.5px]',
+  lg: 'h-9 text-[13px]',
 };
 
 /**

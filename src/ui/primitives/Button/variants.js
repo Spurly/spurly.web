@@ -48,11 +48,18 @@ export const VARIANTS = {
     'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] ' +
     'hover:bg-[var(--ui-accent-tint-strong)]',
 
+  /* These two used `brightness()` filters for their hover. Every other variant
+     in the file animates background-color, so the danger buttons responded on
+     a different channel and at a different apparent speed — filter is not in
+     the BASE transition list, so they snapped while their neighbours eased.
+     Explicit colours, same channel as everything else. */
   danger:
-    'bg-[var(--ui-danger)] text-white hover:brightness-110',
+    'bg-[var(--ui-danger)] text-white hover:bg-[var(--ui-danger-fg)] ' +
+    'hover:shadow-[0_0_0_3px_var(--ui-danger-tint)]',
 
   dangerSoft:
-    'bg-[var(--ui-danger-tint)] text-[var(--ui-danger-fg)] hover:brightness-95',
+    'bg-[var(--ui-danger-tint)] text-[var(--ui-danger-fg)] ' +
+    'hover:bg-[var(--ui-danger)] hover:text-white',
 };
 
 export const BASE =

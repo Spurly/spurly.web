@@ -93,7 +93,7 @@ export function Dropdown({
       <button
         type="button"
         id={id}
-        className={`w-full h-11 ${icon ? 'pl-10' : 'pl-4'} pr-10 bg-[var(--surface-sunken)] border rounded-[12px] text-[14px] text-left tracking-[-0.006em] focus:outline-none transition-all flex items-center ${
+        className={`w-full h-11 ${icon ? 'pl-10' : 'pl-4'} pr-10 bg-[var(--surface-sunken)] border rounded-[var(--ui-radius-lg)] text-[14px] text-left tracking-[-0.006em] focus:outline-none transition-colors flex items-center ${
           error
             ? 'border-[var(--red)] focus:shadow-[0_0_0_3px_rgba(255,69,58,0.18)]'
             : open
@@ -115,13 +115,18 @@ export function Dropdown({
         </span>
       </button>
       {open && (
-        <ul className="absolute top-[calc(100%+6px)] left-0 right-0 z-50 bg-[var(--surface-card)] border border-[var(--border-default)] rounded-[12px] p-1.5 shadow-[0_12px_36px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.06)] max-h-[240px] overflow-y-auto animate-[fadeSlideDown_0.15s_ease]" role="listbox">
+        <ul className="absolute top-[calc(100%+6px)] left-0 right-0 z-50 bg-[var(--surface-card)] border border-[var(--border-default)] rounded-[var(--ui-radius-lg)] p-1.5 shadow-[0_12px_36px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.06)] max-h-[240px] overflow-y-auto animate-[fadeSlideDown_0.15s_ease]" role="listbox">
           {options.map(([val, label]) => (
             <li
               key={val}
-              className={`flex items-center justify-between px-3.5 py-2.5 rounded-[8px] text-[14px] cursor-pointer transition-colors ${
+              className={`flex items-center justify-between px-3.5 py-2.5 rounded-[var(--ui-radius-md)] text-[14px] cursor-pointer transition-colors ${
                 val === value
-                  ? 'bg-[var(--accent-subtle,rgba(79,70,229,0.08))] text-[var(--accent)] font-semibold'
+                  /* Was var(--accent-subtle, rgba(79,70,229,0.08)). --accent-subtle
+                     has never been defined, so every selected dropdown item was
+                     rendering the fallback: indigo, from a palette this product
+                     stopped using two redesigns ago. Now the standard stateful
+                     selected treatment — accent tint, accent text. */
+                  ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-medium'
                   : 'text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
               }`}
               role="option"

@@ -25,7 +25,7 @@ export function AdminLayout({ children, title, subtitle }) {
     <DashboardLayout title={title || 'Admin Console'} subtitle={subtitle}>
       <div className="admin-scope" style={{ minHeight: '100%', background: '#f8f9fa' }}>
         {/* Sub-tab bar */}
-        <div className="flex items-center gap-1 border-b border-gray-200 bg-white px-6 pt-3">
+        <div className="flex items-center gap-1 border-b border-[var(--ui-border-hairline)] bg-white px-[var(--ui-pad-lg)] pt-3">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = location.pathname === tab.href;
@@ -33,10 +33,10 @@ export function AdminLayout({ children, title, subtitle }) {
               <button
                 key={tab.href}
                 onClick={() => navigate(tab.href)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                className={`flex items-center gap-2 px-4 py-3 text-[12px] font-medium border-b-2 -mb-px transition-colors ${
                   active
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-800'
+                    ? 'border-[var(--ui-accent)] text-[var(--ui-accent-fg)]'
+                    : 'border-transparent text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-primary)]'
                 }`}
               >
                 <Icon size={16} />
@@ -47,7 +47,7 @@ export function AdminLayout({ children, title, subtitle }) {
           <div className="flex-1" />
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors"
+            className="flex items-center gap-2 px-4 py-3 text-[12px] font-medium text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-primary)] transition-colors"
           >
             <ArrowLeft size={16} />
             Back to dashboard
@@ -55,7 +55,7 @@ export function AdminLayout({ children, title, subtitle }) {
         </div>
 
         {/* Page content */}
-        <div className="p-6">{children}</div>
+        <div className="p-[var(--ui-pad-lg)]">{children}</div>
       </div>
     </DashboardLayout>
   );

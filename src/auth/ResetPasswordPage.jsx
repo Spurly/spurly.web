@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/hooks/useAuth';
+import { useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 import { AuthShell, FeaturesAside } from './AuthShell.jsx';
 import { PasswordField, PasswordRules, passwordMeetsRules } from './widgets.jsx';
 import { MailIcon } from './icons.jsx';
@@ -14,6 +16,7 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { resetPassword } = useAuth();
+  const toast = useToast();
 
   const [form, setForm] = useState({
     email: location.state?.email || '',
@@ -22,6 +25,7 @@ export default function ResetPasswordPage() {
     confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
+  /* Field-level validation only — server rejections go to the toast. */
   const [error, setError] = useState('');
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -45,9 +49,10 @@ export default function ResetPasswordPage() {
         password: form.password,
         confirmPassword: form.confirmPassword,
       });
+      toast.success('Password updated', { description: 'You are now signed in.' });
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      setError(err.message || 'Could not reset your password. Please try again.');
+      toast.error(getToastError(err, "Couldn't reset your password"));
     } finally {
       setLoading(false);
     }

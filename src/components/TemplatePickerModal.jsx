@@ -89,11 +89,11 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
         role="dialog"
         aria-modal="true"
         aria-label={creating ? 'New template' : 'Choose a template'}
-        className="relative w-full max-w-[560px] max-h-[min(680px,90vh)] flex flex-col rounded-[20px] shadow-[var(--shadow-lg)] overflow-hidden"
+        className="relative w-full max-w-[560px] max-h-[min(680px,90vh)] flex flex-col rounded-[var(--ui-radius-lg)] shadow-[var(--shadow-lg)] overflow-hidden"
         style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-6 pt-5 pb-4 border-b border-[var(--separator)] shrink-0">
+        <div className="flex items-center justify-between gap-3 px-[var(--ui-pad-lg)] pt-[var(--ui-pad-lg)] pb-4 border-b border-[var(--separator)] shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             {creating ? (
               <button
@@ -101,21 +101,21 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
                   setCreating(false);
                   setFormError(null);
                 }}
-                className="w-8 h-8 grid place-items-center rounded-[9px] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors shrink-0"
+                className="w-8 h-8 grid place-items-center rounded-[var(--ui-radius-md)] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors shrink-0"
                 aria-label="Back to template list"
               >
                 <ArrowLeft size={16} />
               </button>
             ) : (
               <div
-                className="w-9 h-9 rounded-[11px] grid place-items-center shrink-0"
+                className="w-9 h-9 rounded-[var(--ui-radius-lg)] grid place-items-center shrink-0"
                 style={{ background: 'var(--accent-tint)' }}
               >
                 <FileText size={17} style={{ color: 'var(--brand-purple)' }} />
               </div>
             )}
             <div className="min-w-0">
-              <h2 className="text-[16px] font-bold text-[var(--text-primary)] tracking-[-0.014em] truncate">
+              <h2 className="text-[14px] font-medium text-[var(--text-primary)] tracking-[-0.012em] truncate">
                 {creating
                   ? `New ${isConnection ? 'connection note' : 'message'} template`
                   : `Choose a ${isConnection ? 'connection note' : 'message'}`}
@@ -130,14 +130,14 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
           <button
             onClick={onClose}
             aria-label="Close"
-            className="w-8 h-8 grid place-items-center rounded-[9px] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors shrink-0"
+            className="w-8 h-8 grid place-items-center rounded-[var(--ui-radius-md)] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors shrink-0"
           >
             <X size={16} />
           </button>
         </div>
 
         {creating ? (
-          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
+          <div className="flex-1 min-h-0 overflow-y-auto px-[var(--ui-pad-lg)] py-5">
             <TemplateEditor
               type={type}
               saving={saving}
@@ -153,7 +153,7 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
         ) : (
           <>
             {/* Search */}
-            <div className="px-6 pt-4 pb-3 shrink-0">
+            <div className="px-[var(--ui-pad-lg)] pt-4 pb-3 shrink-0">
               <div className="relative">
                 <Search
                   size={15}
@@ -164,16 +164,16 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search templates…"
                   autoFocus
-                  className="w-full h-9 pl-9 pr-3 bg-[var(--surface-sunken)] border border-[var(--border-default)] rounded-[10px] text-[13.5px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--focus-ring)] transition-all"
+                  className="w-full h-9 pl-9 pr-3 bg-[var(--surface-sunken)] border border-[var(--border-default)] rounded-[var(--ui-radius-lg)] text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors"
                 />
               </div>
             </div>
 
             {/* List */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-4">
+            <div className="flex-1 min-h-0 overflow-y-auto px-[var(--ui-pad-lg)] pb-4">
               {error && (
                 <div
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-[10px] text-[13px] mb-3"
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[13px] mb-3"
                   style={{ background: 'var(--red-tint)', color: 'var(--red)' }}
                 >
                   <AlertCircle size={14} className="shrink-0" />
@@ -186,14 +186,14 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
                   {[0, 1, 2].map((i) => (
                     <div
                       key={i}
-                      className="h-[72px] rounded-[12px] animate-pulse"
+                      className="h-[72px] rounded-[var(--ui-radius-lg)] animate-pulse"
                       style={{ background: 'var(--surface-sunken)' }}
                     />
                   ))}
                 </div>
               ) : filtered.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-[14px] font-semibold text-[var(--text-primary)]">
+                  <p className="text-[14px] font-medium text-[var(--text-primary)]">
                     {search ? 'No templates match your search' : 'No templates yet'}
                   </p>
                   <p className="text-[13px] text-[var(--text-secondary)] mt-1">
@@ -211,14 +211,14 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
                         key={template._id}
                         type="button"
                         onClick={() => onPick(template)}
-                        className="text-left rounded-[12px] p-3.5 transition-all hover:-translate-y-px focus:outline-none focus-visible:shadow-[0_0_0_3px_var(--focus-ring)]"
+                        className="text-left rounded-[var(--ui-radius-lg)] p-3.5 transition-colors focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
                         style={{
                           background: 'var(--surface-card)',
                           border: '1px solid var(--border-hairline)',
                         }}
                       >
                         <div className="flex items-center gap-2">
-                          <span className="text-[13.5px] font-semibold text-[var(--text-primary)] truncate">
+                          <span className="text-[13px] font-medium text-[var(--text-primary)] truncate">
                             {template.name}
                           </span>
                           {template.isFavorite && (
@@ -230,7 +230,7 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
                           )}
                           {willTrim && (
                             <span
-                              className="ml-auto shrink-0 text-[11px] font-semibold px-1.5 py-0.5 rounded-[6px]"
+                              className="ml-auto shrink-0 text-[11px] font-medium px-1.5 py-0.5 rounded-[var(--ui-radius-sm)]"
                               style={{ background: 'var(--amber-tint)', color: 'var(--amber)' }}
                             >
                               Will be trimmed
@@ -240,7 +240,7 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
                         {/* Preview with sample data — closer to what actually
                             goes out than the raw {{token}} form. */}
                         <p
-                          className="text-[12.5px] text-[var(--text-secondary)] mt-1 leading-snug"
+                          className="text-[12px] text-[var(--text-secondary)] mt-1 leading-snug"
                           style={{
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
@@ -261,13 +261,13 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-[var(--separator)] flex items-center gap-2 shrink-0">
+            <div className="px-[var(--ui-pad-lg)] py-4 border-t border-[var(--separator)] flex items-center gap-2 shrink-0">
               <button
                 onClick={() => {
                   setFormError(null);
                   setCreating(true);
                 }}
-                className="inline-flex items-center gap-1.5 h-10 px-4 rounded-[12px] text-[13.5px] font-semibold transition-colors"
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium transition-colors"
                 style={{
                   background: 'var(--surface-sunken)',
                   color: 'var(--text-primary)',
@@ -279,7 +279,7 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
               <div className="flex-1" />
               <button
                 onClick={onClose}
-                className="h-10 px-4 rounded-[12px] text-[14px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
+                className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
               >
                 Cancel
               </button>

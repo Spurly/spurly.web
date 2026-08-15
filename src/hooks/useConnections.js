@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import connectionsController from 'src/core/controllers/connectionsController.js';
+import { useErrorToast } from 'src/ui/primitives';
 
 /**
  * Paginated read of the user's LinkedIn connections.
@@ -74,6 +75,12 @@ export function useConnections() {
   const refresh = useCallback(() => {
     fetchConnections({ ...lastOptionsRef.current, skip: 0 });
   }, [fetchConnections]);
+
+  /* Reported twice on purpose: the inline block the page renders (which
+     persists next to the empty table) and one toast (which catches the eye
+     if that block is off screen). The toast gets fixed copy — the server's
+     text goes inline, where there's room for it. */
+  useErrorToast(error, "Couldn't load your connections");
 
   return {
     connections,

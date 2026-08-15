@@ -44,7 +44,6 @@ export function TableToolbar({
 
   return (
     <ToolbarShell
-      height={44}
       left={
         hasSelection ? (
           <BulkActionBar count={selectedCount} onClear={onClearSelection}>
@@ -52,8 +51,11 @@ export function TableToolbar({
           </BulkActionBar>
         ) : (
           onSearch && (
+            /* size="sm" (28px), matching every other control in this bar. It
+               was "md" (32px), so the search field stood 4px taller than the
+               buttons and the status filter beside it. */
             <Input
-              size="md"
+              size="sm"
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               placeholder={searchPlaceholder}

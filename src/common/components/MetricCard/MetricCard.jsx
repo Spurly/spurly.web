@@ -5,15 +5,15 @@ export function MetricCard({ label, value, change, delta, changeType, icon, vari
 
   const cardBase =
     variant === 'glass'
-      ? 'bg-[var(--glass-regular)] [backdrop-filter:blur(24px)_saturate(180%)] border border-[var(--border-glass)] shadow-[var(--shadow-glass)]'
+      ? 'bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)]'
       : 'bg-[var(--surface-card)] border border-[var(--border-hairline)] shadow-[var(--shadow-sm)]';
 
   return (
-    <div className={`relative rounded-[18px] p-6 overflow-hidden ${cardBase}`}>
+    <div className={`relative rounded-[var(--ui-radius-lg)] p-[var(--ui-pad-lg)] overflow-hidden ${cardBase}`}>
       {/* icon background accent */}
       {icon && (
         <div
-          className="absolute top-4 right-4 grid place-items-center w-10 h-10 rounded-[12px]"
+          className="absolute top-4 right-4 grid place-items-center w-10 h-10 rounded-[var(--ui-radius-lg)]"
           style={{ background: 'var(--accent-tint)' }}
         >
           <span className="text-[var(--brand-purple)] grid place-items-center" style={{ width: 18, height: 18 }}>
@@ -22,14 +22,14 @@ export function MetricCard({ label, value, change, delta, changeType, icon, vari
         </div>
       )}
       <p
-        className="text-[12px] font-semibold uppercase tracking-[0.04em] mb-3"
+        className="text-[11px] font-medium uppercase tracking-[0.04em] mb-2"
         style={{ color: hintColor ?? 'var(--text-tertiary)' }}
       >{label}</p>
-      <p className="text-[36px] font-bold tracking-[-0.02em] text-[var(--text-primary)] leading-none tabular-nums">{value}</p>
+      <p className="text-[24px] font-medium tracking-[-0.012em] text-[var(--text-primary)] leading-none tabular-nums">{value}</p>
       {deltaValue !== undefined && (
         <div className="flex items-center gap-1.5 mt-3">
           <span
-            className="text-[13px] font-semibold"
+            className="text-[13px] font-medium"
             style={{ color: isPositive ? 'var(--green)' : 'var(--red)' }}
           >
             {isPositive ? '+' : ''}{typeof deltaValue === 'number' ? deltaValue.toFixed(1) : deltaValue}%
@@ -39,7 +39,7 @@ export function MetricCard({ label, value, change, delta, changeType, icon, vari
       )}
       {hint && deltaValue === undefined && (
         <p
-          className="text-[11.5px] leading-snug mt-6"
+          className="text-[11px] leading-snug mt-6"
           style={{ color: hintColor ?? 'var(--text-tertiary)' }}
         >
           {hint}

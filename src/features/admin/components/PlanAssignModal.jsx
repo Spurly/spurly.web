@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { X, Loader } from 'lucide-react';
 import { getPlans, assignUserPlan } from 'src/core/gateway/adminApi';
 import { Dropdown } from 'src/common/components/Dropdown';
+import { useToast } from 'src/ui/primitives';
+import { getToastError, getApiErrorMessage } from 'src/common/utils/apiError';
 
 /**
  * PlanAssignModal
@@ -15,8 +17,11 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
   const [selectedPlanId, setSelectedPlanId] = useState(currentPlanId);
   const [plansLoading, setPlansLoading] = useState(true);
   const [loading, setLoading] = useState(false);
+  /* Inline covers two things a toast can't: the "pick a plan" field prompt, and
+     a failed plan list — which would otherwise leave an empty dropdown with no
+     explanation. Both are also toasted so they're not missed. */
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const toast = useToast();
 
   useEffect(() => {
     let active = true;
@@ -30,9 +35,13 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
           setPlans(result.data.plans || []);
         } else {
           setError(result.message || 'Failed to load plans');
+          toast.error(getToastError(result, "Couldn't load plans"));
         }
       } catch (err) {
-        if (active) setError(err.response?.data?.message || err.message || 'An error occurred');
+        if (active) {
+          setError(getApiErrorMessage(err, 'Failed to load plans'));
+          toast.error(getToastError(err, "Couldn't load plans"));
+        }
       } finally {
         if (active) setPlansLoading(false);
       }
@@ -40,12 +49,11 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
     return () => {
       active = false;
     };
-  }, []);
+  }, [toast]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
     if (!selectedPlanId) {
       setError('Please select a plan');
@@ -56,13 +64,18 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
     try {
       const result = await assignUserPlan(user._id, selectedPlanId);
       if (result.success) {
-        setSuccess('Plan assigned successfully!');
-        setTimeout(() => onSuccess(), 1000);
+        const label = plans.find((p) => p._id === selectedPlanId)?.displayName;
+        toast.success(
+          label
+            ? `${user.name || user.email} moved to ${label}`
+            : 'Plan assigned',
+        );
+        onSuccess();
       } else {
-        setError(result.message || 'Operation failed');
+        toast.error(getToastError(result, "Couldn't assign the plan"));
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'An error occurred');
+      toast.error(getToastError(err, "Couldn't assign the plan"));
     } finally {
       setLoading(false);
     }
@@ -74,28 +87,28 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Allocate Plan</h2>
+        <div className="flex items-center justify-between p-[var(--ui-pad-lg)] border-b border-[var(--ui-border-hairline)]">
+          <h2 className="text-[17px] font-medium text-[var(--ui-text-primary)]">Allocate Plan</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-secondary)] transition-colors"
           >
             <X size={24} />
           </button>
         </div>
 
         {/* User info */}
-        <div className="p-6 bg-gray-50 border-b border-gray-200">
+        <div className="p-[var(--ui-pad-lg)] bg-[var(--ui-surface-page)] border-b border-[var(--ui-border-hairline)]">
           <div className="space-y-2">
-            <p className="text-sm text-gray-600">
+            <p className="text-[12px] text-[var(--ui-text-secondary)]">
               <strong>Email:</strong> {user.email}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-[12px] text-[var(--ui-text-secondary)]">
               <strong>Name:</strong> {user.name}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-[12px] text-[var(--ui-text-secondary)]">
               <strong>Current plan:</strong>{' '}
-              <span className="ml-1 inline-block bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full font-semibold">
+              <span className="ml-1 inline-block bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] px-3 py-1 rounded-full font-medium">
                 {currentPlanLabel || 'Default / none'}
               </span>
             </p>
@@ -103,11 +116,11 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-[var(--ui-pad-lg)] space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Select plan</label>
+            <label className="block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-2">Select plan</label>
             {plansLoading ? (
-              <div className="flex items-center gap-2 text-gray-500 text-sm py-2">
+              <div className="flex items-center gap-2 text-[var(--ui-text-tertiary)] text-[12px] py-2">
                 <Loader size={16} className="animate-spin" />
                 Loading plans...
               </div>
@@ -129,16 +142,10 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[12px]">
               {error}
             </div>
           )}
-          {success && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-              {success}
-            </div>
-          )}
-
           <div className="flex gap-3 pt-4">
             <button
               type="button"

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import capturedLeadsController from 'src/core/controllers/capturedLeadsController.js';
+import { useErrorToast } from 'src/ui/primitives';
 
 /**
  * Fetches the most recent captures (latest session, newest first).
@@ -66,6 +67,12 @@ export function useRecentCaptures(limit = 100) {
   const refresh = useCallback(() => {
     fetchRecentCaptures({ skip: 0, limit: pagination.limit });
   }, [pagination.limit, fetchRecentCaptures]);
+
+  /* Reported twice on purpose: the inline block the page renders (which
+     persists next to the empty table) and one toast (which catches the eye
+     if that block is off screen). The toast gets fixed copy — the server's
+     text goes inline, where there's room for it. */
+  useErrorToast(error, "Couldn't load recent captures");
 
   return {
     profiles,

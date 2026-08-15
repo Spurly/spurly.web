@@ -1,19 +1,21 @@
 import { useState } from 'react';
 import { X, Plus, Minus, Loader } from 'lucide-react';
 import { updateCredits } from 'src/core/gateway/adminApi';
+import { useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 
 export default function CreditsModal({ user, onClose, onSuccess }) {
   const [mode, setMode] = useState('add'); // 'add' or 'deduct'
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
+  /* Field validation only — the API's own verdict is a toast. */
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const toast = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
     if (!amount || isNaN(parseFloat(amount))) {
       setError('Please enter a valid amount');
@@ -37,17 +39,19 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
       );
 
       if (result.success) {
-        setSuccess(`Credits ${mode === 'add' ? 'added' : 'deducted'} successfully!`);
+        toast.success(
+          `${numAmount.toLocaleString()} credits ${mode === 'add' ? 'added to' : 'deducted from'} ${user.name || user.email}`,
+        );
         setAmount('');
         setReason('');
-        setTimeout(() => {
-          onSuccess();
-        }, 1500);
+        /* The confirmation now lives outside the modal, so there's no reason to
+           hold it open — close as soon as the write lands. */
+        onSuccess();
       } else {
-        setError(result.message || 'Operation failed');
+        toast.error(getToastError(result, "Couldn't update credits"));
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'An error occurred');
+      toast.error(getToastError(err, "Couldn't update credits"));
     } finally {
       setLoading(false);
     }
@@ -57,28 +61,28 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Manage Credits</h2>
+        <div className="flex items-center justify-between p-[var(--ui-pad-lg)] border-b border-[var(--ui-border-hairline)]">
+          <h2 className="text-[17px] font-medium text-[var(--ui-text-primary)]">Manage Credits</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-secondary)] transition-colors"
           >
             <X size={24} />
           </button>
         </div>
 
         {/* User Info */}
-        <div className="p-6 bg-gray-50 border-b border-gray-200">
+        <div className="p-[var(--ui-pad-lg)] bg-[var(--ui-surface-page)] border-b border-[var(--ui-border-hairline)]">
           <div className="space-y-2">
-            <p className="text-sm text-gray-600">
+            <p className="text-[12px] text-[var(--ui-text-secondary)]">
               <strong>Email:</strong> {user.email}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-[12px] text-[var(--ui-text-secondary)]">
               <strong>Name:</strong> {user.name}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-[12px] text-[var(--ui-text-secondary)]">
               <strong>Current Balance:</strong>
-              <span className="ml-2 inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-bold">
+              <span className="ml-2 inline-block bg-[var(--ui-info-tint)] text-[var(--ui-info-fg)] px-3 py-1 rounded-full font-medium">
                 {user.creditBalance?.toFixed(1) || 0}
               </span>
             </p>
@@ -86,18 +90,18 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-[var(--ui-pad-lg)] space-y-4">
           {/* Mode Selection */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Action</label>
+            <label className="block text-[12px] font-medium text-[var(--ui-text-secondary)]">Action</label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setMode('add')}
-                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg border-2 transition-colors ${
+                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-[var(--ui-radius-md)] border-2 transition-colors ${
                   mode === 'add'
-                    ? 'border-green-500 bg-green-50 text-green-700 font-medium'
-                    : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                    ? 'border-[var(--ui-success)] bg-[var(--ui-success-tint)] text-[var(--ui-success-fg)] font-medium'
+                    : 'border-[var(--ui-border-hairline)] text-[var(--ui-text-secondary)] hover:border-[var(--ui-border)]'
                 }`}
               >
                 <Plus size={18} />
@@ -106,10 +110,10 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={() => setMode('deduct')}
-                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg border-2 transition-colors ${
+                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-[var(--ui-radius-md)] border-2 transition-colors ${
                   mode === 'deduct'
-                    ? 'border-red-500 bg-red-50 text-red-700 font-medium'
-                    : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                    ? 'border-[var(--ui-danger)] bg-[var(--ui-danger-tint)] text-[var(--ui-danger-fg)] font-medium'
+                    : 'border-[var(--ui-border-hairline)] text-[var(--ui-text-secondary)] hover:border-[var(--ui-border)]'
                 }`}
               >
                 <Minus size={18} />
@@ -120,7 +124,7 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
 
           {/* Amount */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-2">
               {mode === 'add' ? 'Credits to Add' : 'Credits to Deduct'}
             </label>
             <input
@@ -136,7 +140,7 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
 
           {/* Reason */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+            <label className="block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-2">Reason</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
@@ -149,15 +153,8 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
 
           {/* Error */}
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[12px]">
               {error}
-            </div>
-          )}
-
-          {/* Success */}
-          {success && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-              {success}
             </div>
           )}
 

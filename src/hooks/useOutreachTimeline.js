@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import outreachController from 'src/core/controllers/outreachController.js';
+import { useErrorToast } from 'src/ui/primitives';
 
 /**
  * Full outreach history for one person — every send, failure, acceptance and
@@ -50,6 +51,12 @@ export function useOutreachTimeline({ personId, profileUrl, enabled = true } = {
       cancelled = true;
     };
   }, [personId, profileUrl, enabled]);
+
+  /* Reported twice on purpose: the inline block the page renders (which
+     persists next to the empty table) and one toast (which catches the eye
+     if that block is off screen). The toast gets fixed copy — the server's
+     text goes inline, where there's room for it. */
+  useErrorToast(error, "Couldn't load this lead's activity");
 
   return { events, loading, error };
 }

@@ -21,6 +21,30 @@ class CampaignsController {
     };
   }
 
+  /**
+   * Create a message campaign from selected connections.
+   *
+   * The server promotes those connections into People first, so the resulting
+   * campaign behaves exactly like one started from the People page.
+   *
+   * @returns {Promise<{ campaign, memberCount, promoted, skipped }>}
+   */
+  async createCampaignFromConnections({ name, connectionIds, messageSubject, messageBody }) {
+    const res = await campaignsApi.createFromConnections({
+      name,
+      connectionIds,
+      messageSubject,
+      messageBody,
+    });
+    if (!res?.success) throw new Error(res?.message || 'Failed to create campaign');
+    return {
+      campaign: res.data.campaign,
+      memberCount: res.data.memberCount ?? res.data.campaign?.stats?.total ?? 0,
+      promoted: res.data.promoted ?? 0,
+      skipped: res.data.skipped ?? 0,
+    };
+  }
+
   async listCampaigns() {
     const res = await campaignsApi.list();
     if (!res?.success) throw new Error(res?.message || 'Failed to list campaigns');

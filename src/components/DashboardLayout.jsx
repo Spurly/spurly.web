@@ -68,7 +68,7 @@ function NavRow({ item, active, expanded, onClick }) {
           ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-medium ' +
             'before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[2px] ' +
             'before:rounded-r-full before:bg-[var(--ui-accent)]'
-          : 'text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-hover)] hover:text-[var(--ui-text-primary)]',
+          : 'text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)]',
       ].join(' ')}
     >
       <Icon size={16} className="shrink-0" aria-hidden="true" />
@@ -201,15 +201,30 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--ui-surface-page)]">
+      {/*
+        Three planes, not one.
+
+        The sidebar, the top bar and the canvas were all
+        --ui-surface-page, separated by a single hairline. Three regions
+        painted the same colour is no hierarchy at all: the app read as
+        one flat grey field with a white box floating on it, which is
+        most of what "the nav, the top bar and the heading have no
+        hierarchy" was describing.
+
+        Now the sidebar recedes (sunken), the canvas sits in the middle,
+        and the content card advances (white). Still monochrome, still
+        the same palette — the depth comes from ordering three greys
+        that were already in the ramp.
+      */}
       <aside
-        className="flex flex-col h-full shrink-0 bg-[var(--ui-surface-page)] border-r border-[var(--ui-border-hairline)] transition-[width] duration-[var(--ui-dur-base)] ease-[cubic-bezier(0.2,0,0.1,1)]"
+        className="flex flex-col h-full shrink-0 bg-[var(--ui-surface-sunken)] border-r border-[var(--ui-border)] transition-[width] duration-[var(--ui-dur-base)] ease-[cubic-bezier(0.2,0,0.1,1)]"
         style={{ width: expanded ? WIDTH_EXPANDED : WIDTH_COLLAPSED }}
       >
-        <div className={`flex items-center h-12 shrink-0 ${expanded ? 'px-3 gap-2' : 'justify-center'}`}>
+        <div className={`flex items-center h-11 shrink-0 ${expanded ? 'px-3 gap-2' : 'justify-center'}`}>
           <img src="/spurly-mark.png" alt="" className="w-5 h-5 shrink-0 object-contain" />
           {expanded && (
             <>
-              <span className="text-[14px] font-medium tracking-[-0.01em] text-[var(--ui-text-primary)] truncate">
+              <span className="text-[13px] font-medium tracking-[-0.006em] text-[var(--ui-text-primary)] truncate">
                 Spurly
               </span>
               <span className="flex-1" />
@@ -217,7 +232,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
                 type="button"
                 onClick={() => setExpanded(false)}
                 aria-label="Collapse sidebar"
-                className="grid place-items-center w-6 h-6 rounded-[var(--ui-radius-xs)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-hover)] hover:text-[var(--ui-text-primary)] transition-colors focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
+                className="grid place-items-center w-6 h-6 rounded-[var(--ui-radius-xs)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)] transition-colors focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
               >
                 <PanelLeftClose size={15} />
               </button>
@@ -232,7 +247,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
                 type="button"
                 onClick={() => setExpanded(true)}
                 aria-label="Expand sidebar"
-                className="grid place-items-center w-6 h-6 rounded-[var(--ui-radius-xs)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-hover)] hover:text-[var(--ui-text-primary)] transition-colors"
+                className="grid place-items-center w-6 h-6 rounded-[var(--ui-radius-xs)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)] transition-colors"
               >
                 <PanelLeft size={15} />
               </button>
@@ -244,7 +259,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
           {sections.map((section) => (
             <div key={section.label} className="mb-3">
               {expanded ? (
-                <p className="px-2 h-6 flex items-center text-[10.5px] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)]">
+                <p className="px-2 h-6 flex items-center text-[10px] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)]">
                   {section.label}
                 </p>
               ) : (
@@ -265,7 +280,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
           ))}
         </nav>
 
-        <div className="shrink-0 px-2 pb-2 pt-2 border-t border-[var(--ui-border-hairline)] flex flex-col gap-px">
+        <div className="shrink-0 px-2 pb-2 pt-2 border-t border-[var(--ui-border)] flex flex-col gap-px">
           <ExtensionStatus expanded={expanded} />
           <CreditsMeter
             expanded={expanded}
@@ -286,7 +301,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
             <Avatar src={user?.profilePicture} name={user?.name} size={22} />
             {expanded && (
               <div className="min-w-0 flex-1">
-                <p className="text-[12.5px] font-medium text-[var(--ui-text-primary)] truncate leading-tight">
+                <p className="text-[12px] font-medium text-[var(--ui-text-primary)] truncate leading-tight">
                   {user?.name || 'User'}
                 </p>
                 <p className="text-[11px] text-[var(--ui-text-tertiary)] truncate leading-tight">
@@ -315,24 +330,54 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Title and a live stat line, not a static marketing subtitle. The
-            right side is a slot so each page owns its own primary action. */}
-        <header className="flex items-center gap-3 h-12 px-4 shrink-0 bg-[var(--ui-surface-page)]">
-          <div className="flex items-baseline gap-2 min-w-0">
+        {/*
+          The top bar.
+
+          Two fixes here, both of which you can see immediately.
+
+          ALIGNMENT. The title used to sit at 16px — the shell's own
+          padding — which put it on the content card's BORDER, the one
+          thing it should never align to. Meanwhile the tab label
+          underneath landed at 39px, the search box at 29px and the
+          first column header at 69px. Five different left edges in one
+          viewport. The header now pads to --ui-content-x (29px), which
+          is shell padding + card border + card padding, so the title,
+          the first tab, the search field and the select-all checkbox
+          all sit on one vertical line.
+
+          ANCHORING. The bar had no border and the same background as
+          the canvas, so it didn't read as a bar — the title just
+          floated. A hairline underneath attaches it to the page.
+
+          The title is 17px (--ui-t-page) rather than 15px. It was
+          previously smaller and lighter than the section headings
+          inside the cards below it, which inverted the hierarchy: the
+          most important label on screen was the least prominent.
+        */}
+        <header
+          className="flex items-center gap-3 shrink-0 bg-[var(--ui-surface-page)] border-b border-[var(--ui-border-hairline)]"
+          style={{ height: 'var(--ui-band)', paddingInline: 'var(--ui-content-x)' }}
+        >
+          <div className="flex items-baseline gap-2.5 min-w-0">
             {title && (
-              <h1 className="text-[15px] font-medium tracking-[-0.01em] text-[var(--ui-text-primary)] truncate">
+              <h1 className="text-[17px] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] truncate">
                 {title}
               </h1>
             )}
             {subtitle && (
-              <p className="text-[12.5px] text-[var(--ui-text-tertiary)] truncate">{subtitle}</p>
+              <p className="text-[12px] text-[var(--ui-text-secondary)] truncate tabular-nums">
+                {subtitle}
+              </p>
             )}
           </div>
           <div className="flex-1" />
           {actions && <div className="flex items-center gap-1.5 shrink-0">{actions}</div>}
         </header>
 
-        <main className="flex-1 min-h-0 overflow-hidden px-4 pb-4">
+        <main
+          className="flex-1 min-h-0 overflow-hidden"
+          style={{ padding: 'var(--ui-shell-x)', paddingTop: 'var(--ui-shell-x)' }}
+        >
           <div className="h-full min-h-0 overflow-auto rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]">
             {children}
           </div>

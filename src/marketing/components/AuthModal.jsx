@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/hooks/useAuth';
+import { useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 
 /**
  * Marketing auth modal. Views:
@@ -15,6 +17,7 @@ import { useAuth } from 'src/hooks/useAuth';
 export function AuthModal({ initialView = 'signin', onClose }) {
   const navigate = useNavigate();
   const { login, requestSignupOtp, verifySignupOtp, forgotPassword, resetPassword } = useAuth();
+  const toast = useToast();
 
   const [view, setView] = useState(initialView);
   const [form, setForm] = useState({
@@ -37,13 +40,21 @@ export function AuthModal({ initialView = 'signin', onClose }) {
   async function submit(e) {
     e.preventDefault();
     setError('');
+
+    /* Field-level check runs before the request and stays inline — it points at
+       the two password inputs, which a toast can't do. */
+    if ((view === 'signup' || view === 'reset') && form.password !== form.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     setLoading(true);
     try {
       if (view === 'signin') {
         await login(form.email.trim(), form.password);
+        toast.success('Signed in');
         onSuccess();
       } else if (view === 'signup') {
-        if (form.password !== form.confirmPassword) throw new Error('Passwords do not match');
         await requestSignupOtp({
           name: form.name.trim(),
           email: form.email.trim(),
@@ -55,23 +66,24 @@ export function AuthModal({ initialView = 'signin', onClose }) {
         setNotice(`We emailed a 6-digit code to ${form.email.trim()}.`);
       } else if (view === 'signupOtp') {
         await verifySignupOtp({ email: form.email.trim(), code: form.code.trim() });
+        toast.success('Account created', { description: 'Welcome to Spurly.' });
         onSuccess();
       } else if (view === 'forgot') {
         await forgotPassword(form.email.trim());
         go('reset');
         setNotice(`If an account exists, a reset code was sent to ${form.email.trim()}.`);
       } else if (view === 'reset') {
-        if (form.password !== form.confirmPassword) throw new Error('Passwords do not match');
         await resetPassword({
           email: form.email.trim(),
           code: form.code.trim(),
           password: form.password,
           confirmPassword: form.confirmPassword,
         });
+        toast.success('Password updated');
         onSuccess();
       }
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.');
+      toast.error(getToastError(err, "That didn't work. Try again."));
     } finally {
       setLoading(false);
     }

@@ -35,7 +35,12 @@ const POLL_MS = 2000;
  */
 export function useConnectionsSync({ onComplete } = {}) {
   const [running, setRunning] = useState(false);
-  const [result, setResult] = useState(null); // { ok, degreesUpdated?, error? }
+  // { ok, newConnections?, degreesUpdated?, error? }
+  //
+  // Both counts are carried, because they answer different questions and only
+  // one of them used to arrive. `newConnections` is anyone new in the roster;
+  // `degreesUpdated` is the subset who got there by accepting a Spurly invite.
+  const [result, setResult] = useState(null);
   const [installed, setInstalled] = useState(true);
 
   // Held in refs so the effects below never re-subscribe or restart their timer
@@ -56,7 +61,11 @@ export function useConnectionsSync({ onComplete } = {}) {
     setRunning(false);
     setResult(
       payload.success
-        ? { ok: true, degreesUpdated: payload.degreesUpdated ?? 0 }
+        ? {
+            ok: true,
+            newConnections: payload.newConnections ?? 0,
+            degreesUpdated: payload.degreesUpdated ?? 0,
+          }
         : { ok: false, error: payload.error || 'Sync failed' },
     );
     if (payload.success) onCompleteRef.current?.();

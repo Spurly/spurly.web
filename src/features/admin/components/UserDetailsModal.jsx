@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { X, Loader } from 'lucide-react';
 import { getUserDetails } from 'src/core/gateway/adminApi';
+import { useToast } from 'src/ui/primitives';
+import { getToastError, getApiErrorMessage } from 'src/common/utils/apiError';
 
 /**
  * UserDetailsModal
@@ -84,9 +86,9 @@ function formatScalar(key, value) {
 
 function FieldRow({ label, value }) {
   return (
-    <div className="flex gap-4 py-2 border-b border-gray-100 last:border-b-0">
-      <div className="w-40 shrink-0 text-[13px] font-medium text-gray-500">{label}</div>
-      <div className="flex-1 text-[13px] text-gray-900 break-words min-w-0">{value}</div>
+    <div className="flex gap-4 py-2 border-b border-[var(--ui-border-hairline)] last:border-b-0">
+      <div className="w-40 shrink-0 text-[13px] font-medium text-[var(--ui-text-tertiary)]">{label}</div>
+      <div className="flex-1 text-[13px] text-[var(--ui-text-primary)] break-words min-w-0">{value}</div>
     </div>
   );
 }
@@ -95,9 +97,9 @@ function renderValue(key, value) {
   // Populated refs / nested sub-documents → render their inner fields.
   if (isPlainObject(value)) {
     const entries = Object.entries(value).filter(([k]) => !HIDDEN_KEYS.has(k));
-    if (entries.length === 0) return <span className="text-gray-400">—</span>;
+    if (entries.length === 0) return <span className="text-[var(--ui-text-quaternary)]">—</span>;
     return (
-      <div className="rounded-lg bg-gray-50 border border-gray-100 px-3 py-1">
+      <div className="rounded-[var(--ui-radius-md)] bg-[var(--ui-surface-page)] border border-[var(--ui-border-hairline)] px-3 py-1">
         {entries.map(([k, v]) => (
           <FieldRow key={k} label={labelFor(k)} value={renderValue(k, v)} />
         ))}
@@ -108,8 +110,11 @@ function renderValue(key, value) {
 }
 
 export default function UserDetailsModal({ user, onClose }) {
+  const toast = useToast();
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
+  /* Kept inline as well: this modal has nothing else in it, so a dismissed
+     toast would leave a blank dialog. */
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -124,9 +129,13 @@ export default function UserDetailsModal({ user, onClose }) {
           setDetails(result.data.user);
         } else {
           setError(result.message || 'Failed to load user details');
+          toast.error(getToastError(result, "Couldn't load this user"));
         }
       } catch (err) {
-        if (active) setError(err.response?.data?.message || err.message || 'An error occurred');
+        if (active) {
+          setError(getApiErrorMessage(err, 'Failed to load user details'));
+          toast.error(getToastError(err, "Couldn't load this user"));
+        }
       } finally {
         if (active) setLoading(false);
       }
@@ -134,7 +143,7 @@ export default function UserDetailsModal({ user, onClose }) {
     return () => {
       active = false;
     };
-  }, [user._id]);
+  }, [user._id, toast]);
 
   const entries = details
     ? Object.entries(details).filter(([k]) => !HIDDEN_KEYS.has(k))
@@ -148,14 +157,14 @@ export default function UserDetailsModal({ user, onClose }) {
         style={{ maxWidth: '42rem', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 shrink-0">
+        <div className="flex items-center justify-between p-[var(--ui-pad-lg)] border-b border-[var(--ui-border-hairline)] shrink-0">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">User Details</h2>
-            <p className="text-sm text-gray-500 mt-0.5">{user.email}</p>
+            <h2 className="text-[17px] font-medium text-[var(--ui-text-primary)]">User Details</h2>
+            <p className="text-[12px] text-[var(--ui-text-tertiary)] mt-0.5">{user.email}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-secondary)] transition-colors"
             aria-label="Close"
           >
             <X size={24} />
@@ -163,16 +172,16 @@ export default function UserDetailsModal({ user, onClose }) {
         </div>
 
         {/* Body */}
-        <div className="p-6 overflow-auto">
+        <div className="p-[var(--ui-pad-lg)] overflow-auto">
           {loading && (
-            <div className="flex items-center justify-center gap-2 py-10 text-gray-500">
+            <div className="flex items-center justify-center gap-2 py-10 text-[var(--ui-text-tertiary)]">
               <Loader size={18} className="animate-spin" />
               Loading…
             </div>
           )}
 
           {!loading && error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[12px]">
               {error}
             </div>
           )}
@@ -187,7 +196,7 @@ export default function UserDetailsModal({ user, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end p-4 border-t border-gray-200 shrink-0">
+        <div className="flex justify-end p-4 border-t border-[var(--ui-border-hairline)] shrink-0">
           <button type="button" onClick={onClose} className="btn btn-secondary py-2 px-4">
             Close
           </button>

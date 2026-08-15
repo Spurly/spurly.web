@@ -93,6 +93,16 @@ class ApiGateway {
   }
 
   /**
+   * PATCH request
+   * @param {string} url - Endpoint URL
+   * @param {object} data - Request body
+   * @param {object} config - Axios config
+   */
+  patch(url, data = {}, config = {}) {
+    return this.client.patch(url, data, config);
+  }
+
+  /**
    * DELETE request
    * @param {string} url - Endpoint URL
    * @param {object} config - Axios config

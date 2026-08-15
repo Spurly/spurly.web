@@ -15,10 +15,13 @@ import { useCampaign } from 'src/hooks/useCampaign';
 import { useExtension } from 'src/hooks/useExtension';
 import { useOutreachSummary } from 'src/hooks/useOutreachSummary';
 import campaignsController from 'src/core/controllers/campaignsController.js';
+import { useToast } from 'src/ui/primitives';
+import { getToastError, getApiErrorMessage } from 'src/common/utils/apiError';
 import { startCampaign, stopCampaign, pingExtension } from 'src/core/extension/extensionBridge.js';
 import { STATUS_STYLES } from './helpers';
 import { CampaignFlowCanvas } from './CampaignFlowCanvas.jsx';
 import { EnableExtensionModal } from './EnableExtensionModal.jsx';
+import { AiWriteButton } from 'src/features/personalization/AiWriteButton.jsx';
 
 const NOTE_MAX = 300;
 const MSG_MAX = 2000;
@@ -29,6 +32,7 @@ export function CampaignDetailPage() {
   const navigate = useNavigate();
   const { campaign, members, loading, error, refresh, update } = useCampaign(campaignId);
   const ext = useExtension();
+  const toast = useToast();
 
   const [actionType, setActionType] = useState(null);
   const [note, setNote] = useState('');
@@ -175,8 +179,10 @@ export function CampaignDetailPage() {
       await update(buildUpdate());
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 2000);
+      toast.success('Campaign saved');
     } catch (e) {
       console.error('[Campaign] Save error:', e);
+      toast.error(getToastError(e, "Couldn't save the campaign"));
     } finally {
       setSaving(false);
     }
@@ -280,8 +286,16 @@ export function CampaignDetailPage() {
       setSending(true);
       kickStart(campaignId);
       await refresh();
+      toast.success('Campaign launched', {
+        description: pendingCount
+          ? `${pendingCount.toLocaleString()} queued to send.`
+          : undefined,
+      });
     } catch (e) {
-      setSendError(e.message || 'Failed to launch campaign');
+      /* Detail stays in the strip under the Send button; the toast just names
+         the action, so an extension/queue diagnostic can't land in it. */
+      setSendError(getApiErrorMessage(e, 'Failed to launch campaign'));
+      toast.error(getToastError(e, "Couldn't launch the campaign"));
     }
   };
 
@@ -295,8 +309,10 @@ export function CampaignDetailPage() {
     try {
       await campaignsController.retryFailedMembers(campaignId);
       await refresh();
+      toast.success(`${failedCount.toLocaleString()} reset to pending`);
     } catch (e) {
-      setSendError(e.message || 'Failed to reset failed leads');
+      setSendError(getApiErrorMessage(e, 'Failed to reset failed leads'));
+      toast.error(getToastError(e, "Couldn't reset the failed leads"));
     } finally {
       setRetrying(false);
     }
@@ -305,8 +321,11 @@ export function CampaignDetailPage() {
   const handleStop = async () => {
     try {
       await stopCampaign();
+      toast.info('Campaign stopped');
     } catch (_) {
-      /* best effort */
+      /* Best effort — the backend flag is what actually halts the run, so a
+         failed extension ping isn't worth alarming the user about. */
+      toast.info('Campaign stopped', { description: 'The extension may finish its current lead.' });
     }
     setSending(false);
     refresh();
@@ -316,28 +335,28 @@ export function CampaignDetailPage() {
     <DashboardLayout>
       <div className="relative flex flex-col h-full overflow-hidden">
         {/* Header */}
-        <div className="glass-chrome border-b border-[var(--separator)] px-6 py-3.5 shrink-0 flex items-center gap-3">
+        <div className="bg-[var(--ui-surface-card)] border-b border-[var(--separator)] px-[var(--ui-pad-lg)] py-3.5 shrink-0 flex items-center gap-3">
           <button
             onClick={() => navigate('/dashboard/campaigns')}
-            className="w-8 h-8 grid place-items-center rounded-[9px] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors shrink-0"
+            className="w-8 h-8 grid place-items-center rounded-[var(--ui-radius-md)] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors shrink-0"
           >
             <ArrowLeft size={17} />
           </button>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2.5">
-              <h1 className="text-[17px] font-bold tracking-[-0.014em] text-[var(--text-primary)] truncate">
+              <h1 className="text-[17px] font-medium tracking-[-0.012em] text-[var(--text-primary)] truncate">
                 {campaign?.name || (loading ? 'Loading…' : 'Campaign')}
               </h1>
               {campaign && (
                 <span
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold shrink-0"
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium shrink-0"
                   style={{ background: statusStyle.bg, color: statusStyle.color }}
                 >
                   {statusStyle.label}
                 </span>
               )}
             </div>
-            <p className="text-[12.5px] text-[var(--text-tertiary)] mt-0.5 flex items-center gap-1.5">
+            <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5 flex items-center gap-1.5">
               <Users size={12} /> {total} lead{total === 1 ? '' : 's'}
             </p>
           </div>
@@ -347,7 +366,7 @@ export function CampaignDetailPage() {
           <button
             onClick={handleSave}
             disabled={!dirty || saving}
-            className="h-9 px-4 rounded-[10px] text-[13px] font-semibold transition-opacity disabled:opacity-40"
+            className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium transition-opacity disabled:opacity-40"
             style={{ background: 'var(--surface-sunken)', color: 'var(--text-primary)', border: '1px solid var(--border-hairline)' }}
           >
             {saving ? 'Saving…' : savedAt ? 'Saved ✓' : 'Save'}
@@ -356,7 +375,7 @@ export function CampaignDetailPage() {
           {sending ? (
             <button
               onClick={handleStop}
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white transition-opacity"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-white transition-opacity"
               style={{ background: 'var(--red)' }}
             >
               <Square size={13} /> Stop ({completed}/{total})
@@ -376,7 +395,7 @@ export function CampaignDetailPage() {
                         ? `Weekly LinkedIn invite limit reached (${budget.weekUsed}/${budget.weeklyLimit})`
                         : undefined
               }
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-white transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--brand-purple)' }}
             >
               <Send size={14} /> Send {actionType === 'message' ? 'messages' : 'requests'}
@@ -386,12 +405,14 @@ export function CampaignDetailPage() {
         </div>
 
         {error && (
-          <div className="px-6 py-3 text-[13px]" style={{ color: 'var(--red)' }}>
+          <div className="px-[var(--ui-pad-lg)] py-3 text-[13px]" style={{ color: 'var(--red)' }}>
             {error}
           </div>
         )}
+        {/* Toasted as well, but kept: a launch failure means nothing is sending,
+            and that's worth stating persistently next to the Send button. */}
         {sendError && (
-          <div className="px-6 py-3 text-[13px]" style={{ color: 'var(--red)' }}>
+          <div className="px-[var(--ui-pad-lg)] py-3 text-[13px]" style={{ color: 'var(--red)' }}>
             {sendError}
           </div>
         )}
@@ -400,7 +421,7 @@ export function CampaignDetailPage() {
             campaigns, counted across every campaign on this account. */}
         {(budgetBlocked || budgetTight) && (
           <div
-            className="px-6 py-2.5 text-[12.5px] flex items-center gap-2"
+            className="px-[var(--ui-pad-lg)] py-2.5 text-[12px] flex items-center gap-2"
             style={
               budgetBlocked
                 ? { background: 'var(--red-tint)', color: 'var(--red)' }
@@ -427,7 +448,7 @@ export function CampaignDetailPage() {
             one-click reset rather than making the user rebuild the campaign. */}
         {failedCount > 0 && !sending && (
           <div
-            className="px-6 py-2.5 text-[12.5px] flex items-center gap-2.5"
+            className="px-[var(--ui-pad-lg)] py-2.5 text-[12px] flex items-center gap-2.5"
             style={{ background: 'var(--red-tint)', color: 'var(--red)' }}
           >
             <AlertTriangle size={14} className="shrink-0" />
@@ -438,7 +459,7 @@ export function CampaignDetailPage() {
             <button
               onClick={handleRetryFailed}
               disabled={retrying}
-              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-[8px] text-[12px] font-semibold transition-opacity disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-[var(--ui-radius-md)] text-[12px] font-medium transition-opacity disabled:opacity-50"
               style={{ background: 'var(--red)', color: '#fff' }}
             >
               <RotateCcw size={12} />
@@ -448,7 +469,7 @@ export function CampaignDetailPage() {
         )}
         {sending && (
           <div
-            className="px-6 py-2.5 text-[12.5px] flex items-center gap-2"
+            className="px-[var(--ui-pad-lg)] py-2.5 text-[12px] flex items-center gap-2"
             style={{ background: 'var(--accent-tint)', color: 'var(--brand-purple)' }}
           >
             <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: 'var(--brand-purple)' }} />
@@ -470,14 +491,14 @@ export function CampaignDetailPage() {
 
           {/* Right: action config rail */}
           <aside
-            className="w-[380px] xl:w-[420px] shrink-0 overflow-y-auto p-5 flex flex-col gap-5"
+            className="w-[380px] xl:w-[420px] shrink-0 overflow-y-auto p-[var(--ui-pad-lg)] flex flex-col gap-5"
             style={{ borderLeft: '1px solid var(--separator)', background: 'var(--surface-raised)' }}
           >
             <section>
-              <h2 className="text-[14px] font-bold text-[var(--text-primary)] mb-1">
+              <h2 className="text-[14px] font-medium text-[var(--text-primary)] mb-1">
                 What should this campaign do?
               </h2>
-              <p className="text-[12.5px] text-[var(--text-secondary)] mb-4">
+              <p className="text-[12px] text-[var(--text-secondary)] mb-4">
                 Choose the action the extension will run for every lead.
               </p>
 
@@ -503,18 +524,25 @@ export function CampaignDetailPage() {
             {actionType === 'connection' && (
               <section>
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <h2 className="text-[14px] font-bold text-[var(--text-primary)]">
+                  <h2 className="shrink-0 text-[14px] font-medium text-[var(--text-primary)]">
                     Invitation note
                   </h2>
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AiWriteButton
+                      content={note}
+                      type="CONNECTION_REQUEST"
+                      maxLength={NOTE_MAX}
+                      disabled={sending}
+                      onApply={setNote}
+                    />
                     <PreviewToggle on={showPreview} onClick={() => setShowPreview((v) => !v)} />
                     <UseTemplateButton onClick={() => setPickingFor('connection')} />
-                    <span className="text-[12px] text-[var(--text-tertiary)] tabular-nums">
+                    <span className="shrink-0 text-[12px] text-[var(--text-tertiary)] tabular-nums">
                       {note.length}/{NOTE_MAX}
                     </span>
                   </div>
                 </div>
-                <p className="text-[12.5px] text-[var(--text-secondary)] mb-3">
+                <p className="text-[12px] text-[var(--text-secondary)] mb-3">
                   Optional. Leave empty to send a note-free request. Tokens below are filled in per
                   person when the invite goes out.
                 </p>
@@ -527,7 +555,7 @@ export function CampaignDetailPage() {
                   onChange={(e) => setNote(e.target.value.slice(0, NOTE_MAX))}
                   placeholder="Hi {{firstName}}, I'd love to connect…"
                   rows={5}
-                  className="w-full px-4 py-3 bg-[var(--surface-sunken)] border border-[var(--border-default)] rounded-[12px] text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--focus-ring)] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-[var(--surface-sunken)] border border-[var(--border-default)] rounded-[var(--ui-radius-lg)] text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors resize-none"
                 />
 
                 {/* LinkedIn truncates invitation notes past ~200 chars, while
@@ -559,16 +587,23 @@ export function CampaignDetailPage() {
             {actionType === 'message' && (
               <section>
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <h2 className="text-[14px] font-bold text-[var(--text-primary)]">Message</h2>
-                  <div className="flex items-center gap-2.5">
+                  <h2 className="shrink-0 text-[14px] font-medium text-[var(--text-primary)]">Message</h2>
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AiWriteButton
+                      content={msgBody}
+                      type="DIRECT_MESSAGE"
+                      maxLength={MSG_MAX}
+                      disabled={sending}
+                      onApply={setMsgBody}
+                    />
                     <PreviewToggle on={showPreview} onClick={() => setShowPreview((v) => !v)} />
                     <UseTemplateButton onClick={() => setPickingFor('message')} />
-                    <span className="text-[12px] text-[var(--text-tertiary)] tabular-nums">
+                    <span className="shrink-0 text-[12px] text-[var(--text-tertiary)] tabular-nums">
                       {msgBody.length}/{MSG_MAX}
                     </span>
                   </div>
                 </div>
-                <p className="text-[12.5px] text-[var(--text-secondary)] mb-3">
+                <p className="text-[12px] text-[var(--text-secondary)] mb-3">
                   Sent as a LinkedIn message. Works for 1st-degree connections; leads you’re not
                   connected to are skipped. Tokens below are filled in per person.
                 </p>
@@ -577,7 +612,7 @@ export function CampaignDetailPage() {
                   value={msgSubject}
                   onChange={(e) => setMsgSubject(e.target.value.slice(0, SUBJECT_MAX))}
                   placeholder="Subject (Sales Navigator InMail only) — optional"
-                  className="w-full mb-3 px-4 h-11 bg-[var(--surface-sunken)] border border-[var(--border-default)] rounded-[12px] text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--focus-ring)] transition-all"
+                  className="w-full mb-3 px-4 h-11 bg-[var(--surface-sunken)] border border-[var(--border-default)] rounded-[var(--ui-radius-lg)] text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors"
                 />
 
                 <TokenBar disabled={sending} onInsert={(token) => insertToken('body', token)} />
@@ -588,7 +623,7 @@ export function CampaignDetailPage() {
                   onChange={(e) => setMsgBody(e.target.value.slice(0, MSG_MAX))}
                   placeholder="Hi {{firstName}}, …"
                   rows={6}
-                  className="w-full px-4 py-3 bg-[var(--surface-sunken)] border border-[var(--border-default)] rounded-[12px] text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--focus-ring)] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-[var(--surface-sunken)] border border-[var(--border-default)] rounded-[var(--ui-radius-lg)] text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors resize-none"
                 />
 
                 <UnknownTokenWarning content={`${msgSubject}\n${msgBody}`} />
@@ -646,7 +681,7 @@ function PreviewToggle({ on, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-[8px] text-[12px] font-semibold transition-colors"
+      className="inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 h-7 px-2.5 rounded-[var(--ui-radius-md)] text-[12px] font-medium transition-colors"
       style={
         on
           ? { background: 'var(--accent-tint)', color: 'var(--brand-purple)' }
@@ -673,11 +708,11 @@ function EditorPreview({ subject = '', body = '', values, person, index, count, 
 
   return (
     <div
-      className="mt-3 rounded-[12px] overflow-hidden"
+      className="mt-3 rounded-[var(--ui-radius-lg)] overflow-hidden"
       style={{ border: '1px dashed var(--border-default)', background: 'var(--surface-sunken)' }}
     >
       <div className="flex items-center gap-2 px-3.5 py-2 border-b border-[var(--separator)]">
-        <span className="text-[11.5px] font-semibold text-[var(--text-secondary)] truncate">
+        <span className="text-[11px] font-medium text-[var(--text-secondary)] truncate">
           {count > 0 ? `As ${label} will see it` : 'Preview'}
         </span>
         {count > 1 && (
@@ -689,7 +724,7 @@ function EditorPreview({ subject = '', body = '', values, person, index, count, 
               type="button"
               onClick={onNext}
               title="Preview the next lead"
-              className="shrink-0 w-6 h-6 grid place-items-center rounded-[7px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
+              className="shrink-0 w-6 h-6 grid place-items-center rounded-[var(--ui-radius-sm)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
             >
               <ChevronRight size={13} />
             </button>
@@ -699,12 +734,12 @@ function EditorPreview({ subject = '', body = '', values, person, index, count, 
 
       <div className="px-3.5 py-3">
         {filledSubject && (
-          <p className="text-[12.5px] font-semibold text-[var(--text-primary)] mb-1.5">
+          <p className="text-[12px] font-medium text-[var(--text-primary)] mb-1.5">
             {filledSubject}
           </p>
         )}
         <p
-          className="text-[13.5px] leading-relaxed whitespace-pre-wrap"
+          className="text-[13px] leading-relaxed whitespace-pre-wrap"
           style={{ color: filledBody ? 'var(--text-primary)' : 'var(--text-tertiary)' }}
         >
           {filledBody ||
@@ -713,7 +748,7 @@ function EditorPreview({ subject = '', body = '', values, person, index, count, 
               : 'Nothing written yet.')}
         </p>
         {count === 0 && (
-          <p className="text-[11.5px] text-[var(--text-tertiary)] mt-2">
+          <p className="text-[11px] text-[var(--text-tertiary)] mt-2">
             No leads loaded — showing tokens as empty.
           </p>
         )}
@@ -728,7 +763,7 @@ function UnknownTokenWarning({ content }) {
   if (unknown.length === 0) return null;
   return (
     <div
-      className="mt-2 flex items-start gap-2 px-3 py-2.5 rounded-[10px] text-[12.5px]"
+      className="mt-2 flex items-start gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[12px]"
       style={{ background: 'var(--amber-tint)', color: 'var(--amber)' }}
     >
       <AlertTriangle size={14} className="shrink-0 mt-px" />
@@ -747,10 +782,10 @@ function UseTemplateButton({ onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-[8px] text-[12px] font-semibold transition-colors"
+      className="inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 h-7 px-2.5 rounded-[var(--ui-radius-md)] text-[12px] font-medium transition-colors"
       style={{ background: 'var(--accent-tint)', color: 'var(--brand-purple)' }}
     >
-      <FileText size={12} /> Use template
+      <FileText size={12} /> Template
     </button>
   );
 }
@@ -762,7 +797,7 @@ function UseTemplateButton({ onClick }) {
 function TokenBar({ onInsert, disabled = false }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5 mb-2">
-      <span className="text-[11.5px] text-[var(--text-tertiary)] mr-0.5">Insert</span>
+      <span className="text-[11px] text-[var(--text-tertiary)] mr-0.5">Insert</span>
       {TEMPLATE_TOKENS.map((t) => (
         <button
           key={t.token}
@@ -770,7 +805,7 @@ function TokenBar({ onInsert, disabled = false }) {
           disabled={disabled}
           title={`${t.label} — e.g. ${t.sample}`}
           onClick={() => onInsert(t.token)}
-          className="px-2 h-6 rounded-[7px] font-mono text-[11px] text-[var(--brand-purple)] bg-[var(--accent-tint)] hover:bg-[var(--accent-tint-2)] transition-colors disabled:opacity-40"
+          className="px-2 h-6 rounded-[var(--ui-radius-sm)] font-mono text-[11px] text-[var(--brand-purple)] bg-[var(--accent-tint)] hover:bg-[var(--accent-tint-2)] transition-colors disabled:opacity-40"
         >
           {t.token}
         </button>
@@ -784,7 +819,7 @@ function TemplateNotice({ notice, onDismiss }) {
   if (!notice) return null;
   return (
     <div
-      className="mt-3 flex items-start gap-2 px-3 py-2.5 rounded-[10px] text-[12.5px]"
+      className="mt-3 flex items-start gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[12px]"
       style={
         notice.trimmedTo
           ? { background: 'var(--amber-tint)', color: 'var(--amber)' }
@@ -793,13 +828,13 @@ function TemplateNotice({ notice, onDismiss }) {
     >
       <Check size={14} className="shrink-0 mt-px" />
       <span className="flex-1 min-w-0">
-        Applied <span className="font-semibold">“{notice.name}”</span>
+        Applied <span className="font-medium">“{notice.name}”</span>
         {notice.trimmedTo ? ` — trimmed to ${notice.trimmedTo} characters` : ''}
       </span>
       <button
         type="button"
         onClick={notice.undo}
-        className="shrink-0 font-semibold underline underline-offset-2 hover:opacity-80"
+        className="shrink-0 font-medium underline underline-offset-2 hover:opacity-80"
       >
         Undo
       </button>
@@ -843,7 +878,7 @@ function ExtensionBadge({ ext }) {
     <button
       onClick={() => ext.recheck()}
       title={`${title} · click to recheck`}
-      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-[10px] text-[12.5px] font-medium transition-colors"
+      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-[var(--ui-radius-lg)] text-[12px] font-medium transition-colors"
       style={{ background: 'var(--surface-sunken)', color: 'var(--text-secondary)', border: '1px solid var(--border-hairline)' }}
     >
       <span
@@ -861,7 +896,7 @@ function ActionCard({ icon: Icon, title, subtitle, selected, disabled, onClick }
       type="button"
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
-      className="relative flex flex-col items-start gap-2 p-4 rounded-[13px] text-left transition-all disabled:cursor-not-allowed"
+      className="relative flex flex-col items-start gap-2 p-4 rounded-[var(--ui-radius-lg)] text-left transition-colors disabled:cursor-not-allowed"
       style={{
         background: selected ? 'var(--accent-tint)' : 'var(--surface-sunken)',
         border: `1.5px solid ${selected ? 'var(--brand-purple)' : 'var(--border-hairline)'}`,
@@ -877,7 +912,7 @@ function ActionCard({ icon: Icon, title, subtitle, selected, disabled, onClick }
         </span>
       )}
       <span
-        className="w-9 h-9 rounded-[10px] grid place-items-center"
+        className="w-9 h-9 rounded-[var(--ui-radius-lg)] grid place-items-center"
         style={{
           background: selected ? 'var(--brand-purple)' : 'var(--accent-tint)',
           color: selected ? '#fff' : 'var(--brand-purple)',
@@ -885,7 +920,7 @@ function ActionCard({ icon: Icon, title, subtitle, selected, disabled, onClick }
       >
         <Icon size={18} />
       </span>
-      <span className="text-[13.5px] font-semibold text-[var(--text-primary)]">{title}</span>
+      <span className="text-[13px] font-medium text-[var(--text-primary)]">{title}</span>
       <span className="text-[12px] text-[var(--text-tertiary)]">{subtitle}</span>
     </button>
   );

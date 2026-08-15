@@ -340,7 +340,7 @@ Key token groups:
 
 ### Tailwind + CSS variables together
 
-Use Tailwind utility classes for layout and spacing; use CSS variables inside `style` props or `bg-[var(--...)]` bracket syntax for design-token colors.
+Use Tailwind utility classes for layout and spacing; use CSS variables inside `style` props or `bg-[var(--token-name)]` bracket syntax for design-token colors.
 
 ```jsx
 <div className="flex items-center gap-3 px-4 py-3 rounded-[14px]"

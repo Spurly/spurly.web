@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import messageTemplatesController from 'src/core/controllers/messageTemplatesController.js';
+import { useErrorToast } from 'src/ui/primitives';
 
 /**
  * Loads the user's message templates for one type and exposes optimistic
@@ -99,6 +100,12 @@ export function useMessageTemplates({ type, search = '', enabled = true }) {
       throw err;
     }
   }, []);
+
+  /* Reported twice on purpose: the inline block the page renders (which
+     persists next to the empty table) and one toast (which catches the eye
+     if that block is off screen). The toast gets fixed copy — the server's
+     text goes inline, where there's room for it. */
+  useErrorToast(error, "Couldn't load your templates");
 
   return { templates, loading, error, refresh, create, update, remove, duplicate, toggleFavorite };
 }

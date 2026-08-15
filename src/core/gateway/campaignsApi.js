@@ -12,6 +12,24 @@ class CampaignsApi {
     return res.data;
   }
 
+  /**
+   * Create a MESSAGE campaign from the Connections page.
+   * POST /campaigns/from-connections
+   *
+   * Separate from create() because it takes connection ids rather than person
+   * ids, and has no actionType to choose — everyone on the connections page is
+   * already connected, so a connection request would skip every row.
+   */
+  async createFromConnections({ name, connectionIds, messageSubject = '', messageBody = '' }) {
+    const res = await apiGateway.post('/campaigns/from-connections', {
+      name,
+      connectionIds,
+      messageSubject,
+      messageBody,
+    });
+    return res.data;
+  }
+
   /** List the user's campaigns. GET /campaigns */
   async list() {
     const res = await apiGateway.get('/campaigns');

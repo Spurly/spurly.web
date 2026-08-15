@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from 'src/hooks/useAuth';
+import { useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 import { AuthShell, FeaturesAside } from './AuthShell.jsx';
 import { GoogleButton, PasswordField } from './widgets.jsx';
 import { MailIcon } from './icons.jsx';
@@ -14,26 +16,35 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { login } = useAuth();
+  const toast = useToast();
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
+
   // Surface OAuth failures redirected here as ?error= by the backend callback.
-  const [error, setError] = useState(params.get('error') || '');
+  const oauthError = params.get('error');
+  useEffect(() => {
+    /* A query param is attacker-controllable — anyone can send a user to
+       /login?error=<anything>. Through the same gate as a server message, so
+       the toast can't be used to put arbitrary text on the page. */
+    if (oauthError) toast.error(getToastError(oauthError, "Couldn't sign you in"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [oauthError]);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   async function onSubmit(e) {
     e.preventDefault();
-    setError('');
     setLoading(true);
     try {
       const { user } = await login(form.email.trim(), form.password);
+      toast.success('Signed in');
       const next = params.get('next');
       if (next) navigate(next, { replace: true });
       else if (user && user.onboardingComplete === false) navigate('/onboarding', { replace: true });
       else navigate('/dashboard', { replace: true });
     } catch (err) {
-      setError(err.message || 'Could not sign you in. Please try again.');
+      toast.error(getToastError(err, "Couldn't sign you in"));
     } finally {
       setLoading(false);
     }
@@ -50,9 +61,7 @@ export default function LoginPage() {
           <p className="sp-card__sub">Sign in to your Spurly account.</p>
         </div>
 
-        {error && <div className="sp-notice sp-notice--error" role="alert" style={{ marginBottom: 16 }}>{error}</div>}
-
-        <GoogleButton label="Sign in with Google" onError={setError} />
+        <GoogleButton label="Sign in with Google" onError={(msg) => toast.error(getToastError(msg, "Google sign-in failed"))} />
 
         <div className="sp-or" style={{ margin: '18px 0' }}>or</div>
 

@@ -1,45 +1,46 @@
 import { useState, useEffect, useRef } from "react";
-import { RefreshCw, Check, AlertTriangle, X, Download } from "lucide-react";
-import { Button, IconButton } from "src/ui/primitives";
+import { RefreshCw, AlertTriangle, X, Download, MessageSquare } from "lucide-react";
+import { Button, IconButton, useToast } from "src/ui/primitives";
+import { getToastError } from "src/common/utils/apiError";
 import { DashboardLayout } from "src/components/DashboardLayout";
 import { DataTable } from "src/components/DataTable";
 import { LeadDetailSidebar } from "src/components/LeadDetailSidebar";
+import { CreateMessageCampaignModal } from "./components/CreateMessageCampaignModal.jsx";
 import { useConnections } from "src/hooks/useConnections";
 import { useConnectionsSync } from "src/hooks/useConnectionsSync";
 import connectionsController from "src/core/controllers/connectionsController";
 import { exportProfilesAsCSV } from "src/common/utils/csvExport";
 import { connectionColumns } from "./columns.jsx";
+import { describeSyncResult } from "./helpers.js";
 
 /**
- * Outcome strip for a manual sync.
+ * Failure strip for a manual sync.
  *
- * Reports the number of invites confirmed accepted rather than a bare
- * "Done" — that number is the only reason to press the button, and zero is a
- * real, useful answer rather than a failure.
+ * FAILURES ONLY. A successful sync is confirmed by the toast and nothing else —
+ * rendering the same sentence twice, once floating and once pinned above the
+ * table, made a quiet success look like two separate events.
+ *
+ * Failures keep the strip because sync errors are frequently instructions
+ * rather than statements — "LinkedIn's connections page isn't sorted by
+ * recently added, set the sort back and sync again" is a task, and a task that
+ * auto-dismisses after seven seconds is one the user can't act on.
  */
-function SyncResult({ result, onDismiss }) {
-  if (!result) return null;
-
-  const ok = result.ok;
-  const Icon = ok ? Check : AlertTriangle;
-  const fg = ok ? "var(--ui-success-fg)" : "var(--ui-danger-fg)";
-  const bg = ok ? "var(--ui-success-tint)" : "var(--ui-danger-tint)";
-
-  const text = ok
-    ? result.degreesUpdated > 0
-      ? `${result.degreesUpdated} connection request${result.degreesUpdated === 1 ? "" : "s"} confirmed accepted`
-      : "Up to date — no newly accepted requests"
-    : result.error;
+function SyncFailure({ result, onDismiss }) {
+  if (!result || result.ok) return null;
 
   return (
     <div
-      role="status"
-      className="flex items-center gap-2 px-3 h-9 shrink-0 border-b border-[var(--ui-border-hairline)]"
-      style={{ background: bg }}
+      role="alert"
+      className="flex items-center gap-2 shrink-0 border-b border-[var(--ui-border-hairline)]"
+      style={{
+        height: 'var(--ui-band)',
+        paddingInline: 'var(--ui-pad-x)',
+        background: 'var(--ui-danger-tint)',
+      }}
     >
-      <Icon size={13} style={{ color: fg }} aria-hidden="true" />
-      <span className="text-[12.5px] font-medium" style={{ color: fg }}>
-        {text}
+      <AlertTriangle size={13} style={{ color: "var(--ui-danger-fg)" }} aria-hidden="true" />
+      <span className="text-[12px] font-medium" style={{ color: "var(--ui-danger-fg)" }}>
+        {result.error}
       </span>
       <span className="flex-1" />
       <IconButton size="sm" variant="ghost" label="Dismiss" icon={<X size={13} />} onClick={onDismiss} />
@@ -60,8 +61,10 @@ function SyncResult({ result, onDismiss }) {
  * so the only interactions are search, sort and export.
  */
 export function ConnectionsPage() {
+  const toast = useToast();
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [selectedConnection, setSelectedConnection] = useState(null);
+  const [creatingCampaign, setCreatingCampaign] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isExporting, setIsExporting] = useState(false);
   // `key: null` means "no column sort" — the list falls back to the server's
@@ -89,6 +92,31 @@ export function ConnectionsPage() {
     result: syncResult,
     dismissResult,
   } = useConnectionsSync({ onComplete: refresh });
+
+  /* A sweep takes minutes and finishes whenever it finishes — often long after
+     the user has stopped watching the button. The strip alone assumes they're
+     still looking at this page, so the outcome also gets a toast.
+     Keyed on the result object, which the hook only replaces per completed run
+     (it timestamps them), so a re-render can't fire this twice. */
+  useEffect(() => {
+    if (!syncResult) return;
+    if (syncResult.ok) {
+      toast.success('Connections synced', { description: describeSyncResult(syncResult) });
+    } else {
+      toast.error(getToastError(syncResult.error, "Couldn't sync your connections"));
+    }
+  }, [syncResult, toast]);
+
+  /* Acknowledge the press itself. The button's spinner only helps while the
+     user is looking at it, and this sweep opens a LinkedIn tab and reads a long
+     list — telling them they can walk away is the useful part. */
+  const handleSync = () => {
+    if (syncing) return;
+    toast.info('Syncing your connections', {
+      description: 'This takes a minute. You can leave this page.',
+    });
+    sync();
+  };
 
   // Refs so the debounced search effect can read the current sort and page
   // size without re-triggering itself.
@@ -153,6 +181,7 @@ export function ConnectionsPage() {
         .map((c) => c.raw ?? c);
       const date = new Date().toISOString().split("T")[0];
       exportProfilesAsCSV(rows, `connections-${date}.csv`);
+      toast.success(`Exported ${rows.length.toLocaleString()} selected`);
       return;
     }
 
@@ -165,8 +194,10 @@ export function ConnectionsPage() {
       const rows = all.map((c) => c.raw ?? c);
       const date = new Date().toISOString().split("T")[0];
       exportProfilesAsCSV(rows, `connections-${date}.csv`);
+      toast.success(`Exported ${rows.length.toLocaleString()} connections`);
     } catch (e) {
       console.error("[Connections] Export error:", e);
+      toast.error(getToastError(e, "Couldn't export your connections"));
     } finally {
       setIsExporting(false);
     }
@@ -178,7 +209,7 @@ export function ConnectionsPage() {
       subtitle={`${(pagination.total || 0).toLocaleString()} in your network`}
     >
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
-        <SyncResult result={syncResult} onDismiss={dismissResult} />
+        <SyncFailure result={syncResult} onDismiss={dismissResult} />
 
         <DataTable
             columns={connectionColumns}
@@ -210,15 +241,28 @@ export function ConnectionsPage() {
                       escape hatch for when that hasn't happened — browser was
                       closed, a campaign was mid-send, LinkedIn asked for a
                       checkpoint. Runs in the extension, not here. */}
+                  {/* Connections are 1st-degree by definition, which makes them
+                      the right source for a MESSAGE campaign — the one action
+                      that only works on people you're already connected to. */}
+                  {selectedRows.size > 0 && (
+                    <Button
+                      size="sm"
+                      leadingIcon={<MessageSquare size={13} />}
+                      onClick={() => setCreatingCampaign(true)}
+                    >
+                      Message {selectedRows.size}
+                    </Button>
+                  )}
+
                   <Button
                     size="sm"
                     variant="secondary"
                     leadingIcon={
                       <RefreshCw size={13} className={syncing ? "animate-spin" : undefined} />
                     }
-                    onClick={sync}
+                    onClick={handleSync}
                     disabled={syncing}
-                    title="Check LinkedIn for connection requests accepted since the last sync"
+                    title="Read LinkedIn for connections added since the last sync"
                   >
                     {syncing ? "Syncing…" : "Sync now"}
                   </Button>
@@ -249,6 +293,14 @@ export function ConnectionsPage() {
             outreach suppressed. A connection has no outreach state, and the
             timeline resolves personId against the People collection, so passing
             a Connection id would 404. */}
+        {creatingCampaign && (
+          <CreateMessageCampaignModal
+            connectionIds={[...selectedRows]}
+            onClose={() => setCreatingCampaign(false)}
+            onSuccess={() => setSelectedRows(new Set())}
+          />
+        )}
+
         {selectedConnection && (
           <LeadDetailSidebar
             lead={selectedConnection}

@@ -36,7 +36,8 @@ import { MetricCard } from 'src/common/components/MetricCard';
 import { Card, CardHeader } from 'src/common/components/Card/Card';
 import { DataTable } from 'src/components/DataTable';
 import { Badge } from 'src/ui/primitives';
-import { Button } from 'src/ui/primitives';
+import { Button, useToast } from 'src/ui/primitives';
+import { getToastError, getApiErrorMessage } from 'src/common/utils/apiError';
 import { Dropdown } from 'src/common/components/Dropdown';
 import { Input } from 'src/common/components/Input';
 import {
@@ -108,7 +109,7 @@ function TrendPill({ pct }) {
   const color = flat ? 'var(--text-tertiary)' : up ? 'var(--green)' : 'var(--red)';
   const Icon = flat ? Minus : up ? TrendingUp : TrendingDown;
   return (
-    <span className="inline-flex items-center gap-1 text-[12px] font-semibold tabular-nums" style={{ color }}>
+    <span className="inline-flex items-center gap-1 text-[12px] font-medium tabular-nums" style={{ color }}>
       <Icon size={13} />
       {up ? '+' : ''}{pct}%
     </span>
@@ -118,12 +119,12 @@ function TrendPill({ pct }) {
 /** Compact labelled stat tile used in the drill-down modal. */
 function StatTile({ label, value, sub, color, icon: Icon }) {
   return (
-    <div className="rounded-[12px] p-3" style={{ background: 'var(--surface-sunken)' }}>
+    <div className="rounded-[var(--ui-radius-lg)] p-3" style={{ background: 'var(--surface-sunken)' }}>
       <p className="text-[11px] text-[var(--text-tertiary)] flex items-center gap-1">
         {Icon && <Icon size={12} />} {label}
       </p>
-      <p className="text-[20px] font-bold leading-tight" style={{ color: color || 'var(--text-primary)' }}>{value}</p>
-      {sub && <p className="text-[10.5px] text-[var(--text-tertiary)] mt-0.5">{sub}</p>}
+      <p className="text-[24px] font-medium leading-tight" style={{ color: color || 'var(--text-primary)' }}>{value}</p>
+      {sub && <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -141,9 +142,9 @@ function Funnel({ funnel }) {
       {steps.map((s) => (
         <div key={s.label} className="flex items-center gap-3">
           <span className="text-[12px] text-[var(--text-secondary)] w-24 shrink-0">{s.label}</span>
-          <div className="flex-1 h-6 rounded-[8px] overflow-hidden" style={{ background: 'var(--surface-sunken)' }}>
+          <div className="flex-1 h-6 rounded-[var(--ui-radius-md)] overflow-hidden" style={{ background: 'var(--surface-sunken)' }}>
             <div
-              className="h-full rounded-[8px] transition-all"
+              className="h-full rounded-[var(--ui-radius-md)] transition-colors"
               style={{
                 width: `${(s.value / max) * 100}%`,
                 minWidth: s.value > 0 ? 4 : 0,
@@ -151,7 +152,7 @@ function Funnel({ funnel }) {
               }}
             />
           </div>
-          <span className="text-[13px] font-semibold text-[var(--text-primary)] tabular-nums w-12 shrink-0 text-right">
+          <span className="text-[13px] font-medium text-[var(--text-primary)] tabular-nums w-12 shrink-0 text-right">
             {s.value.toLocaleString()}
           </span>
           <span className="text-[11px] text-[var(--text-tertiary)] w-24 shrink-0 text-right">
@@ -185,10 +186,10 @@ function SegmentBar({ segments }) {
           <div key={s.key} className="flex flex-col">
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full" style={{ background: s.color }} />
-              <span className="text-[13px] font-semibold text-[var(--text-primary)] tabular-nums">{segments?.[s.key] ?? 0}</span>
+              <span className="text-[13px] font-medium text-[var(--text-primary)] tabular-nums">{segments?.[s.key] ?? 0}</span>
             </div>
-            <span className="text-[11.5px] text-[var(--text-secondary)] mt-0.5">{s.label}</span>
-            <span className="text-[10.5px] text-[var(--text-tertiary)]">{s.hint}</span>
+            <span className="text-[11px] text-[var(--text-secondary)] mt-0.5">{s.label}</span>
+            <span className="text-[10px] text-[var(--text-tertiary)]">{s.hint}</span>
           </div>
         ))}
       </div>
@@ -197,6 +198,7 @@ function SegmentBar({ segments }) {
 }
 
 export function AdminInsightsPage() {
+  const toast = useToast();
   const [overview, setOverview] = useState(null);
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState({ total: 0, limit: 25, skip: 0, pages: 0 });
@@ -240,9 +242,13 @@ export function AdminInsightsPage() {
           setPagination((p) => ({ ...p, ...res.data.pagination }));
         } else {
           setError(res.message || 'Failed to load usage');
+          toast.error(getToastError(res, "Couldn't load usage"));
         }
       } catch (err) {
-        if (!cancelled) setError(err.message || 'Failed to load usage');
+        if (!cancelled) {
+          setError(getApiErrorMessage(err, 'Failed to load usage'));
+          toast.error(getToastError(err, "Couldn't load usage"));
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -410,15 +416,15 @@ export function AdminInsightsPage() {
           {FEATURES.map((f) => (
             <Card key={f.key} padding="md">
               <div className="flex items-center gap-4">
-                <div className="grid place-items-center w-11 h-11 rounded-[12px] text-white shrink-0" style={{ background: f.color }}>
+                <div className="grid place-items-center w-11 h-11 rounded-[var(--ui-radius-lg)] text-white shrink-0" style={{ background: f.color }}>
                   <f.icon size={20} />
                 </div>
                 <div>
-                  <p className="text-[26px] font-bold tabular-nums text-[var(--text-primary)] leading-none">
+                  <p className="text-[24px] font-medium tabular-nums text-[var(--text-primary)] leading-none">
                     {(overview?.actions?.last30Days?.[f.key] ?? 0).toLocaleString()}
                   </p>
                   <p className="text-[13px] text-[var(--text-secondary)] mt-1">{f.label} · last 30 days</p>
-                  <p className="text-[11.5px] text-[var(--text-tertiary)]">
+                  <p className="text-[11px] text-[var(--text-tertiary)]">
                     {(overview?.actions?.last7Days?.[f.key] ?? 0).toLocaleString()} in 7d · {(overview?.actions?.today?.[f.key] ?? 0).toLocaleString()} today
                   </p>
                 </div>
@@ -481,7 +487,7 @@ export function AdminInsightsPage() {
         {/* Per-user table */}
         {error && (
           <div
-            className="p-3 rounded-[12px] text-[13px] font-medium"
+            className="p-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium"
             style={{ background: 'var(--red-tint)', color: 'var(--red)', border: '1px solid rgba(255,69,58,0.2)' }}
           >
             {error}
@@ -533,7 +539,7 @@ export function AdminInsightsPage() {
           </div>
         </div>
 
-        <div className="rounded-[16px] border border-[var(--border-hairline)] overflow-hidden shadow-sm">
+        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--border-hairline)] overflow-hidden shadow-sm">
           <DataTable
             columns={columns}
             data={users}
@@ -560,14 +566,14 @@ export function AdminInsightsPage() {
           onClick={() => setDrillUser(null)}
         >
           <div
-            className="bg-[var(--surface-card)] rounded-[18px] shadow-[0_24px_60px_rgba(0,0,0,0.25)] w-full max-w-[820px] max-h-[90vh] overflow-y-auto"
+            className="bg-[var(--surface-card)] rounded-[var(--ui-radius-lg)] shadow-[0_24px_60px_rgba(0,0,0,0.25)] w-full max-w-[820px] max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 z-10 bg-[var(--surface-card)] rounded-t-[18px] flex items-start justify-between p-6 border-b border-[var(--separator)]">
+            <div className="sticky top-0 z-10 bg-[var(--surface-card)] rounded-t-[var(--ui-radius-lg)] flex items-start justify-between p-[var(--ui-pad-lg)] border-b border-[var(--separator)]">
               <div className="flex items-center gap-3 min-w-0">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-[17px] font-semibold text-[var(--text-primary)] truncate">{drillUser.name || drillUser.email}</h3>
+                    <h3 className="text-[17px] font-medium text-[var(--text-primary)] truncate">{drillUser.name || drillUser.email}</h3>
                     <SegmentBadge seg={drillUser.segment} />
                     {drillData && <TrendPill pct={drillData.summary.wowTrendPct} />}
                   </div>
@@ -579,7 +585,7 @@ export function AdminInsightsPage() {
               </button>
             </div>
 
-            <div className="p-6">
+            <div className="p-[var(--ui-pad-lg)]">
               {drillLoading && (
                 <div className="flex items-center justify-center py-16 text-[var(--text-tertiary)]">
                   <Loader className="animate-spin mr-2" /> Loading activity…
@@ -600,13 +606,13 @@ export function AdminInsightsPage() {
                   {/* Funnel + Sources/Enrichment side by side */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
                     <div>
-                      <p className="text-[13px] font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-1.5">
+                      <p className="text-[13px] font-medium text-[var(--text-primary)] mb-3 flex items-center gap-1.5">
                         <Layers size={14} /> Outreach funnel · last {drillData.windowDays} days
                       </p>
                       <Funnel funnel={drillData.funnel} />
                     </div>
                     <div>
-                      <p className="text-[13px] font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-1.5">
+                      <p className="text-[13px] font-medium text-[var(--text-primary)] mb-3 flex items-center gap-1.5">
                         <Sparkles size={14} /> Capture sources & enrichment
                       </p>
                       <div className="grid grid-cols-2 gap-3">
@@ -619,7 +625,7 @@ export function AdminInsightsPage() {
                   </div>
 
                   {/* Weekly activity */}
-                  <p className="text-[13px] font-semibold text-[var(--text-primary)] mb-2">Weekly activity</p>
+                  <p className="text-[13px] font-medium text-[var(--text-primary)] mb-2">Weekly activity</p>
                   <ResponsiveContainer width="100%" height={180}>
                     <BarChart
                       data={drillData.weekly.map((w) => ({
@@ -641,7 +647,7 @@ export function AdminInsightsPage() {
                   </ResponsiveContainer>
 
                   {/* Daily activity */}
-                  <p className="text-[13px] font-semibold text-[var(--text-primary)] mb-2 mt-5">
+                  <p className="text-[13px] font-medium text-[var(--text-primary)] mb-2 mt-5">
                     Daily activity · last {drillData.windowDays} days
                   </p>
                   <ResponsiveContainer width="100%" height={220}>
@@ -665,7 +671,7 @@ export function AdminInsightsPage() {
                     </BarChart>
                   </ResponsiveContainer>
 
-                  <p className="text-[11.5px] text-[var(--text-tertiary)] mt-4">
+                  <p className="text-[11px] text-[var(--text-tertiary)] mt-4">
                     Recorded outreach (lifetime, from credit ledger): {drillData.activity.lifetimeConnections.toLocaleString()} connections · {drillData.activity.lifetimeMessages.toLocaleString()} messages · Credit balance {drillData.user.creditBalance}
                   </p>
                 </>

@@ -14,31 +14,31 @@ export function EnableExtensionModal({ installed, loggedIn, checking, onRecheck,
       }}
     >
       <div
-        className="relative w-full max-w-md rounded-[20px] shadow-[var(--shadow-lg)] overflow-hidden"
+        className="relative w-full max-w-md rounded-[var(--ui-radius-lg)] shadow-[var(--shadow-lg)] overflow-hidden"
         style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}
       >
-        <div className="flex items-center justify-between px-6 pt-6 pb-5 border-b border-[var(--separator)]">
+        <div className="flex items-center justify-between px-[var(--ui-pad-lg)] pt-[var(--ui-pad-lg)] pb-[var(--ui-pad-lg)] border-b border-[var(--separator)]">
           <div className="flex items-center gap-3">
             <div
-              className="w-9 h-9 rounded-[11px] grid place-items-center shrink-0"
+              className="w-9 h-9 rounded-[var(--ui-radius-lg)] grid place-items-center shrink-0"
               style={{ background: 'var(--accent-tint)' }}
             >
               <Puzzle size={17} style={{ color: 'var(--brand-purple)' }} />
             </div>
-            <h2 className="text-[16px] font-bold text-[var(--text-primary)] tracking-[-0.014em]">
+            <h2 className="text-[14px] font-medium text-[var(--text-primary)] tracking-[-0.012em]">
               Enable the Spurly extension
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 grid place-items-center rounded-[9px] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
+            className="w-8 h-8 grid place-items-center rounded-[var(--ui-radius-md)] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
           >
             <X size={16} />
           </button>
         </div>
 
-        <div className="px-6 py-5">
-          <p className="text-[13.5px] text-[var(--text-secondary)] leading-relaxed">
+        <div className="px-[var(--ui-pad-lg)] py-5">
+          <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
             Connection requests are sent by the Spurly Chrome extension running on LinkedIn — so the
             extension needs to be installed and turned on in this browser.
           </p>
@@ -51,7 +51,7 @@ export function EnableExtensionModal({ installed, loggedIn, checking, onRecheck,
 
           {!checking && installed && !loggedIn && (
             <p
-              className="mt-4 text-[12.5px] px-3 py-2.5 rounded-[10px]"
+              className="mt-4 text-[12px] px-3 py-2.5 rounded-[var(--ui-radius-lg)]"
               style={{ background: 'var(--accent-tint)', color: 'var(--brand-purple)' }}
             >
               Detected the extension but you’re not signed in there — open it and log in, then recheck.
@@ -63,14 +63,14 @@ export function EnableExtensionModal({ installed, loggedIn, checking, onRecheck,
               href="https://chrome.google.com/webstore/detail/dcohpfeaohfiiinjjiinojlbnnfmihoh"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 h-10 px-4 rounded-[12px] text-[14px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
             >
               <ExternalLink size={15} /> Install
             </a>
             <button
               onClick={onRecheck}
               disabled={checking}
-              className="inline-flex items-center gap-1.5 h-10 px-5 rounded-[12px] text-[14px] font-semibold text-white transition-opacity disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-white transition-opacity disabled:opacity-60"
               style={{ background: 'var(--brand-purple)' }}
             >
               <RefreshCw size={15} className={checking ? 'animate-spin' : ''} />
@@ -87,7 +87,7 @@ function Step({ n, children }) {
   return (
     <li className="flex gap-2.5">
       <span
-        className="w-5 h-5 rounded-full grid place-items-center text-[11px] font-bold shrink-0 mt-0.5"
+        className="w-5 h-5 rounded-full grid place-items-center text-[11px] font-medium shrink-0 mt-0.5"
         style={{ background: 'var(--accent-tint)', color: 'var(--brand-purple)' }}
       >
         {n}

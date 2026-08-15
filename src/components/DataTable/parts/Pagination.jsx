@@ -32,8 +32,11 @@ export function Pagination({
   const end = Math.min(page * pageSize, total);
 
   return (
-    <div className="flex items-center justify-between gap-4 px-3 h-11 shrink-0 border-t border-[var(--ui-border-hairline)]">
-      <p className="text-[12px] text-[var(--ui-text-tertiary)] tabular-nums shrink-0">
+    <div
+      className="flex items-center justify-between gap-4 shrink-0 border-t border-[var(--ui-border-hairline)]"
+      style={{ height: 'var(--ui-band)', paddingInline: 'var(--ui-pad-x)' }}
+    >
+      <p className="text-[12px] text-[var(--ui-text-secondary)] tabular-nums shrink-0">
         {start.toLocaleString()}–{end.toLocaleString()} of {total.toLocaleString()}
       </p>
 

@@ -45,17 +45,18 @@ export function Drawer({
           : 'border-r border-[var(--ui-border)]'
       }`}
     >
-      <div className="flex items-center gap-3 px-4 h-12 shrink-0 border-b border-[var(--ui-border-hairline)]">
+      <div className="flex items-center gap-3 shrink-0 border-b border-[var(--ui-border-hairline)]"
+        style={{ height: 'var(--ui-band)', paddingInline: 'var(--ui-pad-x)' }}>
         <div className="min-w-0 flex-1">
           {eyebrow && (
-            <p className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)] leading-none">
+            <p className="text-[10px] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)] leading-none">
               {eyebrow}
             </p>
           )}
           {title && (
             <h2
               id={titleId}
-              className="text-[13.5px] font-medium text-[var(--ui-text-primary)] truncate leading-tight mt-1"
+              className="text-[13px] font-medium text-[var(--ui-text-primary)] truncate leading-tight mt-1"
             >
               {title}
             </h2>

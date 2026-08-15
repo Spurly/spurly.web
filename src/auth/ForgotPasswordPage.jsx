@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/hooks/useAuth';
+import { useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 import { AuthShell, FeaturesAside } from './AuthShell.jsx';
 import { MailIcon } from './icons.jsx';
 
@@ -8,20 +10,20 @@ import { MailIcon } from './icons.jsx';
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
   const { forgotPassword } = useAuth();
+  const toast = useToast();
 
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   async function onSubmit(e) {
     e.preventDefault();
-    setError('');
     setLoading(true);
     try {
       await forgotPassword(email.trim());
+      toast.success('Reset code sent', { description: `Check ${email.trim()} for the code.` });
       navigate('/reset-password', { state: { email: email.trim() } });
     } catch (err) {
-      setError(err.message || 'Could not send a reset code. Please try again.');
+      toast.error(getToastError(err, "Couldn't send a reset code"));
     } finally {
       setLoading(false);
     }
@@ -37,8 +39,6 @@ export default function ForgotPasswordPage() {
           <h2 className="sp-card__title">Reset your password</h2>
           <p className="sp-card__sub">We’ll email you a code to reset it.</p>
         </div>
-
-        {error && <div className="sp-notice sp-notice--error" role="alert" style={{ marginBottom: 16 }}>{error}</div>}
 
         <form className="sp-form" onSubmit={onSubmit} noValidate>
           <div className="sp-field">

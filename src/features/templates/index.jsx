@@ -14,6 +14,8 @@ import { DashboardLayout } from 'src/components/DashboardLayout';
 import { useAuth } from 'src/hooks/useAuth.js';
 import { useMessageTemplates } from 'src/hooks/useMessageTemplates.js';
 import { TEMPLATE_TYPES } from 'src/core/controllers/messageTemplatesController.js';
+import { useToast, useConfirm } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 import { TemplateEditor } from './TemplateEditor.jsx';
 
 /**
@@ -50,8 +52,8 @@ export function TemplatesPage() {
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState(null); // template object | 'new' | null
   const [saving, setSaving] = useState(false);
-  const [formError, setFormError] = useState(null);
-  const [actionError, setActionError] = useState(null);
+  const toast = useToast();
+  const confirm = useConfirm();
 
   const {
     templates,
@@ -84,54 +86,59 @@ export function TemplatesPage() {
   // longer in the list.
   useEffect(() => {
     setEditing(null);
-    setFormError(null);
-    setActionError(null);
   }, [type]);
 
   const handleSubmit = async (payload) => {
+    const isEdit = editing && editing !== 'new';
     setSaving(true);
-    setFormError(null);
     try {
-      if (editing && editing !== 'new') {
+      if (isEdit) {
         await update(editing._id, payload);
       } else {
         await create(payload);
       }
       setEditing(null);
+      toast.success(isEdit ? 'Template updated' : 'Template created');
     } catch (err) {
-      setFormError(err.message || 'Could not save the template');
+      toast.error(getToastError(err, "Couldn't save the template"));
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (template) => {
-    if (!window.confirm(`Delete "${template.name}"? This can't be undone.`)) return;
-    setActionError(null);
+    const ok = await confirm({
+      title: `Delete "${template.name}"?`,
+      description: "This can't be undone.",
+      confirmLabel: 'Delete template',
+    });
+    if (!ok) return;
+
     try {
       await remove(template._id);
       if (editing && editing !== 'new' && editing._id === template._id) setEditing(null);
+      toast.success(`Deleted "${template.name}"`);
     } catch (err) {
-      setActionError(err.message || 'Could not delete the template');
+      toast.error(getToastError(err, "Couldn't delete the template"));
     }
   };
 
   const handleDuplicate = async (template) => {
-    setActionError(null);
     try {
       const copy = await duplicate(template._id, `${template.name} (copy)`.slice(0, 100));
       setEditing(copy);
+      toast.success('Template duplicated');
     } catch (err) {
-      setActionError(err.message || 'Could not duplicate the template');
+      toast.error(getToastError(err, "Couldn't duplicate the template"));
     }
   };
 
   const handleFavorite = async (template) => {
-    setActionError(null);
     try {
       await toggleFavorite(template);
+      toast.success(template.isFavorite ? 'Removed from favorites' : 'Added to favorites');
     } catch (err) {
-      setActionError(err.message || 'Could not update favorite');
+      toast.error(getToastError(err, "Couldn't update this favorite"));
     }
   };
 
@@ -147,10 +154,10 @@ export function TemplatesPage() {
         {/* Left: type tabs + list */}
         <div className="flex flex-col min-h-0 flex-1 min-w-0">
           {/* Toolbar */}
-          <div className="shrink-0 px-6 pt-5 pb-4 border-b border-[var(--separator)] flex flex-col gap-4">
+          <div className="shrink-0 px-[var(--ui-pad-lg)] pt-[var(--ui-pad-lg)] pb-4 border-b border-[var(--separator)] flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <div
-                className="inline-flex p-1 rounded-[12px] gap-1"
+                className="inline-flex p-1 rounded-[var(--ui-radius-lg)] gap-1"
                 style={{ background: 'var(--surface-sunken)' }}
               >
                 {TABS.map((tab) => {
@@ -160,7 +167,7 @@ export function TemplatesPage() {
                     <button
                       key={tab.id}
                       onClick={() => setType(tab.id)}
-                      className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-[9px] text-[13px] font-semibold transition-all ${
+                      className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-md)] text-[13px] font-medium transition-colors ${
                         active
                           ? 'text-[var(--brand-purple)]'
                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -177,11 +184,8 @@ export function TemplatesPage() {
               <div className="flex-1" />
 
               <button
-                onClick={() => {
-                  setFormError(null);
-                  setEditing('new');
-                }}
-                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
+                onClick={() => setEditing('new')}
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-white transition-colors hover:brightness-95"
                 style={{ background: 'var(--brand-purple)' }}
               >
                 <Plus size={15} /> New template
@@ -198,33 +202,36 @@ export function TemplatesPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search templates…"
-                  className="w-full h-9 pl-9 pr-3 bg-[var(--surface-sunken)] border border-[var(--border-default)] rounded-[10px] text-[13.5px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--focus-ring)] transition-all"
+                  className="w-full h-9 pl-9 pr-3 bg-[var(--surface-sunken)] border border-[var(--border-default)] rounded-[var(--ui-radius-lg)] text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors"
                 />
               </div>
-              <p className="text-[12.5px] text-[var(--text-tertiary)] truncate">
+              <p className="text-[12px] text-[var(--text-tertiary)] truncate">
                 {activeTab?.blurb}
               </p>
             </div>
           </div>
 
-          {(error || actionError) && (
+          {/* Load failure only — kept inline because the list behind it is
+              empty, and an empty list with no explanation reads as "you have no
+              templates". Action failures are toasts. */}
+          {error && (
             <div
-              className="mx-6 mt-4 flex items-center gap-2 px-3 py-2.5 rounded-[10px] text-[13px]"
+              className="mx-6 mt-4 flex items-center gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[13px]"
               style={{ background: 'var(--red-tint)', color: 'var(--red)' }}
             >
               <AlertCircle size={14} className="shrink-0" />
-              {actionError || error}
+              {error}
             </div>
           )}
 
           {/* List */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4">
+          <div className="flex-1 min-h-0 overflow-y-auto px-[var(--ui-pad-lg)] py-4">
             {loading ? (
               <div className="flex flex-col gap-2.5">
                 {[0, 1, 2].map((i) => (
                   <div
                     key={i}
-                    className="h-[86px] rounded-[14px] animate-pulse"
+                    className="h-[86px] rounded-[var(--ui-radius-lg)] animate-pulse"
                     style={{ background: 'var(--surface-sunken)' }}
                   />
                 ))}
@@ -232,13 +239,13 @@ export function TemplatesPage() {
             ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center py-16 gap-3">
                 <div
-                  className="w-12 h-12 rounded-[14px] grid place-items-center"
+                  className="w-12 h-12 rounded-[var(--ui-radius-lg)] grid place-items-center"
                   style={{ background: 'var(--accent-tint)' }}
                 >
                   <FileText size={22} style={{ color: 'var(--brand-purple)' }} />
                 </div>
                 <div>
-                  <p className="text-[15px] font-semibold text-[var(--text-primary)]">
+                  <p className="text-[14px] font-medium text-[var(--text-primary)]">
                     {search ? 'No templates match your search' : 'No templates yet'}
                   </p>
                   <p className="text-[13px] text-[var(--text-secondary)] mt-1 max-w-[380px]">
@@ -250,7 +257,7 @@ export function TemplatesPage() {
                 {!search && (
                   <button
                     onClick={() => setEditing('new')}
-                    className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white"
+                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-white"
                     style={{ background: 'var(--brand-purple)' }}
                   >
                     <Plus size={15} /> New template
@@ -264,10 +271,7 @@ export function TemplatesPage() {
                     key={template._id}
                     template={template}
                     active={editingId === template._id}
-                    onOpen={() => {
-                      setFormError(null);
-                      setEditing(template);
-                    }}
+                    onOpen={() => setEditing(template)}
                     onFavorite={() => handleFavorite(template)}
                     onDuplicate={() => handleDuplicate(template)}
                     onDelete={() => handleDelete(template)}
@@ -281,13 +285,13 @@ export function TemplatesPage() {
         {/* Right: editor rail */}
         {editing && (
           <aside
-            className="w-[420px] xl:w-[480px] shrink-0 overflow-y-auto p-6"
+            className="w-[420px] xl:w-[480px] shrink-0 overflow-y-auto p-[var(--ui-pad-lg)]"
             style={{ borderLeft: '1px solid var(--separator)', background: 'var(--surface-raised)' }}
           >
-            <h2 className="text-[15px] font-bold text-[var(--text-primary)] mb-1">
+            <h2 className="text-[14px] font-medium text-[var(--text-primary)] mb-1">
               {editing === 'new' ? 'New template' : 'Edit template'}
             </h2>
-            <p className="text-[12.5px] text-[var(--text-secondary)] mb-5">
+            <p className="text-[12px] text-[var(--text-secondary)] mb-5">
               {type === TEMPLATE_TYPES.CONNECTION
                 ? 'Attached to the invitation. Keep it under 200 characters.'
                 : 'Sent as a LinkedIn message to your connections.'}
@@ -296,13 +300,9 @@ export function TemplatesPage() {
               type={type}
               template={editing === 'new' ? null : editing}
               saving={saving}
-              error={formError}
               senderName={senderName}
               onSubmit={handleSubmit}
-              onCancel={() => {
-                setEditing(null);
-                setFormError(null);
-              }}
+              onCancel={() => setEditing(null)}
             />
           </aside>
         )}
@@ -328,7 +328,7 @@ function TemplateCard({ template, active, onOpen, onFavorite, onDuplicate, onDel
           onOpen();
         }
       }}
-      className="group text-left rounded-[14px] p-4 cursor-pointer transition-all hover:-translate-y-px focus:outline-none focus-visible:shadow-[0_0_0_3px_var(--focus-ring)]"
+      className="group text-left rounded-[var(--ui-radius-lg)] p-4 cursor-pointer transition-colors focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
       style={{
         background: active ? 'var(--accent-tint)' : 'var(--surface-card)',
         border: `1px solid ${active ? 'var(--brand-purple)' : 'var(--border-hairline)'}`,
@@ -337,7 +337,7 @@ function TemplateCard({ template, active, onOpen, onFavorite, onDuplicate, onDel
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-[14px] font-semibold text-[var(--text-primary)] truncate">
+            <h3 className="text-[14px] font-medium text-[var(--text-primary)] truncate">
               {template.name}
             </h3>
             {template.isFavorite && (
@@ -345,7 +345,7 @@ function TemplateCard({ template, active, onOpen, onFavorite, onDuplicate, onDel
             )}
           </div>
           {template.description && (
-            <p className="text-[12.5px] text-[var(--text-tertiary)] mt-0.5 truncate">
+            <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5 truncate">
               {template.description}
             </p>
           )}
@@ -361,7 +361,7 @@ function TemplateCard({ template, active, onOpen, onFavorite, onDuplicate, onDel
             {template.content}
           </p>
           {template.usageCount > 0 && (
-            <p className="text-[11.5px] text-[var(--text-tertiary)] mt-2 tabular-nums">
+            <p className="text-[11px] text-[var(--text-tertiary)] mt-2 tabular-nums">
               Used {template.usageCount} time{template.usageCount === 1 ? '' : 's'}
             </p>
           )}
@@ -398,7 +398,7 @@ function IconAction({ label, children, onClick, danger = false }) {
       title={label}
       aria-label={label}
       onClick={onClick}
-      className={`w-8 h-8 grid place-items-center rounded-[9px] transition-colors ${
+      className={`w-8 h-8 grid place-items-center rounded-[var(--ui-radius-md)] transition-colors ${
         danger
           ? 'text-[var(--text-tertiary)] hover:text-[var(--red)] hover:bg-[var(--red-tint)]'
           : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'

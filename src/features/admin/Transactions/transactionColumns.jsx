@@ -25,7 +25,7 @@ export const transactionColumns = [
         <span className="truncate font-medium text-[var(--ui-text-primary)]">
           {row.userId?.name || 'Unknown'}
         </span>
-        <span className="truncate text-[11.5px] text-[var(--ui-text-tertiary)]">
+        <span className="truncate text-[11px] text-[var(--ui-text-tertiary)]">
           {row.userId?.email || ''}
         </span>
       </span>

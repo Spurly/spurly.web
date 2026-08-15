@@ -4,25 +4,35 @@ import { DashboardLayout } from 'src/components/DashboardLayout';
 import { DataTable } from 'src/components/DataTable';
 import campaignsController from 'src/core/controllers/campaignsController.js';
 import { useCampaigns } from 'src/hooks/useCampaigns';
+import { useToast, useConfirm } from 'src/ui/primitives';
+import { getToastError } from 'src/common/utils/apiError';
 import { buildCampaignColumns } from './columns.jsx';
 
 export function CampaignsPage() {
   const navigate = useNavigate();
   const { campaigns, loading, error, refresh } = useCampaigns();
+  const toast = useToast();
+  const confirm = useConfirm();
   const [search, setSearch] = useState('');
   const [deleting, setDeleting] = useState(null); // campaign pending delete confirm
 
   const handleDelete = async (campaign) => {
-    // Simple confirm — campaigns are cheap to recreate from People.
-    if (!window.confirm(`Delete campaign "${campaign.name}"? This removes the campaign and its enrolled leads.`)) {
-      return;
-    }
+    // Confirmed rather than undoable — campaigns are cheap to recreate from
+    // People, so a prompt costs less than building an undo path.
+    const ok = await confirm({
+      title: `Delete campaign "${campaign.name}"?`,
+      description: 'This removes the campaign and its enrolled leads.',
+      confirmLabel: 'Delete campaign',
+    });
+    if (!ok) return;
     setDeleting(campaign._id);
     try {
       await campaignsController.deleteCampaign(campaign._id);
       await refresh();
+      toast.success(`Deleted "${campaign.name}"`);
     } catch (e) {
       console.error('[Campaigns] Delete error:', e);
+      toast.error(getToastError(e, "Couldn't delete the campaign"));
     } finally {
       setDeleting(null);
     }

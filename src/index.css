@@ -3,25 +3,54 @@
 @config "../tailwind.config.js";
 
 /* ============================================================
-   SPURLY DESIGN SYSTEM — CSS CUSTOM PROPERTIES
-   Apple "Liquid Glass" palette + tokens
+   SPURLY DESIGN SYSTEM — LEGACY COMPATIBILITY LAYER
+
+   READ THIS BEFORE ADDING ANYTHING HERE.
+
+   This file used to be the app's design system. It is not any more —
+   src/ui/tokens/tokens.css is. What remains here is two things:
+
+     1. A COMPATIBILITY LAYER. Around 700 call sites across 30 files
+        still write var(--text-primary), var(--brand-purple),
+        var(--surface-sunken) and friends. Every one of those names is
+        now aliased to its --ui-* equivalent, so those call sites
+        reskin onto the current system without being edited. That is
+        why the unmigrated pages (Settings, Templates, Enrich, Campaign
+        detail, Admin) stopped looking like a different product.
+
+        Do not give any of these names a literal value again. Alias it
+        or delete it.
+
+     2. THE MARKETING SURFACE. The landing site (src/marketing) is a
+        different register to the app on purpose — softer radii, glass
+        panels, gradient accents. Those tokens and utilities are kept
+        below and are used ONLY by src/marketing. The app must not
+        reach for them.
+
+   New app work reads --ui-* directly. Nothing new should be added to
+   the compatibility layer.
    ============================================================ */
 
 :root {
-  /* Neutral gray ramp (cool, Apple-style) */
-  --gray-0:   #ffffff;
-  --gray-50:  #fbfbfd;
-  --gray-100: #f5f5f7;
-  --gray-150: #eeeef1;
-  --gray-200: #e4e4e9;
-  --gray-300: #d6d6dc;
-  --gray-400: #b4b4bd;
-  --gray-500: #8a8a93;
-  --gray-600: #6b6b73;
-  --gray-700: #48484e;
-  --gray-800: #2b2b30;
-  --gray-900: #1c1c1f;
-  --gray-950: #0c0c0e;
+  /* ---- Neutral ramp ---------------------------------------
+     Aliased onto the --ui-* ramp. The two ramps were within a couple
+     of points of each other (#1c1c1f vs #18181b and so on), which is
+     the worst possible situation: close enough that nobody noticed,
+     far enough that a legacy panel next to a migrated one showed a
+     faint seam. One ramp now. */
+  --gray-0:   var(--ui-neutral-0);
+  --gray-50:  var(--ui-neutral-50);
+  --gray-100: var(--ui-neutral-100);
+  --gray-150: var(--ui-neutral-150);
+  --gray-200: var(--ui-neutral-200);
+  --gray-300: var(--ui-neutral-300);
+  --gray-400: var(--ui-neutral-400);
+  --gray-500: var(--ui-neutral-500);
+  --gray-600: var(--ui-neutral-600);
+  --gray-700: var(--ui-neutral-700);
+  --gray-800: var(--ui-neutral-800);
+  --gray-900: var(--ui-neutral-900);
+  --gray-950: var(--ui-neutral-900);
 
   /* Brand — teal, matched to the extension's LinkedIn embed accent
      (oklch(0.62 0.13 205)) so the web app and the extension read as one product.
@@ -30,10 +59,10 @@
      fills (buttons, badges, active nav) with white text on top, but FAILS
      WCAG AA for text. Any teal *text* must use --brand-teal-700 (5.1:1),
      which is what --text-accent and --text-link resolve to below. */
-  --brand-teal:      #0d9bb5;
-  --brand-teal-700:  #0a7d92;
-  --brand-teal-300:  #7dd3e8;
-  --brand-teal-050:  #e6f7fa;
+  --brand-teal:      var(--ui-accent);
+  --brand-teal-700:  var(--ui-accent-fg);
+  --brand-teal-300:  var(--ui-accent-border);
+  --brand-teal-050:  var(--ui-accent-tint);
   --brand-blue:       #38bdf8;
   --brand-blue-600:   #0ea5e9;
   --brand-indigo:     #0ea5e9;
@@ -51,15 +80,24 @@
   --brand-gradient-soft:  linear-gradient(135deg, rgba(13,155,181,0.14) 0%, rgba(56,189,248,0.14) 100%);
   --brand-gradient-vivid: linear-gradient(135deg, #12aecb 0%, #4aa9f5 100%);
 
-  /* Semantic */
-  --green:      #2fb457;
-  --green-tint: rgba(47,180,87,0.12);
-  --amber:      #f59e0b;
-  --amber-tint: rgba(245,158,11,0.14);
-  --red:        #ff453a;
-  --red-tint:   rgba(255,69,58,0.12);
-  --sky:        #0a84ff;
-  --sky-tint:   rgba(10,132,255,0.12);
+  /* ---- Semantic -------------------------------------------
+     Aliased to the --ui-* semantic stops. Two things this fixes:
+
+     The old tints were rgba, so a warning tint over a white row mixed
+     to one colour and over a hovered grey row mixed to another. That
+     inconsistency is what read as muddy. The --ui-* tints are opaque.
+
+     The old --red was #ff453a (iOS red). Next to the --ui-danger
+     #dc2626 used by migrated components you had two different reds on
+     screen depending on which page you were on. */
+  --green:      var(--ui-success);
+  --green-tint: var(--ui-success-tint);
+  --amber:      var(--ui-warning);
+  --amber-tint: var(--ui-warning-tint);
+  --red:        var(--ui-danger);
+  --red-tint:   var(--ui-danger-tint);
+  --sky:        var(--ui-info);
+  --sky-tint:   var(--ui-info-tint);
 
   /* Liquid Glass materials */
   --glass-ultra-thin: rgba(255,255,255,0.45);
@@ -76,103 +114,119 @@
   --glass-edge-dark:  rgba(0,0,0,0.06);
   --glass-inner-glow: inset 0 1px 0 rgba(255,255,255,0.65), inset 0 -1px 0 rgba(0,0,0,0.04);
 
-  /* Canvas */
-  --canvas: #f7f8fa;
-  /* Toned well down from the previous purple/blue mesh. A loud gradient canvas
-     reads consumer; data tools want a calm ground so the data carries the
-     colour. Kept as a whisper rather than removed outright. */
+  /* Canvas. Marketing only — the app canvas is --ui-surface-page. */
+  --canvas: var(--ui-surface-page);
   --canvas-mesh:
     radial-gradient(900px 600px at 12% -8%,  rgba(13,155,181,0.055), transparent 60%),
     radial-gradient(800px 600px at 100% 0%,  rgba(56,189,248,0.05),  transparent 55%),
     #f7f8fa;
 
-  /* Semantic aliases */
-  --text-primary:   var(--gray-900);
-  --text-secondary: var(--gray-600);
-  --text-tertiary:  var(--gray-500);
-  --text-disabled:  var(--gray-400);
-  --text-on-accent: #ffffff;
+  /* ---- Semantic aliases -----------------------------------
+     All of these are compatibility only. Every one resolves into the
+     --ui-* layer. */
+  --text-primary:   var(--ui-text-primary);
+  --text-secondary: var(--ui-text-secondary);
+  --text-tertiary:  var(--ui-text-tertiary);
+  --text-disabled:  var(--ui-text-disabled);
+  --text-on-accent: var(--ui-text-inverse);
   --text-on-dark:   rgba(255,255,255,0.92);
   --text-on-dark-2: rgba(255,255,255,0.58);
-  /* Text-safe accent (5.1:1 on white). Never use --brand-teal for text. */
-  --text-accent:    var(--brand-teal-700);
-  --text-link:      var(--brand-teal-700);
+  /* Text-safe accent (5.1:1 on white). Never use --accent for text. */
+  --text-accent:    var(--ui-accent-fg);
+  --text-link:      var(--ui-accent-fg);
 
-  --surface-canvas:  var(--canvas);
-  --surface-card:    var(--gray-0);
-  --surface-sunken:  var(--gray-100);
-  --surface-raised:  var(--gray-0);
-  --surface-hover:   var(--gray-100);
-  --surface-active:  var(--gray-150);
+  --surface-canvas:  var(--ui-surface-page);
+  --surface-card:    var(--ui-surface-card);
+  --surface-sunken:  var(--ui-surface-sunken);
+  --surface-raised:  var(--ui-surface-card);
+  --surface-hover:   var(--ui-surface-hover);
+  --surface-active:  var(--ui-surface-active);
   --surface-glass:   var(--glass-regular);
   --surface-chrome:  var(--glass-chrome);
-  --surface-inverse: var(--gray-950);
+  --surface-inverse: var(--ui-surface-inverse);
 
-  --border-hairline: var(--gray-200);
-  --border-default:  var(--gray-300);
-  --border-strong:   var(--gray-400);
+  --border-hairline: var(--ui-border-hairline);
+  --border-default:  var(--ui-border);
+  --border-strong:   var(--ui-border-strong);
   --border-glass:    var(--glass-edge-light);
-  --separator:       rgba(0,0,0,0.07);
+  /* Was rgba(0,0,0,0.07). A translucent separator darkens over a tinted
+     row and disappears over a dark one; the hairline is opaque and
+     behaves the same everywhere. 29 call sites pick this up. */
+  --separator:       var(--ui-border-hairline);
 
   /* --accent is a FILL colour (white text sits on it). For accent-coloured
      text use --text-accent. */
-  --accent:        var(--brand-teal);
-  --accent-hover:  var(--brand-teal-700);
-  --accent-tint:   rgba(13,155,181,0.10);
-  --accent-tint-2: rgba(13,155,181,0.16);
-  --focus-ring:    rgba(13,155,181,0.35);
+  --accent:        var(--ui-accent);
+  --accent-hover:  var(--ui-accent-hover);
+  --accent-tint:   var(--ui-accent-tint);
+  --accent-tint-2: var(--ui-accent-tint-strong);
+  --focus-ring:    var(--ui-accent-tint-strong);
 
-  --success: var(--green);
-  --warning: var(--amber);
-  --danger:  var(--red);
-  --info:    var(--sky);
+  --success: var(--ui-success);
+  --warning: var(--ui-warning);
+  --danger:  var(--ui-danger);
+  --info:    var(--ui-info);
 
-  /* Radii */
-  --radius-xs:   6px;
-  --radius-sm:   10px;
-  --radius-md:   14px;
-  --radius-lg:   18px;
-  --radius-xl:   24px;
-  --radius-2xl:  32px;
-  --radius-pill: 999px;
-
-  /* Blur */
+  /* Blur — marketing only. */
   --glass-blur-sm: 12px;
   --glass-blur:    24px;
   --glass-blur-lg: 40px;
   --glass-saturate: 180%;
 
-  /* Shadows */
-  --shadow-xs:    0 1px 2px rgba(16,18,32,0.05);
-  --shadow-sm:    0 2px 6px rgba(16,18,32,0.06);
-  --shadow-md:    0 6px 18px rgba(16,18,32,0.08);
-  --shadow-lg:    0 16px 40px rgba(16,18,32,0.12);
-  --shadow-xl:    0 28px 70px rgba(16,18,32,0.18);
+  /* ---- Shadows --------------------------------------------
+     The app-facing stops alias to --ui-*, so a legacy modal casts the
+     same shadow as a migrated Dialog instead of a heavier one. The two
+     scales differed by about 30% in blur and spread, which is exactly
+     the kind of difference you feel as "these were built by different
+     people" without being able to name it.
+
+     --shadow-glass and --shadow-accent stay literal: they are the
+     marketing site's, and nothing in the app should use them. */
+  --shadow-xs:    var(--ui-shadow-sm);
+  --shadow-sm:    var(--ui-shadow-sm);
+  --shadow-md:    var(--ui-shadow-md);
+  --shadow-lg:    var(--ui-shadow-lg);
+  --shadow-xl:    var(--ui-shadow-lg);
   --shadow-glass: 0 10px 34px rgba(31,34,54,0.14), var(--glass-inner-glow);
   --shadow-accent: 0 6px 18px rgba(13,155,181,0.26);
 
-  /* Focus */
+  /* Focus — marketing only. The app uses --ui-focus-ring. */
   --ring-width: 3px;
   --ring: 0 0 0 var(--ring-width) var(--focus-ring);
 
-  /* Motion */
+  /* ---- Motion ---------------------------------------------
+     --dur-* is gone. It ran 140 / 240 / 400ms against the --ui-* layer's
+     100 / 160ms, so a legacy panel animated nearly twice as slowly as the
+     component next to it. In a data tool anything over ~200ms reads as
+     lag rather than polish. Use --ui-dur-fast / --ui-dur-base.
+
+     The easing curves stay: marketing.css uses them and a landing page
+     is allowed a springier curve than a table. */
   --ease-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
   --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
-  --dur-fast:  140ms;
-  --dur-base:  240ms;
-  --dur-slow:  400ms;
 
-  /* Z-index */
+  /* Z-index — aliased so a legacy modal can never sort above a
+     migrated toast. */
   --z-base:    0;
-  --z-sticky:  100;
-  --z-overlay: 1000;
-  --z-modal:   1100;
-  --z-toast:   1200;
+  --z-sticky:  var(--ui-z-sticky);
+  --z-overlay: var(--ui-z-overlay);
+  --z-modal:   var(--ui-z-modal);
+  --z-toast:   var(--ui-z-toast);
 }
 
 /* ============================================================
-   LIQUID GLASS MATERIALS
+   LIQUID GLASS MATERIALS — MARKETING SURFACE ONLY
+
+   These are used by src/marketing (ProductShowcase, Audiences,
+   Pricing, LiveDemo) where a glass panel over a gradient is the right
+   register for a landing page.
+
+   They must not be used in the app. Backdrop-blur panels with an
+   inner glow sitting next to flat hairline-bordered tables is two
+   visual eras on one screen, and it is a large part of why the
+   dashboard read as dated. The app's app-side users of .glass-chrome
+   have been replaced with solid bands.
    ============================================================ */
 .glass {
   background: var(--glass-regular);
@@ -310,6 +364,31 @@ table { font-variant-numeric: tabular-nums; }
   12%  { opacity: 1; }
   88%  { opacity: 1; }
   100% { top: calc(100% - 16px); opacity: 0; }
+}
+
+/* ============================================================
+   TOASTS
+   Top-centre stack. Enters by dropping in from above the viewport
+   edge, leaves by lifting back out — the motion reads as "this came
+   from the top bar", which is where the eye already is after a click.
+   ============================================================ */
+
+@keyframes sp-toast-in {
+  from { opacity: 0; transform: translateY(-14px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)     scale(1); }
+}
+
+@keyframes sp-toast-out {
+  from { opacity: 1; transform: translateY(0)    scale(1); }
+  to   { opacity: 0; transform: translateY(-8px) scale(0.97); }
+}
+
+.sp-toast-enter {
+  animation: sp-toast-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sp-toast-exit {
+  animation: sp-toast-out 140ms cubic-bezier(0.4, 0, 1, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

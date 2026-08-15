@@ -69,7 +69,7 @@ function TimelineRow({ event, isLast }) {
             {headline(event)}
           </span>
           <span
-            className="text-[11.5px] shrink-0 tabular-nums text-[var(--ui-text-tertiary)]"
+            className="text-[11px] shrink-0 tabular-nums text-[var(--ui-text-tertiary)]"
             title={absoluteTime(event.occurredAt)}
           >
             {relativeTime(event.occurredAt)}

@@ -22,7 +22,6 @@ export function PeopleFilterBar({
 
   return (
     <Toolbar
-      height={40}
       left={<Tabs tabs={tabs} activeTab={activeTab} onTabChange={onTabChange} ariaLabel="Connection degree" />}
       right={
         <>

@@ -3,6 +3,8 @@ import { getTransactions } from 'src/core/gateway/adminApi';
 import { AdminLayout } from 'src/admin/AdminLayout';
 import { DataTable } from 'src/components/DataTable';
 import { Dropdown } from 'src/common/components/Dropdown';
+import { useToast } from 'src/ui/primitives';
+import { getToastError, getApiErrorMessage } from 'src/common/utils/apiError';
 import { transactionColumns } from './transactionColumns.jsx';
 
 const TYPE_OPTIONS = [
@@ -13,6 +15,7 @@ const TYPE_OPTIONS = [
 ];
 
 export function AdminTransactionsPage() {
+  const toast = useToast();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -34,9 +37,11 @@ export function AdminTransactionsPage() {
         setPagination(result.data.pagination);
       } else {
         setError(result.message || 'Failed to load transactions');
+        toast.error(getToastError(result, "Couldn't load transactions"));
       }
     } catch (err) {
-      setError(err.message || 'An error occurred');
+      setError(getApiErrorMessage(err, 'Failed to load transactions'));
+      toast.error(getToastError(err, "Couldn't load transactions"));
     } finally {
       setLoading(false);
     }
@@ -49,7 +54,7 @@ export function AdminTransactionsPage() {
       <div className="space-y-6">
         {error && (
           <div
-            className="p-3 rounded-[12px] text-[13px] font-medium"
+            className="p-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium"
             style={{
               background: 'var(--red-tint)',
               color: 'var(--red)',
@@ -60,7 +65,7 @@ export function AdminTransactionsPage() {
           </div>
         )}
 
-        <div className="rounded-[16px] border border-[var(--border-hairline)] overflow-hidden shadow-sm">
+        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--border-hairline)] overflow-hidden shadow-sm">
           <DataTable
             columns={transactionColumns}
             data={transactions}

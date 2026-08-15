@@ -1,15 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from 'src/hooks/useAuth';
+import { useToast } from 'src/ui/primitives';
+import { getApiErrorMessage } from 'src/common/utils/apiError';
 import authController from 'src/core/controllers/authController';
 
 export function LinkedInCallbackPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { refetchUser } = useAuth();
+  const toast = useToast();
+
+  /* Kept alongside the toast: this page is otherwise a bare spinner, so if the
+     toast auto-dismisses during the 3s redirect the user would be staring at
+     "Completing LinkedIn Login" with no idea it had already failed. */
   const [error, setError] = useState('');
 
   useEffect(() => {
+    /* `detail` is for the inline strip; the toast gets fixed copy. Every path
+       into here already fails for the same user-visible reason. */
+    const fail = (detail) => {
+      setError(detail);
+      toast.error("Couldn't finish signing you in with LinkedIn");
+      setTimeout(() => navigate('/?auth=signin'), 3000);
+    };
+
     const handleCallback = async () => {
       try {
         // Get the authorization code from URL parameters
@@ -19,15 +34,13 @@ export function LinkedInCallbackPage() {
 
         // Check for errors from LinkedIn
         if (errorParam) {
-          setError(`LinkedIn login failed: ${errorParam}`);
-          setTimeout(() => navigate('/?auth=signin'), 3000);
+          fail(`LinkedIn login failed: ${errorParam}`);
           return;
         }
 
         // Check if we have the code
         if (!code) {
-          setError('No authorization code received from LinkedIn');
-          setTimeout(() => navigate('/?auth=signin'), 3000);
+          fail('No authorization code received from LinkedIn');
           return;
         }
 
@@ -37,21 +50,20 @@ export function LinkedInCallbackPage() {
         if (result && result.token && result.user) {
           // Refresh the auth context
           await refetchUser();
+          toast.success('Signed in with LinkedIn');
           // Redirect to dashboard
           navigate('/dashboard');
         } else {
-          setError('Failed to complete LinkedIn login');
-          setTimeout(() => navigate('/?auth=signin'), 3000);
+          fail('Failed to complete LinkedIn login');
         }
       } catch (err) {
         console.error('LinkedIn callback error:', err);
-        setError(err.message || 'LinkedIn login failed. Please try again.');
-        setTimeout(() => navigate('/?auth=signin'), 3000);
+        fail(getApiErrorMessage(err, 'LinkedIn login failed. Please try again.'));
       }
     };
 
     handleCallback();
-  }, [searchParams, navigate, refetchUser]);
+  }, [searchParams, navigate, refetchUser, toast]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-spurly-navy via-slate-900 to-spurly-navy flex items-center justify-center p-4">
@@ -61,13 +73,13 @@ export function LinkedInCallbackPage() {
             <div className="w-12 h-12 border-4 border-white/20 border-t-spurly-purple rounded-full animate-spin"></div>
           </div>
         </div>
-        <h1 className="text-3xl font-bold text-white mb-4">Completing LinkedIn Login</h1>
-        <p className="text-spurly-text-secondary text-lg">Please wait while we authenticate you...</p>
+        <h1 className="text-[24px] font-medium text-white mb-4">Completing LinkedIn Login</h1>
+        <p className="text-[var(--ui-text-secondary)] text-[14px]">Please wait while we authenticate you...</p>
 
         {error && (
-          <div className="mt-8 text-spurly-error text-center">
-            <p className="text-lg font-semibold mb-2">⚠️ {error}</p>
-            <p className="text-sm">Redirecting back to login page...</p>
+          <div className="mt-8 text-[var(--ui-danger-fg)] text-center">
+            <p className="text-[14px] font-medium mb-2">⚠️ {error}</p>
+            <p className="text-[12px]">Redirecting back to login page...</p>
           </div>
         )}
       </div>
