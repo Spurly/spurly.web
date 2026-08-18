@@ -4,7 +4,7 @@ import { useErrorToast } from 'src/ui/primitives';
 
 const EMPTY_SUMMARY = {
   total: 0,
-  statusCounts: { none: 0, invited: 0, messaged: 0, failed: 0 },
+  statusCounts: { none: 0, invited: 0, connected: 0, messaged: 0, failed: 0 },
   contacted: 0,
   needsAttention: 0,
   connectionBudget: { weekUsed: 0, dayUsed: 0, weeklyLimit: 0, weeklyRemaining: 0, resetsAt: null },

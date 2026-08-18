@@ -18,8 +18,8 @@ const TONE_MAP = {
   danger: 'danger',
 };
 
-export function OutreachStatusCell({ outreach }) {
-  const { label, tone, relative, title } = describeOutreach(outreach);
+export function OutreachStatusCell({ outreach, connectedAt }) {
+  const { label, tone, relative, title } = describeOutreach(outreach, { connectedAt });
   const isNone = (outreach?.status || 'none') === 'none';
 
   return (

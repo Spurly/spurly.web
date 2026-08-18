@@ -8,16 +8,25 @@
  */
 
 /**
- * Overall status meta.
+ * Overall status meta, in funnel order: none -> invited -> connected ->
+ * messaged. The pill shows the FURTHEST step reached, so 'messaged' outranks
+ * 'connected' — once you've DM'd someone, that they accepted is old news.
  *
- * Every status here describes something the USER did — nothing more. There is
- * deliberately no 'connected' or 'replied' state: the product never sees the
- * recipient's side of the interaction, so any such status would be a guess
- * dressed up as a fact.
+ * Four of the five describe something the USER did. 'connected' is the one
+ * exception, and it's earned: the connections sweep reads LinkedIn's own list
+ * of your connections, so a 1st-degree row is observed, not inferred from an
+ * invite going out. There is still no 'replied' state — the product never sees
+ * the recipient's side of a message, so that one would be a guess dressed up
+ * as a fact.
+ *
+ * 'connected' is the only success tone in the set. That's the point: it's the
+ * one row state that means something went right without further work from you,
+ * so green should be scannable down a long list.
  */
 export const OUTREACH_STATUS_META = {
   none: { label: 'Not contacted', tone: 'neutral', short: 'Not contacted' },
   invited: { label: 'Connection sent', tone: 'warning', short: 'Connection sent' },
+  connected: { label: 'Connected', tone: 'success', short: 'Connected' },
   messaged: { label: 'Message sent', tone: 'primary', short: 'Message sent' },
   failed: { label: 'Failed', tone: 'danger', short: 'Failed' },
 };
@@ -34,6 +43,7 @@ export const OUTREACH_FILTERS = [
   { id: 'all', label: 'All' },
   { id: 'none', label: 'Not contacted' },
   { id: 'invited', label: 'Connection sent' },
+  { id: 'connected', label: 'Connected' },
   { id: 'messaged', label: 'Message sent' },
 ];
 
@@ -94,9 +104,15 @@ export function absoluteTime(value) {
 
 /**
  * Build everything the status pill needs from a rollup.
+ *
+ * @param {Object} outreach - the Person.outreach rollup
+ * @param {Object} [person] - the surrounding row, for fields that live on the
+ *   Person rather than inside the rollup. `connectedAt` is the only one today:
+ *   it's written by the connections sweep next to `connectionDegree`, so a
+ *   'connected' pill has no date unless the caller passes the row through.
  * @returns {{ status, label, tone, when, title }}
  */
-export function describeOutreach(outreach) {
+export function describeOutreach(outreach, { connectedAt } = {}) {
   const status = outreach?.status || 'none';
   const meta = OUTREACH_STATUS_META[status] || OUTREACH_STATUS_META.none;
 
@@ -106,6 +122,10 @@ export function describeOutreach(outreach) {
   // Which date belongs next to this label.
   let when = null;
   if (status === 'messaged') when = message.lastSentAt;
+  // Acceptance date, not invite date — "Connected · 2d" answers "how fresh is
+  // this connection", which is what you act on. Falls back to the invite when
+  // LinkedIn's list had no readable "Connected on" line.
+  else if (status === 'connected') when = connectedAt || connection.lastSentAt;
   else if (status === 'invited') when = connection.lastSentAt;
 
   // "Message sent 2×" — the repeat count is the whole reason a single date
@@ -126,6 +146,10 @@ export function describeOutreach(outreach) {
         (message.lastSentAt ? ` · last ${absoluteTime(message.lastSentAt)}` : ''),
     );
   }
+  if (status === 'connected' && connectedAt) {
+    titleParts.push(`Connected ${absoluteTime(connectedAt)}`);
+  }
+
   const lastError = connection.lastError || message.lastError;
   if (status === 'failed' && lastError) titleParts.push(lastError);
 

@@ -53,7 +53,7 @@ export const peopleColumns = [
     key: "outreach",
     label: "Status",
     width: 168,
-    render: (value) => <OutreachStatusCell outreach={value} />,
+    render: (value, row) => <OutreachStatusCell outreach={value} connectedAt={row?.connectedAt} />,
   },
   {
     key: "title",

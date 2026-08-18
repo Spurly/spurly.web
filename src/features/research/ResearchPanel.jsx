@@ -183,6 +183,17 @@ export function ResearchPanel({ personId }) {
         </p>
       )}
 
+      {/* A degraded briefing searched the company only — it never looked this
+          person up. Without this line, the empty person fields below read as
+          "we searched and found nothing about them", which is a different and
+          much more discouraging fact than the true one. */}
+      {data.degraded && (
+        <p className="text-[12px] text-[var(--ui-text-tertiary)] leading-relaxed">
+          There was a lot to read about this company, so this is a shorter briefing covering the
+          company only. Refresh to try the full search again.
+        </p>
+      )}
+
       {data.companySummary && <Fact label="What they do" value={data.companySummary} />}
       {data.companyIndustry && <Fact label="Industry" value={data.companyIndustry} />}
 

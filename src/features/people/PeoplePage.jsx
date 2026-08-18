@@ -168,8 +168,13 @@ export function PeoplePage() {
     }
   };
 
-  const contactedCount =
-    (outreachSummary?.statusCounts?.invited || 0) + (outreachSummary?.statusCounts?.messaged || 0);
+  // Read the server's count rather than summing status buckets. Once 'connected'
+  // existed, invited+messaged undercounted: an invite that gets accepted moves
+  // out of `invited` into `connected`, so the headline number would have DROPPED
+  // as outreach succeeded. The backend counts `lastTouchedAt` instead, which is
+  // the actual question — did we ever reach this person — and is unaffected by
+  // where the status pill has since moved.
+  const contactedCount = outreachSummary?.contacted || 0;
 
   return (
     <DashboardLayout

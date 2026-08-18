@@ -109,7 +109,9 @@ export function LeadDetailSidebar({
         )}
 
         <div className="flex items-center gap-2 flex-wrap mt-3">
-          {showOutreach && <OutreachStatusCell outreach={lead.outreach} />}
+          {showOutreach && (
+            <OutreachStatusCell outreach={lead.outreach} connectedAt={lead.connectedAt} />
+          )}
           {lead.connectionDegree && (
             <Badge size="sm" tone="neutral">
               {lead.connectionDegree} degree
