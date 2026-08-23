@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from 'src/components/ProtectedRoute';
 import { AdminRoute } from 'src/components/AdminRoute';
+import { SubscribeGate } from 'src/components/SubscribeGate';
 import { PeoplePage } from 'src/features/people';
 import { UiPreview } from 'src/dev/UiPreview.jsx';
 import { ConnectionsPage } from 'src/features/connections';
@@ -13,12 +14,16 @@ import { AdminUsersPage } from 'src/features/admin/Users';
 import { AdminInsightsPage } from 'src/features/admin/Insights';
 import { AdminTransactionsPage } from 'src/features/admin/Transactions';
 import { AdminPricingPage } from 'src/features/admin/Pricing';
+import { AdminBillingPage } from 'src/features/admin/Billing';
+import { AdminPaymentsPage } from 'src/features/admin/Payments';
 
 import SignupPage from 'src/auth/SignupPage.jsx';
 import VerifyEmailPage from 'src/auth/VerifyEmailPage.jsx';
 import LoginPage from 'src/auth/LoginPage.jsx';
 import ForgotPasswordPage from 'src/auth/ForgotPasswordPage.jsx';
 import ResetPasswordPage from 'src/auth/ResetPasswordPage.jsx';
+import SubscribePage from 'src/auth/SubscribePage.jsx';
+import SubscribeCallbackPage from 'src/auth/SubscribeCallbackPage.jsx';
 import OnboardingSurveyPage from 'src/auth/OnboardingSurveyPage.jsx';
 import InstallExtensionPage from 'src/auth/InstallExtensionPage.jsx';
 
@@ -53,22 +58,31 @@ export function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/onboarding" element={<ProtectedRoute><OnboardingSurveyPage /></ProtectedRoute>} />
-      <Route path="/onboarding/install" element={<ProtectedRoute><InstallExtensionPage /></ProtectedRoute>} />
 
-      {/* Dashboard (protected).
+      {/* Mandatory paywall. Every account lands here right after signup
+          (VerifyEmailPage navigates here, not to /onboarding), and
+          SubscribeGate below sends anyone without an active subscription
+          back here from onboarding/install/dashboard. Protected by auth
+          only — NOT wrapped in SubscribeGate, since that would loop. */}
+      <Route path="/subscribe" element={<ProtectedRoute><SubscribePage /></ProtectedRoute>} />
+      <Route path="/subscribe/callback" element={<ProtectedRoute><SubscribeCallbackPage /></ProtectedRoute>} />
+
+      <Route path="/onboarding" element={<ProtectedRoute><SubscribeGate><OnboardingSurveyPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/onboarding/install" element={<ProtectedRoute><SubscribeGate><InstallExtensionPage /></SubscribeGate></ProtectedRoute>} />
+
+      {/* Dashboard (protected + requires an active subscription).
           People is the landing surface — there is no separate Home page. Login,
           password reset, onboarding, the LinkedIn callback and the marketing nav
           all send users to bare /dashboard, so it stays alive as a redirect
           rather than making all of those know about /dashboard/people. */}
       <Route path="/dashboard" element={<Navigate to="/dashboard/people" replace />} />
-      <Route path="/dashboard/people" element={<ProtectedRoute><PeoplePage /></ProtectedRoute>} />
-      <Route path="/dashboard/connections" element={<ProtectedRoute><ConnectionsPage /></ProtectedRoute>} />
-      <Route path="/dashboard/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
-      <Route path="/dashboard/campaigns/:campaignId" element={<ProtectedRoute><CampaignDetailPage /></ProtectedRoute>} />
-      <Route path="/dashboard/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
-      <Route path="/dashboard/enrich" element={<ProtectedRoute><EnrichPage /></ProtectedRoute>} />
-      <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+      <Route path="/dashboard/people" element={<ProtectedRoute><SubscribeGate><PeoplePage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/dashboard/connections" element={<ProtectedRoute><SubscribeGate><ConnectionsPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/dashboard/campaigns" element={<ProtectedRoute><SubscribeGate><CampaignsPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/dashboard/campaigns/:campaignId" element={<ProtectedRoute><SubscribeGate><CampaignDetailPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/dashboard/templates" element={<ProtectedRoute><SubscribeGate><TemplatesPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/dashboard/enrich" element={<ProtectedRoute><SubscribeGate><EnrichPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/dashboard/settings" element={<ProtectedRoute><SubscribeGate><SettingsPage /></SubscribeGate></ProtectedRoute>} />
 
       {/* Legacy /leads paths — kept permanently so existing bookmarks and any
           extension deep links keep working after the rename to /people. The
@@ -89,6 +103,8 @@ export function AppRoutes() {
       <Route path="/admin/insights" element={<AdminRoute><AdminInsightsPage /></AdminRoute>} />
       <Route path="/admin/transactions" element={<AdminRoute><AdminTransactionsPage /></AdminRoute>} />
       <Route path="/admin/pricing" element={<AdminRoute><AdminPricingPage /></AdminRoute>} />
+      <Route path="/admin/payments" element={<AdminRoute><AdminPaymentsPage /></AdminRoute>} />
+      <Route path="/admin/billing" element={<AdminRoute><AdminBillingPage /></AdminRoute>} />
 
       {/* Every primitive in every state, on one page. Dev only — the route
           isn't registered in a production build, so it can't be reached and

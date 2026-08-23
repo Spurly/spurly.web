@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Users, TrendingUp, DollarSign, ArrowLeft, BarChart3 } from 'lucide-react';
+import { Users, TrendingUp, DollarSign, ArrowLeft, BarChart3, Ticket, CreditCard } from 'lucide-react';
 import { DashboardLayout } from 'src/components/DashboardLayout';
 import './admin.css';
 
@@ -8,6 +8,8 @@ const tabs = [
   { label: 'Insights', icon: BarChart3, href: '/admin/insights' },
   { label: 'Transactions', icon: TrendingUp, href: '/admin/transactions' },
   { label: 'Pricing', icon: DollarSign, href: '/admin/pricing' },
+  { label: 'Payments', icon: CreditCard, href: '/admin/payments' },
+  { label: 'Billing', icon: Ticket, href: '/admin/billing' },
 ];
 
 /**

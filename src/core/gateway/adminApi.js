@@ -138,3 +138,81 @@ export async function assignUserPlan(userId, planId) {
   const res = await apiGateway.post(`/admin/users/${userId}/plan`, { planId });
   return res.data;
 }
+
+/**
+ * Promo Codes
+ *
+ * Eligibility and price computation deliberately live server-side in
+ * features/subscriptions — these endpoints only manage the code definitions.
+ * `redemptions` and `totalDiscountGiven` come back on the list so a
+ * campaign's real cost is visible without a second query.
+ */
+export async function getPromoCodes() {
+  const res = await apiGateway.get('/admin/promo-codes');
+  return res.data;
+}
+
+export async function createPromoCode(promo) {
+  const res = await apiGateway.post('/admin/promo-codes', promo);
+  return res.data;
+}
+
+export async function updatePromoCode(promoId, updates) {
+  const res = await apiGateway.put(`/admin/promo-codes/${promoId}`, updates);
+  return res.data;
+}
+
+/**
+ * Delete a promo code. The server refuses (409) for any code that has been
+ * redeemed — deleting one would orphan the redemption ledger and destroy the
+ * record of discounts already given. Redeemed codes are disabled instead.
+ */
+export async function deletePromoCode(promoId) {
+  const res = await apiGateway.delete(`/admin/promo-codes/${promoId}`);
+  return res.data;
+}
+
+/**
+ * Billing Exemptions — comped accounts (internal, founders, special clients).
+ *
+ * A comp is a flag on the account, never a fabricated payment, so these never
+ * touch payment history and never affect revenue reporting.
+ */
+export async function getBillingExemptions() {
+  const res = await apiGateway.get('/admin/billing-exemptions');
+  return res.data;
+}
+
+export async function grantBillingExemption({ email, reason, until }) {
+  const res = await apiGateway.post('/admin/billing-exemptions', { email, reason, until });
+  return res.data;
+}
+
+export async function revokeBillingExemption(email) {
+  const res = await apiGateway.delete('/admin/billing-exemptions', { data: { email } });
+  return res.data;
+}
+
+/**
+ * Payments (read-only).
+ *
+ * There is deliberately no create/update/delete here — a payment records
+ * money that moved, and an admin screen able to rewrite one is a screen able
+ * to quietly falsify revenue. Refunds happen in Cashfree; free access is
+ * granted through billing exemptions.
+ *
+ * Returns { payments, pagination, summary }.
+ */
+export async function getPayments({ limit = 50, skip = 0, status = null, search = null } = {}) {
+  const params = new URLSearchParams({ limit: String(limit), skip: String(skip) });
+  if (status) params.set('status', status);
+  if (search) params.set('search', search);
+  const res = await apiGateway.get(`/admin/payments?${params.toString()}`);
+  return res.data;
+}
+
+/** One account's billing history. Returns { payments }. */
+export async function getUserPayments(userId) {
+  const res = await apiGateway.get(`/admin/users/${userId}/payments`);
+  return res.data;
+}
