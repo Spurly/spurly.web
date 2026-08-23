@@ -8,8 +8,10 @@ import { AuthShell, FeaturesAside } from './AuthShell.jsx';
 /**
  * Step 1b — Verify your email.
  * Reached only after the signup form requests an OTP (email passed via router
- * state). Enters the 6-digit code, creates the account, signs in, and continues
- * to the onboarding survey. A direct hit with no email bounces back to /signup.
+ * state). Enters the 6-digit code, creates the account, signs in, and sends
+ * the brand-new account straight to the mandatory subscribe screen — there is
+ * no product access before the first payment succeeds, so onboarding waits
+ * until after /subscribe. A direct hit with no email bounces back to /signup.
  */
 export default function VerifyEmailPage() {
   const navigate = useNavigate();
@@ -40,7 +42,7 @@ export default function VerifyEmailPage() {
     try {
       await verifySignupOtp({ email, code: code.trim() });
       toast.success('Account created', { description: 'Welcome to Spurly.' });
-      navigate('/onboarding', { replace: true });
+      navigate('/subscribe', { replace: true });
     } catch (err) {
       toast.error(getToastError(err, "That code didn't work. Check it and try again."));
     } finally {

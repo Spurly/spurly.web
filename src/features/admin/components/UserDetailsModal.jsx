@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Loader } from 'lucide-react';
-import { getUserDetails } from 'src/core/gateway/adminApi';
-import { useToast } from 'src/ui/primitives';
+import { getUserDetails, getUserPayments } from 'src/core/gateway/adminApi';
+import { Badge, useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/common/utils/apiError';
 
 /**
@@ -38,6 +38,11 @@ const LABELS = {
   onboardingComplete: 'Onboarding Complete',
   creditBalance: 'Credit Balance',
   planId: 'Plan',
+  billingExempt: 'Comped (no payment required)',
+  billingExemptReason: 'Comp reason',
+  billingExemptUntil: 'Comped until',
+  billingExemptAt: 'Comped at',
+  billingExemptBy: 'Comped by',
   isAdmin: 'Admin',
   referralCode: 'Referral Code',
   referredBy: 'Referred By',
@@ -109,10 +114,85 @@ function renderValue(key, value) {
   return <span>{formatScalar(key, value)}</span>;
 }
 
+const rupees = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
+
+const shortDate = (d) =>
+  d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' }) : '—';
+
+/**
+ * This account's payment history, surfaced above the raw field dump because
+ * it's the usual reason for opening a user record — "have they paid, and can
+ * they use the product right now?" is faster to answer here than by scanning
+ * fields.
+ *
+ * Read-only, like every other payment view: money that moved is a record of
+ * fact, not something an admin screen should be able to rewrite.
+ */
+function BillingHistory({ payments, loading }) {
+  const now = Date.now();
+
+  return (
+    <div className="mb-5">
+      <h3 className="mb-2 text-[12px] font-medium uppercase tracking-wider text-[var(--ui-text-secondary)]">
+        Billing history
+      </h3>
+
+      {loading ? (
+        <div className="flex items-center gap-2 py-3 text-[12px] text-[var(--ui-text-tertiary)]">
+          <Loader size={14} className="animate-spin" />
+          Loading payments…
+        </div>
+      ) : !payments.length ? (
+        <p className="rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] px-3 py-2.5 text-[12px] text-[var(--ui-text-secondary)]">
+          No payments. If this account has access, it's either comped or has never subscribed.
+        </p>
+      ) : (
+        <div className="divide-y divide-[var(--ui-border-hairline)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)]">
+          {payments.map((p) => {
+            const live = p.status === 'paid' && p.periodEnd && new Date(p.periodEnd).getTime() > now;
+            return (
+              <div key={p._id} className="flex items-center justify-between gap-3 px-3 py-2.5">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] font-medium tabular-nums text-[var(--ui-text-primary)]">
+                      {rupees(p.amount)}
+                    </span>
+                    {p.appliedPromoCode && (
+                      <code className="rounded-[var(--ui-radius-xs)] bg-[var(--ui-surface-sunken)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--ui-text-secondary)]">
+                        {p.appliedPromoCode}
+                      </code>
+                    )}
+                  </div>
+                  <div className="mt-0.5 truncate text-[11px] text-[var(--ui-text-secondary)]">
+                    {shortDate(p.createdAt)}
+                    {p.status === 'paid' && p.periodEnd ? ` · access until ${shortDate(p.periodEnd)}` : ''}
+                    {p.failureReason ? ` · ${p.failureReason}` : ''}
+                  </div>
+                </div>
+                <div className="shrink-0">
+                  {p.status === 'paid' ? (
+                    live ? <Badge size="sm" tone="success">Active</Badge> : <Badge size="sm">Expired</Badge>
+                  ) : p.status === 'failed' ? (
+                    <Badge size="sm" tone="danger">Failed</Badge>
+                  ) : (
+                    <Badge size="sm" tone="info">Pending</Badge>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function UserDetailsModal({ user, onClose }) {
   const toast = useToast();
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [payments, setPayments] = useState([]);
+  const [paymentsLoading, setPaymentsLoading] = useState(true);
   /* Kept inline as well: this modal has nothing else in it, so a dismissed
      toast would leave a blank dialog. */
   const [error, setError] = useState('');
@@ -144,6 +224,27 @@ export default function UserDetailsModal({ user, onClose }) {
       active = false;
     };
   }, [user._id, toast]);
+
+  // Fetched separately from the user record: a payments hiccup shouldn't
+  // blank out the whole modal, and vice versa.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      setPaymentsLoading(true);
+      try {
+        const result = await getUserPayments(user._id);
+        if (active && result.success) setPayments(result.data?.payments || []);
+      } catch (err) {
+        // Non-fatal — the section renders its own empty state.
+        console.error('[Admin] Could not load payments for user:', err?.message);
+      } finally {
+        if (active) setPaymentsLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [user._id]);
 
   const entries = details
     ? Object.entries(details).filter(([k]) => !HIDDEN_KEYS.has(k))
@@ -184,6 +285,10 @@ export default function UserDetailsModal({ user, onClose }) {
             <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[12px]">
               {error}
             </div>
+          )}
+
+          {!loading && !error && (
+            <BillingHistory payments={payments} loading={paymentsLoading} />
           )}
 
           {!loading && !error && details && (

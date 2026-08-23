@@ -13,6 +13,35 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
+/**
+ * Routes a signed-out visitor is legitimately allowed to sit on. A 401 from
+ * any OTHER route means the session is gone and we must bounce to /login.
+ *
+ * This is deliberately an allowlist of PUBLIC paths rather than a list of
+ * protected ones. The previous version listed only /dashboard and
+ * /onboarding, which silently omitted /subscribe — so an expired token on
+ * the paywall cleared localStorage, skipped the redirect, and left the page
+ * rendering as if still signed in (with every API call 401ing behind it).
+ * Any protected route added in future is covered by default now.
+ */
+const PUBLIC_PATH_PREFIXES = [
+  '/login',
+  '/signup',
+  '/forgot-password',
+  '/reset-password',
+  '/privacy',
+  '/terms',
+  '/support',
+  '/blog',
+];
+
+function isPublicPath(path) {
+  // Exact "/" is the marketing home — public. Every other path starts with
+  // "/" too, so this must be an equality check, not a prefix check.
+  if (path === '/') return true;
+  return PUBLIC_PATH_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+}
+
 class ApiGateway {
   constructor() {
     this.client = axios.create({
@@ -37,15 +66,25 @@ class ApiGateway {
     this.client.interceptors.response.use(
       (response) => response,
       (error) => {
-        // Handle 401 - clear auth and bounce to the sign-in page, but only from
-        // inside the dashboard or onboarding flow. Public marketing routes must
-        // never be redirected by a stray probe.
+        // Handle 401 — the session is gone (expired, revoked, or never
+        // existed). Clear it and bounce to sign-in from anywhere that isn't
+        // a public page.
         if (error.response?.status === 401) {
           localStorage.removeItem('authToken');
           localStorage.removeItem('user');
+
           const path = window.location.pathname;
-          if (path.startsWith('/dashboard') || path.startsWith('/onboarding')) {
-            window.location.href = '/login';
+          if (!isPublicPath(path)) {
+            // A full-page navigation, not a react-router push, is
+            // deliberate: AuthContext holds `user` in React state, and
+            // clearing localStorage alone leaves that stale state behind
+            // (which is what let the paywall keep rendering a signed-in UI
+            // after the token was wiped). A hard load rebuilds every
+            // provider from scratch.
+            //
+            // replace() rather than href so the back button doesn't return
+            // to the broken, half-authenticated screen.
+            window.location.replace('/login?expired=1');
           }
         }
 

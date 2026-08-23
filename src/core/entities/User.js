@@ -8,6 +8,7 @@ export class User {
     this._id = data._id;
     this.name = data.name;
     this.email = data.email;
+    this.phone = data.phone || '';
     this.linkedinProfile = data.linkedinProfile;
     this.profilePicture = data.profilePicture;
     this.companyName = data.companyName;
@@ -36,6 +37,7 @@ export class User {
       _id: this._id,
       name: this.name,
       email: this.email,
+      phone: this.phone,
       linkedinProfile: this.linkedinProfile,
       profilePicture: this.profilePicture,
       companyName: this.companyName,
