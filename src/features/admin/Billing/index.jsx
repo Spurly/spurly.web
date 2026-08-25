@@ -8,6 +8,7 @@ import {
   getBillingExemptions,
   grantBillingExemption,
   revokeBillingExemption,
+  getAllUsers,
 } from 'src/core/gateway/adminApi';
 import { AdminLayout } from 'src/admin/AdminLayout';
 import { Button, Badge, useToast } from 'src/ui/primitives';
@@ -329,6 +330,37 @@ function ExemptionForm({ onCancel, onGranted }) {
   const [until, setUntil] = useState('');
   const [saving, setSaving] = useState(false);
 
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [usersError, setUsersError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setUsersLoading(true);
+      setUsersError('');
+      try {
+        // 100 is the server's max page size for this endpoint. A dropdown
+        // beyond that would need real search-as-you-type, which this screen
+        // doesn't need yet — comping accounts is a rare, deliberate action.
+        const result = await getAllUsers(100, 0);
+        if (cancelled) return;
+        if (result.success) {
+          setUsers(result.data.users || []);
+        } else {
+          setUsersError(result.message || 'Failed to load users');
+        }
+      } catch (err) {
+        if (!cancelled) setUsersError(getApiErrorMessage(err, 'Failed to load users'));
+      } finally {
+        if (!cancelled) setUsersLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   async function submit(e) {
     e.preventDefault();
     setSaving(true);
@@ -363,15 +395,31 @@ function ExemptionForm({ onCancel, onGranted }) {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div>
           <label className={label} htmlFor="ex-email">Account email</label>
-          <input
+          <select
             id="ex-email"
-            type="email"
             className={field}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="founders@getspurly.com"
             required
-          />
+            disabled={usersLoading || !!usersError}
+          >
+            <option value="" disabled>
+              {usersLoading
+                ? 'Loading users…'
+                : usersError
+                ? 'Couldn’t load users'
+                : 'Select an account'}
+            </option>
+            {users.map((u) => (
+              <option key={u._id} value={u.email}>
+                {u.email}
+                {u.name ? ` — ${u.name}` : ''}
+              </option>
+            ))}
+          </select>
+          {usersError && (
+            <p className="mt-1 text-[12px] text-[var(--ui-text-warning,#9a5b08)]">{usersError}</p>
+          )}
         </div>
         <div>
           <label className={label} htmlFor="ex-reason">Reason</label>
