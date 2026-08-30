@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Download, Send } from 'lucide-react';
 import { DashboardLayout } from 'src/components/DashboardLayout';
@@ -7,6 +7,7 @@ import { Button, useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/common/utils/apiError';
 import { LeadDetailSidebar } from 'src/components/LeadDetailSidebar';
 import { useAllProfiles } from 'src/hooks/useAllProfiles';
+import { patchEntity } from 'src/core/entities/patchEntity.js';
 import { useMetrics } from 'src/hooks/useMetrics';
 import { useOutreachSummary } from 'src/hooks/useOutreachSummary';
 import capturedLeadsController from 'src/core/controllers/capturedLeadsController';
@@ -52,6 +53,7 @@ export function PeoplePage() {
     fetchAllProfiles,
     goToPage,
     setPageSize,
+    patchProfile,
     currentPage,
   } = useAllProfiles();
 
@@ -204,6 +206,28 @@ export function PeoplePage() {
     }
   };
 
+  /**
+   * A note was saved from the drawer.
+   *
+   * Patched locally in both places rather than refetched. A refetch would be a
+   * round-trip on every autosave, and — because the list is server-sorted and
+   * server-paged — it could reorder or re-page rows out from under a drawer the
+   * user is still typing in.
+   *
+   * `selectedPerson` is patched too so that closing and reopening the row shows
+   * the saved note. It does NOT reset the editor mid-edit: `NotesEditor` reads
+   * its initial value once and is keyed on the person id.
+   */
+  const handleNotesSaved = useCallback(
+    (personId, notes) => {
+      patchProfile(personId, { notes });
+      setSelectedPerson((prev) =>
+        prev && prev._id === personId ? patchEntity(prev, { notes }) : prev,
+      );
+    },
+    [patchProfile],
+  );
+
   // Read the server's count rather than summing status buckets. Once 'connected'
   // existed, invited+messaged undercounted: an invite that gets accepted moves
   // out of `invited` into `connected`, so the headline number would have DROPPED
@@ -301,7 +325,11 @@ export function PeoplePage() {
         />
 
         {selectedPerson && (
-          <LeadDetailSidebar lead={selectedPerson} onClose={() => setSelectedPerson(null)} />
+          <LeadDetailSidebar
+            lead={selectedPerson}
+            onClose={() => setSelectedPerson(null)}
+            onNotesSaved={handleNotesSaved}
+          />
         )}
       </div>
     </DashboardLayout>

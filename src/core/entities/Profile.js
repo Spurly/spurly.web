@@ -54,6 +54,10 @@ export class Profile {
     // When LinkedIn says you connected, per its "Connected on <date>" line.
     // Present on connections; null on leads who aren't confirmed connections.
     this.connectedAt = data.connectedAt ?? null;
+    /* The user's own note about this person. The one field on the row a human
+       wrote rather than a scrape, so it is never touched by a re-capture —
+       it moves only through PATCH /people/:id/notes. */
+    this.notes = data.notes ?? '';
     // Outreach rollup derived server-side from the OutreachEvent log. Always
     // present in shape so the table can render a pill without null-checking.
     this.outreach = normalizeOutreach(data.outreach);

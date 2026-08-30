@@ -66,6 +66,16 @@ class PeopleApi {
     return response.data;
   }
 
+  /**
+   * Save the user's free-text note on one person.
+   * PATCH /people/:personId/notes  Body: { notes }  ("" clears it)
+   * Returns the envelope; `data.notes` is the STORED (trimmed) value.
+   */
+  async updateNotes(personId, notes) {
+    const response = await apiGateway.patch(`/people/${personId}/notes`, { notes });
+    return response.data;
+  }
+
   /** Delete a single person. DELETE /people/:personId */
   async deletePerson(personId) {
     const response = await apiGateway.delete(`/people/${personId}`);

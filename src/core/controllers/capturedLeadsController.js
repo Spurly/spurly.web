@@ -53,6 +53,27 @@ class CapturedLeadsController {
   }
 
   /**
+   * Save the user's note on one person.
+   *
+   * Resolves to the value the SERVER stored, not the value we sent: the
+   * backend trims, so echoing our own input back into the table would leave the
+   * row showing something a reload would contradict.
+   *
+   * @param {string} personId
+   * @param {string} notes - '' clears the note.
+   * @returns {Promise<string>} the stored note
+   */
+  async updateNotes(personId, notes) {
+    if (!personId) throw new Error('personId is required');
+
+    const res = await peopleApi.updateNotes(personId, notes ?? '');
+    if (!res?.success) {
+      throw new Error(res?.message || 'Failed to save notes');
+    }
+    return res.data?.notes ?? '';
+  }
+
+  /**
    * Recent captures = the newest rows of the flat list (no "latest session"
    * concept anymore). Server already sorts People by createdAt desc.
    */

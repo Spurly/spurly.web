@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import capturedLeadsController from 'src/core/controllers/capturedLeadsController.js';
+import { patchEntity } from 'src/core/entities/patchEntity.js';
 import { useErrorToast } from 'src/ui/primitives';
 
 export function useAllProfiles() {
@@ -60,6 +61,31 @@ export function useAllProfiles() {
     fetchAllProfiles({ ...lastOptionsRef.current, limit: newLimit, skip: 0 });
   }, [fetchAllProfiles]);
 
+  /**
+   * Patch one already-loaded row in place, without a refetch.
+   *
+   * For edits the user makes FROM this page (today: notes). Refetching instead
+   * would be a round-trip that can reorder or re-page the list under the
+   * cursor, and would fight the drawer the user is still typing in.
+   *
+   * Rows are `Profile` class instances, so the copy goes through
+   * `patchEntity` rather than a spread — see the note there.
+   */
+  const patchProfile = useCallback((id, patch) => {
+    if (!id || !patch) return;
+    setProfiles((prev) => {
+      let changed = false;
+      const next = prev.map((row) => {
+        if (row?._id !== id) return row;
+        changed = true;
+        return patchEntity(row, patch);
+      });
+      // Same array back when nothing matched, so an edit to a row that has
+      // since been paged away doesn't re-render the table for no reason.
+      return changed ? next : prev;
+    });
+  }, []);
+
   const refresh = useCallback(() => {
     fetchAllProfiles({ ...lastOptionsRef.current, skip: 0 });
   }, [fetchAllProfiles]);
@@ -78,6 +104,7 @@ export function useAllProfiles() {
     fetchAllProfiles,
     goToPage,
     setPageSize,
+    patchProfile,
     refresh,
     currentPage: Math.floor(pagination.skip / pagination.limit) + 1,
     totalPages: pagination.pages || Math.ceil(pagination.total / pagination.limit),

@@ -11,6 +11,7 @@ import {
 } from "src/components/DataTable";
 import { degreeLabel, degreeTitle } from "src/common/utils/connectionDegree";
 import { OutreachStatusCell } from "./cells/OutreachStatusCell";
+import { NotesCell } from "./cells/NotesCell";
 
 /**
  * Column definitions for the People table.
@@ -64,6 +65,18 @@ export const peopleColumns = [
     label: "Status",
     width: 168,
     render: (value, row) => <OutreachStatusCell outreach={value} connectedAt={row?.connectedAt} />,
+  },
+  // Notes sit right after Status, not at the far right with the enrichment
+  // columns. Everything to the right of this is scraped from LinkedIn; a note
+  // is the one thing on the row the USER wrote, so it is worth a column you can
+  // see without scrolling. Narrow on purpose — the full note is one hover away
+  // (Cell puts it on `title`) and one click away in the drawer.
+  {
+    key: "notes",
+    label: "Notes",
+    width: 200,
+    title: (row) => row.notes || undefined,
+    render: (value) => <NotesCell value={value} />,
   },
   {
     key: "title",

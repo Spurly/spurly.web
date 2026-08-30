@@ -9,6 +9,7 @@ import { absoluteTime } from 'src/common/utils/outreach';
 import { countryCodeFromLocation, countryNameFromCode, flagUrl } from 'src/common/utils/location';
 import { useProfilePhoto } from 'src/common/utils/profilePhoto';
 import { resolveTabs } from './personDetailTabs';
+import { NotesEditor } from './NotesEditor';
 import {
   Section,
   ContactRow,
@@ -43,7 +44,7 @@ function languageLabels(list = []) {
 }
 
 /** Everything about the person themselves. The landing tab. */
-function OverviewPanel({ lead }) {
+function OverviewPanel({ lead, onNotesSaved }) {
   const skills = names(lead.skills);
   const languages = languageLabels(lead.languages);
   const facts = [
@@ -56,8 +57,38 @@ function OverviewPanel({ lead }) {
   const enriched =
     lead.headline || lead.about || lead.experiences?.length || lead.education?.length || skills.length;
 
+  /* Notes are editable only when the caller handed us a save handler. The
+     Connections drawer doesn't: a Connection's _id belongs to the `connections`
+     collection, and the notes endpoint resolves ids against People, so an edit
+     there would 404. */
+  const canEditNotes = Boolean(onNotesSaved && lead._id);
+
   return (
     <>
+      {/* First block in the panel on purpose. Everything below is scraped from
+          LinkedIn; this is the only part the user writes, and it is what they
+          opened the row to add. */}
+      {canEditNotes ? (
+        <Section title="Notes">
+          <NotesEditor
+            /* Keyed so picking another row remounts with that person's note
+               instead of carrying the previous one's text over. */
+            key={lead._id}
+            personId={lead._id}
+            notes={lead.notes}
+            onSaved={onNotesSaved}
+          />
+        </Section>
+      ) : (
+        lead.notes && (
+          <Section title="Notes">
+            <p className="text-[13px] text-[var(--ui-text-secondary)] leading-relaxed whitespace-pre-line">
+              {lead.notes}
+            </p>
+          </Section>
+        )
+      )}
+
       {lead.headline && (
         <Section title="Headline">
           <p className="text-[13px] text-[var(--ui-text-secondary)] leading-relaxed">
@@ -223,8 +254,12 @@ function ActivityPanel({ lead }) {
  *   person-only tabs. Must be false for a Connection: outreach is a People-only
  *   concept and both endpoints resolve `personId` against the People
  *   collection, so passing a Connection's id would 404.
+ * @param {(personId: string, notes: string) => void} [onNotesSaved] Called
+ *   after a note is written. Its presence is also what makes the Notes block
+ *   EDITABLE — omit it (as the Connections table does) and the note is
+ *   read-only, for the same collection-mismatch reason as `showOutreach`.
  */
-export function LeadDetailSidebar({ lead, onClose, showOutreach = true }) {
+export function LeadDetailSidebar({ lead, onClose, showOutreach = true, onNotesSaved = null }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   const tabs = useMemo(
@@ -328,7 +363,7 @@ export function LeadDetailSidebar({ lead, onClose, showOutreach = true }) {
         <Tabs tabs={tabs} activeTab={current} onTabChange={setActiveTab} ariaLabel="Person details" />
       </div>
 
-      {current === 'overview' && <OverviewPanel lead={lead} />}
+      {current === 'overview' && <OverviewPanel lead={lead} onNotesSaved={onNotesSaved} />}
       {current === 'contact' && <ContactPanel lead={lead} />}
       {current === 'research' &&
         (lead._id ? (
