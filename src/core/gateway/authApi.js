@@ -199,6 +199,44 @@ class AuthApi {
   }
 
   /**
+   * Save the user's column order for one table.
+   * PUT /auth/preferences/tables/:tableId
+   * @param {string}   tableId     stable table id, e.g. "people"
+   * @param {string[]} columnOrder column keys in display order
+   * @returns {Promise<User>} The updated user
+   */
+  async saveTableColumnOrder(tableId, columnOrder) {
+    try {
+      const response = await apiGateway.put(
+        `/auth/preferences/tables/${encodeURIComponent(tableId)}`,
+        { columnOrder }
+      );
+      const userData = response.data?.data;
+      return userData ? User.fromResponse(userData) : null;
+    } catch (error) {
+      throw this._handleError(error);
+    }
+  }
+
+  /**
+   * Reset one table back to its default column order.
+   * DELETE /auth/preferences/tables/:tableId
+   * @param {string} tableId
+   * @returns {Promise<User>} The updated user
+   */
+  async resetTableColumnOrder(tableId) {
+    try {
+      const response = await apiGateway.delete(
+        `/auth/preferences/tables/${encodeURIComponent(tableId)}`
+      );
+      const userData = response.data?.data;
+      return userData ? User.fromResponse(userData) : null;
+    } catch (error) {
+      throw this._handleError(error);
+    }
+  }
+
+  /**
    * Get LinkedIn OAuth request URL
    * GET /auth/linkedin/request
    * @returns {Promise<string>} - Redirect URL

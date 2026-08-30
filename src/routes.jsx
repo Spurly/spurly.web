@@ -9,7 +9,7 @@ import { CampaignsPage } from 'src/features/campaigns';
 import { CampaignDetailPage } from 'src/features/campaigns/CampaignDetailPage.jsx';
 import { TemplatesPage } from 'src/features/templates';
 import { SettingsPage } from 'src/features/settings';
-import { EnrichPage } from 'src/features/enrich';
+import { ImportPage } from 'src/features/import';
 import { AdminUsersPage } from 'src/features/admin/Users';
 import { AdminInsightsPage } from 'src/features/admin/Insights';
 import { AdminTransactionsPage } from 'src/features/admin/Transactions';
@@ -81,7 +81,7 @@ export function AppRoutes() {
       <Route path="/dashboard/campaigns" element={<ProtectedRoute><SubscribeGate><CampaignsPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/campaigns/:campaignId" element={<ProtectedRoute><SubscribeGate><CampaignDetailPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/templates" element={<ProtectedRoute><SubscribeGate><TemplatesPage /></SubscribeGate></ProtectedRoute>} />
-      <Route path="/dashboard/enrich" element={<ProtectedRoute><SubscribeGate><EnrichPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/dashboard/import" element={<ProtectedRoute><SubscribeGate><ImportPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/settings" element={<ProtectedRoute><SubscribeGate><SettingsPage /></SubscribeGate></ProtectedRoute>} />
 
       {/* Legacy /leads paths — kept permanently so existing bookmarks and any
@@ -92,10 +92,11 @@ export function AppRoutes() {
       <Route path="/dashboard/leads/:leadId" element={<Navigate to="/dashboard/people" replace />} />
       <Route path="/dashboard/people/:leadId" element={<Navigate to="/dashboard/people" replace />} />
 
-      {/* Legacy /import path — same reasoning as /leads above. The page was
-          renamed to Enrich because importing is just how leads arrive; the
-          enrichment step is what the page is for. */}
-      <Route path="/dashboard/import" element={<Navigate to="/dashboard/enrich" replace />} />
+      {/* Legacy /enrich path — same reasoning as /leads above. The page was
+          briefly called Enrich; it is named Import again because importing is
+          what the user comes here to do, and enriching is one action they take
+          on the rows once they have arrived. */}
+      <Route path="/dashboard/enrich" element={<Navigate to="/dashboard/import" replace />} />
 
       {/* Admin console (admin-only; backend also enforces via adminMiddleware) */}
       <Route path="/admin" element={<Navigate to="/admin/users" replace />} />

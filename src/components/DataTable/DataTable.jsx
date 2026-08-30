@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useDataTable } from './useDataTable';
+import { applyColumnOrder } from './columnOrder';
 import { Colgroup, Header, Body, TableToolbar, Pagination } from './parts';
 import { DEFAULT_DENSITY } from 'src/ui/tokens';
 
@@ -29,11 +30,23 @@ const SELECTION_WIDTH = 40;
  *   wrap?      boolean                    two lines instead of one, still clamped
  *   title?     (row) => string            hover text; defaults to the raw value
  *   headerClassName? / cellClassName?
+ *   locked?    boolean                    excluded from drag-to-reorder; keeps
+ *                                         its position in the definition array
+ *
+ * COLUMN REORDERING
+ *   Pass `reorderable` to let the user drag a header into a new position. The
+ *   resulting key order is handed to `onColumnOrderChange` - the caller owns
+ *   persistence (see useTableColumnOrder for the server-backed version). With
+ *   `reorderable` but no handler the table keeps the order in local state,
+ *   which is enough for a preview or a throwaway table.
  */
 export function DataTable({
   columns = [],
   data = [],
   rowKey = (row) => row._id ?? row.id,
+  reorderable = false,
+  columnOrder,
+  onColumnOrderChange,
   density = DEFAULT_DENSITY,
   loading = false,
   error = null,
@@ -53,15 +66,33 @@ export function DataTable({
 }) {
   const table = useDataTable({ data, rowKey, selectedKeys, onSelectionChange, sort, onSortChange });
 
+  /* Order is controlled when the caller passes `columnOrder`; otherwise the
+     table remembers it for the life of the mount. */
+  const [internalOrder, setInternalOrder] = useState(null);
+  const activeOrder = columnOrder ?? internalOrder;
+
+  const orderedColumns = useMemo(
+    () => (reorderable ? applyColumnOrder(columns, activeOrder) : columns),
+    [reorderable, columns, activeOrder],
+  );
+
+  const handleReorder = useCallback(
+    (nextKeys) => {
+      if (columnOrder == null) setInternalOrder(nextKeys);
+      onColumnOrderChange?.(nextKeys);
+    },
+    [columnOrder, onColumnOrderChange],
+  );
+
   const totalWidth = useMemo(
     () =>
-      columns.reduce((sum, col) => sum + (Number(col.width) || 160), 0) +
+      orderedColumns.reduce((sum, col) => sum + (Number(col.width) || 160), 0) +
       (selectable ? SELECTION_WIDTH : 0),
-    [columns, selectable],
+    [orderedColumns, selectable],
   );
 
   if (import.meta.env?.DEV) {
-    const missing = columns.filter((c) => !c.width).map((c) => c.key);
+    const missing = orderedColumns.filter((c) => !c.width).map((c) => c.key);
     if (missing.length) {
       console.warn(
         `[DataTable] Columns without an explicit width fall back to 160px under ` +
@@ -70,7 +101,7 @@ export function DataTable({
     }
   }
 
-  const colCount = columns.length + (selectable ? 1 : 0);
+  const colCount = orderedColumns.length + (selectable ? 1 : 0);
 
   /**
    * Lift the toolbar once rows pass under it.
@@ -122,9 +153,13 @@ export function DataTable({
             borderSpacing: 0,
           }}
         >
-          <Colgroup columns={columns} selectable={selectable} selectionWidth={SELECTION_WIDTH} />
+          <Colgroup
+            columns={orderedColumns}
+            selectable={selectable}
+            selectionWidth={SELECTION_WIDTH}
+          />
           <Header
-            columns={columns}
+            columns={orderedColumns}
             selectable={selectable}
             sort={table.sort}
             onSort={table.requestSort}
@@ -133,10 +168,12 @@ export function DataTable({
             onToggleAll={table.toggleAll}
             density={density}
             sticky={stickyHeader}
+            reorderable={reorderable}
+            onReorder={handleReorder}
           />
           <Body
             data={data}
-            columns={columns}
+            columns={orderedColumns}
             rowKey={rowKey}
             density={density}
             selectable={selectable}

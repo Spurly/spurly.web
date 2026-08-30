@@ -6,7 +6,7 @@ import {
   LogOut,
   Settings,
   Users,
-  Sparkles,
+  Upload,
   Shield,
   Send,
   FileText,
@@ -31,7 +31,7 @@ const NAV_SECTIONS = [
       // The user's own LinkedIn network — a roster, separate from the Contacts
       // outreach pipeline. See spurly.backend/src/features/connections.
       { label: 'Connections', icon: Network, href: '/dashboard/connections' },
-      { label: 'Enrich', icon: Sparkles, href: '/dashboard/enrich' },
+      { label: 'Import', icon: Upload, href: '/dashboard/import' },
     ],
   },
   {

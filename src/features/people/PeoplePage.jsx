@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, Send } from 'lucide-react';
+import { Download, Send, RotateCcw } from 'lucide-react';
 import { DashboardLayout } from 'src/components/DashboardLayout';
 import { DataTable } from 'src/components/DataTable';
 import { Button, useToast } from 'src/ui/primitives';
@@ -10,6 +10,7 @@ import { useAllProfiles } from 'src/hooks/useAllProfiles';
 import { patchEntity } from 'src/core/entities/patchEntity.js';
 import { useMetrics } from 'src/hooks/useMetrics';
 import { useOutreachSummary } from 'src/hooks/useOutreachSummary';
+import { useTableColumnOrder } from 'src/hooks/useTableColumnOrder';
 import capturedLeadsController from 'src/core/controllers/capturedLeadsController';
 import { exportProfilesAsCSV } from 'src/common/utils/csvExport';
 import { peopleColumns } from './columns.jsx';
@@ -228,6 +229,16 @@ export function PeoplePage() {
     [patchProfile],
   );
 
+  /* Column order is per-user and saved server-side, so it survives a reload
+     and follows the user to another machine. The two identity columns are
+     marked `locked` in the definition and never move. */
+  const {
+    columnOrder,
+    onColumnOrderChange,
+    resetColumnOrder,
+    isCustomized: hasCustomColumnOrder,
+  } = useTableColumnOrder('people', peopleColumns);
+
   // Read the server's count rather than summing status buckets. Once 'connected'
   // existed, invited+messaged undercounted: an invite that gets accepted moves
   // out of `invited` into `connected`, so the headline number would have DROPPED
@@ -254,6 +265,9 @@ export function PeoplePage() {
         <DataTable
           columns={peopleColumns}
           data={profiles}
+          reorderable
+          columnOrder={columnOrder}
+          onColumnOrderChange={onColumnOrderChange}
           rowKey={(row) => row._id}
           density="default"
           loading={loading}
@@ -303,16 +317,29 @@ export function PeoplePage() {
               />
             ),
             actions: (
-              <Button
-                size="sm"
-                variant="ghost"
-                leadingIcon={<Download size={13} />}
-                onClick={handleExport}
-                loading={isExporting}
-                disabled={selectedPeople.size === 0 && pagination.total === 0}
-              >
-                {selectedPeople.size > 0 ? `Export ${selectedPeople.size}` : 'Export'}
-              </Button>
+              <>
+                {hasCustomColumnOrder && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    leadingIcon={<RotateCcw size={13} />}
+                    onClick={resetColumnOrder}
+                    title="Put the columns back in their default order"
+                  >
+                    Reset columns
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  leadingIcon={<Download size={13} />}
+                  onClick={handleExport}
+                  loading={isExporting}
+                  disabled={selectedPeople.size === 0 && pagination.total === 0}
+                >
+                  {selectedPeople.size > 0 ? `Export ${selectedPeople.size}` : 'Export'}
+                </Button>
+              </>
             ),
           }}
           pagination={{

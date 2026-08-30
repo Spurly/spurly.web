@@ -6,17 +6,20 @@ import { UploadPanel } from './UploadPanel.jsx';
 import { StagingPanel } from './StagingPanel.jsx';
 
 /**
- * Enrich page.
+ * Import page.
  *
- * Named for the step that matters: importing a CSV is just how leads get here,
- * enrichment is what the page is for.
+ * Named for what the user comes here to do. It was briefly called "Enrich" on
+ * the argument that enrichment is the step that matters — but enriching is one
+ * ACTION taken on rows that are already here (alongside promoting and
+ * deleting), while importing is the reason to open the page at all. The old
+ * /dashboard/enrich URL still redirects here.
  *
  * Two steps, two tabs. A CSV lands in STAGING (free), gets enriched by the
  * extension visiting each profile, and only then moves into People — where the
  * capture charge and daily limit apply. Staging is a real collection, not a
  * preview, so a half-enriched import survives a page reload or a closed tab.
  */
-export function EnrichPage() {
+export function ImportPage() {
   const [activeTab, setActiveTab] = useState('staged');
   const store = useImportedLeads();
 
@@ -38,7 +41,7 @@ export function EnrichPage() {
 
   return (
     <DashboardLayout
-      title="Enrich"
+      title="Import"
       subtitle="Import a CSV, enrich the leads, then move them into Contacts."
     >
       <div className="flex flex-col h-full overflow-hidden">

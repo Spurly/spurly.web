@@ -1,33 +1,55 @@
-import { useState, useRef, useCallback } from 'react';
-import { UploadCloud, FileText, AlertCircle, CheckCircle, X, ArrowRight } from 'lucide-react';
+import { useState, useRef, useCallback, useMemo } from 'react';
+import { UploadCloud, FileText, AlertCircle, CheckCircle, X, ArrowRight, SlidersHorizontal } from 'lucide-react';
 import { DataTable } from 'src/components/DataTable';
 import { Button, useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/common/utils/apiError';
-import { validateAndExtractProfiles } from 'src/common/utils/csvImport.js';
+import {
+  analyzeCsv,
+  extractProfiles,
+  normalizeMapping,
+  validateMapping,
+  autoDetectMapping,
+  UNMAPPED,
+  MAX_IMPORT_ROWS,
+} from 'src/common/utils/csvImport.js';
+import { applyRememberedMapping, saveMapping } from './mappingMemory.js';
 import importController from 'src/core/controllers/importController.js';
-import { previewColumns } from './columns.jsx';
+import { FieldMappingPanel } from './FieldMappingPanel.jsx';
+import { buildPreviewColumns } from './columns.jsx';
 
 /**
  * CSV upload step of the Import page.
  *
- * Parses and previews a file, then stages it. Staging is free and reversible,
- * so there's no confirmation friction here — the review that matters happens
- * in the staging table afterwards, once rows have been enriched.
+ * Three stages, in one panel:
+ *
+ *   1. `upload`  — drop a file. Only a truly unreadable file errors here.
+ *   2. `map`     — confirm which column feeds which Spurly field. Headers no
+ *                  longer have to be named `profileurl` / `name`; a mismatch
+ *                  is a dropdown to change, not an error to go fix in Excel.
+ *   3. `preview` — see the rows exactly as they'll be staged, then import.
+ *
+ * Staging is free and reversible, so there's no confirmation friction beyond
+ * this — the review that matters happens in the staging table afterwards, once
+ * rows have been enriched.
  */
 export function UploadPanel({ onStaged }) {
   const fileInputRef = useRef(null);
   const toast = useToast();
 
+  const [step, setStep] = useState('upload'); // 'upload' | 'map' | 'preview'
   const [fileName, setFileName] = useState('');
-  const [parsed, setParsed] = useState(null); // { profiles, skippedCount }
+  const [analysis, setAnalysis] = useState(null); // { headers, rows, sampleValues }
+  const [mapping, setMapping] = useState(null); // { field: columnIndex }
   const [error, setError] = useState(null); // { title, detail, columns? }
   const [dragActive, setDragActive] = useState(false);
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState(null); // { savedCount, failedCount, totalCount }
 
   const resetAll = useCallback(() => {
+    setStep('upload');
     setFileName('');
-    setParsed(null);
+    setAnalysis(null);
+    setMapping(null);
     setError(null);
     setSaving(false);
     setResult(null);
@@ -45,8 +67,10 @@ export function UploadPanel({ onStaged }) {
       file.type === 'application/vnd.ms-excel' ||
       /\.csv$/i.test(file.name);
     if (!isCsv) {
-      setParsed(null);
+      setAnalysis(null);
+      setMapping(null);
       setFileName('');
+      setStep('upload');
       setError({
         title: 'That doesn’t look like a CSV',
         detail: 'Please choose a comma-separated .csv file and try again.',
@@ -57,18 +81,28 @@ export function UploadPanel({ onStaged }) {
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result;
-      const outcome = validateAndExtractProfiles(text);
+      const outcome = analyzeCsv(text);
       if (!outcome.ok) {
-        setParsed(null);
+        setAnalysis(null);
+        setMapping(null);
         setFileName(file.name);
+        setStep('upload');
         setError(outcome.error);
         return;
       }
       setFileName(file.name);
-      setParsed({ profiles: outcome.profiles, skippedCount: outcome.skippedCount });
+      setAnalysis({
+        headers: outcome.headers,
+        rows: outcome.rows,
+        sampleValues: outcome.sampleValues,
+      });
+      setMapping(applyRememberedMapping(outcome.headers, outcome.mapping));
+      setStep('map');
     };
     reader.onerror = () => {
-      setParsed(null);
+      setAnalysis(null);
+      setMapping(null);
+      setStep('upload');
       setError({
         title: "Couldn't read the file",
         detail: 'Something went wrong reading the file. Please try again.',
@@ -85,13 +119,41 @@ export function UploadPanel({ onStaged }) {
     handleFile(e.dataTransfer.files?.[0]);
   };
 
+  // Rows shaped by the CURRENT mapping. Recomputed rather than stored so the
+  // preview can never show one mapping's output while another is selected.
+  const extracted = useMemo(() => {
+    if (!analysis || !mapping) return null;
+    if (!validateMapping(mapping).ok) return null;
+    return extractProfiles(analysis.rows, mapping);
+  }, [analysis, mapping]);
+
+  const mappedKeys = useMemo(
+    () =>
+      mapping
+        ? Object.keys(mapping).filter((key) => mapping[key] !== UNMAPPED)
+        : [],
+    [mapping],
+  );
+  const previewColumns = useMemo(() => buildPreviewColumns(mappedKeys), [mappedKeys]);
+
+  const handleContinueFromMapping = () => {
+    if (!analysis || !mapping) return;
+    const clean = normalizeMapping(mapping, analysis.headers.length);
+    if (!validateMapping(clean).ok) return;
+    saveMapping(analysis.headers, clean);
+    setMapping(clean);
+    setError(null);
+    setStep('preview');
+  };
+
   const handleSave = async () => {
-    if (!parsed || saving) return;
+    if (!extracted || extracted.profiles.length === 0 || saving) return;
+    if (extracted.profiles.length > MAX_IMPORT_ROWS) return;
     setSaving(true);
     setError(null);
     try {
       const res = await importController.importProfiles({
-        profiles: parsed.profiles,
+        profiles: extracted.profiles,
         sourceFile: fileName,
       });
       setResult(res);
@@ -115,7 +177,18 @@ export function UploadPanel({ onStaged }) {
     }
   };
 
-  const profileCount = parsed?.profiles.length ?? 0;
+  const profileCount = extracted?.profiles.length ?? 0;
+  const overLimit = profileCount > MAX_IMPORT_ROWS;
+
+  /** Human summary of the rows the current mapping drops. */
+  const skipSummary = useMemo(() => {
+    if (!extracted) return '';
+    const parts = [];
+    if (extracted.skippedNoUrl) parts.push(`${extracted.skippedNoUrl} with no URL`);
+    if (extracted.skippedBadUrl) parts.push(`${extracted.skippedBadUrl} with an unusable LinkedIn URL`);
+    if (extracted.skippedNoName) parts.push(`${extracted.skippedNoName} with no name`);
+    return parts.join(', ');
+  }, [extracted]);
 
   // ── Success ────────────────────────────────────────────────────────────
   if (result) {
@@ -213,8 +286,8 @@ export function UploadPanel({ onStaged }) {
         </div>
       )}
 
-      {/* Upload zone */}
-      {!parsed && (
+      {/* ── Step 1: pick a file ─────────────────────────────────────────── */}
+      {step === 'upload' && (
         <>
           <label
             onDragOver={(e) => {
@@ -247,8 +320,7 @@ export function UploadPanel({ onStaged }) {
                 Drop a CSV here, or <span style={{ color: 'var(--brand-purple)' }}>browse</span>
               </p>
               <p className="text-[13px] text-[var(--text-secondary)] mt-1">
-                Your file must include <code className="font-mono">profileurl</code> and{' '}
-                <code className="font-mono">name</code> columns.
+                Any column names work — you’ll match them to Spurly fields in the next step.
               </p>
             </div>
           </label>
@@ -257,22 +329,42 @@ export function UploadPanel({ onStaged }) {
             className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
             style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}
           >
-            <FileText size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--text-tertiary)' }} />
+            <SlidersHorizontal size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--text-tertiary)' }} />
             <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
-              <span className="font-medium text-[var(--text-primary)]">Expected format:</span> a
-              header row with lowercase columns. <code className="font-mono">profileurl</code> and{' '}
-              <code className="font-mono">name</code> are required;{' '}
-              <code className="font-mono">title</code>, <code className="font-mono">company</code>,{' '}
-              <code className="font-mono">location</code>, and{' '}
-              <code className="font-mono">headline</code> are imported when present. A CSV exported
-              from Spurly is directly re-importable.
+              <span className="font-medium text-[var(--text-primary)]">Field mapping:</span> your
+              file needs a LinkedIn profile URL and a name — but they can be called anything
+              (“Person Linkedin Url”, “Full Name”, separate first/last name columns). We match the
+              headers we recognise automatically and you confirm or change them before importing.{' '}
+              <span className="font-medium text-[var(--text-primary)]">Job title</span>,{' '}
+              <span className="font-medium text-[var(--text-primary)]">company</span>,{' '}
+              <span className="font-medium text-[var(--text-primary)]">location</span>,{' '}
+              <span className="font-medium text-[var(--text-primary)]">headline</span>,{' '}
+              <span className="font-medium text-[var(--text-primary)]">email</span>,{' '}
+              <span className="font-medium text-[var(--text-primary)]">phone</span> and{' '}
+              <span className="font-medium text-[var(--text-primary)]">website</span> are imported
+              when you map them. A CSV exported from Spurly maps itself.
             </div>
           </div>
         </>
       )}
 
-      {/* Parsed preview + save */}
-      {parsed && (
+      {/* ── Step 2: map columns ─────────────────────────────────────────── */}
+      {step === 'map' && analysis && mapping && (
+        <FieldMappingPanel
+          headers={analysis.headers}
+          sampleValues={analysis.sampleValues}
+          mapping={mapping}
+          rowCount={analysis.rows.length}
+          fileName={fileName}
+          onChange={setMapping}
+          onBack={resetAll}
+          onContinue={handleContinueFromMapping}
+          onReset={() => setMapping(autoDetectMapping(analysis.headers))}
+        />
+      )}
+
+      {/* ── Step 3: preview + import ────────────────────────────────────── */}
+      {step === 'preview' && extracted && (
         <>
           <div
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-[var(--ui-pad-lg)] py-4 rounded-[var(--ui-radius-lg)]"
@@ -287,10 +379,14 @@ export function UploadPanel({ onStaged }) {
               </span>
             </p>
             <div className="flex items-center gap-2 shrink-0">
-              <Button variant="ghost" onClick={resetAll} disabled={saving}>
-                Choose different file
+              <Button variant="ghost" onClick={() => setStep('map')} disabled={saving}>
+                Edit mapping
               </Button>
-              <Button variant="primary" onClick={handleSave} disabled={saving}>
+              <Button
+                variant="primary"
+                onClick={handleSave}
+                disabled={saving || profileCount === 0 || overLimit}
+              >
                 {saving ? 'Importing…' : `Import ${profileCount} lead${profileCount === 1 ? '' : 's'}`}
               </Button>
             </div>
@@ -302,19 +398,56 @@ export function UploadPanel({ onStaged }) {
               <span className="font-medium text-[var(--text-primary)]">{fileName}</span>
               {' · '}
               {profileCount} valid lead{profileCount === 1 ? '' : 's'}
-              {parsed.skippedCount > 0 && (
+              {skipSummary && (
                 <span style={{ color: 'var(--text-tertiary)' }}>
                   {' · '}
-                  {parsed.skippedCount} skipped (missing URL or name)
+                  skipped {skipSummary}
                 </span>
               )}
             </span>
           </div>
 
+          {overLimit && (
+            <div
+              className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
+              style={{ background: 'var(--red-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
+            >
+              <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--red)' }} />
+              <div className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+                <p className="font-medium" style={{ color: 'var(--red)' }}>
+                  This file is too big for one import
+                </p>
+                <p className="mt-0.5">
+                  {profileCount.toLocaleString()} rows — the limit is{' '}
+                  {MAX_IMPORT_ROWS.toLocaleString()} per import. Split the file and import each
+                  part; your column mapping is remembered, so the next one is one click.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {profileCount === 0 && (
+            <div
+              className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
+              style={{ background: 'var(--red-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
+            >
+              <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--red)' }} />
+              <div className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+                <p className="font-medium" style={{ color: 'var(--red)' }}>
+                  No rows can be imported with this mapping
+                </p>
+                <p className="mt-0.5">
+                  Every row was skipped ({skipSummary}). Go back and check that the LinkedIn URL and
+                  name columns point at the right data.
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="rounded-[var(--ui-radius-lg)] overflow-hidden" style={{ border: '1px solid var(--border-hairline)' }}>
             <DataTable
               columns={previewColumns}
-              data={parsed.profiles}
+              data={extracted.profiles}
               rowKey={(row) => row._id}
               emptyMessage="No leads to preview"
               maxHeight="52vh"

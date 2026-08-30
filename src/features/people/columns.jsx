@@ -16,6 +16,11 @@ import { NotesCell } from "./cells/NotesCell";
 /**
  * Column definitions for the People table.
  *
+ * Order here is the DEFAULT. Users can drag headers into any arrangement they
+ * like and it is saved to their account (see useTableColumnOrder), so this
+ * array is the starting point, not the guarantee - the only positions that
+ * hold are the two `locked` identity columns.
+ *
  * Every column carries an explicit width. Under `table-layout: fixed` these are
  * binding, so a long headline can no longer widen its column or grow its row —
  * it truncates with the full value on hover. When the total exceeds the
@@ -26,6 +31,10 @@ export const peopleColumns = [
     key: "linkedInUrl",
     label: <LinkedInIcon size={14} aria-label="LinkedIn" />,
     width: 44,
+    /* Pinned. These two answer "which row am I looking at" - once they can be
+       pushed to the right of a horizontal scroll, every other column loses its
+       subject. */
+    locked: true,
     align: "center",
     render: (value) => (
       <LinkCell
@@ -39,6 +48,7 @@ export const peopleColumns = [
     key: "name",
     label: "Name",
     width: 200,
+    locked: true,
     sortable: true,
     title: (row) => row.name,
     render: (value, row) => (

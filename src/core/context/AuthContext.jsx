@@ -192,6 +192,26 @@ export function AuthProvider({ children }) {
     }
   };
 
+  /**
+   * Persist a table's column order.
+   *
+   * Deliberately does NOT touch `loading`: this fires from a drag gesture, and
+   * flipping the global auth loading flag would blank the shell the user is
+   * dragging in. The caller keeps the new order on screen optimistically; this
+   * only reconciles the stored user afterwards.
+   */
+  const saveTableColumnOrder = async (tableId, columnOrder) => {
+    const updatedUser = await authController.saveTableColumnOrder(tableId, columnOrder);
+    if (updatedUser) setUser(updatedUser);
+    return updatedUser;
+  };
+
+  const resetTableColumnOrder = async (tableId) => {
+    const updatedUser = await authController.resetTableColumnOrder(tableId);
+    if (updatedUser) setUser(updatedUser);
+    return updatedUser;
+  };
+
   const refetchUser = async () => {
     try {
       const freshUser = await authController.fetchCurrentUser();
@@ -221,6 +241,8 @@ export function AuthProvider({ children }) {
         getGoogleAuthUrl,
         logout,
         updateProfile,
+        saveTableColumnOrder,
+        resetTableColumnOrder,
         refetchUser,
         isAuthenticated: authController.isAuthenticated(),
       }}

@@ -21,6 +21,10 @@ export class User {
     this.monthlyActivity = data.monthlyActivity;
     this.linkedinPlan = data.linkedinPlan;
     this.companyWebsite = data.companyWebsite;
+    /* Per-table UI preferences, keyed by table id: { people: { columnOrder } }.
+       Arrives with /auth/me, so a saved column order is already in hand on the
+       first render of a table - no second request, no visible reshuffle. */
+    this.tablePreferences = data.tablePreferences || {};
     this.onboardingComplete = data.onboardingComplete ?? false;
     this.isAdmin = data.isAdmin ?? false;
     this.tier = data.tier || 'free';
@@ -51,6 +55,7 @@ export class User {
       monthlyActivity: this.monthlyActivity,
       linkedinPlan: this.linkedinPlan,
       companyWebsite: this.companyWebsite,
+      tablePreferences: this.tablePreferences,
       onboardingComplete: this.onboardingComplete,
       isAdmin: this.isAdmin,
       tier: this.tier,

@@ -240,6 +240,37 @@ class AuthController {
   }
 
   /**
+   * Save the user's column order for one table.
+   * @param {string}   tableId
+   * @param {string[]} columnOrder
+   * @returns {Promise<User>}
+   */
+  async saveTableColumnOrder(tableId, columnOrder) {
+    const user = await authApi.saveTableColumnOrder(tableId, columnOrder);
+
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user.toJSON()));
+    }
+
+    return user;
+  }
+
+  /**
+   * Reset one table back to its default column order.
+   * @param {string} tableId
+   * @returns {Promise<User>}
+   */
+  async resetTableColumnOrder(tableId) {
+    const user = await authApi.resetTableColumnOrder(tableId);
+
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user.toJSON()));
+    }
+
+    return user;
+  }
+
+  /**
    * Get LinkedIn OAuth redirect URL
    * @returns {Promise<string>}
    */
