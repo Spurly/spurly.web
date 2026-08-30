@@ -39,7 +39,7 @@ export function EnrichPage() {
   return (
     <DashboardLayout
       title="Enrich"
-      subtitle="Import a CSV, enrich the leads, then move them into People."
+      subtitle="Import a CSV, enrich the leads, then move them into Contacts."
     >
       <div className="flex flex-col h-full overflow-hidden">
         <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />

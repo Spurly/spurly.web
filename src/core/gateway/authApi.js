@@ -134,7 +134,7 @@ class AuthApi {
   /**
    * Complete the onboarding survey ("Tell us about you" step).
    * POST /auth/onboarding
-   * @param {Object} data - { role, teamSizeRange, primaryGoal, monthlyActivity, companyName, companyWebsite? }
+   * @param {Object} data - { role, teamSizeRange, primaryGoal, monthlyActivity, companyName, linkedinPlan?, companyWebsite? }
    * @returns {Promise<User>} The updated user
    */
   async completeOnboarding(data) {

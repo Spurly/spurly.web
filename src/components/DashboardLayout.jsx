@@ -27,8 +27,8 @@ const NAV_SECTIONS = [
   {
     label: 'Prospect',
     items: [
-      { label: 'People', icon: Users, href: '/dashboard/people' },
-      // The user's own LinkedIn network — a roster, separate from the People
+      { label: 'Contacts', icon: Users, href: '/dashboard/people' },
+      // The user's own LinkedIn network — a roster, separate from the Contacts
       // outreach pipeline. See spurly.backend/src/features/connections.
       { label: 'Connections', icon: Network, href: '/dashboard/connections' },
       { label: 'Enrich', icon: Sparkles, href: '/dashboard/enrich' },

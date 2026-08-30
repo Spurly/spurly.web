@@ -148,7 +148,7 @@ export function UploadPanel({ onStaged }) {
           </p>
           <p className="text-[13px] text-[var(--text-tertiary)] mt-2 max-w-sm">
             Next: enrich them to pull in emails, headlines and experience — then move
-            the ones you want into People.
+            the ones you want into Contacts.
           </p>
         </div>
         <div className="flex items-center gap-2.5 mt-1">
@@ -283,7 +283,7 @@ export function UploadPanel({ onStaged }) {
               <span className="font-medium text-[var(--text-primary)]">{profileCount}</span> lead
               {profileCount === 1 ? '' : 's'}.{' '}
               <span style={{ color: 'var(--text-tertiary)' }}>
-                Importing is free — you’re only charged when you enrich or move them to People.
+                Importing is free — you’re only charged when you enrich or move them to Contacts.
               </span>
             </p>
             <div className="flex items-center gap-2 shrink-0">

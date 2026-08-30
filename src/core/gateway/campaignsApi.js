@@ -7,8 +7,13 @@ import apiGateway from 'src/core/gateway/apiGateway.js';
  */
 class CampaignsApi {
   /** Create a campaign from selected people. POST /campaigns */
-  async create({ name, personIds, excludeContacted = false }) {
-    const res = await apiGateway.post('/campaigns', { name, personIds, excludeContacted });
+  async create({ name, timeZone, personIds, excludeContacted = false }) {
+    const res = await apiGateway.post('/campaigns', {
+      name,
+      timeZone,
+      personIds,
+      excludeContacted,
+    });
     return res.data;
   }
 
@@ -20,9 +25,16 @@ class CampaignsApi {
    * ids, and has no actionType to choose — everyone on the connections page is
    * already connected, so a connection request would skip every row.
    */
-  async createFromConnections({ name, connectionIds, messageSubject = '', messageBody = '' }) {
+  async createFromConnections({
+    name,
+    timeZone,
+    connectionIds,
+    messageSubject = '',
+    messageBody = '',
+  }) {
     const res = await apiGateway.post('/campaigns/from-connections', {
       name,
+      timeZone,
       connectionIds,
       messageSubject,
       messageBody,

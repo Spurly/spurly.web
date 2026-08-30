@@ -15,6 +15,8 @@ export function Overlay({
   onClose,
   children,
   labelledBy,
+  /** Accessible name for an overlay with no visible title to point at. */
+  label,
   describedBy,
   closeOnEscape = true,
   closeOnBackdrop = true,
@@ -67,6 +69,7 @@ export function Overlay({
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelledBy}
+        aria-label={labelledBy ? undefined : label}
         aria-describedby={describedBy}
         tabIndex={-1}
         style={panelStyle}

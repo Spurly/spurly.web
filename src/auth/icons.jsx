@@ -52,6 +52,9 @@ export const BuildingIcon = ({ s }) => (
 export const GlobeIcon = ({ s }) => (
   <svg {...base(s)}><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z" /></svg>
 );
+export const LinkedInIcon = ({ s }) => (
+  <svg {...base(s)} fill="currentColor" stroke="none"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4v11H3v-11zm7 0h3.8v1.5a4.2 4.2 0 0 1 3.7-2c3 0 4.5 1.9 4.5 5.3v6.2h-4v-5.6c0-1.5-.5-2.5-1.9-2.5-1 0-1.7.7-2 1.4-.1.3-.1.7-.1 1v5.7h-4v-11z" /></svg>
+);
 export const GiftIcon = ({ s }) => (
   <svg {...base(s)}><rect x="3" y="9" width="18" height="11" rx="1.5" /><path d="M3 13h18M12 9v11" /><path d="M12 9S10.5 5 8.5 5a2 2 0 0 0 0 4H12zM12 9s1.5-4 3.5-4a2 2 0 0 1 0 4H12z" /></svg>
 );

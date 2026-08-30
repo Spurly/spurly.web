@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { RefreshCw, AlertTriangle, X, Download, MessageSquare } from "lucide-react";
 import { Button, IconButton, useToast } from "src/ui/primitives";
 import { getToastError } from "src/common/utils/apiError";
 import { DashboardLayout } from "src/components/DashboardLayout";
 import { DataTable } from "src/components/DataTable";
 import { LeadDetailSidebar } from "src/components/LeadDetailSidebar";
-import { CreateMessageCampaignModal } from "./components/CreateMessageCampaignModal.jsx";
+import campaignsController from "src/core/controllers/campaignsController.js";
 import { useConnections } from "src/hooks/useConnections";
 import { useConnectionsSync } from "src/hooks/useConnectionsSync";
 import connectionsController from "src/core/controllers/connectionsController";
@@ -56,12 +57,14 @@ function SyncFailure({ result, onDismiss }) {
  * from People (see spurly.backend/src/features/connections).
  *
  * Intentionally simpler than the People page: no outreach status chips, no
- * campaign creation, no send budget. These are people you already know, not
- * leads in a pipeline — the page exists to answer "who is in my network",
- * so the only interactions are search, sort and export.
+ * send budget. These are people you already know, not leads in a pipeline —
+ * the page mostly answers "who is in my network". The one action it offers is
+ * a MESSAGE campaign from a selection, which creates immediately and opens the
+ * campaign page; there is no dialog in between.
  */
 export function ConnectionsPage() {
   const toast = useToast();
+  const navigate = useNavigate();
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [selectedConnection, setSelectedConnection] = useState(null);
   const [creatingCampaign, setCreatingCampaign] = useState(false);
@@ -162,6 +165,48 @@ export function ConnectionsPage() {
     return () => clearTimeout(timer);
   }, [searchQuery, fetchConnections]);
 
+  /**
+   * "Message N" — creates the message campaign and opens it. No dialog.
+   *
+   * Always a MESSAGE campaign; the server enforces that, since everyone here is
+   * already a 1st-degree connection and a connection request would skip every
+   * row. The message itself is written on the campaign page (AI writer, token
+   * chips, per-recipient preview all live there), which is why this navigates
+   * rather than confirming and staying put.
+   */
+  const handleCreateCampaign = async () => {
+    if (creatingCampaign || selectedRows.size === 0) return;
+
+    setCreatingCampaign(true);
+    try {
+      const { campaign, memberCount, skipped } =
+        await campaignsController.createCampaignFromConnections({
+          connectionIds: [...selectedRows],
+        });
+      setSelectedRows(new Set());
+
+      // Say plainly when rows were dropped. A campaign quietly holding fewer
+      // people than were selected is discovered days later, after wondering
+      // why half the list was never messaged.
+      if (skipped > 0) {
+        toast.warning(
+          `Campaign created with ${memberCount} — ${skipped} skipped (missing or malformed profile URL)`,
+        );
+      } else {
+        toast.success(
+          `Campaign created with ${memberCount} connection${memberCount === 1 ? '' : 's'}`,
+        );
+      }
+      navigate(`/dashboard/campaigns/${campaign._id}`);
+    } catch (e) {
+      console.error("[Connections] Create campaign error:", e);
+      // The selection survives a failure, so the user can just click again.
+      toast.error(getToastError(e, "Couldn't create the campaign"));
+    } finally {
+      setCreatingCampaign(false);
+    }
+  };
+
   // A third click on the same header clears the sort (direction: null), which
   // drops back to the server default of newest-captured-first.
   const handleSortChange = (next) => {
@@ -248,7 +293,9 @@ export function ConnectionsPage() {
                     <Button
                       size="sm"
                       leadingIcon={<MessageSquare size={13} />}
-                      onClick={() => setCreatingCampaign(true)}
+                      onClick={handleCreateCampaign}
+                      loading={creatingCampaign}
+                      disabled={creatingCampaign}
                     >
                       Message {selectedRows.size}
                     </Button>
@@ -293,20 +340,11 @@ export function ConnectionsPage() {
             outreach suppressed. A connection has no outreach state, and the
             timeline resolves personId against the People collection, so passing
             a Connection id would 404. */}
-        {creatingCampaign && (
-          <CreateMessageCampaignModal
-            connectionIds={[...selectedRows]}
-            onClose={() => setCreatingCampaign(false)}
-            onSuccess={() => setSelectedRows(new Set())}
-          />
-        )}
-
         {selectedConnection && (
           <LeadDetailSidebar
             lead={selectedConnection}
             onClose={() => setSelectedConnection(null)}
             showOutreach={false}
-            heading="Connection"
           />
         )}
       </div>

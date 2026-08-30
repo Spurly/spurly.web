@@ -12,6 +12,7 @@ import {
   TrendIcon,
   BuildingIcon,
   GlobeIcon,
+  LinkedInIcon,
   StarIcon,
   SendIcon,
   ChartIcon,
@@ -49,6 +50,19 @@ const ACTIVITY = [
   ["2k_10k", "2,000 – 10,000 prospects"],
   ["10k_plus", "10,000+ prospects"],
 ];
+/* LinkedIn subscription tiers, cheapest first. Required — the plan affects
+   InMail budget and search filters, NOT connection-invite limits. */
+const LINKEDIN_PLANS = [
+  ["free", "Free (Basic)"],
+  ["premium_career", "Premium Career"],
+  ["premium_business", "Premium Business"],
+  ["premium_all_in_one", "Premium All-in-One"],
+  ["sales_nav_core", "Sales Navigator Core"],
+  ["sales_nav_advanced", "Sales Navigator Advanced"],
+  ["sales_nav_advanced_plus", "Sales Navigator Advanced Plus"],
+  ["recruiter_lite", "Recruiter Lite"],
+  ["recruiter_corporate", "Recruiter Corporate"],
+];
 
 const BONUS = [
   { Icon: TrendIcon, t: "Signup on Spurly" },
@@ -75,6 +89,7 @@ export default function OnboardingSurveyPage() {
     teamSizeRange: "",
     primaryGoal: "",
     monthlyActivity: "",
+    linkedinPlan: "",
     companyName: "",
     companyWebsite: "",
   });
@@ -93,6 +108,7 @@ export default function OnboardingSurveyPage() {
         teamSizeRange: user.teamSizeRange || f.teamSizeRange,
         primaryGoal: user.primaryGoal || f.primaryGoal,
         monthlyActivity: user.monthlyActivity || f.monthlyActivity,
+        linkedinPlan: user.linkedinPlan || f.linkedinPlan,
         companyName: user.companyName || f.companyName,
         companyWebsite: user.companyWebsite || f.companyWebsite,
       }));
@@ -106,6 +122,7 @@ export default function OnboardingSurveyPage() {
     "teamSizeRange",
     "primaryGoal",
     "monthlyActivity",
+    "linkedinPlan",
     "companyName",
   ];
   const canSubmit = required.every((k) => String(form[k]).trim()) && !loading;
@@ -119,6 +136,7 @@ export default function OnboardingSurveyPage() {
         teamSizeRange: form.teamSizeRange,
         primaryGoal: form.primaryGoal,
         monthlyActivity: form.monthlyActivity,
+        linkedinPlan: form.linkedinPlan,
         companyName: form.companyName.trim(),
         companyWebsite: form.companyWebsite.trim() || undefined,
       });
@@ -202,6 +220,20 @@ export default function OnboardingSurveyPage() {
               onChange={setField("monthlyActivity")}
               placeholder="Select one"
               options={ACTIVITY}
+            />
+          </div>
+
+          <div className="sp-field">
+            <label className="sp-label" htmlFor="ob-plan">
+              Which LinkedIn plan are you on?<span className="req">*</span>
+            </label>
+            <Dropdown
+              id="ob-plan"
+              icon={<LinkedInIcon s={18} />}
+              value={form.linkedinPlan}
+              onChange={setField("linkedinPlan")}
+              placeholder="Select your plan"
+              options={LINKEDIN_PLANS}
             />
           </div>
 

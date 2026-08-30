@@ -1,18 +1,43 @@
 import campaignsApi from 'src/core/gateway/campaignsApi.js';
 
 /**
+ * The browser's IANA zone, sent with every create.
+ *
+ * Campaign names are generated server-side and carry a timestamp, but the
+ * server runs in UTC — without this a 3:40 PM IST campaign is named "10:10 AM"
+ * for the only person who will ever read it. Resolved once; a tab that outlives
+ * a DST change is not worth a per-call lookup.
+ */
+const BROWSER_TIME_ZONE = (() => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;
+  } catch (_) {
+    return undefined;
+  }
+})();
+
+/**
  * Campaigns Controller
  * Thin orchestration over the campaigns API. Unwraps the { success, data }
  * envelope and throws a readable error so hooks/pages can rely on the payload.
  */
 class CampaignsController {
   /**
+   * @param {Object} params
+   * @param {string} [params.name] - Optional. Campaigns are auto-named by the
+   *   server; nothing in the UI asks for a name at creation time any more, and
+   *   the user renames from the campaign detail page instead.
    * @returns {Promise<{ campaign, memberCount, skippedContacted }>}
    * `skippedContacted` is the authoritative count of already-contacted people
    * the server dropped — the modal's own preview only sees the loaded page.
    */
   async createCampaign({ name, personIds, excludeContacted = false }) {
-    const res = await campaignsApi.create({ name, personIds, excludeContacted });
+    const res = await campaignsApi.create({
+      name,
+      timeZone: BROWSER_TIME_ZONE,
+      personIds,
+      excludeContacted,
+    });
     if (!res?.success) throw new Error(res?.message || 'Failed to create campaign');
     return {
       campaign: res.data.campaign,
@@ -32,6 +57,7 @@ class CampaignsController {
   async createCampaignFromConnections({ name, connectionIds, messageSubject, messageBody }) {
     const res = await campaignsApi.createFromConnections({
       name,
+      timeZone: BROWSER_TIME_ZONE,
       connectionIds,
       messageSubject,
       messageBody,

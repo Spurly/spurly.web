@@ -1,4 +1,4 @@
-import { Linkedin } from 'lucide-react';
+import { LinkedInIcon } from 'src/ui/icons';
 import { Badge } from 'src/ui/primitives';
 import {
   TextCell,
@@ -20,10 +20,10 @@ const MEMBER_STATUS = {
 export const memberColumns = [
   {
     key: 'profileUrl',
-    label: <Linkedin size={14} aria-label="LinkedIn" />,
+    label: <LinkedInIcon size={14} aria-label="LinkedIn" />,
     width: 44,
     align: 'center',
-    render: (value) => <LinkCell href={value} icon={<Linkedin size={14} />} label="Open LinkedIn profile" />,
+    render: (value) => <LinkCell href={value} icon={<LinkedInIcon size={14} />} label="Open LinkedIn profile" />,
   },
   {
     key: 'name',
@@ -34,6 +34,7 @@ export const memberColumns = [
       <PersonCell
         name={value}
         avatar={row.avatar}
+        profileUrl={row.profileUrl}
         meta={degreeLabel(row.connectionDegree)}
         metaTitle={degreeTitle(row.connectionDegree)}
       />

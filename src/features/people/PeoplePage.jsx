@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Download, Send } from 'lucide-react';
 import { DashboardLayout } from 'src/components/DashboardLayout';
 import { DataTable } from 'src/components/DataTable';
@@ -12,7 +13,7 @@ import capturedLeadsController from 'src/core/controllers/capturedLeadsControlle
 import { exportProfilesAsCSV } from 'src/common/utils/csvExport';
 import { peopleColumns } from './columns.jsx';
 import { buildDegreeTabs } from './helpers';
-import { CreateCampaignModal } from './components/CreateCampaignModal';
+import campaignsController from 'src/core/controllers/campaignsController.js';
 import { PeopleFilterBar } from './components/PeopleFilterBar';
 import { StatusFilter } from './components/StatusFilter';
 
@@ -29,13 +30,14 @@ import { StatusFilter } from './components/StatusFilter';
  */
 export function PeoplePage() {
   const toast = useToast();
+  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('all');
   const [outreachFilter, setOutreachFilter] = useState('all');
   const [selectedPeople, setSelectedPeople] = useState(new Set());
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showCampaignModal, setShowCampaignModal] = useState(false);
+  const [creatingCampaign, setCreatingCampaign] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
   // `key: null` means "no column sort" — the list falls back to the server's
@@ -136,6 +138,40 @@ export function PeoplePage() {
   const tabs = buildDegreeTabs(outreachSummary?.total || pagination.total, stats.connectionDegrees);
 
   /**
+   * "Create campaign" — creates immediately and opens the campaign.
+   *
+   * There is no confirmation dialog and no name prompt. Both used to sit here;
+   * the name is now generated server-side, and the dialog's remaining job was a
+   * dedupe preview the campaign page shows anyway. Everyone selected is
+   * enrolled (`excludeContacted: false`) — the same choice the extension's
+   * Outreach tab makes, on the grounds that the user ticked those rows on
+   * purpose. The campaign page is where the action and the message get written,
+   * so going straight there is the step the user was heading for.
+   */
+  const handleCreateCampaign = async () => {
+    if (creatingCampaign || selectedPeople.size === 0) return;
+
+    setCreatingCampaign(true);
+    try {
+      const { campaign, memberCount } = await campaignsController.createCampaign({
+        personIds: Array.from(selectedPeople),
+        excludeContacted: false,
+      });
+      setSelectedPeople(new Set());
+      refreshOutreach();
+      toast.success(`Campaign created with ${memberCount} lead${memberCount === 1 ? '' : 's'}`);
+      navigate(`/dashboard/campaigns/${campaign._id}`);
+    } catch (e) {
+      console.error('[People] Create campaign error:', e);
+      // Staying put on failure matters: the selection survives, so the user can
+      // click again once whatever failed is fixed.
+      toast.error(getToastError(e, "Couldn't create the campaign"));
+    } finally {
+      setCreatingCampaign(false);
+    }
+  };
+
+  /**
    * Export as CSV — same columns, ordering and escaping as the extension's
    * "Download CSV" (see common/utils/csvExport.js).
    *
@@ -178,7 +214,7 @@ export function PeoplePage() {
 
   return (
     <DashboardLayout
-      title="People"
+      title="Contacts"
       subtitle={`${(outreachSummary?.total || pagination.total || 0).toLocaleString()} captured · ${contactedCount.toLocaleString()} contacted`}
     >
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
@@ -206,17 +242,17 @@ export function PeoplePage() {
           onSortChange={handleSortChange}
           emptyMessage={
             searchQuery
-              ? 'No people match your search'
+              ? 'No contacts match your search'
               : outreachFilter !== 'all'
-                ? 'No people in this status'
-                : 'No people captured yet'
+                ? 'No contacts in this status'
+                : 'No contacts captured yet'
           }
           emptyHint={
             searchQuery
               ? 'Try a different search term'
               : outreachFilter !== 'all'
                 ? 'Try a different status filter'
-                : 'People you capture from LinkedIn will appear here'
+                : 'Contacts you capture from LinkedIn will appear here'
           }
           toolbar={{
             searchValue: searchQuery,
@@ -227,7 +263,9 @@ export function PeoplePage() {
                 size="sm"
                 variant="primary"
                 leadingIcon={<Send size={13} />}
-                onClick={() => setShowCampaignModal(true)}
+                onClick={handleCreateCampaign}
+                loading={creatingCampaign}
+                disabled={creatingCampaign || selectedPeople.size === 0}
               >
                 Create campaign
               </Button>
@@ -264,20 +302,6 @@ export function PeoplePage() {
 
         {selectedPerson && (
           <LeadDetailSidebar lead={selectedPerson} onClose={() => setSelectedPerson(null)} />
-        )}
-
-        {/* Receives the selected rows, not just ids, so it can warn about
-            people who have already been contacted. */}
-        {showCampaignModal && (
-          <CreateCampaignModal
-            people={profiles.filter((p) => selectedPeople.has(p._id))}
-            personIds={Array.from(selectedPeople)}
-            onClose={() => setShowCampaignModal(false)}
-            onSuccess={() => {
-              setSelectedPeople(new Set());
-              refreshOutreach();
-            }}
-          />
         )}
       </div>
     </DashboardLayout>

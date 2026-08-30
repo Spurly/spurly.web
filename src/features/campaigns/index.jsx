@@ -49,7 +49,7 @@ export function CampaignsPage() {
   return (
     <DashboardLayout
       title="Campaigns"
-      subtitle="Outreach campaigns built from your captured People."
+      subtitle="Outreach campaigns built from your captured Contacts."
     >
       <div className="relative flex flex-col h-full overflow-hidden">
         <div className="flex-1 overflow-y-auto">
@@ -64,7 +64,7 @@ export function CampaignsPage() {
             emptyHint={
               search
                 ? 'Try a different search term'
-                : 'Select people on the People tab and click “Create campaign” to get started.'
+                : 'Select people on the Contacts tab and click “Create campaign” to get started.'
             }
             toolbar={{
               searchValue: search,

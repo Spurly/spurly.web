@@ -226,7 +226,7 @@ class AuthController {
 
   /**
    * Complete the onboarding survey and persist the updated user.
-   * @param {Object} data - { role, teamSizeRange, primaryGoal, monthlyActivity, companyName, companyWebsite? }
+   * @param {Object} data - { role, teamSizeRange, primaryGoal, monthlyActivity, companyName, linkedinPlan?, companyWebsite? }
    * @returns {Promise<User>}
    */
   async completeOnboarding(data) {

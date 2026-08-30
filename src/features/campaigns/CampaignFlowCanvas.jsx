@@ -155,7 +155,7 @@ export function CampaignFlowCanvas({ members = [], actionType, sending = false, 
 
           {total === 0 ? (
             <div className="pl-6 py-10 text-[13px]" style={{ color: 'var(--text-tertiary)' }}>
-              No leads in this campaign yet. Add people from the People tab.
+              No leads in this campaign yet. Add people from the Contacts tab.
             </div>
           ) : (
             members.map((m, i) => {

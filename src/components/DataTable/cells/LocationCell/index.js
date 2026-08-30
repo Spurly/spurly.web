@@ -1,0 +1,1 @@
+export { LocationCell } from './LocationCell';

@@ -49,6 +49,7 @@ const LABELS = {
   role: 'Role',
   primaryGoal: 'Primary Goal',
   monthlyActivity: 'Monthly Activity',
+  linkedinPlan: 'LinkedIn Plan',
   companyWebsite: 'Company Website',
   profileUrl: 'Profile URL',
   picture: 'Picture',

@@ -1,5 +1,6 @@
+import { LinkedInIcon } from 'src/ui/icons';
 import { useState } from 'react';
-import { Plus, Trash2, Search, Linkedin } from 'lucide-react';
+import { Plus, Trash2, Search } from 'lucide-react';
 import {
   Button,
   IconButton,
@@ -60,7 +61,7 @@ const SAMPLE_ROWS = [
 ];
 
 const SAMPLE_COLUMNS = [
-  { key: 'url', label: <Linkedin size={14} />, width: 44, align: 'center', render: (v) => <LinkCell href={v} icon={<Linkedin size={14} />} label="Open" /> },
+  { key: 'url', label: <LinkedInIcon size={14} />, width: 44, align: 'center', render: (v) => <LinkCell href={v} icon={<LinkedInIcon size={14} />} label="Open" /> },
   { key: 'name', label: 'Name', width: 200, sortable: true, render: (v, r) => <PersonCell name={v} avatar={r.avatar} /> },
   { key: 'title', label: 'Title', width: 240, sortable: true, render: (v) => <TextCell value={v} tone="secondary" /> },
   { key: 'company', label: 'Company', width: 160, render: (v) => <TextCell value={v} tone="secondary" /> },

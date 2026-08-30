@@ -1,6 +1,7 @@
-import { Linkedin, Check } from 'lucide-react';
+import { LinkedInIcon } from 'src/ui/icons';
+import { Check } from 'lucide-react';
 import { Badge } from 'src/ui/primitives';
-import { TextCell, PersonCell, CompanyCell, LinkCell } from 'src/components/DataTable';
+import { TextCell, PersonCell, CompanyCell, LocationCell, LinkCell } from 'src/components/DataTable';
 
 /**
  * Plain email link.
@@ -52,9 +53,9 @@ export function EnrichStatusCell({ value, row = {} }) {
         <Badge
           size="sm"
           tone="accent"
-          title="Already in your People list. Moving them updates the existing record."
+          title="Already in your Contacts list. Moving them updates the existing record."
         >
-          <Check size={10} className="mr-0.5" /> In People
+          <Check size={10} className="mr-0.5" /> In Contacts
         </Badge>
       )}
     </span>
@@ -71,17 +72,17 @@ export function EnrichStatusCell({ value, row = {} }) {
 export const stagingColumns = [
   {
     key: 'profileUrl',
-    label: <Linkedin size={14} aria-label="LinkedIn" />,
+    label: <LinkedInIcon size={14} aria-label="LinkedIn" />,
     width: 44,
     align: 'center',
-    render: (value) => <LinkCell href={value} icon={<Linkedin size={14} />} label="Open LinkedIn profile" />,
+    render: (value) => <LinkCell href={value} icon={<LinkedInIcon size={14} />} label="Open LinkedIn profile" />,
   },
   {
     key: 'name',
     label: 'Name',
     width: 200,
     title: (row) => row.name,
-    render: (value, row) => <PersonCell name={value} avatar={row.avatar} />,
+    render: (value, row) => <PersonCell name={value} avatar={row.avatar} profileUrl={row.profileUrl} />,
   },
   {
     key: 'enrichStatus',
@@ -92,6 +93,6 @@ export const stagingColumns = [
   { key: 'title', label: 'Title', width: 190, render: (value) => <TextCell value={value} tone="secondary" /> },
   { key: 'company', label: 'Company', width: 160, render: (value) => <CompanyCell value={value} /> },
   { key: 'email', label: 'Email', width: 200, render: (value) => <StagedEmail value={value} /> },
-  { key: 'location', label: 'Location', width: 170, render: (value) => <TextCell value={value} tone="secondary" /> },
+  { key: 'location', label: 'Location', width: 170, render: (value) => <LocationCell value={value} /> },
   { key: 'sourceFile', label: 'Source', width: 170, render: (value) => <TextCell value={value} tone="tertiary" /> },
 ];

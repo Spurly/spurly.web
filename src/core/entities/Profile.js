@@ -28,8 +28,20 @@ export class Profile {
     this.company = data.company ?? '';
     this.location = data.location ?? '';
     this.headline = data.headline ?? '';
+    this.about = data.about ?? '';
     this.email = data.email ?? '';
     this.phone = data.phone ?? '';
+    this.website = data.website ?? '';
+    /* Enrichment payload. Previously unmapped, which meant the detail drawer's
+       Experience section — reading `lead.experiences` off this entity — could
+       never render for a People row no matter how enriched the person was. */
+    this.experiences = data.experiences ?? [];
+    this.education = data.education ?? [];
+    this.languages = data.languages ?? [];
+    this.connectionCount = data.connectionCount ?? 0;
+    this.followerCount = data.followerCount ?? 0;
+    this.scrapingStatus = data.scrapingStatus ?? '';
+    this.scrapedAt = data.scrapedAt ?? null;
     this.currentCompany = data.currentCompany ?? data.company ?? '';
     this.skills = (data.skills ?? []).map((s) => (typeof s === 'string' ? s : s?.name ?? ''));
     this.avatar = data.avatar ?? '';

@@ -107,7 +107,7 @@ export function StagingPanel({ store, onGoToUpload }) {
     const res = await promoteSelected(selectedIds);
     if (res?.ok) {
       clearSelection();
-      toast.success(`Moved ${(res.promoted || selectedIds.length).toLocaleString()} to People`);
+      toast.success(`Moved ${(res.promoted || selectedIds.length).toLocaleString()} to Contacts`);
     }
   };
 
@@ -142,7 +142,7 @@ export function StagingPanel({ store, onGoToUpload }) {
           </h2>
           <p className="text-[13px] text-[var(--text-secondary)] mt-1.5 max-w-md">
             Import a CSV and the leads will land here. Enrich them to pull in emails and
-            experience, then move the good ones into People.
+            experience, then move the good ones into Contacts.
           </p>
         </div>
         <Button variant="primary" onClick={onGoToUpload} trailingIcon={<ArrowRight size={16} />}>
@@ -300,7 +300,7 @@ export function StagingPanel({ store, onGoToUpload }) {
                     style={{ background: 'var(--green-tint)', color: 'var(--green)' }}
                   >
                     <ArrowRight size={14} />
-                    Move to People ({selected.size})
+                    Move to Contacts ({selected.size})
                   </button>
                   <button
                     onClick={() => setConfirmDelete(true)}
@@ -349,7 +349,7 @@ export function StagingPanel({ store, onGoToUpload }) {
               Delete {selected.size} staged lead{selected.size === 1 ? '' : 's'}?
             </h3>
             <p className="text-[13px] text-[var(--text-secondary)] mt-2">
-              This removes them from staging only. Anyone already in your People list stays
+              This removes them from staging only. Anyone already in your Contacts list stays
               there.
             </p>
             <div className="flex items-center justify-end gap-2 mt-5">

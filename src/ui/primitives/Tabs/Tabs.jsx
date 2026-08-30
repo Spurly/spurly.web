@@ -13,6 +13,9 @@
  *    rail, which is a third of the way to the next column and reads as a
  *    misalignment even though every box involved was correctly positioned.
  *
+ * A tab may set `muted: true` to render dim — the caller's way of saying "this
+ * tab exists but has nothing in it for this row" (see the person drawer).
+ *
  * 2. Tabs are full height and the underline sits at -1px, so it paints exactly
  *    over the parent toolbar's bottom border. A fixed-height tab inside a
  *    taller bar leaves the underline floating a few pixels above the border,
@@ -63,7 +66,14 @@ export function Tabs({
                  real state and paints over it. */
               active
                 ? 'text-[var(--ui-text-primary)] font-medium'
-                : 'text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)] ' +
+                : /* `muted` marks a tab with nothing behind it. Dimmed rather
+                     than hidden or disabled: it is still worth opening to see
+                     WHY it is empty, and a strip whose items appear and
+                     disappear between rows is harder to use than one with a
+                     few dim entries. */
+                  (tab.muted
+                    ? 'text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-secondary)] '
+                    : 'text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)] ') +
                   'after:absolute after:left-1.5 after:right-1.5 after:-bottom-px after:h-[2px] ' +
                   'after:rounded-full after:bg-[var(--ui-border-strong)] after:opacity-0 ' +
                   'hover:after:opacity-100 after:transition-opacity after:duration-[var(--ui-dur-fast)]',

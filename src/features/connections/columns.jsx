@@ -1,8 +1,9 @@
-import { Linkedin } from 'lucide-react';
+import { LinkedInIcon } from 'src/ui/icons';
 import {
   TextCell,
   PersonCell,
   CompanyCell,
+  LocationCell,
   EmailCell,
   PhoneCell,
   TagsCell,
@@ -23,10 +24,10 @@ import {
 export const connectionColumns = [
   {
     key: 'linkedInUrl',
-    label: <Linkedin size={14} aria-label="LinkedIn" />,
+    label: <LinkedInIcon size={14} aria-label="LinkedIn" />,
     width: 44,
     align: 'center',
-    render: (value) => <LinkCell href={value} icon={<Linkedin size={14} />} label="Open LinkedIn profile" />,
+    render: (value) => <LinkCell href={value} icon={<LinkedInIcon size={14} />} label="Open LinkedIn profile" />,
   },
   {
     key: 'name',
@@ -34,7 +35,7 @@ export const connectionColumns = [
     width: 200,
     sortable: true,
     title: (row) => row.name,
-    render: (value, row) => <PersonCell name={value} avatar={row.avatar} />,
+    render: (value, row) => <PersonCell name={value} avatar={row.avatar} profileUrl={row.linkedInUrl || row.profileUrl} />,
   },
   {
     key: 'connectedAt',
@@ -62,7 +63,7 @@ export const connectionColumns = [
     label: 'Location',
     width: 170,
     sortable: true,
-    render: (value) => <TextCell value={value} tone="secondary" />,
+    render: (value) => <LocationCell value={value} />,
   },
   {
     key: 'headline',

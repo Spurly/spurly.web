@@ -41,6 +41,16 @@ export function CampaignDetailPage() {
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
 
+  // Inline rename. Campaigns are auto-named at creation from a fixed
+  // convention (timestamp + lead count) — no client asks for a name any more —
+  // so this is the ONLY place a campaign gets a human name. It saves on its own
+  // rather than joining the `dirty`/Save flow below: that one batches the
+  // action config, and a rename that sat unsaved behind a Save button the user
+  // didn't notice would look like the rename simply failed.
+  const [renaming, setRenaming] = useState(false);
+  const [nameDraft, setNameDraft] = useState('');
+  const [renameSaving, setRenameSaving] = useState(false);
+
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState(null);
   const [showEnable, setShowEnable] = useState(false);
@@ -185,6 +195,31 @@ export function CampaignDetailPage() {
       toast.error(getToastError(e, "Couldn't save the campaign"));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const startRename = () => {
+    if (!campaign) return;
+    setNameDraft(campaign.name || '');
+    setRenaming(true);
+  };
+
+  const commitRename = async () => {
+    const next = nameDraft.trim();
+    setRenaming(false);
+    // Empty means "I changed my mind", not "clear the name" — the schema
+    // requires one, and a blank title is never what someone wanted.
+    if (!next || next === campaign?.name) return;
+
+    setRenameSaving(true);
+    try {
+      await update({ name: next });
+      toast.success('Campaign renamed');
+    } catch (e) {
+      console.error('[Campaign] Rename error:', e);
+      toast.error(getToastError(e, "Couldn't rename the campaign"));
+    } finally {
+      setRenameSaving(false);
     }
   };
 
@@ -344,9 +379,47 @@ export function CampaignDetailPage() {
           </button>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2.5">
-              <h1 className="text-[17px] font-medium tracking-[-0.012em] text-[var(--text-primary)] truncate">
-                {campaign?.name || (loading ? 'Loading…' : 'Campaign')}
-              </h1>
+              {renaming ? (
+                <input
+                  autoFocus
+                  value={nameDraft}
+                  maxLength={120}
+                  onChange={(e) => setNameDraft(e.target.value)}
+                  onBlur={commitRename}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      e.currentTarget.blur();
+                    } else if (e.key === 'Escape') {
+                      // Escape must not commit, so clear the intent before the
+                      // blur that follows fires commitRename.
+                      setRenaming(false);
+                      e.currentTarget.blur();
+                    }
+                  }}
+                  className="text-[17px] font-medium tracking-[-0.012em] text-[var(--text-primary)] bg-transparent min-w-0 flex-1 rounded-[var(--ui-radius-sm)] px-1.5 -mx-1.5 outline-none"
+                  style={{ border: '1px solid var(--brand-purple)' }}
+                />
+              ) : (
+                <h1
+                  onClick={startRename}
+                  role="button"
+                  tabIndex={campaign ? 0 : -1}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      startRename();
+                    }
+                  }}
+                  title={campaign ? 'Click to rename' : undefined}
+                  className="text-[17px] font-medium tracking-[-0.012em] text-[var(--text-primary)] truncate rounded-[var(--ui-radius-sm)] px-1.5 -mx-1.5 cursor-text hover:bg-[var(--surface-hover)] transition-colors"
+                >
+                  {campaign?.name || (loading ? 'Loading…' : 'Campaign')}
+                </h1>
+              )}
+              {renameSaving && (
+                <span className="text-[11px] text-[var(--text-tertiary)] shrink-0">Saving…</span>
+              )}
               {campaign && (
                 <span
                   className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium shrink-0"

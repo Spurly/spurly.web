@@ -1,13 +1,13 @@
-import { Linkedin } from "lucide-react";
+import { LinkedInIcon } from 'src/ui/icons';
 import {
   TextCell,
   PersonCell,
   CompanyCell,
+  LocationCell,
   EmailCell,
   PhoneCell,
   TagsCell,
   LinkCell,
-  DateCell,
 } from "src/components/DataTable";
 import { degreeLabel, degreeTitle } from "src/common/utils/connectionDegree";
 import { OutreachStatusCell } from "./cells/OutreachStatusCell";
@@ -23,13 +23,13 @@ import { OutreachStatusCell } from "./cells/OutreachStatusCell";
 export const peopleColumns = [
   {
     key: "linkedInUrl",
-    label: <Linkedin size={14} aria-label="LinkedIn" />,
+    label: <LinkedInIcon size={14} aria-label="LinkedIn" />,
     width: 44,
     align: "center",
     render: (value) => (
       <LinkCell
         href={value}
-        icon={<Linkedin size={14} />}
+        icon={<LinkedInIcon size={14} />}
         label="Open LinkedIn profile"
       />
     ),
@@ -44,11 +44,21 @@ export const peopleColumns = [
       <PersonCell
         name={value}
         avatar={row.avatar}
+        /* The Profile entity renames the API's `profileUrl` to `linkedInUrl`
+           (see core/entities/Profile.js). Campaign members and Enrich rows are
+           NOT mapped through it and keep the original name, so both are read
+           here rather than assuming one shape across tables. */
+        profileUrl={row.linkedInUrl || row.profileUrl}
         meta={degreeLabel(row.connectionDegree)}
         metaTitle={degreeTitle(row.connectionDegree)}
       />
     ),
   },
+  // There is no separate "Last touched" date column. It was redundant: for an
+  // invited or messaged row the pill already shows that same timestamp, and for
+  // a connected row the pill's date is the more useful one (the acceptance, not
+  // the invite). Exact times are still one hover away — the pill's title
+  // carries the absolute date of every send.
   {
     key: "outreach",
     label: "Status",
@@ -74,7 +84,7 @@ export const peopleColumns = [
     label: "Location",
     width: 170,
     sortable: true,
-    render: (value) => <TextCell value={value} tone="secondary" />,
+    render: (value) => <LocationCell value={value} />,
   },
   {
     key: "email",
@@ -88,13 +98,6 @@ export const peopleColumns = [
     width: 150,
     sortable: true,
     render: (value) => <PhoneCell value={value} />,
-  },
-  {
-    key: "lastTouched",
-    label: "Last touched",
-    width: 130,
-    title: () => undefined,
-    render: (_value, row) => <DateCell value={row?.outreach?.lastTouchedAt} />,
   },
   {
     key: "headline",

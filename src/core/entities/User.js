@@ -19,6 +19,7 @@ export class User {
     this.teamSizeRange = data.teamSizeRange;
     this.primaryGoal = data.primaryGoal;
     this.monthlyActivity = data.monthlyActivity;
+    this.linkedinPlan = data.linkedinPlan;
     this.companyWebsite = data.companyWebsite;
     this.onboardingComplete = data.onboardingComplete ?? false;
     this.isAdmin = data.isAdmin ?? false;
@@ -48,6 +49,7 @@ export class User {
       teamSizeRange: this.teamSizeRange,
       primaryGoal: this.primaryGoal,
       monthlyActivity: this.monthlyActivity,
+      linkedinPlan: this.linkedinPlan,
       companyWebsite: this.companyWebsite,
       onboardingComplete: this.onboardingComplete,
       isAdmin: this.isAdmin,

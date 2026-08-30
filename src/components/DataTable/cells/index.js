@@ -1,6 +1,7 @@
 export { TextCell } from './TextCell';
 export { PersonCell } from './PersonCell';
 export { CompanyCell } from './CompanyCell';
+export { LocationCell } from './LocationCell';
 export { DateCell } from './DateCell';
 export { TagsCell } from './TagsCell';
 export { EmailCell } from './EmailCell';
