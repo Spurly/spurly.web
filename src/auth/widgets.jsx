@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "src/hooks/useAuth";
 import {
   GoogleIcon,
@@ -21,9 +21,23 @@ export function GoogleButton({ label = "Continue with Google", onError }) {
   const { getGoogleAuthUrl } = useAuth();
   const [loading, setLoading] = useState(false);
 
+  // Clicking "Sign in with Google" navigates away; the component is never
+  // unmounted for that, so a Back button (or cancelling on Google's account
+  // chooser) can restore this exact page from the browser's bfcache instead
+  // of reloading it — with `loading` still stuck at true from before the
+  // navigation. `pageshow` fires on a bfcache restore (persisted === true)
+  // and nowhere else useful here, so it's the one signal that says "we're
+  // back, and nothing actually reset."
+  useEffect(() => {
+    function onPageShow(e) {
+      if (e.persisted) setLoading(false);
+    }
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
   async function onClick() {
     setLoading(true);
-    onError?.("");
     try {
       const url = await getGoogleAuthUrl();
       if (!url)
