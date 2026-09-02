@@ -70,7 +70,8 @@ const FEATURES = [
 const TESTIMONIAL = {
   text: "“Spurly can completely transformed your LinkedIn outreach. Spurly can help you book 3x more meetings in a month!”",
   name: "Richard Samuel",
-  role: "Founder, Spurly",
+  role: "Founder, DexKor",
+  avatar: "/assets/richardlinkedIN.png",
 };
 
 function Testimonial() {
@@ -81,7 +82,11 @@ function Testimonial() {
       </div>
       <p className="sp-quote__text">{TESTIMONIAL.text}</p>
       <div className="sp-quote__who">
-        {/* <span className="sp-quote__avatar" aria-hidden="true" /> */}
+        <img
+          className="sp-quote__avatar"
+          src={TESTIMONIAL.avatar}
+          alt={TESTIMONIAL.name}
+        />
         <div>
           <div className="sp-quote__name">{TESTIMONIAL.name}</div>
           <div className="sp-quote__role">{TESTIMONIAL.role}</div>
