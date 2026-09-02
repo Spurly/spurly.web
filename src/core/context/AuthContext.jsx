@@ -1,5 +1,9 @@
 import { createContext, useState, useEffect } from 'react';
 import authController from 'src/core/controllers/authController.js';
+import {
+  syncAuthToExtension,
+  clearExtensionAuth,
+} from 'src/core/extension/extensionBridge.js';
 
 export const AuthContext = createContext();
 
@@ -56,6 +60,30 @@ export function AuthProvider({ children }) {
 
     checkAuth();
   }, []);
+
+  /**
+   * Single sign-on with the Chrome extension.
+   *
+   * The web app is the only place anyone types credentials. Whenever it holds a
+   * session — on load, and again the moment a sign-in, signup, or password
+   * reset lands — it hands the JWT to the extension, so the side panel comes up
+   * already signed in instead of asking for the same account a second time.
+   *
+   * Keyed on the user id rather than the user object: `user` is replaced on
+   * every profile refetch, and re-pushing an unchanged session on each of those
+   * is pointless chatter. A different id (an account switch) does re-push, which
+   * is exactly when the extension needs to hear about it — that is what stops
+   * the two halves ending up signed in as different people.
+   *
+   * Failures are ignored on purpose: no extension installed, an older build, or
+   * a cookie-only OAuth session with no stored JWT are all normal, and none of
+   * them should surface an error next to a sign-in that succeeded.
+   */
+  const userId = user?._id || user?.id || null;
+  useEffect(() => {
+    if (!userId) return;
+    syncAuthToExtension().catch(() => {});
+  }, [userId]);
 
   const login = async (email, password) => {
     setLoading(true);
@@ -168,6 +196,10 @@ export function AuthProvider({ children }) {
       await authController.logout();
       setUser(null);
       setError(null);
+      // Sign the extension out too — one account, one session. Best effort:
+      // the web sign-out has already happened and must not appear to fail
+      // because the extension is missing or asleep.
+      clearExtensionAuth().catch(() => {});
     } catch (err) {
       console.error('Logout error:', err);
     } finally {

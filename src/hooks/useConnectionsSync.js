@@ -48,6 +48,20 @@ export function useConnectionsSync({ onComplete } = {}) {
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
+  /*
+   * True from the moment Sync now is pressed until the extension has answered
+   * that the sweep began.
+   *
+   * The poll below treats "worker idle, no new result" as a failed run, and it
+   * starts ticking the instant `running` goes true. Starting is not always
+   * instant: waking a sleeping service worker, and — when the extension turns
+   * out to be signed out — handing it this page's session and asking again,
+   * can outlast a 2s tick. Without this the button reports "Sync stopped
+   * unexpectedly" and stops spinning, seconds before the sweep it is describing
+   * actually starts and runs for minutes.
+   */
+  const startingRef = useRef(false);
+
   // Timestamp of the newest result we've already shown. Anything older than
   // this belongs to a previous run and must not be rendered as fresh.
   const seenAtRef = useRef(0);
@@ -111,8 +125,9 @@ export function useConnectionsSync({ onComplete } = {}) {
       if (state.lastResult && applyResult(state.lastResult)) return;
 
       // Worker says idle but produced no newer result — it was torn down, or
-      // the run never really started. Stop spinning and say so.
-      if (!state.running) {
+      // the run never really started. Stop spinning and say so. Not while the
+      // start is still in flight, though: "not started yet" is not "stopped".
+      if (!state.running && !startingRef.current) {
         setRunning(false);
         setResult((prev) =>
           prev || { ok: false, error: 'Sync stopped unexpectedly — try again' },
@@ -137,7 +152,14 @@ export function useConnectionsSync({ onComplete } = {}) {
     }
 
     setRunning(true);
-    const res = await startConnectionsSync();
+    startingRef.current = true;
+
+    let res;
+    try {
+      res = await startConnectionsSync();
+    } finally {
+      startingRef.current = false;
+    }
 
     // `alreadyRunning` counts as started: a sweep IS in progress and the poll
     // above will pick up its result. Anything else means it never began, so the
