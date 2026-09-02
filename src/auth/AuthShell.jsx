@@ -68,7 +68,7 @@ const FEATURES = [
 ];
 
 const TESTIMONIAL = {
-  text: "“Spurly can completely transformed your LinkedIn outreach. Spurly can help you book 3x more meetings in a month!”",
+  text: "“Spurly can completely transform your LinkedIn outreach. Spurly can help you book 3x more meetings in a month!”",
   name: "Richard Samuel",
   role: "Founder, DexKor",
   avatar: "/assets/richardlinkedIN.png",
