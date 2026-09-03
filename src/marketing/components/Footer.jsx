@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="wrap">
         <div className="foot-grid">
           <div className="foot-brand">
-            <Link className="brand" to="/" aria-label="Spurly home"><img src="/assets/spurly-icon.png" alt="Spurly" width="56" height="56" /><span>Spurly</span></Link>
+            <Link className="brand" to="/" aria-label="Spurly home"><img src="/Spurly Icon Square.png" alt="Spurly" width="38" height="38" /><span>Spurly</span></Link>
             <p>The LinkedIn prospecting &amp; outreach tool that lives in your browser. Capture, connect, reach out — at scale.</p>
             <p className="legal-name">Spurly is a product of ArkTech Catalyst.</p>
           </div>

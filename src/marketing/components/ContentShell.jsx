@@ -12,7 +12,7 @@ export default function ContentShell({ children }) {
       <header className="nav scrolled content-nav" role="banner">
         <nav className="nav-inner" aria-label="Primary">
           <Link className="brand" to="/" aria-label="Spurly home">
-            <img src="/Spurly icon copy.png" alt="" width="56" height="56" />
+            <img src="/Spurly Icon Square.png" alt="" width="38" height="38" />
             <span>Spurly</span>
           </Link>
           <div className="nav-links">

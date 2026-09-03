@@ -107,7 +107,7 @@ export function AuthModal({ initialView = 'signin', onClose }) {
         </button>
 
         <div className="auth-head">
-          <span className="auth-brand"><img src="/spurly-mark.png" alt="" /><span>Spurly</span></span>
+          <span className="auth-brand"><img src="/Spurly Icon Square.png" alt="" /><span>Spurly</span></span>
           <h2 className="auth-title">{meta.title}</h2>
           <p className="auth-sub">{meta.sub}</p>
         </div>

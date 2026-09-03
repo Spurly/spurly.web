@@ -221,7 +221,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
         style={{ width: expanded ? WIDTH_EXPANDED : WIDTH_COLLAPSED }}
       >
         <div className={`flex items-center h-11 shrink-0 ${expanded ? 'px-3 gap-2' : 'justify-center'}`}>
-          <img src="/spurly-mark.png" alt="" className="w-5 h-5 shrink-0 object-contain" />
+          <img src="/Spurly Icon Square.png" alt="" className="w-5 h-5 shrink-0 object-contain" />
           {expanded && (
             <>
               <span className="text-[13px] font-medium tracking-[-0.006em] text-[var(--ui-text-primary)] truncate">
