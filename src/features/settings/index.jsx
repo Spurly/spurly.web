@@ -184,15 +184,19 @@ function BillingTab() {
 /* ------------------------------------------------------------------ */
 
 function ExtensionTab() {
-  const { installed, loggedIn, version, checking, recheck } = useExtension();
+  const { installed, loggedIn, loginKnown, version, checking, recheck } = useExtension();
 
   const status = checking
     ? { label: 'Checking…', color: 'var(--text-tertiary)', tint: 'var(--surface-sunken)' }
     : !installed
       ? { label: 'Not installed', color: 'var(--red)', tint: 'var(--red-tint)' }
-      : !loggedIn
-        ? { label: 'Installed — not signed in', color: 'var(--amber)', tint: 'var(--amber-tint)' }
-        : { label: 'Connected', color: 'var(--green)', tint: 'var(--green-tint)' };
+      // Installed, but the background worker never answered — unknown, not
+      // signed out. Recheck is right there, so say what is actually true.
+      : !loginKnown
+        ? { label: 'Installed — not responding', color: 'var(--text-tertiary)', tint: 'var(--surface-sunken)' }
+        : !loggedIn
+          ? { label: 'Installed — not signed in', color: 'var(--amber)', tint: 'var(--amber-tint)' }
+          : { label: 'Connected', color: 'var(--green)', tint: 'var(--green-tint)' };
 
   return (
     <SectionCard title="Chrome extension">
@@ -245,14 +249,15 @@ function ExtensionTab() {
           </div>
         )}
 
-        {!checking && installed && !loggedIn && (
+        {!checking && installed && loginKnown && !loggedIn && (
           <div
             className="rounded-[var(--ui-radius-lg)] p-4"
             style={{ background: 'var(--amber-tint)', border: '1px solid rgba(245,158,11,0.25)' }}
           >
             <p className="text-[13px] text-[var(--text-primary)] leading-relaxed">
-              The extension is installed but not signed in. Open it on LinkedIn and sign in with
-              this account so captures and sends sync back here.
+              The extension is installed but couldn't pick up this browser's session. Reload this
+              page to hand it over again. If it stays signed out, open the extension on LinkedIn
+              and sign in with this account.
             </p>
           </div>
         )}

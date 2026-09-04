@@ -170,6 +170,18 @@ class ApiGateway {
   }
 
   /**
+   * The API this app is pointed at, e.g. https://api.getspurly.com/api.
+   *
+   * Exposed for the extension handoff, which has to be able to say WHICH
+   * backend each half is talking to: web and extension are built separately
+   * and can end up aimed at different ones, and the only symptom of that is a
+   * 401 that looks like a bad session.
+   */
+  getBaseUrl() {
+    return this.client.defaults.baseURL;
+  }
+
+  /**
    * Get current token
    */
   getToken() {

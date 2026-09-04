@@ -732,6 +732,7 @@ export function CampaignDetailPage() {
           <EnableExtensionModal
             installed={ext.installed}
             loggedIn={ext.loggedIn}
+            loginKnown={ext.loginKnown}
             checking={ext.checking}
             onRecheck={async () => {
               const info = await ext.recheck();

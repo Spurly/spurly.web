@@ -4,7 +4,7 @@ import { X, Puzzle, RefreshCw, ExternalLink } from 'lucide-react';
  * Shown when the user tries to send a campaign but the Spurly extension isn't
  * detected (not installed, disabled, or pinned off). Offers a recheck + install.
  */
-export function EnableExtensionModal({ installed, loggedIn, checking, onRecheck, onClose }) {
+export function EnableExtensionModal({ installed, loggedIn, loginKnown, checking, onRecheck, onClose }) {
   return (
     <div
       className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4"
@@ -45,16 +45,20 @@ export function EnableExtensionModal({ installed, loggedIn, checking, onRecheck,
 
           <ol className="mt-4 flex flex-col gap-2.5 text-[13px] text-[var(--text-secondary)]">
             <Step n={1}>Install the Spurly extension (or enable it in <code className="font-mono text-[12px]">chrome://extensions</code>).</Step>
-            <Step n={2}>Pin it and make sure you’re signed in to Spurly.</Step>
+            <Step n={2}>Pin it — it signs in from this browser session, so there’s no second login.</Step>
             <Step n={3}>Come back here and hit “Recheck”.</Step>
           </ol>
 
-          {!checking && installed && !loggedIn && (
+          {/* Only when the worker actually answered. An unanswered ping means
+              "unknown", and telling someone to go fix a sign-in that isn't
+              broken is worse than saying nothing. */}
+          {!checking && installed && loginKnown && !loggedIn && (
             <p
               className="mt-4 text-[12px] px-3 py-2.5 rounded-[var(--ui-radius-lg)]"
               style={{ background: 'var(--accent-tint)', color: 'var(--brand-purple)' }}
             >
-              Detected the extension but you’re not signed in there — open it and log in, then recheck.
+              Detected the extension, but it couldn’t pick up this browser’s session. Reload this
+              page and recheck — if it stays signed out, open it on LinkedIn and log in.
             </p>
           )}
 

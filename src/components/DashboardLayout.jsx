@@ -88,15 +88,21 @@ function NavRow({ item, active, expanded, onClick }) {
  * hit the wall. It's persistent now.
  */
 function ExtensionStatus({ expanded }) {
-  const { installed, loggedIn, checking } = useExtension();
+  const { installed, loggedIn, loginKnown, checking } = useExtension();
 
   const state = checking
     ? { dot: 'var(--ui-text-tertiary)', label: 'Checking…', hint: 'Looking for the Spurly extension.' }
     : !installed
       ? { dot: 'var(--ui-danger-dot)', label: 'Not installed', hint: 'Spurly can\'t reach LinkedIn without the extension. Install it to capture and send.' }
-      : !loggedIn
-        ? { dot: 'var(--ui-warning-dot)', label: 'Signed out', hint: 'The extension is installed but signed out. Open it and sign in.' }
-        : { dot: 'var(--ui-success-dot)', label: 'Extension live', hint: 'The extension is installed, signed in, and ready to capture and send.' };
+      // Installed, but its background worker never answered. Reporting that as
+      // "Signed out" is a guess dressed as a fact, and the wrong one: the
+      // worker is asleep far more often than the session is actually missing,
+      // and it sends people off to fix a sign-in that was never broken.
+      : !loginKnown
+        ? { dot: 'var(--ui-text-tertiary)', label: 'Extension idle', hint: 'The extension is installed, but its background worker didn\'t answer. It wakes on the next action — reload this page if things keep failing.' }
+        : !loggedIn
+          ? { dot: 'var(--ui-warning-dot)', label: 'Signed out', hint: 'The extension is installed but couldn\'t take this browser\'s session. Reload the page; if it sticks, open the extension and sign in.' }
+          : { dot: 'var(--ui-success-dot)', label: 'Extension live', hint: 'The extension is installed, signed in, and ready to capture and send.' };
 
   return (
     <Tooltip content={state.hint} placement="right">

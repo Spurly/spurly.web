@@ -374,9 +374,50 @@ export async function syncAuthToExtension(timeoutMs = 4000) {
   return authSyncInFlight;
 }
 
+/**
+ * Same token, two backends.
+ *
+ * The extension asks ITS OWN API whether a pushed token is good, so a token
+ * minted by a different API is "invalid" no matter how healthy the session is.
+ * Web and extension are built separately, from separate env files, which makes
+ * this easy to reach — a dev build of one against a release build of the other
+ * — and impossible to read from the outside: all you get is a 401.
+ *
+ * Returns a clause to append to the failure line, or '' when both halves agree
+ * (or when there is nothing to compare).
+ */
+function describeApiMismatch(theirApi) {
+  try {
+    if (!theirApi) return '';
+    const ours = apiGateway.getBaseUrl();
+    if (!ours) return '';
+    const theirOrigin = new URL(theirApi, window.location.origin).origin;
+    const ourOrigin = new URL(ours, window.location.origin).origin;
+    if (theirOrigin === ourOrigin) return '';
+    return (
+      ` — the extension verifies tokens against ${theirApi} but this app talks to ${ours}. ` +
+      'Rebuild the extension against the same backend.'
+    );
+  } catch (_) {
+    // A malformed base URL must not turn a real reason into a thrown one:
+    // runAuthSync's catch would report THREW and lose the diagnosis entirely.
+    return '';
+  }
+}
+
 async function runAuthSync(timeoutMs) {
   try {
-    return await pushAuthToExtension(timeoutMs);
+    const result = await pushAuthToExtension(timeoutMs);
+    // The handoff is silent by design — it must never put an error in front of
+    // someone whose sign-in worked. But silent also meant undiagnosable: the
+    // one symptom of a failed push is the extension sitting on "Signed out",
+    // which looks identical whatever the cause. One console line, only when
+    // the page HAS a session (so it can't nag people who simply don't have the
+    // extension), turns that into an answer.
+    if (!result.synced && result.reason !== 'NOT_INSTALLED' && result.reason !== 'NO_SESSION') {
+      console.warn(`[spurly] extension sign-in handoff failed: ${result.reason}${describeApiMismatch(result.api)}`);
+    }
+    return result;
   } catch (err) {
     // This function must never reject. Its one realistic throw is reading
     // localStorage in a browser set to block site data — and because callers
@@ -387,13 +428,83 @@ async function runAuthSync(timeoutMs) {
   }
 }
 
+/**
+ * A bearer token for THIS browser session, minted on demand.
+ *
+ * Google and LinkedIn sign-ins never leave a readable JWT behind: the backend
+ * sets it as an httpOnly cookie and redirects into the app. Every request the
+ * page makes still authenticates — the cookie rides along — but there is
+ * nothing for `getToken()` to return, so the handoff used to stop here with
+ * NO_TOKEN. The result was the bug this exists to fix: the extension sat on
+ * "Signed out" permanently and every action behind it failed "Not logged in to
+ * Spurly", in an app that was plainly showing the user signed in. Nothing
+ * short of signing in again with a password could clear it, because a push
+ * that has no token to push never gets closer to succeeding.
+ *
+ * `GET /auth/session-token` exists for exactly this: the auth middleware
+ * verifies the cookie, and the route mints a fresh JWT for the same user.
+ *
+ * The minted token is kept in MEMORY only, never localStorage. The cookie is
+ * httpOnly by deliberate choice — so page scripts cannot read the credential —
+ * and writing a copy of it into localStorage would undo that decision as a
+ * side effect of a caching convenience. Here it dies with the tab.
+ *
+ * Cached because a push runs on every page load and on both hot paths, and
+ * each miss is a network round trip on a path the user is watching. It is
+ * cleared on sign-out, which is the only way one tab reaches a second account
+ * without a page load — the gateway's 401 handler does a full reload.
+ */
+let mintedSession = null;
+let mintInFlight = null;
+
+function resetMintedSession() {
+  mintedSession = null;
+}
+
+async function mintSessionToken() {
+  if (mintedSession) return mintedSession;
+  if (mintInFlight) return mintInFlight;
+
+  mintInFlight = apiGateway
+    .get('/auth/session-token')
+    .then((res) => {
+      // { success, message, data: { user, token }, status }
+      const payload = res?.data?.data || {};
+      if (!payload.token) return null;
+      mintedSession = { token: payload.token, user: payload.user || null };
+      return mintedSession;
+    })
+    // A backend older than this route answers 404, an expired cookie 401, and
+    // an offline browser nothing at all. All three mean the same thing here:
+    // no token to hand over, same as before this existed.
+    .catch(() => null)
+    .finally(() => {
+      mintInFlight = null;
+    });
+
+  return mintInFlight;
+}
+
+/**
+ * Does this page believe it holds a session at all?
+ *
+ * Guards the mint: asking for a token while signed out earns a 401, and the
+ * gateway's 401 handler redirects to /login. Every caller of this module sits
+ * behind a route guard today, so that would take a real bug to reach — but the
+ * cost of the check is one localStorage read and the cost of missing it is
+ * bouncing someone out of the app.
+ */
+function hasWebSession() {
+  if (apiGateway.getToken()) return true;
+  try {
+    return !!localStorage.getItem('user');
+  } catch (_) {
+    return false;
+  }
+}
+
 async function pushAuthToExtension(timeoutMs) {
   if (!isExtensionPresent()) return { synced: false, reason: 'NOT_INSTALLED' };
-
-  const token = apiGateway.getToken();
-  // A cookie-only session (LinkedIn/Google OAuth without a stored JWT) has
-  // nothing to hand over. The extension keeps its own sign-in for that case.
-  if (!token) return { synced: false, reason: 'NO_TOKEN' };
 
   let user = null;
   try {
@@ -403,10 +514,26 @@ async function pushAuthToExtension(timeoutMs) {
        extension re-reads the profile from /auth/me anyway */
   }
 
+  let token = apiGateway.getToken();
+  if (!token) {
+    if (!hasWebSession()) return { synced: false, reason: 'NO_SESSION' };
+    const minted = await mintSessionToken();
+    if (!minted) return { synced: false, reason: 'NO_TOKEN' };
+    token = minted.token;
+    // The route returns the verified user alongside the token, which is the
+    // better source than a cached copy that may predate a profile edit.
+    user = minted.user || user;
+  }
+
   const res = await request(ACTIONS.AUTH_SYNC, { token, user }, timeoutMs);
   if (!res) return { synced: false, reason: 'NO_RESPONSE' };
   if (!res.ok) return { synced: false, reason: res.error || 'BRIDGE_ERROR' };
-  if (!res.data?.ok) return { synced: false, reason: res.data?.error || 'REJECTED' };
+  if (!res.data?.ok) {
+    // `api` is the extension's own backend. It only comes back on rejections
+    // that involved a call to it, and it is what distinguishes a genuinely bad
+    // session from the two halves being aimed at different backends.
+    return { synced: false, reason: res.data?.error || 'REJECTED', api: res.data?.api || null };
+  }
   return { synced: true, unchanged: !!res.data.unchanged };
 }
 
@@ -415,6 +542,10 @@ async function pushAuthToExtension(timeoutMs) {
  * signs the panel out too. Same quiet contract as syncAuthToExtension.
  */
 export async function clearExtensionAuth(timeoutMs = 3000) {
+  // Drop the minted token whether or not the extension is here to hear about
+  // it: this tab may sign in as someone else next, and a cached token for the
+  // account that just left would be handed over as if it were theirs.
+  resetMintedSession();
   if (!isExtensionPresent()) return { cleared: false, reason: 'NOT_INSTALLED' };
   const res = await request(ACTIONS.AUTH_CLEAR, {}, timeoutMs);
   return { cleared: !!res?.data?.ok, reason: res?.error || null };
