@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from 'src/hooks/useAuth';
+import { useAuth } from 'src/platform/auth/useAuth';
 import { useToast } from 'src/ui/primitives';
-import { getToastError } from 'src/common/utils/apiError';
+import { getToastError } from 'src/shared/utils/apiError';
 
 /**
  * Marketing auth modal. Views:

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useToast } from './useToast';
-import { getToastError } from 'src/common/utils/apiError';
+import { getToastError } from 'src/shared/utils/apiError';
 
 /**
  * Toast a data hook's load failure, in the app's own words.
