@@ -9,10 +9,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 147",
     "preview": "vite preview",
     "lint:arch": "eslint -c eslint.boundaries.config.js src",
-    "verify": "npm run lint:arch && npm run test && npm run build",
+    "verify": "npm run lint:arch && npm run lint && npm test && npm run build",
     "test": "vitest run",
     "test:watch": "vitest"
   },

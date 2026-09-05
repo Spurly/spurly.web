@@ -23,11 +23,12 @@ const ENERGY_OPTS = [["calm", "Calm"], ["balanced", "Balanced"], ["hyped", "Hype
 
 function loadState() {
   try { return Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(KEY) || "{}")); }
-  catch (e) { return Object.assign({}, DEFAULTS); }
+  catch { return Object.assign({}, DEFAULTS); }
 }
 
 function post(type) {
-  try { window.parent && window.parent.postMessage({ type: type }, "*"); } catch (e) {}
+  try { window.parent && window.parent.postMessage({ type: type }, "*"); }
+  catch { /* cross-origin parent — the panel is a dev aid, failing silently is correct */ }
 }
 
 export default function TweaksPanel() {
@@ -43,7 +44,8 @@ export default function TweaksPanel() {
     else b.removeAttribute("data-frost");
     b.setAttribute("data-energy", state.energy || "balanced");
     window.dispatchEvent(new CustomEvent("spurly:repaint"));
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch { /* private mode — the panel is a dev aid, losing the setting is fine */ }
   }, [state]);
 
   // host protocol (editor toolbar toggle)

@@ -13,7 +13,7 @@ export default function SoundOnboarding() {
       location.hostname === "localhost" || location.hostname === "127.0.0.1";
     try {
       if (!isLocal && localStorage.getItem(KEY)) return;
-    } catch (e) {}
+    } catch { /* localStorage throws in private mode — treat as not-seen */ }
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const fine = window.matchMedia("(pointer:fine)").matches;
@@ -27,7 +27,7 @@ export default function SoundOnboarding() {
       if (!brand || !speaker) return;
       try {
         if (!isLocal) localStorage.setItem(KEY, "1");
-      } catch (e) {}
+      } catch { /* localStorage throws in private mode — treat as not-seen */ }
 
       // Pulse the speaker on every device.
       speaker.classList.add("attn");

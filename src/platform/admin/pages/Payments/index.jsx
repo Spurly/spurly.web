@@ -52,11 +52,9 @@ export function AdminPaymentsPage() {
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
-  useEffect(() => {
-    fetchPayments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.skip, status, search]);
-
+  // Declared above the effect that calls it. A hoisted `function` is safe here,
+  // but keeping definition before use is what lets the React Compiler reason
+  // about the component, and it removes the question entirely.
   async function fetchPayments() {
     setLoading(true);
     setError('');
@@ -82,6 +80,11 @@ export function AdminPaymentsPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    fetchPayments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.skip, status, search]);
 
   function submitSearch(e) {
     e.preventDefault();

@@ -22,11 +22,10 @@ export function AdminTransactionsPage() {
   const [pagination, setPagination] = useState({ total: 0, limit: 50, skip: 0, pages: 0 });
   const [filterType, setFilterType] = useState('');
 
-  useEffect(() => {
-    fetchTransactions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.skip, filterType]);
-
+  // Declared above the effect that calls them. They worked where they were —
+  // effects run after the component body — but a `const` referenced before its
+  // declaration is a temporal-dead-zone hazard the moment anything calls it
+  // earlier, and it blocks the React Compiler from optimising the component.
   const fetchTransactions = async () => {
     setLoading(true);
     setError('');
@@ -46,6 +45,11 @@ export function AdminTransactionsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.skip, filterType]);
 
   const currentPage = Math.floor(pagination.skip / pagination.limit) + 1;
 

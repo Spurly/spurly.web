@@ -30,46 +30,10 @@ export function AdminPricingPage() {
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null); // null => create mode
 
-  useEffect(() => {
-    fetchCosts();
-    fetchPlans();
-  }, []);
-
-  const fetchPlans = async () => {
-    setPlansLoading(true);
-    setPlansError('');
-    try {
-      const result = await getPlans();
-      if (result.success) {
-        setPlans(result.data.plans || []);
-      } else {
-        setPlansError(result.message || 'Failed to load plans');
-        toast.error(getToastError(result, "Couldn't load plans"));
-      }
-    } catch (err) {
-      setPlansError(getApiErrorMessage(err, 'Failed to load plans'));
-      toast.error(getToastError(err, "Couldn't load plans"));
-    } finally {
-      setPlansLoading(false);
-    }
-  };
-
-  const handleCreatePlan = () => {
-    setEditingPlan(null);
-    setShowPlanModal(true);
-  };
-
-  const handleEditPlan = (plan) => {
-    setEditingPlan(plan);
-    setShowPlanModal(true);
-  };
-
-  const handlePlanSuccess = () => {
-    setShowPlanModal(false);
-    setEditingPlan(null);
-    fetchPlans();
-  };
-
+  // Declared above the effect that calls them. They worked where they were —
+  // effects run after the component body — but a `const` referenced before its
+  // declaration is a temporal-dead-zone hazard the moment anything calls it
+  // earlier, and it blocks the React Compiler from optimising the component.
   const fetchCosts = async () => {
     setLoading(true);
     setError('');
@@ -92,6 +56,46 @@ export function AdminPricingPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchPlans = async () => {
+    setPlansLoading(true);
+    setPlansError('');
+    try {
+      const result = await getPlans();
+      if (result.success) {
+        setPlans(result.data.plans || []);
+      } else {
+        setPlansError(result.message || 'Failed to load plans');
+        toast.error(getToastError(result, "Couldn't load plans"));
+      }
+    } catch (err) {
+      setPlansError(getApiErrorMessage(err, 'Failed to load plans'));
+      toast.error(getToastError(err, "Couldn't load plans"));
+    } finally {
+      setPlansLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCosts();
+    fetchPlans();
+  }, []);
+
+  const handleCreatePlan = () => {
+    setEditingPlan(null);
+    setShowPlanModal(true);
+  };
+
+  const handleEditPlan = (plan) => {
+    setEditingPlan(plan);
+    setShowPlanModal(true);
+  };
+
+  const handlePlanSuccess = () => {
+    setShowPlanModal(false);
+    setEditingPlan(null);
+    fetchPlans();
   };
 
   const handleChange = (feature, value) => {

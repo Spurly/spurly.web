@@ -46,7 +46,9 @@ export function useConnectionsSync({ onComplete } = {}) {
   // Held in refs so the effects below never re-subscribe or restart their timer
   // just because the caller passed a new inline closure.
   const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
+  // Assigned in an effect, not during render. Writing a ref while rendering is
+  // a side effect and is unsafe if React discards or replays that render.
+  useEffect(() => { onCompleteRef.current = onComplete; });
 
   /*
    * True from the moment Sync now is pressed until the extension has answered

@@ -18,7 +18,14 @@ export default function SubscribeCallbackPage() {
   const navigate = useNavigate();
   const { status, refetch } = useSubscription();
   const [timedOut, setTimedOut] = useState(false);
-  const startedAt = useRef(Date.now());
+  // Set in an effect, not during render: Date.now() in the render body is
+  // re-evaluated on every render (only the first value is kept) and makes the
+  // render impure, which is unsafe under concurrent rendering.
+  const startedAt = useRef(null);
+
+  useEffect(() => {
+    if (startedAt.current === null) startedAt.current = Date.now();
+  }, []);
 
   useEffect(() => {
     if (status?.isActive()) {

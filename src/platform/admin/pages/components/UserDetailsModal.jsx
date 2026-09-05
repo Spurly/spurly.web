@@ -130,7 +130,10 @@ const shortDate = (d) =>
  * fact, not something an admin screen should be able to rewrite.
  */
 function BillingHistory({ payments, loading }) {
-  const now = Date.now();
+  // Frozen for the life of the modal rather than read during every render:
+  // `Date.now()` in the render body is impure, and a subscription flipping
+  // from live to expired mid-modal is not worth an inconsistent render.
+  const [now] = useState(() => Date.now());
 
   return (
     <div className="mb-5">

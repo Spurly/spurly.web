@@ -23,11 +23,10 @@ export function AdminUsersPage() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  useEffect(() => {
-    fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.skip, refreshTrigger]);
-
+  // Declared above the effect that calls them. They worked where they were —
+  // effects run after the component body — but a `const` referenced before its
+  // declaration is a temporal-dead-zone hazard the moment anything calls it
+  // earlier, and it blocks the React Compiler from optimising the component.
   const fetchUsers = async () => {
     setLoading(true);
     setError('');
@@ -50,6 +49,11 @@ export function AdminUsersPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.skip, refreshTrigger]);
 
   const handleCreditsClick = (user) => {
     setSelectedUser(user);

@@ -23,5 +23,9 @@ jobs:
       # code-quality errors, and blocking on them would mean turning the
       # architecture gate off instead.
       - run: npm run lint:arch
+      # General code quality. --max-warnings is a RATCHET: the 147 known warnings
+      # (mostly set-state-in-effect) may shrink, never grow. Lower the number as
+      # they are fixed.
+      - run: npm run lint
       - run: npm test
       - run: npm run build
