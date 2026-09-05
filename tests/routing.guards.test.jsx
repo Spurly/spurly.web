@@ -11,7 +11,7 @@ const Secret = () => <div>secret content</div>;
 
 function renderAt(ui, { auth = signedInAs(), sub = { status: null, loading: false }, route = '/dashboard' } = {}) {
   return render(
-    <MemoryRouter initialEntries={[route]}>
+    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }} initialEntries={[route]}>
       <AuthContext.Provider value={auth}>
         <SubscriptionContext.Provider value={sub}>
           <Routes>

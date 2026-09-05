@@ -17,7 +17,7 @@ const { anonymousAuth, signedInAs } = await import('./helpers.jsx');
 function renderRoutes(route, { auth = anonymousAuth, sub = { status: null, loading: false } } = {}) {
   return render(
     <HelmetProvider>
-      <MemoryRouter initialEntries={[route]}>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }} initialEntries={[route]}>
         <AuthContext.Provider value={auth}>
           <SubscriptionContext.Provider value={sub}>
             <ToastProvider><ConfirmProvider><AppRoutes /></ConfirmProvider></ToastProvider>
