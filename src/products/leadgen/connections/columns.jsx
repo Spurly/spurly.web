@@ -9,7 +9,7 @@ import {
   TagsCell,
   LinkCell,
   CalendarCell,
-} from 'src/ui/DataTable';
+} from 'src/platform/DataTable';
 
 /**
  * Columns for the Connections table.

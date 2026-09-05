@@ -1,5 +1,5 @@
 import { Badge } from 'src/ui/primitives';
-import { TextCell, DateCell } from 'src/ui/DataTable';
+import { TextCell, DateCell } from 'src/platform/DataTable';
 
 /**
  * Any *_DEDUCTION is a debit; credits, bonuses and refunds are positive;

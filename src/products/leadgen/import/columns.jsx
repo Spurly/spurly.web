@@ -1,5 +1,5 @@
 import { LinkedInIcon } from 'src/ui/icons';
-import { TextCell, PersonCell, CompanyCell, LocationCell, LinkCell } from 'src/ui/DataTable';
+import { TextCell, PersonCell, CompanyCell, LocationCell, LinkCell } from 'src/platform/DataTable';
 
 /**
  * Columns for the CSV import preview.

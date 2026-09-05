@@ -1,5 +1,5 @@
 import { Badge, Button } from 'src/ui/primitives';
-import { TextCell, ActionsCell, CalendarCell } from 'src/ui/DataTable';
+import { TextCell, ActionsCell, CalendarCell } from 'src/platform/DataTable';
 
 /**
  * Admin Users columns. Action handlers are injected so each row can manage

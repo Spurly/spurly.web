@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
 import { UploadCloud, FileText, AlertCircle, CheckCircle, X, ArrowRight, SlidersHorizontal } from 'lucide-react';
-import { DataTable } from 'src/ui/DataTable';
+import { DataTable } from 'src/platform/DataTable';
 import { Button, useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 import {

@@ -4,7 +4,7 @@ import { RefreshCw, AlertTriangle, X, Download, MessageSquare } from "lucide-rea
 import { Button, IconButton, useToast } from "src/ui/primitives";
 import { getToastError } from "src/shared/utils/apiError";
 import { DashboardLayout } from "src/platform/layout/DashboardLayout";
-import { DataTable } from "src/ui/DataTable";
+import { DataTable } from "src/platform/DataTable";
 import { LeadDetailSidebar } from "src/platform/people/LeadDetailSidebar";
 import campaignsController from "src/products/leadgen/campaigns/controller.js";
 import { useConnections } from "src/products/leadgen/connections/useConnections";

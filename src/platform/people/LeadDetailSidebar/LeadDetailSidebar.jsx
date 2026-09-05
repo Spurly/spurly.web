@@ -7,7 +7,7 @@ import { OutreachStatusCell } from 'src/platform/people/cells/OutreachStatusCell
 import { ResearchPanel } from 'src/platform/research/ResearchPanel.jsx';
 import { absoluteTime } from 'src/shared/utils/outreach';
 import { countryCodeFromLocation, countryNameFromCode, flagUrl } from 'src/shared/utils/location';
-import { useProfilePhoto } from 'src/shared/utils/profilePhoto';
+import { useProfilePhoto } from 'src/platform/people/profilePhoto';
 import { resolveTabs } from './personDetailTabs';
 import { NotesEditor } from './NotesEditor';
 import {

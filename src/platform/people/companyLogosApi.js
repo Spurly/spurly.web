@@ -3,7 +3,7 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
 /**
  * Company Logos API Client
  * Resolves company display names to web domains, which the UI turns into logo
- * image URLs. See src/shared/utils/companyLogo.js for the store that batches
+ * image URLs. See src/platform/people/companyLogo.js for the store that batches
  * these calls.
  */
 class CompanyLogosApi {

@@ -8,7 +8,7 @@ import {
   PhoneCell,
   TagsCell,
   LinkCell,
-} from "src/ui/DataTable";
+} from "src/platform/DataTable";
 import { degreeLabel, degreeTitle } from "src/shared/utils/connectionDegree";
 import { OutreachStatusCell } from "./cells/OutreachStatusCell";
 import { NotesCell } from "./cells/NotesCell";

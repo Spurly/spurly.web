@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Download, Send, RotateCcw } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
-import { DataTable } from 'src/ui/DataTable';
+import { DataTable } from 'src/platform/DataTable';
 import { Button, useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import { LeadDetailSidebar } from 'src/platform/people/LeadDetailSidebar';
@@ -13,11 +13,11 @@ import { useOutreachSummary } from 'src/platform/outreach/useOutreachSummary';
 import { useTableColumnOrder } from 'src/platform/people/useTableColumnOrder';
 import capturedLeadsController from 'src/platform/people/controller';
 import { exportProfilesAsCSV } from 'src/shared/utils/csvExport';
-import { peopleColumns } from './columns.jsx';
-import { buildDegreeTabs } from './helpers';
+import { peopleColumns } from 'src/platform/people/columns.jsx';
+import { buildDegreeTabs } from 'src/platform/people/helpers';
 import campaignsController from 'src/products/leadgen/campaigns/controller.js';
-import { PeopleFilterBar } from './components/PeopleFilterBar';
-import { StatusFilter } from './components/StatusFilter';
+import { PeopleFilterBar } from 'src/platform/people/components/PeopleFilterBar';
+import { StatusFilter } from 'src/platform/people/components/StatusFilter';
 
 /**
  * People — every profile captured from LinkedIn and Sales Navigator.

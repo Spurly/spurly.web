@@ -1,6 +1,6 @@
 import { Avatar } from 'src/ui/primitives';
 import { resolveDensity } from 'src/ui/tokens';
-import { useProfilePhoto } from 'src/shared/utils/profilePhoto';
+import { useProfilePhoto } from 'src/platform/people/profilePhoto';
 
 /**
  * A person: avatar + name, optionally with one piece of quiet metadata.

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getTransactions } from 'src/platform/admin/api';
 import { AdminLayout } from 'src/platform/admin/AdminLayout';
-import { DataTable } from 'src/ui/DataTable';
+import { DataTable } from 'src/platform/DataTable';
 import { Dropdown } from 'src/ui/compat/Dropdown';
 import { useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';

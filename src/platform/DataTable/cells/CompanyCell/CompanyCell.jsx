@@ -1,6 +1,6 @@
 import { Avatar } from 'src/ui/primitives';
 import { resolveDensity } from 'src/ui/tokens';
-import { useCompanyLogo, companyLogoUrl } from 'src/shared/utils/companyLogo';
+import { useCompanyLogo, companyLogoUrl } from 'src/platform/people/companyLogo';
 
 /**
  * Company name with its logo.

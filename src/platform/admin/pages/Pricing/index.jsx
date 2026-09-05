@@ -7,7 +7,7 @@ import {
 } from 'src/platform/admin/api';
 import { Loader, Save, Check, AlertCircle, Plus } from 'lucide-react';
 import { AdminLayout } from 'src/platform/admin/AdminLayout';
-import { DataTable } from 'src/ui/DataTable';
+import { DataTable } from 'src/platform/DataTable';
 import { Button, useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 import PlanFormModal from 'src/platform/admin/pages/components/PlanFormModal';

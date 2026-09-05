@@ -1,6 +1,6 @@
 import { Trash2, UserPlus, MessageSquare, CircleDashed } from 'lucide-react';
 import { IconButton, Badge } from 'src/ui/primitives';
-import { ActionsCell, DateCell } from 'src/ui/DataTable';
+import { ActionsCell, DateCell } from 'src/platform/DataTable';
 import { ACTION_LABELS } from './helpers';
 
 const STATUS_TONE = {

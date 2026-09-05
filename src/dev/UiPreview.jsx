@@ -16,7 +16,7 @@ import {
   Drawer,
   useToast,
 } from 'src/ui/primitives';
-import { DataTable, TextCell, PersonCell, LinkCell } from 'src/ui/DataTable';
+import { DataTable, TextCell, PersonCell, LinkCell } from 'src/platform/DataTable';
 
 /**
  * Every primitive, in every state, on one page.

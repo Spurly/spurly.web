@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAllUsers } from 'src/platform/admin/api';
 import { RefreshCw } from 'lucide-react';
 import { AdminLayout } from 'src/platform/admin/AdminLayout';
-import { DataTable } from 'src/ui/DataTable';
+import { DataTable } from 'src/platform/DataTable';
 import { Button, useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 import CreditsModal from 'src/platform/admin/pages/components/CreditsModal';

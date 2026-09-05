@@ -34,7 +34,7 @@ import {
 import { AdminLayout } from 'src/platform/admin/AdminLayout';
 import { MetricCard } from 'src/ui/compat/MetricCard';
 import { Card, CardHeader } from 'src/ui/compat/Card/Card';
-import { DataTable } from 'src/ui/DataTable';
+import { DataTable } from 'src/platform/DataTable';
 import { Badge } from 'src/ui/primitives';
 import { Button, useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';

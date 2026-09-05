@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Sparkles, ArrowRight, Trash2, Square, AlertCircle, X, UploadCloud, Clock } from 'lucide-react';
-import { DataTable } from 'src/ui/DataTable';
+import { DataTable } from 'src/platform/DataTable';
 import { Button, useToast } from 'src/ui/primitives';
 import { stagingColumns } from './stagingColumns.jsx';
 

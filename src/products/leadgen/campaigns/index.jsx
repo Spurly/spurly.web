@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
-import { DataTable } from 'src/ui/DataTable';
+import { DataTable } from 'src/platform/DataTable';
 import campaignsController from 'src/products/leadgen/campaigns/controller.js';
 import { useCampaigns } from 'src/products/leadgen/campaigns/useCampaigns';
 import { useToast, useConfirm } from 'src/ui/primitives';

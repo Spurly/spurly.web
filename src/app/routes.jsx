@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from 'src/app/ProtectedRoute';
 import { AdminRoute } from 'src/app/AdminRoute';
 import { SubscribeGate } from 'src/app/SubscribeGate';
-import { PeoplePage } from 'src/platform/people';
+import { PeoplePage } from 'src/products/leadgen/people';
 import { UiPreview } from 'src/dev/UiPreview.jsx';
 import { ConnectionsPage } from 'src/products/leadgen/connections';
 import { CampaignsPage } from 'src/products/leadgen/campaigns';

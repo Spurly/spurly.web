@@ -1,7 +1,7 @@
 import { LinkedInIcon } from 'src/ui/icons';
 import { Check } from 'lucide-react';
 import { Badge } from 'src/ui/primitives';
-import { TextCell, PersonCell, CompanyCell, LocationCell, LinkCell } from 'src/ui/DataTable';
+import { TextCell, PersonCell, CompanyCell, LocationCell, LinkCell } from 'src/platform/DataTable';
 
 /**
  * Plain email link.

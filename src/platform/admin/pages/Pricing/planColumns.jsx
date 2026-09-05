@@ -1,6 +1,6 @@
 import { Pencil } from 'lucide-react';
 import { Badge, IconButton } from 'src/ui/primitives';
-import { ActionsCell, NumberCell } from 'src/ui/DataTable';
+import { ActionsCell, NumberCell } from 'src/platform/DataTable';
 
 const limit = (row, key) => row.limits?.[key];
 

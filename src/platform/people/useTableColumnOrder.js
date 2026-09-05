@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useAuth } from 'src/platform/auth/useAuth';
-import { isCustomOrder } from 'src/ui/DataTable';
+import { isCustomOrder } from 'src/platform/DataTable';
 
 /**
  * Server-persisted column order for one DataTable.
