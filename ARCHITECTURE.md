@@ -96,6 +96,25 @@ platform objects (`User`, `Subscription`) → `platform/`.
 
 ---
 
+## 2b. The product switcher (decided 2026-09-05)
+
+**₹5000 is a superset of ₹1500**, so this is a workspace switcher inside one app — not two apps and not
+a redirect.
+
+- One switcher in the top bar swaps the workspace in place: sidebar and routes change, same SPA, same
+  session, no reload. `app/ProductSwitcher.jsx`.
+- **Both entries are always visible.** For ₹1500 users the hub entry renders locked with an upgrade
+  CTA. That is the point of keeping both products in one app: every lower-tier user sees the upper tier
+  daily, in context, while they work. A separate app they get redirected to would throw that away.
+- Default landing is **leadgen**, even for a ₹5000 subscriber — they have to capture leads before there
+  is anyone to send to. Persist last-used workspace per user after that.
+- Route namespaces stay clean (`/dashboard/*` for leadgen, `/hub/*` for the hub), each product's routes
+  in one lazy-loaded chunk, so splitting to a subdomain later is moving a folder rather than a rewrite.
+
+Never let the vendor name reach the UI. It is the multichannel outreach product, not "the Unipile
+product" — if Unipile is ever swapped for a competitor, the rename should touch zero customer-facing
+strings.
+
 ## 3. Conventions (unchanged, keep following them)
 
 - **Named exports only.** No default exports outside `src/marketing/`.
