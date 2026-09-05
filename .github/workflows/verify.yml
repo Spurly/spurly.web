@@ -1,0 +1,31 @@
+name: Verify
+
+# The architecture gate only counts if something runs it. spurly.web deploys
+# through Vercel, which just builds — so lint:arch, the tests and the build
+# were all local-only conventions until this workflow existed.
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      # lint:arch = the shared/ui <- platform <- products boundary.
+      # Deliberately NOT `npm run lint`: that reports 38 pre-existing
+      # code-quality errors, and blocking on them would mean turning the
+      # architecture gate off instead.
+      - run: npm run lint:arch
+      # General code quality. --max-warnings is a RATCHET: the 147 known warnings
+      # (mostly set-state-in-effect) may shrink, never grow. Lower the number as
+      # they are fixed.
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build

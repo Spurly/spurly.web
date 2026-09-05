@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SoundToggle from "./SoundToggle.jsx";
 import { MenuIcon } from "../icons.jsx";
-import { useAuth } from "src/hooks/useAuth";
+import { useAuth } from "src/platform/auth/useAuth";
 
 const LINKS = [
   { href: "#product", label: "Product" },

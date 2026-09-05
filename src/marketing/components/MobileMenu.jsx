@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "src/hooks/useAuth";
+import { useAuth } from "src/platform/auth/useAuth";
 
 const LINKS = [
   { href: "#product", label: "Product" },
