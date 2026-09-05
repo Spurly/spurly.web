@@ -59,12 +59,29 @@ any more — those directories are gone.
   sidebar stay in `platform/people` because the hub product will render the same leads;
   the page lives in `products/leadgen/people/`. This is the split hub needs anyway.
 
-### Known follow-up
+### One component library
 
-`ui/compat/` (was `common/components`) duplicates `Badge`, `Input`, `Tabs` and
-`Tooltip`, which already exist in `ui/primitives`. Merging them changes rendered
-output, so it was deliberately kept out of a pure-move commit. Do it as its own
-change, with screenshots.
+`ui/compat/` is gone (2026-09-05). Most of what looked like duplication wasn't:
+`Card`, `Dropdown`, `MetricCard` and `SectionCard` existed only there and were
+promoted into `primitives` unchanged; `Badge` and `Tooltip` were genuinely dead
+duplicates and were deleted.
+
+`Input` and `Tabs` were **different components sharing a name**, which is what made
+the duplication look worse than it was:
+
+| | |
+|---|---|
+| `Input` | the bare control — forwardRef, sizes, adornments |
+| `Field` | label + input + error, composed around one (was `compat/Input`) |
+| `Tabs` | sits INSIDE a toolbar, inherits its height so the underline meets the toolbar border |
+| `PageTabs` | page-level strip with its own border and card background (was `compat/Tabs`) |
+
+Naming them honestly was the fix. Swapping call sites onto the "real" primitive would
+have changed rendered markup in Settings, Import and Admin Insights for no gain.
+
+`package.json` declares `sideEffects: ["**/*.css"]` — the primitives barrel is imported
+eagerly by `App`, so without it every re-export added to the barrel lands in the initial
+chunk.
 
 ## 2b. The product switcher (decided 2026-09-05)
 
@@ -109,31 +126,41 @@ Component
 The layers exist because each one has a different reason to change. Skipping a layer for a one-off call is
 how you end up with a token refresh implemented in four places.
 
-## 5. Migration order
+## 5. Status
 
-**Phase 1 — colocation + boundary enforcement: DONE 2026-09-05** (`caac249`, `51d321e`).
+**Phases 1-3 complete (2026-09-05).** Five commits: colocation, boundary lint, test
+harness, code splitting, component-library merge.
 
-Verified as a pure move: the production build emitted **byte-identical assets**
-(`index-kUZbIFw4.js`, `index-CYnvmBP_.css`) before and after — same content hashes, so
-the program is provably unchanged and only its file layout differs.
+| | |
+|---|---|
+| Structure | `shared`/`ui` ← `platform` ← `products`, enforced by `npm run lint:arch` |
+| Tests | 23, in 8 files (`npm test`) — was zero |
+| Initial JS | **1,146.68 kB → 317.52 kB** (gzip 324.91 → **102.01**) |
+| Component libraries | 2 → 1 |
 
-Doing this in one pass was safe for reasons specific to this repo, not because moves are
-generally safe: **342 of 353 imports are absolute** (`src/...` via the Vite alias), so a
-move is a string replace rather than a relative-path recomputation, and there are **zero
-dynamic imports** — nothing is referenced by string path at runtime.
+`npm run verify` = lint:arch + test + build. That is the gate.
 
-**Phase 2 — the test harness. NOT DONE, and it gates phase 3.**
-This repo has **zero test files and no test framework**. Install vitest +
-@testing-library/react and write ~15 smoke tests over the paths that would fail silently:
-login, people list loads, campaign create, template picker, subscription gate. Roughly
-half a day.
+### What the tests deliberately pin
 
-**Phase 3 — the behavioural changes, which need phase 2 first:**
-- Lazy-load each product's routes as its own chunk. The build is currently ONE 1.1MB
-  chunk; this is also what makes the switcher cheap.
-- The product switcher (§2b).
-- Merging `ui/compat` into `ui/primitives`.
-- Collapsing the controller layer into hooks, if you decide it earns its keep.
+- **`SubscribeGate` fails closed** — null status, inactive status AND the still-loading
+  state each redirect. The loading case is the one a naive refactor gives away for free.
+- **An unknown template token is stripped, never sent verbatim** — a typo'd
+  `{{fistName}}` must not reach a recipient.
+- **The five outreach statuses stay in step with the backend enum**; drift renders a
+  blank pill rather than throwing, so it needs pinning.
+- **Lazy routes actually resolve.** A typo in a `lazy(() => import(...))` specifier, or a
+  named export not unwrapped to `default`, fails only when that route is visited and
+  leaves the build green.
 
-These change what runs, not just where it lives, so a byte-identical build can no longer
-be the proof.
+### Not done, deliberately
+
+**The product switcher.** It is designed (§2b) but there is nothing to switch to until
+`products/hub/` exists. Building a switcher with one product is an abstraction ahead of
+its second caller; the route namespaces and lazy groups it needs are already in place, so
+it is a small change when hub lands.
+
+**Collapsing the controller layer into hooks.** No evidence it is costing anything. Churn
+without a problem to solve.
+
+**Visual regression tests.** The suite pins behaviour, not pixels. A layout regression
+would still ship. Worth adding before the UI changes much.
