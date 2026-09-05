@@ -13,88 +13,58 @@ specifics only.
 
 ---
 
-## 1. Where things actually are today
+## 1. Layout (SHIPPED 2026-09-05)
 
 ```
 src/
-├── App.jsx, main.jsx, routes.jsx, index.css
-├── core/
-│   ├── gateway/       # 14 API clients + apiGateway.js (axios, token, 401 handling)
-│   ├── controllers/   # 9 orchestrators between gateway and UI
-│   ├── entities/      # User, Profile, Subscription, patchEntity
-│   ├── context/       # AuthContext, SubscriptionContext
-│   └── extension/     # extensionBridge.js (postMessage to the Chrome extension)
-├── features/          # people, campaigns, connections, import, templates,
-│                      # research, personalization, settings, admin
-├── ui/                # DESIGN SYSTEM — primitives, layout, tokens, hooks, icons
-├── components/        # DataTable, LeadDetailSidebar, DashboardLayout,
-│                      # ProtectedRoute, AdminRoute, SubscribeGate, …
-├── common/utils/      # dates, csvExport, csvImport, templateTokens, outreach, …
-├── hooks/             # useAuth, useCampaign, useExtension, useMetrics, …
-├── auth/              # login/signup/verify/reset pages, AuthShell, cashfree
-├── admin/             # AdminLayout + admin.css
-├── marketing/         # the getspurly.com marketing site, self-contained
-├── pages/             # LinkedInCallback (the last survivor of the old layout)
-└── dev/               # UiPreview.jsx
-```
-
-### The one real problem
-
-**A single feature is spread across five directories.** Campaigns lives in `core/gateway/campaignsApi.js`
-+ `core/controllers/campaignsController.js` + `hooks/useCampaign.js` + `features/campaigns/` +
-`components/DataTable/`. Touching one feature means editing four folders and remembering which is which.
-
-That's not a naming problem, it's a change-cost problem, and it compounds with every feature added.
-
-Everything else here is fine. `src/ui/` in particular is a genuine design system with one token layer —
-**leave it alone.**
-
----
-
-## 2. Target structure
-
-Mirror the backend, so a feature has the same name on both sides of the wire:
-
-```
-src/
-├── app/                    # App.jsx, routes.jsx, providers, layouts, ProductSwitcher
-├── shared/                 # apiGateway.js, http, generic utils (was common/utils)
-├── ui/                     # design system — unchanged
-├── platform/               # spans every product
-│   ├── auth/               # was src/auth + pages/LinkedInCallback
-│   ├── billing/            # subscription context, pricing, payments
-│   ├── people/             # the shared lead book
-│   └── admin/              # was src/admin + features/admin
+├── main.jsx  index.css        # Vite entry (index.html points here — don't move)
+├── app/                       # composition root: App, routes, ProtectedRoute,
+│                              # AdminRoute, SubscribeGate
+├── shared/                    # domain-free: gateway/apiGateway, utils, entities
+├── ui/                        # design system: primitives, layout, tokens, hooks,
+│                              # icons, compat/
+├── platform/                  # spans every product
+│   ├── auth/  billing/  people/  outreach/  research/  admin/
+│   ├── layout/                # DashboardLayout (needs auth, so not ui)
+│   ├── extension/             # useExtension
+│   └── DataTable/             # its cells resolve logos + photos, so not ui
 ├── products/
-│   ├── leadgen/            # today's extension-driven Spurly
-│   │   ├── campaigns/ connections/ import/ templates/ research/ personalization/
-│   │   └── routes.jsx      # one lazy-loaded chunk
-│   └── hub/                # the Unipile product (see spurly.backend/UNIPILE_MODULE_PLAN.md)
-│       └── routes.jsx
-└── marketing/              # unchanged, self-contained
+│   └── leadgen/
+│       ├── campaigns/  connections/  import/  templates/
+│       ├── personalization/  settings/
+│       └── people/            # the leadgen VIEW of the shared lead book
+└── marketing/                 # unchanged, self-contained
 ```
 
-### A feature folder is self-contained
+Each feature owns its `api.js`, `controller.js` and hooks. Nothing is spread
+across `core/gateway`, `core/controllers`, `hooks`, `features` and `components`
+any more — those directories are gone.
 
-```
-campaigns/
-├── index.jsx           # route entry — the ONLY file other modules import
-├── CampaignDetailPage.jsx
-├── components/
-├── columns.jsx
-├── helpers.js
-├── api.js              # moved from core/gateway/campaignsApi.js
-├── controller.js       # moved from core/controllers/campaignsController.js
-└── hooks/              # moved from hooks/useCampaign.js
-```
+**Enforced** by `npm run lint:arch` (`eslint.boundaries.config.js`):
+`shared`/`ui` ← `platform` ← `products`. `npm run verify` runs it plus the build.
 
-Read it, move it, or delete it in one go. That's the whole goal.
+### Placements the import graph decided, against intuition
 
-**What stays shared:** `apiGateway.js` (axios instance, token injection, 401 handling) is genuinely
-cross-cutting → `shared/`. `DataTable` is used by every product surface → `ui/`. Entities that model
-platform objects (`User`, `Subscription`) → `platform/`.
+- **`research` and `outreach` are platform**, though the backend files them under
+  `products/leadgen`. Here `LeadDetailSidebar` renders `ResearchPanel` and uses the
+  outreach summary, and `people` is platform. Different graph, same rule — follow the
+  imports, not the name.
+- **`DataTable` is platform, not `ui`.** Its `CompanyCell` and `PersonCell` resolve
+  company logos and profile photos. A design-system primitive doesn't know what a
+  company is.
+- **`companyLogo.js` / `profilePhoto.js` are not utils.** They wrap platform API
+  clients, so they live in `platform/people/`.
+- **The People *data* is platform; the People *page* is leadgen.** `PeoplePage` has a
+  create-campaign bulk action. The api, controller, columns, cells, filters and detail
+  sidebar stay in `platform/people` because the hub product will render the same leads;
+  the page lives in `products/leadgen/people/`. This is the split hub needs anyway.
 
----
+### Known follow-up
+
+`ui/compat/` (was `common/components`) duplicates `Badge`, `Input`, `Tabs` and
+`Tooltip`, which already exist in `ui/primitives`. Merging them changes rendered
+output, so it was deliberately kept out of a pure-move commit. Do it as its own
+change, with screenshots.
 
 ## 2b. The product switcher (decided 2026-09-05)
 
@@ -141,16 +111,29 @@ how you end up with a token refresh implemented in four places.
 
 ## 5. Migration order
 
-Do this one feature at a time, alongside normal work — never as a big-bang refactor.
+**Phase 1 — colocation + boundary enforcement: DONE 2026-09-05** (`caac249`, `51d321e`).
 
-1. Collapse the leftovers of the old layout: `pages/` (one file) → `platform/auth/`; `dev/UiPreview.jsx`
-   behind a dev flag or deleted.
-2. Colocate **one** feature end to end (`campaigns` is the best first candidate — it has an api client,
-   a controller, a hook and a page, so it exercises every move).
-3. Repeat per feature. Distribute `hooks/`, `common/utils/`, `components/`, `core/` as each feature claims
-   its parts.
-4. Create `platform/` and `products/leadgen/`; `git mv` the folders.
-5. Turn on the boundary lint rule (config in `spurly.backend/ARCHITECTURE.md`) in warn mode, fix, flip to error.
-6. Add `products/hub/`.
+Verified as a pure move: the production build emitted **byte-identical assets**
+(`index-kUZbIFw4.js`, `index-CYnvmBP_.css`) before and after — same content hashes, so
+the program is provably unchanged and only its file layout differs.
 
-**Done already (2026-09-04):** `src/_trash/` deleted.
+Doing this in one pass was safe for reasons specific to this repo, not because moves are
+generally safe: **342 of 353 imports are absolute** (`src/...` via the Vite alias), so a
+move is a string replace rather than a relative-path recomputation, and there are **zero
+dynamic imports** — nothing is referenced by string path at runtime.
+
+**Phase 2 — the test harness. NOT DONE, and it gates phase 3.**
+This repo has **zero test files and no test framework**. Install vitest +
+@testing-library/react and write ~15 smoke tests over the paths that would fail silently:
+login, people list loads, campaign create, template picker, subscription gate. Roughly
+half a day.
+
+**Phase 3 — the behavioural changes, which need phase 2 first:**
+- Lazy-load each product's routes as its own chunk. The build is currently ONE 1.1MB
+  chunk; this is also what makes the switcher cheap.
+- The product switcher (§2b).
+- Merging `ui/compat` into `ui/primitives`.
+- Collapsing the controller layer into hooks, if you decide it earns its keep.
+
+These change what runs, not just where it lives, so a byte-identical build can no longer
+be the proof.
