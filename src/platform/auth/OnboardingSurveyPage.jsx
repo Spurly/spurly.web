@@ -4,7 +4,7 @@ import { useAuth } from "src/platform/auth/useAuth";
 import { useToast } from "src/ui/primitives";
 import { getToastError } from "src/shared/utils/apiError";
 import { AuthShell, WelcomeAside, Stepper } from "./AuthShell.jsx";
-import { Dropdown } from "src/ui/compat/Dropdown";
+import { Dropdown } from "src/ui/primitives/Dropdown";
 import {
   BriefcaseIcon,
   UsersIcon,

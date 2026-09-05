@@ -3,11 +3,11 @@ import { User as UserIcon, CreditCard, Puzzle, RefreshCw, ExternalLink } from 'l
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { useAuth } from 'src/platform/auth/useAuth';
 import { useExtension } from 'src/platform/extension/useExtension';
-import { Tabs } from 'src/ui/compat/Tabs';
-import { Input } from 'src/ui/compat/Input';
+import { PageTabs } from 'src/ui/primitives/PageTabs';
+import { Field } from 'src/ui/primitives/Field';
 import { Button, useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import { SectionCard } from 'src/ui/compat/SectionCard';
+import { SectionCard } from 'src/ui/primitives/SectionCard';
 import { AiContextTab } from './AiContextTab.jsx';
 
 const TABS = [
@@ -30,7 +30,7 @@ export function SettingsPage() {
 
   return (
     <DashboardLayout title="Settings" subtitle="Manage your account, credits and extension.">
-      <Tabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
+      <PageTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="p-[var(--ui-pad-lg)] max-w-[720px]">
         {activeTab === 'profile' && <ProfileTab />}
         {activeTab === 'ai' && <AiContextTab />}
@@ -81,7 +81,7 @@ function ProfileTab() {
   return (
     <SectionCard title="Your details">
       <form onSubmit={handleSave} className="flex flex-col gap-4 max-w-[420px]">
-        <Input
+        <Field
           label="Full name"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -90,7 +90,7 @@ function ProfileTab() {
           leadingIcon={<UserIcon size={16} />}
         />
 
-        <Input
+        <Field
           label="Company"
           value={companyName}
           onChange={(e) => setCompanyName(e.target.value)}

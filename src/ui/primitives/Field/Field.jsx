@@ -1,4 +1,12 @@
-export function Input({
+/**
+ * A labelled form field: label + input + error message.
+ *
+ * This is NOT `Input`. `Input` is the bare control (forwardRef, sizes,
+ * adornments); `Field` composes a label and error around one. They lived side
+ * by side under the same name in two component directories, which is what made
+ * the duplication look like duplication — they are different components.
+ */
+export function Field({
   label,
   placeholder,
   type = 'text',

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { CheckCircle2, AlertCircle, Wand2 } from 'lucide-react';
-import { Dropdown } from 'src/ui/compat/Dropdown';
+import { Dropdown } from 'src/ui/primitives/Dropdown';
 import { Button } from 'src/ui/primitives';
 import {
   IMPORT_FIELDS,

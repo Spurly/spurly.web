@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
-import { Tabs } from 'src/ui/compat/Tabs';
+import { PageTabs } from 'src/ui/primitives/PageTabs';
 import { useImportedLeads } from 'src/products/leadgen/import/useImportedLeads';
 import { UploadPanel } from './UploadPanel.jsx';
 import { StagingPanel } from './StagingPanel.jsx';
@@ -45,7 +45,7 @@ export function ImportPage() {
       subtitle="Import a CSV, enrich the leads, then move them into Contacts."
     >
       <div className="flex flex-col h-full overflow-hidden">
-        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+        <PageTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="flex-1 overflow-y-auto">
           <div className="p-[var(--ui-pad-lg)] flex flex-col gap-6 w-full max-w-[1400px]">

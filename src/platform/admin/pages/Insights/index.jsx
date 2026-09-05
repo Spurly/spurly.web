@@ -32,14 +32,14 @@ import {
   Search,
 } from 'lucide-react';
 import { AdminLayout } from 'src/platform/admin/AdminLayout';
-import { MetricCard } from 'src/ui/compat/MetricCard';
-import { Card, CardHeader } from 'src/ui/compat/Card/Card';
+import { MetricCard } from 'src/ui/primitives/MetricCard';
+import { Card, CardHeader } from 'src/ui/primitives/Card/Card';
 import { DataTable } from 'src/platform/DataTable';
 import { Badge } from 'src/ui/primitives';
 import { Button, useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
-import { Dropdown } from 'src/ui/compat/Dropdown';
-import { Input } from 'src/ui/compat/Input';
+import { Dropdown } from 'src/ui/primitives/Dropdown';
+import { Field } from 'src/ui/primitives/Field';
 import {
   getAnalyticsOverview,
   getUserUsageAnalytics,
@@ -499,7 +499,7 @@ export function AdminInsightsPage() {
             table's sticky header. */}
         <div className="relative z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="w-full sm:w-72">
-            <Input
+            <Field
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);

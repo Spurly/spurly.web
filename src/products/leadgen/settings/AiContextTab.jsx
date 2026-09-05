@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Sparkles, AlertTriangle } from 'lucide-react';
-import { SectionCard } from 'src/ui/compat/SectionCard';
+import { SectionCard } from 'src/ui/primitives/SectionCard';
 import { Button, useToast } from 'src/ui/primitives';
 import personalizationController, {
   CONTEXT_FIELDS,

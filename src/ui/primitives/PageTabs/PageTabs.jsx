@@ -1,4 +1,13 @@
-export function Tabs({ tabs, activeTab, onTabChange }) {
+/**
+ * Page-level tab strip: carries its own bottom border and card background,
+ * for use directly under a page header.
+ *
+ * `Tabs` is the other one — it sits INSIDE a toolbar and inherits its height so
+ * the active underline lands on the toolbar's own border. Same props, different
+ * container; sharing the name `Tabs` in two directories is what made this look
+ * like a duplicate.
+ */
+export function PageTabs({ tabs, activeTab, onTabChange }) {
   return (
     /* Container padding is the page gutter MINUS the tab's own 10px, so the
        first tab's LABEL lands on the gutter rather than its hover box —

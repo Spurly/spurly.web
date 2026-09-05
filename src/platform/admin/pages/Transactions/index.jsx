@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getTransactions } from 'src/platform/admin/api';
 import { AdminLayout } from 'src/platform/admin/AdminLayout';
 import { DataTable } from 'src/platform/DataTable';
-import { Dropdown } from 'src/ui/compat/Dropdown';
+import { Dropdown } from 'src/ui/primitives/Dropdown';
 import { useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 import { transactionColumns } from './transactionColumns.jsx';
