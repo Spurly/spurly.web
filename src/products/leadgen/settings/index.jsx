@@ -292,14 +292,18 @@ function ServerSendingCard() {
         </span>
         <div className="min-w-0 flex-1">
           <div className="text-[14px] font-medium text-[var(--text-primary)]">
-            Connect LinkedIn to Spurly
+            LinkedIn account
           </div>
           <p className="text-[13px] text-[var(--text-secondary)] mt-0.5">
             Send on a schedule, with your browser closed.
           </p>
         </div>
+        {/* Deliberately status-blind: this card belongs to leadgen and the
+            account state belongs to hub, which leadgen may not import. The
+            wording reads correctly either way, and the page it links to is
+            the one place that knows the truth. */}
         <Link to="/dashboard/settings/linkedin">
-          <Button variant="ghost" size="sm">Set up</Button>
+          <Button variant="ghost" size="sm">Manage</Button>
         </Link>
       </div>
     </SectionCard>
