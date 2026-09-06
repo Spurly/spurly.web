@@ -19,8 +19,22 @@ import { vi } from 'vitest';
  */
 const state = { account: null };
 
+/**
+ * Successive GETs can differ. The connect flow depends on it: the page mounts
+ * and reads a not-yet-connected account, then reads again after the redirect.
+ * A single fixed response would let a page that never made the second call
+ * pass anyway.
+ */
+const queue = [];
+const accountRoute = {
+  success: true,
+  get data() {
+    return { account: queue.length ? queue.shift() : state.account };
+  },
+};
+
 vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
-  'GET /hub/account': { success: true, data: state },
+  'GET /hub/account': accountRoute,
   'POST /hub/account/refresh': { success: true, data: state },
   'DELETE /hub/account': { success: true, data: {} },
   'GET /credits*': { success: true, data: { balance: 100 } },
@@ -48,6 +62,7 @@ describe('LinkedInSettingsPage', () => {
   beforeEach(() => {
     localStorage.setItem('authToken', 'test-token');
     state.account = null;
+    queue.length = 0;
   });
 
   it('offers the hosted flow when nothing is connected, and promises the password is never stored', async () => {
@@ -118,5 +133,19 @@ describe('LinkedInSettingsPage', () => {
     // A bookmarked or shared ?linked=1 would otherwise keep claiming a success
     // that never happened.
     await waitFor(() => expect(screen.getByTestId('search')).toHaveTextContent('(empty)'));
+  });
+
+  it('re-reads the account after the redirect, not just on mount', async () => {
+    // The account is created by a vendor callback that may land after the page
+    // has already mounted and read "nothing connected". If the post-redirect
+    // read is skipped — or started and then cancelled by the param strip
+    // re-running the effect — the user is told they connected and then shown a
+    // page saying they have not.
+    queue.push(null);
+    state.account = connectedAccount();
+
+    renderWithProviders(<LinkedInSettingsPage />, { route: `${ROUTE}?linked=1` });
+
+    await waitFor(() => expect(screen.getByText('Sarthak Vats')).toBeInTheDocument());
   });
 });

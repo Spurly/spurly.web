@@ -68,17 +68,31 @@ export function LinkedInSettingsPage() {
   const confirm = useConfirm();
   const pollRef = useRef(null);
 
-  const load = useCallback(async () => {
-    try {
-      setAccount(await hubAccountApi.get());
-    } catch (err) {
-      toast.error(getToastError(err, 'Could not load your LinkedIn connection'));
-    } finally {
-      setLoading(false);
-    }
+  /**
+   * Fetch and apply, with every setState confined to a promise callback rather
+   * than run straight down the effect body — which is what
+   * react-hooks/set-state-in-effect is asking for, and it has a point: the
+   * awaited version also had no way to stop, so leaving the page mid-request
+   * set state on a component that was already gone.
+   *
+   * `signal` is optional because the click handlers call this too, and a
+   * user-initiated reload has nothing to cancel against.
+   */
+  const load = useCallback((signal) => {
+    const live = () => !signal?.aborted;
+    return hubAccountApi.get()
+      .then((next) => { if (live()) setAccount(next); })
+      .catch((err) => {
+        if (live()) toast.error(getToastError(err, 'Could not load your LinkedIn connection'));
+      })
+      .finally(() => { if (live()) setLoading(false); });
   }, [toast]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const controller = new AbortController();
+    load(controller.signal);
+    return () => controller.abort();
+  }, [load]);
 
   /**
    * The hosted flow redirects back here with ?linked=1 or ?linked=0. Read it
@@ -87,13 +101,22 @@ export function LinkedInSettingsPage() {
    */
   useEffect(() => {
     const linked = searchParams.get('linked');
-    if (linked === null) return;
+    if (linked === null) return undefined;
 
     if (linked === '1') toast.success('LinkedIn connected');
     else toast.error('LinkedIn was not connected');
 
     setSearchParams({}, { replace: true });
+
+    /**
+     * Deliberately NOT cancelled on cleanup, unlike the mount load above.
+     * Stripping the param changes searchParams, which re-runs this effect —
+     * so a cleanup that aborted would kill the very request it just started,
+     * and the page would keep showing the pre-connection account after a
+     * connection that actually worked.
+     */
     load();
+    return undefined;
   }, [searchParams, setSearchParams, toast, load]);
 
   /**
