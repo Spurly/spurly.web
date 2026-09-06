@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { User as UserIcon, CreditCard, Puzzle, RefreshCw, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { User as UserIcon, CreditCard, Puzzle, RefreshCw, ExternalLink, Linkedin } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { useAuth } from 'src/platform/auth/useAuth';
 import { useExtension } from 'src/platform/extension/useExtension';
@@ -35,7 +36,12 @@ export function SettingsPage() {
         {activeTab === 'profile' && <ProfileTab />}
         {activeTab === 'ai' && <AiContextTab />}
         {activeTab === 'billing' && <BillingTab />}
-        {activeTab === 'extension' && <ExtensionTab />}
+        {activeTab === 'extension' && (
+          <div className="flex flex-col gap-4">
+            <ExtensionTab />
+            <ServerSendingCard />
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
@@ -261,6 +267,40 @@ function ExtensionTab() {
             </p>
           </div>
         )}
+      </div>
+    </SectionCard>
+  );
+}
+
+/**
+ * The extension is one way Spurly reaches LinkedIn; sending from our servers is
+ * the other. This belongs on the Extension tab because that is where a user
+ * goes when asking "how does Spurly actually send things".
+ *
+ * A link rather than an import: the page lives in products/hub, and products
+ * never import each other. A route string crosses no module boundary.
+ */
+function ServerSendingCard() {
+  return (
+    <SectionCard title="Send without the extension">
+      <div className="flex items-center gap-3">
+        <span
+          className="w-10 h-10 rounded-[var(--ui-radius-lg)] grid place-items-center shrink-0"
+          style={{ background: 'var(--surface-sunken)', color: 'var(--text-tertiary)' }}
+        >
+          <Linkedin size={19} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="text-[14px] font-medium text-[var(--text-primary)]">
+            Connect LinkedIn to Spurly
+          </div>
+          <p className="text-[13px] text-[var(--text-secondary)] mt-0.5">
+            Send on a schedule, with your browser closed.
+          </p>
+        </div>
+        <Link to="/dashboard/settings/linkedin">
+          <Button variant="ghost" size="sm">Set up</Button>
+        </Link>
       </div>
     </SectionCard>
   );
