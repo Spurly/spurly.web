@@ -2,7 +2,6 @@ import { LinkedInIcon } from 'src/ui/icons';
 import {
   TextCell,
   PersonCell,
-  CompanyCell,
   LocationCell,
   LinkCell,
 } from 'src/platform/DataTable';
@@ -12,6 +11,17 @@ const DEGREE_LABEL = { 1: '1st', 2: '2nd', 3: '3rd' };
 
 /**
  * Columns for hub leads.
+ *
+ * NO COMPANY AND NO INDUSTRY COLUMN, deliberately. A live search response
+ * (2026-09-07) carries neither: there is no `current_positions` on a search
+ * result, and `industry` arrives as an explicit null. Company only exists via
+ * GET /users/{id} — the per-lead resolve pass this whole module is built to
+ * avoid, capped around 100 a day. A column that is empty on every row is worse
+ * than no column: it reads as a bug in the import.
+ *
+ * The company is legible in the headline ("Head of Sales at Energy One Ltd"),
+ * which is where it stays until there is an enrichment step that fetches it
+ * honestly.
  *
  * Close to the Contacts columns but not the same table and not the same data:
  * these people came from a search the user ran, not from a profile they chose
@@ -47,13 +57,6 @@ export const hubLeadColumns = [
     render: (value) => <TextCell value={value} tone="secondary" />,
   },
   {
-    key: 'companyName',
-    label: 'Company',
-    width: 180,
-    sortable: true,
-    render: (value) => <CompanyCell value={value} />,
-  },
-  {
     key: 'location',
     label: 'Location',
     width: 180,
@@ -68,9 +71,13 @@ export const hubLeadColumns = [
     render: (value) => <TextCell value={DEGREE_LABEL[value] ?? '—'} tone="secondary" />,
   },
   {
-    key: 'industry',
-    label: 'Industry',
-    width: 170,
-    render: (value) => <TextCell value={value} tone="secondary" />,
+    key: 'followersCount',
+    label: 'Followers',
+    width: 110,
+    align: 'right',
+    sortable: true,
+    // null means the vendor did not tell us; 0 would be a claim about their
+    // audience, and someone would act on it.
+    render: (value) => <TextCell value={value == null ? '—' : value.toLocaleString()} tone="secondary" />,
   },
 ];

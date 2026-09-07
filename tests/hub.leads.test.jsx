@@ -32,8 +32,8 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
           _id: 'lead-1',
           name: 'Asha Menon',
           headline: 'Head of Sales',
-          companyName: 'Northwind',
           location: 'Bengaluru',
+          followersCount: 4211,
           connectionDegree: 2,
           profileUrl: 'https://www.linkedin.com/in/asha',
         },
@@ -123,6 +123,25 @@ describe('hub leads', () => {
     // 2, stored normalised, must render as "2nd" — not as the vendor's
     // DISTANCE_2 and not as a bare number.
     expect(screen.getByText('2nd')).toBeInTheDocument();
+  });
+
+  it('shows no Company or Industry column, because search returns neither', async () => {
+    // A column empty on every row reads as a broken import. Company exists
+    // only behind the per-lead profile lookup this module avoids.
+    //
+    // Rendered FIRST and awaited: a queryBy assertion against a page that was
+    // never rendered passes for the wrong reason, which is how a test like
+    // this quietly stops checking anything.
+    renderAt('/hub/leads');
+    await screen.findByText('Asha Menon');
+
+    expect(screen.queryByText('Company')).not.toBeInTheDocument();
+    expect(screen.queryByText('Industry')).not.toBeInTheDocument();
+  });
+
+  it('shows the follower count', async () => {
+    renderAt('/hub/leads');
+    await waitFor(() => expect(screen.getByText('4,211')).toBeInTheDocument());
   });
 
   it('offers the workspace switcher, with both workspaces named', async () => {
