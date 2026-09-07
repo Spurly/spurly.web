@@ -84,10 +84,14 @@ export function ProductSwitcher({ workspaces, current, expanded, onSelect }) {
       {open && (
         <div
           role="menu"
+          /* --ui-surface-raised does not exist. Naming a token that was never
+             defined resolves to nothing, so the panel rendered with NO
+             background at all and the nav showed straight through it. The
+             card surface is what every other floating panel here uses. */
           className={[
-            'absolute z-30 top-full mt-1 left-0 min-w-[214px] p-1',
+            'absolute z-30 top-full mt-1 left-0 min-w-[228px] p-1',
             'rounded-[var(--ui-radius-md)] border border-[var(--ui-border)]',
-            'bg-[var(--ui-surface-raised)] shadow-[var(--ui-shadow-md)]',
+            'bg-[var(--surface-card)] shadow-[var(--ui-shadow-lg)]',
           ].join(' ')}
         >
           {workspaces.map((w) => {

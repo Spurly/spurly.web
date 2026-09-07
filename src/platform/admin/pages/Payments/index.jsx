@@ -125,7 +125,7 @@ export function AdminPaymentsPage() {
             arriving — worth saying out loud rather than leaving as a number to
             interpret. */}
         {summary?.stuck > 0 && (
-          <div className="flex items-start gap-2.5 rounded-[var(--ui-radius-md)] border border-[var(--ui-warning-border,#e8d5b0)] bg-[var(--ui-warning-tint,#fbeedc)] px-4 py-3">
+          <div className="flex items-start gap-2.5 rounded-[var(--ui-radius-md)] border border-[var(--ui-warning-border)] bg-[var(--ui-warning-tint)] px-4 py-3">
             <AlertTriangle size={16} className="mt-0.5 shrink-0 text-[var(--ui-warning-fg,#9a5b08)]" />
             <p className="text-[13px] leading-relaxed text-[var(--ui-text-primary)]">
               {summary.stuck} payment{summary.stuck === 1 ? '' : 's'} created over an hour ago and

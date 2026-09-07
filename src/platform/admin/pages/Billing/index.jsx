@@ -229,7 +229,7 @@ function PromoForm({ editing, onCancel, onCreated }) {
       </div>
 
       {form.appliesTo === 'any_payment' && !form.expiresAt && (
-        <p className="mt-3 text-[12px] leading-relaxed text-[var(--ui-text-warning,#9a5b08)]">
+        <p className="mt-3 text-[12px] leading-relaxed text-[var(--ui-warning-fg)]">
           This code works on renewals and never expires — anyone who learns it keeps the
           discount indefinitely. Consider setting an expiry.
         </p>
@@ -418,7 +418,7 @@ function ExemptionForm({ onCancel, onGranted }) {
             ))}
           </select>
           {usersError && (
-            <p className="mt-1 text-[12px] text-[var(--ui-text-warning,#9a5b08)]">{usersError}</p>
+            <p className="mt-1 text-[12px] text-[var(--ui-warning-fg)]">{usersError}</p>
           )}
         </div>
         <div>
