@@ -6,6 +6,7 @@ import { getToastError } from 'src/shared/utils/apiError';
 import { AuthShell, FeaturesAside } from './AuthShell.jsx';
 import { GoogleButton, PasswordField } from './widgets.jsx';
 import { MailIcon } from './icons.jsx';
+import { postAuthDestination } from './postAuthDestination.js';
 
 /**
  * Sign in page (replaces the old modal's "signin" view).
@@ -41,8 +42,7 @@ export default function LoginPage() {
       toast.success('Signed in');
       const next = params.get('next');
       if (next) navigate(next, { replace: true });
-      else if (user && user.onboardingComplete === false) navigate('/onboarding', { replace: true });
-      else navigate('/dashboard', { replace: true });
+      else navigate(postAuthDestination(user), { replace: true });
     } catch (err) {
       toast.error(getToastError(err, "Couldn't sign you in"));
     } finally {

@@ -38,6 +38,7 @@ export function stubGateway(routes = {}) {
       delete: respond('DELETE'),
       setToken: vi.fn(), removeToken: vi.fn(),
       getToken: () => 'test-token', getBaseUrl: () => 'http://test',
+      isAuthenticated: () => true,
     },
   };
 }

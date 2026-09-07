@@ -14,7 +14,7 @@ const { ToastProvider, ConfirmProvider } = await import('src/ui/primitives');
 const { AppRoutes } = await import('src/app/routes');
 const { anonymousAuth, signedInAs } = await import('./helpers.jsx');
 
-function renderRoutes(route, { auth = anonymousAuth, sub = { status: null, loading: false } } = {}) {
+function renderRoutes(route, { auth = anonymousAuth, sub = { status: null, loading: false, ready: true } } = {}) {
   return render(
     <HelmetProvider>
       <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }} initialEntries={[route]}>
@@ -44,7 +44,7 @@ describe('lazy routes', () => {
   it('resolves a guarded dashboard chunk for a subscribed user', async () => {
     renderRoutes('/dashboard/people', {
       auth: signedInAs(),
-      sub: { status: { isActive: () => true }, loading: false },
+      sub: { status: { isActive: () => true }, loading: false, ready: true },
     });
     // PeoplePage is behind ProtectedRoute + SubscribeGate + lazy(); reaching
     // any of its chrome proves the whole path resolved.

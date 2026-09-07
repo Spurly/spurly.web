@@ -1,5 +1,4 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from 'src/platform/auth/useAuth';
 import { useSubscription } from 'src/platform/billing/useSubscription';
 
 /**
@@ -9,16 +8,24 @@ import { useSubscription } from 'src/platform/billing/useSubscription';
  *   <ProtectedRoute><SubscribeGate><Page /></SubscribeGate></ProtectedRoute>
  *
  * Fails closed: anything other than status === 'active' (including 'none',
- * 'pending_authorization', 'past_due', 'cancelled', and the not-yet-loaded
- * null state) redirects to /subscribe. /subscribe itself renders different
- * copy depending on which of those it is (see SubscribePage).
+ * 'pending_authorization', 'past_due', 'cancelled', and a null status we have
+ * actually heard back about) redirects to /subscribe. /subscribe itself
+ * renders different copy depending on which of those it is (see
+ * SubscribePage).
+ *
+ * "Failing closed" is about the ANSWER, not about not having asked yet. The
+ * gate waits on `ready` rather than on `!loading`, because a not-yet-fetched
+ * status is indistinguishable from "no subscription" when you only look at
+ * `status` — and treating the former as the latter is what used to throw a
+ * paid-up user back into onboarding on every page refresh. See the long note
+ * in SubscriptionContext for the exact ordering. `ready` also covers auth's
+ * own loading state, so this gate no longer reads AuthContext directly.
  */
 export function SubscribeGate({ children }) {
-  const { loading: authLoading } = useAuth();
-  const { status, loading: subLoading } = useSubscription();
+  const { status, ready } = useSubscription();
   const location = useLocation();
 
-  if (authLoading || subLoading) {
+  if (!ready) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--ui-surface-page)]">
         <div className="text-center">

@@ -51,7 +51,7 @@ function renderAt(route) {
     <HelmetProvider>
       <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }} initialEntries={[route]}>
         <AuthContext.Provider value={signedInAs()}>
-          <SubscriptionContext.Provider value={{ status: { isActive: () => true }, loading: false }}>
+          <SubscriptionContext.Provider value={{ status: { isActive: () => true }, loading: false, ready: true }}>
             <ToastProvider><ConfirmProvider><AppRoutes /></ConfirmProvider></ToastProvider>
           </SubscriptionContext.Provider>
         </AuthContext.Provider>

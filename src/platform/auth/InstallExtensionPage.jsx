@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthShell, WelcomeAside, Stepper } from "./AuthShell.jsx";
 import { CHROME_URL } from "src/marketing/components/Button.jsx";
@@ -73,6 +73,35 @@ function pingExtension() {
   });
 }
 
+/**
+ * One silent check on arrival: if the extension already answers, this page has
+ * nothing to ask for and forwards to the dashboard.
+ *
+ * This page is the last step of onboarding and, without this, the only way off
+ * it is to click "Add to Chrome" and let the poll below find the extension.
+ * That made it a dead end for anyone who already had the extension installed —
+ * and every guard that forwards through /onboarding lands here, so a user
+ * bounced in by a redirect had no way back into the app but to retype the URL.
+ *
+ * Deliberately does NOT go through startDetection: that flips the page into
+ * its "detecting" state, which replaces the install CTA with a plain link. A
+ * miss here must leave the page exactly as it was for a user who really is
+ * here to install.
+ */
+function useSkipIfInstalled() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let cancelled = false;
+    pingExtension().then((found) => {
+      if (found && !cancelled) navigate("/dashboard", { replace: true });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+}
+
 // status: 'idle' | 'detecting' | 'installed' | 'timeout'
 function useExtensionDetection() {
   const [status, setStatus] = useState("idle");
@@ -131,6 +160,7 @@ function useExtensionDetection() {
 
 export default function InstallExtensionPage() {
   const { status, startDetection } = useExtensionDetection();
+  useSkipIfInstalled();
 
   const isDetecting = status === "detecting";
   const isInstalled = status === "installed";
