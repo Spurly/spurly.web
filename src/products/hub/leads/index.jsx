@@ -123,15 +123,25 @@ export function HubLeadsPage() {
   const confirm = useConfirm();
   const pollRef = useRef(null);
 
+  /**
+   * Whether this component is still on screen.
+   *
+   * The load functions used to guard their setState purely on an AbortSignal,
+   * which conflated two different questions: "did we navigate away?" and "did
+   * this effect re-run?". See the polling effect below for what that cost.
+   */
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
+
   const loadSearches = useCallback((signal) => {
-    const live = () => !signal?.aborted;
+    const live = () => mountedRef.current && !signal?.aborted;
     return hubSourcingApi.listSearches()
       .then((next) => { if (live()) setSearches(next); })
       .catch((err) => { if (live()) toast.error(getToastError(err, 'Could not load your audiences')); });
   }, [toast]);
 
   const loadLeads = useCallback((signal, { page = 1 } = {}) => {
-    const live = () => !signal?.aborted;
+    const live = () => mountedRef.current && !signal?.aborted;
     return hubSourcingApi.listLeads({ searchId: activeSearchId, q: query, page, limit: PAGE_SIZE })
       .then((res) => {
         if (!live()) return;
@@ -165,14 +175,25 @@ export function HubLeadsPage() {
 
   useEffect(() => {
     if (!anyBusy) return undefined;
-    const controller = new AbortController();
+
+    /**
+     * The tick deliberately carries NO abort signal.
+     *
+     * It used to share one controller with this effect, aborted on cleanup —
+     * and the effect's cleanup runs the instant `anyBusy` flips false, which is
+     * the moment the searches poll reports the import finished. So the very
+     * fetch that would have filled the table was discarded, every time, and the
+     * page sat on "No leads yet" over an import that had plainly succeeded
+     * until the user reloaded. Observed in production, first run.
+     *
+     * A poll tick is a short GET with nothing to cancel; `mountedRef` already
+     * stops it writing to a component that has gone away.
+     */
     pollRef.current = setInterval(() => {
-      loadSearches(controller.signal).then(() => loadLeads(controller.signal, { page: pagination.page }));
+      loadSearches().then(() => loadLeads(undefined, { page: pagination.page }));
     }, POLL_MS);
-    return () => {
-      clearInterval(pollRef.current);
-      controller.abort();
-    };
+
+    return () => clearInterval(pollRef.current);
   }, [anyBusy, loadSearches, loadLeads, pagination.page]);
 
   const submit = async (e) => {
