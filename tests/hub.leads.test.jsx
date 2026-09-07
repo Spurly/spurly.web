@@ -139,9 +139,12 @@ describe('hub leads', () => {
     expect(screen.queryByText('Industry')).not.toBeInTheDocument();
   });
 
-  it('shows the follower count', async () => {
+  it('shows followers as the bucket LinkedIn gave, not a precise-looking figure', async () => {
+    // 4211 came back as a rounded bucket. "4,211" would be a number someone
+    // quotes; "4.2K" is what we actually know.
     renderAt('/hub/leads');
-    await waitFor(() => expect(screen.getByText('4,211')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('4.2K')).toBeInTheDocument());
+    expect(screen.queryByText('4,211')).not.toBeInTheDocument();
   });
 
   it('offers the workspace switcher, with both workspaces named', async () => {

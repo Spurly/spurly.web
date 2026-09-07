@@ -10,6 +10,25 @@ import {
 const DEGREE_LABEL = { 1: '1st', 2: '2nd', 3: '3rd' };
 
 /**
+ * Follower counts are BUCKETS, not counts.
+ *
+ * LinkedIn returned 3000, 21000, 2000 — round numbers because that is what it
+ * publishes, the same way a profile reads "3K followers". Rendering "21,000"
+ * claims a precision nobody has, and a comma-formatted figure is exactly the
+ * kind of number someone quotes in a pitch. "21K" says what we actually know.
+ */
+function formatFollowers(n) {
+  if (n == null) return '—';
+  if (n >= 1_000_000) return `${Math.round(n / 100_000) / 10}M`;
+  if (n >= 1_000) {
+    const k = n / 1000;
+    // 1.5K reads as measured; 21.0K reads as false precision.
+    return `${k < 10 ? Math.round(k * 10) / 10 : Math.round(k)}K`;
+  }
+  return String(n);
+}
+
+/**
  * Columns for hub leads.
  *
  * NO COMPANY AND NO INDUSTRY COLUMN, deliberately. A live search response
@@ -78,6 +97,6 @@ export const hubLeadColumns = [
     sortable: true,
     // null means the vendor did not tell us; 0 would be a claim about their
     // audience, and someone would act on it.
-    render: (value) => <TextCell value={value == null ? '—' : value.toLocaleString()} tone="secondary" />,
+    render: (value) => <TextCell value={formatFollowers(value)} tone="secondary" />,
   },
 ];
