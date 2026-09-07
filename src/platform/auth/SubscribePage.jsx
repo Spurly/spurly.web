@@ -10,6 +10,7 @@ import { DEFAULT_COUNTRY } from './countryCodes.js';
 import { StarIcon } from './icons.jsx';
 import subscriptionsController from 'src/platform/billing/controller.js';
 import { loadCashfreeSdk } from './cashfreeSdk.js';
+import { postAuthDestination } from './postAuthDestination.js';
 
 const FEATURES = [
   'Unlimited LinkedIn lead capture',
@@ -62,11 +63,14 @@ export default function SubscribePage() {
   const [promoError, setPromoError] = useState('');
 
   // Already active (e.g. paid in another tab, or comped)? Nothing to do here.
+  // Onboarding only for an account that hasn't done it — sending a returning
+  // subscriber to /onboarding forwards them to /onboarding/install, which has
+  // no way back to the app.
   useEffect(() => {
     if (status?.isActive()) {
-      navigate('/onboarding', { replace: true });
+      navigate(postAuthDestination(user), { replace: true });
     }
-  }, [status, navigate]);
+  }, [status, user, navigate]);
 
   const loadPricing = useCallback(async (code) => {
     setPricingLoading(true);
@@ -176,7 +180,7 @@ export default function SubscribePage() {
     setError('');
     const summary = await refetch();
     if (summary?.isActive()) {
-      navigate('/onboarding', { replace: true });
+      navigate(postAuthDestination(user), { replace: true });
     } else {
       toast.info("Still not active — if you just paid, give it a few seconds and try again.");
     }

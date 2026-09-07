@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from 'src/platform/auth/useAuth';
 import { useSubscription } from 'src/platform/billing/useSubscription';
+import { postAuthDestination } from './postAuthDestination.js';
 import { AuthShell, WelcomeAside } from './AuthShell.jsx';
 
 const POLL_INTERVAL_MS = 2000;
@@ -16,6 +18,7 @@ const POLL_TIMEOUT_MS = 30000;
  */
 export default function SubscribeCallbackPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { status, refetch } = useSubscription();
   const [timedOut, setTimedOut] = useState(false);
   // Set in an effect, not during render: Date.now() in the render body is
@@ -29,7 +32,8 @@ export default function SubscribeCallbackPage() {
 
   useEffect(() => {
     if (status?.isActive()) {
-      navigate('/onboarding', { replace: true });
+      // A first payment lands on onboarding; a renewal goes back to the app.
+      navigate(postAuthDestination(user), { replace: true });
       return;
     }
 
@@ -48,7 +52,7 @@ export default function SubscribeCallbackPage() {
 
     const id = setTimeout(refetch, POLL_INTERVAL_MS);
     return () => clearTimeout(id);
-  }, [status, refetch, navigate]);
+  }, [status, user, refetch, navigate]);
 
   return (
     <AuthShell aside={<WelcomeAside step={1} total={3} credits={100} />} bodyTop>
