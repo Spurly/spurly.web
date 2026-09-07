@@ -106,6 +106,7 @@
   --ui-warning-fg:   #b45309;
   --ui-warning-dot:  #f59e0b;
   --ui-warning-tint: #fffbeb;
+  --ui-warning-border: #e8d5b0;
 
   --ui-danger:       #dc2626;
   --ui-danger-fg:    #b91c1c;
@@ -270,6 +271,7 @@
 
   --ui-success-fg: #34d399; --ui-success-dot: #34d399; --ui-success-tint: rgba(52, 211, 153, 0.12);
   --ui-warning-fg: #fbbf24; --ui-warning-dot: #fbbf24; --ui-warning-tint: rgba(251, 191, 36, 0.12);
+  --ui-warning-border: rgba(251, 191, 36, 0.35);
   --ui-danger-fg:  #f87171; --ui-danger-dot:  #f87171; --ui-danger-tint:  rgba(248, 113, 113, 0.12);
   --ui-info-fg:    #60a5fa; --ui-info-dot:    #60a5fa; --ui-info-tint:    rgba(96, 165, 250, 0.12);
   --ui-text-inverse: #0e0e11;

@@ -14,7 +14,16 @@ export function stubGateway(routes = {}) {
     if (!key) throw new Error(`gateway stub: no route for ${method} ${url}`);
     return routes[key];
   };
-  const respond = (method) => vi.fn(async (url) => ({ data: pick(method, url) }));
+  /**
+   * A route may be a value or a function of the URL. The function form exists
+   * for state that CHANGES during a test — a list that is empty on the first
+   * poll and populated on the next. Pinning that with a fixed value would mean
+   * a separate mock per test and no way to assert the transition at all.
+   */
+  const respond = (method) => vi.fn(async (url, config) => {
+    const route = pick(method, url);
+    return { data: typeof route === 'function' ? route(url, config) : route };
+  });
   return {
     default: {
       get: respond('GET'),
