@@ -22,7 +22,12 @@ export function stubGateway(routes = {}) {
    */
   const respond = (method) => vi.fn(async (url, config) => {
     const route = pick(method, url);
-    return { data: typeof route === 'function' ? route(url, config) : route };
+    // Awaited, so a route may return a promise and model a SLOW response.
+    // Timing is the whole subject of some bugs: a request that resolves in the
+    // same microtask as the one that triggered it cannot reproduce anything
+    // that goes wrong while a request is in flight.
+    const value = typeof route === 'function' ? await route(url, config) : route;
+    return { data: value };
   });
   return {
     default: {
