@@ -11,10 +11,12 @@ import {
   Send,
   FileText,
   Network,
+  Radar,
 } from 'lucide-react';
 import { useAuth } from 'src/platform/auth/useAuth.js';
 import { useExtension } from 'src/platform/extension/useExtension';
 import { Avatar, Tooltip } from 'src/ui/primitives';
+import { ProductSwitcher } from './ProductSwitcher';
 
 /**
  * Nav grouped by where you are in the funnel, not as a flat list.
@@ -23,7 +25,7 @@ import { Avatar, Tooltip } from 'src/ui/primitives';
  * items and teach the product's shape through the navigation itself — capture
  * people, then engage them.
  */
-const NAV_SECTIONS = [
+const LEADGEN_SECTIONS = [
   {
     label: 'Prospect',
     items: [
@@ -42,6 +44,51 @@ const NAV_SECTIONS = [
     ],
   },
 ];
+
+/**
+ * Hub's nav is one item because hub is one feature so far. Campaigns arrive
+ * with the sending engine; adding the row now would be a link to nothing,
+ * which teaches the user the product is broken rather than that it is coming.
+ */
+const HUB_SECTIONS = [
+  {
+    label: 'Prospect',
+    items: [{ label: 'Leads', icon: Radar, href: '/hub/leads' }],
+  },
+];
+
+/**
+ * The two workspaces. Names are deliberately about what the user does, not how
+ * it is done — and never about the vendor, which must not reach the UI at all.
+ */
+const WORKSPACES = [
+  {
+    id: 'leadgen',
+    label: 'Capture',
+    hint: 'Capture from your browser, send with the extension',
+    home: '/dashboard/people',
+    settings: '/dashboard/settings',
+    sections: LEADGEN_SECTIONS,
+    showsExtension: true,
+  },
+  {
+    id: 'hub',
+    label: 'Hub',
+    hint: 'Source leads and send from our servers, on a schedule',
+    home: '/hub/leads',
+    settings: '/dashboard/settings/linkedin',
+    sections: HUB_SECTIONS,
+    // The extension is irrelevant here — hub sends without it. Reporting
+    // "Extension live" in a workspace it plays no part in is noise dressed as
+    // status. Hub's own equivalent is the LinkedIn connection, which cannot be
+    // read from platform without importing a product; it belongs in this
+    // footer once there is a platform-safe way to ask.
+    showsExtension: false,
+  },
+];
+
+const workspaceForPath = (pathname) =>
+  (pathname.startsWith('/hub') ? WORKSPACES[1] : WORKSPACES[0]);
 
 const ADMIN_ITEM = { label: 'Admin', icon: Shield, href: '/admin/users' };
 
@@ -201,9 +248,11 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
     navigate('/');
   };
 
+  const workspace = workspaceForPath(location.pathname);
+
   const sections = user?.isAdmin
-    ? [...NAV_SECTIONS, { label: 'Manage', items: [ADMIN_ITEM] }]
-    : NAV_SECTIONS;
+    ? [...workspace.sections, { label: 'Manage', items: [ADMIN_ITEM] }]
+    : workspace.sections;
 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--ui-surface-page)]">
@@ -226,14 +275,15 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
         className="flex flex-col h-full shrink-0 bg-[var(--ui-surface-sunken)] border-r border-[var(--ui-border)] transition-[width] duration-[var(--ui-dur-base)] ease-[cubic-bezier(0.2,0,0.1,1)]"
         style={{ width: expanded ? WIDTH_EXPANDED : WIDTH_COLLAPSED }}
       >
-        <div className={`flex items-center h-11 shrink-0 ${expanded ? 'px-3 gap-2' : 'justify-center'}`}>
-          <img src="/Spurly Icon Square.png" alt="" className="w-5 h-5 shrink-0 object-contain" />
+        <div className={`flex items-center h-11 shrink-0 ${expanded ? 'px-2 gap-1' : 'justify-center'}`}>
+          <ProductSwitcher
+            workspaces={WORKSPACES}
+            current={workspace.id}
+            expanded={expanded}
+            onSelect={(next) => navigate(next.home)}
+          />
           {expanded && (
             <>
-              <span className="text-[13px] font-medium tracking-[-0.006em] text-[var(--ui-text-primary)] truncate">
-                Spurly
-              </span>
-              <span className="flex-1" />
               <button
                 type="button"
                 onClick={() => setExpanded(false)}
@@ -287,7 +337,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
         </nav>
 
         <div className="shrink-0 px-2 pb-2 pt-2 border-t border-[var(--ui-border)] flex flex-col gap-px">
-          <ExtensionStatus expanded={expanded} />
+          {workspace.showsExtension && <ExtensionStatus expanded={expanded} />}
           <CreditsMeter
             expanded={expanded}
             balance={user?.creditBalance ?? 0}
@@ -297,7 +347,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
           <div className="h-2" />
 
           <NavRow
-            item={{ label: 'Settings', icon: Settings, href: '/dashboard/settings' }}
+            item={{ label: 'Settings', icon: Settings, href: workspace.settings }}
             active={isActive('/dashboard/settings')}
             expanded={expanded}
             onClick={() => navigate('/dashboard/settings')}

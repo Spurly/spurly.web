@@ -55,6 +55,7 @@ const CampaignDetailPage = lazy(() => import('src/products/leadgen/campaigns/Cam
 const TemplatesPage = lazy(() => import('src/products/leadgen/templates').then((m) => ({ default: m.TemplatesPage })));
 const SettingsPage = lazy(() => import('src/products/leadgen/settings').then((m) => ({ default: m.SettingsPage })));
 const LinkedInSettingsPage = lazy(() => import('src/products/hub/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
+const HubLeadsPage = lazy(() => import('src/products/hub/leads').then((m) => ({ default: m.HubLeadsPage })));
 const ImportPage = lazy(() => import('src/products/leadgen/import').then((m) => ({ default: m.ImportPage })));
 
 // Admin console
@@ -115,6 +116,14 @@ export function AppRoutes() {
       <Route path="/dashboard/import" element={<ProtectedRoute><SubscribeGate><ImportPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/settings" element={<ProtectedRoute><SubscribeGate><SettingsPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/settings/linkedin" element={<ProtectedRoute><SubscribeGate><LinkedInSettingsPage /></SubscribeGate></ProtectedRoute>} />
+
+      {/* Hub — the second workspace. Its own namespace rather than a branch of
+          /dashboard, so splitting it to its own bundle or subdomain later is
+          moving a folder rather than a rewrite (ARCHITECTURE.md §2b). Same
+          guards as the dashboard: entitlement (Plan.features.hub) arrives in
+          Phase 5 and adds a gate here, not a different shape. */}
+      <Route path="/hub" element={<Navigate to="/hub/leads" replace />} />
+      <Route path="/hub/leads" element={<ProtectedRoute><SubscribeGate><HubLeadsPage /></SubscribeGate></ProtectedRoute>} />
 
       {/* Legacy /leads paths — kept permanently so existing bookmarks and any
           extension deep links keep working after the rename to /people. The
