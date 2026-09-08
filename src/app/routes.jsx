@@ -58,6 +58,7 @@ const LinkedInSettingsPage = lazy(() => import('src/products/hub/settings').then
 const HubLeadsPage = lazy(() => import('src/products/hub/leads').then((m) => ({ default: m.HubLeadsPage })));
 const HubCampaignsPage = lazy(() => import('src/products/hub/campaigns').then((m) => ({ default: m.HubCampaignsPage })));
 const HubCampaignDetailPage = lazy(() => import('src/products/hub/campaigns').then((m) => ({ default: m.HubCampaignDetailPage })));
+const HubInboxPage = lazy(() => import('src/products/hub/inbox').then((m) => ({ default: m.HubInboxPage })));
 const ImportPage = lazy(() => import('src/products/leadgen/import').then((m) => ({ default: m.ImportPage })));
 
 // Admin console
@@ -128,6 +129,7 @@ export function AppRoutes() {
       <Route path="/hub/leads" element={<ProtectedRoute><SubscribeGate><HubLeadsPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/campaigns" element={<ProtectedRoute><SubscribeGate><HubCampaignsPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/campaigns/:id" element={<ProtectedRoute><SubscribeGate><HubCampaignDetailPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/inbox" element={<ProtectedRoute><SubscribeGate><HubInboxPage /></SubscribeGate></ProtectedRoute>} />
 
       {/* Legacy /leads paths — kept permanently so existing bookmarks and any
           extension deep links keep working after the rename to /people. The

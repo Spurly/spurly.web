@@ -12,6 +12,7 @@ import {
   FileText,
   Network,
   Radar,
+  Inbox,
 } from 'lucide-react';
 import { useAuth } from 'src/platform/auth/useAuth.js';
 import { useExtension } from 'src/platform/extension/useExtension';
@@ -58,7 +59,10 @@ const HUB_SECTIONS = [
   },
   {
     label: 'Engage',
-    items: [{ label: 'Campaigns', icon: Send, href: '/hub/campaigns' }],
+    items: [
+      { label: 'Campaigns', icon: Send, href: '/hub/campaigns' },
+      { label: 'Inbox', icon: Inbox, href: '/hub/inbox' },
+    ],
   },
 ];
 
