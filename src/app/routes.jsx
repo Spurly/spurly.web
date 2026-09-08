@@ -56,6 +56,8 @@ const TemplatesPage = lazy(() => import('src/products/leadgen/templates').then((
 const SettingsPage = lazy(() => import('src/products/leadgen/settings').then((m) => ({ default: m.SettingsPage })));
 const LinkedInSettingsPage = lazy(() => import('src/products/hub/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
 const HubLeadsPage = lazy(() => import('src/products/hub/leads').then((m) => ({ default: m.HubLeadsPage })));
+const HubCampaignsPage = lazy(() => import('src/products/hub/campaigns').then((m) => ({ default: m.HubCampaignsPage })));
+const HubCampaignDetailPage = lazy(() => import('src/products/hub/campaigns').then((m) => ({ default: m.HubCampaignDetailPage })));
 const ImportPage = lazy(() => import('src/products/leadgen/import').then((m) => ({ default: m.ImportPage })));
 
 // Admin console
@@ -124,6 +126,8 @@ export function AppRoutes() {
           Phase 5 and adds a gate here, not a different shape. */}
       <Route path="/hub" element={<Navigate to="/hub/leads" replace />} />
       <Route path="/hub/leads" element={<ProtectedRoute><SubscribeGate><HubLeadsPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/campaigns" element={<ProtectedRoute><SubscribeGate><HubCampaignsPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/campaigns/:id" element={<ProtectedRoute><SubscribeGate><HubCampaignDetailPage /></SubscribeGate></ProtectedRoute>} />
 
       {/* Legacy /leads paths — kept permanently so existing bookmarks and any
           extension deep links keep working after the rename to /people. The

@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Loader2, Play, Trash2, AlertTriangle, Linkedin } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Loader2, Play, Trash2, AlertTriangle, Linkedin, Send } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { DataTable } from 'src/platform/DataTable';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
 import { Button, Input, Badge, useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import { hubSourcingApi } from './api.js';
+import { hubCampaignsApi } from 'src/products/hub/campaigns/api.js';
 import { hubLeadColumns } from './columns.jsx';
 
 /**
@@ -118,9 +119,12 @@ export function HubLeadsPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [needsAccount, setNeedsAccount] = useState(false);
+  const [selected, setSelected] = useState(() => new Set());
+  const [creating, setCreating] = useState(false);
 
   const toast = useToast();
   const confirm = useConfirm();
+  const navigate = useNavigate();
   const pollRef = useRef(null);
 
   /**
@@ -131,7 +135,20 @@ export function HubLeadsPage() {
    * this effect re-run?". See the polling effect below for what that cost.
    */
   const mountedRef = useRef(true);
-  useEffect(() => () => { mountedRef.current = false; }, []);
+  /**
+   * Set on every mount, not only cleared on unmount.
+   *
+   * StrictMode mounts, unmounts and remounts in development. A cleanup-only
+   * version leaves this false for the life of the real mount, so every "am I
+   * still on screen?" guard fails, every response is discarded, and the page
+   * sits on its loading state over requests that plainly succeeded. It is
+   * invisible in production, where the double invoke does not happen — which
+   * is exactly what makes it worth a comment.
+   */
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const loadSearches = useCallback((signal) => {
     const live = () => mountedRef.current && !signal?.aborted;
@@ -248,6 +265,39 @@ export function HubLeadsPage() {
     }
   };
 
+  /**
+   * Selection to campaign in one click, no dialog.
+   *
+   * The server names the campaign and enrols the selection; the user lands on
+   * its page where the name, the note and the start button all are. A modal
+   * asking for a name first would put a form between the decision that matters
+   * — these people — and seeing what happens to them, and the same call was
+   * already made for the extension's campaigns.
+   *
+   * Nothing is sent by this. The campaign starts as a draft, which is why this
+   * button can be a single click at all.
+   */
+  const createCampaign = async () => {
+    if (selected.size === 0 || creating) return;
+    setCreating(true);
+    try {
+      const { campaign, enrolled } = await hubCampaignsApi.createCampaign({
+        leadIds: [...selected],
+      });
+      if (!campaign?._id) throw new Error('Campaign was not created');
+      // Says what actually joined rather than what was selected — they differ
+      // whenever a lead is already in that campaign.
+      toast.success(`${enrolled} lead(s) added. Nothing sends until you start it.`);
+      navigate(`/hub/campaigns/${campaign._id}`);
+    } catch (err) {
+      const code = err?.response?.data?.code;
+      if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
+      else toast.error(getToastError(err, 'Could not create that campaign'));
+    } finally {
+      if (mountedRef.current) setCreating(false);
+    }
+  };
+
   const activeSearch = searches.find((s) => s._id === activeSearchId) ?? null;
 
   return (
@@ -332,10 +382,25 @@ export function HubLeadsPage() {
               ? 'Paste a LinkedIn search above to build your first audience.'
               : 'Imports run in the background — this fills in as pages come back.'
           }
+          selectable
+          selectedKeys={selected}
+          onSelectionChange={setSelected}
           toolbar={{
             searchValue: query,
             onSearch: setQuery,
             searchPlaceholder: 'Search name, headline, company',
+            bulkActions: (
+              <Button
+                size="sm"
+                variant="primary"
+                leadingIcon={<Send size={13} />}
+                onClick={createCampaign}
+                loading={creating}
+                disabled={creating || selected.size === 0}
+              >
+                Create campaign
+              </Button>
+            ),
           }}
           pagination={{
             page: pagination.page,

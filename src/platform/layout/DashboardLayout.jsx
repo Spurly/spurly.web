@@ -46,14 +46,19 @@ const LEADGEN_SECTIONS = [
 ];
 
 /**
- * Hub's nav is one item because hub is one feature so far. Campaigns arrive
- * with the sending engine; adding the row now would be a link to nothing,
- * which teaches the user the product is broken rather than that it is coming.
+ * Two items, in the order the work happens: source an audience, then send to
+ * it. Campaigns arrived with the sending engine — before that the row would
+ * have been a link to nothing, which teaches the user the product is broken
+ * rather than that it is coming.
  */
 const HUB_SECTIONS = [
   {
     label: 'Prospect',
     items: [{ label: 'Leads', icon: Radar, href: '/hub/leads' }],
+  },
+  {
+    label: 'Engage',
+    items: [{ label: 'Campaigns', icon: Send, href: '/hub/campaigns' }],
   },
 ];
 
