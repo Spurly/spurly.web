@@ -1,3 +1,4 @@
+import { StrictMode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -187,6 +188,56 @@ describe('campaign detail', () => {
     renderAt('/hub/campaigns/camp-1');
 
     await waitFor(() => expect(screen.getByText(/already invited — including from the extension/i)).toBeInTheDocument());
+  });
+});
+
+/**
+ * StrictMode double-invokes effects in development: mount, clean up, mount
+ * again. Every page here guards its setState on a `mountedRef`, and a ref that
+ * is only ever cleared stays false through the real mount — so the data
+ * arrives, is discarded, and the page sits on "Loading…" forever.
+ *
+ * It never reaches production, where the double invoke does not happen, which
+ * is precisely why it needs a test: `npm run dev` was broken while every test
+ * and the build were green. Observed 2026-09-08 on both hub pages.
+ */
+describe('under StrictMode', () => {
+  const renderStrict = (route) => render(
+    <StrictMode>
+      <HelmetProvider>
+        <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }} initialEntries={[route]}>
+          <AuthContext.Provider value={signedInAs()}>
+            <SubscriptionContext.Provider value={{ status: { isActive: () => true }, loading: false, ready: true }}>
+              <ToastProvider><ConfirmProvider><AppRoutes /></ConfirmProvider></ToastProvider>
+            </SubscriptionContext.Provider>
+          </AuthContext.Provider>
+        </MemoryRouter>
+      </HelmetProvider>
+    </StrictMode>,
+  );
+
+  it('the campaigns list still renders its rows after a remount', async () => {
+    campaigns = [{
+      _id: 'camp-1',
+      name: 'Q3 founders',
+      status: 'running',
+      counts: { total: 3, pending: 2, invited: 1, skipped: 0, failed: 0 },
+    }];
+
+    renderStrict('/hub/campaigns');
+
+    await waitFor(() => expect(screen.getByText('Q3 founders')).toBeInTheDocument());
+    expect(screen.queryByText(/^Loading…$/)).not.toBeInTheDocument();
+  });
+
+  it('the campaign detail still renders after a remount', async () => {
+    renderStrict('/hub/campaigns/camp-1');
+    await waitFor(() => expect(screen.getByText(/outside your sending hours/i)).toBeInTheDocument());
+  });
+
+  it('the leads table still fills after a remount', async () => {
+    renderStrict('/hub/leads');
+    await waitFor(() => expect(screen.getByText('Asha Menon')).toBeInTheDocument());
   });
 });
 

@@ -141,7 +141,20 @@ export function CampaignDetailPage() {
 
   const toast = useToast();
   const mountedRef = useRef(true);
-  useEffect(() => () => { mountedRef.current = false; }, []);
+  /**
+   * Set on every mount, not only cleared on unmount.
+   *
+   * StrictMode mounts, unmounts and remounts in development. A cleanup-only
+   * version leaves this false for the life of the real mount, so every "am I
+   * still on screen?" guard fails, every response is discarded, and the page
+   * sits on its loading state over requests that plainly succeeded. It is
+   * invisible in production, where the double invoke does not happen — which
+   * is exactly what makes it worth a comment.
+   */
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const load = useCallback(() => hubCampaignsApi.getCampaign(id)
     .then((next) => { if (mountedRef.current) setData(next); })
