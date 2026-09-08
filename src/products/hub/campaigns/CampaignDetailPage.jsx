@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Clock, Loader2, Lock, Pause, Play, RotateCcw } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Clock, Loader2, Lock, Pause, Play, RotateCcw } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { DataTable } from 'src/platform/DataTable';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
 import { Button, Badge, useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
+import { relativeTime } from 'src/shared/utils/outreach';
 import { hubCampaignsApi } from './api.js';
 import { hubMemberColumns } from './columns.jsx';
 
@@ -23,6 +24,15 @@ import { hubMemberColumns } from './columns.jsx';
 
 const POLL_MS = 10000;
 
+/**
+ * `relativeTime` answers "just now" under a minute, which does not take the
+ * " ago" every other value wants. Same guard DateCell makes.
+ */
+const sinceLabel = (value) => {
+  const rel = relativeTime(value);
+  return rel === 'just now' ? 'just now' : `${rel} ago`;
+};
+
 const STATUS_VIEW = {
   draft: { label: 'Draft', tone: 'neutral' },
   running: { label: 'Running', tone: 'success' },
@@ -36,8 +46,42 @@ const STATUS_VIEW = {
  * Only shown while running: on a draft it would be answering a question nobody
  * has asked yet, and on a paused campaign the pause is the answer.
  */
-function PacingBanner({ campaign, pacing }) {
+/**
+ * The sender has stopped checking in.
+ *
+ * Shown ABOVE the pacing banner and instead of trusting it, because when the
+ * worker is dead every word underneath is describing rules that nothing is
+ * applying. This is the one state where the page must contradict the campaign's
+ * own status.
+ */
+function SenderDownBanner({ sender }) {
+  if (!sender?.expected || !sender.stale) return null;
+
+  return (
+    <div
+      className="flex items-start gap-2 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--separator)]"
+      style={{ background: 'var(--ui-warning-tint)' }}
+    >
+      <AlertTriangle size={14} className="mt-0.5 shrink-0" style={{ color: 'var(--ui-warning-fg)' }} aria-hidden="true" />
+      <div className="min-w-0">
+        <p className="text-[12px]" style={{ color: 'var(--ui-warning-fg)' }}>
+          This campaign says it is running, but nothing has picked it up
+          {sender.lastRunAt ? ` since ${sinceLabel(sender.lastRunAt)}` : ' yet'}.
+          No invitations are going out.
+        </p>
+        <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">
+          The scheduled sender checks in every minute. If this persists, it is not running.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function PacingBanner({ campaign, pacing, sender }) {
   if (!pacing || campaign.status !== 'running') return null;
+  // A dead worker is not a pacing state, and saying "sending now" over one
+  // would be the page's most confident lie.
+  if (sender?.expected && sender.stale) return null;
 
   const sending = pacing.ok;
   return (
@@ -60,6 +104,14 @@ function PacingBanner({ campaign, pacing }) {
               spending the same allowance. */}
           {' '}across everything you send.
         </p>
+        {/* The heartbeat, stated quietly when it is fine. A campaign that is
+            deliberately idle and one that nothing is serving look identical
+            without it. */}
+        {sender?.lastRunAt && (
+          <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">
+            Sender last checked in {sinceLabel(sender.lastRunAt)}.
+          </p>
+        )}
       </div>
     </div>
   );
@@ -288,7 +340,8 @@ export function CampaignDetailPage() {
         )}
 
         <SectionCard title="Message" noPadding>
-          <PacingBanner campaign={campaign} pacing={data.pacing} />
+          <SenderDownBanner sender={data.sender} />
+          <PacingBanner campaign={campaign} pacing={data.pacing} sender={data.sender} />
           <NoteEditor
             key={campaign.note || 'no-note'}
             campaign={campaign}

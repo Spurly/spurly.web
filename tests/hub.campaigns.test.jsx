@@ -85,6 +85,7 @@ const aDetail = (over = {}) => ({
   campaign: { _id: 'camp-1', name: 'Q3 founders', status: 'running', note: '', error: '', ...over.campaign },
   counts: { total: 3, pending: 2, invited: 1, skipped: 0, failed: 0, ...over.counts },
   account: { status: 'OK', isPremium: false, notesAllowed: false, noteCap: 200, ...over.account },
+  sender: { expected: true, stale: false, lastRunAt: new Date().toISOString(), staleAfterMs: 300000, ...over.sender },
   pacing: {
     ok: false,
     reason: 'outside-hours',
@@ -201,6 +202,45 @@ describe('campaign detail', () => {
  * is precisely why it needs a test: `npm run dev` was broken while every test
  * and the build were green. Observed 2026-09-08 on both hub pages.
  */
+/**
+ * The heartbeat.
+ *
+ * "Running" is what the user asked for; it is not evidence that anything is
+ * acting on it. A dead cron is completely silent, so without this the page
+ * would keep reporting a paced, healthy campaign over a worker that stopped
+ * hours ago — the exact failure the user most needs to see.
+ */
+describe('the sender heartbeat', () => {
+  it('mentions the last check-in quietly when everything is fine', async () => {
+    renderAt('/hub/campaigns/camp-1');
+    await waitFor(() => expect(screen.getByText(/sender last checked in/i)).toBeInTheDocument());
+    expect(screen.queryByText(/nothing has picked it up/i)).not.toBeInTheDocument();
+  });
+
+  it('contradicts the campaign’s own status when nothing has picked it up', async () => {
+    detail = aDetail({ sender: { expected: true, stale: true, lastRunAt: '2026-09-08T09:00:00.000Z' } });
+
+    renderAt('/hub/campaigns/camp-1');
+
+    await waitFor(() => expect(screen.getByText(/nothing has picked it up/i)).toBeInTheDocument());
+    expect(screen.getByText(/no invitations are going out/i)).toBeInTheDocument();
+    // The pacing banner is suppressed: describing rules nothing is applying is
+    // the most confident lie this page could tell.
+    expect(screen.queryByText(/sending now, a few at a time/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/outside your sending hours/i)).not.toBeInTheDocument();
+  });
+
+  it('says nothing at all about a campaign that is not running', async () => {
+    detail = aDetail({ campaign: { status: 'paused' }, sender: { expected: false, stale: false, lastRunAt: null } });
+
+    renderAt('/hub/campaigns/camp-1');
+
+    await waitFor(() => expect(screen.getByText(/plain connection request/i)).toBeInTheDocument());
+    expect(screen.queryByText(/nothing has picked it up/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/sender last checked in/i)).not.toBeInTheDocument();
+  });
+});
+
 describe('under StrictMode', () => {
   const renderStrict = (route) => render(
     <StrictMode>
