@@ -13,6 +13,10 @@ const { SubscriptionContext } = await import('src/platform/billing/SubscriptionC
 const { ToastProvider, ConfirmProvider } = await import('src/ui/primitives');
 const { AppRoutes } = await import('src/app/routes');
 const { anonymousAuth, signedInAs } = await import('./helpers.jsx');
+const { SubscriptionSummary } = await import('src/platform/billing/Subscription');
+
+/** The real entity, not a hand-rolled stand-in — see hub.leads.test.jsx. */
+const subscriber = SubscriptionSummary.fromResponse({ status: 'active', features: { hub: true } });
 
 function renderRoutes(route, { auth = anonymousAuth, sub = { status: null, loading: false, ready: true } } = {}) {
   return render(
@@ -44,7 +48,7 @@ describe('lazy routes', () => {
   it('resolves a guarded dashboard chunk for a subscribed user', async () => {
     renderRoutes('/dashboard/people', {
       auth: signedInAs(),
-      sub: { status: { isActive: () => true }, loading: false, ready: true },
+      sub: { status: subscriber, loading: false, ready: true },
     });
     // PeoplePage is behind ProtectedRoute + SubscribeGate + lazy(); reaching
     // any of its chrome proves the whole path resolved.

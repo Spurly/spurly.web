@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, Lock } from 'lucide-react';
 import { Tooltip } from 'src/ui/primitives';
 
 /**
@@ -9,13 +9,15 @@ import { Tooltip } from 'src/ui/primitives';
  * and routes change, same SPA, same session, no reload. Not two apps, and not
  * a redirect.
  *
- * BOTH ENTRIES ARE ALWAYS VISIBLE. When entitlement lands (Phase 5,
- * `Plan.features.hub`) a user without hub sees it here locked with an upgrade
- * prompt rather than not at all — a lower tier seeing the upper tier daily, in
- * context, while they work, is the entire reason these live in one app instead
- * of behind a redirect. `locked` below is the seam for that; nothing sets it
- * yet, and a lock that pretends to gate something ungated would be worse than
- * none.
+ * BOTH ENTRIES ARE ALWAYS VISIBLE. A user without hub (Plan.features.hub,
+ * Phase 5) sees it here locked rather than not at all — a lower tier seeing
+ * the upper tier daily, in context, while they work, is the entire reason
+ * these live in one app instead of behind a redirect.
+ *
+ * A locked entry stays CLICKABLE and leads to the upgrade page. `disabled`
+ * was the obvious reading of "locked" and the wrong one: a control that does
+ * nothing teaches nothing, and the entry exists precisely to be pressed by
+ * somebody wondering what it is.
  *
  * It lives in platform/layout rather than the `app/ProductSwitcher.jsx` the
  * architecture doc names, because DashboardLayout is platform and the boundary
@@ -104,26 +106,28 @@ export function ProductSwitcher({ workspaces, current, expanded, onSelect }) {
                 key={w.id}
                 type="button"
                 role="menuitem"
-                disabled={w.locked}
                 onClick={() => {
                   setOpen(false);
-                  if (!isCurrent) onSelect(w);
+                  if (!isCurrent || w.locked) onSelect(w);
                 }}
                 className={[
                   'w-full flex items-start gap-2 px-2 py-1.5 rounded-[var(--ui-radius-sm)] text-left',
                   'transition-colors duration-[var(--ui-dur-fast)] focus:outline-none',
-                  w.locked
-                    ? 'opacity-60 cursor-not-allowed'
-                    : 'hover:bg-[var(--ui-surface-rail-hover)] focus-visible:bg-[var(--ui-surface-rail-hover)]',
+                  'hover:bg-[var(--ui-surface-rail-hover)] focus-visible:bg-[var(--ui-surface-rail-hover)]',
                 ].join(' ')}
               >
                 <span className="flex-1 min-w-0">
-                  <span className="block text-[13px] text-[var(--ui-text-primary)] truncate">{w.label}</span>
+                  <span className="flex items-center gap-1.5 text-[13px] text-[var(--ui-text-primary)]">
+                    <span className="truncate">{w.label}</span>
+                    {w.locked && (
+                      <Lock size={11} className="shrink-0 text-[var(--ui-text-tertiary)]" aria-hidden="true" />
+                    )}
+                  </span>
                   <span className="block text-[11px] text-[var(--ui-text-tertiary)] leading-snug">
                     {w.locked ? w.lockedHint : w.hint}
                   </span>
                 </span>
-                {isCurrent && (
+                {isCurrent && !w.locked && (
                   <Check size={14} className="shrink-0 mt-0.5 text-[var(--ui-accent-fg)]" aria-hidden="true" />
                 )}
               </button>

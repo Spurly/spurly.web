@@ -194,6 +194,44 @@ export async function revokeBillingExemption(email) {
 }
 
 /**
+ * Hub entitlement — who may link a LinkedIn account, and what that is costing.
+ *
+ * These sit under /hub rather than /admin because hub is a product module and
+ * platform may not import a product. They are admin-guarded on the server and
+ * deliberately NOT behind the hub gate itself: an admin granting hub usually
+ * does not have hub.
+ */
+export async function getHubAccounts() {
+  const res = await apiGateway.get('/hub/admin/accounts');
+  return res.data;
+}
+
+export async function grantHubAccess({ email, userId }) {
+  const res = await apiGateway.post('/hub/admin/grant', { email, userId });
+  return res.data;
+}
+
+export async function revokeHubAccess({ email, userId }) {
+  const res = await apiGateway.post('/hub/admin/revoke', { email, userId });
+  return res.data;
+}
+
+/**
+ * Accounts that exist at the provider but belong to nobody here — someone
+ * connected from the provider's own dashboard, so there is no proof of whose
+ * they are. An admin reading the LinkedIn name supplies that proof.
+ */
+export async function getUnownedHubAccounts() {
+  const res = await apiGateway.get('/hub/admin/unowned');
+  return res.data;
+}
+
+export async function bindHubAccount({ email, userId, unipileAccountId }) {
+  const res = await apiGateway.post('/hub/admin/bind', { email, userId, unipileAccountId });
+  return res.data;
+}
+
+/**
  * Payments (read-only).
  *
  * There is deliberately no create/update/delete here — a payment records

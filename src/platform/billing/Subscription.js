@@ -85,6 +85,18 @@ export class SubscriptionSummary {
     // Comped accounts report status 'active' with no payment behind it.
     this.exempt = !!data?.exempt;
     this.exemptReason = data?.exemptReason || null;
+    /**
+     * Entitlements — what the plan INCLUDES, which is a different question
+     * from whether it is paid up. They ride on this payload rather than an
+     * endpoint of their own because the two are always read together: a UI
+     * holding one without the other flashes a locked workspace at a paying
+     * customer, or an unlocked one at somebody who never bought it.
+     *
+     * Absent means false. An older backend, a failed plan read, a truncated
+     * response — none of those are evidence that someone owns hub, and the
+     * API refuses the request regardless of what this says.
+     */
+    this.features = { hub: !!data?.features?.hub };
   }
 
   static fromResponse(data) {
@@ -106,6 +118,17 @@ export class SubscriptionSummary {
   /** Access granted without payment — worth showing differently in settings. */
   isComped() {
     return this.exempt === true;
+  }
+
+  /**
+   * Does this account include the outreach hub?
+   *
+   * Entitlement AND standing, in that order — a hub plan that has lapsed is
+   * not access to anything, and the routes already send a lapsed account to
+   * /subscribe before this is ever asked.
+   */
+  hasHub() {
+    return this.isActive() && this.features.hub === true;
   }
 }
 

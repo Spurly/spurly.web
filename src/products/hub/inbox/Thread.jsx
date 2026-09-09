@@ -102,14 +102,33 @@ export function Thread({ chatId, onChanged }) {
 
   useEffect(() => { load(); }, [load]);
 
-  /** Opening a conversation is what reads it. Local only — see api#markRead. */
+  /**
+   * Opening a conversation is what reads it. Local only — see api#markRead.
+   *
+   * 🔴 `onChanged` IS KEPT IN A REF AND OUT OF THE DEPENDENCIES, and that is
+   * load-bearing rather than tidiness. The parent passes `onChanged={() =>
+   * load()}` — a new function identity on every one of its renders. With it in
+   * the dependency array this effect ran, called markRead, called onChanged,
+   * which reloaded the list, which re-rendered the parent, which produced a
+   * new onChanged, which re-ran this effect… An infinite request loop bounded
+   * only by network latency: three requests every few hundred milliseconds,
+   * for as long as a conversation was open. Visible in the Network tab as
+   * read / chats / inbox repeating for ever.
+   *
+   * `chatId` alone is the honest dependency: opening a conversation reads it,
+   * once. The component is keyed by chat id and remounts per conversation
+   * anyway, so this fires exactly when it should.
+   */
+  const onChangedRef = useRef(onChanged);
+  useEffect(() => { onChangedRef.current = onChanged; });
+
   useEffect(() => {
     if (!chatId) return;
-    hubInboxApi.markRead(chatId).then(onChanged).catch(() => {
+    hubInboxApi.markRead(chatId).then(() => onChangedRef.current?.()).catch(() => {
       // A badge that stays lit is not worth a toast over. The next sync or
       // reload clears it, and nothing the user did failed.
     });
-  }, [chatId, onChanged]);
+  }, [chatId]);
 
   // Jump to the newest message — the bottom of a conversation is where a
   // reader starts, not the top.

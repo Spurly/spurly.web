@@ -10,9 +10,16 @@ import { getToastError } from 'src/shared/utils/apiError';
  * runs in edit mode (the internal `name` key is immutable to avoid breaking
  * seed/backfill references); otherwise it creates a new plan.
  *
- * Fields mirror the Plan schema: name, displayName, isActive, isDefault, and
- * the three daily limits (captureCardsPerDay, sendConnectionsPerDay,
- * sendMessagesPerDay).
+ * Fields mirror the Plan schema: name, displayName, isActive, isDefault, rank,
+ * the three daily limits, and the feature flags.
+ *
+ * RANK AND FEATURES ARE NOT COSMETIC. Rank is what makes "a higher tier must
+ * be a superset of the tier below" a checkable statement — the server rejects
+ * a save that breaks it, in either direction, and the message names the plan
+ * and the field. Hub is what lets a plan's users link a LinkedIn account, and
+ * every linked account is ~EUR 5/month against the vendor's peak-accounts
+ * figure. Both are surfaced here rather than left to the CLI, because a switch
+ * that spends money should be visible to whoever is editing the plan.
  */
 export default function PlanFormModal({ plan, onClose, onSuccess }) {
   const isEdit = Boolean(plan);
@@ -29,6 +36,8 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
   const [sendMessagesPerDay, setSendMessagesPerDay] = useState(
     String(plan?.limits?.sendMessagesPerDay ?? 25)
   );
+  const [rank, setRank] = useState(String(plan?.rank ?? 0));
+  const [hub, setHub] = useState(Boolean(plan?.features?.hub));
 
   const [loading, setLoading] = useState(false);
   /* Field validation only — these point at specific inputs. */
@@ -60,6 +69,10 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
       setError('All limits must be numbers ≥ 0');
       return;
     }
+    if (!validNumber(rank)) {
+      setError('Tier must be a number ≥ 0');
+      return;
+    }
 
     const limits = {
       captureCardsPerDay: Number(captureCardsPerDay),
@@ -70,18 +83,24 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
     setLoading(true);
     try {
       let result;
+      const features = { hub };
+
       if (isEdit) {
         result = await updatePlan(plan._id, {
           displayName: displayName.trim(),
           isActive,
+          rank: Number(rank),
           limits,
+          features,
         });
       } else {
         result = await createPlan({
           name: name.trim().toLowerCase(),
           displayName: displayName.trim(),
           isActive,
+          rank: Number(rank),
           limits,
+          features,
         });
       }
 
@@ -91,6 +110,10 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
         );
         onSuccess();
       } else {
+        // Shown in the form as well as the toast: the superset invariant's
+        // refusal names a field and another plan, and it is the kind of
+        // sentence you want to still be on screen while you fix the number.
+        setError(result.message || 'The plan could not be saved');
         toast.error(getToastError(result, isEdit ? "Couldn't update the plan" : "Couldn't create the plan"));
       }
     } catch (err) {
@@ -190,6 +213,45 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
                 className="input"
                 disabled={loading}
               />
+            </div>
+          </div>
+
+          {/* Tier + entitlements */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-2">Tier</label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={rank}
+                onChange={(e) => setRank(e.target.value)}
+                className="input"
+                disabled={loading}
+              />
+              <p className="text-[11px] text-[var(--ui-text-tertiary)] mt-1">
+                Higher is a superset of lower. A plan may not carry a smaller limit, or
+                fewer features, than any plan beneath it.
+              </p>
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-2">
+                Includes
+              </label>
+              <label className="flex items-center gap-2 text-[12px] text-[var(--ui-text-secondary)] cursor-pointer h-[34px]">
+                <input
+                  type="checkbox"
+                  checked={hub}
+                  onChange={(e) => setHub(e.target.checked)}
+                  disabled={loading}
+                  className="h-4 w-4"
+                />
+                Outreach hub
+              </label>
+              <p className="text-[11px] text-[var(--ui-text-tertiary)] mt-1">
+                Lets these users link a LinkedIn account — about €5/month each, billed on
+                the peak connected in any 30 days.
+              </p>
             </div>
           </div>
 

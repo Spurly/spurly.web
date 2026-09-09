@@ -284,7 +284,12 @@ export function HubInboxPage() {
                 reconciling — the draft, the scroll position and the loading
                 state all belong to one thread and none of them should survive
                 into the next. */}
-            <Thread key={openId || 'none'} chatId={openId} onChanged={() => load()} />
+            {/* `load` is already a useCallback, so passing it directly gives
+                Thread a stable identity instead of a fresh arrow per render.
+                Thread no longer depends on it either — see the note there —
+                but handing it a new function 30 times a minute was what made
+                that bug possible in the first place. */}
+            <Thread key={openId || 'none'} chatId={openId} onChanged={load} />
           </section>
         </div>
       )}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader, Plus, Ticket, Gift, X, Pencil, Trash2 } from 'lucide-react';
+import { Loader, Plus, Ticket, Gift, X, Pencil, Trash2, Radar, Link2 } from 'lucide-react';
 import {
   getPromoCodes,
   createPromoCode,
@@ -9,9 +9,14 @@ import {
   grantBillingExemption,
   revokeBillingExemption,
   getAllUsers,
+  getHubAccounts,
+  grantHubAccess,
+  revokeHubAccess,
+  getUnownedHubAccounts,
+  bindHubAccount,
 } from 'src/platform/admin/api';
 import { AdminLayout } from 'src/platform/admin/AdminLayout';
-import { Button, Badge, useToast } from 'src/ui/primitives';
+import { Button, Badge, useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 
 /**
@@ -23,10 +28,16 @@ import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
  *
  *   Promo codes — discounts customers apply themselves.
  *   Comped accounts — access granted outright, no payment involved.
+ *   Hub access — who may link a LinkedIn account, which costs US money.
  *
- * Neither writes payment history: a comp is a flag on the account and a promo
- * only ever reduces a real payment. That separation is what keeps revenue
- * reporting honest.
+ * The first two write no payment history: a comp is a flag on the account and
+ * a promo only ever reduces a real payment. That separation is what keeps
+ * revenue reporting honest.
+ *
+ * The third is the mirror image of the other two and belongs on the same
+ * screen for that reason: they are what an account is given for less money,
+ * this is what an account costs us. Every linked LinkedIn account is about
+ * €5/month against the vendor's peak-connected figure for a rolling 30 days.
  */
 
 const money = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
@@ -449,10 +460,236 @@ function ExemptionForm({ onCancel, onGranted }) {
   );
 }
 
+/* ------------------------------------------------------------------ hub */
+
+function HubGrantForm({ onCancel, onGranted }) {
+  const toast = useToast();
+  const [email, setEmail] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [usersError, setUsersError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setUsersLoading(true);
+      setUsersError('');
+      try {
+        const result = await getAllUsers(100, 0);
+        if (cancelled) return;
+        if (result.success) setUsers(result.data.users || []);
+        else setUsersError(result.message || 'Failed to load users');
+      } catch (err) {
+        if (!cancelled) setUsersError(getApiErrorMessage(err, 'Failed to load users'));
+      } finally {
+        if (!cancelled) setUsersLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  async function submit(e) {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const result = await grantHubAccess({ email: email.trim() });
+      if (result.success) {
+        toast.success(result.message || `${email.trim()} now has hub`);
+        onGranted();
+      } else {
+        toast.error(getToastError(result, "Couldn't grant hub access"));
+      }
+    } catch (err) {
+      toast.error(getToastError(err, "Couldn't grant hub access"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const field =
+    'w-full rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] px-3 py-2 text-[13px]';
+  const label = 'block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-1';
+
+  return (
+    <form
+      onSubmit={submit}
+      className="mb-5 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-sunken)] p-4"
+    >
+      <div className="max-w-[420px]">
+        <label className={label} htmlFor="hub-email">Account email</label>
+        <select
+          id="hub-email"
+          className={field}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          disabled={usersLoading || !!usersError}
+        >
+          <option value="" disabled>
+            {usersLoading ? 'Loading users…' : usersError ? 'Couldn’t load users' : 'Select an account'}
+          </option>
+          {users.map((u) => (
+            <option key={u._id} value={u.email}>
+              {u.email}{u.name ? ` — ${u.name}` : ''}
+            </option>
+          ))}
+        </select>
+        {usersError && <p className="mt-1 text-[12px] text-[var(--ui-warning-fg)]">{usersError}</p>}
+      </div>
+      {/* Says what granting actually does. There is no per-user hub flag — the
+          user is moved onto a plan that includes it — and an admin who thinks
+          otherwise will look for a switch that does not exist. */}
+      <p className="mt-3 text-[12px] text-[var(--ui-text-secondary)]">
+        Moves the account onto the Hub plan, creating it if it does not exist yet.
+        They can then link a LinkedIn account — about €5/month while it stays connected.
+      </p>
+      <div className="mt-4 flex items-center gap-2">
+        <Button type="submit" disabled={saving}>{saving ? 'Granting…' : 'Grant hub'}</Button>
+        <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
+      </div>
+    </form>
+  );
+}
+
+/**
+ * Link an account someone connected outside Spurly.
+ *
+ * The app adopts an account automatically only when it can PROVE it is the
+ * user's — a link intent we issued them, an account created after it, exactly
+ * one candidate. One API key is one provider tenant shared by production and
+ * every developer machine, so "adopt whatever is there" would let a laptop
+ * claim a customer's LinkedIn identity.
+ *
+ * An account connected from the provider's own dashboard has no intent and can
+ * never bind on its own. This form is the only thing allowed to stand in for
+ * that proof: an admin reading the LinkedIn name and saying whose it is.
+ */
+function HubBindForm({ onCancel, onBound }) {
+  const toast = useToast();
+  const [email, setEmail] = useState('');
+  const [accountId, setAccountId] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [accounts, setAccounts] = useState([]);
+  const [loadError, setLoadError] = useState('');
+  const [loadingLists, setLoadingLists] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoadingLists(true);
+      setLoadError('');
+      try {
+        const [userResult, accountResult] = await Promise.all([
+          getAllUsers(100, 0),
+          getUnownedHubAccounts(),
+        ]);
+        if (cancelled) return;
+        if (userResult.success) setUsers(userResult.data.users || []);
+        if (accountResult.success) setAccounts(accountResult.data?.accounts || []);
+        else setLoadError(accountResult.message || 'Could not read the provider');
+      } catch (err) {
+        if (!cancelled) setLoadError(getApiErrorMessage(err, 'Could not reach the provider'));
+      } finally {
+        if (!cancelled) setLoadingLists(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  async function submit(e) {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const result = await bindHubAccount({ email: email.trim(), unipileAccountId: accountId });
+      if (result.success) {
+        toast.success(result.message || 'Account linked');
+        onBound();
+      } else {
+        toast.error(getToastError(result, "Couldn't link that account"));
+      }
+    } catch (err) {
+      toast.error(getToastError(err, "Couldn't link that account"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const field =
+    'w-full rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] px-3 py-2 text-[13px]';
+  const label = 'block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-1';
+
+  return (
+    <form
+      onSubmit={submit}
+      className="mb-5 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-sunken)] p-4"
+    >
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
+          <label className={label} htmlFor="bind-account">Account at the provider</label>
+          <select
+            id="bind-account"
+            className={field}
+            value={accountId}
+            onChange={(e) => setAccountId(e.target.value)}
+            required
+            disabled={loadingLists || accounts.length === 0}
+          >
+            <option value="" disabled>
+              {loadingLists
+                ? 'Reading the provider…'
+                : accounts.length === 0
+                  ? 'Nothing unlinked at the provider'
+                  : 'Select an account'}
+            </option>
+            {accounts.map((a) => (
+              <option key={a.unipileAccountId} value={a.unipileAccountId}>
+                {a.linkedinName || '(unnamed)'} — {a.status}
+              </option>
+            ))}
+          </select>
+          {loadError && <p className="mt-1 text-[12px] text-[var(--ui-warning-fg)]">{loadError}</p>}
+        </div>
+        <div>
+          <label className={label} htmlFor="bind-email">Link it to</label>
+          <select
+            id="bind-email"
+            className={field}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={loadingLists}
+          >
+            <option value="" disabled>Select an account</option>
+            {users.map((u) => (
+              <option key={u._id} value={u.email}>
+                {u.email}{u.name ? ` — ${u.name}` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      {/* The name is the whole safeguard, so the copy points at it. */}
+      <p className="mt-3 text-[12px] text-[var(--ui-text-secondary)]">
+        Only accounts nobody here holds are listed. Check the LinkedIn name matches the person —
+        linking sends on their behalf, and nothing else proves whose account it is.
+      </p>
+      <div className="mt-4 flex items-center gap-2">
+        <Button type="submit" disabled={saving || !accountId}>
+          {saving ? 'Linking…' : 'Link account'}
+        </Button>
+        <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
+      </div>
+    </form>
+  );
+}
+
 /* ------------------------------------------------------------------ page */
 
 export function AdminBillingPage() {
   const toast = useToast();
+  const confirm = useConfirm();
 
   const [promos, setPromos] = useState([]);
   const [promosLoading, setPromosLoading] = useState(true);
@@ -465,9 +702,16 @@ export function AdminBillingPage() {
   const [exError, setExError] = useState('');
   const [showExForm, setShowExForm] = useState(false);
 
+  const [hubRows, setHubRows] = useState([]);
+  const [hubLoading, setHubLoading] = useState(true);
+  const [hubError, setHubError] = useState('');
+  const [showHubForm, setShowHubForm] = useState(false);
+  const [showBindForm, setShowBindForm] = useState(false);
+
   useEffect(() => {
     fetchPromos();
     fetchExemptions();
+    fetchHub();
   }, []);
 
   async function fetchPromos() {
@@ -511,6 +755,88 @@ export function AdminBillingPage() {
       setExError(getApiErrorMessage(err, 'Failed to load comped accounts'));
     } finally {
       setExLoading(false);
+    }
+  }
+
+  async function fetchHub() {
+    setHubLoading(true);
+    setHubError('');
+    try {
+      const result = await getHubAccounts();
+      if (result.success) {
+        setHubRows(result.data?.accounts || []);
+      } else {
+        setHubError(result.message || 'Failed to load hub accounts');
+      }
+    } catch (err) {
+      setHubError(getApiErrorMessage(err, 'Failed to load hub accounts'));
+    } finally {
+      setHubLoading(false);
+    }
+  }
+
+  /**
+   * Release a linked account that has no hub.
+   *
+   * This is the row that made the list confusing: revoked, still listed, no
+   * button, no explanation. It is listed BECAUSE it is still connected at the
+   * vendor and therefore still billed - an entitlement list would drop it and
+   * quietly keep paying. What it was missing was the way out.
+   *
+   * Same endpoint as Revoke: revoking a user who is already on the default
+   * plan is exactly "release their account".
+   */
+  async function disconnectHub(row) {
+    const ok = await confirm({
+      title: `Disconnect ${row.email}'s LinkedIn?`,
+      description: 'They have no hub access, so this account is connected at the vendor and being billed for nothing. Disconnecting releases the slot and pauses any running campaigns. Nothing is deleted.',
+      confirmLabel: 'Disconnect now',
+    });
+    if (!ok) return;
+
+    try {
+      const result = await revokeHubAccess({ userId: row.userId });
+      if (result.success) {
+        toast.success(result.message || `${row.email} was disconnected`);
+        fetchHub();
+      } else {
+        toast.error(getToastError(result, "Couldn't disconnect that account"));
+      }
+    } catch (err) {
+      toast.error(getToastError(err, "Couldn't disconnect that account"));
+    }
+  }
+
+  async function revokeHub(row) {
+    /*
+     * Confirmed because it takes effect at once and cannot be undone by
+     * pressing it again: re-granting restores the campaigns and messages, but
+     * the user has to walk the vendor's hosted auth page a second time. The
+     * dialog names that consequence rather than asking "are you sure?", which
+     * tells nobody anything.
+     */
+    const ok = await confirm({
+      title: `Revoke hub from ${row.email}?`,
+      description: row.account
+        ? 'Their LinkedIn account is disconnected immediately and any running campaigns are paused. Nothing is deleted — leads, campaigns and conversations all survive — but reconnecting means signing in through LinkedIn again.'
+        : 'They lose access to the hub. Nothing is linked, so there is nothing to disconnect.',
+      confirmLabel: 'Revoke hub',
+    });
+    if (!ok) return;
+
+    try {
+      const result = await revokeHubAccess({ userId: row.userId });
+      if (result.success) {
+        // The server's message distinguishes released / nothing-to-release /
+        // the vendor refused. Replacing it with "Revoked" here would collapse
+        // three outcomes into one, and one of the three is still costing money.
+        toast.success(result.message || `${row.email} no longer has hub`);
+        fetchHub();
+      } else {
+        toast.error(getToastError(result, "Couldn't revoke hub access"));
+      }
+    } catch (err) {
+      toast.error(getToastError(err, "Couldn't revoke hub access"));
     }
   }
 
@@ -712,6 +1038,136 @@ export function AdminBillingPage() {
                         <Button size="sm" variant="ghost" leadingIcon={<X size={13} />} onClick={() => revoke(row)}>
                           Revoke
                         </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Section>
+
+        <Section
+          icon={Radar}
+          title="Hub access"
+          description="Who may link a LinkedIn account and send from our servers. Unlike the two above, this one costs us money — about €5 per connected account per month, billed on the peak in any rolling 30 days. Revoking here disconnects immediately; an ordinary lapsed subscription gets a week's grace first. An account with no hub stays listed while its LinkedIn is still connected, because that is a slot we are still paying for."
+          action={
+            !showHubForm && !showBindForm && (
+              <div className="flex items-center gap-2">
+                {/* For an account connected from the provider's own dashboard,
+                    which can never bind on its own — see HubBindForm. */}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  leadingIcon={<Link2 size={14} />}
+                  onClick={() => { setShowBindForm(true); setShowHubForm(false); }}
+                >
+                  Link existing account
+                </Button>
+                <Button size="sm" leadingIcon={<Plus size={14} />} onClick={() => setShowHubForm(true)}>
+                  Grant hub
+                </Button>
+              </div>
+            )
+          }
+        >
+          {showHubForm && (
+            <HubGrantForm
+              onCancel={() => setShowHubForm(false)}
+              onGranted={() => {
+                setShowHubForm(false);
+                fetchHub();
+              }}
+            />
+          )}
+
+          {showBindForm && (
+            <HubBindForm
+              onCancel={() => setShowBindForm(false)}
+              onBound={() => {
+                setShowBindForm(false);
+                fetchHub();
+              }}
+            />
+          )}
+
+          {hubLoading ? (
+            <div className="flex justify-center py-6">
+              <Loader size={18} className="animate-spin text-[var(--ui-text-secondary)]" />
+            </div>
+          ) : hubError ? (
+            <Empty>{hubError}</Empty>
+          ) : !hubRows.length ? (
+            <Empty>Nobody has hub access.</Empty>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-[13px]">
+                <thead>
+                  <tr className="border-b border-[var(--ui-border-hairline)]">
+                    <th className={th}>Account</th>
+                    <th className={th}>Plan</th>
+                    <th className={th}>LinkedIn</th>
+                    <th className={th}>Status</th>
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {hubRows.map((row) => (
+                    <tr key={row.userId} className="border-b border-[var(--ui-border-hairline)] last:border-0">
+                      <td className="py-3 pr-3">
+                        <div className="font-medium text-[var(--ui-text-primary)]">
+                          {row.email || '(unknown user)'}
+                        </div>
+                        {row.account?.linkedinName && (
+                          <div className="text-[12px] text-[var(--ui-text-secondary)]">
+                            {row.account.linkedinName}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 pr-3 text-[13px] text-[var(--ui-text-secondary)]">
+                        {row.plan || 'default'}
+                      </td>
+                      {/* The column that costs money, kept separate from
+                          entitlement: a user with hub and nothing linked is
+                          free, and a linked account without hub is the row
+                          that is about to be released. */}
+                      <td className="py-3 pr-3">
+                        {row.account ? (
+                          <Badge size="sm" tone={row.account.status === 'OK' ? 'success' : 'warning'}>
+                            {row.account.status}
+                          </Badge>
+                        ) : (
+                          <span className="text-[var(--ui-text-tertiary)]">Not linked</span>
+                        )}
+                      </td>
+                      {/* Three states, and the middle one is why this column
+                          is not just a hub badge: no access but still linked
+                          means we are paying for an account nobody may use. */}
+                      <td className="py-3 pr-3">
+                        {row.hub ? (
+                          <Badge size="sm" tone="success">Active</Badge>
+                        ) : row.account?.graceEndsAt ? (
+                          <span className="text-[12px] text-[var(--ui-warning-fg)]">
+                            Releases {new Date(row.account.graceEndsAt).toLocaleDateString()}
+                          </span>
+                        ) : row.account ? (
+                          <span className="text-[12px] text-[var(--ui-warning-fg)]">
+                            Linked without access — still billed
+                          </span>
+                        ) : (
+                          <Badge size="sm">No hub</Badge>
+                        )}
+                      </td>
+                      <td className="py-3 text-right">
+                        {row.hub ? (
+                          <Button size="sm" variant="ghost" leadingIcon={<X size={13} />} onClick={() => revokeHub(row)}>
+                            Revoke
+                          </Button>
+                        ) : row.account ? (
+                          <Button size="sm" variant="ghost" leadingIcon={<X size={13} />} onClick={() => disconnectHub(row)}>
+                            Disconnect
+                          </Button>
+                        ) : null}
                       </td>
                     </tr>
                   ))}

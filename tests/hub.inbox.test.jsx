@@ -32,6 +32,7 @@ let chats = [];
 let thread = null;
 let sendBehaviour = () => ({ success: true, data: { sent: true } });
 const posted = [];
+const reads = [];
 
 vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
   'GET /hub/inbox': () => ({ success: true, data: summary }),
@@ -44,7 +45,7 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
     posted.push(config);
     return sendBehaviour();
   },
-  'POST /hub/inbox/chats/*/read': { success: true, data: { ok: true } },
+  'POST /hub/inbox/chats/*/read': () => { reads.push(Date.now()); return { success: true, data: { ok: true } }; },
   'POST /hub/inbox/sync': { success: true, data: { sync: { _id: 's1' } } },
   'GET /*': { success: true, data: {} },
   'POST /*': { success: true, data: {} },
@@ -52,6 +53,15 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
 
 const { AuthContext } = await import('src/platform/auth/AuthContext');
 const { SubscriptionContext } = await import('src/platform/billing/SubscriptionContext');
+import { SubscriptionSummary } from 'src/platform/billing/Subscription';
+
+/**
+ * The REAL summary entity, not a hand-rolled `{ isActive: () => true }`.
+ * These stubs stood in for a domain object and drifted from it: the day
+ * hasHub() was added, every one of them started throwing inside HubGate.
+ */
+const hubSubscriber = SubscriptionSummary.fromResponse({ status: 'active', features: { hub: true } });
+
 const { ToastProvider, ConfirmProvider } = await import('src/ui/primitives');
 const { AppRoutes } = await import('src/app/routes');
 const { signedInAs } = await import('./helpers.jsx');
@@ -62,7 +72,7 @@ function renderAt(route) {
       <HelmetProvider>
         <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }} initialEntries={[route]}>
           <AuthContext.Provider value={signedInAs()}>
-            <SubscriptionContext.Provider value={{ status: { isActive: () => true }, loading: false, ready: true }}>
+            <SubscriptionContext.Provider value={{ status: hubSubscriber, loading: false, ready: true }}>
               <ToastProvider><ConfirmProvider><AppRoutes /></ConfirmProvider></ToastProvider>
             </SubscriptionContext.Provider>
           </AuthContext.Provider>
@@ -114,6 +124,7 @@ beforeEach(() => {
   thread = aThread();
   sendBehaviour = () => ({ success: true, data: { sent: true } });
   posted.length = 0;
+  reads.length = 0;
 });
 
 describe('an empty inbox says WHY it is empty', () => {
@@ -257,5 +268,35 @@ describe('the thread', () => {
     expect(await screen.findByText(/Check the conversation there before sending again/i)).toBeInTheDocument();
     expect(box).toHaveValue('Might have gone out');
     expect(screen.queryByRole('button', { name: /try again|retry/i })).not.toBeInTheDocument();
+  });
+});
+
+describe('opening a conversation marks it read ONCE', () => {
+  /**
+   * 🔴 THE LOOP THIS PINS, seen live in the Network tab 2026-09-09.
+   *
+   * The mark-read effect listed `onChanged` in its dependencies, and the
+   * parent passed `onChanged={() => load()}` — a new function identity on
+   * every render. So: effect runs, marks read, calls onChanged, which reloads
+   * the list, which re-renders the parent, which makes a new onChanged, which
+   * re-runs the effect. Three requests every few hundred milliseconds, for as
+   * long as a conversation was open, against our API and our database.
+   *
+   * Nothing about the page LOOKED wrong, which is exactly why this is a test
+   * and not a code comment: a screenshot of a working inbox is what the bug
+   * looked like.
+   */
+  it('does not re-mark on every list reload', async () => {
+    renderAt('/hub/inbox?chat=chat-1');
+
+    await waitFor(() => expect(reads.length).toBeGreaterThan(0));
+
+    // Give the loop every chance to run: the reload that follows markRead has
+    // to settle, re-render the parent, and (in the bug) come back around.
+    await new Promise((r) => setTimeout(r, 300));
+
+    // StrictMode double-invokes effects in development, so two is the ceiling
+    // for a correct implementation. The loop produced far more than that.
+    expect(reads.length).toBeLessThanOrEqual(2);
   });
 });

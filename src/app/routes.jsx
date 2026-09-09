@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from 'src/app/ProtectedRoute';
 import { AdminRoute } from 'src/app/AdminRoute';
 import { SubscribeGate } from 'src/app/SubscribeGate';
+import { HubGate } from 'src/app/HubGate';
 import { RouteFallback } from 'src/app/RouteFallback';
 
 /**
@@ -55,6 +56,7 @@ const CampaignDetailPage = lazy(() => import('src/products/leadgen/campaigns/Cam
 const TemplatesPage = lazy(() => import('src/products/leadgen/templates').then((m) => ({ default: m.TemplatesPage })));
 const SettingsPage = lazy(() => import('src/products/leadgen/settings').then((m) => ({ default: m.SettingsPage })));
 const LinkedInSettingsPage = lazy(() => import('src/products/hub/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
+const HubUpgradePage = lazy(() => import('src/products/hub/upgrade'));
 const HubLeadsPage = lazy(() => import('src/products/hub/leads').then((m) => ({ default: m.HubLeadsPage })));
 const HubCampaignsPage = lazy(() => import('src/products/hub/campaigns').then((m) => ({ default: m.HubCampaignsPage })));
 const HubCampaignDetailPage = lazy(() => import('src/products/hub/campaigns').then((m) => ({ default: m.HubCampaignDetailPage })));
@@ -118,18 +120,24 @@ export function AppRoutes() {
       <Route path="/dashboard/templates" element={<ProtectedRoute><SubscribeGate><TemplatesPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/import" element={<ProtectedRoute><SubscribeGate><ImportPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/settings" element={<ProtectedRoute><SubscribeGate><SettingsPage /></SubscribeGate></ProtectedRoute>} />
-      <Route path="/dashboard/settings/linkedin" element={<ProtectedRoute><SubscribeGate><LinkedInSettingsPage /></SubscribeGate></ProtectedRoute>} />
+      {/* Hub's settings page, under /dashboard only because that is where the
+          user looks for settings. It carries HubGate like the rest of hub: this
+          is the page with the Connect button, and Connect is the click that
+          starts billing us for a linked account. */}
+      <Route path="/dashboard/settings/linkedin" element={<ProtectedRoute><SubscribeGate><HubGate><LinkedInSettingsPage /></HubGate></SubscribeGate></ProtectedRoute>} />
 
       {/* Hub — the second workspace. Its own namespace rather than a branch of
           /dashboard, so splitting it to its own bundle or subdomain later is
           moving a folder rather than a rewrite (ARCHITECTURE.md §2b). Same
-          guards as the dashboard: entitlement (Plan.features.hub) arrives in
-          Phase 5 and adds a gate here, not a different shape. */}
+          guards as the dashboard, plus HubGate: signed in, then paid up, then
+          entitled. /hub/upgrade is deliberately OUTSIDE that last gate — it is
+          where HubGate sends people, and gating it would be a redirect loop. */}
       <Route path="/hub" element={<Navigate to="/hub/leads" replace />} />
-      <Route path="/hub/leads" element={<ProtectedRoute><SubscribeGate><HubLeadsPage /></SubscribeGate></ProtectedRoute>} />
-      <Route path="/hub/campaigns" element={<ProtectedRoute><SubscribeGate><HubCampaignsPage /></SubscribeGate></ProtectedRoute>} />
-      <Route path="/hub/campaigns/:id" element={<ProtectedRoute><SubscribeGate><HubCampaignDetailPage /></SubscribeGate></ProtectedRoute>} />
-      <Route path="/hub/inbox" element={<ProtectedRoute><SubscribeGate><HubInboxPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/upgrade" element={<ProtectedRoute><SubscribeGate><HubUpgradePage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/leads" element={<ProtectedRoute><SubscribeGate><HubGate><HubLeadsPage /></HubGate></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/campaigns" element={<ProtectedRoute><SubscribeGate><HubGate><HubCampaignsPage /></HubGate></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/campaigns/:id" element={<ProtectedRoute><SubscribeGate><HubGate><HubCampaignDetailPage /></HubGate></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/inbox" element={<ProtectedRoute><SubscribeGate><HubGate><HubInboxPage /></HubGate></SubscribeGate></ProtectedRoute>} />
 
       {/* Legacy /leads paths — kept permanently so existing bookmarks and any
           extension deep links keep working after the rename to /people. The
