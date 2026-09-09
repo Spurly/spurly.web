@@ -639,6 +639,38 @@ export function AdminBillingPage() {
     }
   }
 
+  /**
+   * Release a linked account that has no hub.
+   *
+   * This is the row that made the list confusing: revoked, still listed, no
+   * button, no explanation. It is listed BECAUSE it is still connected at the
+   * vendor and therefore still billed - an entitlement list would drop it and
+   * quietly keep paying. What it was missing was the way out.
+   *
+   * Same endpoint as Revoke: revoking a user who is already on the default
+   * plan is exactly "release their account".
+   */
+  async function disconnectHub(row) {
+    const ok = await confirm({
+      title: `Disconnect ${row.email}'s LinkedIn?`,
+      description: 'They have no hub access, so this account is connected at the vendor and being billed for nothing. Disconnecting releases the slot and pauses any running campaigns. Nothing is deleted.',
+      confirmLabel: 'Disconnect now',
+    });
+    if (!ok) return;
+
+    try {
+      const result = await revokeHubAccess({ userId: row.userId });
+      if (result.success) {
+        toast.success(result.message || `${row.email} was disconnected`);
+        fetchHub();
+      } else {
+        toast.error(getToastError(result, "Couldn't disconnect that account"));
+      }
+    } catch (err) {
+      toast.error(getToastError(err, "Couldn't disconnect that account"));
+    }
+  }
+
   async function revokeHub(row) {
     /*
      * Confirmed because it takes effect at once and cannot be undone by
@@ -882,7 +914,7 @@ export function AdminBillingPage() {
         <Section
           icon={Radar}
           title="Hub access"
-          description="Who may link a LinkedIn account and send from our servers. Unlike the two above, this one costs us money — about €5 per connected account per month, billed on the peak in any rolling 30 days. Revoking here disconnects immediately; an ordinary lapsed subscription gets a week's grace first."
+          description="Who may link a LinkedIn account and send from our servers. Unlike the two above, this one costs us money — about €5 per connected account per month, billed on the peak in any rolling 30 days. Revoking here disconnects immediately; an ordinary lapsed subscription gets a week's grace first. An account with no hub stays listed while its LinkedIn is still connected, because that is a slot we are still paying for."
           action={
             !showHubForm && (
               <Button size="sm" leadingIcon={<Plus size={14} />} onClick={() => setShowHubForm(true)}>
@@ -950,23 +982,34 @@ export function AdminBillingPage() {
                           <span className="text-[var(--ui-text-tertiary)]">Not linked</span>
                         )}
                       </td>
+                      {/* Three states, and the middle one is why this column
+                          is not just a hub badge: no access but still linked
+                          means we are paying for an account nobody may use. */}
                       <td className="py-3 pr-3">
-                        {row.account?.graceEndsAt ? (
+                        {row.hub ? (
+                          <Badge size="sm" tone="success">Active</Badge>
+                        ) : row.account?.graceEndsAt ? (
                           <span className="text-[12px] text-[var(--ui-warning-fg)]">
                             Releases {new Date(row.account.graceEndsAt).toLocaleDateString()}
                           </span>
-                        ) : row.hub ? (
-                          <Badge size="sm" tone="success">Active</Badge>
+                        ) : row.account ? (
+                          <span className="text-[12px] text-[var(--ui-warning-fg)]">
+                            Linked without access — still billed
+                          </span>
                         ) : (
                           <Badge size="sm">No hub</Badge>
                         )}
                       </td>
                       <td className="py-3 text-right">
-                        {row.hub && (
+                        {row.hub ? (
                           <Button size="sm" variant="ghost" leadingIcon={<X size={13} />} onClick={() => revokeHub(row)}>
                             Revoke
                           </Button>
-                        )}
+                        ) : row.account ? (
+                          <Button size="sm" variant="ghost" leadingIcon={<X size={13} />} onClick={() => disconnectHub(row)}>
+                            Disconnect
+                          </Button>
+                        ) : null}
                       </td>
                     </tr>
                   ))}
