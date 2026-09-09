@@ -16,6 +16,11 @@ export function buildPlanColumns(onEdit) {
         <span className="flex items-center gap-2 min-w-0">
           <span className="truncate font-medium text-[var(--ui-text-primary)]">{value}</span>
           {row.isDefault && <Badge size="sm" tone="accent">Default</Badge>}
+          {/* The tier only means something next to the others, so it reads as
+              a suffix on the name rather than a column of lone numbers. */}
+          {(row.rank ?? 0) > 0 && (
+            <span className="shrink-0 text-[11px] text-[var(--ui-text-tertiary)]">T{row.rank}</span>
+          )}
         </span>
       ),
     },
@@ -49,6 +54,17 @@ export function buildPlanColumns(onEdit) {
       width: 150,
       align: 'right',
       render: (_v, row) => <NumberCell value={limit(row, 'sendMessagesPerDay')} />,
+    },
+    {
+      key: 'hub',
+      label: 'Hub',
+      width: 90,
+      // The column that costs money. A plan with hub lets its users link a
+      // LinkedIn account at ~€5/month each, so which plans carry it belongs on
+      // the list, not one click inside the edit modal.
+      render: (_v, row) => (row.features?.hub
+        ? <Badge size="sm" tone="accent">Included</Badge>
+        : <span className="text-[var(--ui-text-tertiary)]">—</span>),
     },
     {
       key: 'isActive',
