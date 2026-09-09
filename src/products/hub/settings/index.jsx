@@ -109,14 +109,44 @@ export function LinkedInSettingsPage() {
     setSearchParams({}, { replace: true });
 
     /**
+     * 🔴 ASK THE VENDOR, don't just re-read our own row.
+     *
+     * We have just come back from hosted auth, so an account may exist at the
+     * vendor that our database has never heard of — the binding callback goes
+     * to BACKEND_PUBLIC_URL, and on a developer machine the vendor cannot
+     * reach that at all, so it NEVER arrives. Reading our own row here is how
+     * the page ended up saying "Not connected" over an account the vendor
+     * showed as Running, for ever, every single time.
+     *
+     * `refresh` is the pull, and the server adopts an unbound account when it
+     * can prove we asked for it. Retried twice because hosted auth returns the
+     * user a moment before the account is listable; bounded because a third
+     * silence is a real problem and should look like one.
+     *
      * Deliberately NOT cancelled on cleanup, unlike the mount load above.
-     * Stripping the param changes searchParams, which re-runs this effect —
-     * so a cleanup that aborted would kill the very request it just started,
-     * and the page would keep showing the pre-connection account after a
-     * connection that actually worked.
+     * Stripping the param changes searchParams, which re-runs this effect — so
+     * a cleanup that aborted would kill the very request it just started.
      */
-    load();
-    return undefined;
+    if (linked !== '1') {
+      load();
+      return undefined;
+    }
+
+    let attempts = 0;
+    let timer = null;
+    const pull = () => {
+      attempts += 1;
+      hubAccountApi.refresh()
+        .then((next) => {
+          setAccount(next);
+          setLoading(false);
+          if (!next?.connected && attempts < 3) timer = setTimeout(pull, 5000);
+        })
+        .catch(() => load());
+    };
+    pull();
+
+    return () => clearTimeout(timer);
   }, [searchParams, setSearchParams, toast, load]);
 
   /**
@@ -282,9 +312,20 @@ function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconnect }) {
             </span>
           </p>
 
-          <div>
+          <div className="flex items-center gap-2">
             <Button onClick={onConnect} disabled={busy} leadingIcon={<Linkedin size={15} />}>
               {busy ? 'Opening…' : 'Connect LinkedIn'}
+            </Button>
+            {/* The way out of "I connected it and this still says no".
+                Our row only learns about a connection through a callback the
+                vendor sends to BACKEND_PUBLIC_URL — unreachable from a laptop,
+                and missable anywhere. This asks the vendor directly, which is
+                the same pull the server uses to adopt an account it can prove
+                we asked for. Without it the only remedy was running hosted
+                auth again, which is how people end up with two billed
+                accounts. */}
+            <Button variant="ghost" onClick={onRefresh} disabled={busy}>
+              {busy ? 'Checking…' : 'Already connected? Check again'}
             </Button>
           </div>
         </div>
