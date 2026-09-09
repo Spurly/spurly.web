@@ -63,6 +63,15 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
 
 const { AuthContext } = await import('src/platform/auth/AuthContext');
 const { SubscriptionContext } = await import('src/platform/billing/SubscriptionContext');
+import { SubscriptionSummary } from 'src/platform/billing/Subscription';
+
+/**
+ * The REAL summary entity, not a hand-rolled `{ isActive: () => true }`.
+ * These stubs stood in for a domain object and drifted from it: the day
+ * hasHub() was added, every one of them started throwing inside HubGate.
+ */
+const hubSubscriber = SubscriptionSummary.fromResponse({ status: 'active', features: { hub: true } });
+
 const { ToastProvider, ConfirmProvider } = await import('src/ui/primitives');
 const { AppRoutes } = await import('src/app/routes');
 const { signedInAs } = await import('./helpers.jsx');
@@ -72,7 +81,7 @@ function renderAt(route) {
     <HelmetProvider>
       <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }} initialEntries={[route]}>
         <AuthContext.Provider value={signedInAs()}>
-          <SubscriptionContext.Provider value={{ status: { isActive: () => true }, loading: false, ready: true }}>
+          <SubscriptionContext.Provider value={{ status: hubSubscriber, loading: false, ready: true }}>
             <ToastProvider><ConfirmProvider><AppRoutes /></ConfirmProvider></ToastProvider>
           </SubscriptionContext.Provider>
         </AuthContext.Provider>
@@ -247,7 +256,7 @@ describe('under StrictMode', () => {
       <HelmetProvider>
         <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }} initialEntries={[route]}>
           <AuthContext.Provider value={signedInAs()}>
-            <SubscriptionContext.Provider value={{ status: { isActive: () => true }, loading: false, ready: true }}>
+            <SubscriptionContext.Provider value={{ status: hubSubscriber, loading: false, ready: true }}>
               <ToastProvider><ConfirmProvider><AppRoutes /></ConfirmProvider></ToastProvider>
             </SubscriptionContext.Provider>
           </AuthContext.Provider>

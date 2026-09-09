@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   PanelLeftClose,
@@ -15,6 +15,7 @@ import {
   Inbox,
 } from 'lucide-react';
 import { useAuth } from 'src/platform/auth/useAuth.js';
+import { SubscriptionContext } from 'src/platform/billing/SubscriptionContext';
 import { useExtension } from 'src/platform/extension/useExtension';
 import { Avatar, Tooltip } from 'src/ui/primitives';
 import { ProductSwitcher } from './ProductSwitcher';
@@ -257,7 +258,44 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
     navigate('/');
   };
 
-  const workspace = workspaceForPath(location.pathname);
+  /**
+   * Hub is locked for a subscriber whose plan does not include it. The entry
+   * stays in the switcher and leads to the upgrade page instead of its own
+   * home - see ProductSwitcher for why it is not simply disabled.
+   *
+   * The sidebar is a courtesy, not the boundary: the API refuses hub requests
+   * with 403 whatever is rendered here, and HubGate redirects anyone who types
+   * the URL. So an entitlement we have not fetched yet locks nothing - a lock
+   * flashed at a paying customer on every load would be worse than a second of
+   * an unlocked entry that works.
+   */
+  const billing = useContext(SubscriptionContext);
+  const hubLocked = billing?.status ? !billing.status.hasHub() : false;
+
+  /*
+   * Read through the context rather than useSubscription() on purpose: this
+   * layout renders in places that have no billing provider - page-level tests
+   * among them - and useSubscription throws there, correctly, because a GATE
+   * that cannot see billing must not silently pass. A sidebar is not a gate.
+   * Absent billing renders the entry unlocked, exactly like a status that has
+   * not arrived yet, and HubGate plus the API's 403 still hold the line.
+   */
+
+  const workspaces = WORKSPACES.map((w) =>
+    (w.id === 'hub' && hubLocked
+      ? {
+        ...w,
+        locked: true,
+        lockedHint: 'Not included in your plan',
+        home: '/hub/upgrade',
+        // No nav rows: every one of them is a page this user is redirected
+        // out of. A sidebar full of links that bounce is worse than a bare one.
+        sections: [],
+      }
+      : w),
+  );
+
+  const workspace = workspaces.find((w) => w.id === workspaceForPath(location.pathname).id);
 
   const sections = user?.isAdmin
     ? [...workspace.sections, { label: 'Manage', items: [ADMIN_ITEM] }]
@@ -286,7 +324,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
       >
         <div className={`flex items-center h-11 shrink-0 ${expanded ? 'px-2 gap-1' : 'justify-center'}`}>
           <ProductSwitcher
-            workspaces={WORKSPACES}
+            workspaces={workspaces}
             current={workspace.id}
             expanded={expanded}
             onSelect={(next) => navigate(next.home)}
