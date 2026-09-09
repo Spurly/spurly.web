@@ -14,7 +14,7 @@ import {
   revokeHubAccess,
 } from 'src/platform/admin/api';
 import { AdminLayout } from 'src/platform/admin/AdminLayout';
-import { Button, Badge, useToast } from 'src/ui/primitives';
+import { Button, Badge, useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 
 /**
@@ -554,6 +554,7 @@ function HubGrantForm({ onCancel, onGranted }) {
 
 export function AdminBillingPage() {
   const toast = useToast();
+  const confirm = useConfirm();
 
   const [promos, setPromos] = useState([]);
   const [promosLoading, setPromosLoading] = useState(true);
@@ -639,12 +640,28 @@ export function AdminBillingPage() {
   }
 
   async function revokeHub(row) {
+    /*
+     * Confirmed because it takes effect at once and cannot be undone by
+     * pressing it again: re-granting restores the campaigns and messages, but
+     * the user has to walk the vendor's hosted auth page a second time. The
+     * dialog names that consequence rather than asking "are you sure?", which
+     * tells nobody anything.
+     */
+    const ok = await confirm({
+      title: `Revoke hub from ${row.email}?`,
+      description: row.account
+        ? 'Their LinkedIn account is disconnected immediately and any running campaigns are paused. Nothing is deleted — leads, campaigns and conversations all survive — but reconnecting means signing in through LinkedIn again.'
+        : 'They lose access to the hub. Nothing is linked, so there is nothing to disconnect.',
+      confirmLabel: 'Revoke hub',
+    });
+    if (!ok) return;
+
     try {
       const result = await revokeHubAccess({ userId: row.userId });
       if (result.success) {
-        // The server's message is the one that says the LinkedIn account keeps
-        // its slot for another week. Replacing it with "Revoked" here would
-        // drop exactly the half an admin does not already know.
+        // The server's message distinguishes released / nothing-to-release /
+        // the vendor refused. Replacing it with "Revoked" here would collapse
+        // three outcomes into one, and one of the three is still costing money.
         toast.success(result.message || `${row.email} no longer has hub`);
         fetchHub();
       } else {
@@ -865,7 +882,7 @@ export function AdminBillingPage() {
         <Section
           icon={Radar}
           title="Hub access"
-          description="Who may link a LinkedIn account and send from our servers. Unlike the two above, this one costs us money — about €5 per connected account per month, billed on the peak in any rolling 30 days."
+          description="Who may link a LinkedIn account and send from our servers. Unlike the two above, this one costs us money — about €5 per connected account per month, billed on the peak in any rolling 30 days. Revoking here disconnects immediately; an ordinary lapsed subscription gets a week's grace first."
           action={
             !showHubForm && (
               <Button size="sm" leadingIcon={<Plus size={14} />} onClick={() => setShowHubForm(true)}>
