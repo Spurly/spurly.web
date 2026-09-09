@@ -217,6 +217,21 @@ export async function revokeHubAccess({ email, userId }) {
 }
 
 /**
+ * Accounts that exist at the provider but belong to nobody here — someone
+ * connected from the provider's own dashboard, so there is no proof of whose
+ * they are. An admin reading the LinkedIn name supplies that proof.
+ */
+export async function getUnownedHubAccounts() {
+  const res = await apiGateway.get('/hub/admin/unowned');
+  return res.data;
+}
+
+export async function bindHubAccount({ email, userId, unipileAccountId }) {
+  const res = await apiGateway.post('/hub/admin/bind', { email, userId, unipileAccountId });
+  return res.data;
+}
+
+/**
  * Payments (read-only).
  *
  * There is deliberately no create/update/delete here — a payment records

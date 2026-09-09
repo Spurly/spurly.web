@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader, Plus, Ticket, Gift, X, Pencil, Trash2, Radar } from 'lucide-react';
+import { Loader, Plus, Ticket, Gift, X, Pencil, Trash2, Radar, Link2 } from 'lucide-react';
 import {
   getPromoCodes,
   createPromoCode,
@@ -12,6 +12,8 @@ import {
   getHubAccounts,
   grantHubAccess,
   revokeHubAccess,
+  getUnownedHubAccounts,
+  bindHubAccount,
 } from 'src/platform/admin/api';
 import { AdminLayout } from 'src/platform/admin/AdminLayout';
 import { Button, Badge, useToast, useConfirm } from 'src/ui/primitives';
@@ -550,6 +552,139 @@ function HubGrantForm({ onCancel, onGranted }) {
   );
 }
 
+/**
+ * Link an account someone connected outside Spurly.
+ *
+ * The app adopts an account automatically only when it can PROVE it is the
+ * user's — a link intent we issued them, an account created after it, exactly
+ * one candidate. One API key is one provider tenant shared by production and
+ * every developer machine, so "adopt whatever is there" would let a laptop
+ * claim a customer's LinkedIn identity.
+ *
+ * An account connected from the provider's own dashboard has no intent and can
+ * never bind on its own. This form is the only thing allowed to stand in for
+ * that proof: an admin reading the LinkedIn name and saying whose it is.
+ */
+function HubBindForm({ onCancel, onBound }) {
+  const toast = useToast();
+  const [email, setEmail] = useState('');
+  const [accountId, setAccountId] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [accounts, setAccounts] = useState([]);
+  const [loadError, setLoadError] = useState('');
+  const [loadingLists, setLoadingLists] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoadingLists(true);
+      setLoadError('');
+      try {
+        const [userResult, accountResult] = await Promise.all([
+          getAllUsers(100, 0),
+          getUnownedHubAccounts(),
+        ]);
+        if (cancelled) return;
+        if (userResult.success) setUsers(userResult.data.users || []);
+        if (accountResult.success) setAccounts(accountResult.data?.accounts || []);
+        else setLoadError(accountResult.message || 'Could not read the provider');
+      } catch (err) {
+        if (!cancelled) setLoadError(getApiErrorMessage(err, 'Could not reach the provider'));
+      } finally {
+        if (!cancelled) setLoadingLists(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  async function submit(e) {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const result = await bindHubAccount({ email: email.trim(), unipileAccountId: accountId });
+      if (result.success) {
+        toast.success(result.message || 'Account linked');
+        onBound();
+      } else {
+        toast.error(getToastError(result, "Couldn't link that account"));
+      }
+    } catch (err) {
+      toast.error(getToastError(err, "Couldn't link that account"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const field =
+    'w-full rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] px-3 py-2 text-[13px]';
+  const label = 'block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-1';
+
+  return (
+    <form
+      onSubmit={submit}
+      className="mb-5 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-sunken)] p-4"
+    >
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
+          <label className={label} htmlFor="bind-account">Account at the provider</label>
+          <select
+            id="bind-account"
+            className={field}
+            value={accountId}
+            onChange={(e) => setAccountId(e.target.value)}
+            required
+            disabled={loadingLists || accounts.length === 0}
+          >
+            <option value="" disabled>
+              {loadingLists
+                ? 'Reading the provider…'
+                : accounts.length === 0
+                  ? 'Nothing unlinked at the provider'
+                  : 'Select an account'}
+            </option>
+            {accounts.map((a) => (
+              <option key={a.unipileAccountId} value={a.unipileAccountId}>
+                {a.linkedinName || '(unnamed)'} — {a.status}
+              </option>
+            ))}
+          </select>
+          {loadError && <p className="mt-1 text-[12px] text-[var(--ui-warning-fg)]">{loadError}</p>}
+        </div>
+        <div>
+          <label className={label} htmlFor="bind-email">Link it to</label>
+          <select
+            id="bind-email"
+            className={field}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={loadingLists}
+          >
+            <option value="" disabled>Select an account</option>
+            {users.map((u) => (
+              <option key={u._id} value={u.email}>
+                {u.email}{u.name ? ` — ${u.name}` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      {/* The name is the whole safeguard, so the copy points at it. */}
+      <p className="mt-3 text-[12px] text-[var(--ui-text-secondary)]">
+        Only accounts nobody here holds are listed. Check the LinkedIn name matches the person —
+        linking sends on their behalf, and nothing else proves whose account it is.
+      </p>
+      <div className="mt-4 flex items-center gap-2">
+        <Button type="submit" disabled={saving || !accountId}>
+          {saving ? 'Linking…' : 'Link account'}
+        </Button>
+        <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
+      </div>
+    </form>
+  );
+}
+
 /* ------------------------------------------------------------------ page */
 
 export function AdminBillingPage() {
@@ -571,6 +706,7 @@ export function AdminBillingPage() {
   const [hubLoading, setHubLoading] = useState(true);
   const [hubError, setHubError] = useState('');
   const [showHubForm, setShowHubForm] = useState(false);
+  const [showBindForm, setShowBindForm] = useState(false);
 
   useEffect(() => {
     fetchPromos();
@@ -916,10 +1052,22 @@ export function AdminBillingPage() {
           title="Hub access"
           description="Who may link a LinkedIn account and send from our servers. Unlike the two above, this one costs us money — about €5 per connected account per month, billed on the peak in any rolling 30 days. Revoking here disconnects immediately; an ordinary lapsed subscription gets a week's grace first. An account with no hub stays listed while its LinkedIn is still connected, because that is a slot we are still paying for."
           action={
-            !showHubForm && (
-              <Button size="sm" leadingIcon={<Plus size={14} />} onClick={() => setShowHubForm(true)}>
-                Grant hub
-              </Button>
+            !showHubForm && !showBindForm && (
+              <div className="flex items-center gap-2">
+                {/* For an account connected from the provider's own dashboard,
+                    which can never bind on its own — see HubBindForm. */}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  leadingIcon={<Link2 size={14} />}
+                  onClick={() => { setShowBindForm(true); setShowHubForm(false); }}
+                >
+                  Link existing account
+                </Button>
+                <Button size="sm" leadingIcon={<Plus size={14} />} onClick={() => setShowHubForm(true)}>
+                  Grant hub
+                </Button>
+              </div>
             )
           }
         >
@@ -928,6 +1076,16 @@ export function AdminBillingPage() {
               onCancel={() => setShowHubForm(false)}
               onGranted={() => {
                 setShowHubForm(false);
+                fetchHub();
+              }}
+            />
+          )}
+
+          {showBindForm && (
+            <HubBindForm
+              onCancel={() => setShowBindForm(false)}
+              onBound={() => {
+                setShowBindForm(false);
                 fetchHub();
               }}
             />
