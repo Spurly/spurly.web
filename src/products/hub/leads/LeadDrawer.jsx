@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { MapPin, Briefcase, GraduationCap, Users } from 'lucide-react';
-import { Avatar, Badge, Drawer, Skeleton } from 'src/ui/primitives';
+import { MapPin, Briefcase, GraduationCap, Users, UserX } from 'lucide-react';
+import { Avatar, Badge, Button, Drawer, Skeleton } from 'src/ui/primitives';
 import { LinkedInIcon } from 'src/ui/icons';
 import { hubSourcingApi } from './api.js';
 
@@ -21,10 +21,11 @@ import { hubSourcingApi } from './api.js';
  *
  * ONE PANEL, NOT TABS — for now. The Contacts drawer splits into tabs because
  * it mixes four independently-fetched concerns (profile, contact info,
- * research, outreach activity). Hub currently has exactly one: the resolved
- * profile. Splitting into tabs today would be structure with nothing to
- * organize; add a second tab (invitation timeline, once 1c's reconciliation
- * exists) before reaching for `Tabs`.
+ * research, outreach activity). Hub currently has two related but still
+ * single-panel-sized concerns (the resolved profile, and — once 1c's
+ * reconciliation job has run — a pending-invitation banner with a withdraw
+ * action). Splitting into tabs is still not worth it yet; add a real
+ * invitation TIMELINE (not just current status) before reaching for `Tabs`.
  *
  * THE RESOLVE-ON-OPEN TRIGGER — this is the surface Sarthak chose (2026-09-10)
  * for Phase 6 1a's "resolve once, on open" requirement: opening this drawer
@@ -94,6 +95,43 @@ function HistoryRow({ icon: Icon, primary, secondary, meta }) {
 function dateRange(start, end) {
   if (!start && !end) return null;
   return `${start || '?'} – ${end || 'Present'}`;
+}
+
+/**
+ * PHASE 6 (1c). Shown only once the reconciliation job has actually looked
+ * at this lead (`pendingInvitationId` is set server-side, never guessed
+ * client-side — see sourcing/service.js#withdrawInvitation). A lead with a
+ * pending invite Hub hasn't reconciled yet shows nothing here; the banner is
+ * "here's what we currently know", not "here's what must be true".
+ *
+ * `source` distinguishes an invite Hub itself sent (already tracked in the
+ * outreach log) from one sent through the LinkedIn app or another tool —
+ * the whole point of 1c is surfacing the second case before a campaign
+ * invites this person again.
+ */
+function PendingInvitationBanner({ lead, onWithdraw, withdrawing, withdrawError }) {
+  if (!lead?.pendingInvitationId) return null;
+
+  return (
+    <Section>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[13px] text-[var(--ui-text-primary)]">
+            Invitation pending
+            {lead.pendingInvitationSource === 'external' && (
+              <span className="text-[var(--ui-text-tertiary)]"> — sent outside Spurly</span>
+            )}
+          </p>
+          {withdrawError && (
+            <p className="text-[12px] text-[var(--ui-danger-fg)] mt-1">{withdrawError}</p>
+          )}
+        </div>
+        <Button size="sm" variant="ghost" leadingIcon={<UserX size={13} />} onClick={onWithdraw} loading={withdrawing} disabled={withdrawing}>
+          Withdraw
+        </Button>
+      </div>
+    </Section>
+  );
 }
 
 function ResolvedProfilePanel({ lead }) {
@@ -186,6 +224,8 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
      for the same react-hooks/set-state-in-effect warning. */
   const [resolving, setResolving] = useState(() => Boolean(lead && !lead.profileResolvedAt));
   const [error, setError] = useState(null);
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [withdrawError, setWithdrawError] = useState(null);
 
   /* Guards a resolve response arriving after the drawer moved to a different
      lead (fast row-clicking) or closed — the same pattern the Contacts page
@@ -224,6 +264,23 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
   }, [lead, onResolved]);
 
   const degreeLabel = useMemo(() => ({ 1: '1st', 2: '2nd', 3: '3rd' }[resolved?.connectionDegree] ?? null), [resolved]);
+
+  const handleWithdraw = () => {
+    if (withdrawing) return;
+    setWithdrawing(true);
+    setWithdrawError(null);
+    hubSourcingApi
+      .withdrawInvitation(lead._id)
+      .then((updated) => {
+        if (!updated) return;
+        setResolved(updated);
+        onResolved?.(updated);
+      })
+      .catch((err) => {
+        setWithdrawError(err?.response?.data?.message || 'Could not withdraw this invitation.');
+      })
+      .finally(() => setWithdrawing(false));
+  };
 
   if (!lead) return null;
 
@@ -290,6 +347,13 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
           <p className="text-[12px] text-[var(--ui-danger-fg)]">{error}</p>
         </Section>
       )}
+
+      <PendingInvitationBanner
+        lead={resolved}
+        onWithdraw={handleWithdraw}
+        withdrawing={withdrawing}
+        withdrawError={withdrawError}
+      />
 
       {!resolving && !error && <ResolvedProfilePanel lead={resolved} />}
 

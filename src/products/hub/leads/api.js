@@ -76,6 +76,20 @@ class HubSourcingApi {
     const res = await apiGateway.get(`/hub/leads/${id}/profile${force ? '?force=true' : ''}`);
     return res.data?.data?.lead ?? null;
   }
+
+  /**
+   * DELETE /hub/leads/:id/invitation — Phase 6 (1c) withdraw.
+   *
+   * Only meaningful when the lead carries a `pendingInvitationId` — set by
+   * the server-side reconciliation job, not by anything the client does.
+   * A lead nobody has reconciled yet has nothing here to withdraw; the
+   * server 422s that case (NO_PENDING_INVITATION) rather than silently
+   * no-opping.
+   */
+  async withdrawInvitation(id) {
+    const res = await apiGateway.delete(`/hub/leads/${id}/invitation`);
+    return res.data?.data?.lead ?? null;
+  }
 }
 
 export const hubSourcingApi = new HubSourcingApi();
