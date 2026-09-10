@@ -13,6 +13,7 @@ import {
   Network,
   Radar,
   Inbox,
+  Workflow,
 } from 'lucide-react';
 import { useAuth } from 'src/platform/auth/useAuth.js';
 import { SubscriptionContext } from 'src/platform/billing/SubscriptionContext';
@@ -63,6 +64,7 @@ const HUB_SECTIONS = [
     label: 'Engage',
     items: [
       { label: 'Campaigns', icon: Send, href: '/hub/campaigns' },
+      { label: 'Sequences', icon: Workflow, href: '/hub/sequences' },
       { label: 'Inbox', icon: Inbox, href: '/hub/inbox' },
     ],
   },
