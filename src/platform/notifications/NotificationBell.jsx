@@ -17,6 +17,7 @@ import { usePopperPosition } from 'src/ui/primitives/Popper';
 import { Button, IconButton } from 'src/ui/primitives';
 import { relativeTime } from 'src/shared/utils/outreach';
 import { useNotifications } from './useNotifications.js';
+import { AvatarStack } from './AvatarStack.jsx';
 
 /**
  * The bell icon in the top nav + its feed dropdown.
@@ -75,6 +76,9 @@ function FeedRow({ notification, onOpen }) {
         <span className="block text-[11px] text-[var(--ui-text-tertiary)] mt-0.5">
           {relativeTime(notification.createdAt)}
         </span>
+        {notification.type === 'hub.connections_sent' && (
+          <AvatarStack people={notification.payload?.people} size={18} />
+        )}
       </span>
       {unread && (
         <span

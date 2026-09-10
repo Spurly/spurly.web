@@ -14,6 +14,7 @@ import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { Button, EmptyState } from 'src/ui/primitives';
 import { relativeTime } from 'src/shared/utils/outreach';
 import { useNotifications } from './useNotifications.js';
+import { AvatarStack } from './AvatarStack.jsx';
 
 /**
  * /dashboard/notifications — the full history behind the bell's 8-item
@@ -69,6 +70,9 @@ function Row({ notification, onOpen }) {
         <span className="block text-[12px] text-[var(--ui-text-tertiary)] mt-1">
           {ago(notification.createdAt)}
         </span>
+        {notification.type === 'hub.connections_sent' && (
+          <AvatarStack people={notification.payload?.people} size={22} />
+        )}
       </span>
       {unread && (
         <span
