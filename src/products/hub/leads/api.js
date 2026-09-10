@@ -62,6 +62,20 @@ class HubSourcingApi {
     const res = await apiGateway.get('/hub/leads', { params });
     return res.data?.data ?? { leads: [], pagination: { page: 1, limit, total: 0 } };
   }
+
+  /**
+   * GET /hub/leads/:id/profile — Phase 6's lazy resolve-once.
+   *
+   * Called when the lead drawer opens, not on a button press. The backend
+   * itself decides whether that costs a real vendor call: a lead resolved
+   * before comes back unchanged unless `force` is passed. Callers should
+   * still show a loading state while this is in flight — an unresolved lead
+   * can take the same 2-20s a full-profile fetch always has.
+   */
+  async resolveProfile(id, { force = false } = {}) {
+    const res = await apiGateway.get(`/hub/leads/${id}/profile${force ? '?force=true' : ''}`);
+    return res.data?.data?.lead ?? null;
+  }
 }
 
 export const hubSourcingApi = new HubSourcingApi();
