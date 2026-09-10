@@ -1,15 +1,36 @@
-import { Bell, Unlink, AlertCircle, CheckCheck } from 'lucide-react';
+import {
+  Bell,
+  Unlink,
+  AlertCircle,
+  CheckCheck,
+  UserCheck,
+  MessageCircle,
+  PlayCircle,
+  CheckCircle,
+  PauseCircle,
+  BatteryLow,
+} from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { Button, EmptyState } from 'src/ui/primitives';
 import { relativeTime } from 'src/shared/utils/outreach';
 import { useNotifications } from './useNotifications.js';
+import { AvatarStack } from './AvatarStack.jsx';
 
 /**
  * /dashboard/notifications — the full history behind the bell's 8-item
  * preview. Same data, same read/unread model, no cap. Per the plan: "a
  * dedicated /dashboard/notifications page for the full history."
  */
-const ICONS = { 'link-off': Unlink, 'alert-circle': AlertCircle };
+const ICONS = {
+  'link-off': Unlink,
+  'alert-circle': AlertCircle,
+  'user-check': UserCheck,
+  'message-circle': MessageCircle,
+  'play-circle': PlayCircle,
+  'check-circle': CheckCircle,
+  'pause-circle': PauseCircle,
+  'battery-low': BatteryLow,
+};
 
 /** relativeTime() returns bare units ('3h'); this adds the suffix, without
  * doubling up on its own 'just now'. */
@@ -49,6 +70,9 @@ function Row({ notification, onOpen }) {
         <span className="block text-[12px] text-[var(--ui-text-tertiary)] mt-1">
           {ago(notification.createdAt)}
         </span>
+        {notification.type === 'hub.connections_sent' && (
+          <AvatarStack people={notification.payload?.people} size={22} />
+        )}
       </span>
       {unread && (
         <span

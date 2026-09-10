@@ -1,11 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Unlink, AlertCircle, CheckCheck } from 'lucide-react';
+import {
+  Bell,
+  Unlink,
+  AlertCircle,
+  CheckCheck,
+  UserCheck,
+  MessageCircle,
+  PlayCircle,
+  CheckCircle,
+  PauseCircle,
+  BatteryLow,
+} from 'lucide-react';
 import { usePopperPosition } from 'src/ui/primitives/Popper';
 import { Button, IconButton } from 'src/ui/primitives';
 import { relativeTime } from 'src/shared/utils/outreach';
 import { useNotifications } from './useNotifications.js';
+import { AvatarStack } from './AvatarStack.jsx';
 
 /**
  * The bell icon in the top nav + its feed dropdown.
@@ -21,7 +33,16 @@ import { useNotifications } from './useNotifications.js';
  * AiWriteButton, for the same reason: the top bar has limited width and an
  * absolutely-positioned panel would get clipped or overflow off-screen.
  */
-const ICONS = { 'link-off': Unlink, 'alert-circle': AlertCircle };
+const ICONS = {
+  'link-off': Unlink,
+  'alert-circle': AlertCircle,
+  'user-check': UserCheck,
+  'message-circle': MessageCircle,
+  'play-circle': PlayCircle,
+  'check-circle': CheckCircle,
+  'pause-circle': PauseCircle,
+  'battery-low': BatteryLow,
+};
 
 function FeedRow({ notification, onOpen }) {
   const Icon = ICONS[notification.icon] || Bell;
@@ -55,6 +76,9 @@ function FeedRow({ notification, onOpen }) {
         <span className="block text-[11px] text-[var(--ui-text-tertiary)] mt-0.5">
           {relativeTime(notification.createdAt)}
         </span>
+        {notification.type === 'hub.connections_sent' && (
+          <AvatarStack people={notification.payload?.people} size={18} />
+        )}
       </span>
       {unread && (
         <span
