@@ -31,16 +31,21 @@ function formatFollowers(n) {
 /**
  * Columns for hub leads.
  *
- * NO COMPANY AND NO INDUSTRY COLUMN, deliberately. A live search response
- * (2026-09-07) carries neither: there is no `current_positions` on a search
- * result, and `industry` arrives as an explicit null. Company only exists via
- * GET /users/{id} — the per-lead resolve pass this whole module is built to
- * avoid, capped around 100 a day. A column that is empty on every row is worse
- * than no column: it reads as a bug in the import.
+ * COMPANY AND TITLE, PHASE 6 (1b) — these are populated by the LAZY resolve
+ * pass (opening the lead drawer fires `GET /hub/leads/:id/profile`, see
+ * LeadDrawer.jsx), not by the search import. A search-only row has neither:
+ * there is no `current_positions`/`work_experience` on a search result (only
+ * on the full-profile endpoint), which is exactly why this column used to not
+ * exist at all — "empty on every row is worse than no column." That reasoning
+ * no longer holds now that the fields fill in for real once a row is opened,
+ * but it means these two columns are correctly blank for a lead nobody has
+ * looked at yet, not broken. There is still deliberately no `industry`
+ * column: verified live 2026-09-10 (see [[hub_phase6_kickoff]]) that neither
+ * endpoint returns one.
  *
- * The company is legible in the headline ("Head of Sales at Energy One Ltd"),
- * which is where it stays until there is an enrichment step that fetches it
- * honestly.
+ * The company/title are still legible in the headline
+ * ("Head of Sales at Energy One Ltd") for a row that hasn't been resolved —
+ * this column is a faster scan once it has been, not a replacement.
  *
  * Close to the Contacts columns but not the same table and not the same data:
  * these people came from a search the user ran, not from a profile they chose
@@ -74,6 +79,24 @@ export const hubLeadColumns = [
     width: 280,
     title: (row) => row.headline,
     render: (value) => <TextCell value={value} tone="secondary" />,
+  },
+  {
+    key: 'companyName',
+    label: 'Company',
+    width: 160,
+    sortable: true,
+    title: (row) => row.companyName,
+    // Blank means "not resolved yet or genuinely has none" — both read the
+    // same as an empty cell, which is correct: there is nothing false to
+    // assert either way. See the module comment above.
+    render: (value) => <TextCell value={value || '—'} tone="secondary" />,
+  },
+  {
+    key: 'currentTitle',
+    label: 'Title',
+    width: 180,
+    title: (row) => row.currentTitle,
+    render: (value) => <TextCell value={value || '—'} tone="secondary" />,
   },
   {
     key: 'location',
