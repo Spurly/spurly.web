@@ -62,6 +62,34 @@ class HubSourcingApi {
     const res = await apiGateway.get('/hub/leads', { params });
     return res.data?.data ?? { leads: [], pagination: { page: 1, limit, total: 0 } };
   }
+
+  /**
+   * GET /hub/leads/:id/profile — Phase 6's lazy resolve-once.
+   *
+   * Called when the lead drawer opens, not on a button press. The backend
+   * itself decides whether that costs a real vendor call: a lead resolved
+   * before comes back unchanged unless `force` is passed. Callers should
+   * still show a loading state while this is in flight — an unresolved lead
+   * can take the same 2-20s a full-profile fetch always has.
+   */
+  async resolveProfile(id, { force = false } = {}) {
+    const res = await apiGateway.get(`/hub/leads/${id}/profile${force ? '?force=true' : ''}`);
+    return res.data?.data?.lead ?? null;
+  }
+
+  /**
+   * DELETE /hub/leads/:id/invitation — Phase 6 (1c) withdraw.
+   *
+   * Only meaningful when the lead carries a `pendingInvitationId` — set by
+   * the server-side reconciliation job, not by anything the client does.
+   * A lead nobody has reconciled yet has nothing here to withdraw; the
+   * server 422s that case (NO_PENDING_INVITATION) rather than silently
+   * no-opping.
+   */
+  async withdrawInvitation(id) {
+    const res = await apiGateway.delete(`/hub/leads/${id}/invitation`);
+    return res.data?.data?.lead ?? null;
+  }
 }
 
 export const hubSourcingApi = new HubSourcingApi();

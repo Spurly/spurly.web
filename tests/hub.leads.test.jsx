@@ -145,9 +145,18 @@ describe('hub leads', () => {
     expect(screen.getByText('2nd')).toBeInTheDocument();
   });
 
-  it('shows no Company or Industry column, because search returns neither', async () => {
-    // A column empty on every row reads as a broken import. Company exists
-    // only behind the per-lead profile lookup this module avoids.
+  it('shows Company and Title columns, blank until a lead is resolved — never an Industry column', async () => {
+    // Phase 6 (1b): Company/Title exist now because the lazy resolve pass
+    // (opening the lead drawer) actually fills them in — see columns.jsx's
+    // header comment for why this reverses the earlier "no column" decision.
+    // A search-only row (like this fixture) has neither field populated yet,
+    // so the columns render but the cells read as the same "—" empty state
+    // followersCount already uses for "the vendor didn't tell us".
+    //
+    // Industry stays absent for a different reason: verified live that
+    // NEITHER endpoint returns it, so there is nothing a resolve could ever
+    // fill in — a column for it would be permanently blank, not just blank
+    // until opened.
     //
     // Rendered FIRST and awaited: a queryBy assertion against a page that was
     // never rendered passes for the wrong reason, which is how a test like
@@ -155,7 +164,8 @@ describe('hub leads', () => {
     renderAt('/hub/leads');
     await screen.findByText('Asha Menon');
 
-    expect(screen.queryByText('Company')).not.toBeInTheDocument();
+    expect(screen.getByText('Company')).toBeInTheDocument();
+    expect(screen.getByText('Title')).toBeInTheDocument();
     expect(screen.queryByText('Industry')).not.toBeInTheDocument();
   });
 

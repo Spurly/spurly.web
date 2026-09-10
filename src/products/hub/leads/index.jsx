@@ -9,6 +9,7 @@ import { getToastError } from 'src/shared/utils/apiError';
 import { hubSourcingApi } from './api.js';
 import { hubCampaignsApi } from 'src/products/hub/campaigns/api.js';
 import { hubLeadColumns } from './columns.jsx';
+import { LeadDrawer } from './LeadDrawer.jsx';
 
 /**
  * Hub leads — paste a LinkedIn search, get an audience.
@@ -121,6 +122,7 @@ export function HubLeadsPage() {
   const [needsAccount, setNeedsAccount] = useState(false);
   const [selected, setSelected] = useState(() => new Set());
   const [creating, setCreating] = useState(false);
+  const [selectedLead, setSelectedLead] = useState(null);
 
   const toast = useToast();
   const confirm = useConfirm();
@@ -298,6 +300,18 @@ export function HubLeadsPage() {
     }
   };
 
+  /**
+   * Folds a resolved profile back into the table row that's already on
+   * screen, so reopening the drawer (or just glancing at the row) reflects
+   * the enrichment without a full reload — same shape as PeoplePage's
+   * handleNotesSaved.
+   */
+  const handleLeadResolved = useCallback((updated) => {
+    if (!updated?._id) return;
+    setLeads((prev) => prev.map((l) => (l._id === updated._id ? { ...l, ...updated } : l)));
+    setSelectedLead((prev) => (prev && prev._id === updated._id ? { ...prev, ...updated } : prev));
+  }, []);
+
   const activeSearch = searches.find((s) => s._id === activeSearchId) ?? null;
 
   return (
@@ -385,6 +399,7 @@ export function HubLeadsPage() {
           selectable
           selectedKeys={selected}
           onSelectionChange={setSelected}
+          onRowClick={setSelectedLead}
           toolbar={{
             searchValue: query,
             onSearch: setQuery,
@@ -410,6 +425,17 @@ export function HubLeadsPage() {
           }}
         />
       </div>
+
+      {selectedLead && (
+        <LeadDrawer
+          /* Remounts on a different row so LeadDrawer's own state resets
+             cleanly instead of syncing via an effect. */
+          key={selectedLead._id}
+          lead={selectedLead}
+          onClose={() => setSelectedLead(null)}
+          onResolved={handleLeadResolved}
+        />
+      )}
     </DashboardLayout>
   );
 }
