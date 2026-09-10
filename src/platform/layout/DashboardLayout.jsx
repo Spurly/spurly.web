@@ -18,6 +18,7 @@ import { useAuth } from 'src/platform/auth/useAuth.js';
 import { SubscriptionContext } from 'src/platform/billing/SubscriptionContext';
 import { useExtension } from 'src/platform/extension/useExtension';
 import { Avatar, Tooltip } from 'src/ui/primitives';
+import { NotificationBell } from 'src/platform/notifications/NotificationBell.jsx';
 import { ProductSwitcher } from './ProductSwitcher';
 
 /**
@@ -474,6 +475,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
             )}
           </div>
           <div className="flex-1" />
+          <NotificationBell />
           {actions && <div className="flex items-center gap-1.5 shrink-0">{actions}</div>}
         </header>
 

@@ -56,6 +56,7 @@ const CampaignDetailPage = lazy(() => import('src/products/leadgen/campaigns/Cam
 const TemplatesPage = lazy(() => import('src/products/leadgen/templates').then((m) => ({ default: m.TemplatesPage })));
 const SettingsPage = lazy(() => import('src/products/leadgen/settings').then((m) => ({ default: m.SettingsPage })));
 const LinkedInSettingsPage = lazy(() => import('src/products/hub/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
+const NotificationsPage = lazy(() => import('src/platform/notifications/NotificationsPage.jsx'));
 const HubUpgradePage = lazy(() => import('src/products/hub/upgrade'));
 const HubLeadsPage = lazy(() => import('src/products/hub/leads').then((m) => ({ default: m.HubLeadsPage })));
 const HubCampaignsPage = lazy(() => import('src/products/hub/campaigns').then((m) => ({ default: m.HubCampaignsPage })));
@@ -120,6 +121,8 @@ export function AppRoutes() {
       <Route path="/dashboard/templates" element={<ProtectedRoute><SubscribeGate><TemplatesPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/import" element={<ProtectedRoute><SubscribeGate><ImportPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/settings" element={<ProtectedRoute><SubscribeGate><SettingsPage /></SubscribeGate></ProtectedRoute>} />
+      {/* No SubscribeGate, deliberately: a lapsed subscriber is exactly who needs to see the entitlement-grace-started notification telling them so. */}
+      <Route path="/dashboard/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       {/* Hub's settings page, under /dashboard only because that is where the
           user looks for settings. It carries HubGate like the rest of hub: this
           is the page with the Connect button, and Connect is the click that
