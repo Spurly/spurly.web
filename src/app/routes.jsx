@@ -61,6 +61,9 @@ const HubUpgradePage = lazy(() => import('src/products/hub/upgrade'));
 const HubLeadsPage = lazy(() => import('src/products/hub/leads').then((m) => ({ default: m.HubLeadsPage })));
 const HubCampaignsPage = lazy(() => import('src/products/hub/campaigns').then((m) => ({ default: m.HubCampaignsPage })));
 const HubCampaignDetailPage = lazy(() => import('src/products/hub/campaigns').then((m) => ({ default: m.HubCampaignDetailPage })));
+const HubSequencesPage = lazy(() => import('src/products/hub/sequences').then((m) => ({ default: m.HubSequencesPage })));
+const HubNewSequencePage = lazy(() => import('src/products/hub/sequences').then((m) => ({ default: m.HubNewSequencePage })));
+const HubSequenceDetailPage = lazy(() => import('src/products/hub/sequences').then((m) => ({ default: m.HubSequenceDetailPage })));
 const HubInboxPage = lazy(() => import('src/products/hub/inbox').then((m) => ({ default: m.HubInboxPage })));
 const ImportPage = lazy(() => import('src/products/leadgen/import').then((m) => ({ default: m.ImportPage })));
 
@@ -140,6 +143,9 @@ export function AppRoutes() {
       <Route path="/hub/leads" element={<ProtectedRoute><SubscribeGate><HubGate><HubLeadsPage /></HubGate></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/campaigns" element={<ProtectedRoute><SubscribeGate><HubGate><HubCampaignsPage /></HubGate></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/campaigns/:id" element={<ProtectedRoute><SubscribeGate><HubGate><HubCampaignDetailPage /></HubGate></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/sequences" element={<ProtectedRoute><SubscribeGate><HubGate><HubSequencesPage /></HubGate></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/sequences/new" element={<ProtectedRoute><SubscribeGate><HubGate><HubNewSequencePage /></HubGate></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/sequences/:id" element={<ProtectedRoute><SubscribeGate><HubGate><HubSequenceDetailPage /></HubGate></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/inbox" element={<ProtectedRoute><SubscribeGate><HubGate><HubInboxPage /></HubGate></SubscribeGate></ProtectedRoute>} />
 
       {/* Legacy /leads paths — kept permanently so existing bookmarks and any

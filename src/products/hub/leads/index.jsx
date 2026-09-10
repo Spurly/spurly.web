@@ -8,6 +8,7 @@ import { Button, Input, Badge, Tabs, useToast, useConfirm } from 'src/ui/primiti
 import { getToastError } from 'src/shared/utils/apiError';
 import { hubSourcingApi } from './api.js';
 import { hubCampaignsApi } from 'src/products/hub/campaigns/api.js';
+import { hubSequencesApi } from 'src/products/hub/sequences/api.js';
 import { hubLeadColumns } from './columns.jsx';
 import { LeadDrawer } from './LeadDrawer.jsx';
 import { AudienceFilterForm } from './AudienceFilterForm.jsx';
@@ -146,6 +147,8 @@ export function HubLeadsPage() {
   const [selected, setSelected] = useState(() => new Set());
   const [creating, setCreating] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
+  const [sequences, setSequences] = useState([]);
+  const [enrolling, setEnrolling] = useState(false);
 
   // PHASE 8 — 'url' is the original pasted-search flow; 'structured' is the
   // new filter-builder. quickCompany/structuredInitialCompany are the
@@ -208,6 +211,16 @@ export function HubLeadsPage() {
     loadSearches(controller.signal);
     return () => controller.abort();
   }, [loadSearches]);
+
+  // Sequences to enroll a selection into, from the picker in the table
+  // toolbar. Loaded once — the list is short and this page already polls
+  // elsewhere for things that actually change on their own; a sequence being
+  // created/deleted mid-visit here is rare enough not to warrant a poll.
+  useEffect(() => {
+    hubSequencesApi.listSequences()
+      .then((next) => { if (mountedRef.current) setSequences(next); })
+      .catch(() => {}); // silent: the picker just stays empty, not a page-breaking error
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -355,6 +368,27 @@ export function HubLeadsPage() {
       else toast.error(getToastError(err, 'Could not create that campaign'));
     } finally {
       if (mountedRef.current) setCreating(false);
+    }
+  };
+
+  /**
+   * Enroll the current selection into an existing sequence, picked from the
+   * toolbar select. Sequences themselves are built on their own page
+   * (/hub/sequences/new) — a lead selection has nothing to configure, so this
+   * is deliberately the same "instant action, land on the result" shape as
+   * createCampaign above, just against a sequence someone already made.
+   */
+  const enrollInSequence = async (sequenceId) => {
+    if (!sequenceId || selected.size === 0 || enrolling) return;
+    setEnrolling(true);
+    try {
+      const { enrolled } = await hubSequencesApi.enrollLeads(sequenceId, { leadIds: [...selected] });
+      toast.success(`${enrolled} lead(s) enrolled. Nothing runs until the sequence is started.`);
+      navigate(`/hub/sequences/${sequenceId}`);
+    } catch (err) {
+      toast.error(getToastError(err, 'Could not enroll those leads'));
+    } finally {
+      if (mountedRef.current) setEnrolling(false);
     }
   };
 
@@ -518,16 +552,31 @@ export function HubLeadsPage() {
             onSearch: setQuery,
             searchPlaceholder: 'Search name, headline, company',
             bulkActions: (
-              <Button
-                size="sm"
-                variant="primary"
-                leadingIcon={<Send size={13} />}
-                onClick={createCampaign}
-                loading={creating}
-                disabled={creating || selected.size === 0}
-              >
-                Create campaign
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="primary"
+                  leadingIcon={<Send size={13} />}
+                  onClick={createCampaign}
+                  loading={creating}
+                  disabled={creating || selected.size === 0}
+                >
+                  Create campaign
+                </Button>
+                <select
+                  value=""
+                  onChange={(e) => enrollInSequence(e.target.value)}
+                  disabled={enrolling || selected.size === 0 || sequences.length === 0}
+                  aria-label="Enroll selection in a sequence"
+                  title={sequences.length === 0 ? 'Create a sequence first' : 'Enroll the selection in a sequence'}
+                  className="text-[12px] h-7 rounded-[var(--ui-radius-sm)] border border-[var(--separator)] bg-[var(--ui-surface-card)] px-2 text-[var(--text-secondary)] disabled:opacity-50"
+                >
+                  <option value="" disabled>{enrolling ? 'Enrolling…' : 'Enroll in sequence…'}</option>
+                  {sequences.map((s) => (
+                    <option key={s._id} value={s._id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
             ),
           }}
           pagination={{
