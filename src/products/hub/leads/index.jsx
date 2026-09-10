@@ -4,12 +4,14 @@ import { Loader2, Play, Trash2, AlertTriangle, Linkedin, Send } from 'lucide-rea
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { DataTable } from 'src/platform/DataTable';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
-import { Button, Input, Badge, useToast, useConfirm } from 'src/ui/primitives';
+import { Button, Input, Badge, Tabs, useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import { hubSourcingApi } from './api.js';
 import { hubCampaignsApi } from 'src/products/hub/campaigns/api.js';
 import { hubLeadColumns } from './columns.jsx';
 import { LeadDrawer } from './LeadDrawer.jsx';
+import { AudienceFilterForm } from './AudienceFilterForm.jsx';
+import { FilterTagPicker } from './FilterTagPicker.jsx';
 
 /**
  * Hub leads — paste a LinkedIn search, get an audience.
@@ -36,6 +38,27 @@ const STATUS_VIEW = {
 
 const isBusy = (s) => s?.status === 'queued' || s?.status === 'running';
 
+/**
+ * PHASE 8 — a structured search has no `searchUrl` to show, so this builds
+ * the same kind of one-line summary out of whichever filters were set.
+ * Deliberately terse (titles only, first couple of filters) — the row is a
+ * list item, not the place to re-render the whole filter form.
+ */
+function describeSearch(search) {
+  if (search.mode !== 'structured') return search.searchUrl;
+  const f = search.filters || {};
+  const parts = [];
+  if (f.keywords) parts.push(`"${f.keywords}"`);
+  if (f.location?.length) parts.push(`${f.location.length} location${f.location.length > 1 ? 's' : ''}`);
+  if (f.industry?.length) parts.push(`${f.industry.length} industr${f.industry.length > 1 ? 'ies' : 'y'}`);
+  if (f.company?.length) parts.push(`${f.company.length} compan${f.company.length > 1 ? 'ies' : 'y'}`);
+  if (f.past_company?.length) parts.push('past company');
+  if (f.school?.length) parts.push('school');
+  if (f.network_distance?.length) parts.push(`${f.network_distance.length}° connection${f.network_distance.length > 1 ? 's' : ''}`);
+  if (f.advanced_keywords?.title) parts.push(`title: ${f.advanced_keywords.title}`);
+  return parts.length > 0 ? parts.join(' · ') : 'Structured search';
+}
+
 /** A saved audience, its progress, and the two things you can do to it. */
 function SearchRow({ search, active, onSelect, onRun, onDelete, busy }) {
   const view = STATUS_VIEW[search.status] ?? STATUS_VIEW.queued;
@@ -60,7 +83,7 @@ function SearchRow({ search, active, onSelect, onRun, onDelete, busy }) {
         <span className="block text-[13px] text-[var(--text-primary)] truncate">
           {search.name || 'Untitled audience'}
         </span>
-        <span className="block text-[11px] text-[var(--text-tertiary)] truncate">{search.searchUrl}</span>
+        <span className="block text-[11px] text-[var(--text-tertiary)] truncate">{describeSearch(search)}</span>
       </button>
 
       <span className="text-[12px] tabular-nums text-[var(--text-secondary)] shrink-0">
@@ -123,6 +146,15 @@ export function HubLeadsPage() {
   const [selected, setSelected] = useState(() => new Set());
   const [creating, setCreating] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
+
+  // PHASE 8 — 'url' is the original pasted-search flow; 'structured' is the
+  // new filter-builder. quickCompany/structuredInitialCompany are the
+  // "search a company" shortcut: pick a company below, and it lands as an
+  // already-selected chip in the structured form rather than being a
+  // separate flow with its own submit path.
+  const [importMode, setImportMode] = useState('url');
+  const [quickCompany, setQuickCompany] = useState([]);
+  const [structuredInitialCompany, setStructuredInitialCompany] = useState(null);
 
   const toast = useToast();
   const confirm = useConfirm();
@@ -236,6 +268,32 @@ export function HubLeadsPage() {
     } finally {
       setSubmitting(false);
     }
+
+  };
+
+  /**
+   * PHASE 8 — same queue-and-poll flow as `submit` above, just a `filters`
+   * body instead of `searchUrl`. AudienceFilterForm has already reduced
+   * every picker down to plain `{field: [ids]}` — this never touches a raw
+   * filter value itself.
+   */
+  const submitStructured = async ({ filters, name: audienceName }) => {
+    if (submitting) return;
+    setSubmitting(true);
+    setNeedsAccount(false);
+    try {
+      await hubSourcingApi.createSearch({ filters, name: audienceName });
+      setStructuredInitialCompany(null);
+      setQuickCompany([]);
+      toast.success('Queued. Importing starts within a minute.');
+      await loadSearches();
+    } catch (err) {
+      const code = err?.response?.data?.code;
+      if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
+      else toast.error(getToastError(err, 'Could not queue that search'));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const runSearch = async (search) => {
@@ -317,7 +375,7 @@ export function HubLeadsPage() {
   return (
     <DashboardLayout
       title="Leads"
-      subtitle="Paste a LinkedIn search and Spurly builds the audience for you."
+      subtitle="Paste a LinkedIn search, or build one from filters, and Spurly builds the audience for you."
     >
       <div className="flex flex-col gap-4">
         <SectionCard title="Import a search">
@@ -340,32 +398,87 @@ export function HubLeadsPage() {
               </div>
             </div>
           ) : (
-            <form onSubmit={submit} className="px-[var(--ui-pad-lg)] py-4 flex flex-col gap-3">
-              <Input
-                fullWidth
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://www.linkedin.com/search/results/people/?keywords=…"
-                aria-label="LinkedIn search URL"
-              />
-              <div className="flex items-center gap-2">
-                <Input
-                  className="flex-1"
-                  fullWidth
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Name this audience (optional)"
-                  aria-label="Audience name"
+            <>
+              <div className="px-[var(--ui-pad-lg)] pt-1 border-b border-[var(--separator)] h-9">
+                <Tabs
+                  ariaLabel="How to build this audience"
+                  activeTab={importMode}
+                  onTabChange={setImportMode}
+                  tabs={[
+                    { id: 'url', label: 'Paste a URL' },
+                    { id: 'structured', label: 'Build filters' },
+                  ]}
                 />
-                <Button type="submit" disabled={!url.trim() || submitting}>
-                  {submitting ? 'Queueing…' : 'Import'}
+              </div>
+
+              {/* PHASE 8 — "search a company, pull its employee list" from the
+                  plan needs no separate flow: picking a company here just
+                  jumps to the structured tab with that company already
+                  selected as a chip. */}
+              <div className="px-[var(--ui-pad-lg)] py-3 border-b border-[var(--separator)] flex flex-col sm:flex-row sm:items-end gap-2">
+                <div className="flex-1">
+                  <FilterTagPicker
+                    type="COMPANY"
+                    label="Or build an audience from one company's employees"
+                    placeholder="Search a company…"
+                    value={quickCompany}
+                    onChange={setQuickCompany}
+                    disabled={submitting}
+                  />
+                </div>
+                <Button
+                  variant="secondary"
+                  disabled={quickCompany.length === 0 || submitting}
+                  onClick={() => {
+                    setStructuredInitialCompany(quickCompany[0]);
+                    setQuickCompany([]);
+                    setImportMode('structured');
+                  }}
+                >
+                  Search this company
                 </Button>
               </div>
-              <p className="text-[11px] text-[var(--text-tertiary)]">
-                Run the search on LinkedIn, then paste the results URL. Importing happens in the
-                background — you can leave this page.
-              </p>
-            </form>
+
+              {importMode === 'url' ? (
+                <form onSubmit={submit} className="px-[var(--ui-pad-lg)] py-4 flex flex-col gap-3">
+                  <Input
+                    fullWidth
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://www.linkedin.com/search/results/people/?keywords=…"
+                    aria-label="LinkedIn search URL"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Input
+                      className="flex-1"
+                      fullWidth
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Name this audience (optional)"
+                      aria-label="Audience name"
+                    />
+                    <Button type="submit" disabled={!url.trim() || submitting}>
+                      {submitting ? 'Queueing…' : 'Import'}
+                    </Button>
+                  </div>
+                  <p className="text-[11px] text-[var(--text-tertiary)]">
+                    Run the search on LinkedIn, then paste the results URL. Importing happens in the
+                    background — you can leave this page.
+                  </p>
+                </form>
+              ) : (
+                <AudienceFilterForm
+                  // Remount when a quick-company pick lands, so its internal
+                  // company chip state actually resets to the new value —
+                  // otherwise a form already holding its own company chips
+                  // would just ignore a second pre-fill.
+                  key={structuredInitialCompany?.id ?? 'blank'}
+                  initialCompany={structuredInitialCompany}
+                  onSubmit={submitStructured}
+                  submitting={submitting}
+                />
+              )}
+            </>
           )}
         </SectionCard>
 
@@ -393,7 +506,7 @@ export function HubLeadsPage() {
           emptyMessage={activeSearchId ? 'No leads from this audience yet' : 'No leads yet'}
           emptyHint={
             searches.length === 0
-              ? 'Paste a LinkedIn search above to build your first audience.'
+              ? 'Paste a LinkedIn search or build one from filters above to get your first audience.'
               : 'Imports run in the background — this fills in as pages come back.'
           }
           selectable

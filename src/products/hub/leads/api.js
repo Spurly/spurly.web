@@ -12,10 +12,31 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  * within the minute and the page polls for progress. Nothing here waits.
  */
 class HubSourcingApi {
-  /** POST /hub/searches — queue an import. 201 with the queued row. */
-  async createSearch({ searchUrl, name }) {
-    const res = await apiGateway.post('/hub/searches', { searchUrl, name });
+  /**
+   * POST /hub/searches — queue an import from EITHER a pasted URL OR (Phase 8)
+   * a structured filter object. Exactly one of `searchUrl`/`filters` should
+   * be set — the server 400s on both or neither, this just forwards whichever
+   * the caller built.
+   */
+  async createSearch({ searchUrl, filters, name }) {
+    const res = await apiGateway.post('/hub/searches', { searchUrl, filters, name });
     return res.data?.data?.search ?? null;
+  }
+
+  /**
+   * GET /hub/audience/params — Phase 8. Free-text -> LinkedIn internal id
+   * lookup, for the filter-builder's autocomplete. `type` is the vendor's
+   * own vocabulary (LOCATION, INDUSTRY, COMPANY, SCHOOL, ... — SKILL exists
+   * at the vendor but the backend's structured-search allow-list has no field
+   * for it on Classic tier, so it is not offered here). Matching is fuzzy on
+   * the vendor's side — always show `title`, never assume the first result.
+   */
+  async searchAudienceParams({ type, keywords, limit } = {}) {
+    const params = { type };
+    if (keywords) params.keywords = keywords;
+    if (limit) params.limit = limit;
+    const res = await apiGateway.get('/hub/audience/params', { params });
+    return res.data?.data?.params ?? [];
   }
 
   /** GET /hub/searches — every audience with its progress. */
