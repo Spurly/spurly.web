@@ -1,4 +1,5 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
+import { Campaign } from '../entities/campaign.js';
 
 /**
  * Hub campaigns API client.
@@ -10,7 +11,7 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  * to a real person, which is why the only irreversible-feeling button on the
  * page is "Start".
  */
-class HubCampaignsApi {
+class HubCampaignsGateway {
   /**
    * POST /hub/campaigns — create, optionally from a selection.
    *
@@ -20,13 +21,14 @@ class HubCampaignsApi {
    */
   async createCampaign({ name, note, leadIds, searchId } = {}) {
     const res = await apiGateway.post('/hub/campaigns', { name, note, leadIds, searchId });
-    return res.data?.data ?? { campaign: null, enrolled: 0 };
+    const data = res.data?.data ?? { campaign: null, enrolled: 0 };
+    return { ...data, campaign: Campaign.fromResponse(data.campaign) };
   }
 
   /** GET /hub/campaigns — the list, each with its member status counts. */
   async listCampaigns() {
     const res = await apiGateway.get('/hub/campaigns');
-    return res.data?.data?.campaigns ?? [];
+    return Campaign.fromList(res.data?.data?.campaigns ?? []);
   }
 
   /**
@@ -39,7 +41,9 @@ class HubCampaignsApi {
    */
   async getCampaign(id) {
     const res = await apiGateway.get(`/hub/campaigns/${id}`);
-    return res.data?.data ?? null;
+    const data = res.data?.data ?? null;
+    if (!data) return null;
+    return { ...data, campaign: Campaign.fromResponse(data.campaign) };
   }
 
   /** GET /hub/campaigns/:id/members — the members table. */
@@ -64,19 +68,19 @@ class HubCampaignsApi {
     // would be indistinguishable from "leave it alone".
     if (note !== undefined) body.note = note;
     const res = await apiGateway.patch(`/hub/campaigns/${id}`, body);
-    return res.data?.data?.campaign ?? null;
+    return Campaign.fromResponse(res.data?.data?.campaign ?? null);
   }
 
   /** POST /hub/campaigns/:id/start — begin or resume sending. */
   async startCampaign(id) {
     const res = await apiGateway.post(`/hub/campaigns/${id}/start`);
-    return res.data?.data?.campaign ?? null;
+    return Campaign.fromResponse(res.data?.data?.campaign ?? null);
   }
 
   /** POST /hub/campaigns/:id/pause — stop sending, keep the queue. */
   async pauseCampaign(id) {
     const res = await apiGateway.post(`/hub/campaigns/${id}/pause`);
-    return res.data?.data?.campaign ?? null;
+    return Campaign.fromResponse(res.data?.data?.campaign ?? null);
   }
 
   /**
@@ -103,5 +107,5 @@ class HubCampaignsApi {
   }
 }
 
-export const hubCampaignsApi = new HubCampaignsApi();
-export default hubCampaignsApi;
+export const hubCampaignsGateway = new HubCampaignsGateway();
+export default hubCampaignsGateway;

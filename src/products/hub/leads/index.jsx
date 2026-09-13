@@ -7,7 +7,7 @@ import { SectionCard } from 'src/ui/primitives/SectionCard';
 import { Button, Dock, Tag, useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import { hubSourcingApi } from './api.js';
-import { hubCampaignsApi } from 'src/products/hub/campaigns/api.js';
+import campaignController from 'src/products/hub/campaigns/controller/campaign.js';
 import { hubSequencesApi } from 'src/products/hub/sequences/api.js';
 import { hubLeadColumns } from './columns.jsx';
 import { LeadDrawer } from './LeadDrawer.jsx';
@@ -223,7 +223,7 @@ export function HubLeadsPage() {
     if (selected.size === 0 || creating) return;
     setCreating(true);
     try {
-      const { campaign, enrolled } = await hubCampaignsApi.createCampaign({
+      const { campaign, enrolled } = await campaignController.createCampaign({
         leadIds: [...selected],
       });
       if (!campaign?._id) throw new Error('Campaign was not created');
