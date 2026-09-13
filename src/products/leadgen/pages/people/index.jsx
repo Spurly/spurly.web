@@ -1,4 +1,4 @@
-import { Download, Send, RotateCcw } from 'lucide-react';
+import { Download, Upload, RotateCcw } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { DataTable } from 'src/platform/DataTable';
 import { Button } from 'src/ui/primitives';
@@ -6,6 +6,7 @@ import { LeadDetailSidebar } from './components/LeadDetailSidebar';
 import { peopleColumns } from './components/columns.jsx';
 import { PeopleFilterBar } from './components/PeopleFilterBar';
 import { StatusFilter } from './components/StatusFilter';
+import { ImportToHubModal } from 'src/products/leadgen/shared/components/ImportToHubModal.jsx';
 import { usePeoplePage } from 'src/products/leadgen/people/hooks/usePeoplePage.js';
 import { peopleStrings as t } from './strings.js';
 
@@ -30,7 +31,8 @@ export function PeoplePage() {
     setSelectedPerson,
     searchQuery,
     setSearchQuery,
-    creatingCampaign,
+    importingToHub,
+    importModalOpen,
     isExporting,
     sort,
     profiles,
@@ -45,7 +47,9 @@ export function PeoplePage() {
     handleTabChange,
     handleSortChange,
     handleOutreachFilterChange,
-    handleCreateCampaign,
+    openImportToHub,
+    closeImportToHub,
+    submitImportToHub,
     handleExport,
     handleNotesSaved,
     columnOrder,
@@ -108,12 +112,11 @@ export function PeoplePage() {
               <Button
                 size="sm"
                 variant="primary"
-                leadingIcon={<Send size={13} />}
-                onClick={handleCreateCampaign}
-                loading={creatingCampaign}
-                disabled={creatingCampaign || selectedPeople.size === 0}
+                leadingIcon={<Upload size={13} />}
+                onClick={openImportToHub}
+                disabled={selectedPeople.size === 0}
               >
-                {t.createCampaign}
+                {t.importToHub}
               </Button>
             ),
             filters: (
@@ -166,6 +169,14 @@ export function PeoplePage() {
             onNotesSaved={handleNotesSaved}
           />
         )}
+
+        <ImportToHubModal
+          open={importModalOpen}
+          onClose={closeImportToHub}
+          seedCount={selectedPeople.size}
+          submitting={importingToHub}
+          onSubmit={submitImportToHub}
+        />
       </div>
     </DashboardLayout>
   );

@@ -15,10 +15,6 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
 
 const ACTIONS = {
   PING: 'EXT_PING',
-  START: 'CAMPAIGN_START',
-  STOP: 'CAMPAIGN_STOP',
-  PROGRESS: 'CAMPAIGN_PROGRESS',
-  COMPLETE: 'CAMPAIGN_COMPLETE',
   // Imported-lead enrichment (Import tab)
   ENRICH_START: 'ENRICH_START',
   ENRICH_STOP: 'ENRICH_STOP',
@@ -28,10 +24,6 @@ const ACTIONS = {
   // Single sign-on: hand this browser session to the extension
   AUTH_SYNC: 'AUTH_SYNC',
   AUTH_CLEAR: 'AUTH_CLEAR',
-  // Manual "Sync now" on the Connections tab
-  SYNC_START: 'SYNC_CONNECTIONS_START',
-  SYNC_STATE: 'GET_SYNC_CONNECTIONS_STATE',
-  SYNC_COMPLETE: 'SYNC_CONNECTIONS_COMPLETE',
 };
 
 /**
@@ -116,11 +108,8 @@ if (typeof window !== 'undefined') {
   });
 }
 
-/**
- * The worker's two ways of saying the same thing: `{ started:false, error }`
- * from the campaign/enrichment paths, `{ ran:false, reason }` from the
- * connections sweep.
- */
+/** `{ started:false, error }` is how the worker reports a not-signed-in
+ *  extension on the enrichment path. */
 function looksSignedOut(result) {
   return /not logged in/i.test(String(result?.error || result?.reason || ''));
 }
@@ -234,44 +223,15 @@ export async function pingExtension(timeoutMs = 3000) {
 }
 
 /**
- * Ask the extension to start sending a campaign.
- * Resolves { started, total?, error? }. started:false + a message when it
- * couldn't begin (not installed, not logged in, nothing pending, etc).
- */
-export async function startCampaign(campaignId, timeoutMs = 3000) {
-  // A real wake + queue fetch answers in ~1s; keep the timeout short so the
-  // caller can retry quickly when a message to a sleeping worker is dropped.
-  return withSessionRetry(async () => {
-    const res = await request(ACTIONS.START, { campaignId }, timeoutMs);
-    if (!res) return { started: false, error: 'Extension did not respond' };
-    if (!res.ok) return { started: false, error: describeBridgeError(res.error) };
-    return res.data || { started: false, error: 'No response' };
-  });
-}
-
-/** Ask the extension to stop the running campaign. */
-export async function stopCampaign() {
-  const res = await request(ACTIONS.STOP, {}, 3000);
-  return res?.data || { stopped: false };
-}
-
-/**
- * Subscribe to progress/completion events. Callback gets { action, payload }.
+ * Subscribe to bridge events (enrichment progress/completion, and anything
+ * else the extension broadcasts). Callback gets { action, payload }; callers
+ * filter on `action` themselves, since every event goes to every listener.
  * Returns an unsubscribe function.
  */
-export function onCampaignEvent(cb) {
+export function onExtensionEvent(cb) {
   eventListeners.add(cb);
   return () => eventListeners.delete(cb);
 }
-
-/**
- * Same subscription as onCampaignEvent — every bridge event goes to every
- * listener, so callers filter on `action` themselves. Exported under a neutral
- * name because enrichment events flow through here too.
- */
-export const onExtensionEvent = onCampaignEvent;
-
-export const CAMPAIGN_EVENTS = { PROGRESS: ACTIONS.PROGRESS, COMPLETE: ACTIONS.COMPLETE };
 
 /**
  * Ask the extension to drain the imported-lead enrichment queue.
@@ -311,37 +271,6 @@ export const ENRICH_EVENTS = {
   PROGRESS: ACTIONS.ENRICH_PROGRESS,
   COMPLETE: ACTIONS.ENRICH_COMPLETE,
 };
-
-/**
- * Ask the extension to read the LinkedIn connections page now, rather than
- * waiting for its daily run.
- *
- * Resolves as soon as the sweep STARTS, not when it finishes — a full sweep
- * runs for minutes, well past any sane request timeout. The outcome arrives
- * later as a SYNC_CONNECTIONS_COMPLETE event; subscribe with onExtensionEvent.
- *
- * Resolves { started, error? }.
- */
-export async function startConnectionsSync(timeoutMs = 5000) {
-  return withSessionRetry(async () => {
-    const res = await request(ACTIONS.SYNC_START, {}, timeoutMs);
-    if (!res) return { started: false, error: 'Extension did not respond' };
-    if (!res.ok) return { started: false, error: describeBridgeError(res.error) };
-    return res.data || { started: false, error: 'No response' };
-  });
-}
-
-/**
- * Is a connections sweep still in flight? Used on mount, because the page
- * unmounts on navigation while the background worker keeps going.
- * Resolves { running }.
- */
-export async function getConnectionsSyncState() {
-  const res = await request(ACTIONS.SYNC_STATE, {}, 2000);
-  return res?.data || { running: false };
-}
-
-export const SYNC_EVENTS = { COMPLETE: ACTIONS.SYNC_COMPLETE };
 
 /**
  * Hand this browser session to the extension (single sign-on).

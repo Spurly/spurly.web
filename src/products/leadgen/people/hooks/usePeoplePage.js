@@ -11,7 +11,7 @@ import capturedLeadsController from '../controller/people.js';
 import { exportProfilesAsCSV } from 'src/shared/utils/csvExport';
 import { peopleColumns } from '../../pages/people/components/columns.jsx';
 import { buildDegreeTabs } from '../helpers.js';
-import campaignsController from 'src/products/leadgen/campaigns/controller/campaigns.js';
+import hubImportGateway from 'src/platform/hubImport/gateway/hubImport.js';
 
 const OUTREACH_POLL_MS = 30000;
 const SEARCH_DEBOUNCE_MS = 350;
@@ -40,7 +40,8 @@ export function usePeoplePage() {
   const [selectedPeople, setSelectedPeople] = useState(new Set());
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [creatingCampaign, setCreatingCampaign] = useState(false);
+  const [importingToHub, setImportingToHub] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
   // `key: null` means "no column sort" — the list falls back to the server's
@@ -63,7 +64,7 @@ export function usePeoplePage() {
 
   // The extension writes send results back asynchronously, so poll while the
   // page is open rather than letting counts go stale mid-campaign.
-  const { summary: outreachSummary, refresh: refreshOutreach } = useOutreachSummary({
+  const { summary: outreachSummary } = useOutreachSummary({
     pollMs: OUTREACH_POLL_MS,
   });
 
@@ -142,36 +143,65 @@ export function usePeoplePage() {
   const tabs = buildDegreeTabs(outreachSummary?.total || pagination.total, stats.connectionDegrees);
 
   /**
-   * "Create campaign" — creates immediately and opens the campaign.
+   * "Import to Hub" — turns the current selection into seeds for a new Hub
+   * audience, prompts for a name, and hands the seeds to the Hub sourcing API.
    *
-   * There is no confirmation dialog and no name prompt. Both used to sit here;
-   * the name is now generated server-side, and the dialog's remaining job was a
-   * dedupe preview the campaign page shows anyway. Everyone selected is
-   * enrolled (`excludeContacted: false`) — the same choice the extension's
-   * Outreach tab makes, on the grounds that the user ticked those rows on
-   * purpose. The campaign page is where the action and the message get written,
-   * so going straight there is the step the user was heading for.
+   * The import itself is a background job (same pattern as Hub's own search
+   * import) — opening the modal only collects a name; the actual POST and
+   * navigation happen once the user confirms it, in `submitImportToHub`.
+   * Profiles stay in People either way — this is a copy, not a move.
    */
-  const handleCreateCampaign = async () => {
-    if (creatingCampaign || selectedPeople.size === 0) return;
+  const buildHubSeeds = () =>
+    profiles
+      .filter((p) => selectedPeople.has(p._id))
+      .map((p) => ({
+        profileUrl: p.linkedInUrl,
+        name: p.name,
+        headline: p.headline || p.title,
+        currentTitle: p.title,
+        companyName: p.currentCompany || p.company,
+        location: p.location,
+        profilePictureUrl: p.avatar,
+      }))
+      .filter((seed) => seed.profileUrl);
 
-    setCreatingCampaign(true);
+  const openImportToHub = () => {
+    if (selectedPeople.size === 0) return;
+    setImportModalOpen(true);
+  };
+
+  const closeImportToHub = () => {
+    if (importingToHub) return;
+    setImportModalOpen(false);
+  };
+
+  const submitImportToHub = async (name) => {
+    if (importingToHub) return;
+    const seeds = buildHubSeeds();
+    if (seeds.length === 0) {
+      toast.error("None of the selected contacts have a LinkedIn URL to import");
+      return;
+    }
+
+    setImportingToHub(true);
     try {
-      const { campaign, memberCount } = await campaignsController.createCampaign({
-        personIds: Array.from(selectedPeople),
-        excludeContacted: false,
-      });
+      const audience = await hubImportGateway.createManualAudience({ name, seeds });
+      setImportModalOpen(false);
       setSelectedPeople(new Set());
-      refreshOutreach();
-      toast.success(`Campaign created with ${memberCount} lead${memberCount === 1 ? '' : 's'}`);
-      navigate(`/dashboard/campaigns/${campaign._id}`);
+      toast.success(
+        `Importing ${seeds.length} profile${seeds.length === 1 ? '' : 's'} into Hub`,
+        {
+          action: {
+            label: 'View in Hub',
+            onClick: () => navigate(`/hub/leads?searchId=${audience._id}`),
+          },
+        },
+      );
     } catch (e) {
-      console.error('[People] Create campaign error:', e);
-      // Staying put on failure matters: the selection survives, so the user can
-      // click again once whatever failed is fixed.
-      toast.error(getToastError(e, "Couldn't create the campaign"));
+      console.error('[People] Import to Hub error:', e);
+      toast.error(getToastError(e, "Couldn't start the Hub import"));
     } finally {
-      setCreatingCampaign(false);
+      setImportingToHub(false);
     }
   };
 
@@ -257,7 +287,8 @@ export function usePeoplePage() {
     setSelectedPerson,
     searchQuery,
     setSearchQuery,
-    creatingCampaign,
+    importingToHub,
+    importModalOpen,
     isExporting,
     sort,
     profiles,
@@ -272,7 +303,9 @@ export function usePeoplePage() {
     handleTabChange,
     handleSortChange,
     handleOutreachFilterChange,
-    handleCreateCampaign,
+    openImportToHub,
+    closeImportToHub,
+    submitImportToHub,
     handleExport,
     handleNotesSaved,
     columnOrder,

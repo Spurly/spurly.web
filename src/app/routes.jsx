@@ -50,9 +50,6 @@ const InstallExtensionPage = lazy(() => import('src/platform/pages/auth/InstallE
 
 // products/leadgen — the signed-in dashboard
 const PeoplePage = lazy(() => import('src/products/leadgen/pages/people').then((m) => ({ default: m.PeoplePage })));
-const ConnectionsPage = lazy(() => import('src/products/leadgen/pages/connections').then((m) => ({ default: m.ConnectionsPage })));
-const CampaignsPage = lazy(() => import('src/products/leadgen/pages/campaigns').then((m) => ({ default: m.CampaignsPage })));
-const CampaignDetailPage = lazy(() => import('src/products/leadgen/pages/campaigns/CampaignDetailPage.jsx').then((m) => ({ default: m.CampaignDetailPage })));
 const TemplatesPage = lazy(() => import('src/products/leadgen/pages/templates').then((m) => ({ default: m.TemplatesPage })));
 const SettingsPage = lazy(() => import('src/products/leadgen/pages/settings').then((m) => ({ default: m.SettingsPage })));
 const LinkedInSettingsPage = lazy(() => import('src/products/hub/pages/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
@@ -118,9 +115,6 @@ export function AppRoutes() {
           rather than making all of those know about /dashboard/people. */}
       <Route path="/dashboard" element={<Navigate to="/dashboard/people" replace />} />
       <Route path="/dashboard/people" element={<ProtectedRoute><SubscribeGate><PeoplePage /></SubscribeGate></ProtectedRoute>} />
-      <Route path="/dashboard/connections" element={<ProtectedRoute><SubscribeGate><ConnectionsPage /></SubscribeGate></ProtectedRoute>} />
-      <Route path="/dashboard/campaigns" element={<ProtectedRoute><SubscribeGate><CampaignsPage /></SubscribeGate></ProtectedRoute>} />
-      <Route path="/dashboard/campaigns/:campaignId" element={<ProtectedRoute><SubscribeGate><CampaignDetailPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/templates" element={<ProtectedRoute><SubscribeGate><TemplatesPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/import" element={<ProtectedRoute><SubscribeGate><ImportPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/settings" element={<ProtectedRoute><SubscribeGate><SettingsPage /></SubscribeGate></ProtectedRoute>} />

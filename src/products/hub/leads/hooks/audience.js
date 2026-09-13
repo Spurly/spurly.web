@@ -20,6 +20,10 @@ export const isBusy = (s) => s?.status === 'queued' || s?.status === 'running';
  * re-render the whole filter form.
  */
 export function describeSearch(search) {
+  if (search.mode === 'manual') {
+    const n = search.manualQueue?.length ?? 0;
+    return `${n} imported profile${n === 1 ? '' : 's'}`;
+  }
   if (search.mode !== 'structured') return search.searchUrl;
   const f = search.filters || {};
   const parts = [];
