@@ -1,7 +1,7 @@
 import { LinkedInIcon } from 'src/ui/icons';
 import { TextCell, PersonCell, LinkCell, DateCell } from 'src/platform/DataTable';
 import { Badge } from 'src/ui/primitives';
-import { stepTypeLabel } from './stepTypes.js';
+import { stepTypeLabel } from 'src/products/hub/sequences/stepTypes.js';
 
 /**
  * Columns for one sequence's enrollments table.

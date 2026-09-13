@@ -4,7 +4,7 @@ import { useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import leadController from '../controller/lead.js';
 import campaignController from 'src/products/hub/campaigns/controller/campaign.js';
-import { hubSequencesApi } from 'src/products/hub/sequences/api.js';
+import sequenceController from 'src/products/hub/sequences/controller/sequence.js';
 import { isBusy } from './audience.js';
 import { PAGE_SIZE, POLL_MS } from '../constants.js';
 
@@ -88,7 +88,7 @@ export function useLeadsPage() {
   // elsewhere for things that actually change on their own; a sequence being
   // created/deleted mid-visit here is rare enough not to warrant a poll.
   useEffect(() => {
-    hubSequencesApi.listSequences()
+    sequenceController.listSequences()
       .then((next) => { if (mountedRef.current) setSequences(next); })
       .catch(() => {}); // silent: the picker just stays empty, not a page-breaking error
   }, []);
@@ -234,7 +234,7 @@ export function useLeadsPage() {
     if (!sequenceId || selected.size === 0 || enrolling) return;
     setEnrolling(true);
     try {
-      const { enrolled } = await hubSequencesApi.enrollLeads(sequenceId, { leadIds: [...selected] });
+      const { enrolled } = await sequenceController.enrollLeads(sequenceId, { leadIds: [...selected] });
       toast.success(`${enrolled} lead(s) enrolled. Nothing runs until the sequence is started.`);
       navigate(`/hub/sequences/${sequenceId}`);
     } catch (err) {

@@ -61,9 +61,9 @@ const HubUpgradePage = lazy(() => import('src/products/hub/upgrade'));
 const HubLeadsPage = lazy(() => import('src/products/hub/pages/leads').then((m) => ({ default: m.HubLeadsPage })));
 const HubCampaignsPage = lazy(() => import('src/products/hub/pages/campaigns').then((m) => ({ default: m.HubCampaignsPage })));
 const HubCampaignDetailPage = lazy(() => import('src/products/hub/pages/campaigns').then((m) => ({ default: m.HubCampaignDetailPage })));
-const HubSequencesPage = lazy(() => import('src/products/hub/sequences').then((m) => ({ default: m.HubSequencesPage })));
-const HubNewSequencePage = lazy(() => import('src/products/hub/sequences').then((m) => ({ default: m.HubNewSequencePage })));
-const HubSequenceDetailPage = lazy(() => import('src/products/hub/sequences').then((m) => ({ default: m.HubSequenceDetailPage })));
+const HubSequencesPage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubSequencesPage })));
+const HubNewSequencePage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubNewSequencePage })));
+const HubSequenceDetailPage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubSequenceDetailPage })));
 const HubInboxPage = lazy(() => import('src/products/hub/inbox').then((m) => ({ default: m.HubInboxPage })));
 const ImportPage = lazy(() => import('src/products/leadgen/import').then((m) => ({ default: m.ImportPage })));
 

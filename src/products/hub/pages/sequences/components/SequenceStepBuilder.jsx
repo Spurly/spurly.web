@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { GripVertical, ChevronUp, ChevronDown, Trash2, Plus } from 'lucide-react';
 import { Field, Checkbox, IconButton, Button } from 'src/ui/primitives';
-import { STEP_TYPES, STEP_TYPE_MAP, WAIT_MODES, makeStep, stepError } from './stepTypes.js';
+import { STEP_TYPES, STEP_TYPE_MAP, WAIT_MODES, makeStep, stepError } from 'src/products/hub/sequences/stepTypes.js';
 
 /**
  * The step-list builder — a linear reorderable list, not a branching canvas

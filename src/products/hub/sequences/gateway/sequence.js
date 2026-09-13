@@ -1,4 +1,5 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
+import { Sequence } from '../entities/sequence.js';
 
 /**
  * Hub sequences API client.
@@ -9,23 +10,25 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  * at least one step to save at all — see stepTypes.js#validateSteps), but
  * nothing runs until leads are enrolled and the sequence is started.
  */
-class HubSequencesApi {
+class HubSequencesGateway {
   /** POST /hub/sequences — create a draft. Needs at least one step. */
   async createSequence({ name, steps } = {}) {
     const res = await apiGateway.post('/hub/sequences', { name, steps });
-    return res.data?.data?.sequence ?? null;
+    return Sequence.fromResponse(res.data?.data?.sequence ?? null);
   }
 
   /** GET /hub/sequences — the list. No enrollment counts (kept lean, one query). */
   async listSequences() {
     const res = await apiGateway.get('/hub/sequences');
-    return res.data?.data?.sequences ?? [];
+    return Sequence.fromList(res.data?.data?.sequences ?? []);
   }
 
   /** GET /hub/sequences/:id — the sequence plus enrollment status counts. */
   async getSequence(id) {
     const res = await apiGateway.get(`/hub/sequences/${id}`);
-    return res.data?.data ?? null;
+    const data = res.data?.data ?? null;
+    if (!data) return null;
+    return { ...data, sequence: Sequence.fromResponse(data.sequence) };
   }
 
   /**
@@ -40,7 +43,7 @@ class HubSequencesApi {
     if (name !== undefined) body.name = name;
     if (steps !== undefined) body.steps = steps;
     const res = await apiGateway.patch(`/hub/sequences/${id}`, body);
-    return res.data?.data?.sequence ?? null;
+    return Sequence.fromResponse(res.data?.data?.sequence ?? null);
   }
 
   /** GET /hub/sequences/:id/enrollments — the enrollments table. */
@@ -64,13 +67,13 @@ class HubSequencesApi {
   /** POST /hub/sequences/:id/start — begin or resume running. */
   async startSequence(id) {
     const res = await apiGateway.post(`/hub/sequences/${id}/start`);
-    return res.data?.data?.sequence ?? null;
+    return Sequence.fromResponse(res.data?.data?.sequence ?? null);
   }
 
   /** POST /hub/sequences/:id/pause — stop running, keep enrollment progress. */
   async pauseSequence(id) {
     const res = await apiGateway.post(`/hub/sequences/${id}/pause`);
-    return res.data?.data?.sequence ?? null;
+    return Sequence.fromResponse(res.data?.data?.sequence ?? null);
   }
 
   /** DELETE /hub/sequences/:id — remove the sequence and its enrollments. */
@@ -80,5 +83,5 @@ class HubSequencesApi {
   }
 }
 
-export const hubSequencesApi = new HubSequencesApi();
-export default hubSequencesApi;
+export const hubSequencesGateway = new HubSequencesGateway();
+export default hubSequencesGateway;

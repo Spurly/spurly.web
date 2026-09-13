@@ -1,14 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loader2, Pause, Play, Trash2, Plus, Workflow } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
-import { Button, Badge, EmptyState, useToast, useConfirm } from 'src/ui/primitives';
-import { getToastError } from 'src/shared/utils/apiError';
-import { hubSequencesApi } from './api.js';
+import { Button, Badge, EmptyState } from 'src/ui/primitives';
+import { useSequencesPage, isLive } from 'src/products/hub/sequences/hooks/useSequencesPage.js';
+import { SEQUENCE_STATUS_VIEW as STATUS_VIEW } from './components/statusView.js';
+import { sequencesStrings } from './strings.js';
 
 export { NewSequencePage as HubNewSequencePage } from './NewSequencePage.jsx';
 export { SequenceDetailPage as HubSequenceDetailPage } from './SequenceDetailPage.jsx';
+
+const t = sequencesStrings.list;
 
 /**
  * Hub sequences — the list.
@@ -18,18 +20,6 @@ export { SequenceDetailPage as HubSequenceDetailPage } from './SequenceDetailPag
  * backend will save it at all — there is nothing to select first, so this
  * page does carry a "New sequence" button, straight into the step builder.
  */
-
-const POLL_MS = 10000;
-
-const STATUS_VIEW = {
-  draft: { label: 'Draft', tone: 'neutral', detail: 'Nothing runs until you enroll leads and start it.' },
-  running: { label: 'Running', tone: 'success', detail: 'Steps run on their own schedule.' },
-  paused: { label: 'Paused', tone: 'warning', detail: 'Stopped. Enrollment progress is kept.' },
-  done: { label: 'Finished', tone: 'info', detail: 'Everyone enrolled has been handled.' },
-};
-
-const isLive = (s) => s?.status === 'running';
-
 function SequenceRow({ sequence, onStart, onPause, onDelete, busy }) {
   const view = STATUS_VIEW[sequence.status] ?? STATUS_VIEW.draft;
   const running = isLive(sequence);
@@ -80,88 +70,26 @@ function SequenceRow({ sequence, onStart, onPause, onDelete, busy }) {
 }
 
 export function HubSequencesPage() {
-  const [sequences, setSequences] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
-
-  const toast = useToast();
-  const confirm = useConfirm();
+  const { sequences, loading, busy, start, pause, remove } = useSequencesPage();
   const navigate = useNavigate();
-
-  const mountedRef = useRef(true);
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; };
-  }, []);
-
-  const load = useCallback(() => hubSequencesApi.listSequences()
-    .then((next) => { if (mountedRef.current) setSequences(next); })
-    .catch((err) => { if (mountedRef.current) toast.error(getToastError(err, 'Could not load your sequences')); })
-    .finally(() => { if (mountedRef.current) setLoading(false); }), [toast]);
-
-  useEffect(() => { load(); }, [load]);
-
-  const anyLive = sequences.some(isLive);
-  useEffect(() => {
-    if (!anyLive) return undefined;
-    const t = setInterval(load, POLL_MS);
-    return () => clearInterval(t);
-  }, [anyLive, load]);
-
-  const act = async (fn, sequence, okMessage, failMessage) => {
-    setBusy(true);
-    try {
-      await fn(sequence._id);
-      toast.success(okMessage);
-      await load();
-    } catch (err) {
-      toast.error(getToastError(err, failMessage));
-    } finally {
-      if (mountedRef.current) setBusy(false);
-    }
-  };
-
-  const start = (sequence) => act(
-    (id) => hubSequencesApi.startSequence(id),
-    sequence,
-    'Started. Steps run on their own schedule.',
-    'Could not start that sequence',
-  );
-
-  const pause = (sequence) => act(
-    (id) => hubSequencesApi.pauseSequence(id),
-    sequence,
-    'Paused. Enrollment progress is kept.',
-    'Could not pause that sequence',
-  );
-
-  const remove = async (sequence) => {
-    const ok = await confirm({
-      title: 'Remove this sequence?',
-      body: 'Actions it already took for enrolled leads are not undone — only the sequence and its enrollment records are removed.',
-      confirmLabel: 'Remove',
-    });
-    if (!ok) return;
-    act((id) => hubSequencesApi.deleteSequence(id), sequence, 'Sequence removed', 'Could not remove that sequence');
-  };
 
   return (
     <DashboardLayout
-      title="Sequences"
-      subtitle="A linear list of steps, run against whoever you enroll."
-      actions={<Button leadingIcon={<Plus size={13} />} onClick={() => navigate('/hub/sequences/new')}>New sequence</Button>}
+      title={t.pageTitle}
+      subtitle={t.pageSubtitle}
+      actions={<Button leadingIcon={<Plus size={13} />} onClick={() => navigate('/hub/sequences/new')}>{t.newSequence}</Button>}
     >
       {!loading && sequences.length === 0 ? (
         <EmptyState
           icon={<Workflow size={20} />}
-          title="No sequences yet"
-          hint="A sequence is a list of steps — visit, connect, message, wait — run against the leads you enroll."
-          action={<Button onClick={() => navigate('/hub/sequences/new')}>New sequence</Button>}
+          title={t.emptyTitle}
+          hint={t.emptyHint}
+          action={<Button onClick={() => navigate('/hub/sequences/new')}>{t.newSequence}</Button>}
         />
       ) : (
-        <SectionCard title="Sequences" noPadding>
+        <SectionCard title={t.sectionTitle} noPadding>
           {loading ? (
-            <p className="px-[var(--ui-pad-lg)] py-6 text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">Loading…</p>
+            <p className="px-[var(--ui-pad-lg)] py-6 text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{t.loading}</p>
           ) : (
             sequences.map((sequence) => (
               <SequenceRow
