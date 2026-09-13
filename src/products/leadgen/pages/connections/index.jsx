@@ -1,53 +1,21 @@
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { RefreshCw, AlertTriangle, X, Download, MessageSquare } from "lucide-react";
-import { Button, IconButton, useToast } from "src/ui/primitives";
-import { getToastError } from "src/shared/utils/apiError";
-import { DashboardLayout } from "src/platform/layout/DashboardLayout";
-import { DataTable } from "src/platform/DataTable";
-import { LeadDetailSidebar } from "src/platform/people/LeadDetailSidebar";
-import campaignsController from "src/products/leadgen/campaigns/controller.js";
-import { useConnections } from "src/products/leadgen/connections/useConnections";
-import { useConnectionsSync } from "src/products/leadgen/connections/useConnectionsSync";
-import connectionsController from "src/products/leadgen/connections/controller";
-import { exportProfilesAsCSV } from "src/shared/utils/csvExport";
-import { connectionColumns } from "./columns.jsx";
-import { describeSyncResult } from "./helpers.js";
-
-/**
- * Failure strip for a manual sync.
- *
- * FAILURES ONLY. A successful sync is confirmed by the toast and nothing else —
- * rendering the same sentence twice, once floating and once pinned above the
- * table, made a quiet success look like two separate events.
- *
- * Failures keep the strip because sync errors are frequently instructions
- * rather than statements — "LinkedIn's connections page isn't sorted by
- * recently added, set the sort back and sync again" is a task, and a task that
- * auto-dismisses after seven seconds is one the user can't act on.
- */
-function SyncFailure({ result, onDismiss }) {
-  if (!result || result.ok) return null;
-
-  return (
-    <div
-      role="alert"
-      className="flex items-center gap-2 shrink-0 border-b border-[var(--ui-border-hairline)]"
-      style={{
-        height: 'var(--ui-band)',
-        paddingInline: 'var(--ui-pad-x)',
-        background: 'var(--ui-danger-tint)',
-      }}
-    >
-      <AlertTriangle size={13} style={{ color: "var(--ui-danger-fg)" }} aria-hidden="true" />
-      <span className="text-[var(--ui-t-label)] font-medium" style={{ color: "var(--ui-danger-fg)" }}>
-        {result.error}
-      </span>
-      <span className="flex-1" />
-      <IconButton size="sm" variant="ghost" label="Dismiss" icon={<X size={13} />} onClick={onDismiss} />
-    </div>
-  );
-}
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { RefreshCw, Download, MessageSquare } from 'lucide-react';
+import { Button, useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/shared/utils/apiError';
+import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
+import { DataTable } from 'src/platform/DataTable';
+import { LeadDetailSidebar } from 'src/platform/people/LeadDetailSidebar';
+import campaignsController from 'src/products/leadgen/campaigns/controller.js';
+import { useConnections } from 'src/products/leadgen/connections/hooks/useConnections.js';
+import { useConnectionsSync } from 'src/products/leadgen/connections/hooks/useConnectionsSync.js';
+import connectionsController from 'src/products/leadgen/connections/controller/connections.js';
+import { exportProfilesAsCSV } from 'src/shared/utils/csvExport';
+import { connectionColumns } from './components/columns.jsx';
+import { describeSyncResult } from './components/helpers.js';
+import { SyncFailure } from './components/SyncFailure.jsx';
+import { SEARCH_DEBOUNCE_MS } from 'src/products/leadgen/connections/constants.js';
+import { connectionsStrings as t } from './strings.js';
 
 /**
  * Connections — the user's own LinkedIn network.
@@ -68,7 +36,7 @@ export function ConnectionsPage() {
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [selectedConnection, setSelectedConnection] = useState(null);
   const [creatingCampaign, setCreatingCampaign] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   // `key: null` means "no column sort" — the list falls back to the server's
   // default (newest captured first).
@@ -104,9 +72,9 @@ export function ConnectionsPage() {
   useEffect(() => {
     if (!syncResult) return;
     if (syncResult.ok) {
-      toast.success('Connections synced', { description: describeSyncResult(syncResult) });
+      toast.success(t.sync.successToastTitle, { description: describeSyncResult(syncResult) });
     } else {
-      toast.error(getToastError(syncResult.error, "Couldn't sync your connections"));
+      toast.error(getToastError(syncResult.error, t.sync.errorToastFallback));
     }
   }, [syncResult, toast]);
 
@@ -115,9 +83,7 @@ export function ConnectionsPage() {
      list — telling them they can walk away is the useful part. */
   const handleSync = () => {
     if (syncing) return;
-    toast.info('Syncing your connections', {
-      description: 'This takes a minute. You can leave this page.',
-    });
+    toast.info(t.sync.startToastTitle, { description: t.sync.startToastDescription });
     sync();
   };
 
@@ -150,7 +116,7 @@ export function ConnectionsPage() {
     return opts;
   };
 
-  // Debounced server-side search — fires 350ms after the user stops typing.
+  // Debounced server-side search.
   useEffect(() => {
     const timer = setTimeout(() => {
       const opts = { limit: pageLimitRef.current, skip: 0 };
@@ -161,7 +127,7 @@ export function ConnectionsPage() {
         opts.sortDir = activeSort.direction;
       }
       fetchConnections(opts);
-    }, 350);
+    }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [searchQuery, fetchConnections]);
 
@@ -199,9 +165,9 @@ export function ConnectionsPage() {
       }
       navigate(`/dashboard/campaigns/${campaign._id}`);
     } catch (e) {
-      console.error("[Connections] Create campaign error:", e);
+      console.error('[Connections] Create campaign error:', e);
       // The selection survives a failure, so the user can just click again.
-      toast.error(getToastError(e, "Couldn't create the campaign"));
+      toast.error(getToastError(e, t.campaign.errorToastFallback));
     } finally {
       setCreatingCampaign(false);
     }
@@ -224,7 +190,7 @@ export function ConnectionsPage() {
       const rows = connections
         .filter((c) => selectedRows.has(c._id))
         .map((c) => c.raw ?? c);
-      const date = new Date().toISOString().split("T")[0];
+      const date = new Date().toISOString().split('T')[0];
       exportProfilesAsCSV(rows, `connections-${date}.csv`);
       toast.success(`Exported ${rows.length.toLocaleString()} selected`);
       return;
@@ -237,12 +203,12 @@ export function ConnectionsPage() {
       const opts = buildFetchOptions({ limit: pagination.total, skip: 0 });
       const { connections: all } = await connectionsController.getConnections(opts);
       const rows = all.map((c) => c.raw ?? c);
-      const date = new Date().toISOString().split("T")[0];
+      const date = new Date().toISOString().split('T')[0];
       exportProfilesAsCSV(rows, `connections-${date}.csv`);
       toast.success(`Exported ${rows.length.toLocaleString()} connections`);
     } catch (e) {
-      console.error("[Connections] Export error:", e);
-      toast.error(getToastError(e, "Couldn't export your connections"));
+      console.error('[Connections] Export error:', e);
+      toast.error(getToastError(e, t.export.errorToastFallback));
     } finally {
       setIsExporting(false);
     }
@@ -250,7 +216,7 @@ export function ConnectionsPage() {
 
   return (
     <DashboardLayout
-      title="Connections"
+      title={t.pageTitle}
       subtitle={`${(pagination.total || 0).toLocaleString()} in your network`}
     >
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
@@ -268,18 +234,12 @@ export function ConnectionsPage() {
             onRowClick={setSelectedConnection}
             sort={sort}
             onSortChange={handleSortChange}
-            emptyMessage={
-              searchQuery ? "No connections match your search" : "No connections captured yet"
-            }
-            emptyHint={
-              searchQuery
-                ? "Try a different search term"
-                : "Open your LinkedIn connections page with the Spurly extension and tick the people you want to save"
-            }
+            emptyMessage={searchQuery ? t.table.emptyMessageSearch : t.table.emptyMessageAll}
+            emptyHint={searchQuery ? t.table.emptyHintSearch : t.table.emptyHintAll}
             toolbar={{
               searchValue: searchQuery,
               onSearch: setSearchQuery,
-              searchPlaceholder: "Search name, company, location",
+              searchPlaceholder: t.table.searchPlaceholder,
               actions: (
                 <>
                   {/* Spurly checks LinkedIn once a day on its own. This is the
@@ -305,13 +265,13 @@ export function ConnectionsPage() {
                     size="sm"
                     variant="secondary"
                     leadingIcon={
-                      <RefreshCw size={13} className={syncing ? "animate-spin" : undefined} />
+                      <RefreshCw size={13} className={syncing ? 'animate-spin' : undefined} />
                     }
                     onClick={handleSync}
                     disabled={syncing}
-                    title="Read LinkedIn for connections added since the last sync"
+                    title={t.sync.title}
                   >
-                    {syncing ? "Syncing…" : "Sync now"}
+                    {syncing ? t.sync.running : t.sync.idle}
                   </Button>
 
                   <Button
@@ -322,7 +282,7 @@ export function ConnectionsPage() {
                     loading={isExporting}
                     disabled={selectedRows.size === 0 && pagination.total === 0}
                   >
-                    {selectedRows.size > 0 ? `Export ${selectedRows.size}` : "Export"}
+                    {selectedRows.size > 0 ? `Export ${selectedRows.size}` : t.export.label}
                   </Button>
                 </>
               ),

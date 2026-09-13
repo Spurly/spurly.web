@@ -1,10 +1,10 @@
-import connectionsApi from 'src/products/leadgen/connections/api.js';
+import connectionsGateway from '../gateway/connections.js';
 import { Profile } from 'src/platform/people/Profile.js';
 
 /**
  * Connections Controller
- * Business-logic orchestration between the UI/hook layer and the API layer.
- * Components/hooks should call this, never the API directly.
+ * Business-logic orchestration between the UI/hook layer and the gateway.
+ * Components/hooks should call this, never the gateway directly.
  */
 class ConnectionsController {
   /**
@@ -12,7 +12,7 @@ class ConnectionsController {
    * @returns {Promise<{ connections, pagination }>}
    */
   async getConnections({ limit = 100, skip = 0, search, sortBy, sortDir } = {}) {
-    const res = await connectionsApi.getConnections({ limit, skip, search, sortBy, sortDir });
+    const res = await connectionsGateway.getConnections({ limit, skip, search, sortBy, sortDir });
 
     if (!res?.success || !res?.data) {
       throw new Error(res?.message || 'Failed to fetch connections');
@@ -33,7 +33,7 @@ class ConnectionsController {
 
   /** @returns {Promise<{ total: number }>} */
   async getStatistics() {
-    const res = await connectionsApi.getStatistics();
+    const res = await connectionsGateway.getStatistics();
     if (!res?.success || !res?.data) {
       throw new Error(res?.message || 'Failed to fetch connection statistics');
     }
@@ -41,4 +41,5 @@ class ConnectionsController {
   }
 }
 
-export default new ConnectionsController();
+export const connectionsController = new ConnectionsController();
+export default connectionsController;

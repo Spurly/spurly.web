@@ -12,7 +12,7 @@ import { Profile } from 'src/platform/people/Profile.js';
  * Rows are still wrapped in `Profile` entities so the shared DataTable cells
  * (name, company, email, skills) work unchanged.
  */
-class ConnectionsApi {
+class ConnectionsGateway {
   /**
    * Get a page of the user's connections.
    * GET /connections  Query: { limit, skip, search?, sortBy?, sortDir? }
@@ -49,4 +49,5 @@ class ConnectionsApi {
   }
 }
 
-export default new ConnectionsApi();
+export const connectionsGateway = new ConnectionsGateway();
+export default connectionsGateway;

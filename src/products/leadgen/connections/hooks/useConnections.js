@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import connectionsController from 'src/products/leadgen/connections/controller.js';
+import connectionsController from '../controller/connections.js';
 import { useErrorToast } from 'src/ui/primitives';
 
 /**

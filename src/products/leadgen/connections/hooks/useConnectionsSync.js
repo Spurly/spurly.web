@@ -6,9 +6,7 @@ import {
   SYNC_EVENTS,
   isExtensionPresent,
 } from 'src/shared/extension/extensionBridge.js';
-
-/** How often to re-ask the extension whether the sweep has finished. */
-const POLL_MS = 2000;
+import { POLL_MS } from '../constants.js';
 
 /**
  * Manual "Sync now" for the Connections tab.
