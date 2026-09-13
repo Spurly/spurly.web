@@ -1,37 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Linkedin, Send, Search } from 'lucide-react';
-import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
-import { DataTable } from 'src/platform/DataTable';
-import { SectionCard } from 'src/ui/primitives/SectionCard';
-import { Button, Dock, Tag, useToast, useConfirm } from 'src/ui/primitives';
+import { useNavigate } from 'react-router-dom';
+import { useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import { hubSourcingApi } from './api.js';
+import leadController from '../controller/lead.js';
 import campaignController from 'src/products/hub/campaigns/controller/campaign.js';
 import { hubSequencesApi } from 'src/products/hub/sequences/api.js';
-import { hubLeadColumns } from './columns.jsx';
-import { LeadDrawer } from './LeadDrawer.jsx';
-import { AudienceForm } from './AudienceForm.jsx';
-import { AudienceList, ImportStrip } from './AudienceList.jsx';
 import { isBusy } from './audience.js';
+import { PAGE_SIZE, POLL_MS } from '../constants.js';
 
 /**
- * Hub leads — paste a LinkedIn search, get an audience.
- *
- * The page is built around one fact: importing takes minutes, not
- * milliseconds. Ten results per call against LinkedIn means a thousand leads is
- * about a hundred calls, so submitting a URL only queues an audience — a worker
- * pages it in the background and this page polls.
- *
- * Which is why progress here is a COUNT and never a bar. Classic search returns
- * no total, so the honest answer to "how far along is it?" is "412 so far", and
- * a progress bar would have to invent the denominator.
+ * All state and orchestration for the hub leads page — importing an
+ * audience, the leads table, selection actions (create campaign / enroll in
+ * a sequence), and the lead drawer. Moved out of the page component itself
+ * so the page is UI only; every effect, poll, and error-toast path below is
+ * unchanged from when it lived there.
  */
-
-const PAGE_SIZE = 50;
-const POLL_MS = 5000;
-
-export function HubLeadsPage() {
+export function useLeadsPage() {
   const [searches, setSearches] = useState([]);
   const [leads, setLeads] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: PAGE_SIZE, total: 0 });
@@ -45,7 +29,6 @@ export function HubLeadsPage() {
   const [selectedLead, setSelectedLead] = useState(null);
   const [sequences, setSequences] = useState([]);
   const [enrolling, setEnrolling] = useState(false);
-
 
   const toast = useToast();
   const confirm = useConfirm();
@@ -77,14 +60,14 @@ export function HubLeadsPage() {
 
   const loadSearches = useCallback((signal) => {
     const live = () => mountedRef.current && !signal?.aborted;
-    return hubSourcingApi.listSearches()
+    return leadController.listSearches()
       .then((next) => { if (live()) setSearches(next); })
       .catch((err) => { if (live()) toast.error(getToastError(err, 'Could not load your audiences')); });
   }, [toast]);
 
   const loadLeads = useCallback((signal, { page = 1 } = {}) => {
     const live = () => mountedRef.current && !signal?.aborted;
-    return hubSourcingApi.listLeads({ searchId: activeSearchId, q: query, page, limit: PAGE_SIZE })
+    return leadController.listLeads({ searchId: activeSearchId, q: query, page, limit: PAGE_SIZE })
       .then((res) => {
         if (!live()) return;
         setLeads(res.leads ?? []);
@@ -163,7 +146,7 @@ export function HubLeadsPage() {
     setSubmitting(true);
     setNeedsAccount(false);
     try {
-      await hubSourcingApi.createSearch(payload);
+      await leadController.createSearch(payload);
       toast.success('Queued. Importing starts within a minute.');
       await loadSearches();
     } catch (err) {
@@ -180,7 +163,7 @@ export function HubLeadsPage() {
 
   const runSearch = async (search) => {
     try {
-      await hubSourcingApi.runSearch(search._id);
+      await leadController.runSearch(search._id);
       toast.success(search.status === 'done' ? 'Checking for new people.' : 'Resuming where it stopped.');
       await loadSearches();
     } catch (err) {
@@ -199,7 +182,7 @@ export function HubLeadsPage() {
     if (!ok) return;
 
     try {
-      await hubSourcingApi.deleteSearch(search._id);
+      await leadController.deleteSearch(search._id);
       if (activeSearchId === search._id) setActiveSearchId(null);
       await loadSearches();
     } catch (err) {
@@ -275,177 +258,31 @@ export function HubLeadsPage() {
 
   const activeSearch = searches.find((s) => s._id === activeSearchId) ?? null;
 
-  return (
-    <DashboardLayout
-      title="Leads"
-      subtitle={
-        `${pagination.total.toLocaleString()} ${pagination.total === 1 ? 'person' : 'people'}` +
-        (searches.length ? ` · ${searches.length} ${searches.length === 1 ? 'audience' : 'audiences'}` : '')
-      }
-    >
-      <div className="flex flex-col gap-4 pb-20">
-        {/*
-          * The import form moved into the dock at the bottom of the screen.
-          *
-          * What is left here is the one thing that must interrupt: a missing
-          * LinkedIn connection. That is not a form problem, it is a "nothing
-          * on this page can work yet" problem, and burying it inside a panel
-          * the user has to open first would hide the reason their imports
-          * fail behind the very control that fails.
-          */}
-        {needsAccount && (
-          <SectionCard title="Connect LinkedIn first">
-            <div className="flex items-start gap-3">
-              <Linkedin size={17} className="mt-0.5 shrink-0 text-[var(--ui-text-tertiary)]" aria-hidden="true" />
-              <div>
-                <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)]">
-                  Connect your LinkedIn account before importing.
-                </p>
-                <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-1">
-                  Searches run through your own account, so there is nothing to read results with
-                  until it is linked.
-                </p>
-                <Link
-                  to="/dashboard/settings/linkedin"
-                  className="inline-block mt-3 text-[var(--ui-t-body)] font-semibold text-[var(--ui-accent-fg)] hover:underline"
-                >
-                  Go to LinkedIn settings
-                </Link>
-              </div>
-            </div>
-          </SectionCard>
-        )}
-
-        {/*
-          * What is left of the Audiences card, and why.
-          *
-          * The card was doing four jobs at once — filtering the table,
-          * reporting progress, managing the audience, and surfacing the
-          * stopped-short error — from a permanent box sitting between the page
-          * header and the thing you came to look at.
-          *
-          * Only progress earns a permanent place: an import runs for minutes
-          * and somebody is waiting on it, so hiding it behind a closed panel
-          * would be worse than the card was. ImportStrip exists exactly while
-          * something is running and then disappears, rather than taking up
-          * space to report that nothing is happening.
-          *
-          * The filter is one chip. Management moved into the dock.
-          */}
-        <ImportStrip searches={searches} />
-
-        {activeSearch && (
-          <div className="flex items-center gap-2">
-            <span className="ui-micro">Filtered by</span>
-            <Tag
-              tone="accent"
-              removable
-              onRemove={() => setActiveSearchId(null)}
-              title={activeSearch.name || 'Untitled audience'}
-            >
-              {activeSearch.name || 'Untitled audience'}
-            </Tag>
-          </div>
-        )}
-
-        <DataTable
-          columns={hubLeadColumns}
-          data={leads}
-          loading={loading}
-          emptyMessage={activeSearchId ? 'No leads from this audience yet' : 'No leads yet'}
-          emptyHint={
-            searches.length === 0
-              ? 'Paste a LinkedIn search or build one from filters above to get your first audience.'
-              : 'Imports run in the background — this fills in as pages come back.'
-          }
-          selectable
-          selectedKeys={selected}
-          onSelectionChange={setSelected}
-          onRowClick={setSelectedLead}
-          toolbar={{
-            searchValue: query,
-            onSearch: setQuery,
-            searchPlaceholder: 'Search name, headline, company',
-            bulkActions: (
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="primary"
-                  leadingIcon={<Send size={13} />}
-                  onClick={createCampaign}
-                  loading={creating}
-                  disabled={creating || selected.size === 0}
-                >
-                  Create campaign
-                </Button>
-                <select
-                  value=""
-                  onChange={(e) => enrollInSequence(e.target.value)}
-                  disabled={enrolling || selected.size === 0 || sequences.length === 0}
-                  aria-label="Enroll selection in a sequence"
-                  title={sequences.length === 0 ? 'Create a sequence first' : 'Enroll the selection in a sequence'}
-                  className="text-[var(--ui-t-label)] h-7 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 text-[var(--ui-text-secondary)] disabled:opacity-50"
-                >
-                  <option value="" disabled>{enrolling ? 'Enrolling…' : 'Enroll in sequence…'}</option>
-                  {sequences.map((s) => (
-                    <option key={s._id} value={s._id}>{s.name}</option>
-                  ))}
-                </select>
-              </div>
-            ),
-          }}
-          pagination={{
-            page: pagination.page,
-            pageSize: pagination.limit,
-            total: pagination.total,
-            onPageChange: (page) => loadLeads(undefined, { page }),
-          }}
-        />
-      </div>
-
-      {/* Parked at the bottom of every state of this page, including the
-          empty one — the primary action of the screen should not be reachable
-          only from inside an empty state that disappears the moment one lead
-          arrives. */}
-      <Dock
-        label="Audiences"
-        icon={<Search size={16} />}
-        badge={
-          searches.length > 0
-            ? <Tag tone="accent">{searches.length} saved</Tag>
-            : null
-        }
-        disabled={needsAccount}
-      >
-        <AudienceList
-          searches={searches}
-          activeSearchId={activeSearchId}
-          onSelect={setActiveSearchId}
-          onRun={runSearch}
-          onDelete={deleteSearch}
-          busy={submitting}
-        />
-
-        <div
-          className="flex items-center gap-3 px-[var(--ui-pad-lg)] border-y border-[var(--ui-border-hairline)] bg-[var(--ui-surface-sunken)]"
-          style={{ height: 'var(--ui-band)' }}
-        >
-          <span className="text-[var(--ui-t-section)] font-semibold">Build a new one</span>
-        </div>
-
-        <AudienceForm onSubmit={createAudience} submitting={submitting} />
-      </Dock>
-
-      {selectedLead && (
-        <LeadDrawer
-          /* Remounts on a different row so LeadDrawer's own state resets
-             cleanly instead of syncing via an effect. */
-          key={selectedLead._id}
-          lead={selectedLead}
-          onClose={() => setSelectedLead(null)}
-          onResolved={handleLeadResolved}
-        />
-      )}
-    </DashboardLayout>
-  );
+  return {
+    searches,
+    leads,
+    pagination,
+    activeSearchId,
+    setActiveSearchId,
+    activeSearch,
+    query,
+    setQuery,
+    loading,
+    submitting,
+    needsAccount,
+    selected,
+    setSelected,
+    creating,
+    selectedLead,
+    setSelectedLead,
+    sequences,
+    enrolling,
+    loadLeads,
+    createAudience,
+    runSearch,
+    deleteSearch,
+    createCampaign,
+    enrollInSequence,
+    handleLeadResolved,
+  };
 }

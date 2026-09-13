@@ -58,7 +58,7 @@ const SettingsPage = lazy(() => import('src/products/leadgen/settings').then((m)
 const LinkedInSettingsPage = lazy(() => import('src/products/hub/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
 const NotificationsPage = lazy(() => import('src/platform/notifications/NotificationsPage.jsx'));
 const HubUpgradePage = lazy(() => import('src/products/hub/upgrade'));
-const HubLeadsPage = lazy(() => import('src/products/hub/leads').then((m) => ({ default: m.HubLeadsPage })));
+const HubLeadsPage = lazy(() => import('src/products/hub/pages/leads').then((m) => ({ default: m.HubLeadsPage })));
 const HubCampaignsPage = lazy(() => import('src/products/hub/pages/campaigns').then((m) => ({ default: m.HubCampaignsPage })));
 const HubCampaignDetailPage = lazy(() => import('src/products/hub/pages/campaigns').then((m) => ({ default: m.HubCampaignDetailPage })));
 const HubSequencesPage = lazy(() => import('src/products/hub/sequences').then((m) => ({ default: m.HubSequencesPage })));

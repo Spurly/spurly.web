@@ -1,4 +1,6 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
+import { Audience } from '../entities/audience.js';
+import { Lead } from '../entities/lead.js';
 
 /**
  * Hub sourcing API client.
@@ -11,7 +13,7 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  * calls to LinkedIn. Creating a search only queues it; a worker picks it up
  * within the minute and the page polls for progress. Nothing here waits.
  */
-class HubSourcingApi {
+class HubSourcingGateway {
   /**
    * POST /hub/searches — queue an import from EITHER a pasted URL OR (Phase 8)
    * a structured filter object. Exactly one of `searchUrl`/`filters` should
@@ -20,7 +22,7 @@ class HubSourcingApi {
    */
   async createSearch({ searchUrl, filters, name }) {
     const res = await apiGateway.post('/hub/searches', { searchUrl, filters, name });
-    return res.data?.data?.search ?? null;
+    return Audience.fromResponse(res.data?.data?.search ?? null);
   }
 
   /**
@@ -42,13 +44,13 @@ class HubSourcingApi {
   /** GET /hub/searches — every audience with its progress. */
   async listSearches() {
     const res = await apiGateway.get('/hub/searches');
-    return res.data?.data?.searches ?? [];
+    return Audience.fromList(res.data?.data?.searches ?? []);
   }
 
   /** GET /hub/searches/:id — one audience, for polling while it runs. */
   async getSearch(id) {
     const res = await apiGateway.get(`/hub/searches/${id}`);
-    return res.data?.data?.search ?? null;
+    return Audience.fromResponse(res.data?.data?.search ?? null);
   }
 
   /**
@@ -60,7 +62,7 @@ class HubSourcingApi {
    */
   async runSearch(id) {
     const res = await apiGateway.post(`/hub/searches/${id}/run`);
-    return res.data?.data?.search ?? null;
+    return Audience.fromResponse(res.data?.data?.search ?? null);
   }
 
   /**
@@ -81,7 +83,8 @@ class HubSourcingApi {
     if (searchId) params.searchId = searchId;
     if (q) params.q = q;
     const res = await apiGateway.get('/hub/leads', { params });
-    return res.data?.data ?? { leads: [], pagination: { page: 1, limit, total: 0 } };
+    const data = res.data?.data ?? { leads: [], pagination: { page: 1, limit, total: 0 } };
+    return { ...data, leads: Lead.fromList(data.leads ?? []) };
   }
 
   /**
@@ -95,7 +98,7 @@ class HubSourcingApi {
    */
   async resolveProfile(id, { force = false } = {}) {
     const res = await apiGateway.get(`/hub/leads/${id}/profile${force ? '?force=true' : ''}`);
-    return res.data?.data?.lead ?? null;
+    return Lead.fromResponse(res.data?.data?.lead ?? null);
   }
 
   /**
@@ -109,9 +112,9 @@ class HubSourcingApi {
    */
   async withdrawInvitation(id) {
     const res = await apiGateway.delete(`/hub/leads/${id}/invitation`);
-    return res.data?.data?.lead ?? null;
+    return Lead.fromResponse(res.data?.data?.lead ?? null);
   }
 }
 
-export const hubSourcingApi = new HubSourcingApi();
-export default hubSourcingApi;
+export const hubSourcingGateway = new HubSourcingGateway();
+export default hubSourcingGateway;

@@ -1,6 +1,6 @@
 import { Loader2, Play, Trash2, AlertTriangle, Check } from 'lucide-react';
 import { Button, Badge } from 'src/ui/primitives';
-import { isBusy, describeSearch } from './audience.js';
+import { isBusy, describeSearch } from 'src/products/hub/leads/hooks/audience.js';
 
 /**
  * The saved audiences, as a list you manage — inside the dock, not on the page.

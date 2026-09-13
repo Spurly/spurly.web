@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { IconButton } from 'src/ui/primitives';
-import { hubSourcingApi } from './api.js';
+import leadController from 'src/products/hub/leads/controller/lead.js';
 
 /**
  * PHASE 8 — one multi-select id-lookup filter (location, industry, current
@@ -37,7 +37,7 @@ export function FilterTagPicker({ type, label, placeholder, value, onChange, dis
   const runSearch = useCallback((keywords) => {
     const seq = ++requestSeq.current;
     setLoading(true);
-    hubSourcingApi
+    leadController
       .searchAudienceParams({ type, keywords, limit: 8 })
       .then((params) => {
         // A slower earlier request landing after a faster later one would

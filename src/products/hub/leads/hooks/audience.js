@@ -5,7 +5,7 @@
  * react-refresh/only-export-components: a module that exports both a component
  * and a plain function loses fast refresh for the component. Two lines of
  * warning for two helpers is a bad trade, and they are genuinely shared —
- * index.jsx and AudienceList.jsx both ask "is this one still working?".
+ * the leads hook and AudienceList.jsx both ask "is this one still working?".
  */
 
 /** Queued and running are both "the worker has not finished with this". */

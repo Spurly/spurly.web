@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapPin, Briefcase, GraduationCap, Users, UserX } from 'lucide-react';
 import { Avatar, Badge, Button, Drawer, Skeleton } from 'src/ui/primitives';
 import { LinkedInIcon } from 'src/ui/icons';
-import { hubSourcingApi } from './api.js';
+import leadController from 'src/products/hub/leads/controller/lead.js';
 
 /**
  * Hub's lead detail drawer — Phase 6, 1a/1b.
@@ -242,7 +242,7 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
     if (!lead || lead.profileResolvedAt) return undefined;
 
     const requestId = ++requestIdRef.current;
-    hubSourcingApi
+    leadController
       .resolveProfile(lead._id)
       .then((updated) => {
         if (requestIdRef.current !== requestId || !updated) return;
@@ -269,7 +269,7 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
     if (withdrawing) return;
     setWithdrawing(true);
     setWithdrawError(null);
-    hubSourcingApi
+    leadController
       .withdrawInvitation(lead._id)
       .then((updated) => {
         if (!updated) return;
