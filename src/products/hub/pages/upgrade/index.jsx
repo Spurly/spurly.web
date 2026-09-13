@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Radar, Send, Inbox, Check } from 'lucide-react';
 import { Button } from 'src/ui/primitives';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
+import { upgradeStrings as t } from './strings.js';
 
 /**
  * What a subscriber without hub sees where the hub would be.
@@ -39,14 +40,13 @@ export default function HubUpgradePage() {
   const navigate = useNavigate();
 
   return (
-    <DashboardLayout title="Outreach hub" subtitle="Not included in your current plan">
+    <DashboardLayout title={t.pageTitle} subtitle={t.pageSubtitle}>
       <div className="max-w-[720px] mx-auto py-10 px-4">
         <h2 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)]">
-          Send from our servers, not your browser
+          {t.heading}
         </h2>
         <p className="mt-2 text-[var(--ui-t-body)] leading-relaxed text-[var(--ui-text-secondary)]">
-          The hub links your LinkedIn account to Spurly directly. Everything below runs
-          without the extension, and without your machine being awake.
+          {t.intro}
         </p>
 
         <ul className="mt-8 space-y-5">
@@ -70,8 +70,7 @@ export default function HubUpgradePage() {
           <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] flex items-start gap-2">
             <Check size={14} className="shrink-0 mt-0.5 text-[var(--ui-accent-fg)]" aria-hidden="true" />
             <span>
-              Everything you already have stays exactly as it is. The hub is added to your
-              account - it does not replace capture, campaigns or your contacts.
+              {t.keepEverything}
             </span>
           </p>
         </div>
@@ -82,14 +81,13 @@ export default function HubUpgradePage() {
               slower path that works. */}
           <Button
             onClick={() => {
-              window.location.href =
-                'mailto:support@getspurly.com?subject=Adding%20the%20outreach%20hub%20to%20my%20account';
+              window.location.href = t.mailto;
             }}
           >
-            Ask about adding it
+            {t.askButton}
           </Button>
           <Button variant="ghost" onClick={() => navigate('/dashboard/people')}>
-            Back to Capture
+            {t.backButton}
           </Button>
         </div>
       </div>

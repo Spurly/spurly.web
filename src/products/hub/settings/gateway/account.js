@@ -1,4 +1,5 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
+import { Account } from '../entities/account.js';
 
 /**
  * Hub account API client.
@@ -11,14 +12,14 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  * Spurly, which is the entire reason that flow was chosen — so there is no
  * "credentials" endpoint in this file, and there should never be one.
  */
-class HubAccountApi {
+class HubAccountGateway {
   /**
    * GET /hub/account — always resolves to a shape, never null. "Not connected"
    * is a normal state with its own UI, not an error.
    */
   async get() {
     const res = await apiGateway.get('/hub/account');
-    return res.data?.data?.account ?? null;
+    return Account.fromResponse(res.data?.data?.account ?? null);
   }
 
   /**
@@ -35,7 +36,7 @@ class HubAccountApi {
   /** POST /hub/account/refresh — reconcile against the vendor. */
   async refresh() {
     const res = await apiGateway.post('/hub/account/refresh');
-    return res.data?.data?.account ?? null;
+    return Account.fromResponse(res.data?.data?.account ?? null);
   }
 
   /** DELETE /hub/account — unlink, and release the account at the vendor. */
@@ -45,5 +46,5 @@ class HubAccountApi {
   }
 }
 
-export const hubAccountApi = new HubAccountApi();
-export default hubAccountApi;
+export const hubAccountGateway = new HubAccountGateway();
+export default hubAccountGateway;
