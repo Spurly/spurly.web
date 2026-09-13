@@ -12,7 +12,7 @@ import { identityColor } from 'src/ui/tokens';
 export function Avatar({
   src = null,
   name = '',
-  size = 22,
+  size = 28,
   shape = 'circle',
   tone = 'identity',
   className = '',

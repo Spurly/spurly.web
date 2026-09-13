@@ -2,6 +2,10 @@ export { Button } from './Button';
 export { IconButton } from './IconButton';
 export { Input } from './Input';
 export { Badge } from './Badge';
+/* Badge reports a machine state; Tag carries something a person typed.
+   See Badge.jsx for why that split is worth two components. */
+export { Tag } from './Tag';
+export { Meter, Stat } from './Meter';
 export { Avatar } from './Avatar';
 export { Checkbox } from './Checkbox';
 export { Tooltip } from './Tooltip';

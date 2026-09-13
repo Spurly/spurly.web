@@ -107,7 +107,7 @@ const workspaceForPath = (pathname) =>
 const ADMIN_ITEM = { label: 'Admin', icon: Shield, href: '/admin/users' };
 
 const SIDEBAR_OPEN_KEY = 'spurly.sidebarOpen';
-const WIDTH_EXPANDED = 232;
+const WIDTH_EXPANDED = 244;
 const WIDTH_COLLAPSED = 56;
 
 function NavRow({ item, active, expanded, onClick }) {
@@ -119,20 +119,24 @@ function NavRow({ item, active, expanded, onClick }) {
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
       className={[
-        'group relative w-full flex items-center gap-2.5 h-8 rounded-[var(--ui-radius-sm)] text-[13px]',
+        'group relative w-full flex items-center gap-3 h-[var(--ui-nav-row)] rounded-[var(--ui-radius-md)] text-[var(--ui-t-nav)]',
         'transition-colors duration-[var(--ui-dur-fast)] focus:outline-none',
         'focus-visible:shadow-[var(--ui-focus-ring)]',
         expanded ? 'px-2' : 'px-0 justify-center',
         /* Where you are is the one question the sidebar exists to answer, and
            grey-on-grey whispers it. The accent tint plus a left bar says it. */
+        /* Tint AND spine. Beeze gets away with the tint alone; this rail has
+           two workspaces and a lockable tier, so it has to answer "where am I"
+           harder than theirs does. --ui-spine is the same 2px bar the selected
+           table row carries, which is the whole point of it being a token. */
         active
-          ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-medium ' +
-            'before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[2px] ' +
+          ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-semibold ' +
+            'before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[var(--ui-spine)] ' +
             'before:rounded-r-full before:bg-[var(--ui-accent)]'
           : 'text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)]',
       ].join(' ')}
     >
-      <Icon size={16} className="shrink-0" aria-hidden="true" />
+      <Icon size={17} className="shrink-0" aria-hidden="true" />
       {expanded && <span className="truncate">{item.label}</span>}
     </button>
   );
@@ -176,7 +180,7 @@ function ExtensionStatus({ expanded }) {
           aria-hidden="true"
         />
         {expanded && (
-          <span className="text-[12px] text-[var(--ui-text-secondary)] truncate">{state.label}</span>
+          <span className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] truncate">{state.label}</span>
         )}
       </div>
     </Tooltip>
@@ -198,7 +202,7 @@ function CreditsMeter({ expanded, balance, onTopUp }) {
       <Tooltip content={`${balance} credits remaining`} placement="right">
         <div className="flex justify-center h-7 items-center cursor-default">
           <span
-            className="text-[11px] font-medium tabular-nums"
+            className="ui-num text-[var(--ui-t-meta)]"
             style={{ color: low ? 'var(--ui-warning-fg)' : 'var(--ui-text-secondary)' }}
           >
             {balance > 99 ? '99+' : balance}
@@ -208,18 +212,31 @@ function CreditsMeter({ expanded, balance, onTopUp }) {
     );
   }
 
+  /*
+   * A reading, not a meter.
+   *
+   * The design system has one bar for every ratio in the product, and the
+   * temptation here was to use it. But a credit balance has no denominator:
+   * there is no plan maximum in the data, top-ups are arbitrary, and "378 of
+   * what?" has no answer. Drawing a bar would mean inventing the total —
+   * exactly the mistake the import progress deliberately avoids by reporting
+   * a count rather than a percentage. So: the mono figure alone.
+   */
   return (
-    <div className="flex items-center justify-between gap-2 h-7 px-2">
-      <span
-        className="text-[12px] tabular-nums truncate"
-        style={{ color: low ? 'var(--ui-warning-fg)' : 'var(--ui-text-secondary)' }}
-      >
-        {balance.toLocaleString()} credits
-      </span>
+    <div className="flex items-baseline justify-between gap-2 px-2 py-1">
+      <div className="min-w-0">
+        <span className="ui-micro">Credits</span>
+        <span
+          className="ui-num block text-[var(--ui-t-section)] leading-tight mt-0.5 truncate"
+          style={{ color: low ? 'var(--ui-warning-fg)' : 'var(--ui-text-primary)' }}
+        >
+          {balance.toLocaleString()}
+        </span>
+      </div>
       <button
         type="button"
         onClick={onTopUp}
-        className="text-[12px] font-medium text-[var(--ui-accent-fg)] hover:underline shrink-0 focus:outline-none focus-visible:underline"
+        className="text-[var(--ui-t-label)] font-semibold text-[var(--ui-accent-fg)] hover:underline shrink-0 focus:outline-none focus-visible:underline"
       >
         Top up
       </button>
@@ -366,9 +383,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
           {sections.map((section) => (
             <div key={section.label} className="mb-3">
               {expanded ? (
-                <p className="px-2 h-6 flex items-center text-[10px] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)]">
-                  {section.label}
-                </p>
+                <p className="ui-micro px-2 h-7 flex items-center">{section.label}</p>
               ) : (
                 <span className="block mx-auto w-4 h-px bg-[var(--ui-border)] my-2" aria-hidden="true" />
               )}

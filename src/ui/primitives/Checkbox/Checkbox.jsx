@@ -33,7 +33,7 @@ export function Checkbox({
         .filter(Boolean)
         .join(' ')}
     >
-      <span className="relative grid place-items-center shrink-0" style={{ width: 15, height: 15 }}>
+      <span className="relative grid place-items-center shrink-0" style={{ width: 17, height: 17 }}>
         <input
           ref={ref}
           type="checkbox"
@@ -49,7 +49,7 @@ export function Checkbox({
             'w-full h-full grid place-items-center rounded-[var(--ui-radius-xs)] border',
             'transition-[background-color,border-color] duration-[var(--ui-dur-fast)] ease-[cubic-bezier(0.2,0,0.1,1)]',
             active
-              ? 'bg-[var(--ui-accent)] border-[var(--ui-accent)] text-white'
+              ? 'bg-[var(--ui-accent)] border-[var(--ui-accent)] text-[var(--ui-accent-on)]'
               : 'bg-[var(--ui-surface-card)] border-[var(--ui-border-strong)]',
             'peer-focus-visible:shadow-[var(--ui-focus-ring)]',
           ].join(' ')}
@@ -61,7 +61,7 @@ export function Checkbox({
           ) : null}
         </span>
       </span>
-      {label && <span className="text-[13px] text-[var(--ui-text-primary)]">{label}</span>}
+      {label && <span className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)]">{label}</span>}
     </label>
   );
 }

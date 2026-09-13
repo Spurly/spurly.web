@@ -1,0 +1,64 @@
+/* ============================================================
+   POINTER CURSORS
+
+   Tailwind v4's preflight sets `cursor: default` on buttons, where
+   v3 set `cursor: pointer`. This project moved to v4 and the change
+   is silent: nothing errors, nothing looks wrong in a screenshot,
+   and every button, tab, select and clickable row in the app simply
+   stopped showing a pointer. It reads as "the page is dead" long
+   before anyone works out why.
+
+   Fixing it per component would mean a `cursor-pointer` class on
+   Button, IconButton, Tabs, PageTabs, Dropdown, Checkbox, the
+   ProductSwitcher, the nav rows, the audience rows, every raw
+   <button> the lint rule still tolerates, and every one written
+   from here on. This is one rule, and it cannot be forgotten.
+
+   Deliberately NOT `* { cursor: pointer }` on anything clickable:
+   a cursor is a claim about what will happen, and putting a pointer
+   on a non-interactive element is a lie the user only discovers by
+   clicking.
+   ============================================================ */
+
+button,
+summary,
+label[for],
+select,
+[role="button"],
+[role="tab"],
+[role="option"],
+[role="menuitem"],
+[role="switch"],
+[type="checkbox"],
+[type="radio"],
+[type="submit"],
+[type="button"],
+[type="reset"] {
+  cursor: pointer;
+}
+
+/* A disabled control is still a control — it just says no. `not-allowed`
+   is the honest answer and it must beat the rule above, hence the
+   ordering rather than a higher specificity hack. */
+button:disabled,
+select:disabled,
+input:disabled,
+textarea:disabled,
+[aria-disabled="true"],
+[data-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* Rows and cards that navigate or open a drawer. Applied by the component
+   that owns the click handler, never blanket-applied to <tr>: a table with
+   no onRowClick must not claim its rows are clickable. */
+.ui-clickable {
+  cursor: pointer;
+}
+
+/* Text that can be selected inside an otherwise clickable row keeps the
+   text cursor, so copying an email out of a row still feels like text. */
+.ui-selectable {
+  cursor: text;
+  user-select: text;
+}
