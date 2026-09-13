@@ -1,18 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader2, Play, Trash2, AlertTriangle, Linkedin, Send } from 'lucide-react';
+import { Loader2, Play, Trash2, AlertTriangle, Linkedin, Send, Search } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { DataTable } from 'src/platform/DataTable';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
-import { Button, Input, Badge, Tabs, useToast, useConfirm } from 'src/ui/primitives';
+import { Button, Badge, Dock, useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import { hubSourcingApi } from './api.js';
 import { hubCampaignsApi } from 'src/products/hub/campaigns/api.js';
 import { hubSequencesApi } from 'src/products/hub/sequences/api.js';
 import { hubLeadColumns } from './columns.jsx';
 import { LeadDrawer } from './LeadDrawer.jsx';
-import { AudienceFilterForm } from './AudienceFilterForm.jsx';
-import { FilterTagPicker } from './FilterTagPicker.jsx';
+import { AudienceForm } from './AudienceForm.jsx';
 
 /**
  * Hub leads — paste a LinkedIn search, get an audience.
@@ -139,8 +138,6 @@ export function HubLeadsPage() {
   const [pagination, setPagination] = useState({ page: 1, limit: PAGE_SIZE, total: 0 });
   const [activeSearchId, setActiveSearchId] = useState(null);
   const [query, setQuery] = useState('');
-  const [url, setUrl] = useState('');
-  const [name, setName] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [needsAccount, setNeedsAccount] = useState(false);
@@ -150,14 +147,6 @@ export function HubLeadsPage() {
   const [sequences, setSequences] = useState([]);
   const [enrolling, setEnrolling] = useState(false);
 
-  // PHASE 8 — 'url' is the original pasted-search flow; 'structured' is the
-  // new filter-builder. quickCompany/structuredInitialCompany are the
-  // "search a company" shortcut: pick a company below, and it lands as an
-  // already-selected chip in the structured form rather than being a
-  // separate flow with its own submit path.
-  const [importMode, setImportMode] = useState('url');
-  const [quickCompany, setQuickCompany] = useState([]);
-  const [structuredInitialCompany, setStructuredInitialCompany] = useState(null);
 
   const toast = useToast();
   const confirm = useConfirm();
@@ -260,52 +249,33 @@ export function HubLeadsPage() {
     return () => clearInterval(pollRef.current);
   }, [anyBusy, loadSearches, loadLeads, pagination.page]);
 
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!url.trim() || submitting) return;
-
-    setSubmitting(true);
-    setNeedsAccount(false);
-    try {
-      await hubSourcingApi.createSearch({ searchUrl: url.trim(), name: name.trim() });
-      setUrl('');
-      setName('');
-      toast.success('Queued. Importing starts within a minute.');
-      await loadSearches();
-    } catch (err) {
-      // The one refusal worth handling rather than toasting: no usable LinkedIn
-      // connection. A toast would vanish, and the fix is a different page.
-      const code = err?.response?.data?.code;
-      if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
-      else toast.error(getToastError(err, 'Could not queue that search'));
-    } finally {
-      setSubmitting(false);
-    }
-
-  };
-
   /**
-   * PHASE 8 — same queue-and-poll flow as `submit` above, just a `filters`
-   * body instead of `searchUrl`. AudienceFilterForm has already reduced
-   * every picker down to plain `{field: [ids]}` — this never touches a raw
-   * filter value itself.
+   * One path in, whichever way the audience was described.
+   *
+   * There used to be two near-identical handlers — `submit` for a pasted URL
+   * and `submitStructured` for filters — differing only in the body they
+   * POSTed and each carrying its own copy of the NO_LINKEDIN_ACCOUNT
+   * handling. AudienceForm decides which shape it is producing and hands over
+   * exactly one of `searchUrl` or `filters`; the endpoint has always accepted
+   * either. Two copies of error handling is two places for it to drift.
    */
-  const submitStructured = async ({ filters, name: audienceName }) => {
+  const createAudience = async (payload) => {
     if (submitting) return;
     setSubmitting(true);
     setNeedsAccount(false);
     try {
-      await hubSourcingApi.createSearch({ filters, name: audienceName });
-      setStructuredInitialCompany(null);
-      setQuickCompany([]);
+      await hubSourcingApi.createSearch(payload);
       toast.success('Queued. Importing starts within a minute.');
       await loadSearches();
     } catch (err) {
+      // The one refusal worth handling rather than toasting: no usable
+      // LinkedIn connection. A toast would vanish, and the fix is a different
+      // page.
       const code = err?.response?.data?.code;
       if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
       else toast.error(getToastError(err, 'Could not queue that search'));
     } finally {
-      setSubmitting(false);
+      if (mountedRef.current) setSubmitting(false);
     }
   };
 
@@ -411,110 +381,38 @@ export function HubLeadsPage() {
       title="Leads"
       subtitle="Paste a LinkedIn search, or build one from filters, and Spurly builds the audience for you."
     >
-      <div className="flex flex-col gap-4">
-        <SectionCard title="Import a search">
-          {needsAccount ? (
-            <div className="px-[var(--ui-pad-lg)] py-5 flex items-start gap-3">
-              <Linkedin size={16} className="mt-0.5 shrink-0 text-[var(--text-tertiary)]" aria-hidden="true" />
+      <div className="flex flex-col gap-4 pb-20">
+        {/*
+          * The import form moved into the dock at the bottom of the screen.
+          *
+          * What is left here is the one thing that must interrupt: a missing
+          * LinkedIn connection. That is not a form problem, it is a "nothing
+          * on this page can work yet" problem, and burying it inside a panel
+          * the user has to open first would hide the reason their imports
+          * fail behind the very control that fails.
+          */}
+        {needsAccount && (
+          <SectionCard title="Connect LinkedIn first">
+            <div className="flex items-start gap-3">
+              <Linkedin size={17} className="mt-0.5 shrink-0 text-[var(--ui-text-tertiary)]" aria-hidden="true" />
               <div>
-                <p className="text-[13px] text-[var(--text-primary)]">
+                <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)]">
                   Connect your LinkedIn account before importing.
                 </p>
-                <p className="text-[12px] text-[var(--text-secondary)] mt-0.5">
-                  Searches run through your own account, so there is nothing to read results with until it is linked.
+                <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-1">
+                  Searches run through your own account, so there is nothing to read results with
+                  until it is linked.
                 </p>
                 <Link
                   to="/dashboard/settings/linkedin"
-                  className="inline-block mt-2 text-[13px] font-medium text-[var(--ui-accent-fg)] hover:underline"
+                  className="inline-block mt-3 text-[var(--ui-t-body)] font-semibold text-[var(--ui-accent-fg)] hover:underline"
                 >
                   Go to LinkedIn settings
                 </Link>
               </div>
             </div>
-          ) : (
-            <>
-              <div className="px-[var(--ui-pad-lg)] pt-1 border-b border-[var(--separator)] h-9">
-                <Tabs
-                  ariaLabel="How to build this audience"
-                  activeTab={importMode}
-                  onTabChange={setImportMode}
-                  tabs={[
-                    { id: 'url', label: 'Paste a URL' },
-                    { id: 'structured', label: 'Build filters' },
-                  ]}
-                />
-              </div>
-
-              {/* PHASE 8 — "search a company, pull its employee list" from the
-                  plan needs no separate flow: picking a company here just
-                  jumps to the structured tab with that company already
-                  selected as a chip. */}
-              <div className="px-[var(--ui-pad-lg)] py-3 border-b border-[var(--separator)] flex flex-col sm:flex-row sm:items-end gap-2">
-                <div className="flex-1">
-                  <FilterTagPicker
-                    type="COMPANY"
-                    label="Or build an audience from one company's employees"
-                    placeholder="Search a company…"
-                    value={quickCompany}
-                    onChange={setQuickCompany}
-                    disabled={submitting}
-                  />
-                </div>
-                <Button
-                  variant="secondary"
-                  disabled={quickCompany.length === 0 || submitting}
-                  onClick={() => {
-                    setStructuredInitialCompany(quickCompany[0]);
-                    setQuickCompany([]);
-                    setImportMode('structured');
-                  }}
-                >
-                  Search this company
-                </Button>
-              </div>
-
-              {importMode === 'url' ? (
-                <form onSubmit={submit} className="px-[var(--ui-pad-lg)] py-4 flex flex-col gap-3">
-                  <Input
-                    fullWidth
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    placeholder="https://www.linkedin.com/search/results/people/?keywords=…"
-                    aria-label="LinkedIn search URL"
-                  />
-                  <div className="flex items-center gap-2">
-                    <Input
-                      className="flex-1"
-                      fullWidth
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Name this audience (optional)"
-                      aria-label="Audience name"
-                    />
-                    <Button type="submit" disabled={!url.trim() || submitting}>
-                      {submitting ? 'Queueing…' : 'Import'}
-                    </Button>
-                  </div>
-                  <p className="text-[11px] text-[var(--text-tertiary)]">
-                    Run the search on LinkedIn, then paste the results URL. Importing happens in the
-                    background — you can leave this page.
-                  </p>
-                </form>
-              ) : (
-                <AudienceFilterForm
-                  // Remount when a quick-company pick lands, so its internal
-                  // company chip state actually resets to the new value —
-                  // otherwise a form already holding its own company chips
-                  // would just ignore a second pre-fill.
-                  key={structuredInitialCompany?.id ?? 'blank'}
-                  initialCompany={structuredInitialCompany}
-                  onSubmit={submitStructured}
-                  submitting={submitting}
-                />
-              )}
-            </>
-          )}
-        </SectionCard>
+          </SectionCard>
+        )}
 
         {searches.length > 0 && (
           <SectionCard title="Audiences" noPadding>
@@ -587,6 +485,23 @@ export function HubLeadsPage() {
           }}
         />
       </div>
+
+      {/* Parked at the bottom of every state of this page, including the
+          empty one — the primary action of the screen should not be reachable
+          only from inside an empty state that disappears the moment one lead
+          arrives. */}
+      <Dock
+        label="Build an audience"
+        icon={<Search size={16} />}
+        badge={
+          searches.length > 0
+            ? <Badge tone="neutral">{searches.length} saved</Badge>
+            : null
+        }
+        disabled={needsAccount}
+      >
+        <AudienceForm onSubmit={createAudience} submitting={submitting} />
+      </Dock>
 
       {selectedLead && (
         <LeadDrawer

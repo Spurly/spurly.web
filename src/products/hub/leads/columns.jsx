@@ -57,18 +57,31 @@ function formatFollowers(n) {
  * filter, because a 1st-degree lead cannot be invited and a 3rd may not be
  * reachable at all.
  */
+/*
+ * WIDTHS, RE-MEASURED Sep 2026.
+ *
+ * These were set against 13px in the system font stack. Body text is now 14px
+ * in Instrument Sans, which is both larger and wider per character, so every
+ * column began clipping a few characters earlier than it was drawn to. Raised
+ * ~15% across the board -- the measured difference, not a guess at one.
+ *
+ * Nothing breaks when a width is wrong, because Cell owns the clamp and every
+ * truncated value carries its full text in a `title`. It just reads worse, and
+ * a headline cut at "Full Stack Developer | React.js | No..." is the single
+ * most common cell on this screen.
+ */
 export const hubLeadColumns = [
   {
     key: 'profileUrl',
     label: <LinkedInIcon size={14} aria-label="LinkedIn" />,
-    width: 44,
+    width: 48,
     align: 'center',
     render: (value) => <LinkCell href={value} icon={<LinkedInIcon size={14} />} label="Open LinkedIn profile" />,
   },
   {
     key: 'name',
     label: 'Name',
-    width: 200,
+    width: 230,
     sortable: true,
     title: (row) => row.name,
     render: (value, row) => <PersonCell name={value} avatar={row.profilePictureUrl} profileUrl={row.profileUrl} />,
@@ -76,14 +89,14 @@ export const hubLeadColumns = [
   {
     key: 'headline',
     label: 'Headline',
-    width: 280,
+    width: 320,
     title: (row) => row.headline,
     render: (value) => <TextCell value={value} tone="secondary" />,
   },
   {
     key: 'companyName',
     label: 'Company',
-    width: 160,
+    width: 184,
     sortable: true,
     title: (row) => row.companyName,
     // Blank means "not resolved yet or genuinely has none" — both read the
@@ -94,28 +107,28 @@ export const hubLeadColumns = [
   {
     key: 'currentTitle',
     label: 'Title',
-    width: 180,
+    width: 208,
     title: (row) => row.currentTitle,
     render: (value) => <TextCell value={value || '—'} tone="secondary" />,
   },
   {
     key: 'location',
     label: 'Location',
-    width: 180,
+    width: 208,
     sortable: true,
     render: (value) => <LocationCell value={value} />,
   },
   {
     key: 'connectionDegree',
     label: 'Degree',
-    width: 80,
+    width: 88,
     align: 'center',
     render: (value) => <TextCell value={DEGREE_LABEL[value] ?? '—'} tone="secondary" />,
   },
   {
     key: 'followersCount',
     label: 'Followers',
-    width: 110,
+    width: 126,
     align: 'right',
     sortable: true,
     // null means the vendor did not tell us; 0 would be a claim about their

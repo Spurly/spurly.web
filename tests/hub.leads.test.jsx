@@ -90,11 +90,73 @@ afterEach(() => {
 });
 
 describe('hub leads', () => {
-  it('resolves the lazy hub chunk and renders the import form', async () => {
+  it('resolves the lazy hub chunk and parks the audience dock', async () => {
     renderAt('/hub/leads');
+    // The chunk resolving is the point; the dock pill is the cheapest proof
+    // that this page's own code ran, rather than a shell that rendered with a
+    // failed lazy import behind it.
     await waitFor(() =>
-      expect(screen.getByPlaceholderText(/linkedin\.com\/search\/results/i)).toBeInTheDocument(),
+      expect(screen.getByRole('button', { name: /build an audience/i })).toBeInTheDocument(),
     );
+  });
+
+  it('keeps the import form in the dock until it is asked for, and closes on Escape', async () => {
+    renderAt('/hub/leads');
+    const pill = await screen.findByRole('button', { name: /build an audience/i });
+
+    // Closed is the resting state. A form permanently occupying the top of the
+    // page was the thing the dock replaced, so a regression that renders it
+    // inline again has to fail here.
+    expect(screen.queryByPlaceholderText(/linkedin\.com\/search\/results/i)).not.toBeInTheDocument();
+
+    await userEvent.click(pill);
+    expect(await screen.findByPlaceholderText(/linkedin\.com\/search\/results/i)).toBeInTheDocument();
+
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() =>
+      expect(screen.queryByPlaceholderText(/linkedin\.com\/search\/results/i)).not.toBeInTheDocument(),
+    );
+  });
+
+  it('lets a pasted URL take over, switching the filters off', async () => {
+    /**
+     * A LinkedIn results URL already encodes its own filters, so the two can
+     * never be combined — the backend would reject it. The UI has to say so
+     * BEFORE the request rather than after, which means the filters visibly
+     * switch off the moment a URL is present.
+     *
+     * Pinned because it is a rule about the vendor, not a style choice: the
+     * obvious "improvement" of letting both be filled at once would produce a
+     * form that looks more capable and fails on submit.
+     */
+    renderAt('/hub/leads');
+    await userEvent.click(await screen.findByRole('button', { name: /build an audience/i }));
+
+    const location = screen.getByPlaceholderText(/search a city or region/i);
+    expect(location).not.toBeDisabled();
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/linkedin\.com\/search\/results/i),
+      'https://www.linkedin.com/search/results/people/?keywords=sales',
+    );
+
+    await waitFor(() => expect(location).toBeDisabled());
+    expect(screen.getByText(/the filters below are off/i)).toBeInTheDocument();
+  });
+
+  it('rejects a profile URL at the field, with the fix rather than a verdict', async () => {
+    // The mistake people actually make. It used to fail deep in the importer,
+    // minutes later, as a generic failure.
+    renderAt('/hub/leads');
+    await userEvent.click(await screen.findByRole('button', { name: /build an audience/i }));
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/linkedin\.com\/search\/results/i),
+      'https://www.linkedin.com/in/asha',
+    );
+
+    expect(await screen.findByText(/that's a profile, not a search/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^import$/i })).toBeDisabled();
   });
 
   it('/hub lands on leads rather than 404ing', async () => {

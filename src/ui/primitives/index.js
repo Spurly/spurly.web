@@ -16,6 +16,7 @@ export { Tabs } from './Tabs';
 export { Overlay } from './Overlay';
 export { Dialog } from './Dialog';
 export { Drawer } from './Drawer';
+export { Dock } from './Dock';
 export { ToastProvider, useToast, useErrorToast } from './Toast';
 export { ConfirmProvider, useConfirm } from './Confirm';
 export { Card } from './Card';

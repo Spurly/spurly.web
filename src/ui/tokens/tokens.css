@@ -296,6 +296,11 @@
   --ui-focus-ring: 0 0 0 2px var(--ui-surface-card), 0 0 0 4px var(--ui-accent-tint-strong);
   --ui-ring-inset: inset 0 0 0 1px var(--ui-border);
 
+  /* The wash behind a modal. Darker in dark mode, not lighter: a scrim
+     has to read against the surface it covers, and 32% black over a
+     near-black canvas is invisible. */
+  --ui-scrim: rgba(21, 18, 33, 0.32);
+
   /* ---- Elevation -------------------------------------------- */
   --ui-shadow-sm:   0 1px 2px rgba(21, 18, 33, 0.05);
   --ui-shadow-md:   0 6px 18px rgba(21, 18, 33, 0.07);
@@ -393,6 +398,7 @@
     --ui-av-7-bg: rgba(45,212,191,.18);  --ui-av-7-fg: #5eead4;
     --ui-av-8-bg: rgba(251,113,133,.18); --ui-av-8-fg: #fda4af;
 
+    --ui-scrim: rgba(0, 0, 0, 0.58);
     --ui-shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.45);
     --ui-shadow-md:   0 6px 18px rgba(0, 0, 0, 0.50);
     --ui-shadow-lg:   0 16px 44px rgba(0, 0, 0, 0.60);
@@ -448,10 +454,24 @@
   --ui-av-7-bg: rgba(45,212,191,.18);  --ui-av-7-fg: #5eead4;
   --ui-av-8-bg: rgba(251,113,133,.18); --ui-av-8-fg: #fda4af;
 
+  --ui-scrim: rgba(0, 0, 0, 0.58);
   --ui-shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.45);
   --ui-shadow-md:   0 6px 18px rgba(0, 0, 0, 0.50);
   --ui-shadow-lg:   0 16px 44px rgba(0, 0, 0, 0.60);
   --ui-shadow-dock: 0 20px 56px rgba(0, 0, 0, 0.65), 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+/* The dock sheet's arrival. A spring, because the panel is a physical thing
+   coming up from an edge, and Overlay mounts it rather than transitioning an
+   existing node — so this has to be a keyframe, not a transition. */
+@keyframes ui-dock-in {
+  from { transform: translateY(calc(100% + 24px)); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.ui-dock-sheet { animation: ui-dock-in var(--ui-dur-slow) var(--ui-spring) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-dock-sheet { animation: none; }
 }
 
 /* ============================================================
