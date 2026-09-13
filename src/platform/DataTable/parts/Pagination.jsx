@@ -36,7 +36,7 @@ export function Pagination({
       className="flex items-center justify-between gap-4 shrink-0 border-t border-[var(--ui-border-hairline)]"
       style={{ height: 'var(--ui-band)', paddingInline: 'var(--ui-pad-x)' }}
     >
-      <p className="text-[12px] text-[var(--ui-text-secondary)] tabular-nums shrink-0">
+      <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] tabular-nums shrink-0">
         {start.toLocaleString()}–{end.toLocaleString()} of {total.toLocaleString()}
       </p>
 
@@ -50,7 +50,7 @@ export function Pagination({
         />
         {buildPages(page, totalPages).map((p) =>
           typeof p === 'string' ? (
-            <span key={p} className="px-1 text-[12px] text-[var(--ui-text-tertiary)]" aria-hidden="true">
+            <span key={p} className="px-1 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]" aria-hidden="true">
               …
             </span>
           ) : (
@@ -77,11 +77,11 @@ export function Pagination({
 
       {onPageSizeChange ? (
         <label className="flex items-center gap-1.5 shrink-0">
-          <span className="text-[12px] text-[var(--ui-text-tertiary)]">Rows</span>
+          <span className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">Rows</span>
           <select
             value={pageSize}
             onChange={(e) => onPageSizeChange(parseInt(e.target.value, 10))}
-            className="h-7 pl-2 pr-6 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] text-[12px] text-[var(--ui-text-primary)] cursor-pointer hover:border-[var(--ui-border-strong)] focus:outline-none focus:border-[var(--ui-accent)] transition-colors"
+            className="h-7 pl-2 pr-6 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] text-[var(--ui-t-label)] text-[var(--ui-text-primary)] cursor-pointer hover:border-[var(--ui-border-strong)] focus:outline-none focus:border-[var(--ui-accent)] transition-colors"
           >
             {pageSizeOptions.map((opt) => (
               <option key={opt} value={opt}>

@@ -1,45 +1,63 @@
 /* ============================================================
-   SPURLY UI — DIRECTION A TOKENS
-   Dense neutral, light canvas. Linear / Attio register.
+   SPURLY UI — DESIGN TOKENS
 
-   Every variable is prefixed `--ui-` so this layer cannot collide
-   with the legacy token layer in index.css. Legacy tokens stay
-   untouched while pages migrate; once every page reads from --ui-*,
-   the old layer is deleted.
+   One source of truth for everything visual. `index.css` aliases
+   the ~700 legacy call sites onto these names; `tailwind.config.js`
+   holds no visual scales at all. If you want a new colour, radius
+   or size, add a token here — never a literal in a component.
 
-   Dark mode is a single block at the bottom of this file. Nothing
-   else in the codebase should ever branch on colour scheme.
+   ------------------------------------------------------------
+   THE DIRECTION (v2, Sep 2026): "console".
+
+   Spurly is a machine that runs while you sleep. Imports queue,
+   workers page LinkedIn, a daily cap ticks up, credits drain.
+   Almost everything on screen is a READING, so the system is built
+   to report readings precisely. Three load-bearing ideas:
+
+     1. THE SPINE  — a 2px accent bar marks whatever is live: the
+        active nav row, selected table rows, a running import, the
+        toast that just fired, a notice's severity. One motif, one
+        meaning. `--ui-spine`.
+
+     2. READINGS IN MONO — every count, rate, cap, timestamp,
+        column header and keyboard hint is set in the mono face,
+        tabular. Prose stays in the sans. A column header can then
+        never be mistaken for data, and a count ticking 99 -> 100
+        never shifts its column. `--ui-font-mono`.
+
+     3. ONE METER — 0/25 sent today, 412 imported, 378 credits,
+        31.2% connected all render as the same 3px bar under the
+        same figure. `--ui-meter-h`.
+
+   Dark mode is ONE block at the bottom of this file, plus the
+   `prefers-color-scheme` block above it. Nothing else in the
+   codebase may branch on colour scheme.
    ============================================================ */
 
 :root {
-  /* ---- Neutral ramp -------------------------------------- */
+  /* ---- Neutral ramp, violet-biased -------------------------
+     Not zinc. Every step carries a few points of the brand
+     violet, so ground and accent belong to one family and the
+     purple sits IN the page rather than floating on top of it.
+     A pure grey next to #6234fa reads as two unrelated systems. */
   --ui-neutral-0:   #ffffff;
   --ui-neutral-50:  #fafafa;
-  --ui-neutral-100: #f4f4f5;
-  --ui-neutral-150: #ececee;
-  --ui-neutral-200: #e4e4e7;
-  --ui-neutral-300: #d4d4d8;
-  --ui-neutral-400: #a1a1aa;
-  --ui-neutral-500: #71717a;
-  --ui-neutral-600: #52525b;
-  --ui-neutral-700: #3f3f46;
-  --ui-neutral-800: #27272a;
-  --ui-neutral-900: #18181b;
+  --ui-neutral-100: #f4f3f7;
+  --ui-neutral-150: #ecebf1;
+  --ui-neutral-200: #e2e0ea;
+  --ui-neutral-300: #cfccdb;
+  --ui-neutral-400: #9a95ab;
+  --ui-neutral-500: #6c6781;
+  --ui-neutral-600: #504b63;
+  --ui-neutral-700: #3b3750;
+  --ui-neutral-800: #262238;
+  --ui-neutral-900: #151221;
 
-  /* ---- Text ---------------------------------------------- */
-  /* Four steps, and the third one moved.
-
-     --ui-text-tertiary was neutral-400 (#a1a1aa), which is 2.4:1 on
-     white — below the 4.5:1 minimum for any text at these sizes. It was
-     being used for column headers, page subtitles, counts and the
-     "Rows" label, i.e. real information, all of it under-contrast. That
-     greyness is also a large part of why the app read as flat: when the
-     secondary and tertiary tiers are both too pale, size is the only
-     hierarchy left and there isn't enough of it.
-
-     Tertiary is now neutral-500 (4.8:1) and still clearly recedes.
-     Anything genuinely decorative — the em-dash in an empty cell —
-     uses quaternary, which is what neutral-400 is for. */
+  /* ---- Text -----------------------------------------------
+     Four steps. Tertiary is neutral-500 (4.9:1 on white) because
+     it carries real information — column headers, counts, page
+     subtitles. Quaternary is the decorative step: the em-dash in
+     an empty cell, a placeholder. Never body copy. */
   --ui-text-primary:    var(--ui-neutral-900);
   --ui-text-secondary:  var(--ui-neutral-600);
   --ui-text-tertiary:   var(--ui-neutral-500);
@@ -47,7 +65,10 @@
   --ui-text-disabled:   var(--ui-neutral-300);
   --ui-text-inverse:    var(--ui-neutral-0);
 
-  /* ---- Surfaces ------------------------------------------ */
+  /* ---- Surfaces -------------------------------------------
+     Three planes, ordered: the rail recedes, the canvas sits in
+     the middle, the content card advances. Still monochrome —
+     the depth is three greys already in the ramp, put in order. */
   --ui-surface-page:    var(--ui-neutral-50);
   --ui-surface-card:    var(--ui-neutral-0);
   --ui-surface-sunken:  var(--ui-neutral-100);
@@ -55,187 +76,250 @@
   --ui-surface-active:  var(--ui-neutral-150);
   --ui-surface-inverse: var(--ui-neutral-900);
 
-  /* The sidebar sits on the sunken plane, which is the same colour as
+  /* ProductSwitcher referenced --ui-surface-raised, which never
+     existed — an undefined var silently renders transparent. It
+     is the popover plane: the one surface that sits ABOVE a card. */
+  --ui-surface-raised:  var(--ui-neutral-0);
+
+  /* The rail sits on the sunken plane, which is the same colour as
      --ui-surface-hover. Hovering a nav row against it would be
-     invisible, so the rail gets its own hover one step further down
-     the ramp. Any surface that itself sits on sunken needs this. */
+     invisible, so the rail gets its own hover one step further
+     down the ramp. Any surface that itself sits on sunken needs this. */
   --ui-surface-rail-hover:  var(--ui-neutral-150);
   --ui-surface-rail-active: var(--ui-neutral-200);
 
-  /* ---- Borders ------------------------------------------- */
+  /* ---- Borders --------------------------------------------- */
   --ui-border-hairline: var(--ui-neutral-150);
   --ui-border:          var(--ui-neutral-200);
   --ui-border-strong:   var(--ui-neutral-300);
 
-  /* ---- Ink (primary action) ------------------------------
-     Direction A puts the dominant action in near-black, not the
-     brand colour. Teal is reserved for signal, so it keeps meaning. */
-  --ui-ink:       var(--ui-neutral-900);
-  --ui-ink-hover: var(--ui-neutral-800);
+  /* ---- Accent — #6234fa, from public/spurlyLogo.svg ---------
+     6.2:1 on white, which is unusual and useful: the SAME hex is
+     legal as a fill with white text on it AND as text on a card.
+     Most brand purples need two different values for that.
 
-  /* ---- Accent (signal only) ------------------------------
-     Active nav, counts, links, selection. Never a default button.
-     --ui-accent is a FILL (white text sits on it).
-     --ui-accent-fg is the text-safe stop (5.1:1 on white). */
-  --ui-accent:      #0ea5be;
-  --ui-accent-hover:#0b8ba3;
-  --ui-accent-fg:   #0e7490;
-  --ui-accent-dot:  #06b6d4;
-  --ui-accent-tint: #ecfdff;
-  --ui-accent-tint-strong: #cff6fd;
+     Purple leads. It fills the one primary action per screen, the
+     active nav tint, selection, the spine, focus rings, links and
+     pagination's current page.
+
+       --ui-accent      the fill. --ui-accent-on sits on top of it.
+       --ui-accent-fg   the accent AS TEXT, on a light surface.
+       --ui-accent-dot  the dot in a minimal status.
+       --ui-accent-tint the wash behind an active/selected thing. */
+  --ui-accent:             #6234fa;
+  --ui-accent-hover:       #5128d9;
+  --ui-accent-on:          #ffffff;
+  --ui-accent-fg:          #5326e0;
+  --ui-accent-dot:         #7c5cff;
+  --ui-accent-tint:        #f1eeff;
+  --ui-accent-tint-strong: #ddd5ff;
+  --ui-accent-border:      #b7a5ff;
   /* Kept so existing call sites keep resolving. */
   --ui-accent-text: var(--ui-accent-fg);
 
-  /* ---- Semantic ------------------------------------------
-     Tints are OPAQUE, not rgba. A translucent dark-mustard tint
-     over a white row mixes to beige and over a hovered gray row
-     mixes to something else again -- that muddiness is what read
-     as dated. Flat light hexes stay clean on every background.
+  /* ---- Ink ------------------------------------------------
+     Near-black. Demoted in v2: it is no longer the default
+     primary button (the accent is), but it stays in the system as
+     a second-weight fill for the rare screen that needs a second
+     heavy action without a second purple one. */
+  --ui-ink:       var(--ui-neutral-900);
+  --ui-ink-hover: var(--ui-neutral-800);
+  --ui-ink-halo:  rgba(21, 18, 33, 0.10);
 
-     Each role carries three stops:
+  /* ---- Semantic --------------------------------------------
+     Tints are OPAQUE, not rgba. A translucent tint over a white
+     row mixes to one colour and over a hovered grey row mixes to
+     another; that inconsistency is what reads as muddy.
+
+     Each role carries four stops:
        --ui-<role>       fill, white text sits on it
-       --ui-<role>-fg    text on the tint
+       --ui-<role>-fg    the role as text, on its tint
        --ui-<role>-dot   the dot in a minimal status
-       --ui-<role>-tint  the tint itself */
-  --ui-success:      #059669;
-  --ui-success-fg:   #047857;
-  --ui-success-dot:  #10b981;
-  --ui-success-tint: #ecfdf5;
+       --ui-<role>-tint  the tint itself
+
+     Info moved from blue to indigo so it reads as a different
+     signal from the purple without picking a fight with it. */
+  --ui-success:      #0d9668;
+  --ui-success-fg:   #07784f;
+  --ui-success-dot:  #12b981;
+  --ui-success-tint: #e8faf2;
 
   --ui-warning:      #d97706;
-  --ui-warning-fg:   #b45309;
+  --ui-warning-fg:   #a45309;
   --ui-warning-dot:  #f59e0b;
-  --ui-warning-tint: #fffbeb;
+  --ui-warning-tint: #fef6e7;
   --ui-warning-border: #e8d5b0;
 
   --ui-danger:       #dc2626;
-  --ui-danger-fg:    #b91c1c;
+  --ui-danger-fg:    #b31b1b;
   --ui-danger-dot:   #ef4444;
-  --ui-danger-tint:  #fef2f2;
+  --ui-danger-tint:  #fdeff0;
 
-  --ui-info:         #2563eb;
-  --ui-info-fg:      #1d4ed8;
-  --ui-info-dot:     #3b82f6;
-  --ui-info-tint:    #eff6ff;
+  --ui-info:         #4f46e5;
+  --ui-info-fg:      #4136c7;
+  --ui-info-dot:     #6366f1;
+  --ui-info-tint:    #eeeffe;
 
-  /* ---- Interaction ---------------------------------------
-     Hover picks up the accent on the border before it does on the fill, so a
-     control announces itself without shouting. */
-  --ui-accent-border: #7cd4e4;
-  --ui-ink-halo: rgba(24, 24, 27, 0.10);
+  /* ---- Interaction -----------------------------------------
+     Hover picks up the accent on the border before it does on the
+     fill, so a control announces itself without shouting. */
 
-  /* ---- Identity colours -----------------------------------
-     Avatar hues, assigned by hashing the person's name. Stable across
-     sessions, so the same person is always the same colour and rows become
-     recognisable before they're read. Functional, not decorative — which is
-     why this is the one place colour is allowed to be plentiful. */
-  --ui-av-1-bg: #ede9fe; --ui-av-1-fg: #5b21b6;
-  --ui-av-2-bg: #fce7f3; --ui-av-2-fg: #9d174d;
-  --ui-av-3-bg: #d1fae5; --ui-av-3-fg: #065f46;
-  --ui-av-4-bg: #ffedd5; --ui-av-4-fg: #9a3412;
-  --ui-av-5-bg: #dbeafe; --ui-av-5-fg: #1e40af;
-  --ui-av-6-bg: #fef3c7; --ui-av-6-fg: #854d0e;
-  --ui-av-7-bg: #ccfbf1; --ui-av-7-fg: #115e59;
-  --ui-av-8-bg: #ffe4e6; --ui-av-8-fg: #9f1239;
+  /* ---- Identity colours -------------------------------------
+     Avatar hues, assigned by hashing the person's name. Stable
+     across sessions, so the same person is always the same colour
+     and rows become recognisable before they are read. Functional,
+     not decorative — which is why this is the one place colour is
+     allowed to be plentiful. Slot 1 is the brand violet, so the
+     most common hash lands on-brand. */
+  --ui-av-1-bg: #ebe6ff; --ui-av-1-fg: #5326e0;
+  --ui-av-2-bg: #fde7f2; --ui-av-2-fg: #9d174d;
+  --ui-av-3-bg: #d5f7e7; --ui-av-3-fg: #07784f;
+  --ui-av-4-bg: #ffecd9; --ui-av-4-fg: #9a3412;
+  --ui-av-5-bg: #dee6ff; --ui-av-5-fg: #2c3fa8;
+  --ui-av-6-bg: #fdf0cd; --ui-av-6-fg: #854d0e;
+  --ui-av-7-bg: #d2f6f1; --ui-av-7-fg: #115e59;
+  --ui-av-8-bg: #ffe3e8; --ui-av-8-fg: #9f1239;
 
-  /* ---- Type scale ----------------------------------------
-     Six steps, and only six. The previous app carried seventeen
-     distinct px sizes, five of which sat inside a 2.5px band
+  /* ---- Typefaces -------------------------------------------
+     Two families, split by JOB not by size.
+
+       sans — says things. Labels, names, headlines, buttons, prose.
+       mono — reports readings. Counts, rates, caps, timestamps,
+              column headers, status labels, keyboard hints, ids.
+
+     The split does real work: a column header in mono micro-caps
+     can never be mistaken for data, a count in tabular figures
+     never shifts as it ticks, and "412 imported" reads as a
+     machine's report rather than as a sentence.
+
+     Both load from Google Fonts in index.html, exactly as Inter did
+     before them. The system stack stays as a real fallback: nothing
+     in the layout depends on either face arriving. Self-hosting is
+     a later optimisation, not a correctness issue. */
+  --ui-font-sans: "Instrument Sans", -apple-system, BlinkMacSystemFont, system-ui,
+                  "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --ui-font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", SFMono-Regular,
+                  Menlo, Consolas, monospace;
+
+  /* ---- Type scale ------------------------------------------
+     Seven steps, and only seven. The app used to carry seventeen
+     distinct px sizes, five of them inside a 2.5px band
      (11.5 / 12 / 12.5 / 13 / 13.5) — the eye cannot resolve those
      as separate levels, so what was built as five tiers rendered
      as one flat mass. That is what "no hierarchy" actually was.
 
-     Each step here is at least 1.15x the last, which is the
-     minimum ratio that reads as a different level.
+       display  the page title. The only 28px on a screen.
+       metric   a reading. Always mono, always tabular.
+       section  a card or sheet heading.
+       nav      sidebar rows.
+       body     the default. Cells, inputs, buttons, menu items.
+       label    field labels, hints, errors, tags, pagination.
+       meta     mono. Column headers, badges, timestamps, counts.
+       micro    mono. Rail section labels, stat labels, menu groups. */
+  --ui-t-display: 28px;
+  --ui-t-metric:  28px;
+  --ui-t-section: 16px;
+  --ui-t-nav:     14px;
+  --ui-t-body:    14px;
+  --ui-t-label:   12.5px;
+  --ui-t-meta:    11.5px;
+  --ui-t-micro:   10.5px;
 
-       page    the page title. The only 17px on a screen.
-       section a card or section heading.
-       body    the default. Table cells, form values, buttons.
-       label   supporting copy, subtitles, secondary lines.
-       meta    counts, timestamps, column headers.
-       micro   nav section labels. Nothing else. */
-  --ui-t-metric:  24px;  /* the number on a metric card. Nothing else. */
-  --ui-t-page:    17px;
-  --ui-t-section: 14px;
-  --ui-t-body:    13px;
-  --ui-t-label:   12px;
-  --ui-t-meta:    11px;
-  --ui-t-micro:   10px;
+  /* Kept: DashboardLayout's page title still reads this name.
+     It is now the display step rather than a separate size — one
+     less number, and the title gets the authority it was missing. */
+  --ui-t-page:    var(--ui-t-display);
 
-  /* Two weights. Emphasis is carried by size and colour; weight is
-     the third lever and using all three at once is what makes a UI
-     shout. There is no semibold and no bold in the app chrome. */
+  /* Three weights. Emphasis is carried by size and colour first;
+     weight is the third lever and using all three at once is what
+     makes an interface shout. There is no 700 in app chrome. */
   --ui-w-normal: 400;
-  --ui-w-strong: 500;
+  --ui-w-medium: 500;
+  --ui-w-strong: 600;
 
-  /* Optical tracking. Larger text needs to be pulled in, smaller
-     text needs to breathe. */
-  --ui-track-tight: -0.012em;
-  --ui-track-base:  -0.006em;
+  /* Optical tracking. Large text needs pulling in; small mono
+     caps need room to breathe or they set as a solid block. */
+  --ui-track-display: -0.028em;
+  --ui-track-tight:   -0.02em;
+  --ui-track-base:    -0.011em;
+  --ui-track-meta:     0.08em;
+  --ui-track-micro:    0.12em;
 
-  /* ---- Radii ---------------------------------------------
-     Direction A is 6-8px. Nothing in the app UI is rounder. */
-  --ui-radius-xs: 4px;
-  --ui-radius-sm: 6px;
-  --ui-radius-md: 8px;
-  --ui-radius-lg: 10px;
+  /* ---- Radii ----------------------------------------------- */
+  --ui-radius-xs:   6px;
+  --ui-radius-sm:   8px;
+  --ui-radius-md:  10px;
+  --ui-radius-lg:  14px;
+  --ui-radius-xl:  18px;
   --ui-radius-pill: 999px;
 
-  /* ---- Layout gutters ------------------------------------
+  /* ---- Layout gutters --------------------------------------
      One ladder, so everything in a page's left rail lands on the
-     same vertical line.
+     same vertical line. --ui-content-x is that line:
+       shell padding (24) + card border (1) + card padding (16) */
+  --ui-shell-x:   24px;
+  --ui-pad-x:     16px;
+  --ui-content-x: 41px;
 
-     Previously the page title sat at 16px (the shell padding), the
-     card border also at 16px, the tab label at 39px, the search box
-     at 29px and the first column header at 69px — five different
-     left edges in one viewport, with the title aligned to the card's
-     BORDER rather than to any content.
+  /* Content pages (Settings, Templates, Import) and dialogs need
+     more air than a table row does. One value for all of them —
+     they previously ran p-7 / px-6 / px-5 depending on the page,
+     so the gutter changed as you moved through the nav, which
+     alone made the product feel like three products. */
+  --ui-pad-lg: 24px;
 
-     --ui-content-x is the line everything aligns to:
-       shell padding (16) + card border (1) + card padding (12) */
-  --ui-shell-x:   16px;
-  --ui-pad-x:     12px;
-  --ui-content-x: 29px;
-
-  /* Content pages (Settings, Templates, Enrich) and dialogs need more
-     air than a table row does. One value for all of them.
-
-     They previously ran p-7 (28), px-6 (24) and px-5 (20) depending
-     on which page you were on, so the page gutter changed as you
-     moved through the nav. That alone made the product feel like
-     three products. */
-  --ui-pad-lg: 20px;
-
-  /* ---- Bands ---------------------------------------------
-     Every horizontal chrome band in the app — page header, filter
-     bar, table toolbar, table header, pagination — is this height.
+  /* ---- Bands and rows --------------------------------------
+     Every horizontal chrome band — page header, filter bar, table
+     toolbar, table header, pagination, bulk bar — is --ui-band.
      They used to be 48 / 40 / 44 / 34 / 44, and the 40-vs-44 pair
-     stacked directly on top of each other produced a visible wobble
-     down the right edge where the buttons sit.
+     stacked directly on top of each other produced a visible
+     wobble down the right edge where the buttons sit.
 
-     Row height and control height are NOT declared here. They used
-     to be, duplicating the values in ui/tokens/density.js and in the
-     per-primitive variants files, which is a guaranteed drift. Those
-     files are the source of truth; this one owns the bands. */
-  --ui-band: 40px;
+     Row height lives in ui/tokens/density.js, which is the source
+     of truth for the table; --ui-row mirrors the `default` density
+     for the handful of non-table surfaces that need to match it. */
+  --ui-band:     52px;
+  --ui-row:      44px;
+  --ui-nav-row:  40px;
 
-  /* ---- Focus --------------------------------------------- */
+  /* ---- The spine -------------------------------------------
+     Motif 1. A 2px accent bar marking whatever is live. Applied as
+     a ::before on nav rows and as an inset box-shadow on rows,
+     banners and toasts so it never costs layout width. */
+  --ui-spine: 2px;
+
+  /* ---- The meter -------------------------------------------
+     Motif 3. One bar for every ratio in the product. */
+  --ui-meter-h: 3px;
+
+  /* ---- Focus ------------------------------------------------ */
   --ui-focus-ring: 0 0 0 2px var(--ui-surface-card), 0 0 0 4px var(--ui-accent-tint-strong);
   --ui-ring-inset: inset 0 0 0 1px var(--ui-border);
 
-  /* ---- Elevation ----------------------------------------- */
-  --ui-shadow-sm: 0 1px 2px rgba(24, 24, 27, 0.06);
-  --ui-shadow-md: 0 4px 12px rgba(24, 24, 27, 0.08);
-  --ui-shadow-lg: 0 12px 32px rgba(24, 24, 27, 0.12);
+  /* The wash behind a modal. Darker in dark mode, not lighter: a scrim
+     has to read against the surface it covers, and 32% black over a
+     near-black canvas is invisible. */
+  --ui-scrim: rgba(21, 18, 33, 0.32);
 
-  /* ---- Motion --------------------------------------------
-     Fast and flat. Nothing in a data tool should ease for 400ms. */
-  --ui-dur-fast: 100ms;
-  --ui-dur-base: 160ms;
-  --ui-ease: cubic-bezier(0.2, 0, 0.1, 1);
+  /* ---- Elevation -------------------------------------------- */
+  --ui-shadow-sm:   0 1px 2px rgba(21, 18, 33, 0.05);
+  --ui-shadow-md:   0 6px 18px rgba(21, 18, 33, 0.07);
+  --ui-shadow-lg:   0 16px 44px rgba(21, 18, 33, 0.12);
+  --ui-shadow-dock: 0 20px 56px rgba(21, 18, 33, 0.18), 0 2px 10px rgba(21, 18, 33, 0.08);
 
-  /* ---- Layers -------------------------------------------- */
+  /* ---- Motion ----------------------------------------------
+     Fast and flat for state changes; a spring only where
+     something physically arrives (the dock sheet, a switch knob).
+     Nothing in a data tool should ease for 400ms. */
+  --ui-dur-fast: 120ms;
+  --ui-dur-base: 180ms;
+  --ui-dur-slow: 260ms;
+  --ui-ease:   cubic-bezier(0.2, 0, 0.1, 1);
+  --ui-spring: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* ---- Layers ----------------------------------------------- */
   --ui-z-sticky:  100;
+  --ui-z-dock:    800;
   --ui-z-drawer:  900;
   --ui-z-overlay: 1000;
   --ui-z-modal:   1100;
@@ -243,48 +327,213 @@
   --ui-z-toast:   1300;
 }
 
-[data-theme="dark"] {
-  --ui-neutral-0:   #18181b;
-  --ui-neutral-50:  #1c1c1f;
-  --ui-neutral-100: #232327;
-  --ui-neutral-150: #2a2a2f;
-  --ui-neutral-200: #32323a;
-  --ui-neutral-300: #3f3f46;
-  --ui-neutral-400: #71717a;
-  --ui-neutral-500: #8f8f99;
-  --ui-neutral-600: #a1a1aa;
-  --ui-neutral-700: #d4d4d8;
-  --ui-neutral-800: #ececee;
-  --ui-neutral-900: #fafafa;
+/* ============================================================
+   DARK
 
-  --ui-surface-page: #0e0e11;
+   Two blocks, and both are required.
+
+   The media query handles the DEFAULT setting, where the user has
+   never touched the toggle and no data-theme attribute exists —
+   which is most users. It is guarded with :not([data-theme="light"])
+   so an explicit light choice still beats a dark OS.
+
+   The attribute block handles an explicit dark choice, so the
+   toggle wins in the other direction too, on a light OS.
+
+   Every token redefined below is declared in :root above. A colour
+   whose only definition sits inside one of these blocks would not
+   apply in the un-stamped state — that is the classic bug where a
+   page renders one theme's text on the other theme's ground.
+   ============================================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ui-neutral-0:   #191624;
+    --ui-neutral-50:  #151320;
+    --ui-neutral-100: #201c2d;
+    --ui-neutral-150: #272235;
+    --ui-neutral-200: #2f2a40;
+    --ui-neutral-300: #3d3754;
+    --ui-neutral-400: #6b6484;
+    --ui-neutral-500: #8d86a5;
+    --ui-neutral-600: #aaa3c1;
+    --ui-neutral-700: #cec8de;
+    --ui-neutral-800: #e7e3ef;
+    --ui-neutral-900: #f8f6fc;
+
+    --ui-surface-page:   #0f0d18;
+    --ui-surface-raised: var(--ui-neutral-100);
+    --ui-surface-rail-hover:  var(--ui-neutral-200);
+    --ui-surface-rail-active: var(--ui-neutral-300);
+
+    --ui-ink:       var(--ui-neutral-0);
+    --ui-ink-hover: var(--ui-neutral-100);
+    --ui-ink-halo:  rgba(255, 255, 255, 0.14);
+    --ui-text-inverse: #0f0d18;
+
+    /* The fill lightens just enough to sit on a dark ground while
+       keeping white text at 5.1:1. #7c5cff would have been prettier
+       and fails AA at 4.3:1. */
+    --ui-accent:             #6d4aff;
+    --ui-accent-hover:       #8264ff;
+    --ui-accent-on:          #ffffff;
+    --ui-accent-fg:          #b6a2ff;
+    --ui-accent-dot:         #8b6bff;
+    --ui-accent-tint:        rgba(124, 92, 255, 0.15);
+    --ui-accent-tint-strong: rgba(124, 92, 255, 0.28);
+    --ui-accent-border:      rgba(124, 92, 255, 0.42);
+
+    --ui-success-fg: #4ade9f; --ui-success-dot: #34d399; --ui-success-tint: rgba(52, 211, 153, 0.13);
+    --ui-warning-fg: #fbbf24; --ui-warning-dot: #fbbf24; --ui-warning-tint: rgba(251, 191, 36, 0.13);
+    --ui-warning-border: rgba(251, 191, 36, 0.35);
+    --ui-danger-fg:  #fb8585; --ui-danger-dot:  #f87171; --ui-danger-tint:  rgba(248, 113, 113, 0.13);
+    --ui-info-fg:    #a5b0fc; --ui-info-dot:    #818cf8; --ui-info-tint:    rgba(129, 140, 248, 0.13);
+
+    --ui-av-1-bg: rgba(124,92,255,.20); --ui-av-1-fg: #c6b8ff;
+    --ui-av-2-bg: rgba(244,114,182,.18); --ui-av-2-fg: #f9a8d4;
+    --ui-av-3-bg: rgba(52,211,153,.18);  --ui-av-3-fg: #6ee7b7;
+    --ui-av-4-bg: rgba(251,146,60,.18);  --ui-av-4-fg: #fdba74;
+    --ui-av-5-bg: rgba(129,140,248,.18); --ui-av-5-fg: #a5b4fc;
+    --ui-av-6-bg: rgba(250,204,21,.18);  --ui-av-6-fg: #fde047;
+    --ui-av-7-bg: rgba(45,212,191,.18);  --ui-av-7-fg: #5eead4;
+    --ui-av-8-bg: rgba(251,113,133,.18); --ui-av-8-fg: #fda4af;
+
+    --ui-scrim: rgba(0, 0, 0, 0.58);
+    --ui-shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.45);
+    --ui-shadow-md:   0 6px 18px rgba(0, 0, 0, 0.50);
+    --ui-shadow-lg:   0 16px 44px rgba(0, 0, 0, 0.60);
+    --ui-shadow-dock: 0 20px 56px rgba(0, 0, 0, 0.65), 0 2px 10px rgba(0, 0, 0, 0.45);
+  }
+}
+
+:root[data-theme="dark"] {
+  --ui-neutral-0:   #191624;
+  --ui-neutral-50:  #151320;
+  --ui-neutral-100: #201c2d;
+  --ui-neutral-150: #272235;
+  --ui-neutral-200: #2f2a40;
+  --ui-neutral-300: #3d3754;
+  --ui-neutral-400: #6b6484;
+  --ui-neutral-500: #8d86a5;
+  --ui-neutral-600: #aaa3c1;
+  --ui-neutral-700: #cec8de;
+  --ui-neutral-800: #e7e3ef;
+  --ui-neutral-900: #f8f6fc;
+
+  --ui-surface-page:   #0f0d18;
+  --ui-surface-raised: var(--ui-neutral-100);
   --ui-surface-rail-hover:  var(--ui-neutral-200);
   --ui-surface-rail-active: var(--ui-neutral-300);
+
   --ui-ink:       var(--ui-neutral-0);
   --ui-ink-hover: var(--ui-neutral-100);
+  --ui-ink-halo:  rgba(255, 255, 255, 0.14);
+  --ui-text-inverse: #0f0d18;
 
-  --ui-accent:      #22d3ee;
-  --ui-accent-fg:   #67e8f9;
-  --ui-accent-dot:  #22d3ee;
-  --ui-accent-tint: rgba(34, 211, 238, 0.12);
-  --ui-accent-tint-strong: rgba(34, 211, 238, 0.22);
+  --ui-accent:             #6d4aff;
+  --ui-accent-hover:       #8264ff;
+  --ui-accent-on:          #ffffff;
+  --ui-accent-fg:          #b6a2ff;
+  --ui-accent-dot:         #8b6bff;
+  --ui-accent-tint:        rgba(124, 92, 255, 0.15);
+  --ui-accent-tint-strong: rgba(124, 92, 255, 0.28);
+  --ui-accent-border:      rgba(124, 92, 255, 0.42);
 
-  --ui-success-fg: #34d399; --ui-success-dot: #34d399; --ui-success-tint: rgba(52, 211, 153, 0.12);
-  --ui-warning-fg: #fbbf24; --ui-warning-dot: #fbbf24; --ui-warning-tint: rgba(251, 191, 36, 0.12);
+  --ui-success-fg: #4ade9f; --ui-success-dot: #34d399; --ui-success-tint: rgba(52, 211, 153, 0.13);
+  --ui-warning-fg: #fbbf24; --ui-warning-dot: #fbbf24; --ui-warning-tint: rgba(251, 191, 36, 0.13);
   --ui-warning-border: rgba(251, 191, 36, 0.35);
-  --ui-danger-fg:  #f87171; --ui-danger-dot:  #f87171; --ui-danger-tint:  rgba(248, 113, 113, 0.12);
-  --ui-info-fg:    #60a5fa; --ui-info-dot:    #60a5fa; --ui-info-tint:    rgba(96, 165, 250, 0.12);
-  --ui-text-inverse: #0e0e11;
+  --ui-danger-fg:  #fb8585; --ui-danger-dot:  #f87171; --ui-danger-tint:  rgba(248, 113, 113, 0.13);
+  --ui-info-fg:    #a5b0fc; --ui-info-dot:    #818cf8; --ui-info-tint:    rgba(129, 140, 248, 0.13);
 
-  --ui-accent-border: rgba(34, 211, 238, 0.45);
-  --ui-ink-halo: rgba(255, 255, 255, 0.14);
-
-  --ui-av-1-bg: rgba(167,139,250,.18); --ui-av-1-fg: #c4b5fd;
+  --ui-av-1-bg: rgba(124,92,255,.20); --ui-av-1-fg: #c6b8ff;
   --ui-av-2-bg: rgba(244,114,182,.18); --ui-av-2-fg: #f9a8d4;
   --ui-av-3-bg: rgba(52,211,153,.18);  --ui-av-3-fg: #6ee7b7;
   --ui-av-4-bg: rgba(251,146,60,.18);  --ui-av-4-fg: #fdba74;
-  --ui-av-5-bg: rgba(96,165,250,.18);  --ui-av-5-fg: #93c5fd;
+  --ui-av-5-bg: rgba(129,140,248,.18); --ui-av-5-fg: #a5b4fc;
   --ui-av-6-bg: rgba(250,204,21,.18);  --ui-av-6-fg: #fde047;
   --ui-av-7-bg: rgba(45,212,191,.18);  --ui-av-7-fg: #5eead4;
   --ui-av-8-bg: rgba(251,113,133,.18); --ui-av-8-fg: #fda4af;
+
+  --ui-scrim: rgba(0, 0, 0, 0.58);
+  --ui-shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.45);
+  --ui-shadow-md:   0 6px 18px rgba(0, 0, 0, 0.50);
+  --ui-shadow-lg:   0 16px 44px rgba(0, 0, 0, 0.60);
+  --ui-shadow-dock: 0 20px 56px rgba(0, 0, 0, 0.65), 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+/* The dock sheet's arrival. A spring, because the panel is a physical thing
+   coming up from an edge, and Overlay mounts it rather than transitioning an
+   existing node — so this has to be a keyframe, not a transition. */
+@keyframes ui-dock-in {
+  from { transform: translateY(calc(100% + 24px)); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.ui-dock-sheet { animation: ui-dock-in var(--ui-dur-slow) var(--ui-spring) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-dock-sheet { animation: none; }
+}
+
+/* ============================================================
+   Two base rules that belong with the tokens rather than in a
+   component: the app's default face, and the reading treatment.
+
+   `.ui-reading` / `.ui-num` are the ONLY sanctioned way to render
+   a figure. They exist here rather than in a primitive because
+   plain <span>s inside cells need them too.
+   ============================================================ */
+
+.ui-num,
+.ui-reading {
+  font-family: var(--ui-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--ui-w-medium);
+}
+
+.ui-reading {
+  font-size: var(--ui-t-metric);
+  letter-spacing: var(--ui-track-tight);
+  color: var(--ui-text-primary);
+}
+
+/* Mono micro-caps: rail section labels, stat labels, column
+   headers, menu groups. The tracking is not optional — mono caps
+   at 10.5px set as a solid block without it. */
+.ui-micro {
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-t-micro);
+  font-weight: var(--ui-w-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--ui-track-micro);
+  color: var(--ui-text-tertiary);
+}
+
+.ui-meta {
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-t-meta);
+  font-weight: var(--ui-w-medium);
+  letter-spacing: var(--ui-track-meta);
+  color: var(--ui-text-tertiary);
+}
+
+/* The meter. One bar for every ratio in the product. */
+.ui-meter {
+  height: var(--ui-meter-h);
+  border-radius: var(--ui-radius-pill);
+  background: var(--ui-surface-active);
+  overflow: hidden;
+}
+.ui-meter > i {
+  display: block;
+  height: 100%;
+  border-radius: var(--ui-radius-pill);
+  background: var(--ui-accent);
+  transition: width var(--ui-dur-slow) var(--ui-ease);
+}
+.ui-meter[data-tone="success"] > i { background: var(--ui-success-dot); }
+.ui-meter[data-tone="warning"] > i { background: var(--ui-warning-dot); }
+.ui-meter[data-tone="danger"]  > i { background: var(--ui-danger-dot); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-meter > i { transition: none; }
 }

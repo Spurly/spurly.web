@@ -15,7 +15,7 @@ const JUSTIFY = { left: 'justify-start', center: 'justify-center', right: 'justi
  * Sentence case, not uppercase micro-caps. Letter-spaced all-caps headers are
  * the single most dating detail in a data table.
  */
-const LABEL = 'text-[11px] font-medium text-[var(--ui-text-tertiary)]';
+const LABEL = 'text-[var(--ui-t-meta)] font-medium text-[var(--ui-text-tertiary)]';
 
 /**
  * REORDERING

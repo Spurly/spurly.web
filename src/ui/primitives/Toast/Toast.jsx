@@ -77,11 +77,11 @@ export function Toast({ toast, onDismiss, onPause, onResume }) {
       </span>
 
       <div className="min-w-0 flex-1 pt-px">
-        <p className="text-[13px] font-medium text-[var(--ui-text-primary)] leading-snug">
+        <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] leading-snug">
           {toast.message}
         </p>
         {toast.description && (
-          <p className="mt-1 text-[12px] text-[var(--ui-text-secondary)] leading-snug break-words">
+          <p className="mt-1 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-snug break-words">
             {toast.description}
           </p>
         )}
@@ -92,7 +92,7 @@ export function Toast({ toast, onDismiss, onPause, onResume }) {
               toast.action.onClick?.();
               onDismiss();
             }}
-            className="mt-1.5 text-[12px] font-medium text-[var(--ui-accent-fg)] hover:underline focus:outline-none focus-visible:underline"
+            className="mt-1.5 text-[var(--ui-t-label)] font-medium text-[var(--ui-accent-fg)] hover:underline focus:outline-none focus-visible:underline"
           >
             {toast.action.label}
           </button>

@@ -1,6 +1,6 @@
 import { Avatar } from 'src/ui/primitives';
 import { resolveDensity } from 'src/ui/tokens';
-import { useProfilePhoto } from 'src/platform/people/profilePhoto';
+import { useProfilePhoto } from 'src/platform/people/hooks/profilePhoto';
 
 /**
  * A person: avatar + name, optionally with one piece of quiet metadata.
@@ -44,7 +44,7 @@ export function PersonCell({
       {meta && (
         <span
           title={metaTitle}
-          className="ml-auto shrink-0 pl-2 text-[11px] tabular-nums text-[var(--ui-text-tertiary)]"
+          className="ml-auto shrink-0 pl-2 text-[var(--ui-t-meta)] tabular-nums text-[var(--ui-text-tertiary)]"
         >
           {meta}
         </span>

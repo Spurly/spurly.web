@@ -13,8 +13,8 @@ export function EmptyState({ icon = null, title, hint, action = null, compact = 
           {icon}
         </span>
       )}
-      <p className="text-[14px] font-medium text-[var(--ui-text-primary)]">{title}</p>
-      {hint && <p className="mt-1 text-[12px] text-[var(--ui-text-tertiary)] max-w-sm">{hint}</p>}
+      <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">{title}</p>
+      {hint && <p className="mt-1 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] max-w-sm">{hint}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );

@@ -19,26 +19,39 @@
  * the page header aligns against.
  */
 export const DENSITY = {
+  /*
+   * v2 raised every step. The old `default` (36px rows, 13px text) was
+   * drawn for a near-monochrome power tool; the system this app actually
+   * wants is airier, and a lead row carrying an avatar, a name and a
+   * headline was cramped at 36.
+   *
+   * `compact` is not vestigial: it is 36px, i.e. exactly the old default,
+   * and it is what the admin tables want when you are scanning hundreds
+   * of rows of users or transactions rather than reading people.
+   *
+   * padX matches --ui-pad-x (16) so the first column header lands on the
+   * same vertical line as everything else in the card.
+   */
   compact: {
-    row: 32,
-    header: 36,
-    padX: 12,
-    fontSize: 12,
-    avatar: 20,
-  },
-  default: {
     row: 36,
-    header: 40,
-    padX: 12,
+    header: 44,
+    padX: 16,
     fontSize: 13,
     avatar: 22,
   },
-  comfortable: {
+  default: {
     row: 44,
-    header: 40,
-    padX: 12,
-    fontSize: 13,
-    avatar: 26,
+    header: 52,
+    padX: 16,
+    fontSize: 14,
+    avatar: 28,
+  },
+  comfortable: {
+    row: 56,
+    header: 52,
+    padX: 16,
+    fontSize: 14,
+    avatar: 32,
   },
 };
 

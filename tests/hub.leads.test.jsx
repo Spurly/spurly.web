@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
@@ -40,9 +40,9 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
   'POST /*': { success: true, data: {} },
 }));
 
-const { AuthContext } = await import('src/platform/auth/AuthContext');
-const { SubscriptionContext } = await import('src/platform/billing/SubscriptionContext');
-import { SubscriptionSummary } from 'src/platform/billing/Subscription';
+const { AuthContext } = await import('src/platform/auth/hooks/AuthContext');
+const { SubscriptionContext } = await import('src/platform/billing/hooks/SubscriptionContext');
+import { SubscriptionSummary } from 'src/platform/billing/entities/Subscription';
 
 /**
  * The REAL summary entity, not a hand-rolled `{ isActive: () => true }`.
@@ -90,11 +90,80 @@ afterEach(() => {
 });
 
 describe('hub leads', () => {
-  it('resolves the lazy hub chunk and renders the import form', async () => {
+  it('resolves the lazy hub chunk and parks the audiences dock', async () => {
     renderAt('/hub/leads');
+    // The chunk resolving is the point; the dock pill is the cheapest proof
+    // that this page's own code ran, rather than a shell that rendered with a
+    // failed lazy import behind it.
     await waitFor(() =>
-      expect(screen.getByPlaceholderText(/linkedin\.com\/search\/results/i)).toBeInTheDocument(),
+      expect(screen.getByRole('button', { name: /^audiences/i })).toBeInTheDocument(),
     );
+  });
+
+  it('keeps the import form in the dock until it is asked for, and closes on Escape', async () => {
+    renderAt('/hub/leads');
+    const pill = await screen.findByRole('button', { name: /^audiences/i });
+
+    // Closed is the resting state. A form permanently occupying the top of the
+    // page was the thing the dock replaced, so a regression that renders it
+    // inline again has to fail here.
+    expect(screen.queryByPlaceholderText(/linkedin\.com\/search\/results/i)).not.toBeInTheDocument();
+
+    await userEvent.click(pill);
+    expect(await screen.findByPlaceholderText(/linkedin\.com\/search\/results/i)).toBeInTheDocument();
+
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() =>
+      expect(screen.queryByPlaceholderText(/linkedin\.com\/search\/results/i)).not.toBeInTheDocument(),
+    );
+  });
+
+  it('lets a pasted URL take over, switching the filters off', async () => {
+    /**
+     * A LinkedIn results URL already encodes its own filters, so the two can
+     * never be combined — the backend would reject it. The UI has to say so
+     * BEFORE the request rather than after, which means the filters visibly
+     * switch off the moment a URL is present.
+     *
+     * Pinned because it is a rule about the vendor, not a style choice: the
+     * obvious "improvement" of letting both be filled at once would produce a
+     * form that looks more capable and fails on submit.
+     */
+    renderAt('/hub/leads');
+    await userEvent.click(await screen.findByRole('button', { name: /^audiences/i }));
+
+    const location = screen.getByPlaceholderText(/search a city or region/i);
+    expect(location).not.toBeDisabled();
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/linkedin\.com\/search\/results/i),
+      'https://www.linkedin.com/search/results/people/?keywords=sales',
+    );
+
+    await waitFor(() => expect(location).toBeDisabled());
+    expect(screen.getByText(/the filters below are off/i)).toBeInTheDocument();
+  });
+
+  it('rejects a profile URL at the field, with the fix rather than a verdict', async () => {
+    // The mistake people actually make. It used to fail deep in the importer,
+    // minutes later, as a generic failure.
+    renderAt('/hub/leads');
+    await userEvent.click(await screen.findByRole('button', { name: /^audiences/i }));
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/linkedin\.com\/search\/results/i),
+      'https://www.linkedin.com/in/asha',
+    );
+
+    expect(await screen.findByText(/that's a profile, not a search/i)).toBeInTheDocument();
+    // The sidebar now shows Capture's own "Import" nav row at the same time
+    // (both product groups render together since the switcher was removed),
+    // so an unscoped query is ambiguous. The dock's Import button is not
+    // inside the <nav> landmark, so exclude whichever match is.
+    const nav = screen.getByRole('navigation');
+    const importButtons = screen.getAllByRole('button', { name: /^import$/i });
+    const dockImportButton = importButtons.find((btn) => !nav.contains(btn));
+    expect(dockImportButton).toBeDisabled();
   });
 
   it('/hub lands on leads rather than 404ing', async () => {
@@ -103,16 +172,35 @@ describe('hub leads', () => {
   });
 
   it('reports progress as a running count, with no percentage anywhere', async () => {
+    /**
+     * The count is on the page, not in the dock. Management moved behind a
+     * panel; progress did not, because an import runs for minutes and somebody
+     * is waiting on it — hiding that behind a control they have to open would
+     * be worse than the permanent card it replaced.
+     */
     searches = [
       { _id: 's1', name: 'Sales heads', searchUrl: 'https://www.linkedin.com/search/results/people/', status: 'running', importedCount: 412 },
     ];
 
     renderAt('/hub/leads');
 
-    await waitFor(() => expect(screen.getByText(/412 imported/i)).toBeInTheDocument());
-    expect(screen.getByText('Importing')).toBeInTheDocument();
+    // Visible without opening anything.
+    await waitFor(() => expect(screen.getByText(/412/)).toBeInTheDocument());
+    expect(screen.getByText(/so far/i)).toBeInTheDocument();
     expect(screen.queryByText(/%/)).not.toBeInTheDocument();
     expect(document.querySelector('progress')).toBeNull();
+  });
+
+  it('hides the import strip entirely when nothing is running', async () => {
+    // It reports a fact or it is not there. A strip that permanently says
+    // "nothing is importing" is the card this replaced.
+    searches = [
+      { _id: 's1', name: 'Sales heads', searchUrl: 'https://www.linkedin.com/search/results/people/', status: 'done', importedCount: 412 },
+    ];
+
+    renderAt('/hub/leads');
+    await screen.findByText('Asha Menon');
+    expect(screen.queryByText(/so far/i)).not.toBeInTheDocument();
   });
 
   it('says an import stopped short instead of reporting it complete', async () => {
@@ -132,6 +220,7 @@ describe('hub leads', () => {
 
     renderAt('/hub/leads');
 
+    await userEvent.click(await screen.findByRole('button', { name: /^audiences/i }));
     const row = await screen.findByText('Sales heads');
     await userEvent.click(row);
     await waitFor(() => expect(screen.getByText(/stopped returning results/i)).toBeInTheDocument());
@@ -177,12 +266,16 @@ describe('hub leads', () => {
     expect(screen.queryByText('4,211')).not.toBeInTheDocument();
   });
 
-  it('offers the workspace switcher, with both workspaces named', async () => {
+  it('shows both product groups in the sidebar at once, no switcher', async () => {
+    // The workspace switcher (a dropdown that swapped the whole nav tree) is
+    // gone — replaced by one grouped sidebar. Both group headers, and a row
+    // unique to each product, are on screen together without any click.
     renderAt('/hub/leads');
-    const trigger = await screen.findByRole('button', { name: /switch workspace/i });
-    await userEvent.click(trigger);
-    expect(screen.getByRole('menuitem', { name: /Hub/ })).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: /Capture/ })).toBeInTheDocument();
+    const nav = await screen.findByRole('navigation');
+    expect(within(nav).getByText('Extension Driven')).toBeInTheDocument();
+    expect(within(nav).getByText('Automated')).toBeInTheDocument();
+    expect(within(nav).getByText('Contacts')).toBeInTheDocument(); // Capture-only row
+    expect(within(nav).getByText('Sequences')).toBeInTheDocument(); // Hub-only row
   });
 });
 

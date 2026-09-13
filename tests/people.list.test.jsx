@@ -19,7 +19,7 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
 }));
 
 const { renderWithProviders } = await import('./helpers.jsx');
-const { PeoplePage } = await import('src/products/leadgen/people');
+const { PeoplePage } = await import('src/products/leadgen/pages/people');
 
 describe('PeoplePage', () => {
   beforeEach(() => localStorage.setItem('authToken', 'test-token'));

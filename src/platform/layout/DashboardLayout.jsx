@@ -1,5 +1,5 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useCallback, useContext, useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   PanelLeftClose,
   PanelLeft,
@@ -14,38 +14,53 @@ import {
   Radar,
   Inbox,
   Workflow,
-} from 'lucide-react';
-import { useAuth } from 'src/platform/auth/useAuth.js';
-import { SubscriptionContext } from 'src/platform/billing/SubscriptionContext';
-import { useExtension } from 'src/platform/extension/useExtension';
-import { Avatar, Tooltip } from 'src/ui/primitives';
-import { NotificationBell } from 'src/platform/notifications/NotificationBell.jsx';
-import { ProductSwitcher } from './ProductSwitcher';
+  Lock,
+} from "lucide-react";
+import { useAuth } from "src/platform/auth/hooks/useAuth.js";
+import { SubscriptionContext } from "src/platform/billing/hooks/SubscriptionContext";
+import { useExtension } from "src/platform/extension/hooks/useExtension";
+import { Avatar, Tooltip } from "src/ui/primitives";
+import { ThemeToggle } from "src/ui/theme";
+import { NotificationBell } from "src/platform/pages/notifications/components/NotificationBell.jsx";
+import { SidebarBrand } from "./SidebarBrand";
 
 /**
- * Nav grouped by where you are in the funnel, not as a flat list.
+ * One sidebar, both products, always.
  *
- * The old version was five ungrouped rows. Section labels cost nothing at five
- * items and teach the product's shape through the navigation itself — capture
- * people, then engage them.
+ * This used to be two nav trees (`LEADGEN_SECTIONS` / `HUB_SECTIONS`) swapped
+ * whole by a workspace switcher — see git history on this file, or
+ * `ProductSwitcher.jsx` before it was deleted. That model treated Capture and
+ * Hub as two apps sharing a shell. They are one app: a ₹5000 subscriber uses
+ * both in the same session, and a ₹1500 subscriber should see what Hub is
+ * without a context switch to find out.
+ *
+ * `NAV_GROUPS` below is the single nav tree. Each group is one product; each
+ * group's own sections are unchanged from before (Prospect / Engage / Manage).
+ * A locked group's rows stay visible and lead to the upgrade page instead of
+ * disappearing — see `hubLocked` below for why a whole-workspace lock that
+ * hid every row was worse than this.
  */
 const LEADGEN_SECTIONS = [
   {
-    label: 'Prospect',
+    label: "Prospect",
     items: [
-      { label: 'Contacts', icon: Users, href: '/dashboard/people' },
+      { label: "Contacts", icon: Users, href: "/dashboard/people" },
       // The user's own LinkedIn network — a roster, separate from the Contacts
       // outreach pipeline. See spurly.backend/src/features/connections.
-      { label: 'Connections', icon: Network, href: '/dashboard/connections' },
-      { label: 'Import', icon: Upload, href: '/dashboard/import' },
+      { label: "Connections", icon: Network, href: "/dashboard/connections" },
+      { label: "Import", icon: Upload, href: "/dashboard/import" },
     ],
   },
   {
-    label: 'Engage',
+    label: "Engage",
     items: [
-      { label: 'Campaigns', icon: Send, href: '/dashboard/campaigns' },
-      { label: 'Templates', icon: FileText, href: '/dashboard/templates' },
+      { label: "Campaigns", icon: Send, href: "/dashboard/campaigns" },
+      { label: "Templates", icon: FileText, href: "/dashboard/templates" },
     ],
+  },
+  {
+    label: "Manage",
+    items: [{ label: "Settings", icon: Settings, href: "/dashboard/settings" }],
   },
 ];
 
@@ -57,117 +72,181 @@ const LEADGEN_SECTIONS = [
  */
 const HUB_SECTIONS = [
   {
-    label: 'Prospect',
-    items: [{ label: 'Leads', icon: Radar, href: '/hub/leads' }],
+    label: "Prospect",
+    items: [{ label: "Leads", icon: Radar, href: "/hub/leads" }],
   },
   {
-    label: 'Engage',
+    label: "Engage",
     items: [
-      { label: 'Campaigns', icon: Send, href: '/hub/campaigns' },
-      { label: 'Sequences', icon: Workflow, href: '/hub/sequences' },
-      { label: 'Inbox', icon: Inbox, href: '/hub/inbox' },
+      { label: "Campaigns", icon: Send, href: "/hub/campaigns" },
+      { label: "Sequences", icon: Workflow, href: "/hub/sequences" },
+      { label: "Inbox", icon: Inbox, href: "/hub/inbox" },
+    ],
+  },
+  {
+    label: "Manage",
+    items: [
+      {
+        label: "LinkedIn settings",
+        icon: Settings,
+        href: "/dashboard/settings/linkedin",
+      },
     ],
   },
 ];
 
 /**
- * The two workspaces. Names are deliberately about what the user does, not how
- * it is done — and never about the vendor, which must not reach the UI at all.
+ * The two product groups. Names are deliberately about what the user does,
+ * not how it is done — and never about the vendor, which must not reach the
+ * UI at all.
  */
-const WORKSPACES = [
+const NAV_GROUPS = [
   {
-    id: 'leadgen',
-    label: 'Capture',
-    hint: 'Capture from your browser, send with the extension',
-    home: '/dashboard/people',
-    settings: '/dashboard/settings',
+    id: "leadgen",
+    label: "Extension Driven",
     sections: LEADGEN_SECTIONS,
-    showsExtension: true,
   },
   {
-    id: 'hub',
-    label: 'Hub',
-    hint: 'Source leads and send from our servers, on a schedule',
-    home: '/hub/leads',
-    settings: '/dashboard/settings/linkedin',
+    id: "hub",
+    label: "Automated",
+    hint: "Source leads and send from our servers, on a schedule",
     sections: HUB_SECTIONS,
-    // The extension is irrelevant here — hub sends without it. Reporting
-    // "Extension live" in a workspace it plays no part in is noise dressed as
-    // status. Hub's own equivalent is the LinkedIn connection, which cannot be
-    // read from platform without importing a product; it belongs in this
-    // footer once there is a platform-safe way to ask.
-    showsExtension: false,
   },
 ];
 
-const workspaceForPath = (pathname) =>
-  (pathname.startsWith('/hub') ? WORKSPACES[1] : WORKSPACES[0]);
+const ADMIN_GROUP = {
+  id: "admin",
+  label: "Manage",
+  sections: [
+    {
+      label: "Admin",
+      items: [{ label: "Admin", icon: Shield, href: "/admin/users" }],
+    },
+  ],
+};
 
-const ADMIN_ITEM = { label: 'Admin', icon: Shield, href: '/admin/users' };
+const UPGRADE_HREF = "/hub/upgrade";
 
-const SIDEBAR_OPEN_KEY = 'spurly.sidebarOpen';
-const WIDTH_EXPANDED = 232;
+const SIDEBAR_OPEN_KEY = "spurly.sidebarOpen";
+const WIDTH_EXPANDED = 244;
 const WIDTH_COLLAPSED = 56;
 
-function NavRow({ item, active, expanded, onClick }) {
+function GroupHeader({ label, locked, expanded }) {
+  if (!expanded) {
+    return (
+      <span
+        className="block mx-auto w-4 h-px bg-[var(--ui-border)] my-2"
+        aria-hidden="true"
+      />
+    );
+  }
+  return (
+    <p className="ui-micro px-2 h-7 flex items-center gap-1.5 font-semibold text-[var(--ui-text-secondary)]">
+      {label}
+      {locked && (
+        <Lock
+          size={10}
+          className="shrink-0 text-[var(--ui-text-tertiary)]"
+          aria-hidden="true"
+        />
+      )}
+    </p>
+  );
+}
+
+function NavRow({ item, active, expanded, locked, onClick }) {
   const Icon = item.icon;
 
   const row = (
     <button
       type="button"
       onClick={onClick}
-      aria-current={active ? 'page' : undefined}
+      aria-current={active ? "page" : undefined}
       className={[
-        'group relative w-full flex items-center gap-2.5 h-8 rounded-[var(--ui-radius-sm)] text-[13px]',
-        'transition-colors duration-[var(--ui-dur-fast)] focus:outline-none',
-        'focus-visible:shadow-[var(--ui-focus-ring)]',
-        expanded ? 'px-2' : 'px-0 justify-center',
+        "group relative w-full flex items-center gap-3 h-[var(--ui-nav-row)] rounded-[var(--ui-radius-md)] text-[var(--ui-t-nav)]",
+        "transition-colors duration-[var(--ui-dur-fast)] focus:outline-none",
+        "focus-visible:shadow-[var(--ui-focus-ring)]",
+        expanded ? "px-2" : "px-0 justify-center",
         /* Where you are is the one question the sidebar exists to answer, and
            grey-on-grey whispers it. The accent tint plus a left bar says it. */
         active
-          ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-medium ' +
-            'before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[2px] ' +
-            'before:rounded-r-full before:bg-[var(--ui-accent)]'
-          : 'text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)]',
-      ].join(' ')}
+          ? "bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-semibold " +
+            "before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[var(--ui-spine)] " +
+            "before:rounded-r-full before:bg-[var(--ui-accent)]"
+          : "text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)]",
+      ].join(" ")}
     >
-      <Icon size={16} className="shrink-0" aria-hidden="true" />
-      {expanded && <span className="truncate">{item.label}</span>}
+      <Icon size={17} className="shrink-0" aria-hidden="true" />
+      {expanded && (
+        <span className="truncate flex-1 text-left">{item.label}</span>
+      )}
+      {expanded && locked && (
+        <Lock
+          size={12}
+          className="shrink-0 text-[var(--ui-text-tertiary)]"
+          aria-hidden="true"
+        />
+      )}
     </button>
   );
 
-  return expanded ? row : <Tooltip content={item.label} placement="right">{row}</Tooltip>;
+  const tooltip = locked
+    ? `${item.label} — not included in your plan`
+    : item.label;
+  return expanded ? (
+    row
+  ) : (
+    <Tooltip content={tooltip} placement="right">
+      {row}
+    </Tooltip>
+  );
 }
 
 /**
  * Extension connection status.
  *
  * The single most important piece of state in the product: if the extension
- * isn't connected, nothing works. Previously the app only mentioned it inside
- * a modal at the moment a send failed — by which point the user has already
- * hit the wall. It's persistent now.
+ * isn't connected, nothing works. It used to be shown only while the Capture
+ * workspace was active; Capture is now always in the sidebar, so this is
+ * always shown too — no workspace gate left to hide it behind.
  */
 function ExtensionStatus({ expanded }) {
   const { installed, loggedIn, loginKnown, checking } = useExtension();
 
   const state = checking
-    ? { dot: 'var(--ui-text-tertiary)', label: 'Checking…', hint: 'Looking for the Spurly extension.' }
+    ? {
+        dot: "var(--ui-text-tertiary)",
+        label: "Checking…",
+        hint: "Looking for the Spurly extension.",
+      }
     : !installed
-      ? { dot: 'var(--ui-danger-dot)', label: 'Not installed', hint: 'Spurly can\'t reach LinkedIn without the extension. Install it to capture and send.' }
-      // Installed, but its background worker never answered. Reporting that as
-      // "Signed out" is a guess dressed as a fact, and the wrong one: the
-      // worker is asleep far more often than the session is actually missing,
-      // and it sends people off to fix a sign-in that was never broken.
+      ? {
+          dot: "var(--ui-danger-dot)",
+          label: "Not installed",
+          hint: "Spurly can't reach LinkedIn without the extension. Install it to capture and send.",
+        }
       : !loginKnown
-        ? { dot: 'var(--ui-text-tertiary)', label: 'Extension idle', hint: 'The extension is installed, but its background worker didn\'t answer. It wakes on the next action — reload this page if things keep failing.' }
+        ? {
+            dot: "var(--ui-text-tertiary)",
+            label: "Extension idle",
+            hint: "The extension is installed, but its background worker didn't answer. It wakes on the next action — reload this page if things keep failing.",
+          }
         : !loggedIn
-          ? { dot: 'var(--ui-warning-dot)', label: 'Signed out', hint: 'The extension is installed but couldn\'t take this browser\'s session. Reload the page; if it sticks, open the extension and sign in.' }
-          : { dot: 'var(--ui-success-dot)', label: 'Extension live', hint: 'The extension is installed, signed in, and ready to capture and send.' };
+          ? {
+              dot: "var(--ui-warning-dot)",
+              label: "Signed out",
+              hint: "The extension is installed but couldn't take this browser's session. Reload the page; if it sticks, open the extension and sign in.",
+            }
+          : {
+              dot: "var(--ui-success-dot)",
+              label: "Extension live",
+              hint: "The extension is installed, signed in, and ready to capture and send.",
+            };
 
   return (
     <Tooltip content={state.hint} placement="right">
       <div
-        className={`flex items-center gap-2 h-7 ${expanded ? 'px-2' : 'justify-center'} cursor-default`}
+        className={`flex items-center gap-2 h-7 ${expanded ? "px-2" : "justify-center"} cursor-default`}
       >
         <span
           className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -175,7 +254,9 @@ function ExtensionStatus({ expanded }) {
           aria-hidden="true"
         />
         {expanded && (
-          <span className="text-[12px] text-[var(--ui-text-secondary)] truncate">{state.label}</span>
+          <span className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] truncate">
+            {state.label}
+          </span>
         )}
       </div>
     </Tooltip>
@@ -197,10 +278,12 @@ function CreditsMeter({ expanded, balance, onTopUp }) {
       <Tooltip content={`${balance} credits remaining`} placement="right">
         <div className="flex justify-center h-7 items-center cursor-default">
           <span
-            className="text-[11px] font-medium tabular-nums"
-            style={{ color: low ? 'var(--ui-warning-fg)' : 'var(--ui-text-secondary)' }}
+            className="ui-num text-[var(--ui-t-meta)]"
+            style={{
+              color: low ? "var(--ui-warning-fg)" : "var(--ui-text-secondary)",
+            }}
           >
-            {balance > 99 ? '99+' : balance}
+            {balance > 99 ? "99+" : balance}
           </span>
         </div>
       </Tooltip>
@@ -208,17 +291,22 @@ function CreditsMeter({ expanded, balance, onTopUp }) {
   }
 
   return (
-    <div className="flex items-center justify-between gap-2 h-7 px-2">
-      <span
-        className="text-[12px] tabular-nums truncate"
-        style={{ color: low ? 'var(--ui-warning-fg)' : 'var(--ui-text-secondary)' }}
-      >
-        {balance.toLocaleString()} credits
-      </span>
+    <div className="flex items-baseline justify-between gap-2 px-2 py-1">
+      <div className="min-w-0">
+        <span className="ui-micro">Credits</span>
+        <span
+          className="ui-num block text-[var(--ui-t-section)] leading-tight mt-0.5 truncate"
+          style={{
+            color: low ? "var(--ui-warning-fg)" : "var(--ui-text-primary)",
+          }}
+        >
+          {balance.toLocaleString()}
+        </span>
+      </div>
       <button
         type="button"
         onClick={onTopUp}
-        className="text-[12px] font-medium text-[var(--ui-accent-fg)] hover:underline shrink-0 focus:outline-none focus-visible:underline"
+        className="text-[var(--ui-t-label)] font-semibold text-[var(--ui-accent-fg)] hover:underline shrink-0 focus:outline-none focus-visible:underline"
       >
         Top up
       </button>
@@ -240,8 +328,8 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
    * collapsible rail does.
    */
   const [expanded, setExpanded] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    return window.localStorage.getItem(SIDEBAR_OPEN_KEY) !== 'false';
+    if (typeof window === "undefined") return true;
+    return window.localStorage.getItem(SIDEBAR_OPEN_KEY) !== "false";
   });
 
   useEffect(() => {
@@ -250,99 +338,58 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
 
   const isActive = useCallback(
     (href) =>
-      href.startsWith('/admin')
-        ? location.pathname.startsWith('/admin')
-        : location.pathname === href || location.pathname.startsWith(`${href}/`),
+      href.startsWith("/admin")
+        ? location.pathname.startsWith("/admin")
+        : location.pathname === href ||
+          location.pathname.startsWith(`${href}/`),
     [location.pathname],
   );
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   /**
-   * Hub is locked for a subscriber whose plan does not include it. The entry
-   * stays in the switcher and leads to the upgrade page instead of its own
-   * home - see ProductSwitcher for why it is not simply disabled.
+   * Hub is locked for a subscriber whose plan does not include it. Every Hub
+   * row still renders — see NAV_GROUPS — with a lock glyph, and routes to the
+   * upgrade page instead of its normal destination.
    *
    * The sidebar is a courtesy, not the boundary: the API refuses hub requests
    * with 403 whatever is rendered here, and HubGate redirects anyone who types
-   * the URL. So an entitlement we have not fetched yet locks nothing - a lock
+   * the URL. So an entitlement we have not fetched yet locks nothing — a lock
    * flashed at a paying customer on every load would be worse than a second of
    * an unlocked entry that works.
    */
   const billing = useContext(SubscriptionContext);
   const hubLocked = billing?.status ? !billing.status.hasHub() : false;
 
-  /*
-   * Read through the context rather than useSubscription() on purpose: this
-   * layout renders in places that have no billing provider - page-level tests
-   * among them - and useSubscription throws there, correctly, because a GATE
-   * that cannot see billing must not silently pass. A sidebar is not a gate.
-   * Absent billing renders the entry unlocked, exactly like a status that has
-   * not arrived yet, and HubGate plus the API's 403 still hold the line.
-   */
-
-  const workspaces = WORKSPACES.map((w) =>
-    (w.id === 'hub' && hubLocked
-      ? {
-        ...w,
-        locked: true,
-        lockedHint: 'Not included in your plan',
-        home: '/hub/upgrade',
-        // No nav rows: every one of them is a page this user is redirected
-        // out of. A sidebar full of links that bounce is worse than a bare one.
-        sections: [],
-      }
-      : w),
-  );
-
-  const workspace = workspaces.find((w) => w.id === workspaceForPath(location.pathname).id);
-
-  const sections = user?.isAdmin
-    ? [...workspace.sections, { label: 'Manage', items: [ADMIN_ITEM] }]
-    : workspace.sections;
+  const groups = [
+    ...NAV_GROUPS.map((g) =>
+      g.id === "hub" ? { ...g, locked: hubLocked } : g,
+    ),
+    ...(user?.isAdmin ? [ADMIN_GROUP] : []),
+  ];
 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--ui-surface-page)]">
-      {/*
-        Three planes, not one.
-
-        The sidebar, the top bar and the canvas were all
-        --ui-surface-page, separated by a single hairline. Three regions
-        painted the same colour is no hierarchy at all: the app read as
-        one flat grey field with a white box floating on it, which is
-        most of what "the nav, the top bar and the heading have no
-        hierarchy" was describing.
-
-        Now the sidebar recedes (sunken), the canvas sits in the middle,
-        and the content card advances (white). Still monochrome, still
-        the same palette — the depth comes from ordering three greys
-        that were already in the ramp.
-      */}
       <aside
         className="flex flex-col h-full shrink-0 bg-[var(--ui-surface-sunken)] border-r border-[var(--ui-border)] transition-[width] duration-[var(--ui-dur-base)] ease-[cubic-bezier(0.2,0,0.1,1)]"
         style={{ width: expanded ? WIDTH_EXPANDED : WIDTH_COLLAPSED }}
       >
-        <div className={`flex items-center h-11 shrink-0 ${expanded ? 'px-2 gap-1' : 'justify-center'}`}>
-          <ProductSwitcher
-            workspaces={workspaces}
-            current={workspace.id}
-            expanded={expanded}
-            onSelect={(next) => navigate(next.home)}
-          />
+        <div
+          className={`flex items-center h-11 shrink-0 ${expanded ? "px-2 gap-1" : "justify-center"}`}
+        >
+          <SidebarBrand expanded={expanded} />
           {expanded && (
-            <>
-              <button
-                type="button"
-                onClick={() => setExpanded(false)}
-                aria-label="Collapse sidebar"
-                className="grid place-items-center w-6 h-6 rounded-[var(--ui-radius-xs)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)] transition-colors focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
-              >
-                <PanelLeftClose size={15} />
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={() => setExpanded(false)}
+              aria-label="Collapse sidebar"
+              className="grid place-items-center w-6 h-6 rounded-[var(--ui-radius-xs)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)] transition-colors focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
+            >
+              <PanelLeftClose size={15} />
+            </button>
           )}
         </div>
 
@@ -362,60 +409,79 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
         )}
 
         <nav className="flex-1 overflow-y-auto px-2 pt-1">
-          {sections.map((section) => (
-            <div key={section.label} className="mb-3">
-              {expanded ? (
-                <p className="px-2 h-6 flex items-center text-[10px] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)]">
-                  {section.label}
-                </p>
-              ) : (
-                <span className="block mx-auto w-4 h-px bg-[var(--ui-border)] my-2" aria-hidden="true" />
-              )}
-              <div className="flex flex-col gap-px">
-                {section.items.map((item) => (
-                  <NavRow
-                    key={item.label}
-                    item={item}
-                    active={isActive(item.href)}
-                    expanded={expanded}
-                    onClick={() => navigate(item.href)}
-                  />
-                ))}
-              </div>
+          {groups.map((group) => (
+            <div key={group.id} className="mb-4">
+              <GroupHeader
+                label={group.label}
+                locked={group.locked}
+                expanded={expanded}
+              />
+              {group.sections.map((section) => (
+                <div key={`${group.id}-${section.label}`} className="mb-3">
+                  {expanded && (
+                    <p className="text-[var(--ui-t-meta)] px-2 h-5 flex items-center text-[var(--ui-text-tertiary)]">
+                      {section.label}
+                    </p>
+                  )}
+                  <div className="flex flex-col gap-px">
+                    {section.items.map((item) => (
+                      <NavRow
+                        key={item.label}
+                        item={item}
+                        active={!group.locked && isActive(item.href)}
+                        expanded={expanded}
+                        locked={group.locked}
+                        onClick={() =>
+                          navigate(group.locked ? UPGRADE_HREF : item.href)
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           ))}
         </nav>
 
         <div className="shrink-0 px-2 pb-2 pt-2 border-t border-[var(--ui-border)] flex flex-col gap-px">
-          {workspace.showsExtension && <ExtensionStatus expanded={expanded} />}
+          <ExtensionStatus expanded={expanded} />
           <CreditsMeter
             expanded={expanded}
             balance={user?.creditBalance ?? 0}
-            onTopUp={() => navigate('/dashboard/settings')}
+            onTopUp={() => navigate("/dashboard/settings")}
           />
 
           <div className="h-2" />
 
-          <NavRow
-            item={{ label: 'Settings', icon: Settings, href: workspace.settings }}
-            active={isActive('/dashboard/settings')}
-            expanded={expanded}
-            onClick={() => navigate('/dashboard/settings')}
-          />
-
-          <div className={`flex items-center gap-2 h-9 mt-1 ${expanded ? 'px-2' : 'justify-center'}`}>
+          {/* Theme lives in the account row rather than in Settings.
+              It is a per-device display preference, not an account
+              setting, and burying it two pages deep is how a toggle
+              ships and nobody finds it. Collapsed, it gets its own
+              centred row so it stays reachable at 56px wide. */}
+          <div
+            className={`flex items-center gap-2 h-9 mt-1 ${expanded ? "px-2" : "justify-center"}`}
+          >
             <Avatar src={user?.profilePicture} name={user?.name} size={22} />
             {expanded && (
-              <div className="min-w-0 flex-1">
-                <p className="text-[12px] font-medium text-[var(--ui-text-primary)] truncate leading-tight">
-                  {user?.name || 'User'}
-                </p>
-                <p className="text-[11px] text-[var(--ui-text-tertiary)] truncate leading-tight">
-                  {user?.email}
-                </p>
-              </div>
+              <>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[var(--ui-t-label)] font-medium text-[var(--ui-text-primary)] truncate leading-tight">
+                    {user?.name || "User"}
+                  </p>
+                  <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] truncate leading-tight">
+                    {user?.email}
+                  </p>
+                </div>
+                <ThemeToggle expanded={false} className="shrink-0" />
+              </>
             )}
           </div>
+
+          {!expanded && (
+            <div className="flex justify-center">
+              <ThemeToggle expanded={false} />
+            </div>
+          )}
 
           {/* Quiet by default, red only on hover. A permanently red button in
               the nav treats signing out as a primary action. */}
@@ -423,11 +489,11 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
             type="button"
             onClick={handleLogout}
             className={[
-              'w-full flex items-center gap-2.5 h-8 rounded-[var(--ui-radius-sm)] text-[13px]',
-              'text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-danger-tint)] hover:text-[var(--ui-danger-fg)]',
-              'transition-colors duration-[var(--ui-dur-fast)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]',
-              expanded ? 'px-2' : 'justify-center',
-            ].join(' ')}
+              "w-full flex items-center gap-2.5 h-8 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)]",
+              "text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-danger-tint)] hover:text-[var(--ui-danger-fg)]",
+              "transition-colors duration-[var(--ui-dur-fast)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]",
+              expanded ? "px-2" : "justify-center",
+            ].join(" ")}
           >
             <LogOut size={16} className="shrink-0" aria-hidden="true" />
             {expanded && <span>Log out</span>}
@@ -436,54 +502,38 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/*
-          The top bar.
-
-          Two fixes here, both of which you can see immediately.
-
-          ALIGNMENT. The title used to sit at 16px — the shell's own
-          padding — which put it on the content card's BORDER, the one
-          thing it should never align to. Meanwhile the tab label
-          underneath landed at 39px, the search box at 29px and the
-          first column header at 69px. Five different left edges in one
-          viewport. The header now pads to --ui-content-x (29px), which
-          is shell padding + card border + card padding, so the title,
-          the first tab, the search field and the select-all checkbox
-          all sit on one vertical line.
-
-          ANCHORING. The bar had no border and the same background as
-          the canvas, so it didn't read as a bar — the title just
-          floated. A hairline underneath attaches it to the page.
-
-          The title is 17px (--ui-t-page) rather than 15px. It was
-          previously smaller and lighter than the section headings
-          inside the cards below it, which inverted the hierarchy: the
-          most important label on screen was the least prominent.
-        */}
         <header
           className="flex items-center gap-3 shrink-0 bg-[var(--ui-surface-page)] border-b border-[var(--ui-border-hairline)]"
-          style={{ height: 'var(--ui-band)', paddingInline: 'var(--ui-content-x)' }}
+          style={{
+            height: "var(--ui-band)",
+            paddingInline: "var(--ui-content-x)",
+          }}
         >
-          <div className="flex items-baseline gap-2.5 min-w-0">
+          <div className="flex items-center gap-3 min-w-0">
             {title && (
-              <h1 className="text-[17px] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] truncate">
+              <h1 className="text-[var(--ui-t-page)] font-semibold tracking-[var(--ui-track-display)] text-[var(--ui-text-primary)] truncate">
                 {title}
               </h1>
             )}
             {subtitle && (
-              <p className="text-[12px] text-[var(--ui-text-secondary)] truncate tabular-nums">
+              <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] truncate tabular-nums">
                 {subtitle}
               </p>
             )}
           </div>
           <div className="flex-1" />
           <NotificationBell />
-          {actions && <div className="flex items-center gap-1.5 shrink-0">{actions}</div>}
+          {actions && (
+            <div className="flex items-center gap-1.5 shrink-0">{actions}</div>
+          )}
         </header>
 
         <main
           className="flex-1 min-h-0 overflow-hidden"
-          style={{ padding: 'var(--ui-shell-x)', paddingTop: 'var(--ui-shell-x)' }}
+          style={{
+            padding: "var(--ui-shell-x)",
+            paddingTop: "var(--ui-shell-x)",
+          }}
         >
           <div className="h-full min-h-0 overflow-auto rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]">
             {children}

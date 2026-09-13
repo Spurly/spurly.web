@@ -42,7 +42,7 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
 }));
 
 const { renderWithProviders } = await import('./helpers.jsx');
-const { LinkedInSettingsPage } = await import('src/products/hub/settings/index.jsx');
+const { LinkedInSettingsPage } = await import('src/products/hub/pages/settings/index.jsx');
 
 const ROUTE = '/dashboard/settings/linkedin';
 

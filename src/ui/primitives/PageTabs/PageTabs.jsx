@@ -20,16 +20,16 @@ export function PageTabs({ tabs, activeTab, onTabChange }) {
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          className={`relative flex items-center gap-1.5 h-10 px-2.5 text-[13px] font-medium transition-colors ${
+          className={`relative flex items-center gap-1.5 h-10 px-2.5 text-[var(--ui-t-body)] font-medium transition-colors ${
             activeTab === tab.id
-              ? 'text-[var(--text-primary)] font-medium'
+              ? 'text-[var(--ui-text-primary)] font-medium'
               : 'text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)]'
           }`}
         >
           {tab.label}
           {tab.count !== undefined && (
             <span
-              className={`tabular-nums text-[11px] ${
+              className={`tabular-nums text-[var(--ui-t-meta)] ${
                 activeTab === tab.id
                   ? 'text-[var(--ui-text-secondary)]'
                   : 'text-[var(--ui-text-tertiary)]'

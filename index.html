@@ -20,7 +20,30 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<!--
+  Theme, stamped before first paint.
+
+  Without this the document renders in the OS/default theme for one
+  frame and then snaps to the stored choice -- a white flash on every
+  reload for a dark-mode user, which is the single most noticeable
+  bug a theme toggle can ship with.
+
+  Mirrors ui/theme/ThemeProvider.jsx deliberately, including the part
+  that looks like an omission: 'system' writes NO attribute, because
+  tokens.css pairs @media (prefers-color-scheme: dark) with
+  :root:not([data-theme="light"]). The un-stamped document is what
+  lets the OS preference through. Keep the two in step.
+-->
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('spurly.theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) { /* private window: fall through to the OS preference */ }
+  })();
+</script>
 </head>
 <body>
 <div id="root"></div>

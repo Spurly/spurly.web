@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { postAuthDestination } from 'src/platform/auth/postAuthDestination.js';
-import InstallExtensionPage from 'src/platform/auth/InstallExtensionPage.jsx';
+import { postAuthDestination } from 'src/platform/pages/auth/postAuthDestination.js';
+import InstallExtensionPage from 'src/platform/pages/auth/InstallExtensionPage.jsx';
 
 /**
  * Both halves of "you can always get back to the app".

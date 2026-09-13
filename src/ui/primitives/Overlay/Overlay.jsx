@@ -55,13 +55,21 @@ export function Overlay({
     center: 'items-center justify-center p-4',
     right: 'items-stretch justify-end',
     left: 'items-stretch justify-start',
+    /* The Dock. Anchored to the bottom edge and centred horizontally, so the
+       panel rises from where its pill was parked rather than arriving from
+       nowhere. */
+    bottom: 'items-end justify-center',
   }[align];
 
   return createPortal(
     <div
       onMouseDown={handleBackdropMouseDown}
       onClick={handleBackdropClick}
-      className={`fixed inset-0 flex bg-[rgba(24,24,27,0.32)] ${alignment} ${className}`}
+      /* --ui-scrim rather than a literal: the old rgba was mixed against a
+         white canvas and sits almost invisibly on the dark one. A hardcoded
+         colour beside a tokenised surface is the same pairing that produced
+         the white-on-white bug in /admin. */
+      className={`fixed inset-0 flex bg-[var(--ui-scrim)] ${alignment} ${className}`}
       style={{ zIndex: 'var(--ui-z-modal)' }}
     >
       <div
