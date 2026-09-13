@@ -1,6 +1,6 @@
 import { Send, AlertCircle, SkipForward } from 'lucide-react';
 import { Skeleton } from 'src/ui/primitives';
-import { useOutreachTimeline } from '../hooks/useOutreachTimeline';
+import { useOutreachTimeline } from 'src/platform/outreach/hooks/useOutreachTimeline';
 import { absoluteTime, relativeTime, OUTREACH_TYPE_LABEL } from 'src/shared/utils/outreach';
 
 /**
