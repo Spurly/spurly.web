@@ -6,10 +6,11 @@ import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 /**
  * What a subscriber without hub sees where the hub would be.
  *
- * The workspace stays in the switcher for exactly this page's sake. A lower
- * tier seeing the upper tier daily, in context, while they work is the whole
- * argument for one app rather than two - so the lock has to lead somewhere
- * that explains itself, not to a disabled control that teaches nothing.
+ * Every Hub row stays in the sidebar, locked, for exactly this page's sake. A
+ * lower tier seeing the upper tier daily, in context, while they work is the
+ * whole argument for one grouped sidebar rather than two workspaces behind a
+ * switch - so the lock has to lead somewhere that explains itself, not to a
+ * disabled control that teaches nothing.
  *
  * It says what the product does and how to get it. It does NOT quote a price:
  * there is one price in the billing code today and hub is not sold from this

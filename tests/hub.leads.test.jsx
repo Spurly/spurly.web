@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
@@ -156,7 +156,14 @@ describe('hub leads', () => {
     );
 
     expect(await screen.findByText(/that's a profile, not a search/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^import$/i })).toBeDisabled();
+    // The sidebar now shows Capture's own "Import" nav row at the same time
+    // (both product groups render together since the switcher was removed),
+    // so an unscoped query is ambiguous. The dock's Import button is not
+    // inside the <nav> landmark, so exclude whichever match is.
+    const nav = screen.getByRole('navigation');
+    const importButtons = screen.getAllByRole('button', { name: /^import$/i });
+    const dockImportButton = importButtons.find((btn) => !nav.contains(btn));
+    expect(dockImportButton).toBeDisabled();
   });
 
   it('/hub lands on leads rather than 404ing', async () => {
@@ -259,12 +266,16 @@ describe('hub leads', () => {
     expect(screen.queryByText('4,211')).not.toBeInTheDocument();
   });
 
-  it('offers the workspace switcher, with both workspaces named', async () => {
+  it('shows both product groups in the sidebar at once, no switcher', async () => {
+    // The workspace switcher (a dropdown that swapped the whole nav tree) is
+    // gone — replaced by one grouped sidebar. Both group headers, and a row
+    // unique to each product, are on screen together without any click.
     renderAt('/hub/leads');
-    const trigger = await screen.findByRole('button', { name: /switch workspace/i });
-    await userEvent.click(trigger);
-    expect(screen.getByRole('menuitem', { name: /Hub/ })).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: /Capture/ })).toBeInTheDocument();
+    const nav = await screen.findByRole('navigation');
+    expect(within(nav).getByText('Capture')).toBeInTheDocument();
+    expect(within(nav).getByText('Hub')).toBeInTheDocument();
+    expect(within(nav).getByText('Contacts')).toBeInTheDocument(); // Capture-only row
+    expect(within(nav).getByText('Sequences')).toBeInTheDocument(); // Hub-only row
   });
 });
 
