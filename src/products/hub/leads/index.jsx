@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader2, Play, Trash2, AlertTriangle, Linkedin, Send, Search } from 'lucide-react';
+import { Linkedin, Send, Search } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { DataTable } from 'src/platform/DataTable';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
-import { Button, Badge, Dock, useToast, useConfirm } from 'src/ui/primitives';
+import { Button, Dock, Tag, useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import { hubSourcingApi } from './api.js';
 import { hubCampaignsApi } from 'src/products/hub/campaigns/api.js';
@@ -12,6 +12,8 @@ import { hubSequencesApi } from 'src/products/hub/sequences/api.js';
 import { hubLeadColumns } from './columns.jsx';
 import { LeadDrawer } from './LeadDrawer.jsx';
 import { AudienceForm } from './AudienceForm.jsx';
+import { AudienceList, ImportStrip } from './AudienceList.jsx';
+import { isBusy } from './audience.js';
 
 /**
  * Hub leads — paste a LinkedIn search, get an audience.
@@ -28,109 +30,6 @@ import { AudienceForm } from './AudienceForm.jsx';
 
 const PAGE_SIZE = 50;
 const POLL_MS = 5000;
-
-const STATUS_VIEW = {
-  queued: { label: 'Queued', tone: 'neutral', detail: 'Waiting for the importer. Starts within a minute.' },
-  running: { label: 'Importing', tone: 'info', detail: 'Reading results from LinkedIn.' },
-  done: { label: 'Imported', tone: 'success', detail: 'Everything LinkedIn returned is in.' },
-  failed: { label: 'Failed', tone: 'danger', detail: 'Stopped before finishing.' },
-};
-
-const isBusy = (s) => s?.status === 'queued' || s?.status === 'running';
-
-/**
- * PHASE 8 — a structured search has no `searchUrl` to show, so this builds
- * the same kind of one-line summary out of whichever filters were set.
- * Deliberately terse (titles only, first couple of filters) — the row is a
- * list item, not the place to re-render the whole filter form.
- */
-function describeSearch(search) {
-  if (search.mode !== 'structured') return search.searchUrl;
-  const f = search.filters || {};
-  const parts = [];
-  if (f.keywords) parts.push(`"${f.keywords}"`);
-  if (f.location?.length) parts.push(`${f.location.length} location${f.location.length > 1 ? 's' : ''}`);
-  if (f.industry?.length) parts.push(`${f.industry.length} industr${f.industry.length > 1 ? 'ies' : 'y'}`);
-  if (f.company?.length) parts.push(`${f.company.length} compan${f.company.length > 1 ? 'ies' : 'y'}`);
-  if (f.past_company?.length) parts.push('past company');
-  if (f.school?.length) parts.push('school');
-  if (f.network_distance?.length) parts.push(`${f.network_distance.length}° connection${f.network_distance.length > 1 ? 's' : ''}`);
-  if (f.advanced_keywords?.title) parts.push(`title: ${f.advanced_keywords.title}`);
-  return parts.length > 0 ? parts.join(' · ') : 'Structured search';
-}
-
-/** A saved audience, its progress, and the two things you can do to it. */
-function SearchRow({ search, active, onSelect, onRun, onDelete, busy }) {
-  const view = STATUS_VIEW[search.status] ?? STATUS_VIEW.queued;
-
-  return (
-    <div
-      className={[
-        'flex items-center gap-3 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--ui-border-hairline)] last:border-b-0',
-        active ? 'bg-[var(--ui-accent-tint)]' : '',
-      ].join(' ')}
-    >
-      {/* A whole-row toggle rather than a control: it spans the row so the
-          filter target is the thing you are looking at. Kept as a button, not a
-          div with onClick, because it must stay keyboard-reachable. */}
-      {/* eslint-disable-next-line no-restricted-syntax */}
-      <button
-        type="button"
-        onClick={() => onSelect(active ? null : search._id)}
-        className="flex-1 min-w-0 text-left focus:outline-none focus-visible:underline"
-        aria-pressed={active}
-      >
-        <span className="block text-[var(--ui-t-body)] text-[var(--ui-text-primary)] truncate">
-          {search.name || 'Untitled audience'}
-        </span>
-        <span className="block text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] truncate">{describeSearch(search)}</span>
-      </button>
-
-      <span className="text-[var(--ui-t-label)] tabular-nums text-[var(--ui-text-secondary)] shrink-0">
-        {search.importedCount?.toLocaleString() ?? 0} imported
-      </span>
-
-      <Badge tone={view.tone} title={view.detail}>
-        <span className="inline-flex items-center gap-1">
-          {isBusy(search) && <Loader2 size={11} className="animate-spin" aria-hidden="true" />}
-          {view.label}
-        </span>
-      </Badge>
-
-      <div className="flex items-center gap-1 shrink-0">
-        <Button
-          size="sm"
-          variant="ghost"
-          disabled={busy || isBusy(search)}
-          onClick={() => onRun(search)}
-          title={search.status === 'done' ? 'Check for people who have appeared since' : 'Resume this import'}
-        >
-          <Play size={13} />
-        </Button>
-        <Button size="sm" variant="ghost" disabled={busy} onClick={() => onDelete(search)} title="Remove this audience">
-          <Trash2 size={13} />
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Shown when an import stopped early rather than running out of people.
- *
- * The backend can tell the two apart — an empty page that still carries a
- * cursor is LinkedIn declining, not an exhausted audience — and saying
- * "imported 240" without this would be a number the user plans around.
- */
-function StoppedShortNotice({ search }) {
-  if (!search?.error) return null;
-  return (
-    <div className="flex items-start gap-2 px-[var(--ui-pad-lg)] py-3 bg-[var(--ui-warning-tint)] border-b border-[var(--ui-border-hairline)]">
-      <AlertTriangle size={14} className="mt-0.5 shrink-0" style={{ color: 'var(--ui-warning)' }} aria-hidden="true" />
-      <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">{search.error}</p>
-    </div>
-  );
-}
 
 export function HubLeadsPage() {
   const [searches, setSearches] = useState([]);
@@ -379,7 +278,10 @@ export function HubLeadsPage() {
   return (
     <DashboardLayout
       title="Leads"
-      subtitle="Paste a LinkedIn search, or build one from filters, and Spurly builds the audience for you."
+      subtitle={
+        `${pagination.total.toLocaleString()} ${pagination.total === 1 ? 'person' : 'people'}` +
+        (searches.length ? ` · ${searches.length} ${searches.length === 1 ? 'audience' : 'audiences'}` : '')
+      }
     >
       <div className="flex flex-col gap-4 pb-20">
         {/*
@@ -414,21 +316,36 @@ export function HubLeadsPage() {
           </SectionCard>
         )}
 
-        {searches.length > 0 && (
-          <SectionCard title="Audiences" noPadding>
-            <StoppedShortNotice search={activeSearch} />
-            {searches.map((search) => (
-              <SearchRow
-                key={search._id}
-                search={search}
-                active={search._id === activeSearchId}
-                onSelect={setActiveSearchId}
-                onRun={runSearch}
-                onDelete={deleteSearch}
-                busy={submitting}
-              />
-            ))}
-          </SectionCard>
+        {/*
+          * What is left of the Audiences card, and why.
+          *
+          * The card was doing four jobs at once — filtering the table,
+          * reporting progress, managing the audience, and surfacing the
+          * stopped-short error — from a permanent box sitting between the page
+          * header and the thing you came to look at.
+          *
+          * Only progress earns a permanent place: an import runs for minutes
+          * and somebody is waiting on it, so hiding it behind a closed panel
+          * would be worse than the card was. ImportStrip exists exactly while
+          * something is running and then disappears, rather than taking up
+          * space to report that nothing is happening.
+          *
+          * The filter is one chip. Management moved into the dock.
+          */}
+        <ImportStrip searches={searches} />
+
+        {activeSearch && (
+          <div className="flex items-center gap-2">
+            <span className="ui-micro">Filtered by</span>
+            <Tag
+              tone="accent"
+              removable
+              onRemove={() => setActiveSearchId(null)}
+              title={activeSearch.name || 'Untitled audience'}
+            >
+              {activeSearch.name || 'Untitled audience'}
+            </Tag>
+          </div>
         )}
 
         <DataTable
@@ -491,15 +408,31 @@ export function HubLeadsPage() {
           only from inside an empty state that disappears the moment one lead
           arrives. */}
       <Dock
-        label="Build an audience"
+        label="Audiences"
         icon={<Search size={16} />}
         badge={
           searches.length > 0
-            ? <Badge tone="neutral">{searches.length} saved</Badge>
+            ? <Tag tone="accent">{searches.length} saved</Tag>
             : null
         }
         disabled={needsAccount}
       >
+        <AudienceList
+          searches={searches}
+          activeSearchId={activeSearchId}
+          onSelect={setActiveSearchId}
+          onRun={runSearch}
+          onDelete={deleteSearch}
+          busy={submitting}
+        />
+
+        <div
+          className="flex items-center gap-3 px-[var(--ui-pad-lg)] border-y border-[var(--ui-border-hairline)] bg-[var(--ui-surface-sunken)]"
+          style={{ height: 'var(--ui-band)' }}
+        >
+          <span className="text-[var(--ui-t-section)] font-semibold">Build a new one</span>
+        </div>
+
         <AudienceForm onSubmit={createAudience} submitting={submitting} />
       </Dock>
 

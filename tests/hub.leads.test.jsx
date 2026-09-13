@@ -90,19 +90,19 @@ afterEach(() => {
 });
 
 describe('hub leads', () => {
-  it('resolves the lazy hub chunk and parks the audience dock', async () => {
+  it('resolves the lazy hub chunk and parks the audiences dock', async () => {
     renderAt('/hub/leads');
     // The chunk resolving is the point; the dock pill is the cheapest proof
     // that this page's own code ran, rather than a shell that rendered with a
     // failed lazy import behind it.
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: /build an audience/i })).toBeInTheDocument(),
+      expect(screen.getByRole('button', { name: /^audiences/i })).toBeInTheDocument(),
     );
   });
 
   it('keeps the import form in the dock until it is asked for, and closes on Escape', async () => {
     renderAt('/hub/leads');
-    const pill = await screen.findByRole('button', { name: /build an audience/i });
+    const pill = await screen.findByRole('button', { name: /^audiences/i });
 
     // Closed is the resting state. A form permanently occupying the top of the
     // page was the thing the dock replaced, so a regression that renders it
@@ -130,7 +130,7 @@ describe('hub leads', () => {
      * form that looks more capable and fails on submit.
      */
     renderAt('/hub/leads');
-    await userEvent.click(await screen.findByRole('button', { name: /build an audience/i }));
+    await userEvent.click(await screen.findByRole('button', { name: /^audiences/i }));
 
     const location = screen.getByPlaceholderText(/search a city or region/i);
     expect(location).not.toBeDisabled();
@@ -148,7 +148,7 @@ describe('hub leads', () => {
     // The mistake people actually make. It used to fail deep in the importer,
     // minutes later, as a generic failure.
     renderAt('/hub/leads');
-    await userEvent.click(await screen.findByRole('button', { name: /build an audience/i }));
+    await userEvent.click(await screen.findByRole('button', { name: /^audiences/i }));
 
     await userEvent.type(
       screen.getByPlaceholderText(/linkedin\.com\/search\/results/i),
@@ -165,16 +165,35 @@ describe('hub leads', () => {
   });
 
   it('reports progress as a running count, with no percentage anywhere', async () => {
+    /**
+     * The count is on the page, not in the dock. Management moved behind a
+     * panel; progress did not, because an import runs for minutes and somebody
+     * is waiting on it — hiding that behind a control they have to open would
+     * be worse than the permanent card it replaced.
+     */
     searches = [
       { _id: 's1', name: 'Sales heads', searchUrl: 'https://www.linkedin.com/search/results/people/', status: 'running', importedCount: 412 },
     ];
 
     renderAt('/hub/leads');
 
-    await waitFor(() => expect(screen.getByText(/412 imported/i)).toBeInTheDocument());
-    expect(screen.getByText('Importing')).toBeInTheDocument();
+    // Visible without opening anything.
+    await waitFor(() => expect(screen.getByText(/412/)).toBeInTheDocument());
+    expect(screen.getByText(/so far/i)).toBeInTheDocument();
     expect(screen.queryByText(/%/)).not.toBeInTheDocument();
     expect(document.querySelector('progress')).toBeNull();
+  });
+
+  it('hides the import strip entirely when nothing is running', async () => {
+    // It reports a fact or it is not there. A strip that permanently says
+    // "nothing is importing" is the card this replaced.
+    searches = [
+      { _id: 's1', name: 'Sales heads', searchUrl: 'https://www.linkedin.com/search/results/people/', status: 'done', importedCount: 412 },
+    ];
+
+    renderAt('/hub/leads');
+    await screen.findByText('Asha Menon');
+    expect(screen.queryByText(/so far/i)).not.toBeInTheDocument();
   });
 
   it('says an import stopped short instead of reporting it complete', async () => {
@@ -194,6 +213,7 @@ describe('hub leads', () => {
 
     renderAt('/hub/leads');
 
+    await userEvent.click(await screen.findByRole('button', { name: /^audiences/i }));
     const row = await screen.findByText('Sales heads');
     await userEvent.click(row);
     await waitFor(() => expect(screen.getByText(/stopped returning results/i)).toBeInTheDocument());
