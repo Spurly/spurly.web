@@ -195,31 +195,31 @@ export function UploadPanel({ onStaged }) {
     return (
       <div
         className="flex flex-col items-center text-center gap-4 py-14 px-[var(--ui-pad-lg)] rounded-[var(--ui-radius-lg)]"
-        style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}
+        style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
       >
         <div
           className="w-14 h-14 rounded-full grid place-items-center"
-          style={{ background: 'var(--green-tint)' }}
+          style={{ background: 'var(--ui-success-tint)' }}
         >
-          <CheckCircle size={28} style={{ color: 'var(--green)' }} />
+          <CheckCircle size={28} style={{ color: 'var(--ui-success)' }} />
         </div>
         <div>
-          <h2 className="text-[17px] font-medium text-[var(--text-primary)] tracking-[-0.012em]">
+          <h2 className="text-[17px] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em]">
             Import complete
           </h2>
-          <p className="text-[14px] text-[var(--text-secondary)] mt-1.5">
+          <p className="text-[14px] text-[var(--ui-text-secondary)] mt-1.5">
             Staged <span className="font-medium">{result.savedCount}</span> lead
             {result.savedCount === 1 ? '' : 's'}.
             {result.failedCount > 0 && (
               <>
                 {' '}
-                <span style={{ color: 'var(--red)' }}>
+                <span style={{ color: 'var(--ui-danger)' }}>
                   {result.failedCount} skipped (missing URL).
                 </span>
               </>
             )}
           </p>
-          <p className="text-[13px] text-[var(--text-tertiary)] mt-2 max-w-sm">
+          <p className="text-[13px] text-[var(--ui-text-tertiary)] mt-2 max-w-sm">
             Next: enrich them to pull in emails, headlines and experience — then move
             the ones you want into Contacts.
           </p>
@@ -246,19 +246,19 @@ export function UploadPanel({ onStaged }) {
       {error && (
         <div
           className="relative flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
-          style={{ background: 'var(--red-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
+          style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
         >
-          <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--red)' }} />
+          <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
           <div className="flex-1 min-w-0 pr-6">
-            <p className="text-[13px] font-medium" style={{ color: 'var(--red)' }}>
+            <p className="text-[13px] font-medium" style={{ color: 'var(--ui-danger)' }}>
               {error.title}
             </p>
-            <p className="text-[13px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-[13px] mt-0.5" style={{ color: 'var(--ui-text-secondary)' }}>
               {error.detail}
             </p>
             {error.columns?.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
-                <span className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>
+                <span className="text-[12px]" style={{ color: 'var(--ui-text-tertiary)' }}>
                   Columns in your file:
                 </span>
                 {error.columns.map((col, i) => (
@@ -266,9 +266,9 @@ export function UploadPanel({ onStaged }) {
                     key={i}
                     className="text-[11px] font-mono px-1.5 py-0.5 rounded-[var(--ui-radius-sm)]"
                     style={{
-                      background: 'var(--surface-sunken)',
-                      color: 'var(--text-secondary)',
-                      border: '1px solid var(--border-hairline)',
+                      background: 'var(--ui-surface-sunken)',
+                      color: 'var(--ui-text-secondary)',
+                      border: '1px solid var(--ui-border-hairline)',
                     }}
                   >
                     {col || '(blank)'}
@@ -279,7 +279,7 @@ export function UploadPanel({ onStaged }) {
           </div>
           <button
             onClick={() => setError(null)}
-            className="absolute top-3 right-3 w-6 h-6 grid place-items-center rounded-[var(--ui-radius-sm)] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
+            className="absolute top-3 right-3 w-6 h-6 grid place-items-center rounded-[var(--ui-radius-sm)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-hover)] hover:text-[var(--ui-text-primary)] transition-colors"
           >
             <X size={14} />
           </button>
@@ -298,8 +298,8 @@ export function UploadPanel({ onStaged }) {
             onDrop={onDrop}
             className="flex flex-col items-center justify-center gap-3 py-16 px-[var(--ui-pad-lg)] rounded-[var(--ui-radius-lg)] cursor-pointer transition-colors"
             style={{
-              background: dragActive ? 'var(--accent-tint)' : 'var(--surface-card)',
-              border: `1.5px dashed ${dragActive ? 'var(--brand-purple)' : 'var(--border-default)'}`,
+              background: dragActive ? 'var(--ui-accent-tint)' : 'var(--ui-surface-card)',
+              border: `1.5px dashed ${dragActive ? 'var(--ui-accent)' : 'var(--ui-border)'}`,
             }}
           >
             <input
@@ -311,15 +311,15 @@ export function UploadPanel({ onStaged }) {
             />
             <div
               className="w-14 h-14 rounded-[var(--ui-radius-lg)] grid place-items-center"
-              style={{ background: 'var(--accent-tint)' }}
+              style={{ background: 'var(--ui-accent-tint)' }}
             >
-              <UploadCloud size={26} style={{ color: 'var(--brand-purple)' }} />
+              <UploadCloud size={26} style={{ color: 'var(--ui-accent)' }} />
             </div>
             <div className="text-center">
-              <p className="text-[14px] font-medium text-[var(--text-primary)]">
-                Drop a CSV here, or <span style={{ color: 'var(--brand-purple)' }}>browse</span>
+              <p className="text-[14px] font-medium text-[var(--ui-text-primary)]">
+                Drop a CSV here, or <span style={{ color: 'var(--ui-accent)' }}>browse</span>
               </p>
-              <p className="text-[13px] text-[var(--text-secondary)] mt-1">
+              <p className="text-[13px] text-[var(--ui-text-secondary)] mt-1">
                 Any column names work — you’ll match them to Spurly fields in the next step.
               </p>
             </div>
@@ -327,21 +327,21 @@ export function UploadPanel({ onStaged }) {
 
           <div
             className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
-            style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}
+            style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
           >
-            <SlidersHorizontal size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--text-tertiary)' }} />
-            <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
-              <span className="font-medium text-[var(--text-primary)]">Field mapping:</span> your
+            <SlidersHorizontal size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-text-tertiary)' }} />
+            <div className="text-[13px] text-[var(--ui-text-secondary)] leading-relaxed">
+              <span className="font-medium text-[var(--ui-text-primary)]">Field mapping:</span> your
               file needs a LinkedIn profile URL and a name — but they can be called anything
               (“Person Linkedin Url”, “Full Name”, separate first/last name columns). We match the
               headers we recognise automatically and you confirm or change them before importing.{' '}
-              <span className="font-medium text-[var(--text-primary)]">Job title</span>,{' '}
-              <span className="font-medium text-[var(--text-primary)]">company</span>,{' '}
-              <span className="font-medium text-[var(--text-primary)]">location</span>,{' '}
-              <span className="font-medium text-[var(--text-primary)]">headline</span>,{' '}
-              <span className="font-medium text-[var(--text-primary)]">email</span>,{' '}
-              <span className="font-medium text-[var(--text-primary)]">phone</span> and{' '}
-              <span className="font-medium text-[var(--text-primary)]">website</span> are imported
+              <span className="font-medium text-[var(--ui-text-primary)]">Job title</span>,{' '}
+              <span className="font-medium text-[var(--ui-text-primary)]">company</span>,{' '}
+              <span className="font-medium text-[var(--ui-text-primary)]">location</span>,{' '}
+              <span className="font-medium text-[var(--ui-text-primary)]">headline</span>,{' '}
+              <span className="font-medium text-[var(--ui-text-primary)]">email</span>,{' '}
+              <span className="font-medium text-[var(--ui-text-primary)]">phone</span> and{' '}
+              <span className="font-medium text-[var(--ui-text-primary)]">website</span> are imported
               when you map them. A CSV exported from Spurly maps itself.
             </div>
           </div>
@@ -368,13 +368,13 @@ export function UploadPanel({ onStaged }) {
         <>
           <div
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-[var(--ui-pad-lg)] py-4 rounded-[var(--ui-radius-lg)]"
-            style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}
+            style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
           >
-            <p className="text-[14px] text-[var(--text-secondary)]">
+            <p className="text-[14px] text-[var(--ui-text-secondary)]">
               Ready to stage{' '}
-              <span className="font-medium text-[var(--text-primary)]">{profileCount}</span> lead
+              <span className="font-medium text-[var(--ui-text-primary)]">{profileCount}</span> lead
               {profileCount === 1 ? '' : 's'}.{' '}
-              <span style={{ color: 'var(--text-tertiary)' }}>
+              <span style={{ color: 'var(--ui-text-tertiary)' }}>
                 Importing is free — you’re only charged when you enrich or move them to Contacts.
               </span>
             </p>
@@ -393,13 +393,13 @@ export function UploadPanel({ onStaged }) {
           </div>
 
           <div className="flex items-center gap-2 text-[13px] px-1 -mt-2">
-            <FileText size={14} style={{ color: 'var(--text-tertiary)' }} />
-            <span className="text-[var(--text-secondary)]">
-              <span className="font-medium text-[var(--text-primary)]">{fileName}</span>
+            <FileText size={14} style={{ color: 'var(--ui-text-tertiary)' }} />
+            <span className="text-[var(--ui-text-secondary)]">
+              <span className="font-medium text-[var(--ui-text-primary)]">{fileName}</span>
               {' · '}
               {profileCount} valid lead{profileCount === 1 ? '' : 's'}
               {skipSummary && (
-                <span style={{ color: 'var(--text-tertiary)' }}>
+                <span style={{ color: 'var(--ui-text-tertiary)' }}>
                   {' · '}
                   skipped {skipSummary}
                 </span>
@@ -410,11 +410,11 @@ export function UploadPanel({ onStaged }) {
           {overLimit && (
             <div
               className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
-              style={{ background: 'var(--red-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
+              style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
             >
-              <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--red)' }} />
-              <div className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>
-                <p className="font-medium" style={{ color: 'var(--red)' }}>
+              <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
+              <div className="text-[13px]" style={{ color: 'var(--ui-text-secondary)' }}>
+                <p className="font-medium" style={{ color: 'var(--ui-danger)' }}>
                   This file is too big for one import
                 </p>
                 <p className="mt-0.5">
@@ -429,11 +429,11 @@ export function UploadPanel({ onStaged }) {
           {profileCount === 0 && (
             <div
               className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
-              style={{ background: 'var(--red-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
+              style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
             >
-              <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--red)' }} />
-              <div className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>
-                <p className="font-medium" style={{ color: 'var(--red)' }}>
+              <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
+              <div className="text-[13px]" style={{ color: 'var(--ui-text-secondary)' }}>
+                <p className="font-medium" style={{ color: 'var(--ui-danger)' }}>
                   No rows can be imported with this mapping
                 </p>
                 <p className="mt-0.5">
@@ -444,7 +444,7 @@ export function UploadPanel({ onStaged }) {
             </div>
           )}
 
-          <div className="rounded-[var(--ui-radius-lg)] overflow-hidden" style={{ border: '1px solid var(--border-hairline)' }}>
+          <div className="rounded-[var(--ui-radius-lg)] overflow-hidden" style={{ border: '1px solid var(--ui-border-hairline)' }}>
             <DataTable
               columns={previewColumns}
               data={extracted.profiles}

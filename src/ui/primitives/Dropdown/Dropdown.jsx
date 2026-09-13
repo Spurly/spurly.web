@@ -93,29 +93,29 @@ export function Dropdown({
       <button
         type="button"
         id={id}
-        className={`w-full h-11 ${icon ? 'pl-10' : 'pl-4'} pr-10 bg-[var(--surface-sunken)] border rounded-[var(--ui-radius-lg)] text-[14px] text-left tracking-[-0.006em] focus:outline-none transition-colors flex items-center ${
+        className={`w-full h-11 ${icon ? 'pl-10' : 'pl-4'} pr-10 bg-[var(--ui-surface-sunken)] border rounded-[var(--ui-radius-lg)] text-[14px] text-left tracking-[-0.006em] focus:outline-none transition-colors flex items-center ${
           error
-            ? 'border-[var(--red)] focus:shadow-[0_0_0_3px_rgba(255,69,58,0.18)]'
+            ? 'border-[var(--ui-danger)] focus:shadow-[0_0_0_3px_rgba(255,69,58,0.18)]'
             : open
-              ? 'border-[var(--accent)] shadow-[0_0_0_3px_var(--focus-ring)]'
-              : 'border-[var(--border-default)] hover:border-[var(--border-strong)]'
-        } ${value ? 'text-[var(--text-primary)]' : 'text-[var(--text-tertiary)]'}`}
+              ? 'border-[var(--ui-accent)] shadow-[0_0_0_3px_var(--ui-accent-tint-strong)]'
+              : 'border-[var(--ui-border)] hover:border-[var(--ui-border-strong)]'
+        } ${value ? 'text-[var(--ui-text-primary)]' : 'text-[var(--ui-text-tertiary)]'}`}
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="listbox"
       >
         {icon && (
-          <span className={`absolute left-3 top-1/2 -translate-y-1/2 grid place-items-center transition-colors ${open ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)]'}`}>
+          <span className={`absolute left-3 top-1/2 -translate-y-1/2 grid place-items-center transition-colors ${open ? 'text-[var(--ui-accent-fg)]' : 'text-[var(--ui-text-tertiary)]'}`}>
             {icon}
           </span>
         )}
         <span className="flex-1 truncate">{selectedLabel || placeholder}</span>
-        <span className={`absolute right-3 top-1/2 -translate-y-1/2 grid place-items-center transition-transform ${open ? 'rotate-180 text-[var(--accent)]' : 'text-[var(--text-tertiary)]'}`}>
+        <span className={`absolute right-3 top-1/2 -translate-y-1/2 grid place-items-center transition-transform ${open ? 'rotate-180 text-[var(--ui-accent-fg)]' : 'text-[var(--ui-text-tertiary)]'}`}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
         </span>
       </button>
       {open && (
-        <ul className="absolute top-[calc(100%+6px)] left-0 right-0 z-50 bg-[var(--surface-card)] border border-[var(--border-default)] rounded-[var(--ui-radius-lg)] p-1.5 shadow-[0_12px_36px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.06)] max-h-[240px] overflow-y-auto animate-[fadeSlideDown_0.15s_ease]" role="listbox">
+        <ul className="absolute top-[calc(100%+6px)] left-0 right-0 z-50 bg-[var(--ui-surface-card)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] p-1.5 shadow-[0_12px_36px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.06)] max-h-[240px] overflow-y-auto animate-[fadeSlideDown_0.15s_ease]" role="listbox">
           {options.map(([val, label]) => (
             <li
               key={val}
@@ -127,7 +127,7 @@ export function Dropdown({
                      stopped using two redesigns ago. Now the standard stateful
                      selected treatment — accent tint, accent text. */
                   ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-medium'
-                  : 'text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
+                  : 'text-[var(--ui-text-primary)] hover:bg-[var(--ui-surface-hover)]'
               }`}
               role="option"
               aria-selected={val === value}

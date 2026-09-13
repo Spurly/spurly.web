@@ -59,7 +59,7 @@ function SenderDownBanner({ sender }) {
 
   return (
     <div
-      className="flex items-start gap-2 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--separator)]"
+      className="flex items-start gap-2 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--ui-border-hairline)]"
       style={{ background: 'var(--ui-warning-tint)' }}
     >
       <AlertTriangle size={14} className="mt-0.5 shrink-0" style={{ color: 'var(--ui-warning-fg)' }} aria-hidden="true" />
@@ -69,7 +69,7 @@ function SenderDownBanner({ sender }) {
           {sender.lastRunAt ? ` since ${sinceLabel(sender.lastRunAt)}` : ' yet'}.
           No invitations are going out.
         </p>
-        <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">
+        <p className="text-[11px] text-[var(--ui-text-tertiary)] mt-0.5">
           The scheduled sender checks in every minute. If this persists, it is not running.
         </p>
       </div>
@@ -86,15 +86,15 @@ function PacingBanner({ campaign, pacing, sender }) {
   const sending = pacing.ok;
   return (
     <div
-      className="flex items-start gap-2 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--separator)]"
+      className="flex items-start gap-2 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--ui-border-hairline)]"
       style={{ background: sending ? 'var(--ui-success-tint)' : 'var(--ui-surface-sunken)' }}
     >
-      <Clock size={14} className="mt-0.5 shrink-0 text-[var(--text-tertiary)]" aria-hidden="true" />
+      <Clock size={14} className="mt-0.5 shrink-0 text-[var(--ui-text-tertiary)]" aria-hidden="true" />
       <div className="min-w-0">
-        <p className="text-[12px] text-[var(--text-primary)]">
+        <p className="text-[12px] text-[var(--ui-text-primary)]">
           {sending ? 'Sending now, a few at a time.' : pacing.message}
         </p>
-        <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">
+        <p className="text-[11px] text-[var(--ui-text-tertiary)] mt-0.5">
           {pacing.window.startHour}:00–{pacing.window.endHour}:00 {pacing.timezone.replace('_', ' ')} ·
           {' '}up to {pacing.hourlyCap}/hour ·
           {' '}{pacing.weekUsed} of {pacing.weeklyLimit} invitations used this week
@@ -108,7 +108,7 @@ function PacingBanner({ campaign, pacing, sender }) {
             deliberately idle and one that nothing is serving look identical
             without it. */}
         {sender?.lastRunAt && (
-          <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">
+          <p className="text-[11px] text-[var(--ui-text-tertiary)] mt-0.5">
             Sender last checked in {sinceLabel(sender.lastRunAt)}.
           </p>
         )}
@@ -142,10 +142,10 @@ function NoteEditor({ campaign, account, onSave, saving }) {
   if (locked) {
     return (
       <div className="px-[var(--ui-pad-lg)] py-4 flex items-start gap-3">
-        <Lock size={14} className="mt-0.5 shrink-0 text-[var(--text-tertiary)]" aria-hidden="true" />
+        <Lock size={14} className="mt-0.5 shrink-0 text-[var(--ui-text-tertiary)]" aria-hidden="true" />
         <div>
-          <p className="text-[13px] text-[var(--text-primary)]">This campaign sends a plain connection request.</p>
-          <p className="text-[12px] text-[var(--text-secondary)] mt-0.5">
+          <p className="text-[13px] text-[var(--ui-text-primary)]">This campaign sends a plain connection request.</p>
+          <p className="text-[12px] text-[var(--ui-text-secondary)] mt-0.5">
             Notes need LinkedIn Premium. On a free account LinkedIn drops the note after about five
             invitations a month without saying so, so Spurly does not offer one rather than let a
             campaign quietly stop personalising halfway through.
@@ -165,10 +165,10 @@ function NoteEditor({ campaign, account, onSave, saving }) {
         onChange={(e) => setValue(e.target.value)}
         aria-label="Connection note"
         placeholder="Say why you are reaching out…"
-        className="w-full text-[13px] rounded-[var(--ui-radius-md)] border border-[var(--separator)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--text-primary)] disabled:opacity-60"
+        className="w-full text-[13px] rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-text-primary)] disabled:opacity-60"
       />
       <div className="flex items-center justify-between">
-        <span className="text-[11px] text-[var(--text-tertiary)]">
+        <span className="text-[11px] text-[var(--ui-text-tertiary)]">
           {running
             ? 'Pause the campaign to change the note — the people already invited were sent the old one.'
             : `${value.length}/${cap} characters`}
@@ -264,7 +264,7 @@ export function CampaignDetailPage() {
   if (loading && !campaign) {
     return (
       <DashboardLayout title="Campaign">
-        <p className="text-[13px] text-[var(--text-tertiary)]">Loading…</p>
+        <p className="text-[13px] text-[var(--ui-text-tertiary)]">Loading…</p>
       </DashboardLayout>
     );
   }
@@ -272,7 +272,7 @@ export function CampaignDetailPage() {
   if (!campaign) {
     return (
       <DashboardLayout title="Campaign">
-        <p className="text-[13px] text-[var(--text-secondary)]">
+        <p className="text-[13px] text-[var(--ui-text-secondary)]">
           That campaign is not here. <Link to="/hub/campaigns" className="underline">Back to campaigns</Link>
         </p>
       </DashboardLayout>
@@ -326,7 +326,7 @@ export function CampaignDetailPage() {
       }
     >
       <div className="flex flex-col gap-4">
-        <Link to="/hub/campaigns" className="inline-flex items-center gap-1 text-[12px] text-[var(--text-secondary)] hover:underline">
+        <Link to="/hub/campaigns" className="inline-flex items-center gap-1 text-[12px] text-[var(--ui-text-secondary)] hover:underline">
           <ArrowLeft size={13} aria-hidden="true" /> All campaigns
         </Link>
 
@@ -363,7 +363,7 @@ export function CampaignDetailPage() {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 aria-label="Filter by status"
-                className="text-[12px] rounded-[var(--ui-radius-sm)] border border-[var(--separator)] bg-[var(--ui-surface-card)] px-2 py-1 text-[var(--text-secondary)]"
+                className="text-[12px] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 py-1 text-[var(--ui-text-secondary)]"
               >
                 <option value="">Everyone ({counts.total ?? 0})</option>
                 <option value="pending">Queued ({counts.pending ?? 0})</option>

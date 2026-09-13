@@ -5,6 +5,26 @@
    Tailwind dependency) so the look is pixel-controlled.
    ============================================================ */
 
+/*
+ * LIGHT-ONLY, DELIBERATELY.
+ *
+ * This surface is a full-page `position: fixed` overlay that paints its own
+ * white ground and its own dark ink, so it is internally consistent whatever
+ * the app theme is doing behind it — it does not break in dark mode, it just
+ * stays light, exactly like src/marketing.
+ *
+ * That is a decision, not an oversight. Signed-out pages are the product's
+ * shop window; they share a register with the marketing site rather than with
+ * the console, and a dark login screen for a user who has never chosen a theme
+ * is a coin flip we do not need to take. The literals below are therefore
+ * literals ON PURPOSE, which is why they do not read --ui-* — pulling in
+ * tokens that flip underneath a ground that does not would be the same
+ * hardcoded-surface-meets-tokenised-text bug that made /admin unreadable.
+ *
+ * What DID change: the brand colour. These pages shipped on #4f46e5 indigo,
+ * which is nobody's brand — the mark is #6234fa. A user's first sight of
+ * Spurly was the wrong purple.
+ */
 .sp-auth {
   --sp-ink: #1d1d2b;
   --sp-ink-soft: #4b4b5a;
@@ -12,13 +32,13 @@
   --sp-line: #e7e7ee;
   --sp-line-strong: #d7d7e1;
   --sp-bg: #f4f4f8;
-  --sp-aside-bg: #f6f5fb;
-  --sp-primary: #4f46e5;
-  --sp-primary-hover: #4338ca;
-  --sp-primary-soft: #eef0fe;
-  --sp-accent: #6d5ef0;
-  --sp-green: #22b364;
-  --sp-amber: #f59e0b;
+  --sp-aside-bg: #f7f5fb;
+  --sp-primary: #6234fa;
+  --sp-primary-hover: #5128d9;
+  --sp-primary-soft: #f1eeff;
+  --sp-accent: #7c5cff;
+  --sp-green: #0d9668;
+  --sp-amber: #d97706;
   --sp-radius: 14px;
   --sp-shadow: 0 12px 40px rgba(28, 28, 60, 0.08);
 
@@ -36,7 +56,7 @@
 /* ---------- Left brand panel ---------- */
 .sp-auth__aside {
   position: relative;
-  background: linear-gradient(180deg, #f6f5fb 0%, #eef0fb 100%);
+  background: linear-gradient(180deg, #f7f5fb 0%, #efecfb 100%);
   padding: 40px 48px;
   overflow-y: auto;
   border-right: 1px solid var(--sp-line);
@@ -47,7 +67,7 @@
   right: 44px;
   width: 120px;
   height: 70px;
-  background-image: radial-gradient(rgba(109, 94, 240, 0.28) 1.6px, transparent 1.6px);
+  background-image: radial-gradient(rgba(124, 92, 255, 0.28) 1.6px, transparent 1.6px);
   background-size: 16px 16px;
   pointer-events: none;
 }
@@ -261,7 +281,7 @@
 .sp-input:focus,
 .sp-select:focus {
   border-color: var(--sp-primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.16);
+  box-shadow: 0 0 0 3px rgba(98, 52, 250, 0.16);
 }
 .sp-input.is-error, .sp-select.is-error { border-color: #e5484d; }
 
@@ -339,7 +359,7 @@
 .sp-dropdown.is-open .sp-dropdown__trigger,
 .sp-dropdown__trigger:focus {
   border-color: var(--sp-primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.16);
+  box-shadow: 0 0 0 3px rgba(98, 52, 250, 0.16);
   background-color: #fff;
 }
 .sp-dropdown.is-error .sp-dropdown__trigger { border-color: #e5484d; }
@@ -445,7 +465,7 @@
   transition: background .15s ease, color .15s ease;
 }
 .sp-pwd-rule.ok { color: var(--sp-ink-soft); }
-.sp-pwd-rule.ok .sp-pwd-rule__dot { background: rgba(34, 179, 100, 0.16); color: var(--sp-green); }
+.sp-pwd-rule.ok .sp-pwd-rule__dot { background: rgba(13, 150, 104, 0.16); color: var(--sp-green); }
 
 /* buttons */
 .sp-btn {
@@ -456,7 +476,7 @@
   transition: background .15s ease, transform .05s ease, box-shadow .15s ease, opacity .15s ease;
 }
 .sp-btn:active { transform: translateY(1px); }
-.sp-btn--primary { background: var(--sp-primary); color: #fff; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.28); }
+.sp-btn--primary { background: var(--sp-primary); color: #fff; box-shadow: 0 8px 20px rgba(98, 52, 250, 0.28); }
 .sp-btn--primary:hover { background: var(--sp-primary-hover); }
 .sp-btn--primary:disabled { opacity: .55; cursor: not-allowed; box-shadow: none; }
 .sp-btn--google {
@@ -501,9 +521,9 @@
 .sp-notice {
   border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.45;
 }
-.sp-notice--info { background: var(--sp-primary-soft); color: #3b34b8; }
+.sp-notice--info { background: var(--sp-primary-soft); color: #4a1fc4; }
 .sp-notice--error { background: #fdecec; color: #c0392b; }
-.sp-notice--ok { background: rgba(34, 179, 100, 0.12); color: #178a4d; }
+.sp-notice--ok { background: rgba(13, 150, 104, 0.12); color: #178a4d; }
 
 /* trust badges */
 .sp-trust {
@@ -519,7 +539,7 @@
 .sp-bonus {
   margin-top: 26px;
   border: 1px solid var(--sp-line);
-  background: linear-gradient(180deg, #faf9ff 0%, #f4f3fd 100%);
+  background: linear-gradient(180deg, #faf8ff 0%, #f4f1fd 100%);
   border-radius: var(--sp-radius);
   padding: 18px 20px;
 }

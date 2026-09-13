@@ -84,8 +84,8 @@ function fullDate(d) {
 
 /** Shared recharts tooltip styling. */
 const tooltipStyle = {
-  background: 'var(--surface-card)',
-  border: '1px solid var(--border-hairline)',
+  background: 'var(--ui-surface-card)',
+  border: '1px solid var(--ui-border-hairline)',
   borderRadius: 12,
   fontSize: 12,
 };
@@ -103,10 +103,10 @@ function ChartPanel({ title, subtitle, height = 260, children }) {
 
 /** Small week-over-week trend pill. */
 function TrendPill({ pct }) {
-  if (pct === undefined || pct === null) return <span className="text-[var(--text-tertiary)]">—</span>;
+  if (pct === undefined || pct === null) return <span className="text-[var(--ui-text-tertiary)]">—</span>;
   const up = pct > 0;
   const flat = pct === 0;
-  const color = flat ? 'var(--text-tertiary)' : up ? 'var(--green)' : 'var(--red)';
+  const color = flat ? 'var(--ui-text-tertiary)' : up ? 'var(--ui-success)' : 'var(--ui-danger)';
   const Icon = flat ? Minus : up ? TrendingUp : TrendingDown;
   return (
     <span className="inline-flex items-center gap-1 text-[12px] font-medium tabular-nums" style={{ color }}>
@@ -119,12 +119,12 @@ function TrendPill({ pct }) {
 /** Compact labelled stat tile used in the drill-down modal. */
 function StatTile({ label, value, sub, color, icon: Icon }) {
   return (
-    <div className="rounded-[var(--ui-radius-lg)] p-3" style={{ background: 'var(--surface-sunken)' }}>
-      <p className="text-[11px] text-[var(--text-tertiary)] flex items-center gap-1">
+    <div className="rounded-[var(--ui-radius-lg)] p-3" style={{ background: 'var(--ui-surface-sunken)' }}>
+      <p className="text-[11px] text-[var(--ui-text-tertiary)] flex items-center gap-1">
         {Icon && <Icon size={12} />} {label}
       </p>
-      <p className="text-[24px] font-medium leading-tight" style={{ color: color || 'var(--text-primary)' }}>{value}</p>
-      {sub && <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">{sub}</p>}
+      <p className="text-[24px] font-medium leading-tight" style={{ color: color || 'var(--ui-text-primary)' }}>{value}</p>
+      {sub && <p className="text-[10px] text-[var(--ui-text-tertiary)] mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -141,8 +141,8 @@ function Funnel({ funnel }) {
     <div className="space-y-2.5">
       {steps.map((s) => (
         <div key={s.label} className="flex items-center gap-3">
-          <span className="text-[12px] text-[var(--text-secondary)] w-24 shrink-0">{s.label}</span>
-          <div className="flex-1 h-6 rounded-[var(--ui-radius-md)] overflow-hidden" style={{ background: 'var(--surface-sunken)' }}>
+          <span className="text-[12px] text-[var(--ui-text-secondary)] w-24 shrink-0">{s.label}</span>
+          <div className="flex-1 h-6 rounded-[var(--ui-radius-md)] overflow-hidden" style={{ background: 'var(--ui-surface-sunken)' }}>
             <div
               className="h-full rounded-[var(--ui-radius-md)] transition-colors"
               style={{
@@ -152,10 +152,10 @@ function Funnel({ funnel }) {
               }}
             />
           </div>
-          <span className="text-[13px] font-medium text-[var(--text-primary)] tabular-nums w-12 shrink-0 text-right">
+          <span className="text-[13px] font-medium text-[var(--ui-text-primary)] tabular-nums w-12 shrink-0 text-right">
             {s.value.toLocaleString()}
           </span>
-          <span className="text-[11px] text-[var(--text-tertiary)] w-24 shrink-0 text-right">
+          <span className="text-[11px] text-[var(--ui-text-tertiary)] w-24 shrink-0 text-right">
             {s.rate !== null ? `${s.rate}% of captures` : 'baseline'}
           </span>
         </div>
@@ -174,7 +174,7 @@ function SegmentBar({ segments }) {
   const total = SEGMENTS.reduce((a, s) => a + (segments?.[s.key] || 0), 0) || 1;
   return (
     <div>
-      <div className="flex h-3 w-full rounded-full overflow-hidden" style={{ background: 'var(--surface-sunken)' }}>
+      <div className="flex h-3 w-full rounded-full overflow-hidden" style={{ background: 'var(--ui-surface-sunken)' }}>
         {SEGMENTS.map((s) => {
           const v = segments?.[s.key] || 0;
           if (!v) return null;
@@ -186,10 +186,10 @@ function SegmentBar({ segments }) {
           <div key={s.key} className="flex flex-col">
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full" style={{ background: s.color }} />
-              <span className="text-[13px] font-medium text-[var(--text-primary)] tabular-nums">{segments?.[s.key] ?? 0}</span>
+              <span className="text-[13px] font-medium text-[var(--ui-text-primary)] tabular-nums">{segments?.[s.key] ?? 0}</span>
             </div>
-            <span className="text-[11px] text-[var(--text-secondary)] mt-0.5">{s.label}</span>
-            <span className="text-[10px] text-[var(--text-tertiary)]">{s.hint}</span>
+            <span className="text-[11px] text-[var(--ui-text-secondary)] mt-0.5">{s.label}</span>
+            <span className="text-[10px] text-[var(--ui-text-tertiary)]">{s.hint}</span>
           </div>
         ))}
       </div>
@@ -296,11 +296,11 @@ export function AdminInsightsPage() {
       minWidth: '210px',
       render: (_v, row) => (
         <div>
-          <div className="font-medium text-[var(--text-primary)] flex items-center gap-1.5">
+          <div className="font-medium text-[var(--ui-text-primary)] flex items-center gap-1.5">
             {row.name || '—'}
-            {row.activeToday && <Flame size={13} style={{ color: 'var(--green)' }} title="Active today" />}
+            {row.activeToday && <Flame size={13} style={{ color: 'var(--ui-success)' }} title="Active today" />}
           </div>
-          <div className="text-[12px] text-[var(--text-tertiary)]">{row.email}</div>
+          <div className="text-[12px] text-[var(--ui-text-tertiary)]">{row.email}</div>
         </div>
       ),
     },
@@ -317,13 +317,13 @@ export function AdminInsightsPage() {
       minWidth: '150px',
       render: (value) => (
         <div className="flex items-center gap-2 justify-center">
-          <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--surface-sunken)' }}>
+          <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--ui-surface-sunken)' }}>
             <div
               className="h-full"
-              style={{ width: `${Math.min(100, (value / 30) * 100)}%`, background: 'var(--brand-gradient-vivid, var(--brand-purple))' }}
+              style={{ width: `${Math.min(100, (value / 30) * 100)}%`, background: 'var(--brand-gradient-vivid, var(--ui-accent))' }}
             />
           </div>
-          <span className="tabular-nums text-[13px] text-[var(--text-secondary)] w-5 text-left">{value}</span>
+          <span className="tabular-nums text-[13px] text-[var(--ui-text-secondary)] w-5 text-left">{value}</span>
         </div>
       ),
     },
@@ -332,21 +332,21 @@ export function AdminInsightsPage() {
       label: 'Captures',
       align: 'right',
       minWidth: '90px',
-      render: (_v, row) => <span className="tabular-nums text-[var(--text-primary)]">{row.last30.captureCards}</span>,
+      render: (_v, row) => <span className="tabular-nums text-[var(--ui-text-primary)]">{row.last30.captureCards}</span>,
     },
     {
       key: 'con',
       label: 'Connections',
       align: 'right',
       minWidth: '100px',
-      render: (_v, row) => <span className="tabular-nums text-[var(--text-primary)]">{row.last30.sendConnections}</span>,
+      render: (_v, row) => <span className="tabular-nums text-[var(--ui-text-primary)]">{row.last30.sendConnections}</span>,
     },
     {
       key: 'msg',
       label: 'Messages',
       align: 'right',
       minWidth: '90px',
-      render: (_v, row) => <span className="tabular-nums text-[var(--text-primary)]">{row.last30.sendMessages}</span>,
+      render: (_v, row) => <span className="tabular-nums text-[var(--ui-text-primary)]">{row.last30.sendMessages}</span>,
     },
     {
       key: 'wowTrendPct',
@@ -361,9 +361,9 @@ export function AdminInsightsPage() {
       minWidth: '120px',
       render: (value, row) => (
         <div className="text-[12px] tabular-nums">
-          <span className="text-[var(--text-secondary)]">{value ? shortDate(value) : '—'}</span>
+          <span className="text-[var(--ui-text-secondary)]">{value ? shortDate(value) : '—'}</span>
           {row.daysSinceActive !== null && row.daysSinceActive !== undefined && (
-            <span className="text-[var(--text-tertiary)] block">
+            <span className="text-[var(--ui-text-tertiary)] block">
               {row.daysSinceActive === 0 ? 'today' : `${row.daysSinceActive}d ago`}
             </span>
           )}
@@ -420,11 +420,11 @@ export function AdminInsightsPage() {
                   <f.icon size={20} />
                 </div>
                 <div>
-                  <p className="text-[24px] font-medium tabular-nums text-[var(--text-primary)] leading-none">
+                  <p className="text-[24px] font-medium tabular-nums text-[var(--ui-text-primary)] leading-none">
                     {(overview?.actions?.last30Days?.[f.key] ?? 0).toLocaleString()}
                   </p>
-                  <p className="text-[13px] text-[var(--text-secondary)] mt-1">{f.label} · last 30 days</p>
-                  <p className="text-[11px] text-[var(--text-tertiary)]">
+                  <p className="text-[13px] text-[var(--ui-text-secondary)] mt-1">{f.label} · last 30 days</p>
+                  <p className="text-[11px] text-[var(--ui-text-tertiary)]">
                     {(overview?.actions?.last7Days?.[f.key] ?? 0).toLocaleString()} in 7d · {(overview?.actions?.today?.[f.key] ?? 0).toLocaleString()} today
                   </p>
                 </div>
@@ -447,20 +447,20 @@ export function AdminInsightsPage() {
           <div className="lg:col-span-2">
             <ChartPanel title="Daily active users" subtitle="Distinct users who took any action · last 30 days">
               <BarChart data={dauSeries} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--separator)" />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} interval={4} tickLine={false} axisLine={false} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} tickLine={false} axisLine={false} />
-                <Tooltip cursor={{ fill: 'var(--surface-hover)' }} contentStyle={tooltipStyle} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--ui-border-hairline)" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--ui-text-tertiary)' }} interval={4} tickLine={false} axisLine={false} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--ui-text-tertiary)' }} tickLine={false} axisLine={false} />
+                <Tooltip cursor={{ fill: 'var(--ui-surface-hover)' }} contentStyle={tooltipStyle} />
                 <Bar dataKey="activeUsers" name="Active users" fill={CHART.active} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ChartPanel>
           </div>
           <ChartPanel title="Feature usage split" subtitle="Total actions · last 30 days">
             <BarChart data={featureSplit} layout="vertical" margin={{ top: 4, right: 16, left: 8, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--separator)" />
-              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} tickLine={false} axisLine={false} />
-              <YAxis type="category" dataKey="label" tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickLine={false} axisLine={false} width={78} />
-              <Tooltip cursor={{ fill: 'var(--surface-hover)' }} contentStyle={tooltipStyle} />
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--ui-border-hairline)" />
+              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--ui-text-tertiary)' }} tickLine={false} axisLine={false} />
+              <YAxis type="category" dataKey="label" tick={{ fontSize: 12, fill: 'var(--ui-text-secondary)' }} tickLine={false} axisLine={false} width={78} />
+              <Tooltip cursor={{ fill: 'var(--ui-surface-hover)' }} contentStyle={tooltipStyle} />
               <Bar dataKey="value" name="Actions" radius={[0, 4, 4, 0]}>
                 {featureSplit.map((entry, i) => (
                   <Cell key={i} fill={entry.color} />
@@ -473,10 +473,10 @@ export function AdminInsightsPage() {
         {/* Charts row 2: stacked daily actions */}
         <ChartPanel title="Daily actions by feature" subtitle="Captures, connections & messages per day · last 30 days" height={280}>
           <BarChart data={actionSeries} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--separator)" />
-            <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} interval={4} tickLine={false} axisLine={false} />
-            <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} tickLine={false} axisLine={false} />
-            <Tooltip cursor={{ fill: 'var(--surface-hover)' }} contentStyle={tooltipStyle} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--ui-border-hairline)" />
+            <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--ui-text-tertiary)' }} interval={4} tickLine={false} axisLine={false} />
+            <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--ui-text-tertiary)' }} tickLine={false} axisLine={false} />
+            <Tooltip cursor={{ fill: 'var(--ui-surface-hover)' }} contentStyle={tooltipStyle} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
             <Bar dataKey="Captures" stackId="a" fill={CHART.captures} />
             <Bar dataKey="Connections" stackId="a" fill={CHART.connections} />
@@ -488,7 +488,7 @@ export function AdminInsightsPage() {
         {error && (
           <div
             className="p-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium"
-            style={{ background: 'var(--red-tint)', color: 'var(--red)', border: '1px solid rgba(255,69,58,0.2)' }}
+            style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)', border: '1px solid rgba(255,69,58,0.2)' }}
           >
             {error}
           </div>
@@ -539,7 +539,7 @@ export function AdminInsightsPage() {
           </div>
         </div>
 
-        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--border-hairline)] overflow-hidden shadow-sm">
+        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border-hairline)] overflow-hidden shadow-sm">
           <DataTable
             columns={columns}
             data={users}
@@ -566,28 +566,28 @@ export function AdminInsightsPage() {
           onClick={() => setDrillUser(null)}
         >
           <div
-            className="bg-[var(--surface-card)] rounded-[var(--ui-radius-lg)] shadow-[0_24px_60px_rgba(0,0,0,0.25)] w-full max-w-[820px] max-h-[90vh] overflow-y-auto"
+            className="bg-[var(--ui-surface-card)] rounded-[var(--ui-radius-lg)] shadow-[0_24px_60px_rgba(0,0,0,0.25)] w-full max-w-[820px] max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 z-10 bg-[var(--surface-card)] rounded-t-[var(--ui-radius-lg)] flex items-start justify-between p-[var(--ui-pad-lg)] border-b border-[var(--separator)]">
+            <div className="sticky top-0 z-10 bg-[var(--ui-surface-card)] rounded-t-[var(--ui-radius-lg)] flex items-start justify-between p-[var(--ui-pad-lg)] border-b border-[var(--ui-border-hairline)]">
               <div className="flex items-center gap-3 min-w-0">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-[17px] font-medium text-[var(--text-primary)] truncate">{drillUser.name || drillUser.email}</h3>
+                    <h3 className="text-[17px] font-medium text-[var(--ui-text-primary)] truncate">{drillUser.name || drillUser.email}</h3>
                     <SegmentBadge seg={drillUser.segment} />
                     {drillData && <TrendPill pct={drillData.summary.wowTrendPct} />}
                   </div>
-                  <p className="text-[12px] text-[var(--text-tertiary)]">{drillUser.email} · {drillUser.plan}</p>
+                  <p className="text-[12px] text-[var(--ui-text-tertiary)]">{drillUser.email} · {drillUser.plan}</p>
                 </div>
               </div>
-              <button onClick={() => setDrillUser(null)} className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] shrink-0">
+              <button onClick={() => setDrillUser(null)} className="text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-primary)] shrink-0">
                 <X size={20} />
               </button>
             </div>
 
             <div className="p-[var(--ui-pad-lg)]">
               {drillLoading && (
-                <div className="flex items-center justify-center py-16 text-[var(--text-tertiary)]">
+                <div className="flex items-center justify-center py-16 text-[var(--ui-text-tertiary)]">
                   <Loader className="animate-spin mr-2" /> Loading activity…
                 </div>
               )}
@@ -596,7 +596,7 @@ export function AdminInsightsPage() {
                   {/* Engagement stat grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
                     <StatTile icon={CalendarDays} label="Active days" value={`${drillData.summary.activeDays}`} sub={`of last ${drillData.windowDays}`} />
-                    <StatTile icon={Flame} label="Current streak" value={`${drillData.summary.currentStreak}d`} color={drillData.summary.currentStreak > 0 ? 'var(--green)' : undefined} sub={`best ${drillData.summary.longestStreak}d`} />
+                    <StatTile icon={Flame} label="Current streak" value={`${drillData.summary.currentStreak}d`} color={drillData.summary.currentStreak > 0 ? 'var(--ui-success)' : undefined} sub={`best ${drillData.summary.longestStreak}d`} />
                     <StatTile icon={Activity} label="Avg / active day" value={drillData.summary.avgPerActiveDay} sub="actions" />
                     <StatTile icon={TrendingUp} label="Total actions" value={drillData.summary.totalActions.toLocaleString()} sub={`last ${drillData.windowDays}d`} />
                     <StatTile icon={UserPlus} label="Days since signup" value={drillData.user.daysSinceSignup ?? '—'} sub={fullDate(drillData.user.signupDate)} />
@@ -606,13 +606,13 @@ export function AdminInsightsPage() {
                   {/* Funnel + Sources/Enrichment side by side */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
                     <div>
-                      <p className="text-[13px] font-medium text-[var(--text-primary)] mb-3 flex items-center gap-1.5">
+                      <p className="text-[13px] font-medium text-[var(--ui-text-primary)] mb-3 flex items-center gap-1.5">
                         <Layers size={14} /> Outreach funnel · last {drillData.windowDays} days
                       </p>
                       <Funnel funnel={drillData.funnel} />
                     </div>
                     <div>
-                      <p className="text-[13px] font-medium text-[var(--text-primary)] mb-3 flex items-center gap-1.5">
+                      <p className="text-[13px] font-medium text-[var(--ui-text-primary)] mb-3 flex items-center gap-1.5">
                         <Sparkles size={14} /> Capture sources & enrichment
                       </p>
                       <div className="grid grid-cols-2 gap-3">
@@ -625,7 +625,7 @@ export function AdminInsightsPage() {
                   </div>
 
                   {/* Weekly activity */}
-                  <p className="text-[13px] font-medium text-[var(--text-primary)] mb-2">Weekly activity</p>
+                  <p className="text-[13px] font-medium text-[var(--ui-text-primary)] mb-2">Weekly activity</p>
                   <ResponsiveContainer width="100%" height={180}>
                     <BarChart
                       data={drillData.weekly.map((w) => ({
@@ -636,10 +636,10 @@ export function AdminInsightsPage() {
                       }))}
                       margin={{ top: 4, right: 8, left: -18, bottom: 0 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--separator)" />
-                      <XAxis dataKey="week" tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} tickLine={false} axisLine={false} />
-                      <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} tickLine={false} axisLine={false} />
-                      <Tooltip cursor={{ fill: 'var(--surface-hover)' }} contentStyle={tooltipStyle} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--ui-border-hairline)" />
+                      <XAxis dataKey="week" tick={{ fontSize: 11, fill: 'var(--ui-text-tertiary)' }} tickLine={false} axisLine={false} />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--ui-text-tertiary)' }} tickLine={false} axisLine={false} />
+                      <Tooltip cursor={{ fill: 'var(--ui-surface-hover)' }} contentStyle={tooltipStyle} />
                       <Bar dataKey="Captures" stackId="a" fill={CHART.captures} />
                       <Bar dataKey="Connections" stackId="a" fill={CHART.connections} />
                       <Bar dataKey="Messages" stackId="a" fill={CHART.messages} radius={[4, 4, 0, 0]} />
@@ -647,7 +647,7 @@ export function AdminInsightsPage() {
                   </ResponsiveContainer>
 
                   {/* Daily activity */}
-                  <p className="text-[13px] font-medium text-[var(--text-primary)] mb-2 mt-5">
+                  <p className="text-[13px] font-medium text-[var(--ui-text-primary)] mb-2 mt-5">
                     Daily activity · last {drillData.windowDays} days
                   </p>
                   <ResponsiveContainer width="100%" height={220}>
@@ -660,10 +660,10 @@ export function AdminInsightsPage() {
                       }))}
                       margin={{ top: 4, right: 8, left: -18, bottom: 0 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--separator)" />
-                      <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} interval={4} tickLine={false} axisLine={false} />
-                      <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} tickLine={false} axisLine={false} />
-                      <Tooltip cursor={{ fill: 'var(--surface-hover)' }} contentStyle={tooltipStyle} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--ui-border-hairline)" />
+                      <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--ui-text-tertiary)' }} interval={4} tickLine={false} axisLine={false} />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--ui-text-tertiary)' }} tickLine={false} axisLine={false} />
+                      <Tooltip cursor={{ fill: 'var(--ui-surface-hover)' }} contentStyle={tooltipStyle} />
                       <Legend wrapperStyle={{ fontSize: 12 }} />
                       <Bar dataKey="Captures" stackId="a" fill={CHART.captures} />
                       <Bar dataKey="Connections" stackId="a" fill={CHART.connections} />
@@ -671,13 +671,13 @@ export function AdminInsightsPage() {
                     </BarChart>
                   </ResponsiveContainer>
 
-                  <p className="text-[11px] text-[var(--text-tertiary)] mt-4">
+                  <p className="text-[11px] text-[var(--ui-text-tertiary)] mt-4">
                     Recorded outreach (lifetime, from credit ledger): {drillData.activity.lifetimeConnections.toLocaleString()} connections · {drillData.activity.lifetimeMessages.toLocaleString()} messages · Credit balance {drillData.user.creditBalance}
                   </p>
                 </>
               )}
               {!drillLoading && !drillData && (
-                <div className="py-16 text-center text-[var(--text-tertiary)]">Couldn't load this user's activity.</div>
+                <div className="py-16 text-center text-[var(--ui-text-tertiary)]">Couldn't load this user's activity.</div>
               )}
             </div>
           </div>

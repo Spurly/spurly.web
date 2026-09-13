@@ -51,7 +51,7 @@ export function NewSequencePage() {
       actions={<Button disabled={!canCreate} loading={creating} onClick={create}>Create sequence</Button>}
     >
       <div className="flex flex-col gap-4">
-        <Link to="/hub/sequences" className="inline-flex items-center gap-1 text-[12px] text-[var(--text-secondary)] hover:underline">
+        <Link to="/hub/sequences" className="inline-flex items-center gap-1 text-[12px] text-[var(--ui-text-secondary)] hover:underline">
           <ArrowLeft size={13} aria-hidden="true" /> All sequences
         </Link>
 
@@ -72,7 +72,7 @@ export function NewSequencePage() {
         </SectionCard>
 
         {validationError && (
-          <p className="text-[12px] text-[var(--red)]">{validationError}</p>
+          <p className="text-[12px] text-[var(--ui-danger-fg)]">{validationError}</p>
         )}
       </div>
     </DashboardLayout>

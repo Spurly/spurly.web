@@ -82,7 +82,7 @@ export function FilterTagPicker({ type, label, placeholder, value, onChange, dis
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label className="text-[13px] font-medium text-[var(--text-primary)] tracking-[-0.006em]">
+        <label className="text-[13px] font-medium text-[var(--ui-text-primary)] tracking-[-0.006em]">
           {label}
         </label>
       )}
@@ -118,12 +118,12 @@ export function FilterTagPicker({ type, label, placeholder, value, onChange, dis
           onChange={handleTextChange}
           onFocus={() => results.length > 0 && setOpen(true)}
           placeholder={placeholder}
-          className="w-full h-8 pl-3 pr-8 bg-[var(--ui-surface-card)] border border-[var(--border-default)] rounded-[var(--ui-radius-sm)] text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] tracking-[-0.006em] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors disabled:opacity-45 disabled:cursor-not-allowed"
+          className="w-full h-8 pl-3 pr-8 bg-[var(--ui-surface-card)] border border-[var(--ui-border)] rounded-[var(--ui-radius-sm)] text-[13px] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] tracking-[-0.006em] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors disabled:opacity-45 disabled:cursor-not-allowed"
         />
         {loading && (
           <Loader2
             size={13}
-            className="animate-spin absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]"
+            className="animate-spin absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--ui-text-tertiary)]"
             aria-hidden="true"
           />
         )}
@@ -131,17 +131,17 @@ export function FilterTagPicker({ type, label, placeholder, value, onChange, dis
         {open && (
           <ul
             role="listbox"
-            className="absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-[var(--ui-radius-sm)] border border-[var(--border-default)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-md)] py-1"
+            className="absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-md)] py-1"
           >
             {results.length === 0 && !loading && (
-              <li className="px-3 py-2 text-[12px] text-[var(--text-tertiary)]">No matches</li>
+              <li className="px-3 py-2 text-[12px] text-[var(--ui-text-tertiary)]">No matches</li>
             )}
             {results.map((r) => (
               <li key={r.id}>
                 <button
                   type="button"
                   onClick={() => pick(r)}
-                  className="w-full text-left px-3 py-1.5 text-[13px] text-[var(--text-primary)] hover:bg-[var(--ui-surface-sunken)]"
+                  className="w-full text-left px-3 py-1.5 text-[13px] text-[var(--ui-text-primary)] hover:bg-[var(--ui-surface-sunken)]"
                 >
                   {r.title}
                 </button>

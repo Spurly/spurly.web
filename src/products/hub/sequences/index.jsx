@@ -35,12 +35,12 @@ function SequenceRow({ sequence, onStart, onPause, onDelete, busy }) {
   const running = isLive(sequence);
 
   return (
-    <div className="flex items-center gap-3 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--separator)] last:border-b-0">
+    <div className="flex items-center gap-3 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--ui-border-hairline)] last:border-b-0">
       <Link to={`/hub/sequences/${sequence._id}`} className="flex-1 min-w-0 group">
-        <span className="block text-[13px] text-[var(--text-primary)] truncate group-hover:underline">
+        <span className="block text-[13px] text-[var(--ui-text-primary)] truncate group-hover:underline">
           {sequence.name}
         </span>
-        <span className="block text-[11px] text-[var(--text-tertiary)] truncate">
+        <span className="block text-[11px] text-[var(--ui-text-tertiary)] truncate">
           {sequence.steps?.length ?? 0} step(s)
           {sequence.pausedReason === 'account' && ' · LinkedIn needs reconnecting'}
           {sequence.pausedReason === 'breaker' && ' · stopped after repeated failures'}
@@ -161,7 +161,7 @@ export function HubSequencesPage() {
       ) : (
         <SectionCard title="Sequences" noPadding>
           {loading ? (
-            <p className="px-[var(--ui-pad-lg)] py-6 text-[13px] text-[var(--text-tertiary)]">Loading…</p>
+            <p className="px-[var(--ui-pad-lg)] py-6 text-[13px] text-[var(--ui-text-tertiary)]">Loading…</p>
           ) : (
             sequences.map((sequence) => (
               <SequenceRow

@@ -145,7 +145,7 @@ export function SequenceDetailPage() {
   if (loading && !sequence) {
     return (
       <DashboardLayout title="Sequence">
-        <p className="text-[13px] text-[var(--text-tertiary)]">Loading…</p>
+        <p className="text-[13px] text-[var(--ui-text-tertiary)]">Loading…</p>
       </DashboardLayout>
     );
   }
@@ -153,7 +153,7 @@ export function SequenceDetailPage() {
   if (!sequence) {
     return (
       <DashboardLayout title="Sequence">
-        <p className="text-[13px] text-[var(--text-secondary)]">
+        <p className="text-[13px] text-[var(--ui-text-secondary)]">
           That sequence is not here. <Link to="/hub/sequences" className="underline">Back to sequences</Link>
         </p>
       </DashboardLayout>
@@ -199,7 +199,7 @@ export function SequenceDetailPage() {
       }
     >
       <div className="flex flex-col gap-4">
-        <Link to="/hub/sequences" className="inline-flex items-center gap-1 text-[12px] text-[var(--text-secondary)] hover:underline">
+        <Link to="/hub/sequences" className="inline-flex items-center gap-1 text-[12px] text-[var(--ui-text-secondary)] hover:underline">
           <ArrowLeft size={13} aria-hidden="true" /> All sequences
         </Link>
 
@@ -211,7 +211,7 @@ export function SequenceDetailPage() {
 
         {totalEnrolled === 0 && (
           <div className="flex items-start gap-2 px-[var(--ui-pad-lg)] py-3 rounded-[var(--ui-radius-md)]" style={{ background: 'var(--ui-surface-sunken)' }}>
-            <p className="text-[12px] text-[var(--text-secondary)]">
+            <p className="text-[12px] text-[var(--ui-text-secondary)]">
               Nobody is enrolled yet. Select leads on the <Link to="/hub/leads" className="underline">leads page</Link> and enroll them in this sequence, then come back here to start it.
             </p>
           </div>
@@ -219,7 +219,7 @@ export function SequenceDetailPage() {
 
         <SectionCard title="Steps" noPadding>
           {isDraft && stepsDirty && (
-            <div className="flex items-center justify-end px-[var(--ui-pad-lg)] py-2 border-b border-[var(--separator)]" style={{ background: 'var(--ui-surface-sunken)' }}>
+            <div className="flex items-center justify-end px-[var(--ui-pad-lg)] py-2 border-b border-[var(--ui-border-hairline)]" style={{ background: 'var(--ui-surface-sunken)' }}>
               <Button size="sm" disabled={saving || !!stepsValidation} loading={saving} onClick={saveSteps}>
                 Save steps
               </Button>
@@ -231,7 +231,7 @@ export function SequenceDetailPage() {
             readOnly={!isDraft}
           />
           {isDraft && stepsValidation && (
-            <p className="px-[var(--ui-pad-lg)] pb-3 text-[11px] text-[var(--red)]">{stepsValidation}</p>
+            <p className="px-[var(--ui-pad-lg)] pb-3 text-[11px] text-[var(--ui-danger-fg)]">{stepsValidation}</p>
           )}
         </SectionCard>
 
@@ -247,7 +247,7 @@ export function SequenceDetailPage() {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 aria-label="Filter by status"
-                className="text-[12px] rounded-[var(--ui-radius-sm)] border border-[var(--separator)] bg-[var(--ui-surface-card)] px-2 py-1 text-[var(--text-secondary)]"
+                className="text-[12px] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 py-1 text-[var(--ui-text-secondary)]"
               >
                 <option value="">Everyone ({totalEnrolled})</option>
                 <option value="active">Active ({counts.active ?? 0})</option>

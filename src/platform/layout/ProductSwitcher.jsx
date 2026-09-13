@@ -93,7 +93,7 @@ export function ProductSwitcher({ workspaces, current, expanded, onSelect }) {
           className={[
             'absolute z-30 top-full mt-1 left-0 min-w-[228px] p-1',
             'rounded-[var(--ui-radius-md)] border border-[var(--ui-border)]',
-            'bg-[var(--surface-card)] shadow-[var(--ui-shadow-lg)]',
+            'bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-lg)]',
           ].join(' ')}
         >
           {workspaces.map((w) => {

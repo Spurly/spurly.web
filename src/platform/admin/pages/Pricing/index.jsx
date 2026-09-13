@@ -179,12 +179,12 @@ export function AdminPricingPage() {
       <div className="mb-12">
         <div className="flex items-start justify-between gap-4 mb-5">
           <div className="max-w-2xl">
-            <h3 className="text-[17px] font-medium text-[var(--text-primary)]">
+            <h3 className="text-[17px] font-medium text-[var(--ui-text-primary)]">
               Subscription plans
             </h3>
-            <p className="text-[var(--text-secondary)] text-[13px] leading-relaxed mt-1">
+            <p className="text-[var(--ui-text-secondary)] text-[13px] leading-relaxed mt-1">
               Create custom plans with daily action limits. The{' '}
-              <span className="font-medium text-[var(--text-primary)]">default</span> plan is
+              <span className="font-medium text-[var(--ui-text-primary)]">default</span> plan is
               assigned to every new user automatically. Allocate specific plans to users from the
               Users tab.
             </p>
@@ -202,13 +202,13 @@ export function AdminPricingPage() {
 
         {plansError && (
           <div className="mb-4 flex items-center gap-2 p-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium"
-            style={{ background: 'var(--red-tint)', color: 'var(--red)', border: '1px solid rgba(255,69,58,0.2)' }}>
+            style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)', border: '1px solid rgba(255,69,58,0.2)' }}>
             <AlertCircle size={18} />
             <span>{plansError}</span>
           </div>
         )}
 
-        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--border-hairline)] overflow-hidden shadow-sm">
+        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border-hairline)] overflow-hidden shadow-sm">
           <DataTable
             columns={buildPlanColumns(handleEditPlan)}
             data={plans}
@@ -228,7 +228,7 @@ export function AdminPricingPage() {
         </div>
       ) : (
         <div className="max-w-3xl">
-          <h3 className="text-[17px] font-medium text-[var(--text-primary)] mb-3">
+          <h3 className="text-[17px] font-medium text-[var(--ui-text-primary)] mb-3">
             Credit cost per action
           </h3>
           <div className="mb-6">

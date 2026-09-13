@@ -108,8 +108,8 @@ export function AdminUsersPage() {
           <div
             className="p-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium"
             style={{
-              background: 'var(--red-tint)',
-              color: 'var(--red)',
+              background: 'var(--ui-danger-tint)',
+              color: 'var(--ui-danger)',
               border: '1px solid rgba(255,69,58,0.2)',
             }}
           >
@@ -117,7 +117,7 @@ export function AdminUsersPage() {
           </div>
         )}
 
-        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--border-hairline)] overflow-hidden shadow-sm">
+        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border-hairline)] overflow-hidden shadow-sm">
           <DataTable
             columns={columns}
             data={filteredUsers}

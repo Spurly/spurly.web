@@ -151,7 +151,7 @@ export function ResearchPanel({ personId }) {
         {error && (
           <p
             className="flex items-start gap-1.5 text-[12px] px-2.5 py-2 rounded-[var(--ui-radius-md)]"
-            style={{ background: 'var(--red-tint)', color: 'var(--red)' }}
+            style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)' }}
           >
             <AlertTriangle size={13} className="shrink-0 mt-px" />
             {error}
@@ -163,7 +163,7 @@ export function ResearchPanel({ personId }) {
           onClick={() => run(false)}
           disabled={running}
           className="inline-flex self-start items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-md)] text-[12px] font-medium transition-colors disabled:opacity-50"
-          style={{ background: 'var(--accent-tint)', color: 'var(--brand-purple)' }}
+          style={{ background: 'var(--ui-accent-tint)', color: 'var(--ui-accent)' }}
         >
           <Globe size={13} className={running ? 'animate-pulse' : undefined} />
           {running ? 'Searching…' : 'Research this lead'}
@@ -223,7 +223,7 @@ export function ResearchPanel({ personId }) {
                   href={source.url}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="inline-flex items-start gap-1 text-[12px] text-[var(--brand-purple)] hover:underline break-all"
+                  className="inline-flex items-start gap-1 text-[12px] text-[var(--ui-accent-fg)] hover:underline break-all"
                 >
                   <ExternalLink size={11} className="shrink-0 mt-[3px]" />
                   {source.title || source.url}

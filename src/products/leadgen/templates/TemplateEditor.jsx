@@ -36,9 +36,9 @@ const DESCRIPTION_MAX = 500;
 const EMPTY = { name: '', subject: '', content: '', description: '' };
 
 const FIELD_CLASS =
-  'w-full px-4 bg-[var(--surface-sunken)] border border-[var(--border-default)] rounded-[var(--ui-radius-lg)] ' +
-  'text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] ' +
-  'focus:outline-none focus:border-[var(--accent)] focus:shadow-[var(--ui-focus-ring)] ' +
+  'w-full px-4 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] ' +
+  'text-[14px] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] ' +
+  'focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] ' +
   'transition-colors disabled:opacity-50';
 
 export function TemplateEditor({
@@ -116,7 +116,7 @@ export function TemplateEditor({
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {/* Name */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[13px] font-medium text-[var(--text-primary)]">
+        <label className="text-[13px] font-medium text-[var(--ui-text-primary)]">
           Template name
         </label>
         <input
@@ -132,8 +132,8 @@ export function TemplateEditor({
       {/* Subject — messages only */}
       {!isConnection && (
         <div className="flex flex-col gap-1.5">
-          <label className="text-[13px] font-medium text-[var(--text-primary)]">
-            Subject <span className="font-normal text-[var(--text-tertiary)]">— optional</span>
+          <label className="text-[13px] font-medium text-[var(--ui-text-primary)]">
+            Subject <span className="font-normal text-[var(--ui-text-tertiary)]">— optional</span>
           </label>
           <input
             value={form.subject}
@@ -148,7 +148,7 @@ export function TemplateEditor({
       {/* Content */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-3">
-          <label className="text-[13px] font-medium text-[var(--text-primary)]">
+          <label className="text-[13px] font-medium text-[var(--ui-text-primary)]">
             {isConnection ? 'Invitation note' : 'Message'}
           </label>
           <div className="flex items-center gap-3">
@@ -163,7 +163,7 @@ export function TemplateEditor({
             <button
               type="button"
               onClick={() => setShowPreview((v) => !v)}
-              className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)] transition-colors"
             >
               {showPreview ? <EyeOff size={13} /> : <Eye size={13} />}
               {showPreview ? 'Hide preview' : 'Preview'}
@@ -173,7 +173,7 @@ export function TemplateEditor({
 
         {/* Token chips */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-[12px] text-[var(--text-tertiary)] mr-0.5">Insert</span>
+          <span className="text-[12px] text-[var(--ui-text-tertiary)] mr-0.5">Insert</span>
           {TEMPLATE_TOKENS.map((t) => (
             <button
               key={t.token}
@@ -181,7 +181,7 @@ export function TemplateEditor({
               title={`${t.label} — e.g. ${t.sample}`}
               disabled={saving}
               onClick={() => insertToken(t.token)}
-              className="px-2 h-6 rounded-[var(--ui-radius-sm)] font-mono text-[11px] text-[var(--brand-purple)] bg-[var(--accent-tint)] hover:bg-[var(--accent-tint-2)] transition-colors disabled:opacity-50"
+              className="px-2 h-6 rounded-[var(--ui-radius-sm)] font-mono text-[11px] text-[var(--ui-accent-fg)] bg-[var(--ui-accent-tint)] hover:bg-[var(--ui-accent-tint-strong)] transition-colors disabled:opacity-50"
             >
               {t.token}
             </button>
@@ -204,8 +204,8 @@ export function TemplateEditor({
 
         <div className="flex items-start justify-between gap-3 text-[12px]">
           <span
-            className="text-[var(--text-tertiary)]"
-            style={overSoftLimit ? { color: 'var(--amber)' } : undefined}
+            className="text-[var(--ui-text-tertiary)]"
+            style={overSoftLimit ? { color: 'var(--ui-warning)' } : undefined}
           >
             {isConnection
               ? `${form.content.length}/${CONNECTION_NOTE_SOFT_LIMIT} — LinkedIn truncates longer invitation notes`
@@ -217,7 +217,7 @@ export function TemplateEditor({
         {unknownTokens.length > 0 && (
           <div
             className="flex items-start gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[12px]"
-            style={{ background: 'var(--amber-tint)', color: 'var(--amber)' }}
+            style={{ background: 'var(--ui-warning-tint)', color: 'var(--ui-warning)' }}
           >
             <AlertTriangle size={14} className="shrink-0 mt-px" />
             <span>
@@ -232,13 +232,13 @@ export function TemplateEditor({
           <div
             className="px-4 py-3 rounded-[var(--ui-radius-lg)] text-[13px] leading-relaxed whitespace-pre-wrap"
             style={{
-              background: 'var(--surface-sunken)',
-              border: '1px dashed var(--border-default)',
-              color: preview ? 'var(--text-primary)' : 'var(--text-tertiary)',
+              background: 'var(--ui-surface-sunken)',
+              border: '1px dashed var(--ui-border)',
+              color: preview ? 'var(--ui-text-primary)' : 'var(--ui-text-tertiary)',
             }}
           >
             {preview || 'Nothing to preview yet.'}
-            <div className="mt-2 text-[11px] text-[var(--text-tertiary)]">
+            <div className="mt-2 text-[11px] text-[var(--ui-text-tertiary)]">
               Sample data — each recipient gets their own details at send time.
             </div>
           </div>
@@ -247,8 +247,8 @@ export function TemplateEditor({
 
       {/* Description */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[13px] font-medium text-[var(--text-primary)]">
-          Description <span className="font-normal text-[var(--text-tertiary)]">— optional</span>
+        <label className="text-[13px] font-medium text-[var(--ui-text-primary)]">
+          Description <span className="font-normal text-[var(--ui-text-tertiary)]">— optional</span>
         </label>
         <input
           value={form.description}
@@ -264,7 +264,7 @@ export function TemplateEditor({
       {error && (
         <p
           className="text-[13px] font-medium px-3 py-2.5 rounded-[var(--ui-radius-lg)]"
-          style={{ background: 'var(--red-tint)', color: 'var(--red)' }}
+          style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)' }}
         >
           {error}
         </p>
@@ -275,7 +275,7 @@ export function TemplateEditor({
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50"
+          className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-hover)] hover:text-[var(--ui-text-primary)] transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
@@ -283,7 +283,7 @@ export function TemplateEditor({
           type="submit"
           disabled={!canSave}
           className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-white transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background: 'var(--brand-purple)' }}
+          style={{ background: 'var(--ui-accent)' }}
         >
           {saving ? 'Saving…' : template ? 'Save changes' : 'Create template'}
         </button>

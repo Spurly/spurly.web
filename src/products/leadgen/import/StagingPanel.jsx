@@ -128,19 +128,19 @@ export function StagingPanel({ store, onGoToUpload }) {
     return (
       <div
         className="flex flex-col items-center text-center gap-4 py-16 px-[var(--ui-pad-lg)] rounded-[var(--ui-radius-lg)]"
-        style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}
+        style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
       >
         <div
           className="w-14 h-14 rounded-[var(--ui-radius-lg)] grid place-items-center"
-          style={{ background: 'var(--accent-tint)' }}
+          style={{ background: 'var(--ui-accent-tint)' }}
         >
-          <UploadCloud size={26} style={{ color: 'var(--brand-purple)' }} />
+          <UploadCloud size={26} style={{ color: 'var(--ui-accent)' }} />
         </div>
         <div>
-          <h2 className="text-[17px] font-medium text-[var(--text-primary)] tracking-[-0.012em]">
+          <h2 className="text-[17px] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em]">
             Nothing staged yet
           </h2>
-          <p className="text-[13px] text-[var(--text-secondary)] mt-1.5 max-w-md">
+          <p className="text-[13px] text-[var(--ui-text-secondary)] mt-1.5 max-w-md">
             Import a CSV and the leads will land here. Enrich them to pull in emails and
             experience, then move the good ones into Contacts.
           </p>
@@ -158,15 +158,15 @@ export function StagingPanel({ store, onGoToUpload }) {
       {actionError && (
         <div
           className="relative flex gap-3 px-4 py-3 rounded-[var(--ui-radius-lg)]"
-          style={{ background: 'var(--red-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
+          style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
         >
-          <AlertCircle size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--red)' }} />
-          <p className="flex-1 text-[13px] pr-6" style={{ color: 'var(--text-secondary)' }}>
+          <AlertCircle size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
+          <p className="flex-1 text-[13px] pr-6" style={{ color: 'var(--ui-text-secondary)' }}>
             {actionError}
           </p>
           <button
             onClick={clearActionError}
-            className="absolute top-2.5 right-2.5 w-6 h-6 grid place-items-center rounded-[var(--ui-radius-sm)] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] transition-colors"
+            className="absolute top-2.5 right-2.5 w-6 h-6 grid place-items-center rounded-[var(--ui-radius-sm)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-hover)] transition-colors"
           >
             <X size={14} />
           </button>
@@ -178,15 +178,15 @@ export function StagingPanel({ store, onGoToUpload }) {
       {actionNotice && (
         <div
           className="relative flex gap-3 px-4 py-3 rounded-[var(--ui-radius-lg)]"
-          style={{ background: 'var(--amber-tint)', border: '1px solid rgba(255,159,10,0.22)' }}
+          style={{ background: 'var(--ui-warning-tint)', border: '1px solid rgba(255,159,10,0.22)' }}
         >
-          <Clock size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--amber)' }} />
-          <p className="flex-1 text-[13px] pr-6" style={{ color: 'var(--text-secondary)' }}>
+          <Clock size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-warning)' }} />
+          <p className="flex-1 text-[13px] pr-6" style={{ color: 'var(--ui-text-secondary)' }}>
             {actionNotice}
           </p>
           <button
             onClick={clearActionNotice}
-            className="absolute top-2.5 right-2.5 w-6 h-6 grid place-items-center rounded-[var(--ui-radius-sm)] text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] transition-colors"
+            className="absolute top-2.5 right-2.5 w-6 h-6 grid place-items-center rounded-[var(--ui-radius-sm)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-hover)] transition-colors"
           >
             <X size={14} />
           </button>
@@ -197,23 +197,23 @@ export function StagingPanel({ store, onGoToUpload }) {
       {enriching && (
         <div
           className="flex items-center gap-4 px-[var(--ui-pad-lg)] py-3.5 rounded-[var(--ui-radius-lg)]"
-          style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}
+          style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
         >
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-medium text-[var(--text-primary)]">
+            <p className="text-[13px] font-medium text-[var(--ui-text-primary)]">
               Enriching profiles — {progress.current} / {progress.total}
             </p>
-            <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">
+            <p className="text-[12px] text-[var(--ui-text-tertiary)] mt-0.5">
               Spurly is visiting each profile in a background tab. You can leave this page — it
               keeps running.
             </p>
             <div
               className="mt-2 h-1.5 rounded-full overflow-hidden"
-              style={{ background: 'var(--surface-sunken)' }}
+              style={{ background: 'var(--ui-surface-sunken)' }}
             >
               <div
                 className="h-full rounded-full transition-colors duration-500"
-                style={{ width: `${pct}%`, background: 'var(--brand-purple)' }}
+                style={{ width: `${pct}%`, background: 'var(--ui-accent)' }}
               />
             </div>
           </div>
@@ -235,9 +235,9 @@ export function StagingPanel({ store, onGoToUpload }) {
               onClick={() => setStatusFilter(filter.id)}
               className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium transition-colors"
               style={{
-                background: active ? 'var(--accent-tint)' : 'var(--surface-card)',
-                color: active ? 'var(--brand-purple)' : 'var(--text-secondary)',
-                border: `1px solid ${active ? 'transparent' : 'var(--border-hairline)'}`,
+                background: active ? 'var(--ui-accent-tint)' : 'var(--ui-surface-card)',
+                color: active ? 'var(--ui-accent)' : 'var(--ui-text-secondary)',
+                border: `1px solid ${active ? 'transparent' : 'var(--ui-border-hairline)'}`,
               }}
             >
               {filter.label}
@@ -250,7 +250,7 @@ export function StagingPanel({ store, onGoToUpload }) {
       </div>
 
       {/* Staging table */}
-      <div className="rounded-[var(--ui-radius-lg)] overflow-hidden" style={{ border: '1px solid var(--border-hairline)' }}>
+      <div className="rounded-[var(--ui-radius-lg)] overflow-hidden" style={{ border: '1px solid var(--ui-border-hairline)' }}>
         <DataTable
           columns={stagingColumns}
           data={leads}
@@ -283,7 +283,7 @@ export function StagingPanel({ store, onGoToUpload }) {
                         : undefined
                     }
                     className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: 'var(--accent-tint)', color: 'var(--brand-purple)' }}
+                    style={{ background: 'var(--ui-accent-tint)', color: 'var(--ui-accent)' }}
                   >
                     <Sparkles size={14} />
                     {resumeOnly ? 'Resume' : 'Enrich'} ({enrichableCount})
@@ -297,7 +297,7 @@ export function StagingPanel({ store, onGoToUpload }) {
                         : undefined
                     }
                     className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: 'var(--green-tint)', color: 'var(--green)' }}
+                    style={{ background: 'var(--ui-success-tint)', color: 'var(--ui-success)' }}
                   >
                     <ArrowRight size={14} />
                     Move to Contacts ({selected.size})
@@ -306,7 +306,7 @@ export function StagingPanel({ store, onGoToUpload }) {
                     onClick={() => setConfirmDelete(true)}
                     disabled={busy || enriching}
                     className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ color: 'var(--red)' }}
+                    style={{ color: 'var(--ui-danger)' }}
                   >
                     <Trash2 size={14} />
                     Delete
@@ -325,7 +325,7 @@ export function StagingPanel({ store, onGoToUpload }) {
 
       {/* Warning when promoting rows that were never enriched */}
       {selected.size > 0 && unenrichedSelected > 0 && !enriching && (
-        <p className="text-[12px] px-1" style={{ color: 'var(--text-tertiary)' }}>
+        <p className="text-[12px] px-1" style={{ color: 'var(--ui-text-tertiary)' }}>
           {unenrichedSelected} selected lead{unenrichedSelected === 1 ? ' has' : 's have'} not been
           enriched. Moving {unenrichedSelected === 1 ? 'it' : 'them'} now carries across only the
           fields from your CSV.
@@ -335,20 +335,20 @@ export function StagingPanel({ store, onGoToUpload }) {
       {/* Delete confirmation */}
       {confirmDelete && (
         <div
-          className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[var(--ui-z-modal)] flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setConfirmDelete(false);
           }}
         >
           <div
-            className="w-full max-w-sm rounded-[var(--ui-radius-lg)] p-[var(--ui-pad-lg)] shadow-[var(--shadow-lg)]"
-            style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}
+            className="w-full max-w-sm rounded-[var(--ui-radius-lg)] p-[var(--ui-pad-lg)] shadow-[var(--ui-shadow-lg)]"
+            style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
           >
-            <h3 className="text-[14px] font-medium text-[var(--text-primary)]">
+            <h3 className="text-[14px] font-medium text-[var(--ui-text-primary)]">
               Delete {selected.size} staged lead{selected.size === 1 ? '' : 's'}?
             </h3>
-            <p className="text-[13px] text-[var(--text-secondary)] mt-2">
+            <p className="text-[13px] text-[var(--ui-text-secondary)] mt-2">
               This removes them from staging only. Anyone already in your Contacts list stays
               there.
             </p>

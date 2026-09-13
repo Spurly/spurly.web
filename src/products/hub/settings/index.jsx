@@ -22,32 +22,32 @@ import { hubAccountApi } from './api.js';
 const STATUS_VIEW = {
   OK: {
     label: 'Connected',
-    tone: 'var(--green)',
-    tint: 'var(--green-tint)',
+    tone: 'var(--ui-success)',
+    tint: 'var(--ui-success-tint)',
     detail: 'Spurly can send connection requests and messages as you.',
   },
   CONNECTING: {
     label: 'Setting up',
-    tone: 'var(--text-tertiary)',
-    tint: 'var(--surface-sunken)',
+    tone: 'var(--ui-text-tertiary)',
+    tint: 'var(--ui-surface-sunken)',
     detail: 'LinkedIn is syncing. This usually takes under a minute.',
   },
   CREDENTIALS: {
     label: 'Needs reconnecting',
-    tone: 'var(--amber)',
-    tint: 'var(--amber-tint)',
+    tone: 'var(--ui-warning)',
+    tint: 'var(--ui-warning-tint)',
     detail: 'LinkedIn ended the session. Nothing will send until you reconnect.',
   },
   STOPPED: {
     label: 'Stopped',
-    tone: 'var(--red)',
-    tint: 'var(--red-tint)',
+    tone: 'var(--ui-danger)',
+    tint: 'var(--ui-danger-tint)',
     detail: 'The connection stopped unexpectedly. Reconnect to resume sending.',
   },
   DELETED: {
     label: 'Disconnected',
-    tone: 'var(--text-tertiary)',
-    tint: 'var(--surface-sunken)',
+    tone: 'var(--ui-text-tertiary)',
+    tint: 'var(--ui-surface-sunken)',
     detail: 'This account was removed. Your campaign history is kept.',
   },
 };
@@ -293,21 +293,21 @@ function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconnect }) {
           <div className="flex items-center gap-3">
             <span
               className="w-10 h-10 rounded-[var(--ui-radius-lg)] grid place-items-center shrink-0"
-              style={{ background: 'var(--surface-sunken)', color: 'var(--text-tertiary)' }}
+              style={{ background: 'var(--ui-surface-sunken)', color: 'var(--ui-text-tertiary)' }}
             >
               <Linkedin size={19} />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="text-[14px] font-medium text-[var(--text-primary)]">Not connected</div>
-              <p className="text-[13px] text-[var(--text-secondary)] mt-0.5">
+              <div className="text-[14px] font-medium text-[var(--ui-text-primary)]">Not connected</div>
+              <p className="text-[13px] text-[var(--ui-text-secondary)] mt-0.5">
                 Connect once and Spurly can send on a schedule, with your laptop closed.
               </p>
             </div>
           </div>
 
-          <p className="text-[13px] text-[var(--text-secondary)]">
+          <p className="text-[13px] text-[var(--ui-text-secondary)]">
             You sign in on LinkedIn&rsquo;s own page through our provider.{' '}
-            <span className="text-[var(--text-primary)] font-medium">
+            <span className="text-[var(--ui-text-primary)] font-medium">
               Spurly never sees or stores your password.
             </span>
           </p>
@@ -349,7 +349,7 @@ function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconnect }) {
             <div className="text-[14px] font-medium" style={{ color: view?.tone }}>
               {view?.label ?? account.status}
             </div>
-            <p className="text-[13px] text-[var(--text-secondary)] mt-0.5 truncate">
+            <p className="text-[13px] text-[var(--ui-text-secondary)] mt-0.5 truncate">
               {account.linkedinName || view?.detail}
             </p>
           </div>
@@ -367,11 +367,11 @@ function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconnect }) {
         {needsAction && (
           <div
             className="flex gap-2.5 rounded-[var(--ui-radius-md)] p-3"
-            style={{ background: 'var(--amber-tint)' }}
+            style={{ background: 'var(--ui-warning-tint)' }}
           >
-            <AlertTriangle size={16} className="shrink-0 mt-0.5" style={{ color: 'var(--amber)' }} />
-            <div className="text-[13px] text-[var(--text-secondary)]">
-              <div className="text-[var(--text-primary)] font-medium">{view?.detail}</div>
+            <AlertTriangle size={16} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-warning)' }} />
+            <div className="text-[13px] text-[var(--ui-text-secondary)]">
+              <div className="text-[var(--ui-text-primary)] font-medium">{view?.detail}</div>
               {RECONNECT_HINT[account.connectionMethod] && (
                 <p className="mt-0.5">{RECONNECT_HINT[account.connectionMethod]}</p>
               )}
@@ -410,13 +410,13 @@ function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconnect }) {
 function FreeAccountNotice() {
   return (
     <SectionCard title="Personalised invites">
-      <p className="text-[13px] text-[var(--text-secondary)]">
+      <p className="text-[13px] text-[var(--ui-text-secondary)]">
         Your LinkedIn account is on the free plan, so connection requests will be sent
         without a note. LinkedIn limits free accounts to a few personalised invites each
         month and then silently drops the note — turning it off is the only way to be sure
         what your prospects actually receive.
       </p>
-      <p className="text-[13px] text-[var(--text-secondary)] mt-2">
+      <p className="text-[13px] text-[var(--ui-text-secondary)] mt-2">
         LinkedIn Premium removes the limit, and Spurly enables notes automatically once it
         sees one.
       </p>

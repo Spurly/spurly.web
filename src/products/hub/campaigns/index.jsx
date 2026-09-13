@@ -37,15 +37,15 @@ const isLive = (c) => c?.status === 'running';
 
 function CountPills({ counts }) {
   const parts = [
-    { key: 'invited', label: 'invited', tone: 'text-[var(--text-primary)]' },
-    { key: 'pending', label: 'queued', tone: 'text-[var(--text-secondary)]' },
-    { key: 'skipped', label: 'skipped', tone: 'text-[var(--text-tertiary)]' },
+    { key: 'invited', label: 'invited', tone: 'text-[var(--ui-text-primary)]' },
+    { key: 'pending', label: 'queued', tone: 'text-[var(--ui-text-secondary)]' },
+    { key: 'skipped', label: 'skipped', tone: 'text-[var(--ui-text-tertiary)]' },
     { key: 'failed', label: 'failed', tone: 'text-[var(--ui-danger-fg)]' },
   ].filter((p) => (counts?.[p.key] ?? 0) > 0);
 
   // A brand-new campaign has only queued members; showing three zeroes next to
   // it would be noise dressed as data.
-  if (parts.length === 0) return <span className="text-[12px] text-[var(--text-tertiary)]">empty</span>;
+  if (parts.length === 0) return <span className="text-[12px] text-[var(--ui-text-tertiary)]">empty</span>;
 
   return (
     <span className="flex items-center gap-3 text-[12px] tabular-nums">
@@ -63,12 +63,12 @@ function CampaignRow({ campaign, onStart, onPause, onDelete, busy }) {
   const running = isLive(campaign);
 
   return (
-    <div className="flex items-center gap-3 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--separator)] last:border-b-0">
+    <div className="flex items-center gap-3 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--ui-border-hairline)] last:border-b-0">
       <Link to={`/hub/campaigns/${campaign._id}`} className="flex-1 min-w-0 group">
-        <span className="block text-[13px] text-[var(--text-primary)] truncate group-hover:underline">
+        <span className="block text-[13px] text-[var(--ui-text-primary)] truncate group-hover:underline">
           {campaign.name}
         </span>
-        <span className="block text-[11px] text-[var(--text-tertiary)] truncate">
+        <span className="block text-[11px] text-[var(--ui-text-tertiary)] truncate">
           {campaign.note ? 'With a note' : 'No note'}
           {campaign.pausedReason === 'account' && ' · LinkedIn needs reconnecting'}
           {campaign.pausedReason === 'breaker' && ' · stopped after repeated failures'}
@@ -214,7 +214,7 @@ export function HubCampaignsPage() {
       ) : (
         <SectionCard title="Campaigns" noPadding>
           {loading ? (
-            <p className="px-[var(--ui-pad-lg)] py-6 text-[13px] text-[var(--text-tertiary)]">Loading…</p>
+            <p className="px-[var(--ui-pad-lg)] py-6 text-[13px] text-[var(--ui-text-tertiary)]">Loading…</p>
           ) : (
             campaigns.map((campaign) => (
               <CampaignRow
