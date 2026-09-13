@@ -4,7 +4,7 @@ import {
   updateActionCost,
   updateActionBilling,
   getPlans,
-} from 'src/platform/admin/api';
+} from 'src/platform/admin/gateway/admin.js';
 import { Loader, Save, Check, AlertCircle, Plus } from 'lucide-react';
 import { AdminLayout } from 'src/platform/admin/AdminLayout';
 import { DataTable } from 'src/platform/DataTable';

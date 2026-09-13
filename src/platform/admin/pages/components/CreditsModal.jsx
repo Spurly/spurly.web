@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Plus, Minus, Loader } from 'lucide-react';
-import { updateCredits } from 'src/platform/admin/api';
+import { updateCredits } from 'src/platform/admin/gateway/admin.js';
 import { useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 

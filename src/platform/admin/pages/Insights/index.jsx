@@ -44,7 +44,7 @@ import {
   getAnalyticsOverview,
   getUserUsageAnalytics,
   getUserDailyActivity,
-} from 'src/platform/admin/api';
+} from 'src/platform/admin/gateway/admin.js';
 
 /*
  * Chart series read from the token layer like everything else.

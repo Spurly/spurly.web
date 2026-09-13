@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAllUsers } from 'src/platform/admin/api';
+import { getAllUsers } from 'src/platform/admin/gateway/admin.js';
 import { RefreshCw } from 'lucide-react';
 import { AdminLayout } from 'src/platform/admin/AdminLayout';
 import { DataTable } from 'src/platform/DataTable';

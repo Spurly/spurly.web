@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, AlertTriangle } from 'lucide-react';
-import { getPayments } from 'src/platform/admin/api';
+import { getPayments } from 'src/platform/admin/gateway/admin.js';
 import { AdminLayout } from 'src/platform/admin/AdminLayout';
 import { DataTable } from 'src/platform/DataTable';
 import { Dropdown } from 'src/ui/primitives/Dropdown';

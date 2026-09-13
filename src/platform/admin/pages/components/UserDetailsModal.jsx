@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Loader } from 'lucide-react';
-import { getUserDetails, getUserPayments } from 'src/platform/admin/api';
+import { getUserDetails, getUserPayments } from 'src/platform/admin/gateway/admin.js';
 import { Badge, useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 

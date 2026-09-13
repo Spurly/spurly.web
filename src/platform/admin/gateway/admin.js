@@ -1,7 +1,7 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
 
 /**
- * Admin API Client
+ * Admin Gateway
  * Thin wrapper over the shared apiGateway for the admin console.
  *
  * These endpoints are protected server-side by authMiddleware + adminMiddleware

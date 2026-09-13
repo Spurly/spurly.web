@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Loader } from 'lucide-react';
-import { createPlan, updatePlan } from 'src/platform/admin/api';
+import { createPlan, updatePlan } from 'src/platform/admin/gateway/admin.js';
 import { useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 

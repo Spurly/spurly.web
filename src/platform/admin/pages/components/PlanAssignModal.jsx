@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Loader } from 'lucide-react';
-import { getPlans, assignUserPlan } from 'src/platform/admin/api';
+import { getPlans, assignUserPlan } from 'src/platform/admin/gateway/admin.js';
 import { Dropdown } from 'src/ui/primitives/Dropdown';
 import { useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
