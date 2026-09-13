@@ -1,7 +1,7 @@
 import { Puzzle, RefreshCw, ExternalLink } from 'lucide-react';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
 import { Button } from 'src/ui/primitives';
-import { useExtension } from 'src/platform/extension/useExtension';
+import { useExtension } from 'src/platform/extension/hooks/useExtension';
 import { settingsStrings as t } from '../strings.js';
 
 export function ExtensionTab() {

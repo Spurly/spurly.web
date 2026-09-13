@@ -5,7 +5,7 @@ import {
   previewValuesFor,
 } from 'src/shared/utils/templateTokens.js';
 import { useCampaign } from './useCampaign.js';
-import { useExtension } from 'src/platform/extension/useExtension';
+import { useExtension } from 'src/platform/extension/hooks/useExtension';
 import { useOutreachSummary } from 'src/platform/outreach/useOutreachSummary';
 import campaignsController from '../controller/campaigns.js';
 import { useToast } from 'src/ui/primitives';
