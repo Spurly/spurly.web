@@ -38,15 +38,15 @@ const FoundersPost = lazy(() => import('src/marketing/pages/blog/FoundersPost.js
 const RecruitersPost = lazy(() => import('src/marketing/pages/blog/RecruitersPost.jsx'));
 
 // Auth + onboarding
-const SignupPage = lazy(() => import('src/platform/auth/pages/SignupPage.jsx'));
-const VerifyEmailPage = lazy(() => import('src/platform/auth/pages/VerifyEmailPage.jsx'));
-const LoginPage = lazy(() => import('src/platform/auth/pages/LoginPage.jsx'));
-const ForgotPasswordPage = lazy(() => import('src/platform/auth/pages/ForgotPasswordPage.jsx'));
-const ResetPasswordPage = lazy(() => import('src/platform/auth/pages/ResetPasswordPage.jsx'));
-const SubscribePage = lazy(() => import('src/platform/auth/pages/SubscribePage.jsx'));
-const SubscribeCallbackPage = lazy(() => import('src/platform/auth/pages/SubscribeCallbackPage.jsx'));
-const OnboardingSurveyPage = lazy(() => import('src/platform/auth/pages/OnboardingSurveyPage.jsx'));
-const InstallExtensionPage = lazy(() => import('src/platform/auth/pages/InstallExtensionPage.jsx'));
+const SignupPage = lazy(() => import('src/platform/pages/auth/SignupPage.jsx'));
+const VerifyEmailPage = lazy(() => import('src/platform/pages/auth/VerifyEmailPage.jsx'));
+const LoginPage = lazy(() => import('src/platform/pages/auth/LoginPage.jsx'));
+const ForgotPasswordPage = lazy(() => import('src/platform/pages/auth/ForgotPasswordPage.jsx'));
+const ResetPasswordPage = lazy(() => import('src/platform/pages/auth/ResetPasswordPage.jsx'));
+const SubscribePage = lazy(() => import('src/platform/pages/auth/SubscribePage.jsx'));
+const SubscribeCallbackPage = lazy(() => import('src/platform/pages/auth/SubscribeCallbackPage.jsx'));
+const OnboardingSurveyPage = lazy(() => import('src/platform/pages/auth/OnboardingSurveyPage.jsx'));
+const InstallExtensionPage = lazy(() => import('src/platform/pages/auth/InstallExtensionPage.jsx'));
 
 // products/leadgen — the signed-in dashboard
 const PeoplePage = lazy(() => import('src/products/leadgen/pages/people').then((m) => ({ default: m.PeoplePage })));

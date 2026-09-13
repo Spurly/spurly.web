@@ -4,13 +4,13 @@ import { useAuth } from 'src/platform/auth/hooks/useAuth';
 import { useSubscription } from 'src/platform/billing/hooks/useSubscription';
 import { useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import { AuthShell, WelcomeAside } from '../components/AuthShell.jsx';
-import { TrustBadges, PhoneField, phoneIsValid, buildE164 } from '../components/widgets.jsx';
-import { DEFAULT_COUNTRY } from '../countryCodes.js';
-import { StarIcon } from '../components/icons.jsx';
+import { AuthShell, WelcomeAside } from './components/AuthShell.jsx';
+import { TrustBadges, PhoneField, phoneIsValid, buildE164 } from './components/widgets.jsx';
+import { DEFAULT_COUNTRY } from './countryCodes.js';
+import { StarIcon } from './components/icons.jsx';
 import subscriptionsController from 'src/platform/billing/controller/subscriptions.js';
-import { loadCashfreeSdk } from '../gateway/cashfreeSdk.js';
-import { postAuthDestination } from '../postAuthDestination.js';
+import { loadCashfreeSdk } from 'src/platform/auth/gateway/cashfreeSdk.js';
+import { postAuthDestination } from './postAuthDestination.js';
 
 const FEATURES = [
   'Unlimited LinkedIn lead capture',

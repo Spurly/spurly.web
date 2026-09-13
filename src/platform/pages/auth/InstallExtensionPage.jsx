@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { AuthShell, WelcomeAside, Stepper } from "../components/AuthShell.jsx";
+import { AuthShell, WelcomeAside, Stepper } from "./components/AuthShell.jsx";
 import { CHROME_URL } from "src/marketing/components/Button.jsx";
 import {
   ChromeIcon,
@@ -10,7 +10,7 @@ import {
   ShieldIcon,
   ArrowRightIcon,
   CheckCircleIcon,
-} from "../components/icons.jsx";
+} from "./components/icons.jsx";
 
 const EXT_ID = "dcohpfeaohfiiinjjiinojlbnnfmihoh";
 const POLL_MS = 2000;

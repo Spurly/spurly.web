@@ -184,7 +184,7 @@ export default [
      * Last in the array on purpose: flat config is last-wins, so an override
      * placed before the block it overrides is silently re-enabled by it.
      */
-    files: ['src/ui/icons/**', 'src/platform/auth/components/icons.jsx'],
+    files: ['src/ui/icons/**', 'src/platform/pages/auth/components/icons.jsx'],
     rules: { 'no-restricted-syntax': 'off' },
   },
 ]

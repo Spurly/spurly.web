@@ -3,13 +3,13 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from 'src/platform/auth/hooks/useAuth';
 import { useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import { AuthShell, FeaturesAside } from '../components/AuthShell.jsx';
+import { AuthShell, FeaturesAside } from './components/AuthShell.jsx';
 import {
   GoogleButton, PasswordField, PasswordRules, passwordMeetsRules, TrustBadges,
   PhoneField, phoneIsValid, buildE164,
-} from '../components/widgets.jsx';
-import { DEFAULT_COUNTRY } from '../countryCodes.js';
-import { UserIcon, MailIcon, GiftIcon } from '../components/icons.jsx';
+} from './components/widgets.jsx';
+import { DEFAULT_COUNTRY } from './countryCodes.js';
+import { UserIcon, MailIcon, GiftIcon } from './components/icons.jsx';
 
 /**
  * Step 1 — Create your account.
