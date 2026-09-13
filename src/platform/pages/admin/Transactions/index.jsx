@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getTransactions } from 'src/platform/admin/gateway/admin.js';
-import { AdminLayout } from 'src/platform/admin/AdminLayout';
+import { AdminLayout } from 'src/platform/pages/admin/components/AdminLayout';
 import { DataTable } from 'src/platform/DataTable';
 import { Dropdown } from 'src/ui/primitives/Dropdown';
 import { useToast } from 'src/ui/primitives';

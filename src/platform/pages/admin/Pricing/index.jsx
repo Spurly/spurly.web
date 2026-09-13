@@ -6,11 +6,11 @@ import {
   getPlans,
 } from 'src/platform/admin/gateway/admin.js';
 import { Loader, Save, Check, AlertCircle, Plus } from 'lucide-react';
-import { AdminLayout } from 'src/platform/admin/AdminLayout';
+import { AdminLayout } from 'src/platform/pages/admin/components/AdminLayout';
 import { DataTable } from 'src/platform/DataTable';
 import { Button, useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
-import PlanFormModal from 'src/platform/admin/pages/components/PlanFormModal';
+import PlanFormModal from '../components/PlanFormModal';
 import { buildPlanColumns } from './planColumns.jsx';
 
 export function AdminPricingPage() {

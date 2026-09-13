@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Users, TrendingUp, DollarSign, ArrowLeft, BarChart3, Ticket, CreditCard } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
-import './admin.css';
+import '../admin.css';
 
 const tabs = [
   { label: 'Users', icon: Users, href: '/admin/users' },

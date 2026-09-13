@@ -31,7 +31,7 @@ import {
   Sparkles,
   Search,
 } from 'lucide-react';
-import { AdminLayout } from 'src/platform/admin/AdminLayout';
+import { AdminLayout } from 'src/platform/pages/admin/components/AdminLayout';
 import { MetricCard } from 'src/ui/primitives/MetricCard';
 import { Card, CardHeader } from 'src/ui/primitives/Card/Card';
 import { DataTable } from 'src/platform/DataTable';

@@ -68,12 +68,12 @@ const HubInboxPage = lazy(() => import('src/products/hub/pages/inbox').then((m) 
 const ImportPage = lazy(() => import('src/products/leadgen/pages/import').then((m) => ({ default: m.ImportPage })));
 
 // Admin console
-const AdminUsersPage = lazy(() => import('src/platform/admin/pages/Users').then((m) => ({ default: m.AdminUsersPage })));
-const AdminInsightsPage = lazy(() => import('src/platform/admin/pages/Insights').then((m) => ({ default: m.AdminInsightsPage })));
-const AdminTransactionsPage = lazy(() => import('src/platform/admin/pages/Transactions').then((m) => ({ default: m.AdminTransactionsPage })));
-const AdminPricingPage = lazy(() => import('src/platform/admin/pages/Pricing').then((m) => ({ default: m.AdminPricingPage })));
-const AdminPaymentsPage = lazy(() => import('src/platform/admin/pages/Payments').then((m) => ({ default: m.AdminPaymentsPage })));
-const AdminBillingPage = lazy(() => import('src/platform/admin/pages/Billing').then((m) => ({ default: m.AdminBillingPage })));
+const AdminUsersPage = lazy(() => import('src/platform/pages/admin/Users').then((m) => ({ default: m.AdminUsersPage })));
+const AdminInsightsPage = lazy(() => import('src/platform/pages/admin/Insights').then((m) => ({ default: m.AdminInsightsPage })));
+const AdminTransactionsPage = lazy(() => import('src/platform/pages/admin/Transactions').then((m) => ({ default: m.AdminTransactionsPage })));
+const AdminPricingPage = lazy(() => import('src/platform/pages/admin/Pricing').then((m) => ({ default: m.AdminPricingPage })));
+const AdminPaymentsPage = lazy(() => import('src/platform/pages/admin/Payments').then((m) => ({ default: m.AdminPaymentsPage })));
+const AdminBillingPage = lazy(() => import('src/platform/pages/admin/Billing').then((m) => ({ default: m.AdminBillingPage })));
 
 const UiPreview = lazy(() => import('src/dev/UiPreview.jsx').then((m) => ({ default: m.UiPreview })));
 

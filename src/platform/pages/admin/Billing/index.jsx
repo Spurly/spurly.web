@@ -15,7 +15,7 @@ import {
   getUnownedHubAccounts,
   bindHubAccount,
 } from 'src/platform/admin/gateway/admin.js';
-import { AdminLayout } from 'src/platform/admin/AdminLayout';
+import { AdminLayout } from 'src/platform/pages/admin/components/AdminLayout';
 import { Button, Badge, useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 
