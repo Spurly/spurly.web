@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import messageTemplatesController from 'src/products/leadgen/templates/controller.js';
+import templatesController from '../controller/templates.js';
 import { useErrorToast } from 'src/ui/primitives';
 
 /**
@@ -36,7 +36,7 @@ export function useMessageTemplates({ type, search = '', enabled = true }) {
     setLoading(true);
     setError(null);
     try {
-      const { templates: list } = await messageTemplatesController.listTemplates({
+      const { templates: list } = await templatesController.listTemplates({
         type,
         search,
       });
@@ -57,13 +57,13 @@ export function useMessageTemplates({ type, search = '', enabled = true }) {
   }, [refresh, enabled]);
 
   const create = useCallback(async (payload) => {
-    const created = await messageTemplatesController.createTemplate(payload);
+    const created = await templatesController.createTemplate(payload);
     setTemplates((list) => [created, ...list]);
     return created;
   }, []);
 
   const update = useCallback(async (templateId, payload) => {
-    const updated = await messageTemplatesController.updateTemplate(templateId, payload);
+    const updated = await templatesController.updateTemplate(templateId, payload);
     setTemplates((list) => list.map((t) => (t._id === templateId ? updated : t)));
     return updated;
   }, []);
@@ -76,7 +76,7 @@ export function useMessageTemplates({ type, search = '', enabled = true }) {
       return list.filter((t) => t._id !== templateId);
     });
     try {
-      await messageTemplatesController.deleteTemplate(templateId);
+      await templatesController.deleteTemplate(templateId);
     } catch (err) {
       setTemplates(snapshot);
       throw err;
@@ -84,7 +84,7 @@ export function useMessageTemplates({ type, search = '', enabled = true }) {
   }, []);
 
   const duplicate = useCallback(async (templateId, newName) => {
-    const copy = await messageTemplatesController.duplicateTemplate(templateId, newName);
+    const copy = await templatesController.duplicateTemplate(templateId, newName);
     setTemplates((list) => [copy, ...list]);
     return copy;
   }, []);
@@ -94,7 +94,7 @@ export function useMessageTemplates({ type, search = '', enabled = true }) {
     const { _id, isFavorite } = template;
     setTemplates((list) => list.map((t) => (t._id === _id ? { ...t, isFavorite: !isFavorite } : t)));
     try {
-      await messageTemplatesController.toggleFavorite(_id);
+      await templatesController.toggleFavorite(_id);
     } catch (err) {
       setTemplates((list) => list.map((t) => (t._id === _id ? { ...t, isFavorite } : t)));
       throw err;

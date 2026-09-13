@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, UserPlus, MessageSquare, Check, Users, Send, Square, AlertTriangle, RotateCcw, FileText, X, Eye, EyeOff, ChevronRight } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { useAuth } from 'src/platform/auth/useAuth.js';
-import { TemplatePickerModal } from 'src/products/leadgen/templates/TemplatePickerModal.jsx';
+import { TemplatePickerModal } from 'src/products/leadgen/pages/templates/components/TemplatePickerModal.jsx';
 import {
   TEMPLATE_TOKENS,
   insertTokenAt,

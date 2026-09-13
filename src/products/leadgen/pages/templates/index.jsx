@@ -1,22 +1,14 @@
 import { useState, useMemo, useEffect } from 'react';
-import {
-  Plus,
-  Search,
-  Star,
-  Copy,
-  Trash2,
-  FileText,
-  UserPlus,
-  MessageSquare,
-  AlertCircle,
-} from 'lucide-react';
+import { Plus, Search, FileText, AlertCircle, UserPlus, MessageSquare } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { useAuth } from 'src/platform/auth/useAuth.js';
-import { useMessageTemplates } from 'src/products/leadgen/templates/useMessageTemplates.js';
-import { TEMPLATE_TYPES } from 'src/products/leadgen/templates/controller.js';
+import { useMessageTemplates } from 'src/products/leadgen/templates/hooks/useMessageTemplates.js';
+import { TEMPLATE_TYPES } from 'src/products/leadgen/templates/controller/templates.js';
 import { useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import { TemplateEditor } from './TemplateEditor.jsx';
+import { TemplateEditor } from './components/TemplateEditor.jsx';
+import { TemplateCard } from './components/TemplateCard.jsx';
+import { templatesStrings as t } from './strings.js';
 
 /**
  * Templates — reusable copy for the two outreach actions.
@@ -24,24 +16,14 @@ import { TemplateEditor } from './TemplateEditor.jsx';
  * These are the same /api/message-templates records the Chrome extension's
  * Templates tab reads, so anything created here is immediately pickable when
  * sending from the extension, and vice versa. The campaign detail page pulls
- * from this list too (see TemplatePickerModal).
+ * from this list too (see components/TemplatePickerModal.jsx).
  *
  * Layout is master/detail: type tabs + list on the left, editor on the right.
  */
 
 const TABS = [
-  {
-    id: TEMPLATE_TYPES.CONNECTION,
-    label: 'Connection notes',
-    icon: UserPlus,
-    blurb: 'The note attached to a LinkedIn invitation.',
-  },
-  {
-    id: TEMPLATE_TYPES.MESSAGE,
-    label: 'Messages',
-    icon: MessageSquare,
-    blurb: 'Sent to people you’re already connected with.',
-  },
+  { id: TEMPLATE_TYPES.CONNECTION, label: t.tabs.connection.label, icon: UserPlus, blurb: t.tabs.connection.blurb },
+  { id: TEMPLATE_TYPES.MESSAGE, label: t.tabs.message.label, icon: MessageSquare, blurb: t.tabs.message.blurb },
 ];
 
 export function TemplatesPage() {
@@ -71,8 +53,8 @@ export function TemplatesPage() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const list = q
-      ? templates.filter((t) =>
-          [t.name, t.content, t.description].some((v) => (v || '').toLowerCase().includes(q)),
+      ? templates.filter((tpl) =>
+          [tpl.name, tpl.content, tpl.description].some((v) => (v || '').toLowerCase().includes(q)),
         )
       : templates;
     // Favorites first, then most recently updated.
@@ -98,9 +80,9 @@ export function TemplatesPage() {
         await create(payload);
       }
       setEditing(null);
-      toast.success(isEdit ? 'Template updated' : 'Template created');
+      toast.success(isEdit ? t.toasts.updated : t.toasts.created);
     } catch (err) {
-      toast.error(getToastError(err, "Couldn't save the template"));
+      toast.error(getToastError(err, t.toasts.saveErrorFallback));
     } finally {
       setSaving(false);
     }
@@ -109,8 +91,8 @@ export function TemplatesPage() {
   const handleDelete = async (template) => {
     const ok = await confirm({
       title: `Delete "${template.name}"?`,
-      description: "This can't be undone.",
-      confirmLabel: 'Delete template',
+      description: t.confirmDelete.descriptionSuffix,
+      confirmLabel: t.confirmDelete.confirmLabel,
     });
     if (!ok) return;
 
@@ -119,7 +101,7 @@ export function TemplatesPage() {
       if (editing && editing !== 'new' && editing._id === template._id) setEditing(null);
       toast.success(`Deleted "${template.name}"`);
     } catch (err) {
-      toast.error(getToastError(err, "Couldn't delete the template"));
+      toast.error(getToastError(err, t.toasts.deleteErrorFallback));
     }
   };
 
@@ -127,29 +109,26 @@ export function TemplatesPage() {
     try {
       const copy = await duplicate(template._id, `${template.name} (copy)`.slice(0, 100));
       setEditing(copy);
-      toast.success('Template duplicated');
+      toast.success(t.toasts.duplicated);
     } catch (err) {
-      toast.error(getToastError(err, "Couldn't duplicate the template"));
+      toast.error(getToastError(err, t.toasts.duplicateErrorFallback));
     }
   };
 
   const handleFavorite = async (template) => {
     try {
       await toggleFavorite(template);
-      toast.success(template.isFavorite ? 'Removed from favorites' : 'Added to favorites');
+      toast.success(template.isFavorite ? t.toasts.removedFavorite : t.toasts.addedFavorite);
     } catch (err) {
-      toast.error(getToastError(err, "Couldn't update this favorite"));
+      toast.error(getToastError(err, t.toasts.favoriteErrorFallback));
     }
   };
 
-  const activeTab = TABS.find((t) => t.id === type);
+  const activeTab = TABS.find((tab) => tab.id === type);
   const editingId = editing && editing !== 'new' ? editing._id : null;
 
   return (
-    <DashboardLayout
-      title="Templates"
-      subtitle="Reusable copy for connection notes and messages."
-    >
+    <DashboardLayout title={t.pageTitle} subtitle={t.pageSubtitle}>
       <div className="flex h-full min-h-0 overflow-hidden">
         {/* Left: type tabs + list */}
         <div className="flex flex-col min-h-0 flex-1 min-w-0">
@@ -188,7 +167,7 @@ export function TemplatesPage() {
                 className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] font-medium text-white transition-colors hover:brightness-95"
                 style={{ background: 'var(--ui-accent)' }}
               >
-                <Plus size={15} /> New template
+                <Plus size={15} /> {t.newTemplate}
               </button>
             </div>
 
@@ -201,7 +180,7 @@ export function TemplatesPage() {
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search templates…"
+                  placeholder={t.searchPlaceholder}
                   className="w-full h-9 pl-9 pr-3 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors"
                 />
               </div>
@@ -246,11 +225,11 @@ export function TemplatesPage() {
                 </div>
                 <div>
                   <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
-                    {search ? 'No templates match your search' : 'No templates yet'}
+                    {search ? t.emptySearch : t.emptyAll}
                   </p>
                   <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1 max-w-[380px]">
                     {search
-                      ? 'Try a different search term.'
+                      ? t.emptySearchHint
                       : `Create a ${type === TEMPLATE_TYPES.CONNECTION ? 'connection note' : 'message'} template to reuse it across campaigns and the extension.`}
                   </p>
                 </div>
@@ -260,7 +239,7 @@ export function TemplatesPage() {
                     className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] font-medium text-white"
                     style={{ background: 'var(--ui-accent)' }}
                   >
-                    <Plus size={15} /> New template
+                    <Plus size={15} /> {t.newTemplate}
                   </button>
                 )}
               </div>
@@ -289,12 +268,10 @@ export function TemplatesPage() {
             style={{ borderLeft: '1px solid var(--ui-border-hairline)', background: 'var(--ui-surface-card)' }}
           >
             <h2 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-1">
-              {editing === 'new' ? 'New template' : 'Edit template'}
+              {editing === 'new' ? t.editor.newHeading : t.editor.editHeading}
             </h2>
             <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] mb-5">
-              {type === TEMPLATE_TYPES.CONNECTION
-                ? 'Attached to the invitation. Keep it under 200 characters.'
-                : 'Sent as a LinkedIn message to your connections.'}
+              {type === TEMPLATE_TYPES.CONNECTION ? t.editor.connectionSubtitle : t.editor.messageSubtitle}
             </p>
             <TemplateEditor
               type={type}
@@ -308,103 +285,5 @@ export function TemplatesPage() {
         )}
       </div>
     </DashboardLayout>
-  );
-}
-
-function TemplateCard({ template, active, onOpen, onFavorite, onDuplicate, onDelete }) {
-  const stop = (fn) => (e) => {
-    e.stopPropagation();
-    fn();
-  };
-
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onOpen}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onOpen();
-        }
-      }}
-      className="group text-left rounded-[var(--ui-radius-lg)] p-4 cursor-pointer transition-colors focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
-      style={{
-        background: active ? 'var(--ui-accent-tint)' : 'var(--ui-surface-card)',
-        border: `1px solid ${active ? 'var(--ui-accent)' : 'var(--ui-border-hairline)'}`,
-      }}
-    >
-      <div className="flex items-start gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] truncate">
-              {template.name}
-            </h3>
-            {template.isFavorite && (
-              <Star size={13} style={{ color: 'var(--ui-warning)', fill: 'var(--ui-warning)' }} className="shrink-0" />
-            )}
-          </div>
-          {template.description && (
-            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5 truncate">
-              {template.description}
-            </p>
-          )}
-          <p
-            className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1.5 leading-snug"
-            style={{
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-            }}
-          >
-            {template.content}
-          </p>
-          {template.usageCount > 0 && (
-            <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-2 tabular-nums">
-              Used {template.usageCount} time{template.usageCount === 1 ? '' : 's'}
-            </p>
-          )}
-        </div>
-
-        {/* Row actions — always in the DOM (so they're keyboard reachable),
-            revealed on hover/focus to keep the card calm. */}
-        <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
-          <IconAction
-            label={template.isFavorite ? 'Remove favorite' : 'Mark favorite'}
-            onClick={stop(onFavorite)}
-          >
-            <Star
-              size={15}
-              style={template.isFavorite ? { color: 'var(--ui-warning)', fill: 'var(--ui-warning)' } : undefined}
-            />
-          </IconAction>
-          <IconAction label="Duplicate" onClick={stop(onDuplicate)}>
-            <Copy size={15} />
-          </IconAction>
-          <IconAction label="Delete" danger onClick={stop(onDelete)}>
-            <Trash2 size={15} />
-          </IconAction>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function IconAction({ label, children, onClick, danger = false }) {
-  return (
-    <button
-      type="button"
-      title={label}
-      aria-label={label}
-      onClick={onClick}
-      className={`w-8 h-8 grid place-items-center rounded-[var(--ui-radius-md)] transition-colors ${
-        danger
-          ? 'text-[var(--ui-text-tertiary)] hover:text-[var(--ui-danger-fg)] hover:bg-[var(--ui-danger-tint)]'
-          : 'text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-primary)] hover:bg-[var(--ui-surface-hover)]'
-      }`}
-    >
-      {children}
-    </button>
   );
 }

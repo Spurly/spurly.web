@@ -11,7 +11,7 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  *   CONNECTION_REQUEST — the note attached to a LinkedIn invitation
  *   DIRECT_MESSAGE     — a message to an existing 1st-degree connection
  */
-class MessageTemplatesApi {
+class TemplatesGateway {
   /** GET /message-templates?type=&search=&limit=&skip= */
   async list(params = {}) {
     const res = await apiGateway.get('/message-templates', { params });
@@ -61,4 +61,5 @@ class MessageTemplatesApi {
   }
 }
 
-export default new MessageTemplatesApi();
+export const templatesGateway = new TemplatesGateway();
+export default templatesGateway;

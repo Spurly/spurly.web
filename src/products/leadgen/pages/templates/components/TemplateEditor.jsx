@@ -7,6 +7,13 @@ import {
   insertTokenAt,
 } from 'src/shared/utils/templateTokens.js';
 import { AiWriteButton } from 'src/products/leadgen/personalization/AiWriteButton.jsx';
+import {
+  CONNECTION_NOTE_SOFT_LIMIT,
+  NAME_MAX,
+  SUBJECT_MAX,
+  CONTENT_MAX,
+  DESCRIPTION_MAX,
+} from 'src/products/leadgen/templates/constants.js';
 
 /**
  * Create/edit form for a single message template.
@@ -25,13 +32,6 @@ import { AiWriteButton } from 'src/products/leadgen/personalization/AiWriteButto
  *   senderName — used in the preview so {{sender}} reads correctly
  */
 
-// LinkedIn truncates invitation notes at 200 characters. The Campaign schema
-// allows 300, so this is a soft warning rather than a hard cap.
-export const CONNECTION_NOTE_SOFT_LIMIT = 200;
-const NAME_MAX = 100;
-const SUBJECT_MAX = 200;
-const CONTENT_MAX = 5000;
-const DESCRIPTION_MAX = 500;
 
 const EMPTY = { name: '', subject: '', content: '', description: '' };
 

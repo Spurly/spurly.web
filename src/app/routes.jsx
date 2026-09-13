@@ -53,7 +53,7 @@ const PeoplePage = lazy(() => import('src/products/leadgen/pages/people').then((
 const ConnectionsPage = lazy(() => import('src/products/leadgen/pages/connections').then((m) => ({ default: m.ConnectionsPage })));
 const CampaignsPage = lazy(() => import('src/products/leadgen/campaigns').then((m) => ({ default: m.CampaignsPage })));
 const CampaignDetailPage = lazy(() => import('src/products/leadgen/campaigns/CampaignDetailPage.jsx').then((m) => ({ default: m.CampaignDetailPage })));
-const TemplatesPage = lazy(() => import('src/products/leadgen/templates').then((m) => ({ default: m.TemplatesPage })));
+const TemplatesPage = lazy(() => import('src/products/leadgen/pages/templates').then((m) => ({ default: m.TemplatesPage })));
 const SettingsPage = lazy(() => import('src/products/leadgen/pages/settings').then((m) => ({ default: m.SettingsPage })));
 const LinkedInSettingsPage = lazy(() => import('src/products/hub/pages/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
 const NotificationsPage = lazy(() => import('src/platform/notifications/NotificationsPage.jsx'));

@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { X, Search, Star, FileText, Plus, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useAuth } from 'src/platform/auth/useAuth.js';
-import { useMessageTemplates } from 'src/products/leadgen/templates/useMessageTemplates.js';
-import { TYPE_FOR_ACTION } from 'src/products/leadgen/templates/controller.js';
+import { useMessageTemplates } from 'src/products/leadgen/templates/hooks/useMessageTemplates.js';
+import { TYPE_FOR_ACTION } from 'src/products/leadgen/templates/controller/templates.js';
 import { previewTemplate } from 'src/shared/utils/templateTokens.js';
-import { TemplateEditor } from 'src/products/leadgen/templates/TemplateEditor.jsx';
+import { TemplateEditor } from './TemplateEditor.jsx';
 
 /**
  * Pick a saved template to drop into a campaign's note / message fields.
