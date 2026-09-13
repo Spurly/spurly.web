@@ -1,7 +1,7 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
 
 /**
- * Research API Client
+ * Research Gateway
  *
  * Talks to /api/research — live web research about a lead and their company,
  * run by Groq's Compound system (web search executed server-side).
@@ -18,7 +18,7 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  */
 const RESEARCH_TIMEOUT_MS = 90000;
 
-class ResearchApi {
+class ResearchGateway {
   /** GET /research/status — availability and remaining daily quota */
   async status() {
     const res = await apiGateway.get('/research/status');
@@ -46,4 +46,5 @@ class ResearchApi {
   }
 }
 
-export default new ResearchApi();
+export const researchGateway = new ResearchGateway();
+export default researchGateway;

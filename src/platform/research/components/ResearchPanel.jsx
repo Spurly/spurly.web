@@ -1,8 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
 import { Globe, RefreshCw, AlertTriangle, ExternalLink } from 'lucide-react';
-import researchApi from 'src/platform/research/api.js';
-import { useToast } from 'src/ui/primitives';
-import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
+import { Skeleton } from 'src/ui/primitives';
+import { useResearch } from '../hooks/useResearch.js';
 
 /**
  * Live web research about a lead and their employer, rendered in the lead
@@ -26,11 +24,6 @@ import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
  *    because LinkedIn blocks automated access and such a link would claim a
  *    grounding that doesn't exist.
  */
-
-function unwrap(res, fallback) {
-  if (!res?.success) throw new Error(res?.message || fallback);
-  return res.data;
-}
 
 /** A labelled fact, rendered as "not found" when absent rather than hidden. */
 function Fact({ label, value }) {
@@ -77,62 +70,16 @@ function Bullets({ label, items }) {
  * @param {string} props.personId
  */
 export function ResearchPanel({ personId }) {
-  const toast = useToast();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [running, setRunning] = useState(false);
-  const [error, setError] = useState(null);
-
-  // Free read on open. A 4xx/5xx here is not worth a scary message — it just
-  // means we can't show a cached briefing, and the Research button still works.
-  useEffect(() => {
-    let alive = true;
-
-    researchApi
-      .get(personId)
-      .then((res) => {
-        if (alive) setData(res?.data || null);
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-
-    return () => {
-      alive = false;
-    };
-  }, [personId]);
-
-  const run = useCallback(
-    async (refresh = false) => {
-      setRunning(true);
-      setError(null);
-
-      try {
-        const result = unwrap(await researchApi.run(personId, refresh), 'Research failed');
-        setData(result);
-        toast.success(
-          refresh ? 'Research refreshed' : 'Research complete',
-          result?.foundCount === 0
-            ? { description: 'Nothing solid turned up for this lead.' }
-            : undefined,
-        );
-      } catch (err) {
-        /* The split that matters. Research failures are frequently operator
-           diagnostics — token budgets, model names, plan tiers — so the toast
-           says only what the user tried to do, and the full server text stays
-           in the panel below, where there's room and it's actually useful. */
-        setError(getApiErrorMessage(err, 'Research failed. Try again.'));
-        toast.error(getToastError(err, "Couldn't research this lead"));
-      } finally {
-        setRunning(false);
-      }
-    },
-    [personId, toast],
-  );
+  const { data, loading, running, error, run } = useResearch(personId);
 
   if (loading) {
-    return <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">Checking…</p>;
+    return (
+      <div className="flex flex-col gap-2.5">
+        <Skeleton width="100%" height={11} />
+        <Skeleton width="70%" height={11} />
+        <Skeleton width={140} height={28} radius="var(--ui-radius-md)" />
+      </div>
+    );
   }
 
   if (!data) {
