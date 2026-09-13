@@ -13,6 +13,7 @@ import {
 import { SenderDownBanner } from './components/SenderDownBanner.jsx';
 import { PacingBanner } from './components/PacingBanner.jsx';
 import { NoteEditor } from './components/NoteEditor.jsx';
+import { MessageEditor } from './components/MessageEditor.jsx';
 import { hubMemberColumns } from './components/columns.jsx';
 import { CAMPAIGN_STATUS_VIEW as STATUS_VIEW } from './components/statusView.js';
 import { campaignsStrings } from './strings.js';
@@ -44,6 +45,7 @@ export function CampaignDetailPage() {
     pause,
     retryFailed,
     saveNote,
+    saveMessageTemplate,
     goToPage,
   } = useCampaignDetail();
 
@@ -79,11 +81,16 @@ export function CampaignDetailPage() {
 
   const view = STATUS_VIEW[campaign.status] ?? STATUS_VIEW.draft;
   const counts = data.counts ?? {};
+  const isMessage = (campaign.type || 'connect') === 'message';
 
   return (
     <DashboardLayout
       title={campaign.name}
-      subtitle={`${counts.total ?? 0} people · ${counts.invited ?? 0} invited · ${counts.pending ?? 0} queued`}
+      subtitle={
+        isMessage
+          ? `${counts.total ?? 0} people · ${counts.messaged ?? 0} messaged · ${counts.pending ?? 0} queued`
+          : `${counts.total ?? 0} people · ${counts.invited ?? 0} invited · ${counts.pending ?? 0} queued`
+      }
       actions={
         <div className="flex items-center gap-2">
           <Badge tone={view.tone}>
@@ -132,13 +139,22 @@ export function CampaignDetailPage() {
         <SectionCard title={t.messageSectionTitle} noPadding>
           <SenderDownBanner sender={data.sender} />
           <PacingBanner campaign={campaign} pacing={data.pacing} sender={data.sender} />
-          <NoteEditor
-            key={campaign.note || 'no-note'}
-            campaign={campaign}
-            account={data.account}
-            onSave={saveNote}
-            saving={saving}
-          />
+          {isMessage ? (
+            <MessageEditor
+              key={campaign.messageTemplate || 'no-message'}
+              campaign={campaign}
+              onSave={saveMessageTemplate}
+              saving={saving}
+            />
+          ) : (
+            <NoteEditor
+              key={campaign.note || 'no-note'}
+              campaign={campaign}
+              account={data.account}
+              onSave={saveNote}
+              saving={saving}
+            />
+          )}
         </SectionCard>
 
         <DataTable
@@ -157,7 +173,11 @@ export function CampaignDetailPage() {
               >
                 <option value="">Everyone ({counts.total ?? 0})</option>
                 <option value="pending">Queued ({counts.pending ?? 0})</option>
-                <option value="invited">Invited ({counts.invited ?? 0})</option>
+                {isMessage ? (
+                  <option value="messaged">Messaged ({counts.messaged ?? 0})</option>
+                ) : (
+                  <option value="invited">Invited ({counts.invited ?? 0})</option>
+                )}
                 <option value="skipped">Skipped ({counts.skipped ?? 0})</option>
                 <option value="failed">Failed ({counts.failed ?? 0})</option>
               </select>

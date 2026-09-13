@@ -291,7 +291,7 @@ describe('under StrictMode', () => {
 });
 
 describe('creating from a selection', () => {
-  it('creates in one click and promises that nothing has been sent', async () => {
+  it('creates a connect campaign in one click and promises that nothing has been sent', async () => {
     const user = userEvent.setup();
     renderAt('/hub/leads');
 
@@ -302,13 +302,34 @@ describe('creating from a selection', () => {
     const boxes = screen.getAllByRole('checkbox');
     await user.click(boxes[boxes.length - 1]);
 
-    await user.click(await screen.findByRole('button', { name: /create campaign/i }));
+    await user.click(await screen.findByRole('button', { name: /send connection requests/i }));
 
     await waitFor(() => expect(posted.length).toBe(1));
     expect(posted[0].leadIds).toEqual(['lead-1']);
+    expect(posted[0].type).toBeUndefined();
     // No name is asked for and none is sent: the server names it, the same
     // call the extension's campaigns already made.
     expect(posted[0].name).toBeUndefined();
     expect(await screen.findByText(/nothing sends until you start it/i)).toBeInTheDocument();
+  });
+
+  it('creates a message campaign in one click, with no message text asked for upfront', async () => {
+    const user = userEvent.setup();
+    renderAt('/hub/leads');
+
+    await waitFor(() => expect(screen.getByText('Asha Menon')).toBeInTheDocument());
+
+    const boxes = screen.getAllByRole('checkbox');
+    await user.click(boxes[boxes.length - 1]);
+
+    await user.click(await screen.findByRole('button', { name: /send messages/i }));
+
+    await waitFor(() => expect(posted.length).toBe(1));
+    expect(posted[0].leadIds).toEqual(['lead-1']);
+    expect(posted[0].type).toBe('message');
+    // Same "land on the campaign's page, write it there" shape as a note —
+    // nothing is asked for here, so nothing is sent.
+    expect(posted[0].messageTemplate).toBeUndefined();
+    expect(await screen.findByText(/write your message, then start it/i)).toBeInTheDocument();
   });
 });

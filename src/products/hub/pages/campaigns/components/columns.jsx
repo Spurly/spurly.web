@@ -35,6 +35,7 @@ const STATUS_VIEW = {
 const SKIP_REASON = {
   'already-connected': 'Already a connection',
   'already-invited': 'Already invited — including from the extension',
+  'not-connected': 'Not a 1st-degree connection yet',
   unresolvable: 'No LinkedIn id to send to',
   self: 'This is you',
 };

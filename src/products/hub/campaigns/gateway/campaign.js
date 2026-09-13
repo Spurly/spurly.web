@@ -19,8 +19,8 @@ class HubCampaignsGateway {
    * joined. Those differ whenever a lead was already enrolled, and the page
    * says so rather than implying every selected row was added.
    */
-  async createCampaign({ name, note, leadIds, searchId } = {}) {
-    const res = await apiGateway.post('/hub/campaigns', { name, note, leadIds, searchId });
+  async createCampaign({ name, type, note, messageTemplate, leadIds, searchId } = {}) {
+    const res = await apiGateway.post('/hub/campaigns', { name, type, note, messageTemplate, leadIds, searchId });
     const data = res.data?.data ?? { campaign: null, enrolled: 0 };
     return { ...data, campaign: Campaign.fromResponse(data.campaign) };
   }
@@ -60,13 +60,14 @@ class HubCampaignsGateway {
     return res.data?.data ?? { enrolled: 0 };
   }
 
-  /** PATCH /hub/campaigns/:id — rename, or edit the note while stopped. */
-  async updateCampaign(id, { name, note } = {}) {
+  /** PATCH /hub/campaigns/:id — rename, or edit the note/message while stopped. */
+  async updateCampaign(id, { name, note, messageTemplate } = {}) {
     const body = {};
     if (name !== undefined) body.name = name;
     // Sent even when empty: clearing the note is a real edit, and `undefined`
     // would be indistinguishable from "leave it alone".
     if (note !== undefined) body.note = note;
+    if (messageTemplate !== undefined) body.messageTemplate = messageTemplate;
     const res = await apiGateway.patch(`/hub/campaigns/${id}`, body);
     return Campaign.fromResponse(res.data?.data?.campaign ?? null);
   }
