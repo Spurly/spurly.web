@@ -1,4 +1,6 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
+import { Chat } from '../entities/chat.js';
+import { Message } from '../entities/message.js';
 
 /**
  * Hub inbox API client.
@@ -15,7 +17,7 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  * can take a couple of seconds. It is also the only call on this page that
  * does something to a real person.
  */
-class HubInboxApi {
+class HubInboxGateway {
   /**
    * GET /hub/inbox — counts, sweep state, and whether the live feed has fired.
    *
@@ -36,7 +38,8 @@ class HubInboxApi {
     if (q) params.q = q;
     if (unread) params.unread = 'true';
     const res = await apiGateway.get('/hub/inbox/chats', { params });
-    return res.data?.data ?? { chats: [], pagination: { page: 1, limit, total: 0 } };
+    const data = res.data?.data ?? { chats: [], pagination: { page: 1, limit, total: 0 } };
+    return { ...data, chats: Chat.fromList(data.chats ?? []) };
   }
 
   /**
@@ -49,7 +52,9 @@ class HubInboxApi {
    */
   async getThread(id, { page = 1, limit = 50 } = {}) {
     const res = await apiGateway.get(`/hub/inbox/chats/${id}`, { params: { page, limit } });
-    return res.data?.data ?? null;
+    const data = res.data?.data ?? null;
+    if (!data) return null;
+    return { ...data, chat: Chat.fromResponse(data.chat), messages: Message.fromList(data.messages ?? []) };
   }
 
   /**
@@ -85,5 +90,5 @@ class HubInboxApi {
   }
 }
 
-export const hubInboxApi = new HubInboxApi();
-export default hubInboxApi;
+export const hubInboxGateway = new HubInboxGateway();
+export default hubInboxGateway;
