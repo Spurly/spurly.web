@@ -1,12 +1,9 @@
-import { useEffect, useState } from 'react';
 import { Sparkles, AlertTriangle } from 'lucide-react';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
-import { Button, useToast } from 'src/ui/primitives';
-import personalizationController, {
-  CONTEXT_FIELDS,
-  TONES,
-  describeError,
-} from 'src/products/leadgen/personalization/controller/personalization.js';
+import { Button } from 'src/ui/primitives';
+import { CONTEXT_FIELDS, TONES } from 'src/products/leadgen/personalization/controller/personalization.js';
+import { useAiContextTab } from 'src/products/leadgen/settings/hooks/useAiContextTab.js';
+import { settingsStrings as t } from '../strings.js';
 
 /**
  * "Context for Spurly" — what the user tells the AI about their business, once.
@@ -35,101 +32,23 @@ const FIELD_CLASS =
   'focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] ' +
   'transition-colors resize-none disabled:opacity-50';
 
-const EMPTY = {
-  whatWeDo: '',
-  targetAudience: '',
-  outreachGoal: '',
-  voiceRules: '',
-  defaultTone: 'professional',
-};
-
 export function AiContextTab() {
-  const toast = useToast();
-
-  const [form, setForm] = useState(EMPTY);
-  const [saved, setSaved] = useState(EMPTY);
-  const [preview, setPreview] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  /* Load failures only. A failed load leaves the form empty and misleading —
-     it would look like a blank context rather than an unread one — so that one
-     stays on screen. Save failures are transient and go to the toast. */
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    let alive = true;
-
-    personalizationController
-      .getContext()
-      .then((data) => {
-        if (!alive) return;
-        const next = {
-          whatWeDo: data.whatWeDo || '',
-          targetAudience: data.targetAudience || '',
-          outreachGoal: data.outreachGoal || '',
-          voiceRules: data.voiceRules || '',
-          defaultTone: data.defaultTone || 'professional',
-        };
-        setForm(next);
-        setSaved(next);
-        setPreview(data.preview || '');
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (!alive) return;
-        setError(describeError(err, "Couldn't load your AI context"));
-        toast.error(describeError(err, "Couldn't load your AI context"));
-        setLoading(false);
-      });
-
-    return () => {
-      alive = false;
-    };
-  }, [toast]);
-
-  const dirty = Object.keys(EMPTY).some((key) => form[key] !== saved[key]);
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-    if (!dirty || saving) return;
-
-    setSaving(true);
-
-    try {
-      // Send only what changed — a partial save keeps the request honest about
-      // the user's intent and avoids clobbering a field edited in another tab.
-      const patch = {};
-      for (const key of Object.keys(EMPTY)) {
-        if (form[key] !== saved[key]) patch[key] = form[key];
-      }
-
-      const data = await personalizationController.saveContext(patch);
-      setSaved(form);
-      setPreview(data.preview || '');
-      toast.success('Context saved');
-    } catch (err) {
-      toast.error(describeError(err, "Couldn't save your AI context"));
-    } finally {
-      setSaving(false);
-    }
-  };
+  const { form, setForm, preview, loading, saving, error, dirty, handleSave } = useAiContextTab();
 
   if (loading) {
     return (
-      <SectionCard title="Context for Spurly">
-        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">Loading…</p>
+      <SectionCard title={t.aiContext.sectionTitle}>
+        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{t.aiContext.loading}</p>
       </SectionCard>
     );
   }
 
   return (
     <form onSubmit={handleSave} className="flex flex-col gap-5">
-      <SectionCard title="Context for Spurly">
+      <SectionCard title={t.aiContext.sectionTitle}>
         <div className="flex flex-col gap-5">
           <p className="text-[var(--ui-t-body)] leading-relaxed text-[var(--ui-text-secondary)]">
-            Spurly uses this whenever it writes a connection note or message for you. Fill in what
-            you can — everything is optional, but the more you give it, the less generic the
-            writing. Nothing here is ever sent to the people you contact.
+            {t.aiContext.intro}
           </p>
 
           {CONTEXT_FIELDS.map((field) => (
@@ -160,7 +79,7 @@ export function AiContextTab() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tracking-[-0.006em]">
-              Default tone
+              {t.aiContext.defaultToneLabel}
             </label>
             <div className="flex flex-wrap gap-1.5">
               {TONES.map((tone) => (
@@ -181,7 +100,7 @@ export function AiContextTab() {
               ))}
             </div>
             <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
-              You can still pick a different tone for any single message.
+              {t.aiContext.defaultToneHint}
             </p>
           </div>
 
@@ -197,7 +116,7 @@ export function AiContextTab() {
 
           <div className="flex items-center gap-3">
             <Button type="submit" disabled={!dirty || saving}>
-              {saving ? 'Saving…' : 'Save context'}
+              {saving ? t.aiContext.saving : t.aiContext.save}
             </Button>
           </div>
         </div>
@@ -205,7 +124,7 @@ export function AiContextTab() {
 
       {/* Showing the assembled prompt turns an opaque settings form into
           something the user can predict and debug. */}
-      <SectionCard title="What the AI sees">
+      <SectionCard title={t.aiContext.previewTitle}>
         {preview ? (
           <pre
             className="px-4 py-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-label)] leading-relaxed whitespace-pre-wrap font-sans"
@@ -220,8 +139,7 @@ export function AiContextTab() {
         ) : (
           <p className="inline-flex items-start gap-2 text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
             <Sparkles size={14} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-accent)' }} />
-            Nothing yet. Until you fill something in, Spurly writes from a blank slate — correct
-            English, but it can&apos;t say anything true about you.
+            {t.aiContext.previewEmpty}
           </p>
         )}
       </SectionCard>
