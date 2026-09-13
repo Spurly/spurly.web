@@ -98,11 +98,24 @@ export default [
             'one opts out of all five.',
         },
         {
-          // Six steps: 24 / 17 / 14 / 13 / 12 / 11 / 10.
+          /*
+           * The UNION of the v1 and v2 scales, on purpose.
+           *
+           * v2 is 28 / 16 / 14 / 12.5 / 11.5 / 10.5. The v1 sizes
+           * (24 / 17 / 13 / 12 / 11 / 10) are still on screen in every
+           * page that has not been swept yet, and `npm run lint` runs
+           * with --max-warnings 147 -- tightening this rule before the
+           * sweep would turn several hundred untouched call sites into
+           * warnings and fail the gate on work nobody has done yet.
+           *
+           * Narrow this to the v2 sizes alone in the lock-it phase,
+           * once the sweep is finished. That is the moment this rule
+           * starts enforcing the scale instead of merely bounding it.
+           */
           selector:
-            'Literal[value=/text-\\[(?!(24|17|14|13|12|11|10)px)[0-9.]+px\\]/]',
+            'Literal[value=/text-\\[(?!(28|24|17|16|14|13|12\\.5|12|11\\.5|11|10\\.5|10)px)[0-9.]+px\\]/]',
           message:
-            'Font size off the scale. Use 24/17/14/13/12/11/10px (see --ui-t-* in src/ui/tokens/tokens.css).',
+            'Font size off the scale. Use 28/16/14/12.5/11.5/10.5px (see --ui-t-* in src/ui/tokens/tokens.css).',
         },
         {
           selector: 'Literal[value=/rounded-\\[[0-9]+px\\]/]',
@@ -110,9 +123,21 @@ export default [
             'Hard-coded radius. Use rounded-[var(--ui-radius-xs|sm|md|lg)].',
         },
         {
-          selector: 'Literal[value=/font-(semibold|bold|extrabold|light|thin)/]',
+          /*
+           * v2 has THREE weights: 400 body, 500 medium, 600 strong.
+           *
+           * font-semibold was banned under v1, which ran two weights and
+           * leaned on size and colour alone. That produced page titles
+           * with no more presence than the section headings beneath them.
+           * 600 is now the display/section weight -- see --ui-w-strong.
+           *
+           * Everything heavier, and everything lighter than the body, is
+           * still out: 700 in app chrome shouts, and 300 fails to hold
+           * up at 12px on a dark ground.
+           */
+          selector: 'Literal[value=/font-(bold|extrabold|black|light|thin|extralight)/]',
           message:
-            'The app has one emphasis weight: font-medium. Size and colour carry hierarchy.',
+            'Three weights only: font-normal / font-medium / font-semibold (--ui-w-*).',
         },
         {
           selector:

@@ -3,11 +3,20 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from 'src/platform/auth/AuthContext';
 import { SubscriptionProvider } from 'src/platform/billing/SubscriptionContext';
 import { ToastProvider, ConfirmProvider } from 'src/ui/primitives';
+import { ThemeProvider } from 'src/ui/theme';
 import { AppRoutes } from 'src/app/routes';
 
 function App() {
   return (
     <HelmetProvider>
+      {/*
+        * Outermost of the providers, and deliberately outside the router:
+        * the theme is a property of the document, not of a route, and it
+        * must not remount on navigation. index.html has already stamped
+        * data-theme before first paint -- this provider takes over that
+        * attribute and owns it from here.
+        */}
+      <ThemeProvider>
       {/*
         * v6 future flags, opted into early. Both are v7's behaviour and both
         * silence a console warning on every page load.
@@ -41,6 +50,7 @@ function App() {
           </SubscriptionProvider>
         </AuthProvider>
       </BrowserRouter>
+      </ThemeProvider>
     </HelmetProvider>
   );
 }

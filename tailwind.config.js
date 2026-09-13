@@ -25,9 +25,17 @@ export default {
   ],
   theme: {
     extend: {
+      /*
+       * Read through the tokens rather than restating the stacks.
+       *
+       * This file used to hold its own copy of the font lists, which is
+       * how you end up with `font-sans` and `var(--ui-font-sans)`
+       * resolving to two different faces after one of them is edited.
+       * There is one source of truth: src/ui/tokens/tokens.css.
+       */
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', 'system-ui', '"Inter"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
-        mono: ['"SF Mono"', 'ui-monospace', '"SFMono-Regular"', 'Menlo', 'Consolas', 'monospace'],
+        sans: 'var(--ui-font-sans)',
+        mono: 'var(--ui-font-mono)',
       },
     },
   },

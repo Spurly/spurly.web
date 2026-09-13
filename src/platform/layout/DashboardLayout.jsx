@@ -19,6 +19,7 @@ import { useAuth } from 'src/platform/auth/useAuth.js';
 import { SubscriptionContext } from 'src/platform/billing/SubscriptionContext';
 import { useExtension } from 'src/platform/extension/useExtension';
 import { Avatar, Tooltip } from 'src/ui/primitives';
+import { ThemeToggle } from 'src/ui/theme';
 import { NotificationBell } from 'src/platform/notifications/NotificationBell.jsx';
 import { ProductSwitcher } from './ProductSwitcher';
 
@@ -403,19 +404,33 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
             onClick={() => navigate('/dashboard/settings')}
           />
 
+          {/* Theme lives in the account row rather than in Settings.
+              It is a per-device display preference, not an account
+              setting, and burying it two pages deep is how a toggle
+              ships and nobody finds it. Collapsed, it gets its own
+              centred row so it stays reachable at 56px wide. */}
           <div className={`flex items-center gap-2 h-9 mt-1 ${expanded ? 'px-2' : 'justify-center'}`}>
             <Avatar src={user?.profilePicture} name={user?.name} size={22} />
             {expanded && (
-              <div className="min-w-0 flex-1">
-                <p className="text-[12px] font-medium text-[var(--ui-text-primary)] truncate leading-tight">
-                  {user?.name || 'User'}
-                </p>
-                <p className="text-[11px] text-[var(--ui-text-tertiary)] truncate leading-tight">
-                  {user?.email}
-                </p>
-              </div>
+              <>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[var(--ui-t-label)] font-medium text-[var(--ui-text-primary)] truncate leading-tight">
+                    {user?.name || 'User'}
+                  </p>
+                  <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] truncate leading-tight">
+                    {user?.email}
+                  </p>
+                </div>
+                <ThemeToggle expanded={false} className="shrink-0" />
+              </>
             )}
           </div>
+
+          {!expanded && (
+            <div className="flex justify-center">
+              <ThemeToggle expanded={false} />
+            </div>
+          )}
 
           {/* Quiet by default, red only on hover. A permanently red button in
               the nav treats signing out as a primary action. */}
@@ -464,9 +479,9 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
           className="flex items-center gap-3 shrink-0 bg-[var(--ui-surface-page)] border-b border-[var(--ui-border-hairline)]"
           style={{ height: 'var(--ui-band)', paddingInline: 'var(--ui-content-x)' }}
         >
-          <div className="flex items-baseline gap-2.5 min-w-0">
+          <div className="flex items-center gap-3 min-w-0">
             {title && (
-              <h1 className="text-[17px] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] truncate">
+              <h1 className="text-[var(--ui-t-page)] font-semibold tracking-[var(--ui-track-display)] text-[var(--ui-text-primary)] truncate">
                 {title}
               </h1>
             )}
