@@ -1,6 +1,6 @@
 import { Globe, RefreshCw, AlertTriangle, ExternalLink } from 'lucide-react';
 import { Skeleton } from 'src/ui/primitives';
-import { useResearch } from '../hooks/useResearch.js';
+import { useResearch } from 'src/platform/research/hooks/useResearch.js';
 
 /**
  * Live web research about a lead and their employer, rendered in the lead

@@ -4,7 +4,7 @@ import { Avatar, Badge, Drawer, EmptyState, Tabs } from 'src/ui/primitives';
 import { LinkedInIcon } from 'src/ui/icons';
 import { OutreachTimeline } from 'src/platform/pages/outreach/components/OutreachTimeline';
 import { OutreachStatusCell } from '../../cells/OutreachStatusCell';
-import { ResearchPanel } from 'src/platform/research/components/ResearchPanel.jsx';
+import { ResearchPanel } from 'src/platform/pages/research/components/ResearchPanel.jsx';
 import { absoluteTime } from 'src/shared/utils/outreach';
 import { countryCodeFromLocation, countryNameFromCode, flagUrl } from 'src/shared/utils/location';
 import { useProfilePhoto } from 'src/platform/people/hooks/profilePhoto';
