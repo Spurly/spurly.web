@@ -5,6 +5,11 @@ import { DataTable } from 'src/platform/DataTable';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
 import { Button, Badge } from 'src/ui/primitives';
 import { useCampaignDetail } from 'src/products/hub/campaigns/hooks/useCampaignDetail.js';
+import {
+  DetailPageSkeleton,
+  DetailActionsSkeleton,
+  DetailSubtitleSkeleton,
+} from '../components/DetailPageSkeleton.jsx';
 import { SenderDownBanner } from './components/SenderDownBanner.jsx';
 import { PacingBanner } from './components/PacingBanner.jsx';
 import { NoteEditor } from './components/NoteEditor.jsx';
@@ -46,8 +51,18 @@ export function CampaignDetailPage() {
 
   if (loading && !campaign) {
     return (
-      <DashboardLayout title={t.loadingPageTitle}>
-        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{t.loading}</p>
+      <DashboardLayout
+        title={t.loadingPageTitle}
+        subtitle={<DetailSubtitleSkeleton />}
+        actions={<DetailActionsSkeleton />}
+      >
+        <DetailPageSkeleton
+          backTo="/hub/campaigns"
+          backLabel={t.allCampaigns}
+          sectionTitle={t.messageSectionTitle}
+          columns={hubMemberColumns}
+          label={t.loading}
+        />
       </DashboardLayout>
     );
   }

@@ -1,10 +1,11 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Radar } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
-import { SectionCard } from 'src/ui/primitives/SectionCard';
+import { DataTable } from 'src/platform/DataTable';
 import { Button, EmptyState } from 'src/ui/primitives';
 import { useCampaigns } from 'src/products/hub/campaigns/hooks/useCampaigns.js';
-import { CampaignRow } from './components/CampaignRow.jsx';
+import { hubCampaignListColumns } from './components/listColumns.jsx';
 import { campaignsStrings } from './strings.js';
 
 export { CampaignDetailPage as HubCampaignDetailPage } from './CampaignDetailPage.jsx';
@@ -18,10 +19,26 @@ const t = campaignsStrings.list;
  * with nobody in it is a row that can only disappoint, and the audience is the
  * decision that matters. So this page has no "New campaign" button and says
  * where to start instead.
+ *
+ * A DataTable rather than a card of hand-rolled rows. The rows carried name,
+ * counts and status in the same three places a table puts them, and the table
+ * brings the loading skeleton, the fixed column widths and the row-click
+ * target with it — all three of which the card was doing by hand or not at
+ * all. The page title already says "Campaigns"; the card's own header said it
+ * a second time, and has gone with the card.
  */
 export function HubCampaignsPage() {
   const { campaigns, loading, busy, start, pause, remove } = useCampaigns();
   const navigate = useNavigate();
+
+  const columns = useMemo(
+    () => hubCampaignListColumns({ onStart: start, onPause: pause, onDelete: remove, busy }),
+    // `start`/`pause`/`remove` are rebuilt every render by the hook; depending
+    // on them would rebuild the columns every render too, and the table would
+    // lose its column-order state on each one. `busy` is the only value in
+    // here a column actually reads.
+    [busy], // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   return (
     <DashboardLayout title={t.pageTitle} subtitle={t.pageSubtitle}>
@@ -33,22 +50,15 @@ export function HubCampaignsPage() {
           action={<Button onClick={() => navigate('/hub/leads')}>{t.goToLeads}</Button>}
         />
       ) : (
-        <SectionCard title={t.sectionTitle} noPadding>
-          {loading ? (
-            <p className="px-[var(--ui-pad-lg)] py-6 text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{t.loading}</p>
-          ) : (
-            campaigns.map((campaign) => (
-              <CampaignRow
-                key={campaign._id}
-                campaign={campaign}
-                onStart={start}
-                onPause={pause}
-                onDelete={remove}
-                busy={busy}
-              />
-            ))
-          )}
-        </SectionCard>
+        <DataTable
+          columns={columns}
+          data={campaigns}
+          rowKey={(row) => row._id}
+          loading={loading}
+          onRowClick={(row) => navigate(`/hub/campaigns/${row._id}`)}
+          emptyMessage={t.emptyTitle}
+          emptyHint={t.emptyHint}
+        />
       )}
     </DashboardLayout>
   );

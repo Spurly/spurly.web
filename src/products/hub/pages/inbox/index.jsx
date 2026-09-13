@@ -5,6 +5,7 @@ import { Avatar, Button, EmptyState, Input } from 'src/ui/primitives';
 import { relativeTime } from 'src/shared/utils/outreach';
 import { useInboxPage } from 'src/products/hub/inbox/hooks/useInboxPage.js';
 import { Thread } from './components/Thread.jsx';
+import { ChatRowsSkeleton } from './components/ChatRowsSkeleton.jsx';
 import { inboxStrings as t } from './strings.js';
 
 /**
@@ -144,7 +145,7 @@ export function HubInboxPage() {
 
             <div className="flex-1 min-h-0 overflow-auto">
               {loading ? (
-                <p className="px-3 py-6 text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{t.list.loading}</p>
+                <ChatRowsSkeleton label={t.list.loading} />
               ) : chats.length === 0 ? (
                 // A filtered empty is a different sentence from an empty inbox,
                 // and offering "Sync now" here would be answering the wrong
