@@ -26,7 +26,7 @@ const money = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
  */
 function Stat({ label, value, hint, warn = false }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1 rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-white px-4 py-3">
+    <div className="flex min-w-0 flex-col gap-1 rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-4 py-3">
       <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--ui-text-secondary)]">
         {label}
       </span>

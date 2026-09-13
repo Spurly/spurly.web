@@ -25,9 +25,9 @@ export function AdminLayout({ children, title, subtitle }) {
 
   return (
     <DashboardLayout title={title || 'Admin Console'} subtitle={subtitle}>
-      <div className="admin-scope" style={{ minHeight: '100%', background: '#f8f9fa' }}>
+      <div className="admin-scope" style={{ minHeight: '100%', background: 'var(--ui-surface-page)' }}>
         {/* Sub-tab bar */}
-        <div className="flex items-center gap-1 border-b border-[var(--ui-border-hairline)] bg-white px-[var(--ui-pad-lg)] pt-3">
+        <div className="flex items-center gap-1 border-b border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-[var(--ui-pad-lg)] pt-3">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = location.pathname === tab.href;

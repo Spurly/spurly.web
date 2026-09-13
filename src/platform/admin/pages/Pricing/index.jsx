@@ -251,7 +251,7 @@ export function AdminPricingPage() {
             </div>
           )}
 
-          <div className="bg-white rounded-[var(--ui-radius-lg)] shadow-sm overflow-hidden">
+          <div className="bg-[var(--ui-surface-card)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] shadow-[var(--ui-shadow-sm)] overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="bg-[var(--ui-surface-page)] text-left text-[12px] text-[var(--ui-text-tertiary)]">

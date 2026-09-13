@@ -1,121 +1,189 @@
 /*
  * Admin console styles — scoped under `.admin-scope`.
  *
- * Ported from the standalone admin.dashboard app, rewritten as plain CSS so it
- * works regardless of the host Tailwind version and never leaks into the rest
- * of spurly.web. The old app relied on `primary`/`secondary` theme colors;
- * those are inlined here as an indigo->purple gradient.
+ * Ported from the standalone admin.dashboard app as plain CSS so it works
+ * regardless of the host Tailwind version and never leaks into the rest of
+ * spurly.web.
+ *
+ * REWRITTEN Sep 2026 against --ui-* tokens. The port arrived carrying its
+ * own palette — #fff cards, #f3f4f6 table headers, #d1d5db borders, an
+ * indigo->purple gradient button — which was invisible while the app was
+ * light-only and became the app's most visible bug the moment dark mode
+ * shipped: the surfaces stayed hardcoded white while --ui-text-primary
+ * resolved to near-white, so every heading and every table value in
+ * /admin/* rendered white on white.
+ *
+ * That is the general lesson, not an admin one: a hardcoded surface next
+ * to a tokenised text colour is a latent invisible-text bug. There is one
+ * palette now. Nothing below names a colour that isn't a token.
  */
 
 .admin-scope {
-  --admin-primary: #6366f1;
-  --admin-secondary: #8b5cf6;
+  /* Kept as names because the ported markup writes `text-primary` and
+     `focus:ring-primary`. They resolve to the brand accent now rather
+     than to the port's own indigo, so admin and app agree on what
+     "primary" means. */
+  --admin-primary: var(--ui-accent);
+  --admin-secondary: var(--ui-accent-hover);
 }
 
 /* Buttons */
 .admin-scope .btn {
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  transition: all 0.2s;
+  padding: 0 0.875rem;
+  height: 38px;
+  border-radius: var(--ui-radius-md);
+  font-family: var(--ui-font-sans);
+  font-size: var(--ui-t-body);
+  font-weight: var(--ui-w-strong);
+  transition: background-color var(--ui-dur-fast) var(--ui-ease),
+              border-color var(--ui-dur-fast) var(--ui-ease),
+              color var(--ui-dur-fast) var(--ui-ease);
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
   display: inline-flex;
   align-items: center;
+  gap: 0.5rem;
 }
+/* The gradient is gone. It was the only gradient button in the product and
+   it dated the console on sight; the app's primary is a flat accent fill. */
 .admin-scope .btn-primary {
-  background-image: linear-gradient(to right, var(--admin-primary), var(--admin-secondary));
-  color: #fff;
+  background-color: var(--ui-accent);
+  color: var(--ui-accent-on);
 }
 .admin-scope .btn-primary:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background-color: var(--ui-accent-hover);
 }
 .admin-scope .btn-secondary {
-  background-color: #e5e7eb;
-  color: #1f2937;
+  background-color: var(--ui-surface-card);
+  border-color: var(--ui-border);
+  color: var(--ui-text-primary);
 }
 .admin-scope .btn-secondary:hover {
-  background-color: #d1d5db;
+  background-color: var(--ui-accent-tint);
+  border-color: var(--ui-accent-border);
+  color: var(--ui-accent-fg);
 }
 .admin-scope .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.42;
   cursor: not-allowed;
+}
+.admin-scope .btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ui-focus-ring);
 }
 
 /* Card */
 .admin-scope .card {
-  background-color: #fff;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  background-color: var(--ui-surface-card);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-shadow-sm);
+  padding: var(--ui-pad-lg);
 }
 
 /* Inputs */
 .admin-scope .input {
   width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
+  height: 38px;
+  padding: 0 0.8125rem;
+  font-family: var(--ui-font-sans);
+  font-size: var(--ui-t-body);
+  color: var(--ui-text-primary);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-md);
   outline: none;
-  background: #fff;
+  background: var(--ui-surface-card);
+  transition: border-color var(--ui-dur-fast) var(--ui-ease),
+              box-shadow var(--ui-dur-fast) var(--ui-ease);
 }
+.admin-scope .input::placeholder { color: var(--ui-text-quaternary); }
+.admin-scope .input:hover { border-color: var(--ui-border-strong); }
 .admin-scope .input:focus {
-  border-color: var(--admin-primary);
+  border-color: var(--ui-accent);
+  box-shadow: 0 0 0 3px var(--ui-accent-tint);
 }
 
-/* Tables */
+/* Tables. Column headers take the mono micro-cap treatment, same as the
+   DataTable's, so an admin table and a product table read as one system. */
 .admin-scope .table {
   width: 100%;
   border-collapse: collapse;
+  font-size: var(--ui-t-body);
 }
 .admin-scope .table th {
-  background-color: #f3f4f6;
-  padding: 0.75rem 1rem;
+  background-color: transparent;
+  padding: 0 var(--ui-pad-x);
+  height: var(--ui-band);
   text-align: left;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-t-meta);
+  font-weight: var(--ui-w-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--ui-track-meta);
+  color: var(--ui-text-tertiary);
+  border-bottom: 1px solid var(--ui-border);
+  white-space: nowrap;
 }
 .admin-scope .table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 0 var(--ui-pad-x);
+  height: var(--ui-row);
+  color: var(--ui-text-primary);
+  border-bottom: 1px solid var(--ui-border-hairline);
+}
+.admin-scope .table tbody tr {
+  transition: background-color var(--ui-dur-fast) var(--ui-ease);
 }
 .admin-scope .table tbody tr:hover {
-  background-color: #f9fafb;
+  background-color: var(--ui-surface-hover);
 }
 
 /* Badge */
 .admin-scope .badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  height: 24px;
+  padding: 0 0.5625rem;
+  border-radius: var(--ui-radius-xs);
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-t-meta);
+  font-weight: var(--ui-w-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--ui-track-meta);
+  background-color: var(--ui-surface-sunken);
+  color: var(--ui-text-tertiary);
+  white-space: nowrap;
 }
 
 /* Modal */
 .admin-scope .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(15, 13, 24, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: var(--ui-z-modal);
 }
 .admin-scope .modal {
-  background-color: #fff;
-  border-radius: 0.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  background-color: var(--ui-surface-card);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-shadow-lg);
   max-width: 28rem;
   width: 100%;
   margin: 0 1rem;
 }
 
-/* The `text-primary` accents used by loaders/icons in the ported pages */
-.admin-scope .text-primary {
-  color: var(--admin-primary);
+/* Numbers in the console are readings like everywhere else. The ported
+   markup has no class for them, so this catches them structurally: any
+   cell the pages align right is a figure. */
+.admin-scope .table td[align="right"],
+.admin-scope .table .num {
+  font-family: var(--ui-font-mono);
+  font-variant-numeric: tabular-nums;
 }
-.admin-scope .focus\:ring-primary:focus {
-  --tw-ring-color: var(--admin-primary);
-}
+
+/* The `text-primary` accent used by loaders and icons in the ported pages. */
+.admin-scope .text-primary { color: var(--ui-accent-fg); }
+.admin-scope .focus\:ring-primary:focus { --tw-ring-color: var(--ui-accent); }

@@ -44,7 +44,7 @@ const money = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 
 function Section({ icon: Icon, title, description, action, children }) {
   return (
-    <section className="rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-white">
+    <section className="rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)]">
       <header className="flex items-start justify-between gap-4 border-b border-[var(--ui-border-hairline)] px-5 py-4">
         <div className="flex items-start gap-3 min-w-0">
           <Icon size={18} className="mt-0.5 shrink-0 text-[var(--ui-text-secondary)]" />

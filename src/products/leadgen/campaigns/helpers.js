@@ -22,11 +22,24 @@ export function timeAgo(value) {
   return `${years} yr${years === 1 ? '' : 's'} ago`;
 }
 
+/*
+ * Every stop is a token, including `completed`.
+ *
+ * It used to be a literal rgba tint with a #0891b2 teal on top — a colour
+ * from a palette this app stopped using. In light mode it merely looked
+ * foreign; in dark mode a translucent light tint over a dark card mixes to
+ * near-black and dark teal text on it is unreadable. Tinted lozenge plus
+ * `-fg` text is the pattern every other status in the product uses.
+ *
+ * `active` and `paused` also move off the `-fill` stops onto `-fg`: the
+ * fill stops are sized for white text sitting ON them, not for text sitting
+ * on their tint, which is what these actually are.
+ */
 export const STATUS_STYLES = {
-  draft: { label: 'Draft', bg: 'var(--surface-sunken)', color: 'var(--text-tertiary)' },
-  active: { label: 'Active', bg: 'var(--green-tint)', color: 'var(--green)' },
-  paused: { label: 'Paused', bg: 'var(--accent-tint)', color: 'var(--brand-purple)' },
-  completed: { label: 'Completed', bg: 'rgba(6,182,212,0.12)', color: '#0891b2' },
+  draft: { label: 'Draft', bg: 'var(--ui-surface-sunken)', color: 'var(--ui-text-tertiary)' },
+  active: { label: 'Active', bg: 'var(--ui-success-tint)', color: 'var(--ui-success-fg)' },
+  paused: { label: 'Paused', bg: 'var(--ui-warning-tint)', color: 'var(--ui-warning-fg)' },
+  completed: { label: 'Completed', bg: 'var(--ui-accent-tint)', color: 'var(--ui-accent-fg)' },
 };
 
 export const ACTION_LABELS = {
