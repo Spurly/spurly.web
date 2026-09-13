@@ -3,11 +3,11 @@ import { MapPin, Mail, Phone, Globe } from 'lucide-react';
 import { Avatar, Badge, Drawer, EmptyState, Tabs } from 'src/ui/primitives';
 import { LinkedInIcon } from 'src/ui/icons';
 import { OutreachTimeline } from 'src/platform/outreach/components/OutreachTimeline';
-import { OutreachStatusCell } from 'src/platform/people/cells/OutreachStatusCell';
+import { OutreachStatusCell } from '../../cells/OutreachStatusCell';
 import { ResearchPanel } from 'src/platform/research/components/ResearchPanel.jsx';
 import { absoluteTime } from 'src/shared/utils/outreach';
 import { countryCodeFromLocation, countryNameFromCode, flagUrl } from 'src/shared/utils/location';
-import { useProfilePhoto } from 'src/platform/people/profilePhoto';
+import { useProfilePhoto } from '../../hooks/profilePhoto';
 import { resolveTabs } from './personDetailTabs';
 import { NotesEditor } from './NotesEditor';
 import {

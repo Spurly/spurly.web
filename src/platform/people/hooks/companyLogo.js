@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import companyLogosApi from 'src/platform/people/companyLogosApi.js';
+import companyLogosGateway from '../gateway/companyLogos.js';
 
 /**
  * Company logos, resolved per company NAME, batched across the whole page.
@@ -65,7 +65,7 @@ async function flush() {
 
   for (const batch of batches) {
     try {
-      const logos = await companyLogosApi.getLogos(batch);
+      const logos = await companyLogosGateway.getLogos(batch);
       /* Cache the misses as '' too. Without that, every cell for an
          unresolvable company re-registers its name on each render and we ask
          the server about "Freelance" forever. */

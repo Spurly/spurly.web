@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import profilePhotosApi from 'src/platform/people/profilePhotosApi.js';
+import profilePhotosGateway from '../gateway/profilePhotos.js';
 
 /**
  * Captured LinkedIn avatars, resolved per profile URL, batched across the page.
@@ -59,7 +59,7 @@ async function flush() {
 
   for (const batch of batches) {
     try {
-      const photos = await profilePhotosApi.getPhotos(batch);
+      const photos = await profilePhotosGateway.getPhotos(batch);
       /* Cache the misses as '' too. Without that, every cell for a person we
          have no photo for re-registers on each render and we ask the server
          about the same people forever. */

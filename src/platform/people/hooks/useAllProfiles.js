@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import capturedLeadsController from 'src/platform/people/controller.js';
+import capturedLeadsController from '../controller/people.js';
 import { patchEntity } from 'src/shared/entities/patchEntity.js';
 import { useErrorToast } from 'src/ui/primitives';
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import capturedLeadsController from 'src/platform/people/controller.js';
+import capturedLeadsController from '../controller/people.js';
 import { useErrorToast } from 'src/ui/primitives';
 
 /**

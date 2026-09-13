@@ -1,5 +1,5 @@
-import peopleApi from 'src/platform/people/api.js';
-import { Profile } from 'src/platform/people/Profile.js';
+import peopleGateway from '../gateway/people.js';
+import { Profile } from '../entities/Profile.js';
 
 /**
  * CapturedLeads Controller
@@ -24,7 +24,7 @@ class CapturedLeadsController {
     sortBy,
     sortDir,
   } = {}) {
-    const res = await peopleApi.getPeople({
+    const res = await peopleGateway.getPeople({
       limit,
       skip,
       connectionDegree,
@@ -66,7 +66,7 @@ class CapturedLeadsController {
   async updateNotes(personId, notes) {
     if (!personId) throw new Error('personId is required');
 
-    const res = await peopleApi.updateNotes(personId, notes ?? '');
+    const res = await peopleGateway.updateNotes(personId, notes ?? '');
     if (!res?.success) {
       throw new Error(res?.message || 'Failed to save notes');
     }
@@ -74,11 +74,24 @@ class CapturedLeadsController {
   }
 
   /**
+   * Dashboard statistics (captures/enriched/verified-email counts, this
+   * week vs last week, connection-degree breakdown, top titles).
+   * @returns {Promise<Object>} statistics
+   */
+  async getStatistics() {
+    const res = await peopleGateway.getStatistics();
+    if (!res?.success || !res?.data?.statistics) {
+      throw new Error(res?.message || 'Failed to fetch metrics');
+    }
+    return res.data.statistics;
+  }
+
+  /**
    * Recent captures = the newest rows of the flat list (no "latest session"
    * concept anymore). Server already sorts People by createdAt desc.
    */
   async getRecentCaptures({ limit = 100, skip = 0 } = {}) {
-    const res = await peopleApi.getPeople({ limit, skip });
+    const res = await peopleGateway.getPeople({ limit, skip });
 
     if (!res?.success || !res?.data) {
       throw new Error(res?.message || 'Failed to fetch recent captures');
@@ -92,4 +105,5 @@ class CapturedLeadsController {
   }
 }
 
-export default new CapturedLeadsController();
+export const peopleController = new CapturedLeadsController();
+export default peopleController;

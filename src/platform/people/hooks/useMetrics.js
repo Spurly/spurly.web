@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import apiGateway from 'src/shared/gateway/apiGateway.js';
+import peopleController from '../controller/people.js';
 import { useErrorToast } from 'src/ui/primitives';
 
 /**
@@ -23,14 +23,8 @@ export function useMetrics() {
     setError(null);
 
     try {
-      const response = await apiGateway.get('/people/statistics');
-      const data = response.data;
-
-      if (data?.success && data?.data?.statistics) {
-        setMetrics(data.data.statistics);
-      } else {
-        throw new Error('Invalid response format');
-      }
+      const statistics = await peopleController.getStatistics();
+      setMetrics(statistics);
     } catch (err) {
       const message =
         err.response?.data?.message || err.message || 'Failed to fetch metrics';

@@ -1,2 +1,2 @@
-export { peopleColumns } from './columns.jsx';
+export { peopleColumns } from './components/columns.jsx';
 export { OutreachStatusCell } from './cells/OutreachStatusCell';

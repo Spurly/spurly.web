@@ -1,13 +1,13 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
-import { Profile } from 'src/platform/people/Profile.js';
+import { Profile } from '../entities/Profile.js';
 
 /**
- * People API Client
+ * People Gateway
  * The app is now a single flat "People" list per user — no sessions. Rows are
  * still wrapped in `Profile` entities so the existing table/UI components keep
  * their stable shape.
  */
-class PeopleApi {
+class PeopleGateway {
   /**
    * Get a page of the user's People list.
    * GET /people  Query: { limit, skip, connectionDegree?, search?, outreachStatus?, sort? }
@@ -83,4 +83,5 @@ class PeopleApi {
   }
 }
 
-export default new PeopleApi();
+export const peopleGateway = new PeopleGateway();
+export default peopleGateway;

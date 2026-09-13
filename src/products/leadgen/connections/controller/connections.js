@@ -1,5 +1,5 @@
 import connectionsGateway from '../gateway/connections.js';
-import { Profile } from 'src/platform/people/Profile.js';
+import { Profile } from 'src/platform/people/entities/Profile.js';
 
 /**
  * Connections Controller

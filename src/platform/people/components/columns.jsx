@@ -10,8 +10,8 @@ import {
   LinkCell,
 } from "src/platform/DataTable";
 import { degreeLabel, degreeTitle } from "src/shared/utils/connectionDegree";
-import { OutreachStatusCell } from "./cells/OutreachStatusCell";
-import { NotesCell } from "./cells/NotesCell";
+import { OutreachStatusCell } from "../cells/OutreachStatusCell";
+import { NotesCell } from "../cells/NotesCell";
 
 /**
  * Column definitions for the People table.

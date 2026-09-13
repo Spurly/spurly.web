@@ -1,11 +1,11 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
 
 /**
- * Profile Photos API Client
+ * Profile Photos Gateway
  * Resolves LinkedIn profile URLs to avatar images Spurly hosts. See
- * src/platform/people/profilePhoto.js for the store that batches these calls.
+ * src/platform/people/hooks/profilePhoto.js for the store that batches these calls.
  */
-class ProfilePhotosApi {
+class ProfilePhotosGateway {
   /**
    * POST /profile-photos/resolve  Body: { profiles: string[] }
    *
@@ -19,5 +19,5 @@ class ProfilePhotosApi {
   }
 }
 
-const profilePhotosApi = new ProfilePhotosApi();
-export default profilePhotosApi;
+export const profilePhotosGateway = new ProfilePhotosGateway();
+export default profilePhotosGateway;
