@@ -1,4 +1,4 @@
-import importedLeadsApi from 'src/products/leadgen/import/api.js';
+import importGateway from '../gateway/import.js';
 
 /**
  * Import Controller
@@ -8,6 +8,10 @@ import importedLeadsApi from 'src/products/leadgen/import/api.js';
  * the user then enriches the rows they care about (visiting each profile via
  * the extension) and promotes the finished ones into People, which is where
  * the PROFILE_CARD charge and the daily capture limit apply.
+ *
+ * Every other method here is a thin pass-through to the gateway — the hook
+ * used to call the gateway directly for these, which this closes so the
+ * controller stays the one thing pages/hooks are allowed to call.
  */
 class ImportController {
   /**
@@ -30,7 +34,7 @@ class ImportController {
       throw new Error('None of the rows had a LinkedIn profile URL');
     }
 
-    const res = await importedLeadsApi.stageLeads(valid, sourceFile);
+    const res = await importGateway.stageLeads(valid, sourceFile);
     if (!res?.success) {
       throw new Error(res?.message || 'Failed to import leads');
     }
@@ -48,6 +52,37 @@ class ImportController {
       importBatchId: d.importBatchId || null,
     };
   }
+
+  /** Get a page of staged leads. @see ImportGateway#getLeads */
+  async getLeads(options) {
+    return importGateway.getLeads(options);
+  }
+
+  /** Counts per enrichment status. */
+  async getStats() {
+    return importGateway.getStats();
+  }
+
+  /** Queue leads for enrichment. */
+  async queueEnrichment(ids) {
+    return importGateway.queueEnrichment(ids);
+  }
+
+  /** Clear the enrichment queue (Stop). */
+  async cancelEnrichment() {
+    return importGateway.cancelEnrichment();
+  }
+
+  /** Move staged leads into People. */
+  async promoteLeads(ids) {
+    return importGateway.promoteLeads(ids);
+  }
+
+  /** Delete staged leads without promoting them. */
+  async deleteLeads(ids) {
+    return importGateway.deleteLeads(ids);
+  }
 }
 
-export default new ImportController();
+export const importController = new ImportController();
+export default importController;

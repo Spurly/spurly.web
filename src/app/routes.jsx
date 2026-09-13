@@ -65,7 +65,7 @@ const HubSequencesPage = lazy(() => import('src/products/hub/pages/sequences').t
 const HubNewSequencePage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubNewSequencePage })));
 const HubSequenceDetailPage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubSequenceDetailPage })));
 const HubInboxPage = lazy(() => import('src/products/hub/pages/inbox').then((m) => ({ default: m.HubInboxPage })));
-const ImportPage = lazy(() => import('src/products/leadgen/import').then((m) => ({ default: m.ImportPage })));
+const ImportPage = lazy(() => import('src/products/leadgen/pages/import').then((m) => ({ default: m.ImportPage })));
 
 // Admin console
 const AdminUsersPage = lazy(() => import('src/platform/admin/pages/Users').then((m) => ({ default: m.AdminUsersPage })));

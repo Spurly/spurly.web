@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { PageTabs } from 'src/ui/primitives/PageTabs';
-import { useImportedLeads } from 'src/products/leadgen/import/useImportedLeads';
-import { UploadPanel } from './UploadPanel.jsx';
-import { StagingPanel } from './StagingPanel.jsx';
+import { useImportedLeads } from 'src/products/leadgen/import/hooks/useImportedLeads.js';
+import { UploadPanel } from './components/UploadPanel.jsx';
+import { StagingPanel } from './components/StagingPanel.jsx';
+import { importStrings as t } from './strings.js';
 
 /**
  * Import page.
@@ -35,15 +36,12 @@ export function ImportPage() {
   );
 
   const tabs = [
-    { id: 'staged', label: 'Staged leads', count: store.stats.total },
-    { id: 'upload', label: 'Import CSV' },
+    { id: 'staged', label: t.tabs.staged, count: store.stats.total },
+    { id: 'upload', label: t.tabs.upload },
   ];
 
   return (
-    <DashboardLayout
-      title="Import"
-      subtitle="Import a CSV, enrich the leads, then move them into Contacts."
-    >
+    <DashboardLayout title={t.pageTitle} subtitle={t.pageSubtitle}>
       <div className="flex flex-col h-full overflow-hidden">
         <PageTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 

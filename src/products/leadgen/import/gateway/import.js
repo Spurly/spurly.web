@@ -7,7 +7,7 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  * moment it's imported until the user promotes it — enrichment happens in
  * between, driven by the extension.
  */
-class ImportedLeadsApi {
+class ImportGateway {
   /**
    * Stage parsed CSV rows. Free — nothing has been captured or scraped yet.
    * POST /imported-leads/batch
@@ -70,4 +70,5 @@ class ImportedLeadsApi {
   }
 }
 
-export default new ImportedLeadsApi();
+export const importGateway = new ImportGateway();
+export default importGateway;

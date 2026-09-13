@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import importedLeadsApi from 'src/products/leadgen/import/api.js';
+import importController from '../controller/import.js';
 import {
   startEnrichment,
   stopEnrichment,
@@ -10,15 +10,7 @@ import {
   supportsEnrichment,
   MIN_ENRICH_VERSION,
 } from 'src/shared/extension/extensionBridge.js';
-
-const DEFAULT_LIMIT = 50;
-
-/**
- * Most leads the extension will drain in one run. Mirrors MAX_ENRICH_QUEUE in
- * the backend's importedLeads service — the server enforces it, this is here
- * so the user gets told before making the request.
- */
-export const MAX_ENRICH_PER_RUN = 500;
+import { DEFAULT_LIMIT, MAX_ENRICH_PER_RUN } from '../constants.js';
 
 /**
  * Owns the CSV staging area: the paginated list of imported leads, the
@@ -72,13 +64,13 @@ export function useImportedLeads() {
     try {
       const limit = q.limit || DEFAULT_LIMIT;
       const [listRes, statsRes] = await Promise.all([
-        importedLeadsApi.getLeads({
+        importController.getLeads({
           limit,
           skip: Math.max(0, (q.page - 1) * limit),
           search: q.search,
           enrichStatus: q.statusFilter,
         }),
-        importedLeadsApi.getStats(),
+        importController.getStats(),
       ]);
 
       if (listRes?.success) {
@@ -230,7 +222,7 @@ export function useImportedLeads() {
 
       setBusy(true);
       try {
-        const queueRes = await importedLeadsApi.queueEnrichment(ids);
+        const queueRes = await importController.queueEnrichment(ids);
         if (!queueRes?.success) {
           setActionError(queueRes?.message || 'Could not queue those leads');
           return { ok: false, error: queueRes?.message };
@@ -308,7 +300,7 @@ export function useImportedLeads() {
       /* best effort — the backend cancel below is what actually matters */
     }
     try {
-      await importedLeadsApi.cancelEnrichment();
+      await importController.cancelEnrichment();
     } catch {
       /* best effort */
     }
@@ -324,7 +316,7 @@ export function useImportedLeads() {
       setActionError(null);
       setBusy(true);
       try {
-        const res = await importedLeadsApi.promoteLeads(ids);
+        const res = await importController.promoteLeads(ids);
         if (!res?.success) {
           setActionError(res?.message || 'Could not move those leads');
           return { ok: false, error: res?.message };
@@ -349,7 +341,7 @@ export function useImportedLeads() {
       setActionError(null);
       setBusy(true);
       try {
-        const res = await importedLeadsApi.deleteLeads(ids);
+        const res = await importController.deleteLeads(ids);
         if (!res?.success) {
           setActionError(res?.message || 'Could not delete those leads');
           return { ok: false };
