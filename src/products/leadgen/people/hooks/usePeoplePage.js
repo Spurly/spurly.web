@@ -1,11 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, Send, RotateCcw } from 'lucide-react';
-import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
-import { DataTable } from 'src/platform/DataTable';
-import { Button, useToast } from 'src/ui/primitives';
+import { useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import { LeadDetailSidebar } from 'src/platform/people/LeadDetailSidebar';
 import { useAllProfiles } from 'src/platform/people/useAllProfiles';
 import { patchEntity } from 'src/shared/entities/patchEntity.js';
 import { useMetrics } from 'src/platform/people/useMetrics';
@@ -16,21 +12,21 @@ import { exportProfilesAsCSV } from 'src/shared/utils/csvExport';
 import { peopleColumns } from 'src/platform/people/columns.jsx';
 import { buildDegreeTabs } from 'src/platform/people/helpers';
 import campaignsController from 'src/products/leadgen/campaigns/controller.js';
-import { PeopleFilterBar } from 'src/platform/people/components/PeopleFilterBar';
-import { StatusFilter } from 'src/platform/people/components/StatusFilter';
+
+const OUTREACH_POLL_MS = 30000;
+const SEARCH_DEBOUNCE_MS = 350;
 
 /**
- * People — every profile captured from LinkedIn and Sales Navigator.
+ * All state and orchestration for the People page. Moved out of the page
+ * component unchanged.
  *
- * Data flow is unchanged from the previous version of this page: search,
- * sorting, filtering and pagination are all server-side, because the table only
- * ever holds one page. Sorting 100 rows out of 4,000 client-side would look
- * correct and be wrong.
- *
- * Layout is two horizontal bands, not three: degree tabs share a row with the
- * invite budget, and the outreach status filter moved into the table toolbar.
+ * The People DATA layer itself — the profile fetch, columns, cells, filters,
+ * the detail sidebar — stays in platform/people, because the hub product
+ * will render the same leads; this hook only owns what is specific to the
+ * leadgen view (tabs, search, sort, selection, and the two actions —
+ * create campaign, export — that are this page's own).
  */
-export function PeoplePage() {
+export function usePeoplePage() {
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -63,7 +59,7 @@ export function PeoplePage() {
   // The extension writes send results back asynchronously, so poll while the
   // page is open rather than letting counts go stale mid-campaign.
   const { summary: outreachSummary, refresh: refreshOutreach } = useOutreachSummary({
-    pollMs: 30000,
+    pollMs: OUTREACH_POLL_MS,
   });
 
   // Refs so the debounced search effect can read current tab/filter/limit
@@ -109,7 +105,7 @@ export function PeoplePage() {
         opts.sortDir = activeSort.direction;
       }
       fetchAllProfiles(opts);
-    }, 350);
+    }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [searchQuery, fetchAllProfiles]);
 
@@ -247,118 +243,37 @@ export function PeoplePage() {
   // where the status pill has since moved.
   const contactedCount = outreachSummary?.contacted || 0;
 
-  return (
-    <DashboardLayout
-      title="Contacts"
-      subtitle={`${(outreachSummary?.total || pagination.total || 0).toLocaleString()} captured · ${contactedCount.toLocaleString()} contacted`}
-    >
-      <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
-        <PeopleFilterBar
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          summary={outreachSummary}
-          outreachFilter={outreachFilter}
-          onOutreachFilterChange={handleOutreachFilterChange}
-        />
-
-        <DataTable
-          columns={peopleColumns}
-          data={profiles}
-          reorderable
-          columnOrder={columnOrder}
-          onColumnOrderChange={onColumnOrderChange}
-          rowKey={(row) => row._id}
-          density="default"
-          loading={loading}
-          error={error}
-          selectable
-          selectedKeys={selectedPeople}
-          onSelectionChange={setSelectedPeople}
-          onRowClick={setSelectedPerson}
-          sort={sort}
-          onSortChange={handleSortChange}
-          emptyMessage={
-            searchQuery
-              ? 'No contacts match your search'
-              : outreachFilter !== 'all'
-                ? 'No contacts in this status'
-                : 'No contacts captured yet'
-          }
-          emptyHint={
-            searchQuery
-              ? 'Try a different search term'
-              : outreachFilter !== 'all'
-                ? 'Try a different status filter'
-                : 'Contacts you capture from LinkedIn will appear here'
-          }
-          toolbar={{
-            searchValue: searchQuery,
-            onSearch: setSearchQuery,
-            searchPlaceholder: 'Search name, company, location',
-            bulkActions: (
-              <Button
-                size="sm"
-                variant="primary"
-                leadingIcon={<Send size={13} />}
-                onClick={handleCreateCampaign}
-                loading={creatingCampaign}
-                disabled={creatingCampaign || selectedPeople.size === 0}
-              >
-                Create campaign
-              </Button>
-            ),
-            filters: (
-              <StatusFilter
-                value={outreachFilter}
-                onChange={handleOutreachFilterChange}
-                counts={outreachSummary?.statusCounts}
-                total={outreachSummary?.total}
-              />
-            ),
-            actions: (
-              <>
-                {hasCustomColumnOrder && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    leadingIcon={<RotateCcw size={13} />}
-                    onClick={resetColumnOrder}
-                    title="Put the columns back in their default order"
-                  >
-                    Reset columns
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  leadingIcon={<Download size={13} />}
-                  onClick={handleExport}
-                  loading={isExporting}
-                  disabled={selectedPeople.size === 0 && pagination.total === 0}
-                >
-                  {selectedPeople.size > 0 ? `Export ${selectedPeople.size}` : 'Export'}
-                </Button>
-              </>
-            ),
-          }}
-          pagination={{
-            page: currentPage,
-            pageSize: pagination.limit,
-            total: pagination.total,
-            onPageChange: goToPage,
-            onPageSizeChange: setPageSize,
-          }}
-        />
-
-        {selectedPerson && (
-          <LeadDetailSidebar
-            lead={selectedPerson}
-            onClose={() => setSelectedPerson(null)}
-            onNotesSaved={handleNotesSaved}
-          />
-        )}
-      </div>
-    </DashboardLayout>
-  );
+  return {
+    activeTab,
+    outreachFilter,
+    selectedPeople,
+    setSelectedPeople,
+    selectedPerson,
+    setSelectedPerson,
+    searchQuery,
+    setSearchQuery,
+    creatingCampaign,
+    isExporting,
+    sort,
+    profiles,
+    loading,
+    error,
+    pagination,
+    goToPage,
+    setPageSize,
+    currentPage,
+    outreachSummary,
+    tabs,
+    handleTabChange,
+    handleSortChange,
+    handleOutreachFilterChange,
+    handleCreateCampaign,
+    handleExport,
+    handleNotesSaved,
+    columnOrder,
+    onColumnOrderChange,
+    resetColumnOrder,
+    hasCustomColumnOrder,
+    contactedCount,
+  };
 }

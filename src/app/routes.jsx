@@ -49,7 +49,7 @@ const OnboardingSurveyPage = lazy(() => import('src/platform/auth/OnboardingSurv
 const InstallExtensionPage = lazy(() => import('src/platform/auth/InstallExtensionPage.jsx'));
 
 // products/leadgen — the signed-in dashboard
-const PeoplePage = lazy(() => import('src/products/leadgen/people').then((m) => ({ default: m.PeoplePage })));
+const PeoplePage = lazy(() => import('src/products/leadgen/pages/people').then((m) => ({ default: m.PeoplePage })));
 const ConnectionsPage = lazy(() => import('src/products/leadgen/connections').then((m) => ({ default: m.ConnectionsPage })));
 const CampaignsPage = lazy(() => import('src/products/leadgen/campaigns').then((m) => ({ default: m.CampaignsPage })));
 const CampaignDetailPage = lazy(() => import('src/products/leadgen/campaigns/CampaignDetailPage.jsx').then((m) => ({ default: m.CampaignDetailPage })));
