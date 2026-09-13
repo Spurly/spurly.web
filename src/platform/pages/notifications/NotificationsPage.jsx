@@ -13,8 +13,8 @@ import {
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { Button, EmptyState, Skeleton } from 'src/ui/primitives';
 import { relativeTime } from 'src/shared/utils/outreach';
-import { useNotifications } from '../hooks/useNotifications.js';
-import { AvatarStack } from '../components/AvatarStack.jsx';
+import { useNotifications } from 'src/platform/notifications/hooks/useNotifications.js';
+import { AvatarStack } from './components/AvatarStack.jsx';
 
 /**
  * /dashboard/notifications — the full history behind the bell's 8-item

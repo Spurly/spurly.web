@@ -16,7 +16,7 @@ import {
 import { usePopperPosition } from 'src/ui/primitives/Popper';
 import { Button, IconButton } from 'src/ui/primitives';
 import { relativeTime } from 'src/shared/utils/outreach';
-import { useNotifications } from '../hooks/useNotifications.js';
+import { useNotifications } from 'src/platform/notifications/hooks/useNotifications.js';
 import { AvatarStack } from './AvatarStack.jsx';
 
 /**
