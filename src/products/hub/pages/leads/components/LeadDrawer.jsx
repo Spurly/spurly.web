@@ -7,7 +7,7 @@ import leadController from 'src/products/hub/leads/controller/lead.js';
 /**
  * Hub's lead detail drawer — Phase 6, 1a/1b.
  *
- * Deliberately NOT built on `platform/people/components/LeadDetailSidebar`, even though
+ * Deliberately NOT built on `products/leadgen/pages/people/components/LeadDetailSidebar`, even though
  * the visual language (Drawer + identity block + Section blocks) is the same
  * on purpose. Hub's isolation boundary (see UNIPILE_MODULE_PLAN.md §0 /
  * [[unipile_api_module]]) shares exactly `platform/outreach` plus

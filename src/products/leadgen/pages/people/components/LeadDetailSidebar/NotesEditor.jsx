@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import capturedLeadsController from '../../controller/people.js';
+import capturedLeadsController from 'src/products/leadgen/people/controller/people.js';
 
 /** Mirrors the `maxlength` on the Person schema. */
 export const NOTES_MAX_LENGTH = 5000;

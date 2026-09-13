@@ -1,5 +1,5 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
-import { Profile } from 'src/platform/people/entities/Profile.js';
+import { Profile } from 'src/products/leadgen/people/entities/Profile.js';
 
 /**
  * Connections API Client

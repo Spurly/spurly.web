@@ -2,15 +2,15 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import { useAllProfiles } from 'src/platform/people/hooks/useAllProfiles';
+import { useAllProfiles } from './useAllProfiles.js';
 import { patchEntity } from 'src/shared/entities/patchEntity.js';
-import { useMetrics } from 'src/platform/people/hooks/useMetrics';
+import { useMetrics } from './useMetrics.js';
 import { useOutreachSummary } from 'src/platform/outreach/hooks/useOutreachSummary';
-import { useTableColumnOrder } from 'src/platform/people/hooks/useTableColumnOrder';
-import capturedLeadsController from 'src/platform/people/controller/people.js';
+import { useTableColumnOrder } from './useTableColumnOrder.js';
+import capturedLeadsController from '../controller/people.js';
 import { exportProfilesAsCSV } from 'src/shared/utils/csvExport';
-import { peopleColumns } from 'src/platform/people/components/columns.jsx';
-import { buildDegreeTabs } from 'src/platform/people/helpers';
+import { peopleColumns } from '../../pages/people/components/columns.jsx';
+import { buildDegreeTabs } from '../helpers.js';
 import campaignsController from 'src/products/leadgen/campaigns/controller/campaigns.js';
 
 const OUTREACH_POLL_MS = 30000;
@@ -20,11 +20,16 @@ const SEARCH_DEBOUNCE_MS = 350;
  * All state and orchestration for the People page. Moved out of the page
  * component unchanged.
  *
- * The People DATA layer itself — the profile fetch, columns, cells, filters,
- * the detail sidebar — stays in platform/people, because the hub product
- * will render the same leads; this hook only owns what is specific to the
- * leadgen view (tabs, search, sort, selection, and the two actions —
- * create campaign, export — that are this page's own).
+ * The People DATA layer itself — the profile fetch, controller, entities,
+ * columns, cells, filters, the detail sidebar — lives alongside this hook
+ * in products/leadgen/people and products/leadgen/pages/people, since in
+ * practice leadgen is the only product that renders it today; this hook
+ * owns what is specific to the leadgen VIEW (tabs, search, sort, selection,
+ * and the two actions — create campaign, export — that are this page's
+ * own). Only the two hooks resolving company logos and profile photos
+ * (platform/people/hooks/companyLogo.js, profilePhoto.js) stayed in
+ * platform/people — platform/DataTable's shared cell components call them
+ * directly, and hub's own tables go through DataTable too.
  */
 export function usePeoplePage() {
   const toast = useToast();

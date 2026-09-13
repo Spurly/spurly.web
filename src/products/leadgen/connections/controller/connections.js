@@ -1,5 +1,5 @@
 import connectionsGateway from '../gateway/connections.js';
-import { Profile } from 'src/platform/people/entities/Profile.js';
+import { Profile } from 'src/products/leadgen/people/entities/Profile.js';
 
 /**
  * Connections Controller

@@ -2,10 +2,10 @@ import { Download, Send, RotateCcw } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { DataTable } from 'src/platform/DataTable';
 import { Button } from 'src/ui/primitives';
-import { LeadDetailSidebar } from 'src/platform/people/components/LeadDetailSidebar';
-import { peopleColumns } from 'src/platform/people/components/columns.jsx';
-import { PeopleFilterBar } from 'src/platform/people/components/PeopleFilterBar';
-import { StatusFilter } from 'src/platform/people/components/StatusFilter';
+import { LeadDetailSidebar } from './components/LeadDetailSidebar';
+import { peopleColumns } from './components/columns.jsx';
+import { PeopleFilterBar } from './components/PeopleFilterBar';
+import { StatusFilter } from './components/StatusFilter';
 import { usePeoplePage } from 'src/products/leadgen/people/hooks/usePeoplePage.js';
 import { peopleStrings as t } from './strings.js';
 
