@@ -10,6 +10,7 @@ import { PacingBanner } from './components/PacingBanner.jsx';
 import { NoteEditor } from './components/NoteEditor.jsx';
 import { hubMemberColumns } from './components/columns.jsx';
 import { CAMPAIGN_STATUS_VIEW as STATUS_VIEW } from './components/statusView.js';
+import { campaignsStrings } from './strings.js';
 
 /**
  * One campaign: what it will say, who is in it, and why it is or is not
@@ -41,19 +42,21 @@ export function CampaignDetailPage() {
     goToPage,
   } = useCampaignDetail();
 
+  const t = campaignsStrings.detail;
+
   if (loading && !campaign) {
     return (
-      <DashboardLayout title="Campaign">
-        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">Loading…</p>
+      <DashboardLayout title={t.loadingPageTitle}>
+        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{t.loading}</p>
       </DashboardLayout>
     );
   }
 
   if (!campaign) {
     return (
-      <DashboardLayout title="Campaign">
+      <DashboardLayout title={t.loadingPageTitle}>
         <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
-          That campaign is not here. <Link to="/hub/campaigns" className="underline">Back to campaigns</Link>
+          {t.notFound} <Link to="/hub/campaigns" className="underline">{t.backToCampaigns}</Link>
         </p>
       </DashboardLayout>
     );
@@ -82,16 +85,16 @@ export function CampaignDetailPage() {
               disabled={busy}
               onClick={retryFailed}
             >
-              Retry failed
+              {t.retryFailed}
             </Button>
           )}
           {running ? (
             <Button size="sm" variant="secondary" leadingIcon={<Pause size={13} />} disabled={busy} onClick={pause}>
-              Pause
+              {t.pause}
             </Button>
           ) : (
             <Button size="sm" leadingIcon={<Play size={13} />} disabled={busy || campaign.status === 'done'} onClick={start}>
-              {campaign.status === 'paused' ? 'Resume' : 'Start sending'}
+              {campaign.status === 'paused' ? t.resume : t.startSending}
             </Button>
           )}
         </div>
@@ -99,7 +102,7 @@ export function CampaignDetailPage() {
     >
       <div className="flex flex-col gap-4">
         <Link to="/hub/campaigns" className="inline-flex items-center gap-1 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] hover:underline">
-          <ArrowLeft size={13} aria-hidden="true" /> All campaigns
+          <ArrowLeft size={13} aria-hidden="true" /> {t.allCampaigns}
         </Link>
 
         {campaign.error && (
@@ -111,7 +114,7 @@ export function CampaignDetailPage() {
           </div>
         )}
 
-        <SectionCard title="Message" noPadding>
+        <SectionCard title={t.messageSectionTitle} noPadding>
           <SenderDownBanner sender={data.sender} />
           <PacingBanner campaign={campaign} pacing={data.pacing} sender={data.sender} />
           <NoteEditor

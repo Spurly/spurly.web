@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom';
 import { useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import campaignController from '../controller/campaign.js';
+import { POLL_MS } from '../constants.js';
 
-const POLL_MS = 10000;
 
 /**
  * All state for one campaign's detail page: the campaign envelope (campaign +

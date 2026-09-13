@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import campaignController from '../controller/campaign.js';
+import { POLL_MS } from '../constants.js';
 
-const POLL_MS = 10000;
 
 /** Only a running campaign has anything new to report. */
 export const isLive = (c) => c?.status === 'running';

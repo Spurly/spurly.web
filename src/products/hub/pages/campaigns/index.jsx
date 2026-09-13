@@ -5,8 +5,11 @@ import { SectionCard } from 'src/ui/primitives/SectionCard';
 import { Button, EmptyState } from 'src/ui/primitives';
 import { useCampaigns } from 'src/products/hub/campaigns/hooks/useCampaigns.js';
 import { CampaignRow } from './components/CampaignRow.jsx';
+import { campaignsStrings } from './strings.js';
 
 export { CampaignDetailPage as HubCampaignDetailPage } from './CampaignDetailPage.jsx';
+
+const t = campaignsStrings.list;
 
 /**
  * Hub campaigns — the list.
@@ -21,21 +24,18 @@ export function HubCampaignsPage() {
   const navigate = useNavigate();
 
   return (
-    <DashboardLayout
-      title="Campaigns"
-      subtitle="Connection requests, sent from our servers on a human schedule."
-    >
+    <DashboardLayout title={t.pageTitle} subtitle={t.pageSubtitle}>
       {!loading && campaigns.length === 0 ? (
         <EmptyState
           icon={<Radar size={20} />}
-          title="No campaigns yet"
-          hint="Campaigns are built from your leads. Pick the people you want to reach, then create one from the selection."
-          action={<Button onClick={() => navigate('/hub/leads')}>Go to leads</Button>}
+          title={t.emptyTitle}
+          hint={t.emptyHint}
+          action={<Button onClick={() => navigate('/hub/leads')}>{t.goToLeads}</Button>}
         />
       ) : (
-        <SectionCard title="Campaigns" noPadding>
+        <SectionCard title={t.sectionTitle} noPadding>
           {loading ? (
-            <p className="px-[var(--ui-pad-lg)] py-6 text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">Loading…</p>
+            <p className="px-[var(--ui-pad-lg)] py-6 text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{t.loading}</p>
           ) : (
             campaigns.map((campaign) => (
               <CampaignRow
