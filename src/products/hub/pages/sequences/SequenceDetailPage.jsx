@@ -5,6 +5,11 @@ import { DataTable } from 'src/platform/DataTable';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
 import { Button, Badge } from 'src/ui/primitives';
 import { useSequenceDetail } from 'src/products/hub/sequences/hooks/useSequenceDetail.js';
+import {
+  DetailPageSkeleton,
+  DetailActionsSkeleton,
+  DetailSubtitleSkeleton,
+} from '../components/DetailPageSkeleton.jsx';
 import { SequenceStepBuilder } from './components/SequenceStepBuilder.jsx';
 import { hubEnrollmentColumns } from './components/columns.jsx';
 import { SEQUENCE_STATUS_VIEW as STATUS_VIEW } from './components/statusView.js';
@@ -48,8 +53,18 @@ export function SequenceDetailPage() {
 
   if (loading && !sequence) {
     return (
-      <DashboardLayout title={t.loadingPageTitle}>
-        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{t.loading}</p>
+      <DashboardLayout
+        title={t.loadingPageTitle}
+        subtitle={<DetailSubtitleSkeleton />}
+        actions={<DetailActionsSkeleton />}
+      >
+        <DetailPageSkeleton
+          backTo="/hub/sequences"
+          backLabel={t.allSequences}
+          sectionTitle={t.stepsSectionTitle}
+          columns={hubEnrollmentColumns()}
+          label={t.loading}
+        />
       </DashboardLayout>
     );
   }

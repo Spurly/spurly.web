@@ -3,6 +3,7 @@ import { Loader2, Send, Lock } from 'lucide-react';
 import { Avatar, Badge, Button } from 'src/ui/primitives';
 import { absoluteTime } from 'src/shared/utils/outreach';
 import { useThread } from 'src/products/hub/inbox/hooks/useThread.js';
+import { ThreadSkeleton } from './ThreadSkeleton.jsx';
 import { inboxStrings as t } from '../strings.js';
 
 /**
@@ -84,7 +85,7 @@ export function Thread({ chatId, onChanged }) {
   }
 
   if (loading && !data) {
-    return <div className="grid place-items-center h-full text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{t.thread.loading}</div>;
+    return <ThreadSkeleton label={t.thread.loading} />;
   }
 
   return (

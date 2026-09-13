@@ -116,7 +116,14 @@ export function DataTable({
   }, []);
 
   return (
-    <div className={`flex flex-col min-h-0 h-full bg-[var(--ui-surface-card)] ${className}`}>
+    <div
+      /* The skeleton body below is a LOADING state, and nothing about a grey
+         bar says so to a screen reader — or to a test. One attribute on the
+         container covers every table in the app. */
+      aria-busy={loading ? 'true' : undefined}
+      role={loading ? 'status' : undefined}
+      className={`flex flex-col min-h-0 h-full bg-[var(--ui-surface-card)] ${className}`}
+    >
       {toolbar && (
         <div
           className={`shrink-0 relative z-[3] transition-shadow duration-[var(--ui-dur-base)] ${
