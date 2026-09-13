@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Linkedin, Send, Search } from 'lucide-react';
+import { Linkedin, Send, MessageSquare, Search } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { DataTable } from 'src/platform/DataTable';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
@@ -48,6 +48,7 @@ export function HubLeadsPage() {
     runSearch,
     deleteSearch,
     createCampaign,
+    createMessageCampaign,
     enrollInSequence,
     handleLeadResolved,
   } = useLeadsPage();
@@ -153,6 +154,21 @@ export function HubLeadsPage() {
                   disabled={creating || selected.size === 0}
                 >
                   {t.table.createCampaign}
+                </Button>
+                {/* A message campaign is scoped to leads who are already
+                    1st-degree connections — see createMessageCampaign's own
+                    comment. Selecting a mix is fine: anyone not yet connected
+                    is simply skipped once the campaign runs, same as every
+                    other skip reason on the detail page's member table. */}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  leadingIcon={<MessageSquare size={13} />}
+                  onClick={createMessageCampaign}
+                  loading={creating}
+                  disabled={creating || selected.size === 0}
+                >
+                  {t.table.createMessageCampaign}
                 </Button>
                 <select
                   value=""

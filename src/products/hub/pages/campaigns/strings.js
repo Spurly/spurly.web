@@ -12,7 +12,7 @@
 export const campaignsStrings = {
   list: {
     pageTitle: 'Campaigns',
-    pageSubtitle: 'Connection requests, sent from our servers on a human schedule.',
+    pageSubtitle: 'Connection requests and messages, sent from our servers on a human schedule.',
     sectionTitle: 'Campaigns',
     loading: 'Loading…',
     emptyTitle: 'No campaigns yet',

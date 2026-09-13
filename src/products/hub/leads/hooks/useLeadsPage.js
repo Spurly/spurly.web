@@ -224,6 +224,37 @@ export function useLeadsPage() {
   };
 
   /**
+   * Same one-click, no-dialog shape as createCampaign above, for a
+   * `type: 'message'` campaign instead. No message text is asked for here —
+   * exactly like a connect campaign never asks for its note upfront, the
+   * server does not require one to create the campaign, only to start it.
+   * The user lands on the campaign's page, writes the message there, then
+   * presses Start. A message campaign is scoped to leads who are already
+   * 1st-degree connections; anyone else in the selection is simply skipped
+   * when the campaign runs (the detail page's member table says why, same as
+   * every other skip reason).
+   */
+  const createMessageCampaign = async () => {
+    if (selected.size === 0 || creating) return;
+    setCreating(true);
+    try {
+      const { campaign, enrolled } = await campaignController.createCampaign({
+        type: 'message',
+        leadIds: [...selected],
+      });
+      if (!campaign?._id) throw new Error('Campaign was not created');
+      toast.success(`${enrolled} lead(s) added. Write your message, then start it.`);
+      navigate(`/hub/campaigns/${campaign._id}`);
+    } catch (err) {
+      const code = err?.response?.data?.code;
+      if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
+      else toast.error(getToastError(err, 'Could not create that campaign'));
+    } finally {
+      if (mountedRef.current) setCreating(false);
+    }
+  };
+
+  /**
    * Enroll the current selection into an existing sequence, picked from the
    * toolbar select. Sequences themselves are built on their own page
    * (/hub/sequences/new) — a lead selection has nothing to configure, so this
@@ -282,6 +313,7 @@ export function useLeadsPage() {
     runSearch,
     deleteSearch,
     createCampaign,
+    createMessageCampaign,
     enrollInSequence,
     handleLeadResolved,
   };

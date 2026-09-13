@@ -10,6 +10,10 @@
 export function CountPills({ counts }) {
   const parts = [
     { key: 'invited', label: 'invited', tone: 'text-[var(--ui-text-primary)]' },
+    // A campaign is one type or the other — never both invited and messaged
+    // counts above zero at once — so these sit in the same slot rather than
+    // widening the row for a campaign that only ever uses one of them.
+    { key: 'messaged', label: 'messaged', tone: 'text-[var(--ui-text-primary)]' },
     { key: 'pending', label: 'queued', tone: 'text-[var(--ui-text-secondary)]' },
     { key: 'skipped', label: 'skipped', tone: 'text-[var(--ui-text-tertiary)]' },
     { key: 'failed', label: 'failed', tone: 'text-[var(--ui-danger-fg)]' },

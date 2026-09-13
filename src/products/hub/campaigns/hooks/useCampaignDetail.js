@@ -116,6 +116,20 @@ export function useCampaignDetail() {
     }
   };
 
+  /** Same shape as saveNote, for a `type: 'message'` campaign's template. */
+  const saveMessageTemplate = async (messageTemplate) => {
+    setSaving(true);
+    try {
+      await campaignController.updateCampaign(id, { messageTemplate });
+      toast.success('Message saved');
+      await load();
+    } catch (err) {
+      toast.error(getToastError(err, 'Could not save that message'));
+    } finally {
+      if (mountedRef.current) setSaving(false);
+    }
+  };
+
   return {
     data,
     campaign,
@@ -131,6 +145,7 @@ export function useCampaignDetail() {
     pause,
     retryFailed,
     saveNote,
+    saveMessageTemplate,
     goToPage: loadMembers,
   };
 }

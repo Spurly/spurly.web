@@ -46,12 +46,12 @@ export function hubCampaignListColumns({ onStart, onPause, onDelete, busy }) {
       ),
     },
     {
-      key: 'note',
-      label: 'Note',
+      key: 'type',
+      label: 'Sends',
       width: 90,
-      /* Whether a campaign personalises its invitation is a yes/no a user
-         scans for, not prose — the note itself is on the detail page. */
-      render: (value) => <TextCell value={value ? 'Note' : null} tone="secondary" />,
+      /* What a campaign DOES, not what it says — the note or message text
+         itself is on the detail page. */
+      render: (value) => <TextCell value={value === 'message' ? 'Message' : 'Connect'} tone="secondary" />,
     },
     {
       key: 'actions',
