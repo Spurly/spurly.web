@@ -29,6 +29,11 @@ export const leadsStrings = {
     enrolling: 'Enrolling…',
     enrollTitleDisabled: 'Create a sequence first',
     enrollTitleEnabled: 'Enroll the selection in a sequence',
+    // The "which audience am I looking at" picker, right on the table —
+    // moved out of the dock so filtering the list doesn't require opening a
+    // panel first. Defaults to everyone.
+    listFilterLabel: 'Filter by list',
+    listFilterAll: 'All people',
   },
   dock: {
     label: 'Audiences',

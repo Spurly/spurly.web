@@ -1,7 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Sparkles, ArrowRight, Trash2, Square, AlertCircle, X, UploadCloud, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, ArrowRight, Trash2, Square, AlertCircle, X, UploadCloud, Clock, Upload } from 'lucide-react';
 import { DataTable } from 'src/platform/DataTable';
 import { Button, useToast } from 'src/ui/primitives';
+import { getToastError } from 'src/shared/utils/apiError';
+import hubImportGateway from 'src/platform/hubImport/gateway/hubImport.js';
+import { ImportToHubModal } from 'src/products/leadgen/shared/components/ImportToHubModal.jsx';
 import { stagingColumns } from './stagingColumns.jsx';
 
 /**
@@ -52,8 +56,11 @@ export function StagingPanel({ store, onGoToUpload }) {
   } = store;
 
   const toast = useToast();
+  const navigate = useNavigate();
   const [selected, setSelected] = useState(new Set());
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importingToHub, setImportingToHub] = useState(false);
 
   /* The block below is the real home for these: they're long, instructional
      ("…enable it, then press Resume") and stay relevant until acted on. The
@@ -119,6 +126,65 @@ export function StagingPanel({ store, onGoToUpload }) {
       toast.success(`Deleted ${(res.deleted || selectedIds.length).toLocaleString()} staged leads`);
     }
     setConfirmDelete(false);
+  };
+
+  /**
+   * "Import to Hub" — the staged-rows counterpart to the People page's same
+   * action. Seeds come straight from whatever the CSV mapped onto these rows
+   * (enriched or not); Hub re-resolves each one through Unipile on import, so
+   * an un-enriched staged row still arrives in Hub complete.
+   */
+  const buildHubSeeds = () =>
+    selectedRows
+      .map((row) => ({
+        profileUrl: row.profileUrl,
+        name: row.name,
+        headline: row.title,
+        currentTitle: row.title,
+        companyName: row.company,
+        location: row.location,
+        profilePictureUrl: row.avatar,
+      }))
+      .filter((seed) => seed.profileUrl);
+
+  const openImportToHub = () => {
+    if (selectedIds.length === 0) return;
+    setImportModalOpen(true);
+  };
+
+  const closeImportToHub = () => {
+    if (importingToHub) return;
+    setImportModalOpen(false);
+  };
+
+  const submitImportToHub = async (name) => {
+    if (importingToHub) return;
+    const seeds = buildHubSeeds();
+    if (seeds.length === 0) {
+      toast.error("None of the selected leads have a LinkedIn URL to import");
+      return;
+    }
+
+    setImportingToHub(true);
+    try {
+      const audience = await hubImportGateway.createManualAudience({ name, seeds });
+      setImportModalOpen(false);
+      clearSelection();
+      toast.success(
+        `Importing ${seeds.length} profile${seeds.length === 1 ? '' : 's'} into Hub`,
+        {
+          action: {
+            label: 'View in Hub',
+            onClick: () => navigate(`/hub/leads?searchId=${audience._id}`),
+          },
+        },
+      );
+    } catch (e) {
+      console.error('[Import] Import to Hub error:', e);
+      toast.error(getToastError(e, "Couldn't start the Hub import"));
+    } finally {
+      setImportingToHub(false);
+    }
   };
 
   const pct = progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0;
@@ -303,6 +369,15 @@ export function StagingPanel({ store, onGoToUpload }) {
                     Move to Contacts ({selected.size})
                   </button>
                   <button
+                    onClick={openImportToHub}
+                    disabled={busy || enriching}
+                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ background: 'var(--ui-accent-tint)', color: 'var(--ui-accent-fg)' }}
+                  >
+                    <Upload size={14} />
+                    Import to Hub ({selected.size})
+                  </button>
+                  <button
                     onClick={() => setConfirmDelete(true)}
                     disabled={busy || enriching}
                     className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -363,6 +438,14 @@ export function StagingPanel({ store, onGoToUpload }) {
           </div>
         </div>
       )}
+
+      <ImportToHubModal
+        open={importModalOpen}
+        onClose={closeImportToHub}
+        seedCount={selectedIds.length}
+        submitting={importingToHub}
+        onSubmit={submitImportToHub}
+      />
     </div>
   );
 }

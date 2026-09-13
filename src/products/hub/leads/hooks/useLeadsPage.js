@@ -287,6 +287,29 @@ export function useLeadsPage() {
     setSelectedLead((prev) => (prev && prev._id === updated._id ? { ...prev, ...updated } : prev));
   }, []);
 
+  /**
+   * Whether the current selection is safe to message.
+   *
+   * The backend now rejects a `type: 'message'` enrollment outright if
+   * anyone in it isn't already a 1st-degree connection (see
+   * campaigns/service.js#enrollLeads) -- Sarthak's call was that a mixed
+   * selection should never be allowed to become a message campaign at all,
+   * not quietly skip the ones who aren't connected yet. This mirrors that
+   * rule at the point of selection so the button itself says no, rather
+   * than letting the click round-trip to the server for a rejection the
+   * user could see coming from the Degree column.
+   *
+   * Leads not currently on this page (a prior search's results, if this
+   * page ever supports cross-page selection) fall out of `leads` and are
+   * simply not found here -- which correctly counts as "can't tell", not
+   * "fine". Empty selection is never messageable; there is nothing to send.
+   */
+  const selectedAreAllFirstDegree = useMemo(() => {
+    if (selected.size === 0) return false;
+    const byId = new Map(leads.map((l) => [l._id, l]));
+    return [...selected].every((id) => byId.get(id)?.connectionDegree === 1);
+  }, [selected, leads]);
+
   const activeSearch = searches.find((s) => s._id === activeSearchId) ?? null;
 
   return {
@@ -314,6 +337,7 @@ export function useLeadsPage() {
     deleteSearch,
     createCampaign,
     createMessageCampaign,
+    selectedAreAllFirstDegree,
     enrollInSequence,
     handleLeadResolved,
   };

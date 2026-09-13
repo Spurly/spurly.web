@@ -14,6 +14,7 @@ import { SenderDownBanner } from './components/SenderDownBanner.jsx';
 import { PacingBanner } from './components/PacingBanner.jsx';
 import { NoteEditor } from './components/NoteEditor.jsx';
 import { MessageEditor } from './components/MessageEditor.jsx';
+import { SendMessagePreviewDialog } from './components/SendMessagePreviewDialog.jsx';
 import { hubMemberColumns } from './components/columns.jsx';
 import { CAMPAIGN_STATUS_VIEW as STATUS_VIEW } from './components/statusView.js';
 import { campaignsStrings } from './strings.js';
@@ -42,6 +43,13 @@ export function CampaignDetailPage() {
     saving,
     running,
     start,
+    previewOpen,
+    previewLoading,
+    previewMembers,
+    openStartPreview,
+    closeStartPreview,
+    confirmStart,
+    senderName,
     pause,
     retryFailed,
     saveNote,
@@ -115,7 +123,12 @@ export function CampaignDetailPage() {
               {t.pause}
             </Button>
           ) : (
-            <Button size="sm" leadingIcon={<Play size={13} />} disabled={busy || campaign.status === 'done'} onClick={start}>
+            <Button
+              size="sm"
+              leadingIcon={<Play size={13} />}
+              disabled={busy || campaign.status === 'done'}
+              onClick={isMessage ? openStartPreview : start}
+            >
               {campaign.status === 'paused' ? t.resume : t.startSending}
             </Button>
           )}
@@ -156,6 +169,20 @@ export function CampaignDetailPage() {
             />
           )}
         </SectionCard>
+
+        {isMessage && previewOpen && (
+          <SendMessagePreviewDialog
+            open={previewOpen}
+            onClose={closeStartPreview}
+            onConfirm={confirmStart}
+            confirming={busy}
+            messageTemplate={campaign.messageTemplate || ''}
+            members={previewMembers}
+            membersLoading={previewLoading}
+            pendingCount={counts.pending ?? 0}
+            senderName={senderName}
+          />
+        )}
 
         <DataTable
           columns={hubMemberColumns}

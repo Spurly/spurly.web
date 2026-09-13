@@ -30,6 +30,7 @@ let campaigns = [];
 let detail = null;
 let members = [];
 const posted = [];
+const started = [];
 
 vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
   'GET /hub/campaigns': () => ({ success: true, data: { campaigns } }),
@@ -46,15 +47,29 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
         _id: 'lead-1',
         name: 'Asha Menon',
         headline: 'Head of Sales',
-        connectionDegree: 3,
+        // Already a 1st-degree connection: the message-campaign button (see
+        // 'creating from a selection' below) is only enabled for a selection
+        // that is entirely 1st-degree, matching the server's own
+        // NOT_ALL_FIRST_DEGREE rule in campaigns/service.js#enrollLeads.
+        connectionDegree: 1,
         profileUrl: 'https://www.linkedin.com/in/asha',
+      }, {
+        _id: 'lead-2',
+        name: 'Rahul Nair',
+        headline: 'VP Engineering',
+        connectionDegree: 3,
+        profileUrl: 'https://www.linkedin.com/in/rahul',
       }],
-      pagination: { page: 1, limit: 50, total: 1 },
+      pagination: { page: 1, limit: 50, total: 2 },
     },
   }),
   'POST /hub/campaigns': (url, config) => {
     posted.push(config);
     return { success: true, data: { campaign: { _id: 'camp-1', name: 'Auto named' }, enrolled: 1 } };
+  },
+  'POST /hub/campaigns/*/start': (url) => {
+    started.push(url);
+    return { success: true, data: { campaign: { ...detail.campaign, status: 'running' } } };
   },
   'GET /*': { success: true, data: {} },
   'POST /*': { success: true, data: {} },
@@ -117,6 +132,7 @@ beforeEach(() => {
   members = [];
   detail = aDetail();
   posted.length = 0;
+  started.length = 0;
 });
 
 describe('campaigns list', () => {
@@ -198,6 +214,39 @@ describe('campaign detail', () => {
     renderAt('/hub/campaigns/camp-1');
 
     await waitFor(() => expect(screen.getByText(/already invited — including from the extension/i)).toBeInTheDocument());
+  });
+
+  it('a message campaign shows a review dialog before Start does anything, unlike a connect campaign', async () => {
+    // The gap SendMessagePreviewDialog closes: a connect campaign's note is
+    // already visible on the page (NoteEditor) and Start fires immediately,
+    // same as it always has. A message campaign had no equivalent — clicking
+    // Start called POST /start straight away with nothing in between.
+    detail = aDetail({
+      campaign: { status: 'draft', type: 'message', messageTemplate: 'Hi {{firstName}}' },
+      counts: { total: 2, pending: 2, messaged: 0, skipped: 0, failed: 0 },
+    });
+    members = [{
+      _id: 'm1',
+      name: 'Priya Sharma',
+      headline: 'Head of Growth',
+      status: 'pending',
+      profileUrl: 'https://www.linkedin.com/in/priya',
+    }];
+
+    const user = userEvent.setup();
+    renderAt('/hub/campaigns/camp-1');
+
+    await user.click(await screen.findByRole('button', { name: /start sending/i }));
+
+    // The dialog, not an immediate send.
+    expect(await screen.findByText(/review before sending/i)).toBeInTheDocument();
+    expect(posted.length).toBe(0);
+    // Rendered against a REAL pending member, not a placeholder.
+    expect(await screen.findByText(/hi priya/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /^send messages$/i }));
+
+    await waitFor(() => expect(started.length).toBe(1));
   });
 });
 
@@ -297,10 +346,11 @@ describe('creating from a selection', () => {
 
     await waitFor(() => expect(screen.getByText('Asha Menon')).toBeInTheDocument());
 
-    // The row checkbox, not the header one — selecting everything would not
-    // prove the selection reaches the request.
+    // boxes[0] is the header "select all" checkbox; boxes[1] is Asha Menon's
+    // row (1st-degree) — picked explicitly rather than "the last one" now
+    // that a second, 3rd-degree row exists for the mixed-selection test below.
     const boxes = screen.getAllByRole('checkbox');
-    await user.click(boxes[boxes.length - 1]);
+    await user.click(boxes[1]);
 
     await user.click(await screen.findByRole('button', { name: /send connection requests/i }));
 
@@ -319,8 +369,10 @@ describe('creating from a selection', () => {
 
     await waitFor(() => expect(screen.getByText('Asha Menon')).toBeInTheDocument());
 
+    // Asha Menon (lead-1) is already 1st-degree — the only kind of selection
+    // the "Send messages" button accepts.
     const boxes = screen.getAllByRole('checkbox');
-    await user.click(boxes[boxes.length - 1]);
+    await user.click(boxes[1]);
 
     await user.click(await screen.findByRole('button', { name: /send messages/i }));
 
@@ -331,5 +383,27 @@ describe('creating from a selection', () => {
     // nothing is asked for here, so nothing is sent.
     expect(posted[0].messageTemplate).toBeUndefined();
     expect(await screen.findByText(/write your message, then start it/i)).toBeInTheDocument();
+  });
+
+  it('disables "Send messages" the moment the selection includes anyone not 1st-degree', async () => {
+    // Mirrors the server's own rule (NOT_ALL_FIRST_DEGREE in
+    // campaigns/service.js#enrollLeads): a message campaign can only ever be
+    // created from a selection that is ENTIRELY 1st-degree connections. This
+    // pins the button itself refusing the click, not just the server 400 —
+    // the whole point is the user sees "no" before round-tripping to the API.
+    const user = userEvent.setup();
+    renderAt('/hub/leads');
+
+    await waitFor(() => expect(screen.getByText('Rahul Nair')).toBeInTheDocument());
+
+    const boxes = screen.getAllByRole('checkbox');
+    await user.click(boxes[1]); // Asha Menon — 1st-degree
+    await user.click(boxes[2]); // Rahul Nair — 3rd-degree
+
+    const sendMessagesButton = await screen.findByRole('button', { name: /send messages/i });
+    expect(sendMessagesButton).toBeDisabled();
+
+    await user.click(sendMessagesButton);
+    expect(posted.length).toBe(0);
   });
 });

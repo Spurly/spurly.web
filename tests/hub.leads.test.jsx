@@ -23,10 +23,12 @@ import { stubGateway } from './gateway.js';
 let searches = [];
 let leadRows = [];
 let slowLeads = false;
+const getLeadsCalls = [];
 
 vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
   'GET /hub/searches': () => ({ success: true, data: { searches } }),
-  'GET /hub/leads': async () => {
+  'GET /hub/leads': async (url, config) => {
+    getLeadsCalls.push(config?.params);
     // A real network round trip does not finish in the microtask that started
     // it. This delay is what lets the effect teardown land mid-flight, which
     // is the entire mechanism of the bug below.
@@ -83,6 +85,7 @@ beforeEach(() => {
   searches = [];
   leadRows = [ASHA];
   slowLeads = false;
+  getLeadsCalls.length = 0;
 });
 
 afterEach(() => {
@@ -221,9 +224,33 @@ describe('hub leads', () => {
     renderAt('/hub/leads');
 
     await userEvent.click(await screen.findByRole('button', { name: /^audiences/i }));
-    const row = await screen.findByText('Sales heads');
+    // A row inside the dock, not the (now separate) table dropdown option of
+    // the same name.
+    const row = await screen.findByRole('button', { name: /sales heads/i });
     await userEvent.click(row);
     await waitFor(() => expect(screen.getByText(/stopped returning results/i)).toBeInTheDocument());
+  });
+
+  it('filters by list from a plain dropdown on the table, defaulting to everyone', async () => {
+    // The picker used to live only behind the "Audiences" dock, as a chip
+    // fed by clicking a row there. It's now a dropdown right on the table
+    // toolbar, defaulting to "All people" (no searchId sent at all).
+    searches = [
+      { _id: 's1', name: 'Sales heads', searchUrl: 'https://www.linkedin.com/search/results/people/', status: 'done', importedCount: 10 },
+    ];
+
+    renderAt('/hub/leads');
+    await screen.findByText('Asha Menon');
+
+    const dropdown = screen.getByRole('combobox', { name: /filter by list/i });
+    expect(dropdown).toHaveValue('');
+    expect(getLeadsCalls.at(-1)?.searchId).toBeUndefined();
+
+    await userEvent.selectOptions(dropdown, 'Sales heads');
+    await waitFor(() => expect(getLeadsCalls.at(-1)?.searchId).toBe('s1'));
+
+    await userEvent.selectOptions(dropdown, 'All people');
+    await waitFor(() => expect(getLeadsCalls.at(-1)?.searchId).toBeUndefined());
   });
 
   it('renders an imported lead with its normalised degree', async () => {

@@ -26,6 +26,20 @@ class HubSourcingGateway {
   }
 
   /**
+   * POST /hub/searches/import — Phase 11. Queue an audience built from
+   * profiles the extension/CSV import already captured (People page,
+   * Import page), rather than a fresh LinkedIn search. `seeds` is an array
+   * of `{ profileUrl, publicIdentifier?, name?, headline?, location?,
+   * companyName?, currentTitle?, profilePictureUrl? }` — the server
+   * resolves each one through the same Unipile full-profile call a search
+   * lead gets, so an imported lead arrives just as complete.
+   */
+  async createManualAudience({ name, seeds }) {
+    const res = await apiGateway.post('/hub/searches/import', { name, seeds });
+    return Audience.fromResponse(res.data?.data?.search ?? null);
+  }
+
+  /**
    * GET /hub/audience/params — Phase 8. Free-text -> LinkedIn internal id
    * lookup, for the filter-builder's autocomplete. `type` is the vendor's
    * own vocabulary (LOCATION, INDUSTRY, COMPANY, SCHOOL, ... — SKILL exists

@@ -12,7 +12,7 @@ export const peopleStrings = {
   search: {
     placeholder: 'Search name, company, location',
   },
-  createCampaign: 'Create campaign',
+  importToHub: 'Import to Hub',
   resetColumns: 'Reset columns',
   resetColumnsTitle: 'Put the columns back in their default order',
   export: 'Export',

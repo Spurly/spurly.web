@@ -10,7 +10,6 @@ import {
   Shield,
   Send,
   FileText,
-  Network,
   Radar,
   Inbox,
   Workflow,
@@ -45,16 +44,12 @@ const LEADGEN_SECTIONS = [
     label: "Prospect",
     items: [
       { label: "Contacts", icon: Users, href: "/dashboard/people" },
-      // The user's own LinkedIn network — a roster, separate from the Contacts
-      // outreach pipeline. See spurly.backend/src/features/connections.
-      { label: "Connections", icon: Network, href: "/dashboard/connections" },
       { label: "Import", icon: Upload, href: "/dashboard/import" },
     ],
   },
   {
     label: "Engage",
     items: [
-      { label: "Campaigns", icon: Send, href: "/dashboard/campaigns" },
       { label: "Templates", icon: FileText, href: "/dashboard/templates" },
     ],
   },

@@ -30,7 +30,6 @@ export function HubLeadsPage() {
     pagination,
     activeSearchId,
     setActiveSearchId,
-    activeSearch,
     query,
     setQuery,
     loading,
@@ -49,6 +48,7 @@ export function HubLeadsPage() {
     deleteSearch,
     createCampaign,
     createMessageCampaign,
+    selectedAreAllFirstDegree,
     enrollInSequence,
     handleLeadResolved,
   } = useLeadsPage();
@@ -111,20 +111,6 @@ export function HubLeadsPage() {
           */}
         <ImportStrip searches={searches} />
 
-        {activeSearch && (
-          <div className="flex items-center gap-2">
-            <span className="ui-micro">{t.filteredBy}</span>
-            <Tag
-              tone="accent"
-              removable
-              onRemove={() => setActiveSearchId(null)}
-              title={activeSearch.name || t.untitledAudience}
-            >
-              {activeSearch.name || t.untitledAudience}
-            </Tag>
-          </div>
-        )}
-
         <DataTable
           columns={hubLeadColumns}
           data={leads}
@@ -143,6 +129,25 @@ export function HubLeadsPage() {
             searchValue: query,
             onSearch: setQuery,
             searchPlaceholder: t.table.searchPlaceholder,
+            // The list picker — was a chip above the table fed by the dock's
+            // full audience panel, now a plain dropdown right where the rest
+            // of the table's filtering lives. Defaults to "All people"
+            // (activeSearchId === null); the dock still owns building and
+            // managing (run/delete) a saved search, this is only for
+            // choosing which one's results the table is showing.
+            filters: (
+              <select
+                value={activeSearchId ?? ''}
+                onChange={(e) => setActiveSearchId(e.target.value || null)}
+                aria-label={t.table.listFilterLabel}
+                className="text-[var(--ui-t-label)] h-7 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 text-[var(--ui-text-secondary)] max-w-[200px]"
+              >
+                <option value="">{t.table.listFilterAll}</option>
+                {searches.map((s) => (
+                  <option key={s._id} value={s._id}>{s.name || t.untitledAudience}</option>
+                ))}
+              </select>
+            ),
             bulkActions: (
               <div className="flex items-center gap-2">
                 <Button
@@ -155,18 +160,24 @@ export function HubLeadsPage() {
                 >
                   {t.table.createCampaign}
                 </Button>
-                {/* A message campaign is scoped to leads who are already
-                    1st-degree connections — see createMessageCampaign's own
-                    comment. Selecting a mix is fine: anyone not yet connected
-                    is simply skipped once the campaign runs, same as every
-                    other skip reason on the detail page's member table. */}
+                {/* A message campaign may only ever be ALL 1st-degree
+                    connections -- the server rejects a mixed selection
+                    outright (NOT_ALL_FIRST_DEGREE) rather than quietly
+                    skipping whoever isn't connected yet, so the button
+                    reflects that up front instead of letting the click
+                    round-trip to a 400 the Degree column already predicted. */}
                 <Button
                   size="sm"
                   variant="secondary"
                   leadingIcon={<MessageSquare size={13} />}
                   onClick={createMessageCampaign}
                   loading={creating}
-                  disabled={creating || selected.size === 0}
+                  disabled={creating || selected.size === 0 || !selectedAreAllFirstDegree}
+                  title={
+                    selected.size > 0 && !selectedAreAllFirstDegree
+                      ? 'Everyone selected must already be a 1st-degree connection to message them'
+                      : undefined
+                  }
                 >
                   {t.table.createMessageCampaign}
                 </Button>
