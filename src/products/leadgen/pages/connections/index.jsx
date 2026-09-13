@@ -6,7 +6,7 @@ import { getToastError } from 'src/shared/utils/apiError';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { DataTable } from 'src/platform/DataTable';
 import { LeadDetailSidebar } from 'src/platform/people/LeadDetailSidebar';
-import campaignsController from 'src/products/leadgen/campaigns/controller.js';
+import campaignsController from 'src/products/leadgen/campaigns/controller/campaigns.js';
 import { useConnections } from 'src/products/leadgen/connections/hooks/useConnections.js';
 import { useConnectionsSync } from 'src/products/leadgen/connections/hooks/useConnectionsSync.js';
 import connectionsController from 'src/products/leadgen/connections/controller/connections.js';

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import campaignsController from 'src/products/leadgen/campaigns/controller.js';
+import campaignsController from '../controller/campaigns.js';
 import { useErrorToast } from 'src/ui/primitives';
 
 /**

@@ -1,4 +1,4 @@
-import campaignsApi from 'src/products/leadgen/campaigns/api.js';
+import campaignsGateway from '../gateway/campaigns.js';
 
 /**
  * The browser's IANA zone, sent with every create.
@@ -18,7 +18,7 @@ const BROWSER_TIME_ZONE = (() => {
 
 /**
  * Campaigns Controller
- * Thin orchestration over the campaigns API. Unwraps the { success, data }
+ * Thin orchestration over the campaigns gateway. Unwraps the { success, data }
  * envelope and throws a readable error so hooks/pages can rely on the payload.
  */
 class CampaignsController {
@@ -32,7 +32,7 @@ class CampaignsController {
    * the server dropped — the modal's own preview only sees the loaded page.
    */
   async createCampaign({ name, personIds, excludeContacted = false }) {
-    const res = await campaignsApi.create({
+    const res = await campaignsGateway.create({
       name,
       timeZone: BROWSER_TIME_ZONE,
       personIds,
@@ -55,7 +55,7 @@ class CampaignsController {
    * @returns {Promise<{ campaign, memberCount, promoted, skipped }>}
    */
   async createCampaignFromConnections({ name, connectionIds, messageSubject, messageBody }) {
-    const res = await campaignsApi.createFromConnections({
+    const res = await campaignsGateway.createFromConnections({
       name,
       timeZone: BROWSER_TIME_ZONE,
       connectionIds,
@@ -72,42 +72,43 @@ class CampaignsController {
   }
 
   async listCampaigns() {
-    const res = await campaignsApi.list();
+    const res = await campaignsGateway.list();
     if (!res?.success) throw new Error(res?.message || 'Failed to list campaigns');
     return res.data.campaigns || [];
   }
 
   async getCampaign(campaignId) {
-    const res = await campaignsApi.get(campaignId);
+    const res = await campaignsGateway.get(campaignId);
     if (!res?.success) throw new Error(res?.message || 'Failed to load campaign');
     return { campaign: res.data.campaign, members: res.data.members || [] };
   }
 
   async updateCampaign(campaignId, update) {
-    const res = await campaignsApi.update(campaignId, update);
+    const res = await campaignsGateway.update(campaignId, update);
     if (!res?.success) throw new Error(res?.message || 'Failed to update campaign');
     return res.data.campaign;
   }
 
   /** @returns {Promise<{ campaign, budget }>} budget is null for message campaigns */
   async launchCampaign(campaignId) {
-    const res = await campaignsApi.launch(campaignId);
+    const res = await campaignsGateway.launch(campaignId);
     if (!res?.success) throw new Error(res?.message || 'Failed to launch campaign');
     return { campaign: res.data.campaign, budget: res.data.budget ?? null };
   }
 
   /** @returns {Promise<{ retried, campaign }>} */
   async retryFailedMembers(campaignId) {
-    const res = await campaignsApi.retryFailed(campaignId);
+    const res = await campaignsGateway.retryFailed(campaignId);
     if (!res?.success) throw new Error(res?.message || 'Failed to retry members');
     return { retried: res.data.retried ?? 0, campaign: res.data.campaign };
   }
 
   async deleteCampaign(campaignId) {
-    const res = await campaignsApi.remove(campaignId);
+    const res = await campaignsGateway.remove(campaignId);
     if (!res?.success) throw new Error(res?.message || 'Failed to delete campaign');
     return true;
   }
 }
 
-export default new CampaignsController();
+export const campaignsController = new CampaignsController();
+export default campaignsController;

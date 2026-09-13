@@ -2,11 +2,12 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { DataTable } from 'src/platform/DataTable';
-import campaignsController from 'src/products/leadgen/campaigns/controller.js';
-import { useCampaigns } from 'src/products/leadgen/campaigns/useCampaigns';
+import campaignsController from 'src/products/leadgen/campaigns/controller/campaigns.js';
+import { useCampaigns } from 'src/products/leadgen/campaigns/hooks/useCampaigns.js';
 import { useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import { buildCampaignColumns } from './columns.jsx';
+import { buildCampaignColumns } from './components/columns.jsx';
+import { campaignsStrings as t } from './strings.js';
 
 export function CampaignsPage() {
   const navigate = useNavigate();
@@ -21,8 +22,8 @@ export function CampaignsPage() {
     // People, so a prompt costs less than building an undo path.
     const ok = await confirm({
       title: `Delete campaign "${campaign.name}"?`,
-      description: 'This removes the campaign and its enrolled leads.',
-      confirmLabel: 'Delete campaign',
+      description: t.confirmDelete.description,
+      confirmLabel: t.confirmDelete.confirmLabel,
     });
     if (!ok) return;
     setDeleting(campaign._id);
@@ -32,7 +33,7 @@ export function CampaignsPage() {
       toast.success(`Deleted "${campaign.name}"`);
     } catch (e) {
       console.error('[Campaigns] Delete error:', e);
-      toast.error(getToastError(e, "Couldn't delete the campaign"));
+      toast.error(getToastError(e, t.deleteErrorFallback));
     } finally {
       setDeleting(null);
     }
@@ -47,10 +48,7 @@ export function CampaignsPage() {
   }, [campaigns, search]);
 
   return (
-    <DashboardLayout
-      title="Campaigns"
-      subtitle="Outreach campaigns built from your captured Contacts."
-    >
+    <DashboardLayout title={t.pageTitle} subtitle={t.pageSubtitle}>
       <div className="relative flex flex-col h-full overflow-hidden">
         <div className="flex-1 overflow-y-auto">
           <DataTable
@@ -60,16 +58,12 @@ export function CampaignsPage() {
             loading={loading}
             error={error}
             onRowClick={(row) => navigate(`/dashboard/campaigns/${row._id}`)}
-            emptyMessage={search ? 'No campaigns match your search' : 'No campaigns yet'}
-            emptyHint={
-              search
-                ? 'Try a different search term'
-                : 'Select people on the Contacts tab and click “Create campaign” to get started.'
-            }
+            emptyMessage={search ? t.emptySearch : t.emptyAll}
+            emptyHint={search ? t.emptySearchHint : t.emptyAllHint}
             toolbar={{
               searchValue: search,
               onSearch: setSearch,
-              searchPlaceholder: 'Search a campaign...',
+              searchPlaceholder: t.searchPlaceholder,
             }}
           />
         </div>

@@ -11,7 +11,7 @@ import capturedLeadsController from 'src/platform/people/controller';
 import { exportProfilesAsCSV } from 'src/shared/utils/csvExport';
 import { peopleColumns } from 'src/platform/people/columns.jsx';
 import { buildDegreeTabs } from 'src/platform/people/helpers';
-import campaignsController from 'src/products/leadgen/campaigns/controller.js';
+import campaignsController from 'src/products/leadgen/campaigns/controller/campaigns.js';
 
 const OUTREACH_POLL_MS = 30000;
 const SEARCH_DEBOUNCE_MS = 350;

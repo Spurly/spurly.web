@@ -51,8 +51,8 @@ const InstallExtensionPage = lazy(() => import('src/platform/auth/InstallExtensi
 // products/leadgen — the signed-in dashboard
 const PeoplePage = lazy(() => import('src/products/leadgen/pages/people').then((m) => ({ default: m.PeoplePage })));
 const ConnectionsPage = lazy(() => import('src/products/leadgen/pages/connections').then((m) => ({ default: m.ConnectionsPage })));
-const CampaignsPage = lazy(() => import('src/products/leadgen/campaigns').then((m) => ({ default: m.CampaignsPage })));
-const CampaignDetailPage = lazy(() => import('src/products/leadgen/campaigns/CampaignDetailPage.jsx').then((m) => ({ default: m.CampaignDetailPage })));
+const CampaignsPage = lazy(() => import('src/products/leadgen/pages/campaigns').then((m) => ({ default: m.CampaignsPage })));
+const CampaignDetailPage = lazy(() => import('src/products/leadgen/pages/campaigns/CampaignDetailPage.jsx').then((m) => ({ default: m.CampaignDetailPage })));
 const TemplatesPage = lazy(() => import('src/products/leadgen/pages/templates').then((m) => ({ default: m.TemplatesPage })));
 const SettingsPage = lazy(() => import('src/products/leadgen/pages/settings').then((m) => ({ default: m.SettingsPage })));
 const LinkedInSettingsPage = lazy(() => import('src/products/hub/pages/settings').then((m) => ({ default: m.LinkedInSettingsPage })));

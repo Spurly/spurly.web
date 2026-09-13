@@ -13,7 +13,7 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
 }));
 
 const { renderWithProviders } = await import('./helpers.jsx');
-const { CampaignsPage } = await import('src/products/leadgen/campaigns');
+const { CampaignsPage } = await import('src/products/leadgen/pages/campaigns');
 
 describe('CampaignsPage', () => {
   it('lists the campaigns returned by the API', async () => {

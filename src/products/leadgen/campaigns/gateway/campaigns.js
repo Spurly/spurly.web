@@ -5,7 +5,7 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  * Talks to /api/campaigns. Campaigns are outreach lists built from People;
  * the extension performs the actual sending.
  */
-class CampaignsApi {
+class CampaignsGateway {
   /** Create a campaign from selected people. POST /campaigns */
   async create({ name, timeZone, personIds, excludeContacted = false }) {
     const res = await apiGateway.post('/campaigns', {
@@ -79,4 +79,5 @@ class CampaignsApi {
   }
 }
 
-export default new CampaignsApi();
+export const campaignsGateway = new CampaignsGateway();
+export default campaignsGateway;
