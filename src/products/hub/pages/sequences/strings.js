@@ -27,6 +27,10 @@ export const sequencesStrings = {
     nameSectionTitle: 'Name',
     namePlaceholder: 'e.g. Cold outreach — founders',
     stepsSectionTitle: 'Steps',
+    nameDialogTitle: 'Name this sequence',
+    nameDialogDescription: 'Give it a name you\'ll recognize on the sequences list.',
+    nameDialogCancel: 'Cancel',
+    nameDialogConfirm: 'Create sequence',
   },
   detail: {
     loadingPageTitle: 'Sequence',

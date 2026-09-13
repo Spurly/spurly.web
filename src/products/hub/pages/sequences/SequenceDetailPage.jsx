@@ -10,7 +10,7 @@ import {
   DetailActionsSkeleton,
   DetailSubtitleSkeleton,
 } from '../components/DetailPageSkeleton.jsx';
-import { SequenceStepBuilder } from './components/SequenceStepBuilder.jsx';
+import { SequenceFlowBuilder } from './components/SequenceFlowBuilder.jsx';
 import { hubEnrollmentColumns } from './components/columns.jsx';
 import { SEQUENCE_STATUS_VIEW as STATUS_VIEW } from './components/statusView.js';
 import { sequencesStrings } from './strings.js';
@@ -138,7 +138,7 @@ export function SequenceDetailPage() {
               </Button>
             </div>
           )}
-          <SequenceStepBuilder
+          <SequenceFlowBuilder
             steps={draftSteps ?? sequence.steps}
             onChange={setDraftSteps}
             readOnly={!isDraft}
