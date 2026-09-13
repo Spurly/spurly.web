@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from 'src/platform/auth/useAuth';
+import { useAuth } from 'src/platform/auth/hooks/useAuth';
 import { useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import { AuthShell, FeaturesAside } from './AuthShell.jsx';
-import { GoogleButton, PasswordField } from './widgets.jsx';
-import { MailIcon } from './icons.jsx';
-import { postAuthDestination } from './postAuthDestination.js';
+import { AuthShell, FeaturesAside } from '../components/AuthShell.jsx';
+import { GoogleButton, PasswordField } from '../components/widgets.jsx';
+import { MailIcon } from '../components/icons.jsx';
+import { postAuthDestination } from '../postAuthDestination.js';
 
 /**
  * Sign in page (replaces the old modal's "signin" view).

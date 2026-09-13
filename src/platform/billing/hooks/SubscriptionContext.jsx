@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import { useAuth } from 'src/platform/auth/useAuth';
+import { useAuth } from 'src/platform/auth/hooks/useAuth';
 import subscriptionsController from '../controller/subscriptions.js';
 
 export const SubscriptionContext = createContext();

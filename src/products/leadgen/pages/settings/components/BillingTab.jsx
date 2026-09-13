@@ -1,7 +1,7 @@
 import { CreditCard } from 'lucide-react';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
 import { Button } from 'src/ui/primitives';
-import { useAuth } from 'src/platform/auth/useAuth';
+import { useAuth } from 'src/platform/auth/hooks/useAuth';
 import { settingsStrings as t } from '../strings.js';
 
 export function BillingTab() {

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from 'src/platform/auth/useAuth';
+import { useAuth } from 'src/platform/auth/hooks/useAuth';
 import { useToast } from 'src/ui/primitives';
 import { getApiErrorMessage } from 'src/shared/utils/apiError';
-import authController from 'src/platform/auth/controller';
+import authController from 'src/platform/auth/controller/auth.js';
 
 export function LinkedInCallbackPage() {
   const [searchParams] = useSearchParams();

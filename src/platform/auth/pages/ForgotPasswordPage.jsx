@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from 'src/platform/auth/useAuth';
+import { useAuth } from 'src/platform/auth/hooks/useAuth';
 import { useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import { AuthShell, FeaturesAside } from './AuthShell.jsx';
-import { MailIcon } from './icons.jsx';
+import { AuthShell, FeaturesAside } from '../components/AuthShell.jsx';
+import { MailIcon } from '../components/icons.jsx';
 
 /** Request a password-reset code (replaces the modal's "forgot" view). */
 export default function ForgotPasswordPage() {

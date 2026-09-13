@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from 'src/platform/auth/useAuth.js';
+import { useAuth } from 'src/platform/auth/hooks/useAuth.js';
 import {
   insertTokenAt,
   previewValuesFor,

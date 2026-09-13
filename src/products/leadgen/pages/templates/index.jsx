@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Plus, Search, FileText, AlertCircle, UserPlus, MessageSquare } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
-import { useAuth } from 'src/platform/auth/useAuth.js';
+import { useAuth } from 'src/platform/auth/hooks/useAuth.js';
 import { useMessageTemplates } from 'src/products/leadgen/templates/hooks/useMessageTemplates.js';
 import { TEMPLATE_TYPES } from 'src/products/leadgen/templates/controller/templates.js';
 import { useToast, useConfirm } from 'src/ui/primitives';

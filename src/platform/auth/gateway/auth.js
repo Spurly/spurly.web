@@ -1,13 +1,13 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
-import { AuthResponse, User } from 'src/platform/auth/User.js';
+import { AuthResponse, User } from '../entities/User.js';
 
 /**
- * Auth API Client
+ * Auth Gateway
  * Handles all authentication-related API calls
  * Layer between controllers and gateway
  */
 
-class AuthApi {
+class AuthGateway {
   /**
    * Register new user
    * POST /auth/register
@@ -331,4 +331,5 @@ class AuthApi {
   }
 }
 
-export default new AuthApi();
+export const authGateway = new AuthGateway();
+export default authGateway;

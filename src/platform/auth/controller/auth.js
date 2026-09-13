@@ -1,4 +1,4 @@
-import authApi from 'src/platform/auth/api.js';
+import authGateway from '../gateway/auth.js';
 import apiGateway from 'src/shared/gateway/apiGateway.js';
 
 /**
@@ -15,7 +15,7 @@ class AuthController {
    * @returns {Promise<{user, token}>}
    */
   async login(email, password) {
-    const authResponse = await authApi.login({ email, password });
+    const authResponse = await authGateway.login({ email, password });
 
     if (!authResponse.success) {
       throw new Error(authResponse.message);
@@ -45,7 +45,7 @@ class AuthController {
    * @returns {Promise<{user, token}>}
    */
   async register(name, email, password, confirmPassword) {
-    const authResponse = await authApi.register({
+    const authResponse = await authGateway.register({
       name,
       email,
       password,
@@ -76,7 +76,7 @@ class AuthController {
    * @returns {Promise<{email: string}>}
    */
   async requestSignupOtp({ name, email, password, confirmPassword, phone, referralCode }) {
-    const authResponse = await authApi.requestSignupOtp({
+    const authResponse = await authGateway.requestSignupOtp({
       name,
       email,
       password,
@@ -98,7 +98,7 @@ class AuthController {
    * @returns {Promise<{user, token}>}
    */
   async verifySignupOtp({ email, code }) {
-    const authResponse = await authApi.verifySignupOtp({ email, code });
+    const authResponse = await authGateway.verifySignupOtp({ email, code });
 
     if (!authResponse.success) {
       throw new Error(authResponse.message);
@@ -123,7 +123,7 @@ class AuthController {
    * @returns {Promise<{message: string}>}
    */
   async forgotPassword(email) {
-    const authResponse = await authApi.forgotPassword({ email });
+    const authResponse = await authGateway.forgotPassword({ email });
 
     if (!authResponse.success) {
       throw new Error(authResponse.message);
@@ -138,7 +138,7 @@ class AuthController {
    * @returns {Promise<{user, token}>}
    */
   async resetPassword({ email, code, password, confirmPassword }) {
-    const authResponse = await authApi.resetPassword({
+    const authResponse = await authGateway.resetPassword({
       email,
       code,
       password,
@@ -167,7 +167,7 @@ class AuthController {
    */
   async logout() {
     try {
-      await authApi.logout();
+      await authGateway.logout();
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -200,7 +200,7 @@ class AuthController {
    * @returns {Promise<User>}
    */
   async fetchCurrentUser() {
-    const user = await authApi.getCurrentUser();
+    const user = await authGateway.getCurrentUser();
 
     if (user) {
       localStorage.setItem('user', JSON.stringify(user.toJSON()));
@@ -215,7 +215,7 @@ class AuthController {
    * @returns {Promise<User>}
    */
   async updateProfile(profileData) {
-    const user = await authApi.updateProfile(profileData);
+    const user = await authGateway.updateProfile(profileData);
 
     if (user) {
       localStorage.setItem('user', JSON.stringify(user.toJSON()));
@@ -230,7 +230,7 @@ class AuthController {
    * @returns {Promise<User>}
    */
   async completeOnboarding(data) {
-    const user = await authApi.completeOnboarding(data);
+    const user = await authGateway.completeOnboarding(data);
 
     if (user) {
       localStorage.setItem('user', JSON.stringify(user.toJSON()));
@@ -246,7 +246,7 @@ class AuthController {
    * @returns {Promise<User>}
    */
   async saveTableColumnOrder(tableId, columnOrder) {
-    const user = await authApi.saveTableColumnOrder(tableId, columnOrder);
+    const user = await authGateway.saveTableColumnOrder(tableId, columnOrder);
 
     if (user) {
       localStorage.setItem('user', JSON.stringify(user.toJSON()));
@@ -261,7 +261,7 @@ class AuthController {
    * @returns {Promise<User>}
    */
   async resetTableColumnOrder(tableId) {
-    const user = await authApi.resetTableColumnOrder(tableId);
+    const user = await authGateway.resetTableColumnOrder(tableId);
 
     if (user) {
       localStorage.setItem('user', JSON.stringify(user.toJSON()));
@@ -275,7 +275,7 @@ class AuthController {
    * @returns {Promise<string>}
    */
   async getLinkedInAuthUrl() {
-    return await authApi.getLinkedInAuthUrl();
+    return await authGateway.getLinkedInAuthUrl();
   }
 
   /**
@@ -283,7 +283,7 @@ class AuthController {
    * @returns {Promise<string>}
    */
   async getGoogleAuthUrl() {
-    return await authApi.getGoogleAuthUrl();
+    return await authGateway.getGoogleAuthUrl();
   }
 
   /**
@@ -292,7 +292,7 @@ class AuthController {
    * @returns {Promise<{user, token}>}
    */
   async handleLinkedInCallback(code) {
-    const authResponse = await authApi.linkedinCallback(code);
+    const authResponse = await authGateway.linkedinCallback(code);
 
     if (!authResponse.success) {
       throw new Error(authResponse.message);
@@ -328,4 +328,5 @@ class AuthController {
   }
 }
 
-export default new AuthController();
+export const authController = new AuthController();
+export default authController;

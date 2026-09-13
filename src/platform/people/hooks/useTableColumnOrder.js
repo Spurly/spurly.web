@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useAuth } from 'src/platform/auth/useAuth';
+import { useAuth } from 'src/platform/auth/hooks/useAuth';
 import { isCustomOrder } from 'src/platform/DataTable';
 
 /**

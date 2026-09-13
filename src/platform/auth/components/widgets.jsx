@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "src/platform/auth/useAuth";
+import { useAuth } from "src/platform/auth/hooks/useAuth";
 import {
   GoogleIcon,
   EyeIcon,
@@ -9,7 +9,7 @@ import {
   CheckCircleIcon,
   PhoneIcon,
 } from "./icons.jsx";
-import COUNTRY_CODES, { findCountry } from "./countryCodes.js";
+import COUNTRY_CODES, { findCountry } from "../countryCodes.js";
 
 /**
  * "Continue with Google" button. Fetches the Google OAuth authorization URL

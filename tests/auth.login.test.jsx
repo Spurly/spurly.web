@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders, anonymousAuth } from './helpers.jsx';
-import LoginPage from 'src/platform/auth/LoginPage.jsx';
+import LoginPage from 'src/platform/auth/pages/LoginPage.jsx';
 
 describe('LoginPage', () => {
   it('renders the sign-in form', () => {

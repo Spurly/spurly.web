@@ -7,7 +7,7 @@ import {
   GiftIcon,
   StarIcon,
 } from "./icons.jsx";
-import "./auth.css";
+import "../auth.css";
 
 /**
  * Two-column shell shared by every auth / onboarding page.

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from 'src/platform/auth/useAuth';
+import { useAuth } from 'src/platform/auth/hooks/useAuth';
 import { useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import { AuthShell, FeaturesAside } from './AuthShell.jsx';
+import { AuthShell, FeaturesAside } from '../components/AuthShell.jsx';
 
 /**
  * Step 1b — Verify your email.

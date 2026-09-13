@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "src/platform/auth/useAuth";
+import { useAuth } from "src/platform/auth/hooks/useAuth";
 import { useToast } from "src/ui/primitives";
 import { getToastError } from "src/shared/utils/apiError";
-import { AuthShell, WelcomeAside, Stepper } from "./AuthShell.jsx";
+import { AuthShell, WelcomeAside, Stepper } from "../components/AuthShell.jsx";
 import { Dropdown } from "src/ui/primitives/Dropdown";
 import {
   BriefcaseIcon,
@@ -18,7 +18,7 @@ import {
   ChartIcon,
   ArrowRightIcon,
   ArrowLeftIcon,
-} from "./icons.jsx";
+} from "../components/icons.jsx";
 
 /* Survey options. Values match the User-model enums on the backend. */
 const ROLES = [

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from 'src/platform/auth/useAuth';
+import { useAuth } from 'src/platform/auth/hooks/useAuth';
 import { useSubscription } from 'src/platform/billing/hooks/useSubscription';
-import { postAuthDestination } from './postAuthDestination.js';
-import { AuthShell, WelcomeAside } from './AuthShell.jsx';
+import { postAuthDestination } from '../postAuthDestination.js';
+import { AuthShell, WelcomeAside } from '../components/AuthShell.jsx';
 
 const POLL_INTERVAL_MS = 2000;
 const POLL_TIMEOUT_MS = 30000;

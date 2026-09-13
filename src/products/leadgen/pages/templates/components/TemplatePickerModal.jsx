@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { X, Search, Star, FileText, Plus, ArrowLeft, AlertCircle } from 'lucide-react';
-import { useAuth } from 'src/platform/auth/useAuth.js';
+import { useAuth } from 'src/platform/auth/hooks/useAuth.js';
 import { useMessageTemplates } from 'src/products/leadgen/templates/hooks/useMessageTemplates.js';
 import { TYPE_FOR_ACTION } from 'src/products/leadgen/templates/controller/templates.js';
 import { previewTemplate } from 'src/shared/utils/templateTokens.js';

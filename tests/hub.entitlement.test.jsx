@@ -26,7 +26,7 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
   'GET /subscriptions/me': () => ({ success: true, data: subscriptionResponse }),
 }));
 
-const { AuthProvider } = await import('src/platform/auth/AuthContext');
+const { AuthProvider } = await import('src/platform/auth/hooks/AuthContext');
 const { SubscriptionProvider } = await import('src/platform/billing/hooks/SubscriptionContext');
 const { ProtectedRoute } = await import('src/app/ProtectedRoute');
 const { SubscribeGate } = await import('src/app/SubscribeGate');

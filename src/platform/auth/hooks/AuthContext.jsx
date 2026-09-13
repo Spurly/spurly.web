@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import authController from 'src/platform/auth/controller.js';
+import authController from '../controller/auth.js';
 import {
   syncAuthToExtension,
   clearExtensionAuth,
