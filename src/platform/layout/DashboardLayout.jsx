@@ -453,7 +453,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
             type="button"
             onClick={handleLogout}
             className={[
-              'w-full flex items-center gap-2.5 h-8 rounded-[var(--ui-radius-sm)] text-[13px]',
+              'w-full flex items-center gap-2.5 h-8 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)]',
               'text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-danger-tint)] hover:text-[var(--ui-danger-fg)]',
               'transition-colors duration-[var(--ui-dur-fast)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]',
               expanded ? 'px-2' : 'justify-center',
@@ -501,7 +501,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
               </h1>
             )}
             {subtitle && (
-              <p className="text-[12px] text-[var(--ui-text-secondary)] truncate tabular-nums">
+              <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] truncate tabular-nums">
                 {subtitle}
               </p>
             )}

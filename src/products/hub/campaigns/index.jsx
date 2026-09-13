@@ -45,10 +45,10 @@ function CountPills({ counts }) {
 
   // A brand-new campaign has only queued members; showing three zeroes next to
   // it would be noise dressed as data.
-  if (parts.length === 0) return <span className="text-[12px] text-[var(--ui-text-tertiary)]">empty</span>;
+  if (parts.length === 0) return <span className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">empty</span>;
 
   return (
-    <span className="flex items-center gap-3 text-[12px] tabular-nums">
+    <span className="flex items-center gap-3 text-[var(--ui-t-label)] tabular-nums">
       {parts.map((p) => (
         <span key={p.key} className={p.tone}>
           {counts[p.key].toLocaleString()} {p.label}
@@ -65,10 +65,10 @@ function CampaignRow({ campaign, onStart, onPause, onDelete, busy }) {
   return (
     <div className="flex items-center gap-3 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--ui-border-hairline)] last:border-b-0">
       <Link to={`/hub/campaigns/${campaign._id}`} className="flex-1 min-w-0 group">
-        <span className="block text-[13px] text-[var(--ui-text-primary)] truncate group-hover:underline">
+        <span className="block text-[var(--ui-t-body)] text-[var(--ui-text-primary)] truncate group-hover:underline">
           {campaign.name}
         </span>
-        <span className="block text-[11px] text-[var(--ui-text-tertiary)] truncate">
+        <span className="block text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] truncate">
           {campaign.note ? 'With a note' : 'No note'}
           {campaign.pausedReason === 'account' && ' · LinkedIn needs reconnecting'}
           {campaign.pausedReason === 'breaker' && ' · stopped after repeated failures'}
@@ -214,7 +214,7 @@ export function HubCampaignsPage() {
       ) : (
         <SectionCard title="Campaigns" noPadding>
           {loading ? (
-            <p className="px-[var(--ui-pad-lg)] py-6 text-[13px] text-[var(--ui-text-tertiary)]">Loading…</p>
+            <p className="px-[var(--ui-pad-lg)] py-6 text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">Loading…</p>
           ) : (
             campaigns.map((campaign) => (
               <CampaignRow

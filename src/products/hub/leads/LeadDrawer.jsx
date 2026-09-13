@@ -48,7 +48,7 @@ function ChipList({ items = [] }) {
       {items.map((item, i) => (
         <span
           key={`${item}-${i}`}
-          className="inline-flex items-center h-6 px-2 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] text-[12px] text-[var(--ui-text-secondary)]"
+          className="inline-flex items-center h-6 px-2 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]"
         >
           {item}
         </span>
@@ -61,7 +61,7 @@ function Section({ title, children }) {
   return (
     <section className="px-4 py-3 border-t first:border-t-0 border-[var(--ui-border-hairline)]">
       {title && (
-        <h3 className="text-[10px] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)] mb-2">
+        <h3 className="text-[var(--ui-t-micro)] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)] mb-2">
           {title}
         </h3>
       )}
@@ -80,9 +80,9 @@ function HistoryRow({ icon: Icon, primary, secondary, meta }) {
         <Icon size={13} />
       </span>
       <div className="min-w-0">
-        <p className="text-[13px] font-medium text-[var(--ui-text-primary)] leading-snug">{primary}</p>
-        {secondary && <p className="text-[12px] text-[var(--ui-text-secondary)] leading-snug">{secondary}</p>}
-        {meta && <p className="text-[11px] text-[var(--ui-text-tertiary)] leading-snug mt-0.5">{meta}</p>}
+        <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] leading-snug">{primary}</p>
+        {secondary && <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-snug">{secondary}</p>}
+        {meta && <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] leading-snug mt-0.5">{meta}</p>}
       </div>
     </div>
   );
@@ -116,14 +116,14 @@ function PendingInvitationBanner({ lead, onWithdraw, withdrawing, withdrawError 
     <Section>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[13px] text-[var(--ui-text-primary)]">
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)]">
             Invitation pending
             {lead.pendingInvitationSource === 'external' && (
               <span className="text-[var(--ui-text-tertiary)]"> — sent outside Spurly</span>
             )}
           </p>
           {withdrawError && (
-            <p className="text-[12px] text-[var(--ui-danger-fg)] mt-1">{withdrawError}</p>
+            <p className="text-[var(--ui-t-label)] text-[var(--ui-danger-fg)] mt-1">{withdrawError}</p>
           )}
         </div>
         <Button size="sm" variant="ghost" leadingIcon={<UserX size={13} />} onClick={onWithdraw} loading={withdrawing} disabled={withdrawing}>
@@ -144,7 +144,7 @@ function ResolvedProfilePanel({ lead }) {
     <>
       {profile.summary && (
         <Section title="About">
-          <p className="text-[13px] text-[var(--ui-text-secondary)] leading-relaxed whitespace-pre-line">
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] leading-relaxed whitespace-pre-line">
             {profile.summary}
           </p>
         </Section>
@@ -155,16 +155,16 @@ function ResolvedProfilePanel({ lead }) {
           <dl className="flex flex-col gap-1.5">
             {profile.connections_count != null && (
               <div className="flex items-baseline gap-3">
-                <dt className="w-24 shrink-0 text-[12px] text-[var(--ui-text-tertiary)]">Connections</dt>
-                <dd className="text-[13px] text-[var(--ui-text-primary)] tabular-nums">
+                <dt className="w-24 shrink-0 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">Connections</dt>
+                <dd className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] tabular-nums">
                   {profile.connections_count.toLocaleString()}
                 </dd>
               </div>
             )}
             {lead.followersCount != null && (
               <div className="flex items-baseline gap-3">
-                <dt className="w-24 shrink-0 text-[12px] text-[var(--ui-text-tertiary)]">Followers</dt>
-                <dd className="text-[13px] text-[var(--ui-text-primary)] tabular-nums">
+                <dt className="w-24 shrink-0 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">Followers</dt>
+                <dd className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] tabular-nums">
                   {lead.followersCount.toLocaleString()}
                 </dd>
               </div>
@@ -290,20 +290,20 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
         <div className="flex items-start gap-3">
           <Avatar src={lead.profilePictureUrl || null} name={lead.name} size={44} shape="square" />
           <div className="min-w-0 flex-1">
-            <h2 className="text-[14px] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] leading-tight">
+            <h2 className="text-[var(--ui-t-body)] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] leading-tight">
               {lead.name}
             </h2>
             {(resolved?.currentTitle || resolved?.companyName) && (
-              <p className="text-[13px] text-[var(--ui-text-secondary)] mt-0.5 leading-snug">
+              <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5 leading-snug">
                 {resolved.currentTitle}
                 {resolved.companyName ? ` · ${resolved.companyName}` : ''}
               </p>
             )}
             {!resolved?.currentTitle && !resolved?.companyName && lead.headline && (
-              <p className="text-[13px] text-[var(--ui-text-secondary)] mt-0.5 leading-snug">{lead.headline}</p>
+              <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5 leading-snug">{lead.headline}</p>
             )}
             {lead.location && (
-              <p className="flex items-center gap-1.5 text-[12px] text-[var(--ui-text-tertiary)] mt-1">
+              <p className="flex items-center gap-1.5 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-1">
                 <MapPin size={12} aria-hidden="true" />
                 {lead.location}
               </p>
@@ -326,7 +326,7 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
             href={lead.profileUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 h-6 px-2 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] text-[12px] text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)]"
+            className="inline-flex items-center gap-1 h-6 px-2 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)]"
           >
             <LinkedInIcon size={12} />
             View on LinkedIn
@@ -344,7 +344,7 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
 
       {!resolving && error && (
         <Section>
-          <p className="text-[12px] text-[var(--ui-danger-fg)]">{error}</p>
+          <p className="text-[var(--ui-t-label)] text-[var(--ui-danger-fg)]">{error}</p>
         </Section>
       )}
 
@@ -359,7 +359,7 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
 
       {!resolving && !error && !resolved?.profileResolvedAt && (
         <Section>
-          <div className="flex items-center gap-2 text-[12px] text-[var(--ui-text-tertiary)]">
+          <div className="flex items-center gap-2 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
             <Users size={13} aria-hidden="true" />
             Nothing more to show yet — this profile hasn't been resolved.
           </div>

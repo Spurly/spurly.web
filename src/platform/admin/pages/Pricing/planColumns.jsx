@@ -19,7 +19,7 @@ export function buildPlanColumns(onEdit) {
           {/* The tier only means something next to the others, so it reads as
               a suffix on the name rather than a column of lone numbers. */}
           {(row.rank ?? 0) > 0 && (
-            <span className="shrink-0 text-[11px] text-[var(--ui-text-tertiary)]">T{row.rank}</span>
+            <span className="shrink-0 text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">T{row.rank}</span>
           )}
         </span>
       ),
@@ -29,7 +29,7 @@ export function buildPlanColumns(onEdit) {
       label: 'Key',
       width: 160,
       render: (value) => (
-        <code className="truncate font-mono text-[11px] px-1.5 py-0.5 rounded-[var(--ui-radius-xs)] bg-[var(--ui-surface-sunken)] text-[var(--ui-text-secondary)]">
+        <code className="truncate font-mono text-[var(--ui-t-meta)] px-1.5 py-0.5 rounded-[var(--ui-radius-xs)] bg-[var(--ui-surface-sunken)] text-[var(--ui-text-secondary)]">
           {value}
         </code>
       ),

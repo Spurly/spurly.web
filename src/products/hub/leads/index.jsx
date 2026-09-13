@@ -80,13 +80,13 @@ function SearchRow({ search, active, onSelect, onRun, onDelete, busy }) {
         className="flex-1 min-w-0 text-left focus:outline-none focus-visible:underline"
         aria-pressed={active}
       >
-        <span className="block text-[13px] text-[var(--ui-text-primary)] truncate">
+        <span className="block text-[var(--ui-t-body)] text-[var(--ui-text-primary)] truncate">
           {search.name || 'Untitled audience'}
         </span>
-        <span className="block text-[11px] text-[var(--ui-text-tertiary)] truncate">{describeSearch(search)}</span>
+        <span className="block text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] truncate">{describeSearch(search)}</span>
       </button>
 
-      <span className="text-[12px] tabular-nums text-[var(--ui-text-secondary)] shrink-0">
+      <span className="text-[var(--ui-t-label)] tabular-nums text-[var(--ui-text-secondary)] shrink-0">
         {search.importedCount?.toLocaleString() ?? 0} imported
       </span>
 
@@ -127,7 +127,7 @@ function StoppedShortNotice({ search }) {
   return (
     <div className="flex items-start gap-2 px-[var(--ui-pad-lg)] py-3 bg-[var(--ui-warning-tint)] border-b border-[var(--ui-border-hairline)]">
       <AlertTriangle size={14} className="mt-0.5 shrink-0" style={{ color: 'var(--ui-warning)' }} aria-hidden="true" />
-      <p className="text-[12px] text-[var(--ui-text-secondary)]">{search.error}</p>
+      <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">{search.error}</p>
     </div>
   );
 }
@@ -467,7 +467,7 @@ export function HubLeadsPage() {
                   disabled={enrolling || selected.size === 0 || sequences.length === 0}
                   aria-label="Enroll selection in a sequence"
                   title={sequences.length === 0 ? 'Create a sequence first' : 'Enroll the selection in a sequence'}
-                  className="text-[12px] h-7 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 text-[var(--ui-text-secondary)] disabled:opacity-50"
+                  className="text-[var(--ui-t-label)] h-7 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 text-[var(--ui-text-secondary)] disabled:opacity-50"
                 >
                   <option value="" disabled>{enrolling ? 'Enrolling…' : 'Enroll in sequence…'}</option>
                   {sequences.map((s) => (

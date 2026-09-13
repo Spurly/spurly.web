@@ -26,7 +26,7 @@ export function InviteBudget({ budget }) {
       placement="bottom"
     >
       <span className="flex items-center gap-2 shrink-0 cursor-default">
-        <span className="text-[12px] text-[var(--ui-text-tertiary)]">Invites this week</span>
+        <span className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">Invites this week</span>
         <span
           className="w-14 h-1 rounded-full overflow-hidden bg-[var(--ui-border)]"
           aria-hidden="true"
@@ -36,7 +36,7 @@ export function InviteBudget({ budget }) {
             style={{ width: `${pct}%`, background: tone }}
           />
         </span>
-        <span className="text-[12px] font-medium tabular-nums" style={{ color: tone }}>
+        <span className="text-[var(--ui-t-label)] font-medium tabular-nums" style={{ color: tone }}>
           {weekUsed}/{weeklyLimit}
         </span>
       </span>

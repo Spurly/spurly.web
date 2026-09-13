@@ -204,10 +204,10 @@ export function UploadPanel({ onStaged }) {
           <CheckCircle size={28} style={{ color: 'var(--ui-success)' }} />
         </div>
         <div>
-          <h2 className="text-[17px] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em]">
+          <h2 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em]">
             Import complete
           </h2>
-          <p className="text-[14px] text-[var(--ui-text-secondary)] mt-1.5">
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1.5">
             Staged <span className="font-medium">{result.savedCount}</span> lead
             {result.savedCount === 1 ? '' : 's'}.
             {result.failedCount > 0 && (
@@ -219,7 +219,7 @@ export function UploadPanel({ onStaged }) {
               </>
             )}
           </p>
-          <p className="text-[13px] text-[var(--ui-text-tertiary)] mt-2 max-w-sm">
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)] mt-2 max-w-sm">
             Next: enrich them to pull in emails, headlines and experience — then move
             the ones you want into Contacts.
           </p>
@@ -250,21 +250,21 @@ export function UploadPanel({ onStaged }) {
         >
           <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
           <div className="flex-1 min-w-0 pr-6">
-            <p className="text-[13px] font-medium" style={{ color: 'var(--ui-danger)' }}>
+            <p className="text-[var(--ui-t-body)] font-medium" style={{ color: 'var(--ui-danger)' }}>
               {error.title}
             </p>
-            <p className="text-[13px] mt-0.5" style={{ color: 'var(--ui-text-secondary)' }}>
+            <p className="text-[var(--ui-t-body)] mt-0.5" style={{ color: 'var(--ui-text-secondary)' }}>
               {error.detail}
             </p>
             {error.columns?.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
-                <span className="text-[12px]" style={{ color: 'var(--ui-text-tertiary)' }}>
+                <span className="text-[var(--ui-t-label)]" style={{ color: 'var(--ui-text-tertiary)' }}>
                   Columns in your file:
                 </span>
                 {error.columns.map((col, i) => (
                   <code
                     key={i}
-                    className="text-[11px] font-mono px-1.5 py-0.5 rounded-[var(--ui-radius-sm)]"
+                    className="text-[var(--ui-t-meta)] font-mono px-1.5 py-0.5 rounded-[var(--ui-radius-sm)]"
                     style={{
                       background: 'var(--ui-surface-sunken)',
                       color: 'var(--ui-text-secondary)',
@@ -316,10 +316,10 @@ export function UploadPanel({ onStaged }) {
               <UploadCloud size={26} style={{ color: 'var(--ui-accent)' }} />
             </div>
             <div className="text-center">
-              <p className="text-[14px] font-medium text-[var(--ui-text-primary)]">
+              <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
                 Drop a CSV here, or <span style={{ color: 'var(--ui-accent)' }}>browse</span>
               </p>
-              <p className="text-[13px] text-[var(--ui-text-secondary)] mt-1">
+              <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1">
                 Any column names work — you’ll match them to Spurly fields in the next step.
               </p>
             </div>
@@ -330,7 +330,7 @@ export function UploadPanel({ onStaged }) {
             style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
           >
             <SlidersHorizontal size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-text-tertiary)' }} />
-            <div className="text-[13px] text-[var(--ui-text-secondary)] leading-relaxed">
+            <div className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] leading-relaxed">
               <span className="font-medium text-[var(--ui-text-primary)]">Field mapping:</span> your
               file needs a LinkedIn profile URL and a name — but they can be called anything
               (“Person Linkedin Url”, “Full Name”, separate first/last name columns). We match the
@@ -370,7 +370,7 @@ export function UploadPanel({ onStaged }) {
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-[var(--ui-pad-lg)] py-4 rounded-[var(--ui-radius-lg)]"
             style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
           >
-            <p className="text-[14px] text-[var(--ui-text-secondary)]">
+            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
               Ready to stage{' '}
               <span className="font-medium text-[var(--ui-text-primary)]">{profileCount}</span> lead
               {profileCount === 1 ? '' : 's'}.{' '}
@@ -392,7 +392,7 @@ export function UploadPanel({ onStaged }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-[13px] px-1 -mt-2">
+          <div className="flex items-center gap-2 text-[var(--ui-t-body)] px-1 -mt-2">
             <FileText size={14} style={{ color: 'var(--ui-text-tertiary)' }} />
             <span className="text-[var(--ui-text-secondary)]">
               <span className="font-medium text-[var(--ui-text-primary)]">{fileName}</span>
@@ -413,7 +413,7 @@ export function UploadPanel({ onStaged }) {
               style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
             >
               <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
-              <div className="text-[13px]" style={{ color: 'var(--ui-text-secondary)' }}>
+              <div className="text-[var(--ui-t-body)]" style={{ color: 'var(--ui-text-secondary)' }}>
                 <p className="font-medium" style={{ color: 'var(--ui-danger)' }}>
                   This file is too big for one import
                 </p>
@@ -432,7 +432,7 @@ export function UploadPanel({ onStaged }) {
               style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
             >
               <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
-              <div className="text-[13px]" style={{ color: 'var(--ui-text-secondary)' }}>
+              <div className="text-[var(--ui-t-body)]" style={{ color: 'var(--ui-text-secondary)' }}>
                 <p className="font-medium" style={{ color: 'var(--ui-danger)' }}>
                   No rows can be imported with this mapping
                 </p>

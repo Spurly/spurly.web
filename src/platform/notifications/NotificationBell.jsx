@@ -69,11 +69,11 @@ function FeedRow({ notification, onOpen }) {
       </span>
       <span className="min-w-0 flex-1">
         <span
-          className={`block text-[13px] leading-snug ${unread ? 'text-[var(--ui-text-primary)] font-medium' : 'text-[var(--ui-text-secondary)]'}`}
+          className={`block text-[var(--ui-t-body)] leading-snug ${unread ? 'text-[var(--ui-text-primary)] font-medium' : 'text-[var(--ui-text-secondary)]'}`}
         >
           {notification.text}
         </span>
-        <span className="block text-[11px] text-[var(--ui-text-tertiary)] mt-0.5">
+        <span className="block text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-0.5">
           {relativeTime(notification.createdAt)}
         </span>
         {notification.type === 'hub.connections_sent' && (
@@ -144,7 +144,7 @@ export function NotificationBell() {
         />
         {unreadCount > 0 && (
           <span
-            className="absolute top-0.5 right-0.5 grid place-items-center min-w-[14px] h-[14px] px-[3px] rounded-full text-[10px] font-medium leading-none text-white pointer-events-none"
+            className="absolute top-0.5 right-0.5 grid place-items-center min-w-[14px] h-[14px] px-[3px] rounded-full text-[var(--ui-t-micro)] font-medium leading-none text-white pointer-events-none"
             style={{ background: 'var(--ui-danger)' }}
           >
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -169,7 +169,7 @@ export function NotificationBell() {
             }}
           >
             <div className="flex items-center justify-between px-3 h-10 shrink-0 border-b border-[var(--ui-border-hairline)]">
-              <span className="text-[13px] font-medium text-[var(--ui-text-primary)]">Notifications</span>
+              <span className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">Notifications</span>
               {unreadCount > 0 && (
                 <Button variant="ghost" size="sm" leadingIcon={<CheckCheck size={12} />} onClick={markAllRead}>
                   Mark all read
@@ -179,7 +179,7 @@ export function NotificationBell() {
 
             <div className="max-h-[360px] overflow-y-auto p-1.5">
               {items.length === 0 ? (
-                <div className="py-8 px-3 text-center text-[13px] text-[var(--ui-text-tertiary)]">
+                <div className="py-8 px-3 text-center text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">
                   You're all caught up.
                 </div>
               ) : (

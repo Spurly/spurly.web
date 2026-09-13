@@ -44,7 +44,7 @@ export function PersonCell({
       {meta && (
         <span
           title={metaTitle}
-          className="ml-auto shrink-0 pl-2 text-[11px] tabular-nums text-[var(--ui-text-tertiary)]"
+          className="ml-auto shrink-0 pl-2 text-[var(--ui-t-meta)] tabular-nums text-[var(--ui-text-tertiary)]"
         >
           {meta}
         </span>

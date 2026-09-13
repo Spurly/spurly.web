@@ -92,16 +92,16 @@ function ChatRow({ chat, active }) {
 
       <span className="flex-1 min-w-0">
         <span className="flex items-baseline gap-2">
-          <span className={`flex-1 min-w-0 truncate text-[13px] ${unread ? 'text-[var(--ui-text-primary)]' : 'text-[var(--ui-text-primary)]'}`}>
+          <span className={`flex-1 min-w-0 truncate text-[var(--ui-t-body)] ${unread ? 'text-[var(--ui-text-primary)]' : 'text-[var(--ui-text-primary)]'}`}>
             {chat.display?.name || 'Unnamed conversation'}
           </span>
-          <span className="shrink-0 text-[11px] text-[var(--ui-text-tertiary)] tabular-nums">
+          <span className="shrink-0 text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums">
             {relativeTime(chat.lastMessageAt)}
           </span>
         </span>
 
         <span className="flex items-center gap-2 mt-0.5">
-          <span className="flex-1 min-w-0 truncate text-[12px] text-[var(--ui-text-secondary)]">
+          <span className="flex-1 min-w-0 truncate text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
             {/* "you:" is the only thing that tells a glance whether the ball is
                 in their court or ours — the single most useful bit in a row. */}
             {chat.lastMessageIsSender && <span className="text-[var(--ui-text-tertiary)]">you: </span>}
@@ -263,12 +263,12 @@ export function HubInboxPage() {
 
             <div className="flex-1 min-h-0 overflow-auto">
               {loading ? (
-                <p className="px-3 py-6 text-[13px] text-[var(--ui-text-tertiary)]">Loading…</p>
+                <p className="px-3 py-6 text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">Loading…</p>
               ) : chats.length === 0 ? (
                 // A filtered empty is a different sentence from an empty inbox,
                 // and offering "Sync now" here would be answering the wrong
                 // question.
-                <p className="px-3 py-6 text-[13px] text-[var(--ui-text-tertiary)]">
+                <p className="px-3 py-6 text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">
                   {unreadOnly && !debouncedQuery ? 'Nothing unread.' : 'No conversations match that.'}
                 </p>
               ) : (

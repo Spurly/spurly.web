@@ -93,8 +93,8 @@ function formatScalar(key, value) {
 function FieldRow({ label, value }) {
   return (
     <div className="flex gap-4 py-2 border-b border-[var(--ui-border-hairline)] last:border-b-0">
-      <div className="w-40 shrink-0 text-[13px] font-medium text-[var(--ui-text-tertiary)]">{label}</div>
-      <div className="flex-1 text-[13px] text-[var(--ui-text-primary)] break-words min-w-0">{value}</div>
+      <div className="w-40 shrink-0 text-[var(--ui-t-body)] font-medium text-[var(--ui-text-tertiary)]">{label}</div>
+      <div className="flex-1 text-[var(--ui-t-body)] text-[var(--ui-text-primary)] break-words min-w-0">{value}</div>
     </div>
   );
 }
@@ -137,17 +137,17 @@ function BillingHistory({ payments, loading }) {
 
   return (
     <div className="mb-5">
-      <h3 className="mb-2 text-[12px] font-medium uppercase tracking-wider text-[var(--ui-text-secondary)]">
+      <h3 className="mb-2 text-[var(--ui-t-label)] font-medium uppercase tracking-wider text-[var(--ui-text-secondary)]">
         Billing history
       </h3>
 
       {loading ? (
-        <div className="flex items-center gap-2 py-3 text-[12px] text-[var(--ui-text-tertiary)]">
+        <div className="flex items-center gap-2 py-3 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
           <Loader size={14} className="animate-spin" />
           Loading payments…
         </div>
       ) : !payments.length ? (
-        <p className="rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] px-3 py-2.5 text-[12px] text-[var(--ui-text-secondary)]">
+        <p className="rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] px-3 py-2.5 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
           No payments. If this account has access, it's either comped or has never subscribed.
         </p>
       ) : (
@@ -158,16 +158,16 @@ function BillingHistory({ payments, loading }) {
               <div key={p._id} className="flex items-center justify-between gap-3 px-3 py-2.5">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-medium tabular-nums text-[var(--ui-text-primary)]">
+                    <span className="text-[var(--ui-t-body)] font-medium tabular-nums text-[var(--ui-text-primary)]">
                       {rupees(p.amount)}
                     </span>
                     {p.appliedPromoCode && (
-                      <code className="rounded-[var(--ui-radius-xs)] bg-[var(--ui-surface-sunken)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--ui-text-secondary)]">
+                      <code className="rounded-[var(--ui-radius-xs)] bg-[var(--ui-surface-sunken)] px-1.5 py-0.5 font-mono text-[var(--ui-t-micro)] text-[var(--ui-text-secondary)]">
                         {p.appliedPromoCode}
                       </code>
                     )}
                   </div>
-                  <div className="mt-0.5 truncate text-[11px] text-[var(--ui-text-secondary)]">
+                  <div className="mt-0.5 truncate text-[var(--ui-t-meta)] text-[var(--ui-text-secondary)]">
                     {shortDate(p.createdAt)}
                     {p.status === 'paid' && p.periodEnd ? ` · access until ${shortDate(p.periodEnd)}` : ''}
                     {p.failureReason ? ` · ${p.failureReason}` : ''}
@@ -264,8 +264,8 @@ export default function UserDetailsModal({ user, onClose }) {
         {/* Header */}
         <div className="flex items-center justify-between p-[var(--ui-pad-lg)] border-b border-[var(--ui-border-hairline)] shrink-0">
           <div>
-            <h2 className="text-[17px] font-medium text-[var(--ui-text-primary)]">User Details</h2>
-            <p className="text-[12px] text-[var(--ui-text-tertiary)] mt-0.5">{user.email}</p>
+            <h2 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)]">User Details</h2>
+            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5">{user.email}</p>
           </div>
           <button
             onClick={onClose}
@@ -286,7 +286,7 @@ export default function UserDetailsModal({ user, onClose }) {
           )}
 
           {!loading && error && (
-            <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[12px]">
+            <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[var(--ui-t-label)]">
               {error}
             </div>
           )}

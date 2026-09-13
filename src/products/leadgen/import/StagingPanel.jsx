@@ -137,10 +137,10 @@ export function StagingPanel({ store, onGoToUpload }) {
           <UploadCloud size={26} style={{ color: 'var(--ui-accent)' }} />
         </div>
         <div>
-          <h2 className="text-[17px] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em]">
+          <h2 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em]">
             Nothing staged yet
           </h2>
-          <p className="text-[13px] text-[var(--ui-text-secondary)] mt-1.5 max-w-md">
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1.5 max-w-md">
             Import a CSV and the leads will land here. Enrich them to pull in emails and
             experience, then move the good ones into Contacts.
           </p>
@@ -161,7 +161,7 @@ export function StagingPanel({ store, onGoToUpload }) {
           style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
         >
           <AlertCircle size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
-          <p className="flex-1 text-[13px] pr-6" style={{ color: 'var(--ui-text-secondary)' }}>
+          <p className="flex-1 text-[var(--ui-t-body)] pr-6" style={{ color: 'var(--ui-text-secondary)' }}>
             {actionError}
           </p>
           <button
@@ -181,7 +181,7 @@ export function StagingPanel({ store, onGoToUpload }) {
           style={{ background: 'var(--ui-warning-tint)', border: '1px solid rgba(255,159,10,0.22)' }}
         >
           <Clock size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-warning)' }} />
-          <p className="flex-1 text-[13px] pr-6" style={{ color: 'var(--ui-text-secondary)' }}>
+          <p className="flex-1 text-[var(--ui-t-body)] pr-6" style={{ color: 'var(--ui-text-secondary)' }}>
             {actionNotice}
           </p>
           <button
@@ -200,10 +200,10 @@ export function StagingPanel({ store, onGoToUpload }) {
           style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
         >
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-medium text-[var(--ui-text-primary)]">
+            <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
               Enriching profiles — {progress.current} / {progress.total}
             </p>
-            <p className="text-[12px] text-[var(--ui-text-tertiary)] mt-0.5">
+            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5">
               Spurly is visiting each profile in a background tab. You can leave this page — it
               keeps running.
             </p>
@@ -233,7 +233,7 @@ export function StagingPanel({ store, onGoToUpload }) {
             <button
               key={filter.id}
               onClick={() => setStatusFilter(filter.id)}
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium transition-colors"
               style={{
                 background: active ? 'var(--ui-accent-tint)' : 'var(--ui-surface-card)',
                 color: active ? 'var(--ui-accent)' : 'var(--ui-text-secondary)',
@@ -282,7 +282,7 @@ export function StagingPanel({ store, onGoToUpload }) {
                         ? 'Everything selected is already enriched'
                         : undefined
                     }
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ background: 'var(--ui-accent-tint)', color: 'var(--ui-accent)' }}
                   >
                     <Sparkles size={14} />
@@ -296,7 +296,7 @@ export function StagingPanel({ store, onGoToUpload }) {
                         ? `${unenrichedSelected} of these haven’t been enriched — they’ll move across with only their CSV fields.`
                         : undefined
                     }
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ background: 'var(--ui-success-tint)', color: 'var(--ui-success)' }}
                   >
                     <ArrowRight size={14} />
@@ -305,7 +305,7 @@ export function StagingPanel({ store, onGoToUpload }) {
                   <button
                     onClick={() => setConfirmDelete(true)}
                     disabled={busy || enriching}
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ color: 'var(--ui-danger)' }}
                   >
                     <Trash2 size={14} />
@@ -325,7 +325,7 @@ export function StagingPanel({ store, onGoToUpload }) {
 
       {/* Warning when promoting rows that were never enriched */}
       {selected.size > 0 && unenrichedSelected > 0 && !enriching && (
-        <p className="text-[12px] px-1" style={{ color: 'var(--ui-text-tertiary)' }}>
+        <p className="text-[var(--ui-t-label)] px-1" style={{ color: 'var(--ui-text-tertiary)' }}>
           {unenrichedSelected} selected lead{unenrichedSelected === 1 ? ' has' : 's have'} not been
           enriched. Moving {unenrichedSelected === 1 ? 'it' : 'them'} now carries across only the
           fields from your CSV.
@@ -345,10 +345,10 @@ export function StagingPanel({ store, onGoToUpload }) {
             className="w-full max-w-sm rounded-[var(--ui-radius-lg)] p-[var(--ui-pad-lg)] shadow-[var(--ui-shadow-lg)]"
             style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
           >
-            <h3 className="text-[14px] font-medium text-[var(--ui-text-primary)]">
+            <h3 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
               Delete {selected.size} staged lead{selected.size === 1 ? '' : 's'}?
             </h3>
-            <p className="text-[13px] text-[var(--ui-text-secondary)] mt-2">
+            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-2">
               This removes them from staging only. Anyone already in your Contacts list stays
               there.
             </p>

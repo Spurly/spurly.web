@@ -175,7 +175,7 @@ export function NotesEditor({ personId, notes = '', onSaved }) {
         aria-label="Notes about this person"
         className={[
           'w-full px-2.5 py-2 resize-y min-h-[72px]',
-          'bg-[var(--ui-surface-card)] text-[13px] leading-relaxed text-[var(--ui-text-primary)]',
+          'bg-[var(--ui-surface-card)] text-[var(--ui-t-body)] leading-relaxed text-[var(--ui-text-primary)]',
           'placeholder:text-[var(--ui-text-tertiary)]',
           'border rounded-[var(--ui-radius-sm)]',
           status === 'error' ? 'border-[var(--ui-danger)]' : 'border-[var(--ui-border)]',
@@ -188,7 +188,7 @@ export function NotesEditor({ personId, notes = '', onSaved }) {
       <div className="flex items-center gap-2 min-h-[20px]">
         {/* aria-live so a screen reader hears the save land — with no Save
             button to press, the status line is the only confirmation there is. */}
-        <span className="text-[11px] text-[var(--ui-text-tertiary)]" role="status" aria-live="polite">
+        <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]" role="status" aria-live="polite">
           {status === 'saving' && 'Saving…'}
           {status === 'saved' && 'Saved'}
           {status === 'error' && <span className="text-[var(--ui-danger)]">Not saved</span>}
@@ -202,7 +202,7 @@ export function NotesEditor({ personId, notes = '', onSaved }) {
         )}
 
         {remaining <= COUNTER_VISIBLE_BELOW && (
-          <span className="ml-auto text-[11px] tabular-nums text-[var(--ui-text-tertiary)]">
+          <span className="ml-auto text-[var(--ui-t-meta)] tabular-nums text-[var(--ui-text-tertiary)]">
             {remaining.toLocaleString()} left
           </span>
         )}

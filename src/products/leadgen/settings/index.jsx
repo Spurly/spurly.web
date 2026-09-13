@@ -106,16 +106,16 @@ function ProfileTab() {
         />
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-[13px] font-medium text-[var(--ui-text-primary)] tracking-[-0.006em]">
+          <label className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tracking-[-0.006em]">
             Email
           </label>
           <div
-            className="h-8 px-3 flex items-center rounded-[var(--ui-radius-sm)] text-[13px] text-[var(--ui-text-secondary)]"
+            className="h-8 px-3 flex items-center rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]"
             style={{ background: 'var(--ui-surface-sunken)', border: '1px solid var(--ui-border-hairline)' }}
           >
             {user?.email || '—'}
           </div>
-          <p className="text-[12px] text-[var(--ui-text-tertiary)]">
+          <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
             Your email is used to sign in and can&apos;t be changed here. Contact support to update it.
           </p>
         </div>
@@ -145,19 +145,19 @@ function BillingTab() {
           <div>
             <div className="flex items-baseline gap-2">
               <span
-                className="text-[24px] font-medium tabular-nums leading-none tracking-[-0.012em]"
+                className="text-[var(--ui-t-metric)] font-medium tabular-nums leading-none tracking-[-0.012em]"
                 style={{ color: low ? 'var(--ui-warning)' : 'var(--ui-text-primary)' }}
               >
                 {balance.toLocaleString()}
               </span>
-              <span className="text-[14px] text-[var(--ui-text-secondary)]">credits left</span>
+              <span className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">credits left</span>
             </div>
-            <p className="text-[13px] text-[var(--ui-text-secondary)] mt-2 max-w-[380px] leading-relaxed">
+            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-2 max-w-[380px] leading-relaxed">
               One credit enriches one person with their email, phone and company details.
               Capturing profiles is free.
             </p>
             {low && (
-              <p className="text-[13px] font-medium mt-2" style={{ color: 'var(--ui-warning)' }}>
+              <p className="text-[var(--ui-t-body)] font-medium mt-2" style={{ color: 'var(--ui-warning)' }}>
                 You&apos;re running low — top up to keep enriching.
               </p>
             )}
@@ -167,17 +167,17 @@ function BillingTab() {
             Top up
           </Button>
         </div>
-        <p className="text-[12px] text-[var(--ui-text-tertiary)] mt-4">
+        <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-4">
           Self-serve top-up is coming soon. In the meantime, contact us and we&apos;ll add credits
           to your account.
         </p>
       </SectionCard>
 
       <SectionCard title="Plan">
-        <div className="text-[14px] font-medium text-[var(--ui-text-primary)] capitalize">
+        <div className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] capitalize">
           {tier} plan
         </div>
-        <p className="text-[13px] text-[var(--ui-text-secondary)] mt-1">
+        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1">
           {tier === 'free'
             ? 'Everything you need to try Spurly, with a monthly credit allowance.'
             : 'Thanks for being a paying customer.'}
@@ -215,10 +215,10 @@ function ExtensionTab() {
             <Puzzle size={19} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="text-[14px] font-medium" style={{ color: status.color }}>
+            <div className="text-[var(--ui-t-body)] font-medium" style={{ color: status.color }}>
               {status.label}
             </div>
-            <p className="text-[13px] text-[var(--ui-text-secondary)] mt-0.5">
+            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5">
               {version ? `Version ${version}` : 'Spurly captures profiles directly from LinkedIn.'}
             </p>
           </div>
@@ -238,7 +238,7 @@ function ExtensionTab() {
             className="rounded-[var(--ui-radius-lg)] p-4"
             style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
           >
-            <p className="text-[13px] text-[var(--ui-text-primary)] leading-relaxed">
+            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] leading-relaxed">
               Spurly can&apos;t capture profiles or send outreach without the extension. Install it
               to get started.
             </p>
@@ -246,7 +246,7 @@ function ExtensionTab() {
               href="https://chromewebstore.google.com/"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 mt-3 text-[13px] font-medium"
+              className="inline-flex items-center gap-1.5 mt-3 text-[var(--ui-t-body)] font-medium"
               style={{ color: 'var(--ui-accent-fg)' }}
             >
               Install the extension
@@ -260,7 +260,7 @@ function ExtensionTab() {
             className="rounded-[var(--ui-radius-lg)] p-4"
             style={{ background: 'var(--ui-warning-tint)', border: '1px solid rgba(245,158,11,0.25)' }}
           >
-            <p className="text-[13px] text-[var(--ui-text-primary)] leading-relaxed">
+            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] leading-relaxed">
               The extension is installed but couldn't pick up this browser's session. Reload this
               page to hand it over again. If it stays signed out, open the extension on LinkedIn
               and sign in with this account.
@@ -291,10 +291,10 @@ function ServerSendingCard() {
           <Linkedin size={19} />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="text-[14px] font-medium text-[var(--ui-text-primary)]">
+          <div className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
             LinkedIn account
           </div>
-          <p className="text-[13px] text-[var(--ui-text-secondary)] mt-0.5">
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5">
             Send on a schedule, with your browser closed.
           </p>
         </div>

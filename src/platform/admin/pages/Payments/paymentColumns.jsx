@@ -47,7 +47,7 @@ export const paymentColumns = [
           {row.userId?.email || 'deleted account'}
         </span>
         {row.userId?.name && (
-          <span className="truncate text-[11px] text-[var(--ui-text-secondary)]">
+          <span className="truncate text-[var(--ui-t-meta)] text-[var(--ui-text-secondary)]">
             {row.userId.name}
           </span>
         )}
@@ -63,7 +63,7 @@ export const paymentColumns = [
       <span className="flex flex-col items-end tabular-nums">
         <span className="font-medium text-[var(--ui-text-primary)]">{money(row.amount)}</span>
         {row.discount > 0 && (
-          <span className="text-[11px] text-[var(--ui-text-secondary)] line-through">
+          <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-secondary)] line-through">
             {money(row.baseAmount)}
           </span>
         )}
@@ -76,7 +76,7 @@ export const paymentColumns = [
     width: 130,
     render: (value) =>
       value ? (
-        <code className="rounded-[var(--ui-radius-xs)] bg-[var(--ui-surface-sunken)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--ui-text-secondary)]">
+        <code className="rounded-[var(--ui-radius-xs)] bg-[var(--ui-surface-sunken)] px-1.5 py-0.5 font-mono text-[var(--ui-t-meta)] text-[var(--ui-text-secondary)]">
           {value}
         </code>
       ) : (
@@ -114,7 +114,7 @@ export const paymentColumns = [
     width: 220,
     title: (row) => row.failureReason || row.cashfreeOrderId,
     render: (value, row) => (
-      <span className="block truncate text-[11px] text-[var(--ui-text-secondary)]">
+      <span className="block truncate text-[var(--ui-t-meta)] text-[var(--ui-text-secondary)]">
         {value || row.cashfreeOrderId}
       </span>
     ),

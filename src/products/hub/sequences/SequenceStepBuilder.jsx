@@ -39,15 +39,15 @@ function ConfigFields({ step, onConfigChange, disabled }) {
           onChange={(e) => onConfigChange({ note: e.target.value })}
           placeholder="Optional note to send with the invitation…"
           aria-label="Connection note"
-          className="w-full text-[13px] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-text-primary)] disabled:opacity-60"
+          className="w-full text-[var(--ui-t-body)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-text-primary)] disabled:opacity-60"
         />
-        <span className="text-[11px] text-[var(--ui-text-tertiary)]">{(config.note || '').length}/300</span>
+        <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">{(config.note || '').length}/300</span>
       </div>
     );
   }
 
   if (type === 'like_post') {
-    return <p className="text-[12px] text-[var(--ui-text-tertiary)]">Reacts to the lead's most recent post. No configuration needed.</p>;
+    return <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">Reacts to the lead's most recent post. No configuration needed.</p>;
   }
 
   if (type === 'comment_post' || type === 'message') {
@@ -62,9 +62,9 @@ function ConfigFields({ step, onConfigChange, disabled }) {
           onChange={(e) => onConfigChange({ text: e.target.value })}
           placeholder={type === 'message' ? 'Hey {{firstName}}, …' : `Write the ${label.toLowerCase()}…`}
           aria-label={label}
-          className="w-full text-[13px] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-text-primary)] disabled:opacity-60"
+          className="w-full text-[var(--ui-t-body)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-text-primary)] disabled:opacity-60"
         />
-        <span className="text-[11px] text-[var(--ui-text-tertiary)]">
+        <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
           {type === 'message' ? 'Use {{firstName}} to personalize.' : `${(config.text || '').length}/1250`}
         </span>
       </div>
@@ -80,12 +80,12 @@ function ConfigFields({ step, onConfigChange, disabled }) {
           disabled={disabled}
           onChange={(e) => onConfigChange({ mode: e.target.value })}
           aria-label="Wait mode"
-          className="text-[12px] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-2 py-1 text-[var(--ui-text-primary)]"
+          className="text-[var(--ui-t-label)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-2 py-1 text-[var(--ui-text-primary)]"
         >
           {WAIT_MODES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
         </select>
         {mode === 'fixed' ? (
-          <label className="flex items-center gap-1.5 text-[12px] text-[var(--ui-text-secondary)]">
+          <label className="flex items-center gap-1.5 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
             Wait
             <input
               type="number"
@@ -93,12 +93,12 @@ function ConfigFields({ step, onConfigChange, disabled }) {
               value={config.days ?? 2}
               disabled={disabled}
               onChange={(e) => onConfigChange({ days: Number(e.target.value) })}
-              className="w-14 h-7 text-[12px] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
+              className="w-14 h-7 text-[var(--ui-t-label)] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
             />
             days, then continue
           </label>
         ) : (
-          <label className="flex items-center gap-1.5 text-[12px] text-[var(--ui-text-secondary)]">
+          <label className="flex items-center gap-1.5 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
             Stop if not accepted within
             <input
               type="number"
@@ -106,7 +106,7 @@ function ConfigFields({ step, onConfigChange, disabled }) {
               value={config.maxDays ?? 7}
               disabled={disabled}
               onChange={(e) => onConfigChange({ maxDays: Number(e.target.value) })}
-              className="w-14 h-7 text-[12px] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
+              className="w-14 h-7 text-[var(--ui-t-label)] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
             />
             days
           </label>
@@ -155,18 +155,18 @@ function StepRow({
           <GripVertical size={14} />
         </span>
       )}
-      <span className="mt-1 shrink-0 grid place-items-center w-5 h-5 rounded-full bg-[var(--ui-surface-sunken)] text-[11px] text-[var(--ui-text-secondary)] tabular-nums">
+      <span className="mt-1 shrink-0 grid place-items-center w-5 h-5 rounded-full bg-[var(--ui-surface-sunken)] text-[var(--ui-t-meta)] text-[var(--ui-text-secondary)] tabular-nums">
         {index + 1}
       </span>
       <div className="flex-1 min-w-0 flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--ui-text-primary)]">
+          <span className="inline-flex items-center gap-1.5 text-[var(--ui-t-body)] text-[var(--ui-text-primary)]">
             {Icon && <Icon size={14} className="text-[var(--ui-text-tertiary)]" aria-hidden="true" />}
             {def?.label ?? step.type}
           </span>
           {!readOnly && (
             <div className="flex items-center gap-2">
-              <label className="flex items-center gap-1.5 text-[11px] text-[var(--ui-text-tertiary)]">
+              <label className="flex items-center gap-1.5 text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
                 Wait
                 <input
                   type="number"
@@ -174,7 +174,7 @@ function StepRow({
                   value={step.delayDays ?? 0}
                   onChange={(e) => setDelayDays(e.target.value)}
                   aria-label="Days before this step"
-                  className="w-12 h-6 text-[11px] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
+                  className="w-12 h-6 text-[var(--ui-t-meta)] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
                 />
                 day(s) before this step
               </label>
@@ -184,7 +184,7 @@ function StepRow({
             </div>
           )}
           {readOnly && (step.delayDays ?? 0) > 0 && (
-            <span className="text-[11px] text-[var(--ui-text-tertiary)]">{step.delayDays} day(s) wait before this step</span>
+            <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">{step.delayDays} day(s) wait before this step</span>
           )}
         </div>
         {readOnly ? (
@@ -192,7 +192,7 @@ function StepRow({
         ) : (
           <ConfigFields step={step} onConfigChange={setConfig} disabled={readOnly} />
         )}
-        {!readOnly && error && <p className="text-[11px] text-[var(--ui-danger-fg)]">{error}</p>}
+        {!readOnly && error && <p className="text-[var(--ui-t-meta)] text-[var(--ui-danger-fg)]">{error}</p>}
       </div>
     </div>
   );
@@ -200,19 +200,19 @@ function StepRow({
 
 function ReadOnlySummary({ step }) {
   const { type, config } = step;
-  if (type === 'connect' && config.note) return <p className="text-[12px] text-[var(--ui-text-secondary)]">“{config.note}”</p>;
-  if (type === 'comment_post' || type === 'message') return <p className="text-[12px] text-[var(--ui-text-secondary)]">“{config.text}”</p>;
+  if (type === 'connect' && config.note) return <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">“{config.note}”</p>;
+  if (type === 'comment_post' || type === 'message') return <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">“{config.text}”</p>;
   if (type === 'wait') {
     return (
-      <p className="text-[12px] text-[var(--ui-text-secondary)]">
+      <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
         {config.mode === 'until-accepted'
           ? `Stops if not accepted within ${config.maxDays} day(s)`
           : `Waits ${config.days} day(s), then continues`}
       </p>
     );
   }
-  if (type === 'endorse_skill') return <p className="text-[12px] text-[var(--ui-text-secondary)]">Skill: {config.skillName}</p>;
-  if (type === 'profile_visit') return <p className="text-[12px] text-[var(--ui-text-tertiary)]">{config.notify === false ? 'Silent visit' : 'Visits and notifies'}</p>;
+  if (type === 'endorse_skill') return <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">Skill: {config.skillName}</p>;
+  if (type === 'profile_visit') return <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">{config.notify === false ? 'Silent visit' : 'Visits and notifies'}</p>;
   return null;
 }
 
@@ -253,7 +253,7 @@ export function SequenceStepBuilder({ steps, onChange, readOnly = false }) {
   return (
     <div>
       {steps.length === 0 ? (
-        <p className="px-[var(--ui-pad-lg)] py-6 text-[13px] text-[var(--ui-text-tertiary)]">No steps yet.</p>
+        <p className="px-[var(--ui-pad-lg)] py-6 text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">No steps yet.</p>
       ) : (
         steps.map((step, index) => (
           <StepRow

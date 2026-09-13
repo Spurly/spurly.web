@@ -87,7 +87,7 @@ export function CampaignFlowCanvas({ members = [], actionType, sending = false, 
             <div className="h-full rounded-full transition-[width] duration-700 ease-out"
               style={{ width: `${pct}%`, background: 'linear-gradient(90deg, var(--ui-accent), var(--ui-success))' }} />
           </div>
-          <span className="text-[12px] font-medium tabular-nums" style={{ color: 'var(--ui-text-secondary)' }}>
+          <span className="text-[var(--ui-t-label)] font-medium tabular-nums" style={{ color: 'var(--ui-text-secondary)' }}>
             {done}/{total}
           </span>
         </div>
@@ -121,8 +121,8 @@ export function CampaignFlowCanvas({ members = [], actionType, sending = false, 
                 <Users size={16} />
               </span>
               <div>
-                <div className="text-[10px] font-medium uppercase tracking-wide" style={{ color: 'var(--ui-text-tertiary)' }}>Leads list</div>
-                <div className="text-[13px] font-medium" style={{ color: 'var(--ui-text-primary)' }}>{total} lead{total === 1 ? '' : 's'}</div>
+                <div className="text-[var(--ui-t-micro)] font-medium uppercase tracking-wide" style={{ color: 'var(--ui-text-tertiary)' }}>Leads list</div>
+                <div className="text-[var(--ui-t-body)] font-medium" style={{ color: 'var(--ui-text-primary)' }}>{total} lead{total === 1 ? '' : 's'}</div>
               </div>
             </div>
           </SpineNode>
@@ -135,11 +135,11 @@ export function CampaignFlowCanvas({ members = [], actionType, sending = false, 
                 <ActionIcon size={16} />
               </span>
               <div>
-                <div className="text-[10px] font-medium uppercase tracking-wide" style={{ color: 'var(--ui-accent)' }}>Action</div>
-                <div className="text-[13px] font-medium" style={{ color: 'var(--ui-text-primary)' }}>{actionLabel}</div>
+                <div className="text-[var(--ui-t-micro)] font-medium uppercase tracking-wide" style={{ color: 'var(--ui-accent)' }}>Action</div>
+                <div className="text-[var(--ui-t-body)] font-medium" style={{ color: 'var(--ui-text-primary)' }}>{actionLabel}</div>
               </div>
               {sending && (
-                <span className="ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium"
+                <span className="ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[var(--ui-t-micro)] font-medium"
                   style={{ background: 'var(--ui-accent-tint)', color: 'var(--ui-accent)' }}>
                   <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--ui-accent)' }} /> Running
                 </span>
@@ -154,7 +154,7 @@ export function CampaignFlowCanvas({ members = [], actionType, sending = false, 
           <div className="absolute left-[10px] top-0 bottom-6 w-[3px] rounded-full" style={{ background: 'var(--ui-border-hairline)' }} />
 
           {total === 0 ? (
-            <div className="pl-6 py-10 text-[13px]" style={{ color: 'var(--ui-text-tertiary)' }}>
+            <div className="pl-6 py-10 text-[var(--ui-t-body)]" style={{ color: 'var(--ui-text-tertiary)' }}>
               No leads in this campaign yet. Add people from the Contacts tab.
             </div>
           ) : (
@@ -222,19 +222,19 @@ function ProfileBranch({ member, state, active }) {
           <img src={member.avatar} alt={name} className="w-9 h-9 rounded-[var(--ui-radius-lg)] object-cover flex-shrink-0"
             onError={(e) => { e.currentTarget.style.display = 'none'; }} />
         ) : (
-          <div className="w-9 h-9 rounded-[var(--ui-radius-lg)] grid place-items-center text-white text-[13px] font-medium flex-shrink-0"
+          <div className="w-9 h-9 rounded-[var(--ui-radius-lg)] grid place-items-center text-white text-[var(--ui-t-body)] font-medium flex-shrink-0"
             style={{ background: 'var(--brand-gradient-vivid, var(--ui-accent))' }}>
             {name.charAt(0).toUpperCase()}
           </div>
         )}
 
         <div className="min-w-0 flex-1">
-          <div className="text-[13px] font-medium truncate" style={{ color: 'var(--ui-text-primary)' }}>{name}</div>
-          {sub && <div className="text-[11px] truncate" style={{ color: 'var(--ui-text-tertiary)' }}>{sub}</div>}
+          <div className="text-[var(--ui-t-body)] font-medium truncate" style={{ color: 'var(--ui-text-primary)' }}>{name}</div>
+          {sub && <div className="text-[var(--ui-t-meta)] truncate" style={{ color: 'var(--ui-text-tertiary)' }}>{sub}</div>}
         </div>
 
         {/* Status pill */}
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap"
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[var(--ui-t-micro)] font-medium whitespace-nowrap"
           style={{ background: meta.tint, color: meta.color }}>
           <Icon size={11} className={state === 'sending' ? 'animate-spin' : ''} />
           {meta.label}
@@ -259,8 +259,8 @@ function Stat({ label, value, icon: Icon, color }) {
   return (
     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--ui-radius-md)]" style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}>
       <Icon size={13} style={{ color }} />
-      <span className="text-[13px] font-medium tabular-nums" style={{ color: 'var(--ui-text-primary)' }}>{value}</span>
-      <span className="text-[11px]" style={{ color: 'var(--ui-text-tertiary)' }}>{label}</span>
+      <span className="text-[var(--ui-t-body)] font-medium tabular-nums" style={{ color: 'var(--ui-text-primary)' }}>{value}</span>
+      <span className="text-[var(--ui-t-meta)]" style={{ color: 'var(--ui-text-tertiary)' }}>{label}</span>
     </div>
   );
 }

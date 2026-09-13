@@ -49,13 +49,13 @@ export function Dialog({
             {title && (
               <h2
                 id={titleId}
-                className="text-[14px] font-medium text-[var(--ui-text-primary)] leading-snug"
+                className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] leading-snug"
               >
                 {title}
               </h2>
             )}
             {description && (
-              <p id={descId} className="mt-1 text-[12px] text-[var(--ui-text-secondary)] leading-relaxed">
+              <p id={descId} className="mt-1 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-relaxed">
                 {description}
               </p>
             )}

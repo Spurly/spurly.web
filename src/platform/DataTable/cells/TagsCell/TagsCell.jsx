@@ -21,7 +21,7 @@ export function TagsCell({ value = [], max = 2, getLabel = (item) => (typeof ite
         </Badge>
       ))}
       {overflow > 0 && (
-        <span className="shrink-0 text-[11px] text-[var(--ui-text-tertiary)] tabular-nums">
+        <span className="shrink-0 text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums">
           +{overflow}
         </span>
       )}

@@ -82,7 +82,7 @@ function OverviewPanel({ lead, onNotesSaved }) {
       ) : (
         lead.notes && (
           <Section title="Notes">
-            <p className="text-[13px] text-[var(--ui-text-secondary)] leading-relaxed whitespace-pre-line">
+            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] leading-relaxed whitespace-pre-line">
               {lead.notes}
             </p>
           </Section>
@@ -91,7 +91,7 @@ function OverviewPanel({ lead, onNotesSaved }) {
 
       {lead.headline && (
         <Section title="Headline">
-          <p className="text-[13px] text-[var(--ui-text-secondary)] leading-relaxed">
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] leading-relaxed">
             {lead.headline}
           </p>
         </Section>
@@ -99,7 +99,7 @@ function OverviewPanel({ lead, onNotesSaved }) {
 
       {lead.about && (
         <Section title="About">
-          <p className="text-[13px] text-[var(--ui-text-secondary)] leading-relaxed whitespace-pre-line">
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] leading-relaxed whitespace-pre-line">
             {lead.about}
           </p>
         </Section>
@@ -188,7 +188,7 @@ function ResearchTabPanel({ lead }) {
 
       {lead.aiSummary && (
         <Section title="Summary" action={<Badge size="sm" tone="accent">Beta</Badge>}>
-          <p className="text-[13px] text-[var(--ui-text-secondary)] leading-relaxed">
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] leading-relaxed">
             {lead.aiSummary}
           </p>
         </Section>
@@ -200,7 +200,7 @@ function ResearchTabPanel({ lead }) {
             {lead.signals.map((signal, i) => (
               <li
                 key={i}
-                className="flex items-start gap-2 text-[13px] text-[var(--ui-text-secondary)]"
+                className="flex items-start gap-2 text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]"
               >
                 <span
                   className="w-1 h-1 rounded-full shrink-0 mt-2 bg-[var(--ui-success-dot)]"
@@ -296,17 +296,17 @@ export function LeadDetailSidebar({ lead, onClose, showOutreach = true, onNotesS
         <div className="flex items-start gap-3">
           <Avatar src={lead.avatar || capturedPhoto || null} name={lead.name} size={44} shape="square" />
           <div className="min-w-0 flex-1">
-            <h2 className="text-[14px] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] leading-tight">
+            <h2 className="text-[var(--ui-t-body)] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] leading-tight">
               {lead.name}
             </h2>
             {(lead.title || lead.company) && (
-              <p className="text-[13px] text-[var(--ui-text-secondary)] mt-0.5 leading-snug">
+              <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5 leading-snug">
                 {lead.title}
                 {lead.company ? ` · ${lead.company}` : ''}
               </p>
             )}
             {lead.location && (
-              <p className="flex items-center gap-1.5 text-[12px] text-[var(--ui-text-tertiary)] mt-1">
+              <p className="flex items-center gap-1.5 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-1">
                 {/* The flag replaces the pin rather than joining it: two glyphs
                     before one short line of text is noise, and the flag says
                     "place" at least as clearly as the pin did. */}

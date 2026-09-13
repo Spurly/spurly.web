@@ -179,10 +179,10 @@ export function AdminPricingPage() {
       <div className="mb-12">
         <div className="flex items-start justify-between gap-4 mb-5">
           <div className="max-w-2xl">
-            <h3 className="text-[17px] font-medium text-[var(--ui-text-primary)]">
+            <h3 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)]">
               Subscription plans
             </h3>
-            <p className="text-[var(--ui-text-secondary)] text-[13px] leading-relaxed mt-1">
+            <p className="text-[var(--ui-text-secondary)] text-[var(--ui-t-body)] leading-relaxed mt-1">
               Create custom plans with daily action limits. The{' '}
               <span className="font-medium text-[var(--ui-text-primary)]">default</span> plan is
               assigned to every new user automatically. Allocate specific plans to users from the
@@ -201,7 +201,7 @@ export function AdminPricingPage() {
         </div>
 
         {plansError && (
-          <div className="mb-4 flex items-center gap-2 p-3 rounded-[var(--ui-radius-lg)] text-[13px] font-medium"
+          <div className="mb-4 flex items-center gap-2 p-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium"
             style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)', border: '1px solid rgba(255,69,58,0.2)' }}>
             <AlertCircle size={18} />
             <span>{plansError}</span>
@@ -228,7 +228,7 @@ export function AdminPricingPage() {
         </div>
       ) : (
         <div className="max-w-3xl">
-          <h3 className="text-[17px] font-medium text-[var(--ui-text-primary)] mb-3">
+          <h3 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] mb-3">
             Credit cost per action
           </h3>
           <div className="mb-6">
@@ -237,7 +237,7 @@ export function AdminPricingPage() {
               source of truth and take effect for all users within a few minutes (backend cache
               refresh). The extension reads these values too.
             </p>
-            <p className="text-[var(--ui-text-tertiary)] text-[12px] mt-2">
+            <p className="text-[var(--ui-text-tertiary)] text-[var(--ui-t-label)] mt-2">
               When an action's billing is <span className="font-medium">Off</span>, that action is
               free — no credits are deducted and users are never blocked for it. Turn it back{' '}
               <span className="font-medium">On</span> to resume charging at the cost shown.
@@ -254,7 +254,7 @@ export function AdminPricingPage() {
           <div className="bg-[var(--ui-surface-card)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] shadow-[var(--ui-shadow-sm)] overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="bg-[var(--ui-surface-page)] text-left text-[12px] text-[var(--ui-text-tertiary)]">
+                <tr className="bg-[var(--ui-surface-page)] text-left text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
                   <th className="px-[var(--ui-pad-lg)] py-3 font-medium">Action</th>
                   <th className="px-[var(--ui-pad-lg)] py-3 font-medium">Feature key</th>
                   <th className="px-[var(--ui-pad-lg)] py-3 font-medium">Billing</th>
@@ -267,7 +267,7 @@ export function AdminPricingPage() {
                   <tr key={c.feature} className="hover:bg-[var(--ui-surface-page)]">
                     <td className="px-[var(--ui-pad-lg)] py-4 font-medium text-[var(--ui-text-primary)]">{c.label}</td>
                     <td className="px-[var(--ui-pad-lg)] py-4">
-                      <code className="text-[11px] bg-[var(--ui-surface-sunken)] px-2 py-1 rounded text-[var(--ui-text-secondary)]">
+                      <code className="text-[var(--ui-t-meta)] bg-[var(--ui-surface-sunken)] px-2 py-1 rounded text-[var(--ui-text-secondary)]">
                         {c.feature}
                       </code>
                     </td>
@@ -292,7 +292,7 @@ export function AdminPricingPage() {
                           />
                         </button>
                         <span
-                          className={`text-[12px] font-medium ${
+                          className={`text-[var(--ui-t-label)] font-medium ${
                             c.billingEnabled !== false ? 'text-[var(--ui-success-fg)]' : 'text-[var(--ui-text-quaternary)]'
                           }`}
                         >
@@ -326,7 +326,7 @@ export function AdminPricingPage() {
                         disabled={
                           c.billingEnabled === false || !isDirty(c) || savingFeature === c.feature
                         }
-                        className={`flex items-center gap-2 px-4 py-2 rounded-[var(--ui-radius-md)] text-[12px] font-medium transition-colors ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-[var(--ui-radius-md)] text-[var(--ui-t-label)] font-medium transition-colors ${
                           c.billingEnabled === false || !isDirty(c)
                             ? 'bg-[var(--ui-surface-sunken)] text-[var(--ui-text-quaternary)] cursor-not-allowed'
                             : 'btn btn-primary'

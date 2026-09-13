@@ -39,7 +39,7 @@ export function StatusFilter({ value = 'all', onChange, counts = {}, total }) {
             onClick={() => onChange(filter.id)}
             aria-pressed={active}
             className={[
-              'inline-flex items-center gap-1 h-6 px-2 rounded-[var(--ui-radius-xs)] text-[12px]',
+              'inline-flex items-center gap-1 h-6 px-2 rounded-[var(--ui-radius-xs)] text-[var(--ui-t-label)]',
               'transition-colors duration-[var(--ui-dur-fast)] focus:outline-none',
               'focus-visible:shadow-[var(--ui-focus-ring)] whitespace-nowrap',
               active

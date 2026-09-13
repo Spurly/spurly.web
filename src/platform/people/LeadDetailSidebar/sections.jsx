@@ -15,7 +15,7 @@ export function Section({ title, children, action = null }) {
     <section className="px-4 py-3 border-t first:border-t-0 border-[var(--ui-border-hairline)]">
       {title && (
         <div className="flex items-center gap-2 mb-2">
-          <h3 className="text-[10px] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)]">
+          <h3 className="text-[var(--ui-t-micro)] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)]">
             {title}
           </h3>
           {action}
@@ -34,17 +34,17 @@ export function ContactRow({ icon: Icon, value, empty, href }) {
         href ? (
           <a
             href={href}
-            className="text-[13px] text-[var(--ui-accent-fg)] hover:underline truncate"
+            className="text-[var(--ui-t-body)] text-[var(--ui-accent-fg)] hover:underline truncate"
             target={href.startsWith('http') ? '_blank' : undefined}
             rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
           >
             {value}
           </a>
         ) : (
-          <span className="text-[13px] text-[var(--ui-text-primary)] truncate">{value}</span>
+          <span className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] truncate">{value}</span>
         )
       ) : (
-        <span className="text-[13px] text-[var(--ui-text-tertiary)]">{empty}</span>
+        <span className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{empty}</span>
       )}
     </div>
   );
@@ -59,8 +59,8 @@ export function FactList({ facts = [] }) {
     <dl className="flex flex-col gap-1.5">
       {present.map((fact) => (
         <div key={fact.label} className="flex items-baseline gap-3">
-          <dt className="w-24 shrink-0 text-[12px] text-[var(--ui-text-tertiary)]">{fact.label}</dt>
-          <dd className="text-[13px] text-[var(--ui-text-primary)] tabular-nums min-w-0 truncate">
+          <dt className="w-24 shrink-0 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">{fact.label}</dt>
+          <dd className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] tabular-nums min-w-0 truncate">
             {fact.value}
           </dd>
         </div>
@@ -78,7 +78,7 @@ export function ChipList({ items = [] }) {
       {items.map((item, i) => (
         <span
           key={`${item}-${i}`}
-          className="inline-flex items-center h-6 px-2 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] text-[12px] text-[var(--ui-text-secondary)]"
+          className="inline-flex items-center h-6 px-2 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]"
         >
           {item}
         </span>
@@ -97,14 +97,14 @@ function HistoryRow({ icon: Icon, primary, secondary, meta }) {
         <Icon size={13} />
       </span>
       <div className="min-w-0">
-        <p className="text-[13px] font-medium text-[var(--ui-text-primary)] leading-snug">
+        <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] leading-snug">
           {primary}
         </p>
         {secondary && (
-          <p className="text-[12px] text-[var(--ui-text-secondary)] leading-snug">{secondary}</p>
+          <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-snug">{secondary}</p>
         )}
         {meta && (
-          <p className="text-[11px] text-[var(--ui-text-tertiary)] leading-snug mt-0.5">{meta}</p>
+          <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] leading-snug mt-0.5">{meta}</p>
         )}
       </div>
     </div>

@@ -68,7 +68,7 @@ export function ProductSwitcher({ workspaces, current, expanded, onSelect }) {
       {expanded && (
         <>
           <span className="flex flex-col items-start min-w-0 leading-tight">
-            <span className="text-[13px] font-medium tracking-[-0.006em] text-[var(--ui-text-primary)] truncate">
+            <span className="text-[var(--ui-t-body)] font-medium tracking-[-0.006em] text-[var(--ui-text-primary)] truncate">
               {active.label}
             </span>
           </span>
@@ -117,13 +117,13 @@ export function ProductSwitcher({ workspaces, current, expanded, onSelect }) {
                 ].join(' ')}
               >
                 <span className="flex-1 min-w-0">
-                  <span className="flex items-center gap-1.5 text-[13px] text-[var(--ui-text-primary)]">
+                  <span className="flex items-center gap-1.5 text-[var(--ui-t-body)] text-[var(--ui-text-primary)]">
                     <span className="truncate">{w.label}</span>
                     {w.locked && (
                       <Lock size={11} className="shrink-0 text-[var(--ui-text-tertiary)]" aria-hidden="true" />
                     )}
                   </span>
-                  <span className="block text-[11px] text-[var(--ui-text-tertiary)] leading-snug">
+                  <span className="block text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] leading-snug">
                     {w.locked ? w.lockedHint : w.hint}
                   </span>
                 </span>

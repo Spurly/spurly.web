@@ -63,11 +63,11 @@ function Row({ notification, onOpen }) {
       </span>
       <span className="min-w-0 flex-1">
         <span
-          className={`block text-[13px] leading-snug ${unread ? 'text-[var(--ui-text-primary)] font-medium' : 'text-[var(--ui-text-secondary)]'}`}
+          className={`block text-[var(--ui-t-body)] leading-snug ${unread ? 'text-[var(--ui-text-primary)] font-medium' : 'text-[var(--ui-text-secondary)]'}`}
         >
           {notification.text}
         </span>
-        <span className="block text-[12px] text-[var(--ui-text-tertiary)] mt-1">
+        <span className="block text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-1">
           {ago(notification.createdAt)}
         </span>
         {notification.type === 'hub.connections_sent' && (
@@ -101,7 +101,7 @@ export default function NotificationsPage() {
       }
     >
       {loading && items.length === 0 ? (
-        <div className="py-16 text-center text-[13px] text-[var(--ui-text-tertiary)]">Loading…</div>
+        <div className="py-16 text-center text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">Loading…</div>
       ) : items.length === 0 ? (
         <EmptyState
           icon={<Bell size={18} />}

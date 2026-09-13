@@ -58,14 +58,14 @@ export function Drawer({
           style={{ height: 'var(--ui-band)', paddingInline: 'var(--ui-pad-x)' }}>
           <div className="min-w-0 flex-1">
             {eyebrow && (
-              <p className="text-[10px] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)] leading-none">
+              <p className="text-[var(--ui-t-micro)] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)] leading-none">
                 {eyebrow}
               </p>
             )}
             {title && (
               <h2
                 id={titleId}
-                className="text-[13px] font-medium text-[var(--ui-text-primary)] truncate leading-tight mt-1"
+                className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] truncate leading-tight mt-1"
               >
                 {title}
               </h2>

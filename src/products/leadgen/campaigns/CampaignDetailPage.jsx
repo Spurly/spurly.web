@@ -397,7 +397,7 @@ export function CampaignDetailPage() {
                       e.currentTarget.blur();
                     }
                   }}
-                  className="text-[17px] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] bg-transparent min-w-0 flex-1 rounded-[var(--ui-radius-sm)] px-1.5 -mx-1.5 outline-none"
+                  className="text-[var(--ui-t-section)] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] bg-transparent min-w-0 flex-1 rounded-[var(--ui-radius-sm)] px-1.5 -mx-1.5 outline-none"
                   style={{ border: '1px solid var(--ui-accent)' }}
                 />
               ) : (
@@ -412,24 +412,24 @@ export function CampaignDetailPage() {
                     }
                   }}
                   title={campaign ? 'Click to rename' : undefined}
-                  className="text-[17px] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] truncate rounded-[var(--ui-radius-sm)] px-1.5 -mx-1.5 cursor-text hover:bg-[var(--ui-surface-hover)] transition-colors"
+                  className="text-[var(--ui-t-section)] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] truncate rounded-[var(--ui-radius-sm)] px-1.5 -mx-1.5 cursor-text hover:bg-[var(--ui-surface-hover)] transition-colors"
                 >
                   {campaign?.name || (loading ? 'Loading…' : 'Campaign')}
                 </h1>
               )}
               {renameSaving && (
-                <span className="text-[11px] text-[var(--ui-text-tertiary)] shrink-0">Saving…</span>
+                <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] shrink-0">Saving…</span>
               )}
               {campaign && (
                 <span
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium shrink-0"
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[var(--ui-t-meta)] font-medium shrink-0"
                   style={{ background: statusStyle.bg, color: statusStyle.color }}
                 >
                   {statusStyle.label}
                 </span>
               )}
             </div>
-            <p className="text-[12px] text-[var(--ui-text-tertiary)] mt-0.5 flex items-center gap-1.5">
+            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5 flex items-center gap-1.5">
               <Users size={12} /> {total} lead{total === 1 ? '' : 's'}
             </p>
           </div>
@@ -439,7 +439,7 @@ export function CampaignDetailPage() {
           <button
             onClick={handleSave}
             disabled={!dirty || saving}
-            className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium transition-opacity disabled:opacity-40"
+            className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] font-medium transition-opacity disabled:opacity-40"
             style={{ background: 'var(--ui-surface-sunken)', color: 'var(--ui-text-primary)', border: '1px solid var(--ui-border-hairline)' }}
           >
             {saving ? 'Saving…' : savedAt ? 'Saved ✓' : 'Save'}
@@ -448,7 +448,7 @@ export function CampaignDetailPage() {
           {sending ? (
             <button
               onClick={handleStop}
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-white transition-opacity"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] font-medium text-white transition-opacity"
               style={{ background: 'var(--ui-danger)' }}
             >
               <Square size={13} /> Stop ({completed}/{total})
@@ -468,7 +468,7 @@ export function CampaignDetailPage() {
                         ? `Weekly LinkedIn invite limit reached (${budget.weekUsed}/${budget.weeklyLimit})`
                         : undefined
               }
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-white transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] font-medium text-white transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--ui-accent)' }}
             >
               <Send size={14} /> Send {actionType === 'message' ? 'messages' : 'requests'}
@@ -478,14 +478,14 @@ export function CampaignDetailPage() {
         </div>
 
         {error && (
-          <div className="px-[var(--ui-pad-lg)] py-3 text-[13px]" style={{ color: 'var(--ui-danger-fg)' }}>
+          <div className="px-[var(--ui-pad-lg)] py-3 text-[var(--ui-t-body)]" style={{ color: 'var(--ui-danger-fg)' }}>
             {error}
           </div>
         )}
         {/* Toasted as well, but kept: a launch failure means nothing is sending,
             and that's worth stating persistently next to the Send button. */}
         {sendError && (
-          <div className="px-[var(--ui-pad-lg)] py-3 text-[13px]" style={{ color: 'var(--ui-danger-fg)' }}>
+          <div className="px-[var(--ui-pad-lg)] py-3 text-[var(--ui-t-body)]" style={{ color: 'var(--ui-danger-fg)' }}>
             {sendError}
           </div>
         )}
@@ -494,7 +494,7 @@ export function CampaignDetailPage() {
             campaigns, counted across every campaign on this account. */}
         {(budgetBlocked || budgetTight) && (
           <div
-            className="px-[var(--ui-pad-lg)] py-2.5 text-[12px] flex items-center gap-2"
+            className="px-[var(--ui-pad-lg)] py-2.5 text-[var(--ui-t-label)] flex items-center gap-2"
             style={
               budgetBlocked
                 ? { background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)' }
@@ -521,7 +521,7 @@ export function CampaignDetailPage() {
             one-click reset rather than making the user rebuild the campaign. */}
         {failedCount > 0 && !sending && (
           <div
-            className="px-[var(--ui-pad-lg)] py-2.5 text-[12px] flex items-center gap-2.5"
+            className="px-[var(--ui-pad-lg)] py-2.5 text-[var(--ui-t-label)] flex items-center gap-2.5"
             style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)' }}
           >
             <AlertTriangle size={14} className="shrink-0" />
@@ -532,8 +532,8 @@ export function CampaignDetailPage() {
             <button
               onClick={handleRetryFailed}
               disabled={retrying}
-              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-[var(--ui-radius-md)] text-[12px] font-medium transition-opacity disabled:opacity-50"
-              style={{ background: 'var(--ui-danger)', color: '#fff' }}
+              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-[var(--ui-radius-md)] text-[var(--ui-t-label)] font-medium transition-opacity disabled:opacity-50"
+              style={{ background: 'var(--ui-danger)', color: 'var(--ui-accent-on)' }}
             >
               <RotateCcw size={12} />
               {retrying ? 'Resetting…' : 'Retry failed'}
@@ -542,7 +542,7 @@ export function CampaignDetailPage() {
         )}
         {sending && (
           <div
-            className="px-[var(--ui-pad-lg)] py-2.5 text-[12px] flex items-center gap-2"
+            className="px-[var(--ui-pad-lg)] py-2.5 text-[var(--ui-t-label)] flex items-center gap-2"
             style={{ background: 'var(--ui-accent-tint)', color: 'var(--ui-accent)' }}
           >
             <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: 'var(--ui-accent)' }} />
@@ -568,10 +568,10 @@ export function CampaignDetailPage() {
             style={{ borderLeft: '1px solid var(--ui-border-hairline)', background: 'var(--ui-surface-card)' }}
           >
             <section>
-              <h2 className="text-[14px] font-medium text-[var(--ui-text-primary)] mb-1">
+              <h2 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-1">
                 What should this campaign do?
               </h2>
-              <p className="text-[12px] text-[var(--ui-text-secondary)] mb-4">
+              <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] mb-4">
                 Choose the action the extension will run for every lead.
               </p>
 
@@ -597,7 +597,7 @@ export function CampaignDetailPage() {
             {actionType === 'connection' && (
               <section>
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <h2 className="shrink-0 text-[14px] font-medium text-[var(--ui-text-primary)]">
+                  <h2 className="shrink-0 text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
                     Invitation note
                   </h2>
                   <div className="flex flex-wrap items-center justify-end gap-2">
@@ -610,12 +610,12 @@ export function CampaignDetailPage() {
                     />
                     <PreviewToggle on={showPreview} onClick={() => setShowPreview((v) => !v)} />
                     <UseTemplateButton onClick={() => setPickingFor('connection')} />
-                    <span className="shrink-0 text-[12px] text-[var(--ui-text-tertiary)] tabular-nums">
+                    <span className="shrink-0 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] tabular-nums">
                       {note.length}/{NOTE_MAX}
                     </span>
                   </div>
                 </div>
-                <p className="text-[12px] text-[var(--ui-text-secondary)] mb-3">
+                <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] mb-3">
                   Optional. Leave empty to send a note-free request. Tokens below are filled in per
                   person when the invite goes out.
                 </p>
@@ -628,13 +628,13 @@ export function CampaignDetailPage() {
                   onChange={(e) => setNote(e.target.value.slice(0, NOTE_MAX))}
                   placeholder="Hi {{firstName}}, I'd love to connect…"
                   rows={5}
-                  className="w-full px-4 py-3 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] text-[14px] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors resize-none"
                 />
 
                 {/* LinkedIn truncates invitation notes past ~200 chars, while
                     the field itself allows 300. Warn rather than block. */}
                 {note.length > 200 && (
-                  <p className="text-[12px] mt-2" style={{ color: 'var(--ui-warning-fg)' }}>
+                  <p className="text-[var(--ui-t-label)] mt-2" style={{ color: 'var(--ui-warning-fg)' }}>
                     LinkedIn truncates invitation notes after about 200 characters.
                   </p>
                 )}
@@ -660,7 +660,7 @@ export function CampaignDetailPage() {
             {actionType === 'message' && (
               <section>
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <h2 className="shrink-0 text-[14px] font-medium text-[var(--ui-text-primary)]">Message</h2>
+                  <h2 className="shrink-0 text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">Message</h2>
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     <AiWriteButton
                       content={msgBody}
@@ -671,12 +671,12 @@ export function CampaignDetailPage() {
                     />
                     <PreviewToggle on={showPreview} onClick={() => setShowPreview((v) => !v)} />
                     <UseTemplateButton onClick={() => setPickingFor('message')} />
-                    <span className="shrink-0 text-[12px] text-[var(--ui-text-tertiary)] tabular-nums">
+                    <span className="shrink-0 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] tabular-nums">
                       {msgBody.length}/{MSG_MAX}
                     </span>
                   </div>
                 </div>
-                <p className="text-[12px] text-[var(--ui-text-secondary)] mb-3">
+                <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] mb-3">
                   Sent as a LinkedIn message. Works for 1st-degree connections; leads you’re not
                   connected to are skipped. Tokens below are filled in per person.
                 </p>
@@ -685,7 +685,7 @@ export function CampaignDetailPage() {
                   value={msgSubject}
                   onChange={(e) => setMsgSubject(e.target.value.slice(0, SUBJECT_MAX))}
                   placeholder="Subject (Sales Navigator InMail only) — optional"
-                  className="w-full mb-3 px-4 h-11 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] text-[14px] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors"
+                  className="w-full mb-3 px-4 h-11 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors"
                 />
 
                 <TokenBar disabled={sending} onInsert={(token) => insertToken('body', token)} />
@@ -696,7 +696,7 @@ export function CampaignDetailPage() {
                   onChange={(e) => setMsgBody(e.target.value.slice(0, MSG_MAX))}
                   placeholder="Hi {{firstName}}, …"
                   rows={6}
-                  className="w-full px-4 py-3 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] text-[14px] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors resize-none"
                 />
 
                 <UnknownTokenWarning content={`${msgSubject}\n${msgBody}`} />
@@ -755,7 +755,7 @@ function PreviewToggle({ on, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 h-7 px-2.5 rounded-[var(--ui-radius-md)] text-[12px] font-medium transition-colors"
+      className="inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 h-7 px-2.5 rounded-[var(--ui-radius-md)] text-[var(--ui-t-label)] font-medium transition-colors"
       style={
         on
           ? { background: 'var(--ui-accent-tint)', color: 'var(--ui-accent)' }
@@ -786,12 +786,12 @@ function EditorPreview({ subject = '', body = '', values, person, index, count, 
       style={{ border: '1px dashed var(--ui-border)', background: 'var(--ui-surface-sunken)' }}
     >
       <div className="flex items-center gap-2 px-3.5 py-2 border-b border-[var(--ui-border-hairline)]">
-        <span className="text-[11px] font-medium text-[var(--ui-text-secondary)] truncate">
+        <span className="text-[var(--ui-t-meta)] font-medium text-[var(--ui-text-secondary)] truncate">
           {count > 0 ? `As ${label} will see it` : 'Preview'}
         </span>
         {count > 1 && (
           <>
-            <span className="text-[11px] text-[var(--ui-text-tertiary)] tabular-nums ml-auto shrink-0">
+            <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums ml-auto shrink-0">
               {index + 1}/{count}
             </span>
             <button
@@ -808,12 +808,12 @@ function EditorPreview({ subject = '', body = '', values, person, index, count, 
 
       <div className="px-3.5 py-3">
         {filledSubject && (
-          <p className="text-[12px] font-medium text-[var(--ui-text-primary)] mb-1.5">
+          <p className="text-[var(--ui-t-label)] font-medium text-[var(--ui-text-primary)] mb-1.5">
             {filledSubject}
           </p>
         )}
         <p
-          className="text-[13px] leading-relaxed whitespace-pre-wrap"
+          className="text-[var(--ui-t-body)] leading-relaxed whitespace-pre-wrap"
           style={{ color: filledBody ? 'var(--ui-text-primary)' : 'var(--ui-text-tertiary)' }}
         >
           {filledBody ||
@@ -822,7 +822,7 @@ function EditorPreview({ subject = '', body = '', values, person, index, count, 
               : 'Nothing written yet.')}
         </p>
         {count === 0 && (
-          <p className="text-[11px] text-[var(--ui-text-tertiary)] mt-2">
+          <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-2">
             No leads loaded — showing tokens as empty.
           </p>
         )}
@@ -837,7 +837,7 @@ function UnknownTokenWarning({ content }) {
   if (unknown.length === 0) return null;
   return (
     <div
-      className="mt-2 flex items-start gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[12px]"
+      className="mt-2 flex items-start gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-label)]"
       style={{ background: 'var(--ui-warning-tint)', color: 'var(--ui-warning)' }}
     >
       <AlertTriangle size={14} className="shrink-0 mt-px" />
@@ -856,7 +856,7 @@ function UseTemplateButton({ onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 h-7 px-2.5 rounded-[var(--ui-radius-md)] text-[12px] font-medium transition-colors"
+      className="inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 h-7 px-2.5 rounded-[var(--ui-radius-md)] text-[var(--ui-t-label)] font-medium transition-colors"
       style={{ background: 'var(--ui-accent-tint)', color: 'var(--ui-accent)' }}
     >
       <FileText size={12} /> Template
@@ -871,7 +871,7 @@ function UseTemplateButton({ onClick }) {
 function TokenBar({ onInsert, disabled = false }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5 mb-2">
-      <span className="text-[11px] text-[var(--ui-text-tertiary)] mr-0.5">Insert</span>
+      <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mr-0.5">Insert</span>
       {TEMPLATE_TOKENS.map((t) => (
         <button
           key={t.token}
@@ -879,7 +879,7 @@ function TokenBar({ onInsert, disabled = false }) {
           disabled={disabled}
           title={`${t.label} — e.g. ${t.sample}`}
           onClick={() => onInsert(t.token)}
-          className="px-2 h-6 rounded-[var(--ui-radius-sm)] font-mono text-[11px] text-[var(--ui-accent-fg)] bg-[var(--ui-accent-tint)] hover:bg-[var(--ui-accent-tint-strong)] transition-colors disabled:opacity-40"
+          className="px-2 h-6 rounded-[var(--ui-radius-sm)] font-mono text-[var(--ui-t-meta)] text-[var(--ui-accent-fg)] bg-[var(--ui-accent-tint)] hover:bg-[var(--ui-accent-tint-strong)] transition-colors disabled:opacity-40"
         >
           {t.token}
         </button>
@@ -893,7 +893,7 @@ function TemplateNotice({ notice, onDismiss }) {
   if (!notice) return null;
   return (
     <div
-      className="mt-3 flex items-start gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[12px]"
+      className="mt-3 flex items-start gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-label)]"
       style={
         notice.trimmedTo
           ? { background: 'var(--ui-warning-tint)', color: 'var(--ui-warning)' }
@@ -937,7 +937,7 @@ function ExtensionBadge({ ext }) {
       title = 'Extension not detected on this page — enable it, then refresh';
     } else if (ext.loginKnown && !ext.loggedIn) {
       // Only warn about sign-in when the worker actually told us it's logged out.
-      dot = '#f59e0b';
+      dot = 'var(--ui-warning-dot)';
       label = 'Sign in to extension';
       title = 'Extension detected but not signed in — open it and log in';
     } else {
@@ -952,7 +952,7 @@ function ExtensionBadge({ ext }) {
     <button
       onClick={() => ext.recheck()}
       title={`${title} · click to recheck`}
-      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-[var(--ui-radius-lg)] text-[12px] font-medium transition-colors"
+      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-label)] font-medium transition-colors"
       style={{ background: 'var(--ui-surface-sunken)', color: 'var(--ui-text-secondary)', border: '1px solid var(--ui-border-hairline)' }}
     >
       <span
@@ -989,13 +989,13 @@ function ActionCard({ icon: Icon, title, subtitle, selected, disabled, onClick }
         className="w-9 h-9 rounded-[var(--ui-radius-lg)] grid place-items-center"
         style={{
           background: selected ? 'var(--ui-accent)' : 'var(--ui-accent-tint)',
-          color: selected ? '#fff' : 'var(--ui-accent)',
+          color: selected ? 'var(--ui-accent-on)' : 'var(--ui-accent-fg)',
         }}
       >
         <Icon size={18} />
       </span>
-      <span className="text-[13px] font-medium text-[var(--ui-text-primary)]">{title}</span>
-      <span className="text-[12px] text-[var(--ui-text-tertiary)]">{subtitle}</span>
+      <span className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">{title}</span>
+      <span className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">{subtitle}</span>
     </button>
   );
 }

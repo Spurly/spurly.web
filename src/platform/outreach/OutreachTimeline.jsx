@@ -37,7 +37,7 @@ function SentCopy({ payload }) {
   if (!body) return null;
 
   return (
-    <div className="mt-1.5 px-2.5 py-2 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] text-[12px] leading-relaxed text-[var(--ui-text-secondary)] whitespace-pre-wrap">
+    <div className="mt-1.5 px-2.5 py-2 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] text-[var(--ui-t-label)] leading-relaxed text-[var(--ui-text-secondary)] whitespace-pre-wrap">
       {payload?.subject && (
         <div className="font-medium text-[var(--ui-text-primary)] mb-1">{payload.subject}</div>
       )}
@@ -65,11 +65,11 @@ function TimelineRow({ event, isLast }) {
 
       <div className={`min-w-0 flex-1 ${isLast ? '' : 'pb-3'}`}>
         <div className="flex items-baseline justify-between gap-2">
-          <span className="text-[13px] font-medium text-[var(--ui-text-primary)]">
+          <span className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
             {headline(event)}
           </span>
           <span
-            className="text-[11px] shrink-0 tabular-nums text-[var(--ui-text-tertiary)]"
+            className="text-[var(--ui-t-meta)] shrink-0 tabular-nums text-[var(--ui-text-tertiary)]"
             title={absoluteTime(event.occurredAt)}
           >
             {relativeTime(event.occurredAt)}
@@ -77,7 +77,7 @@ function TimelineRow({ event, isLast }) {
         </div>
 
         {event.campaignName && (
-          <div className="text-[12px] text-[var(--ui-text-tertiary)] mt-0.5 truncate">
+          <div className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5 truncate">
             {event.campaignName}
           </div>
         )}
@@ -85,7 +85,7 @@ function TimelineRow({ event, isLast }) {
         {event.status === 'sent' && <SentCopy payload={event.payload} />}
 
         {event.error && (
-          <div className="text-[12px] mt-1 text-[var(--ui-danger-fg)]">{event.error}</div>
+          <div className="text-[var(--ui-t-label)] mt-1 text-[var(--ui-danger-fg)]">{event.error}</div>
         )}
       </div>
     </li>
@@ -107,16 +107,16 @@ export function OutreachTimeline({ personId, profileUrl }) {
   const { events, loading, error } = useOutreachTimeline({ personId, profileUrl });
 
   if (loading) {
-    return <p className="text-[13px] text-[var(--ui-text-tertiary)]">Loading activity…</p>;
+    return <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">Loading activity…</p>;
   }
 
   if (error) {
-    return <p className="text-[13px] text-[var(--ui-danger-fg)]">{error}</p>;
+    return <p className="text-[var(--ui-t-body)] text-[var(--ui-danger-fg)]">{error}</p>;
   }
 
   if (events.length === 0) {
     return (
-      <p className="text-[13px] text-[var(--ui-text-tertiary)]">
+      <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">
         Not contacted yet.
       </p>
     );

@@ -41,17 +41,13 @@
      faint seam. One ramp now. */
   --gray-0:   var(--ui-neutral-0);
   --gray-50:  var(--ui-neutral-50);
-  --gray-100: var(--ui-neutral-100);
-  --gray-150: var(--ui-neutral-150);
   --gray-200: var(--ui-neutral-200);
   --gray-300: var(--ui-neutral-300);
   --gray-400: var(--ui-neutral-400);
   --gray-500: var(--ui-neutral-500);
   --gray-600: var(--ui-neutral-600);
   --gray-700: var(--ui-neutral-700);
-  --gray-800: var(--ui-neutral-800);
   --gray-900: var(--ui-neutral-900);
-  --gray-950: var(--ui-neutral-900);
 
   /* Brand — teal, matched to the extension's LinkedIn embed accent
      (oklch(0.62 0.13 205)) so the web app and the extension read as one product.
@@ -60,13 +56,6 @@
      fills (buttons, badges, active nav) with white text on top, but FAILS
      WCAG AA for text. Any teal *text* must use --brand-teal-700 (5.1:1),
      which is what --text-accent and --text-link resolve to below. */
-  --brand-teal:      var(--ui-accent);
-  --brand-teal-700:  var(--ui-accent-fg);
-  --brand-teal-300:  var(--ui-accent-border);
-  --brand-teal-050:  var(--ui-accent-tint);
-  --brand-blue:       #38bdf8;
-  --brand-blue-600:   #0ea5e9;
-  --brand-indigo:     #0ea5e9;
 
   /* Legacy purple aliases.
      There are ~60 call sites still writing var(--brand-purple) inline. Aliasing
@@ -74,11 +63,7 @@
      can break on a call site we missed. Remove these once the call sites are
      migrated to --accent / --text-accent. */
   --brand-purple:     var(--brand-teal);
-  --brand-purple-700: var(--brand-teal-700);
-  --brand-purple-300: var(--brand-teal-300);
 
-  --brand-gradient:       linear-gradient(135deg, #0d9bb5 0%, #38bdf8 100%);
-  --brand-gradient-soft:  linear-gradient(135deg, rgba(13,155,181,0.14) 0%, rgba(56,189,248,0.14) 100%);
   --brand-gradient-vivid: linear-gradient(135deg, #12aecb 0%, #4aa9f5 100%);
 
   /* ---- Semantic -------------------------------------------
@@ -92,27 +77,15 @@
      #dc2626 used by migrated components you had two different reds on
      screen depending on which page you were on. */
   --green:      var(--ui-success);
-  --green-tint: var(--ui-success-tint);
-  --amber:      var(--ui-warning);
-  --amber-tint: var(--ui-warning-tint);
-  --red:        var(--ui-danger);
-  --red-tint:   var(--ui-danger-tint);
-  --sky:        var(--ui-info);
-  --sky-tint:   var(--ui-info-tint);
 
   /* Liquid Glass materials */
-  --glass-ultra-thin: rgba(255,255,255,0.45);
   --glass-thin:       rgba(255,255,255,0.60);
   --glass-regular:    rgba(255,255,255,0.72);
   --glass-thick:      rgba(255,255,255,0.85);
   --glass-chrome:     rgba(250,250,252,0.72);
 
-  --glass-dark-thin:    rgba(20,20,24,0.42);
   --glass-dark-regular: rgba(18,18,22,0.62);
-  --glass-dark-thick:   rgba(14,14,18,0.78);
 
-  --glass-edge-light: rgba(255,255,255,0.70);
-  --glass-edge-dark:  rgba(0,0,0,0.06);
   --glass-inner-glow: inset 0 1px 0 rgba(255,255,255,0.65), inset 0 -1px 0 rgba(0,0,0,0.04);
 
   /* Canvas. Marketing only — the app canvas is --ui-surface-page. */
@@ -126,47 +99,25 @@
      All of these are compatibility only. Every one resolves into the
      --ui-* layer. */
   --text-primary:   var(--ui-text-primary);
-  --text-secondary: var(--ui-text-secondary);
-  --text-tertiary:  var(--ui-text-tertiary);
-  --text-disabled:  var(--ui-text-disabled);
-  --text-on-accent: var(--ui-text-inverse);
-  --text-on-dark:   rgba(255,255,255,0.92);
-  --text-on-dark-2: rgba(255,255,255,0.58);
   /* Text-safe accent (5.1:1 on white). Never use --accent for text. */
-  --text-accent:    var(--ui-accent-fg);
-  --text-link:      var(--ui-accent-fg);
 
   --surface-canvas:  var(--ui-surface-page);
-  --surface-card:    var(--ui-surface-card);
   --surface-sunken:  var(--ui-surface-sunken);
   --surface-raised:  var(--ui-surface-card);
-  --surface-hover:   var(--ui-surface-hover);
-  --surface-active:  var(--ui-surface-active);
-  --surface-glass:   var(--glass-regular);
   --surface-chrome:  var(--glass-chrome);
-  --surface-inverse: var(--ui-surface-inverse);
 
-  --border-hairline: var(--ui-border-hairline);
   --border-default:  var(--ui-border);
-  --border-strong:   var(--ui-border-strong);
   --border-glass:    var(--glass-edge-light);
   /* Was rgba(0,0,0,0.07). A translucent separator darkens over a tinted
      row and disappears over a dark one; the hairline is opaque and
      behaves the same everywhere. 29 call sites pick this up. */
-  --separator:       var(--ui-border-hairline);
 
   /* --accent is a FILL colour (white text sits on it). For accent-coloured
      text use --text-accent. */
   --accent:        var(--ui-accent);
-  --accent-hover:  var(--ui-accent-hover);
   --accent-tint:   var(--ui-accent-tint);
   --accent-tint-2: var(--ui-accent-tint-strong);
   --focus-ring:    var(--ui-accent-tint-strong);
-
-  --success: var(--ui-success);
-  --warning: var(--ui-warning);
-  --danger:  var(--ui-danger);
-  --info:    var(--ui-info);
 
   /* Blur — marketing only. */
   --glass-blur-sm: 12px;
@@ -185,9 +136,7 @@
      marketing site's, and nothing in the app should use them. */
   --shadow-xs:    var(--ui-shadow-sm);
   --shadow-sm:    var(--ui-shadow-sm);
-  --shadow-md:    var(--ui-shadow-md);
   --shadow-lg:    var(--ui-shadow-lg);
-  --shadow-xl:    var(--ui-shadow-lg);
   --shadow-glass: 0 10px 34px rgba(31,34,54,0.14), var(--glass-inner-glow);
   --shadow-accent: 0 6px 18px rgba(13,155,181,0.26);
 
@@ -203,17 +152,12 @@
 
      The easing curves stay: marketing.css uses them and a landing page
      is allowed a springier curve than a table. */
-  --ease-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
   --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Z-index — aliased so a legacy modal can never sort above a
      migrated toast. */
-  --z-base:    0;
-  --z-sticky:  var(--ui-z-sticky);
-  --z-overlay: var(--ui-z-overlay);
   --z-modal:   var(--ui-z-modal);
-  --z-toast:   var(--ui-z-toast);
 }
 
 /* ============================================================

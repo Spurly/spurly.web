@@ -40,7 +40,7 @@ function SyncFailure({ result, onDismiss }) {
       }}
     >
       <AlertTriangle size={13} style={{ color: "var(--ui-danger-fg)" }} aria-hidden="true" />
-      <span className="text-[12px] font-medium" style={{ color: "var(--ui-danger-fg)" }}>
+      <span className="text-[var(--ui-t-label)] font-medium" style={{ color: "var(--ui-danger-fg)" }}>
         {result.error}
       </span>
       <span className="flex-1" />

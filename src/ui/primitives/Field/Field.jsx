@@ -21,7 +21,7 @@ export function Field({
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label className="text-[13px] font-medium text-[var(--ui-text-primary)] tracking-[-0.006em]">
+        <label className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tracking-[-0.006em]">
           {label}
         </label>
       )}
@@ -37,7 +37,7 @@ export function Field({
           onChange={onChange}
           disabled={disabled}
           placeholder={placeholder}
-          className={`w-full h-8 ${leadingIcon ? 'pl-9' : 'pl-3'} pr-3 bg-[var(--ui-surface-card)] border rounded-[var(--ui-radius-sm)] text-[13px] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] tracking-[-0.006em] focus:outline-none transition-colors disabled:opacity-45 disabled:cursor-not-allowed ${
+          className={`w-full h-8 ${leadingIcon ? 'pl-9' : 'pl-3'} pr-3 bg-[var(--ui-surface-card)] border rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] tracking-[-0.006em] focus:outline-none transition-colors disabled:opacity-45 disabled:cursor-not-allowed ${
             error
               ? 'border-[var(--ui-danger)] focus:shadow-[0_0_0_3px_var(--ui-danger-tint)]'
               : 'border-[var(--ui-border)] focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)]'
@@ -46,7 +46,7 @@ export function Field({
         />
       </div>
       {error && (
-        <p className="text-[12px] text-[var(--ui-danger-fg)] tracking-[-0.006em]">{error}</p>
+        <p className="text-[var(--ui-t-label)] text-[var(--ui-danger-fg)] tracking-[-0.006em]">{error}</p>
       )}
     </div>
   );

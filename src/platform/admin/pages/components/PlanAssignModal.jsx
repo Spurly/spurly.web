@@ -88,7 +88,7 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between p-[var(--ui-pad-lg)] border-b border-[var(--ui-border-hairline)]">
-          <h2 className="text-[17px] font-medium text-[var(--ui-text-primary)]">Allocate Plan</h2>
+          <h2 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)]">Allocate Plan</h2>
           <button
             onClick={onClose}
             className="text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-secondary)] transition-colors"
@@ -100,13 +100,13 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
         {/* User info */}
         <div className="p-[var(--ui-pad-lg)] bg-[var(--ui-surface-page)] border-b border-[var(--ui-border-hairline)]">
           <div className="space-y-2">
-            <p className="text-[12px] text-[var(--ui-text-secondary)]">
+            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
               <strong>Email:</strong> {user.email}
             </p>
-            <p className="text-[12px] text-[var(--ui-text-secondary)]">
+            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
               <strong>Name:</strong> {user.name}
             </p>
-            <p className="text-[12px] text-[var(--ui-text-secondary)]">
+            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
               <strong>Current plan:</strong>{' '}
               <span className="ml-1 inline-block bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] px-3 py-1 rounded-full font-medium">
                 {currentPlanLabel || 'Default / none'}
@@ -118,9 +118,9 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-[var(--ui-pad-lg)] space-y-4">
           <div>
-            <label className="block text-[12px] font-medium text-[var(--ui-text-secondary)] mb-2">Select plan</label>
+            <label className="block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">Select plan</label>
             {plansLoading ? (
-              <div className="flex items-center gap-2 text-[var(--ui-text-tertiary)] text-[12px] py-2">
+              <div className="flex items-center gap-2 text-[var(--ui-text-tertiary)] text-[var(--ui-t-label)] py-2">
                 <Loader size={16} className="animate-spin" />
                 Loading plans...
               </div>
@@ -142,7 +142,7 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
           </div>
 
           {error && (
-            <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[12px]">
+            <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[var(--ui-t-label)]">
               {error}
             </div>
           )}

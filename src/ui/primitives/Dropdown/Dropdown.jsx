@@ -93,7 +93,7 @@ export function Dropdown({
       <button
         type="button"
         id={id}
-        className={`w-full h-11 ${icon ? 'pl-10' : 'pl-4'} pr-10 bg-[var(--ui-surface-sunken)] border rounded-[var(--ui-radius-lg)] text-[14px] text-left tracking-[-0.006em] focus:outline-none transition-colors flex items-center ${
+        className={`w-full h-11 ${icon ? 'pl-10' : 'pl-4'} pr-10 bg-[var(--ui-surface-sunken)] border rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] text-left tracking-[-0.006em] focus:outline-none transition-colors flex items-center ${
           error
             ? 'border-[var(--ui-danger)] focus:shadow-[0_0_0_3px_rgba(255,69,58,0.18)]'
             : open
@@ -119,7 +119,7 @@ export function Dropdown({
           {options.map(([val, label]) => (
             <li
               key={val}
-              className={`flex items-center justify-between px-3.5 py-2.5 rounded-[var(--ui-radius-md)] text-[14px] cursor-pointer transition-colors ${
+              className={`flex items-center justify-between px-3.5 py-2.5 rounded-[var(--ui-radius-md)] text-[var(--ui-t-body)] cursor-pointer transition-colors ${
                 val === value
                   /* Was var(--accent-subtle, rgba(79,70,229,0.08)). --accent-subtle
                      has never been defined, so every selected dropdown item was

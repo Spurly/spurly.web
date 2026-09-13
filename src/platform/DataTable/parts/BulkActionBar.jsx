@@ -9,7 +9,7 @@ import { Button } from 'src/ui/primitives';
 export function BulkActionBar({ count, onClear, children }) {
   return (
     <div className="flex items-center gap-2 min-w-0">
-      <span className="text-[13px] font-medium text-[var(--ui-text-primary)] tabular-nums shrink-0">
+      <span className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tabular-nums shrink-0">
         {count} selected
       </span>
       <span className="w-px h-4 bg-[var(--ui-border)] shrink-0" aria-hidden="true" />

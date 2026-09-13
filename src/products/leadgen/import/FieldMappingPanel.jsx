@@ -81,10 +81,10 @@ export function FieldMappingPanel({
         style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
       >
         <div className="min-w-0">
-          <p className="text-[14px] font-medium text-[var(--ui-text-primary)]">
+          <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
             Match your columns
           </p>
-          <p className="text-[13px] text-[var(--ui-text-secondary)] mt-0.5">
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5">
             <span className="font-medium text-[var(--ui-text-primary)]">{fileName}</span>
             {' · '}
             {headers.length} column{headers.length === 1 ? '' : 's'}
@@ -118,20 +118,20 @@ export function FieldMappingPanel({
         )}
         <div className="flex-1 min-w-0">
           <p
-            className="text-[13px] font-medium"
+            className="text-[var(--ui-t-body)] font-medium"
             style={{ color: ok ? 'var(--ui-success)' : 'var(--ui-danger)' }}
           >
             {ok
               ? `Matched ${mappedCount} field${mappedCount === 1 ? '' : 's'} automatically`
               : `Pick a column for ${missing.join(' and ')}`}
           </p>
-          <p className="text-[13px] mt-0.5" style={{ color: 'var(--ui-text-secondary)' }}>
+          <p className="text-[var(--ui-t-body)] mt-0.5" style={{ color: 'var(--ui-text-secondary)' }}>
             {ok
               ? 'Check the samples below and change anything that looks wrong. Fields set to “Not imported” are simply left out.'
               : 'Your file’s columns are listed in each dropdown — choose the one that holds this information.'}
           </p>
           {duplicateColumns.length > 0 && (
-            <p className="text-[12px] mt-1.5" style={{ color: 'var(--ui-text-tertiary)' }}>
+            <p className="text-[var(--ui-t-label)] mt-1.5" style={{ color: 'var(--ui-text-tertiary)' }}>
               Heads up: {duplicateColumns.map((c) => `“${c}”`).join(', ')} is mapped to more than
               one field.
             </p>
@@ -160,7 +160,7 @@ export function FieldMappingPanel({
         style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
       >
         <div
-          className="hidden sm:grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1.2fr)] gap-4 px-[var(--ui-pad-lg)] py-2.5 text-[12px] font-medium uppercase tracking-[0.04em]"
+          className="hidden sm:grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1.2fr)] gap-4 px-[var(--ui-pad-lg)] py-2.5 text-[var(--ui-t-label)] font-medium uppercase tracking-[0.04em]"
           style={{ color: 'var(--ui-text-tertiary)', borderBottom: '1px solid var(--ui-border-hairline)' }}
         >
           <span>Spurly field</span>
@@ -180,11 +180,11 @@ export function FieldMappingPanel({
               style={{ borderBottom: '1px solid var(--ui-border-hairline)' }}
             >
               <div className="min-w-0">
-                <p className="text-[14px] text-[var(--ui-text-primary)] flex items-center gap-1.5">
+                <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] flex items-center gap-1.5">
                   {field.label}
                   {(field.required || field.requiredGroup) && (
                     <span
-                      className="text-[11px]"
+                      className="text-[var(--ui-t-meta)]"
                       style={{ color: missingThis ? 'var(--ui-danger)' : 'var(--ui-text-tertiary)' }}
                     >
                       {field.required ? 'Required' : 'Required*'}
@@ -192,7 +192,7 @@ export function FieldMappingPanel({
                   )}
                 </p>
                 {field.hint && (
-                  <p className="text-[12px] mt-0.5" style={{ color: 'var(--ui-text-tertiary)' }}>
+                  <p className="text-[var(--ui-t-label)] mt-0.5" style={{ color: 'var(--ui-text-tertiary)' }}>
                     {field.hint}
                   </p>
                 )}
@@ -209,7 +209,7 @@ export function FieldMappingPanel({
               />
 
               <p
-                className="text-[13px] truncate"
+                className="text-[var(--ui-t-body)] truncate"
                 style={{ color: sample ? 'var(--ui-text-secondary)' : 'var(--ui-text-tertiary)' }}
                 title={sample}
               >
@@ -219,7 +219,7 @@ export function FieldMappingPanel({
           );
         })}
 
-        <p className="px-[var(--ui-pad-lg)] py-3 text-[12px]" style={{ color: 'var(--ui-text-tertiary)' }}>
+        <p className="px-[var(--ui-pad-lg)] py-3 text-[var(--ui-t-label)]" style={{ color: 'var(--ui-text-tertiary)' }}>
           * Map either <span className="text-[var(--ui-text-secondary)]">Full name</span> or{' '}
           <span className="text-[var(--ui-text-secondary)]">First name</span> — with first and last
           name columns we join them for you. Your choices are remembered for your next import.

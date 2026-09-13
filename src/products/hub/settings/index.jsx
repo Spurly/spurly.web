@@ -298,14 +298,14 @@ function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconnect }) {
               <Linkedin size={19} />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="text-[14px] font-medium text-[var(--ui-text-primary)]">Not connected</div>
-              <p className="text-[13px] text-[var(--ui-text-secondary)] mt-0.5">
+              <div className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">Not connected</div>
+              <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5">
                 Connect once and Spurly can send on a schedule, with your laptop closed.
               </p>
             </div>
           </div>
 
-          <p className="text-[13px] text-[var(--ui-text-secondary)]">
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
             You sign in on LinkedIn&rsquo;s own page through our provider.{' '}
             <span className="text-[var(--ui-text-primary)] font-medium">
               Spurly never sees or stores your password.
@@ -346,10 +346,10 @@ function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconnect }) {
             <Linkedin size={19} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="text-[14px] font-medium" style={{ color: view?.tone }}>
+            <div className="text-[var(--ui-t-body)] font-medium" style={{ color: view?.tone }}>
               {view?.label ?? account.status}
             </div>
-            <p className="text-[13px] text-[var(--ui-text-secondary)] mt-0.5 truncate">
+            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5 truncate">
               {account.linkedinName || view?.detail}
             </p>
           </div>
@@ -370,7 +370,7 @@ function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconnect }) {
             style={{ background: 'var(--ui-warning-tint)' }}
           >
             <AlertTriangle size={16} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-warning)' }} />
-            <div className="text-[13px] text-[var(--ui-text-secondary)]">
+            <div className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
               <div className="text-[var(--ui-text-primary)] font-medium">{view?.detail}</div>
               {RECONNECT_HINT[account.connectionMethod] && (
                 <p className="mt-0.5">{RECONNECT_HINT[account.connectionMethod]}</p>
@@ -410,13 +410,13 @@ function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconnect }) {
 function FreeAccountNotice() {
   return (
     <SectionCard title="Personalised invites">
-      <p className="text-[13px] text-[var(--ui-text-secondary)]">
+      <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
         Your LinkedIn account is on the free plan, so connection requests will be sent
         without a note. LinkedIn limits free accounts to a few personalised invites each
         month and then silently drops the note — turning it off is the only way to be sure
         what your prospects actually receive.
       </p>
-      <p className="text-[13px] text-[var(--ui-text-secondary)] mt-2">
+      <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-2">
         LinkedIn Premium removes the limit, and Spurly enables notes automatically once it
         sees one.
       </p>

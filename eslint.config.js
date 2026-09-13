@@ -11,6 +11,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
  * The jsx-runtime rules it also provided are redundant under the new transform.
  */
 export default [
+
   { ignores: ['dist', 'node_modules'] },
   {
     files: ['**/*.{js,jsx}'],
@@ -99,23 +100,35 @@ export default [
         },
         {
           /*
-           * The UNION of the v1 and v2 scales, on purpose.
+           * No pixel font size at all. Not "off the scale" -- any of them.
            *
-           * v2 is 28 / 16 / 14 / 12.5 / 11.5 / 10.5. The v1 sizes
-           * (24 / 17 / 13 / 12 / 11 / 10) are still on screen in every
-           * page that has not been swept yet, and `npm run lint` runs
-           * with --max-warnings 147 -- tightening this rule before the
-           * sweep would turn several hundred untouched call sites into
-           * warnings and fail the gate on work nobody has done yet.
+           * This used to allow the union of the v1 and v2 scales while ~535
+           * call sites were still on v1 literals. They are all on tokens now,
+           * so the rule can say the thing it always meant: a size is a
+           * decision the design system makes, and a component repeating the
+           * number is a copy that goes stale the day the scale moves.
            *
-           * Narrow this to the v2 sizes alone in the lock-it phase,
-           * once the sweep is finished. That is the moment this rule
-           * starts enforcing the scale instead of merely bounding it.
+           * text-[var(--ui-t-body)] passes. text-[14px] does not, even though
+           * today they are the same 14 pixels -- that is the point.
            */
-          selector:
-            'Literal[value=/text-\\[(?!(28|24|17|16|14|13|12\\.5|12|11\\.5|11|10\\.5|10)px)[0-9.]+px\\]/]',
+          selector: 'Literal[value=/text-\\[[0-9.]+px\\]/]',
           message:
-            'Font size off the scale. Use 28/16/14/12.5/11.5/10.5px (see --ui-t-* in src/ui/tokens/tokens.css).',
+            'Use a type token: text-[var(--ui-t-display|metric|section|nav|body|label|meta|micro)].',
+        },
+        {
+          /*
+           * No raw hex in a component, in any form -- className, inline style
+           * or a colour constant. Every one of them is a surface or a text
+           * colour that cannot move when the theme does, which is exactly the
+           * pairing that rendered /admin white-on-white the day dark mode
+           * shipped.
+           *
+           * #fff sitting ON a coloured fill is the one honest exception and it
+           * has a token: --ui-accent-on.
+           */
+          selector: "Literal[value=/#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?\\b/]",
+          message:
+            'Hard-coded colour. Use a --ui-* token so light and dark both work.',
         },
         {
           selector: 'Literal[value=/rounded-\\[[0-9]+px\\]/]',
@@ -159,4 +172,20 @@ export default [
       ],
     },
   },
+  {
+    /*
+     * Brand marks are exempt from the no-hard-coded-colour rule.
+     *
+     * A Google "G" is Google's four colours and a LinkedIn glyph is
+     * LinkedIn's blue. Those hexes are not theme decisions that failed to
+     * become tokens -- they are third-party data, fixed by someone else, and
+     * tokenising them would be wrong rather than merely unnecessary.
+     *
+     * Last in the array on purpose: flat config is last-wins, so an override
+     * placed before the block it overrides is silently re-enabled by it.
+     */
+    files: ['src/ui/icons/**', 'src/platform/auth/icons.jsx'],
+    rules: { 'no-restricted-syntax': 'off' },
+  },
 ]
+

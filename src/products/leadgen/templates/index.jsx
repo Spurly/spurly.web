@@ -167,7 +167,7 @@ export function TemplatesPage() {
                     <button
                       key={tab.id}
                       onClick={() => setType(tab.id)}
-                      className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-md)] text-[13px] font-medium transition-colors ${
+                      className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-md)] text-[var(--ui-t-body)] font-medium transition-colors ${
                         active
                           ? 'text-[var(--ui-accent-fg)]'
                           : 'text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)]'
@@ -185,7 +185,7 @@ export function TemplatesPage() {
 
               <button
                 onClick={() => setEditing('new')}
-                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-white transition-colors hover:brightness-95"
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] font-medium text-white transition-colors hover:brightness-95"
                 style={{ background: 'var(--ui-accent)' }}
               >
                 <Plus size={15} /> New template
@@ -202,10 +202,10 @@ export function TemplatesPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search templates…"
-                  className="w-full h-9 pl-9 pr-3 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] text-[13px] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors"
+                  className="w-full h-9 pl-9 pr-3 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors"
                 />
               </div>
-              <p className="text-[12px] text-[var(--ui-text-tertiary)] truncate">
+              <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] truncate">
                 {activeTab?.blurb}
               </p>
             </div>
@@ -216,7 +216,7 @@ export function TemplatesPage() {
               templates". Action failures are toasts. */}
           {error && (
             <div
-              className="mx-6 mt-4 flex items-center gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[13px]"
+              className="mx-6 mt-4 flex items-center gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)]"
               style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)' }}
             >
               <AlertCircle size={14} className="shrink-0" />
@@ -245,10 +245,10 @@ export function TemplatesPage() {
                   <FileText size={22} style={{ color: 'var(--ui-accent)' }} />
                 </div>
                 <div>
-                  <p className="text-[14px] font-medium text-[var(--ui-text-primary)]">
+                  <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
                     {search ? 'No templates match your search' : 'No templates yet'}
                   </p>
-                  <p className="text-[13px] text-[var(--ui-text-secondary)] mt-1 max-w-[380px]">
+                  <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1 max-w-[380px]">
                     {search
                       ? 'Try a different search term.'
                       : `Create a ${type === TEMPLATE_TYPES.CONNECTION ? 'connection note' : 'message'} template to reuse it across campaigns and the extension.`}
@@ -257,7 +257,7 @@ export function TemplatesPage() {
                 {!search && (
                   <button
                     onClick={() => setEditing('new')}
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[13px] font-medium text-white"
+                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] font-medium text-white"
                     style={{ background: 'var(--ui-accent)' }}
                   >
                     <Plus size={15} /> New template
@@ -288,10 +288,10 @@ export function TemplatesPage() {
             className="w-[420px] xl:w-[480px] shrink-0 overflow-y-auto p-[var(--ui-pad-lg)]"
             style={{ borderLeft: '1px solid var(--ui-border-hairline)', background: 'var(--ui-surface-card)' }}
           >
-            <h2 className="text-[14px] font-medium text-[var(--ui-text-primary)] mb-1">
+            <h2 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-1">
               {editing === 'new' ? 'New template' : 'Edit template'}
             </h2>
-            <p className="text-[12px] text-[var(--ui-text-secondary)] mb-5">
+            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] mb-5">
               {type === TEMPLATE_TYPES.CONNECTION
                 ? 'Attached to the invitation. Keep it under 200 characters.'
                 : 'Sent as a LinkedIn message to your connections.'}
@@ -337,7 +337,7 @@ function TemplateCard({ template, active, onOpen, onFavorite, onDuplicate, onDel
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-[14px] font-medium text-[var(--ui-text-primary)] truncate">
+            <h3 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] truncate">
               {template.name}
             </h3>
             {template.isFavorite && (
@@ -345,12 +345,12 @@ function TemplateCard({ template, active, onOpen, onFavorite, onDuplicate, onDel
             )}
           </div>
           {template.description && (
-            <p className="text-[12px] text-[var(--ui-text-tertiary)] mt-0.5 truncate">
+            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5 truncate">
               {template.description}
             </p>
           )}
           <p
-            className="text-[13px] text-[var(--ui-text-secondary)] mt-1.5 leading-snug"
+            className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1.5 leading-snug"
             style={{
               display: '-webkit-box',
               WebkitLineClamp: 2,
@@ -361,7 +361,7 @@ function TemplateCard({ template, active, onOpen, onFavorite, onDuplicate, onDel
             {template.content}
           </p>
           {template.usageCount > 0 && (
-            <p className="text-[11px] text-[var(--ui-text-tertiary)] mt-2 tabular-nums">
+            <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-2 tabular-nums">
               Used {template.usageCount} time{template.usageCount === 1 ? '' : 's'}
             </p>
           )}

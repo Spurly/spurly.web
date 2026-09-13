@@ -40,10 +40,10 @@ export default function HubUpgradePage() {
   return (
     <DashboardLayout title="Outreach hub" subtitle="Not included in your current plan">
       <div className="max-w-[720px] mx-auto py-10 px-4">
-        <h2 className="text-[17px] font-medium text-[var(--ui-text-primary)]">
+        <h2 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)]">
           Send from our servers, not your browser
         </h2>
-        <p className="mt-2 text-[13px] leading-relaxed text-[var(--ui-text-secondary)]">
+        <p className="mt-2 text-[var(--ui-t-body)] leading-relaxed text-[var(--ui-text-secondary)]">
           The hub links your LinkedIn account to Spurly directly. Everything below runs
           without the extension, and without your machine being awake.
         </p>
@@ -58,15 +58,15 @@ export default function HubUpgradePage() {
                 <Icon size={15} />
               </span>
               <span className="min-w-0">
-                <span className="block text-[13px] font-medium text-[var(--ui-text-primary)]">{title}</span>
-                <span className="block text-[13px] leading-relaxed text-[var(--ui-text-secondary)]">{body}</span>
+                <span className="block text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">{title}</span>
+                <span className="block text-[var(--ui-t-body)] leading-relaxed text-[var(--ui-text-secondary)]">{body}</span>
               </span>
             </li>
           ))}
         </ul>
 
         <div className="mt-8 rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] p-4">
-          <p className="text-[13px] text-[var(--ui-text-primary)] flex items-start gap-2">
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] flex items-start gap-2">
             <Check size={14} className="shrink-0 mt-0.5 text-[var(--ui-accent-fg)]" aria-hidden="true" />
             <span>
               Everything you already have stays exactly as it is. The hub is added to your

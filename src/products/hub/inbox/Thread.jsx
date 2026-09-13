@@ -38,7 +38,7 @@ function Bubble({ message }) {
   if (message.isEvent) {
     return (
       <li className="flex justify-center">
-        <span className="text-[11px] text-[var(--ui-text-tertiary)] px-2 py-1">{message.text || 'Activity'}</span>
+        <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] px-2 py-1">{message.text || 'Activity'}</span>
       </li>
     );
   }
@@ -48,7 +48,7 @@ function Bubble({ message }) {
       <div className="max-w-[min(68ch,78%)]">
         <div
           className={[
-            'rounded-[var(--ui-radius-md)] px-3 py-2 text-[13px] leading-[1.5] whitespace-pre-wrap break-words',
+            'rounded-[var(--ui-radius-md)] px-3 py-2 text-[var(--ui-t-body)] leading-[1.5] whitespace-pre-wrap break-words',
             mine
               ? 'bg-[var(--ui-surface-sunken)] text-[var(--ui-text-primary)]'
               : 'bg-[var(--ui-surface-card)] border border-[var(--ui-border)] text-[var(--ui-text-primary)]',
@@ -56,7 +56,7 @@ function Bubble({ message }) {
         >
           {message.text || <span className="text-[var(--ui-text-tertiary)]">(no text)</span>}
         </div>
-        <div className={`mt-1 text-[11px] text-[var(--ui-text-tertiary)] tabular-nums ${mine ? 'text-right' : ''}`}>
+        <div className={`mt-1 text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums ${mine ? 'text-right' : ''}`}>
           {absoluteTime(message.timestamp)}
         </div>
       </div>
@@ -138,14 +138,14 @@ export function Thread({ chatId, onChanged }) {
 
   if (!chatId) {
     return (
-      <div className="grid place-items-center h-full text-[13px] text-[var(--ui-text-tertiary)]">
+      <div className="grid place-items-center h-full text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">
         Pick a conversation
       </div>
     );
   }
 
   if (loading && !data) {
-    return <div className="grid place-items-center h-full text-[13px] text-[var(--ui-text-tertiary)]">Loading…</div>;
+    return <div className="grid place-items-center h-full text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">Loading…</div>;
   }
 
   const chat = data?.chat;
@@ -191,7 +191,7 @@ export function Thread({ chatId, onChanged }) {
         style={{ height: 'var(--ui-band)' }}
       >
         <Avatar src={chat?.display?.pictureUrl || null} name={chat?.display?.name || ''} size={22} />
-        <span className="text-[13px] text-[var(--ui-text-primary)] truncate">
+        <span className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] truncate">
           {chat?.display?.name || 'Unnamed conversation'}
         </span>
         {DEGREE_LABEL[chat?.connectionDegree] && (
@@ -205,13 +205,13 @@ export function Thread({ chatId, onChanged }) {
         {data?.historyPending && (
           // An un-swept conversation and a conversation with nothing in it look
           // identical, and only one of them is the truth.
-          <p className="mb-3 text-[11px] text-[var(--ui-text-tertiary)] text-center">
+          <p className="mb-3 text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] text-center">
             Still fetching this conversation's history — there may be more above.
           </p>
         )}
 
         {messages.length === 0 && !data?.historyPending ? (
-          <p className="text-[13px] text-[var(--ui-text-tertiary)] text-center py-8">No messages in this conversation.</p>
+          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)] text-center py-8">No messages in this conversation.</p>
         ) : (
           <ul className="flex flex-col gap-3">
             {messages.map((message, index) => {
@@ -225,7 +225,7 @@ export function Thread({ chatId, onChanged }) {
                 <div key={message._id} className="contents">
                   {showDay && (
                     <li className="flex justify-center">
-                      <span className="text-[11px] text-[var(--ui-text-tertiary)] tabular-nums">{day}</span>
+                      <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums">{day}</span>
                     </li>
                   )}
                   <Bubble message={message} />
@@ -238,7 +238,7 @@ export function Thread({ chatId, onChanged }) {
       </div>
 
       {readOnly ? (
-        <div className="shrink-0 border-t border-[var(--ui-border-hairline)] px-4 py-3 flex items-center gap-2 text-[12px] text-[var(--ui-text-tertiary)]">
+        <div className="shrink-0 border-t border-[var(--ui-border-hairline)] px-4 py-3 flex items-center gap-2 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
           <Lock size={13} aria-hidden="true" />
           {/* Not a disabled composer. A box you can type into and never send
               from is worse than no box — it invites the work, then refuses it. */}
@@ -257,7 +257,7 @@ export function Thread({ chatId, onChanged }) {
             rows={2}
             placeholder="Write a reply…  (⌘↵ to send)"
             aria-label="Reply"
-            className="flex-1 resize-none rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-3 py-2 text-[13px] leading-[1.5] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
+            className="flex-1 resize-none rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-t-body)] leading-[1.5] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
           />
           <Button type="submit" disabled={sending || !draft.trim()} title="Send now">
             {sending ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
