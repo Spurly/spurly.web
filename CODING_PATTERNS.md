@@ -1,6 +1,17 @@
 # Spurly Web — Coding Patterns & Conventions
 
-> Reference for developers building new features or companion projects. Follow these patterns exactly so new code is indistinguishable from existing code.
+> Reference for developers (and AI coding sessions) building new features. Follow these patterns
+> exactly so new code is indistinguishable from existing code.
+>
+> **This file was rewritten 2026-09-13.** The previous version documented `src/core/entities/`,
+> `src/core/controllers/`, `src/hooks/`, `src/pages/` and `src/common/components/` — a layout the
+> codebase abandoned on 2026-09-05 (see `ARCHITECTURE.md` §1). If you read the old version, or
+> pointed an AI tool at it, you were told to build in a structure that no longer exists. Keep this
+> file in sync with the real tree; a wrong doc doesn't just fail to help, it actively recreates the
+> wrong structure.
+
+For the cross-repo rule (`shared ← platform ← products`) and its rationale, see `ARCHITECTURE.md`.
+This file is the "how do I write this" companion — concrete, copy-paste-shaped patterns.
 
 ---
 
@@ -8,13 +19,14 @@
 
 | Layer | Technology |
 |---|---|
-| Build | Vite 8 (ESM, `type: "module"`) |
+| Build | Vite (ESM, `type: "module"`) |
 | UI | React 19 |
 | Routing | React Router v6 |
-| Styling | Tailwind CSS v4 + CSS custom properties |
-| HTTP | Axios (wrapped in `ApiGateway`) |
+| Styling | Tailwind CSS v4 + CSS custom properties (`--ui-*` design tokens) |
+| HTTP | Axios (wrapped in `apiGateway`) |
 | Icons | Lucide React |
 | Node | ≥ 20.19.0 |
+| Tests | Vitest + Testing Library |
 
 No Redux, no Zustand, no React Query. All server state lives in custom hooks.
 
@@ -24,58 +36,83 @@ No Redux, no Zustand, no React Query. All server state lives in custom hooks.
 
 ```
 src/
-├── core/                   # Framework-independent business logic
-│   ├── entities/           # Data models (plain classes, no React)
-│   ├── gateway/            # HTTP clients — one file per API domain
-│   ├── controllers/        # Orchestration between hook layer ↔ API layer
-│   └── context/            # React Contexts (only truly global state)
-│
-├── hooks/                  # Custom React hooks — one per data domain
-├── pages/                  # Route-level components
-│   └── [PageName]/
-│       ├── index.jsx       # The page component
-│       ├── columns.jsx     # DataTable column definitions (if needed)
-│       ├── helpers.jsx     # Pure helpers / data transforms
-│       └── [Modal].jsx     # Page-scoped modal components
-│
-├── common/
-│   └── components/         # Reusable design-system components
-│       └── [ComponentName]/
-│           ├── ComponentName.jsx
-│           └── index.js    # Barrel re-export
-│
-├── components/             # App-level shared components (layout, guards)
-├── routes.jsx              # All route declarations in one place
-├── App.jsx                 # BrowserRouter + providers only
-├── main.jsx                # ReactDOM.createRoot entry
-└── index.css               # Design tokens (CSS vars) + Tailwind import
+├── app/                     # composition root — App, routes, ProtectedRoute,
+│                            # AdminRoute, SubscribeGate, HubGate
+├── shared/                  # domain-free: gateway/apiGateway, utils, entities
+│   ├── gateway/apiGateway.js
+│   ├── entities/
+│   └── utils/
+├── ui/                      # design system — no domain knowledge
+│   ├── primitives/          # Button, Input, Dialog, Tabs, Toast, ...
+│   ├── layout/               # Card, Toolbar
+│   ├── tokens/               # tokens.css — the ONLY place colour/type/radius live
+│   ├── theme/                 # ThemeProvider, ThemeToggle
+│   ├── hooks/                 # useFocusTrap, useOverlayStack, useScrollLock
+│   └── icons/
+├── platform/                # spans every product — knows the domain, not a specific product
+│   ├── auth/  billing/  people/  outreach/  research/  notifications/  admin/
+│   ├── layout/               # DashboardLayout, ProductSwitcher (needs auth → not ui)
+│   ├── extension/            # useExtension
+│   └── DataTable/            # cells resolve company logos + profile photos → not ui
+├── products/
+│   ├── leadgen/              # campaigns/ connections/ import/ templates/
+│   │   ├── personalization/  settings/
+│   │   └── people/           # the leadgen VIEW of the shared lead book (platform/people)
+│   └── hub/                  # leads/ campaigns/ sequences/ inbox/ settings/ upgrade/
+│                              # fully isolated from leadgen — see boundary rule below
+└── marketing/                # unchanged, self-contained, ported as-is (own conventions)
 ```
+
+Each feature owns its own `api.js`, `controller.js` and hooks, co-located. Nothing is spread across
+a central `core/gateway`, `core/controllers`, `hooks/`, `features/` or `components/` directory.
+
+**Enforced by `npm run lint:arch`** (`eslint.boundaries.config.js`): `shared`/`ui` ← `platform` ←
+`products`. A product may import its own subtree, `platform`, `shared`, and `ui` — never another
+product. `platform/hub` importing `platform/leadgen`, or the reverse, fails the build, not just
+review. `npm run verify` runs `lint:arch` + `lint` + `test` + `build` — that's the gate before merge.
+
+### Placements the import graph decided, against intuition
+
+- **`research`, `outreach` and `people` are `platform`,** even though a feature is
+  leadgen-flavoured in name. `LeadDetailSidebar` renders `ResearchPanel` and the outreach
+  summary, and hub renders the same People data — so the *data* layer (api, controller,
+  columns, cells, filters, detail sidebar) lives in `platform/people/`, while the leadgen-only
+  *page* (with its create-campaign bulk action) lives in `products/leadgen/people/`. Follow the
+  imports, not the name, when deciding where a new file belongs.
+- **`DataTable` is `platform`, not `ui`.** Its cells resolve company logos and profile
+  photos — a design-system primitive doesn't know what a company is.
+- **A file that wraps a platform API client is not a `utils`.** `companyLogo.js` /
+  `profilePhoto.js` live in `platform/people/`, not `shared/utils/`.
 
 ---
 
 ## Architecture — Four Layers
 
-Every data flow goes through exactly these layers, top to bottom. Never skip a layer.
+Every data flow goes through exactly these layers, top to bottom. Never skip one.
 
 ```
-Page / Hook  →  Controller  →  API (gateway file)  →  ApiGateway (axios)
-                                     ↓
-                               Entity (wraps response)
+Component  →  hook (useX)  →  controller  →  api client  →  apiGateway (axios)
+                                                    ↓
+                                              entity (wraps response)
 ```
 
-### 1. Entity (`core/entities/`)
+**Never call the gateway, or even a feature's `api.js`, from a component.** Component → hook →
+controller → api → apiGateway. Skipping a layer for one "quick" call is how a token refresh ends up
+implemented in four places.
 
-A plain JS class that wraps raw backend responses and exposes a stable shape to the UI.
+### 1. Entity
+
+A plain JS class (or factory function) that wraps a raw backend response into a stable shape.
 
 ```js
-// core/entities/Profile.js
+// platform/people/Profile.js
 export class Profile {
   constructor(data = {}) {
-    this._id   = data._id ?? data.id ?? null;
-    this.name  = data.name ?? '';
+    this._id = data._id ?? data.id ?? null;
+    this.name = data.name ?? '';
     this.email = data.email ?? '';
-    // Always preserve the raw payload for unmapped fields
-    this.raw   = data;
+    // Always preserve the raw payload for unmapped fields.
+    this.raw = data;
   }
 
   static fromResponse(data) { return new Profile(data); }
@@ -84,23 +121,30 @@ export class Profile {
 ```
 
 Rules:
-- Use `??` (nullish coalescing) for every field — never `||` to avoid falsing on `0` or `''`.
-- `fromResponse` / `fromList` are the only ways to construct entities outside the entity file.
-- Keep `this.raw = data` so callers can reach unmapped fields without breaking the entity contract.
+- Use `??` for every field — never `||`, which falses on `0` or `''`.
+- `fromResponse` / `fromList` are the only ways to construct an entity outside its own file.
+- Keep `this.raw = data` so callers can reach unmapped fields without breaking the contract.
+- Entities are class instances, not plain objects — never spread one with `{ ...entity, x }` to
+  "patch" it, that silently drops its prototype and every method it defines. Use
+  `src/shared/entities/patchEntity.js` instead:
+  ```js
+  import { patchEntity } from 'src/shared/entities/patchEntity.js';
+  const updated = patchEntity(profile, { notes: 'called, follow up Friday' });
+  ```
 
-### 2. Gateway (`core/gateway/`)
+### 2. API client (`api.js`, co-located with its feature)
 
-One file per API domain. Calls `apiGateway` (the shared Axios instance), wraps responses in entities.
+One file per feature. Calls `apiGateway` (the shared Axios singleton), wraps responses in entities.
 
 ```js
-// core/gateway/profilesApi.js
-import apiGateway from 'src/core/gateway/apiGateway.js';
-import { Profile } from 'src/core/entities/Profile.js';
+// platform/people/api.js
+import apiGateway from 'src/shared/gateway/apiGateway.js';
+import { Profile } from 'src/platform/people/Profile.js';
 
-class ProfilesApi {
-  async getAllProfiles({ limit = 100, skip = 0 } = {}) {
-    const response = await apiGateway.get('/profiles/all', { params: { limit, skip } });
-    const payload  = response.data;
+class PeopleApi {
+  async getPeople({ limit = 100, skip = 0 } = {}) {
+    const response = await apiGateway.get('/people', { params: { limit, skip } });
+    const payload = response.data;
     if (payload?.success && payload?.data?.profiles) {
       payload.data.entities = Profile.fromList(payload.data.profiles);
     }
@@ -108,33 +152,31 @@ class ProfilesApi {
   }
 }
 
-export default new ProfilesApi();
+export default new PeopleApi();
 ```
 
 Rules:
-- Singleton pattern — `export default new ProfilesApi()`.
-- Never import a gateway file from a component or page. Always go through a controller.
-- Only do entity wrapping here, not business logic.
+- Singleton pattern — `class Xxx { ... }` then `export default new Xxx()`.
+- Never import an `api.js` from a component or page. Always go through the feature's controller.
+- Only entity-wrapping and request shaping here — no business logic, no branching on feature flags.
 
-### 3. Controller (`core/controllers/`)
+### 3. Controller
 
-Orchestrates calls to one or more gateway files, applies business logic, throws meaningful errors.
+Orchestrates one or more `api.js` calls, applies business logic, throws human-readable errors.
 
 ```js
-// core/controllers/capturedLeadsController.js
-import profilesApi from 'src/core/gateway/profilesApi.js';
+// platform/people/controller.js
+import peopleApi from 'src/platform/people/api.js';
 
 class CapturedLeadsController {
-  async getAllProfiles({ limit = 100, skip = 0 } = {}) {
-    const res = await profilesApi.getAllProfiles({ limit, skip });
-
+  async getAllProfiles(options = {}) {
+    const res = await peopleApi.getPeople(options);
     if (!res?.success || !res?.data) {
-      throw new Error(res?.message || 'Failed to fetch profiles');
+      throw new Error(res?.message || 'Failed to fetch people');
     }
-
     return {
-      profiles:   res.data.entities || [],
-      pagination: res.data.pagination || { limit, skip, total: 0, pages: 0, hasMore: false },
+      profiles: res.data.entities || [],
+      pagination: res.data.pagination || { limit: 100, skip: 0, total: 0, pages: 0, hasMore: false },
     };
   }
 }
@@ -143,25 +185,23 @@ export default new CapturedLeadsController();
 ```
 
 Rules:
-- Singleton pattern — `export default new CapturedLeadsController()`.
-- Throw errors with human-readable messages — hooks catch these and surface them as state.
-- Return a normalized shape; the hook above should not need to reshape data.
+- Singleton pattern, same as `api.js`.
+- Throw errors with human-readable messages — hooks catch these and surface them as UI state.
+- Return a normalized shape; the hook above it should never need to reshape data further.
 
-### 4. Custom Hook (`hooks/`)
+### 4. Custom hook
 
-Manages React state around a controller. Owns `loading`, `error`, and the data state.
+Manages React state around a controller call. Owns `loading`, `error`, and the data itself.
 
 ```js
-// hooks/useAllProfiles.js
+// platform/people/useAllProfiles.js
 import { useState, useEffect, useCallback, useRef } from 'react';
-import capturedLeadsController from 'src/core/controllers/capturedLeadsController.js';
+import capturedLeadsController from 'src/platform/people/controller.js';
 
 export function useAllProfiles() {
-  const [profiles, setProfiles]   = useState([]);
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState(null);
-  const [pagination, setPagination] = useState({ limit: 100, skip: 0, total: 0, pages: 0, hasMore: false });
-
+  const [profiles, setProfiles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const lastOptionsRef = useRef({ limit: 100, skip: 0 });
 
   const fetchAllProfiles = useCallback(async (options = {}) => {
@@ -169,9 +209,8 @@ export function useAllProfiles() {
     setLoading(true);
     setError(null);
     try {
-      const { profiles: list, pagination: pag } = await capturedLeadsController.getAllProfiles(options);
+      const { profiles: list } = await capturedLeadsController.getAllProfiles(options);
       setProfiles(list);
-      setPagination(pag);
     } catch (err) {
       setError(err.message || 'Failed to fetch profiles');
       setProfiles([]);
@@ -182,47 +221,56 @@ export function useAllProfiles() {
 
   useEffect(() => { fetchAllProfiles({ limit: 100, skip: 0 }); }, []); // eslint-disable-line
 
-  return { profiles, loading, error, pagination, fetchAllProfiles };
+  return { profiles, loading, error, fetchAllProfiles };
 }
 ```
 
 Rules:
-- Always export named functions — `export function useXxx()`, never default export.
-- Always reset `error` to `null` at the start of each fetch and `loading` in `finally`.
-- Use `useRef` to track "last used options" so pagination / filter changes don't lose each other's state.
-- Hooks call controllers — never gateways directly.
+- Named export only — `export function useXxx()`, never a default export.
+- Reset `error` to `null` at the start of every fetch; reset `loading` in `finally`.
+- Track "last used options" in a `useRef` so pagination/filter changes don't lose each other's state.
+- Hooks call controllers — never an `api.js` or `apiGateway` directly.
 
 ---
 
 ## Components
 
-### Common vs App-level
+### `ui/` vs `platform/` vs `products/`
 
 | Directory | Purpose | Examples |
 |---|---|---|
-| `src/common/components/` | Design-system primitives — fully reusable, no app-specific imports | `Button`, `Badge`, `DataTable`, `MetricCard` |
-| `src/components/` | App-level shared — knows about routing, auth, layout | `DashboardLayout`, `ProtectedRoute`, `LeadDetailSidebar` |
+| `src/ui/primitives/` | Design-system atoms — zero domain knowledge, zero API imports | `Button`, `Dialog`, `Tabs`, `Toast` |
+| `src/platform/**` | Cross-product components that DO know the domain (auth, billing, a lead) | `DashboardLayout`, `NotificationBell`, `LeadDetailSidebar` |
+| `src/products/<name>/**` | Everything specific to one product | `hub/sequences/SequenceStepBuilder.jsx` |
+
+A component graduates from a product folder to `platform/` the moment a second product needs it —
+never copy-pasted between `products/leadgen/` and `products/hub/`.
 
 ### File structure per component
 
 ```
-common/components/Button/
-├── Button.jsx      # The component implementation
-└── index.js        # Barrel: export { Button } from './Button';
+ui/primitives/Button/
+├── Button.jsx       # implementation
+├── variants.js       # VARIANTS / SIZES constants, if the component has them
+└── index.js          # barrel: export { Button } from './Button';
 ```
 
-Every component folder gets an `index.js` barrel so consumers import from the folder:
+Every component folder gets an `index.js` (or `index.jsx`) barrel so consumers import from the
+folder, never the file:
 ```js
-import { Button } from 'src/common/components/Button';  // ✅
-import { Button } from 'src/common/components/Button/Button';  // ✗ never
+import { Button } from 'src/ui/primitives/Button';        // ✅
+import { Button } from 'src/ui/primitives/Button/Button';  // ✗ never
 ```
+`src/ui/primitives/index.js` re-exports every primitive from one place — most call sites should
+import from there (`import { Button, Dialog } from 'src/ui/primitives'`).
 
 ### Component rules
 
-- **Named exports only.** Never `export default` a component.
-- Props use destructuring with defaults inline, never a `defaultProps` object.
-- Always accept a `className` prop and append it last so callers can extend styles.
-- Spread remaining `...props` onto the root DOM element for aria/data attrs.
+- **Named exports only.** Never `export default` a component (marketing is the sole exception —
+  it was ported as-is).
+- Props use destructuring with inline defaults, never a `defaultProps` object.
+- Always accept `className` and append it last so callers can extend styles.
+- Spread remaining `...props` onto the root DOM element for aria/data attributes.
 
 ```jsx
 export function Button({
@@ -235,19 +283,17 @@ export function Button({
 }) { ... }
 ```
 
-### Headless hook pattern for complex components
+### Headless-hook pattern for complex components
 
 When a component has non-trivial state logic, extract it into a co-located `useComponentName.js`:
 
 ```
-DataTable/
-├── DataTable.jsx       # Renders using the hook
-├── useDataTable.js     # All selection + sort state
-├── TableToolbar.jsx
-├── TablePagination.jsx
-├── index.js
-└── components/         # Sub-components (Header, Body, Row, Cell...)
-    └── index.js        # Barrel for all sub-components
+platform/DataTable/
+├── DataTable.jsx       # renders using the hook
+├── useDataTable.js     # all selection + sort state
+├── parts/              # Header, Body, Row, Cell, Toolbar, Pagination...
+│   └── index.js        # barrel for sub-parts
+└── index.js
 ```
 
 The hook is the single source of truth for state; the component just renders.
@@ -256,111 +302,98 @@ The hook is the single source of truth for state; the component just renders.
 
 ## Pages
 
-Each page lives in `src/pages/[PageName]/index.jsx`.
+A page is the `index.jsx` (or `.js`) at a feature's root, always exporting a named `[Name]Page`.
 
 ```jsx
-// pages/CapturedLeads/index.jsx
-export function CapturedLeadsPage() {
-  // 1. Local UI state
-  const [selectedLead, setSelectedLead] = useState(null);
+// products/leadgen/people/PeoplePage.jsx
+export function PeoplePage() {
+  const [selectedLead, setSelectedLead] = useState(null);         // 1. local UI state
+  const { profiles, loading, error, fetchAllProfiles } = useAllProfiles(); // 2. data hooks
+  const handleTabChange = (tabId) => { ... };                     // 3. derived values / handlers
 
-  // 2. Data hooks
-  const { profiles, loading, error, pagination, fetchAllProfiles } = useAllProfiles();
-
-  // 3. Derived values / handlers
-  const handleTabChange = (tabId) => { ... };
-
-  // 4. JSX — always wrapped in DashboardLayout
-  return (
-    <DashboardLayout>
+  return (                                                        // 4. JSX, wrapped in DashboardLayout
+    <DashboardLayout title="People">
       ...
     </DashboardLayout>
   );
 }
 ```
 
-Co-located files:
-- `columns.jsx` — DataTable column definitions for this page
-- `helpers.jsx` — pure data-transform functions (no JSX, no hooks)
-- `[ModalName].jsx` — modals only used by this page
+```js
+// products/leadgen/people/index.js — a feature's PUBLIC interface
+export { PeoplePage } from './PeoplePage.jsx';
+```
+
+**A feature's public interface is its `index.js`/`index.jsx`.** Don't reach into another feature's
+internals (`import { helper } from 'src/products/hub/leads/audience.js'` from outside `hub/leads/`
+is a smell even where the lint config doesn't catch it structurally).
+
+Co-located files, as needed:
+- `columns.jsx` — DataTable column definitions
+- `helpers.js` — pure data-transform functions, no JSX, no hooks
+- `[ModalName].jsx` — modals only that page uses
 
 ---
 
 ## Routing
 
-All routes are declared once in `src/routes.jsx`. Protected routes wrap their page in `<ProtectedRoute>`.
+All routes are declared in `src/app/routes.jsx`. `App.jsx` wires providers only — no route logic.
 
 ```jsx
-<Route path="/dashboard/leads" element={<ProtectedRoute><CapturedLeadsPage /></ProtectedRoute>} />
+<Route path="/dashboard/people" element={<ProtectedRoute><PeoplePage /></ProtectedRoute>} />
+<Route path="/hub/leads" element={<ProtectedRoute><HubGate><LeadsPage /></HubGate></ProtectedRoute>} />
 ```
 
-`App.jsx` only wires providers — no route logic lives there.
+Route namespaces are the actual product boundary at runtime: `/dashboard/*` is leadgen, `/hub/*` is
+hub. `HubGate` and the backend's own 403 are what actually enforce entitlement — anything in the
+sidebar is a courtesy on top, never the boundary itself.
 
 ---
 
 ## Imports
 
-Always use **absolute imports** with the `src/` prefix. Never use relative imports unless you are within the same immediate folder.
+Always use **absolute imports** with the `src/` prefix (Vite alias). Relative imports (`../../`)
+are allowed only inside `src/marketing/`, ported as-is.
 
 ```js
-import { Button } from 'src/common/components/Button';    // ✅
-import { Button } from '../../common/components/Button';  // ✗
+import { Button } from 'src/ui/primitives/Button';    // ✅
+import { Button } from '../../ui/primitives/Button';  // ✗
 ```
-
-This is configured via Vite's `resolve.alias`. When adding a new top-level folder, update `vite.config.js` accordingly.
 
 ---
 
-## Styling
+## Styling — design tokens are enforced, not just documented
 
-### Design tokens — always use CSS variables
+All colour, type scale, radius and spacing come from `src/ui/tokens/tokens.css` (`--ui-*` custom
+properties). `eslint.config.js` turns every one of these into a **build-breaking lint error**, not
+a style guide nobody reads:
 
-All colors, surfaces, shadows, and radii are defined as CSS custom properties in `src/index.css`. Never hardcode hex values in component files.
+| Banned | Use instead |
+|---|---|
+| Raw hex (`#fff`, `#0e7c7b`) anywhere — className, inline style, or a JS constant | A `--ui-*` token, e.g. `bg-[var(--ui-surface-card)]` |
+| Raw Tailwind palette (`bg-gray-100`, `text-blue-500`, ...) | A `--ui-*` token |
+| Hardcoded pixel font size (`text-[14px]`) | A type token: `text-[var(--ui-t-body)]` etc. |
+| Hardcoded radius (`rounded-[10px]`) | `rounded-[var(--ui-radius-sm)]` etc. |
+| `font-bold` / `font-light` / any weight outside the three | `font-normal` / `font-medium` / `font-semibold` only |
+| Glass/blur utilities (`backdrop-blur`, `glass-*`) outside `src/marketing/` | Flat surfaces + hairlines — the app chrome doesn't use glass |
+| A raw `<button>` | `<Button>` / `<IconButton>` from `src/ui/primitives` |
+
+The only sanctioned exception is third-party brand marks (`src/ui/icons/**`,
+`src/platform/auth/icons.jsx`) — a Google "G" or LinkedIn glyph is fixed by someone else, not a
+theme decision that failed to become a token.
 
 ```jsx
-// ✅ — uses design token
-<div style={{ background: 'var(--surface-card)', color: 'var(--text-primary)' }}>
+// ✅
+<div className="flex items-center gap-3 px-4 py-3 rounded-[var(--ui-radius-md)]"
+     style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border)' }}>
 
-// ✗ — hardcoded
-<div style={{ background: '#ffffff', color: '#1c1c1f' }}>
+// ✗ — every one of these fails npm run lint
+<div className="rounded-[14px] bg-gray-50 text-[14px] font-bold">
 ```
 
-Key token groups:
-
-| Group | Examples |
-|---|---|
-| Text | `--text-primary`, `--text-secondary`, `--text-tertiary`, `--text-disabled` |
-| Surfaces | `--surface-card`, `--surface-sunken`, `--surface-hover` |
-| Brand | `--brand-purple`, `--brand-blue`, `--brand-gradient` |
-| Semantic | `--green`, `--green-tint`, `--amber`, `--amber-tint`, `--red`, `--red-tint` |
-| Glass | `--glass-thin`, `--glass-regular`, `--glass-chrome`, `--glass-inner-glow` |
-| Borders | `--border-hairline`, `--border-glass`, `--separator` |
-| Shadows | `--shadow-sm`, `--shadow-glass`, `--shadow-accent` |
-| Accent | `--accent`, `--accent-hover`, `--accent-tint`, `--focus-ring` |
-
-### Tailwind + CSS variables together
-
-Use Tailwind utility classes for layout and spacing; use CSS variables inside `style` props or `bg-[var(--token-name)]` bracket syntax for design-token colors.
-
-```jsx
-<div className="flex items-center gap-3 px-4 py-3 rounded-[14px]"
-     style={{ background: 'var(--surface-card)', border: '1px solid var(--border-hairline)' }}>
-```
-
-### Border radius
-
-Prefer explicit pixel values that match the design system scale: `rounded-[10px]`, `rounded-[12px]`, `rounded-[14px]`, `rounded-[18px]`, `rounded-[999px]` (pill).
-
-### Typography scale
-
-| Role | Class |
-|---|---|
-| Page title | `text-[20px] font-bold tracking-[-0.018em]` |
-| Section heading | `text-[15px] font-semibold tracking-[-0.01em]` |
-| Body | `text-[14px]` |
-| Caption / label | `text-[13px]` |
-| Micro / badge | `text-[12px]` |
-| Metric number | `text-[36px] font-bold tracking-[-0.02em] tabular-nums` |
+Run `npm run lint` (general quality + these token rules) and `npm run lint:arch` (the
+`shared/ui ← platform ← products` boundary) separately — they're two different gates for a reason,
+see the comment at the top of `eslint.boundaries.config.js`.
 
 ---
 
@@ -371,90 +404,22 @@ Prefer explicit pixel values that match the design system scale: `rounded-[10px]
 | Component file | PascalCase `.jsx` | `Button.jsx` |
 | Barrel file | lowercase | `index.js` |
 | Hook file | camelCase `.js` | `useAllProfiles.js` |
-| Gateway file | camelCase `Api.js` | `profilesApi.js` |
-| Controller file | camelCase `Controller.js` | `capturedLeadsController.js` |
+| API client file | lowercase `api.js`, co-located per feature | `platform/people/api.js` |
+| Controller file | lowercase `controller.js`, co-located per feature | `platform/people/controller.js` |
 | Entity file | PascalCase `.js` | `Profile.js` |
-| Page folder | PascalCase | `CapturedLeads/` |
-| Column definitions | `columns.jsx` | co-located with the page |
-| Page component export | `[Name]Page` | `CapturedLeadsPage` |
+| Page export | `[Name]Page` | `PeoplePage` |
 | Hook export | `use[Name]` | `useAllProfiles` |
-| Context export | `[Name]Context` + `[Name]Provider` | `AuthContext`, `AuthProvider` |
+| Context export | `[Name]Context` + `[Name]Provider` | `SubscriptionContext`, ... |
 
 ---
 
 ## State Management Rules
 
-1. **Local UI state** (`useState`) — modals open/closed, active tabs, selected rows.
+1. **Local UI state** (`useState`) — modals open/closed, active tab, selected row.
 2. **Server state** — lives in a custom hook; never fetched directly from a component.
-3. **Global state** — only via React Context, only when truly cross-tree (e.g. auth). No external store.
-4. Pagination state lives inside the hook, not in the page. The page gets `goToPage`, `setPageSize` callbacks.
-
----
-
-## Context Pattern
-
-```jsx
-// core/context/AuthContext.jsx
-export const AuthContext = createContext();
-
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  // ...
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-```
-
-```js
-// hooks/useAuth.js — always consume via a named hook, never useContext directly in components
-import { useContext } from 'react';
-import { AuthContext } from 'src/core/context/AuthContext';
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
-  return context;
-}
-```
-
----
-
-## ApiGateway
-
-`src/core/gateway/apiGateway.js` is a singleton Axios instance. It handles:
-- Base URL from `VITE_API_URL` / `VITE_API_BASE` env vars
-- JWT injection via request interceptor (`localStorage.getItem('authToken')`)
-- 401 → redirect to `/login` (with loop guard)
-- Network errors normalized to `{ status: 0, message: '...' }`
-
-Never create a second Axios instance. All HTTP goes through `apiGateway`.
-
----
-
-## DataTable Column Definition
-
-Columns are defined as an array of objects, co-located with the page in `columns.jsx`.
-
-```jsx
-export const columns = [
-  {
-    key:       'name',           // maps to row[key]; also used as sort key
-    label:     'Name',           // header text; can be a ReactNode
-    width:     '180px',          // preferred column width
-    minWidth:  '160px',
-    sortable:  true,
-    align:     'left',           // 'left' | 'center' | 'right'
-    render:    (value, row) => <AvatarNameCell value={value} row={row} />,
-    headerClassName: '',
-    cellClassName:   '',
-  },
-];
-```
-
-Use the typed cell components from `src/common/components/DataTable/components` for consistent rendering: `TextCell`, `EmailCell`, `PhoneCell`, `SkillsCell`, `AvatarNameCell`, `CompanyCell`, `LinkedInCell`.
+3. **Global state** — React Context only, only when truly cross-tree (auth, billing/subscription,
+   toasts). No external store.
+4. Pagination state lives inside the hook, not the page. The page gets `goToPage` / `setPageSize`.
 
 ---
 
@@ -465,16 +430,21 @@ Use the typed cell components from `src/common/components/DataTable/components` 
 | `VITE_API_URL` | `http://localhost:5000` | Backend origin |
 | `VITE_API_BASE` | `/api` | API path prefix |
 
-All env vars are prefixed `VITE_` and accessed via `import.meta.env.VITE_*`.
+All env vars are prefixed `VITE_`, accessed via `import.meta.env.VITE_*`.
 
 ---
 
 ## What NOT to do
 
-- Do not import a gateway or API file inside a page or component — always go through a controller + hook.
-- Do not use default exports for components or hooks.
-- Do not use relative imports across folders.
-- Do not add a new global state library — use Context + hooks.
-- Do not hardcode colors — every color must come from a CSS variable.
-- Do not create a second Axios instance — use `apiGateway`.
-- Do not add `// comments explaining what the code does` — name things clearly instead. Comments are reserved for non-obvious WHY reasoning.
+- Don't import an `api.js` (or `apiGateway` directly) inside a page or component — go through a
+  controller + hook.
+- Don't use default exports for components or hooks (marketing excepted).
+- Don't use relative imports across folders (marketing excepted).
+- Don't add a new global state library — Context + hooks only.
+- Don't hardcode a colour, font size, radius or weight outside the sanctioned three — every one is
+  a lint error, not a suggestion.
+- Don't create a second Axios instance — everything goes through `src/shared/gateway/apiGateway.js`.
+- Don't import across `src/products/*` — a product may use `shared`, `ui`, `platform`, and its own
+  subtree only. `npm run lint:arch` fails the build on a violation.
+- Don't add `// comments explaining what the code does` — name things clearly instead. Comments are
+  reserved for non-obvious WHY reasoning (see almost any file in `platform/layout/` for the style).
