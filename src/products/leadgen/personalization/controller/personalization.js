@@ -1,4 +1,4 @@
-import personalizationApi from 'src/products/leadgen/personalization/api.js';
+import personalizationApi from '../gateway/personalization.js';
 import { getToastError } from 'src/shared/utils/apiError';
 
 /**

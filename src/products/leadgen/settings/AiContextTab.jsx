@@ -6,7 +6,7 @@ import personalizationController, {
   CONTEXT_FIELDS,
   TONES,
   describeError,
-} from 'src/products/leadgen/personalization/controller.js';
+} from 'src/products/leadgen/personalization/controller/personalization.js';
 
 /**
  * "Context for Spurly" — what the user tells the AI about their business, once.

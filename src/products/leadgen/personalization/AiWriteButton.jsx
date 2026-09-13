@@ -7,8 +7,8 @@ import { useToast } from 'src/ui/primitives';
 import personalizationController, {
   describeError,
   TONES,
-} from 'src/products/leadgen/personalization/controller.js';
-import { useAiStatus } from './useAiStatus.js';
+} from 'src/products/leadgen/personalization/controller/personalization.js';
+import { useAiStatus } from './hooks/useAiStatus.js';
 
 /**
  * The single AI control, used on both the Templates page and the campaign
