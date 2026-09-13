@@ -1,5 +1,6 @@
 import { Send, AlertCircle, SkipForward } from 'lucide-react';
-import { useOutreachTimeline } from 'src/platform/outreach/useOutreachTimeline';
+import { Skeleton } from 'src/ui/primitives';
+import { useOutreachTimeline } from '../hooks/useOutreachTimeline';
 import { absoluteTime, relativeTime, OUTREACH_TYPE_LABEL } from 'src/shared/utils/outreach';
 
 /**
@@ -107,7 +108,19 @@ export function OutreachTimeline({ personId, profileUrl }) {
   const { events, loading, error } = useOutreachTimeline({ personId, profileUrl });
 
   if (loading) {
-    return <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">Loading activity…</p>;
+    return (
+      <ul className="flex flex-col">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <li key={i} className="flex gap-2.5 pb-3">
+            <Skeleton width={24} height={24} radius="var(--ui-radius-pill)" />
+            <div className="min-w-0 flex-1 flex flex-col gap-1.5 pt-0.5">
+              <Skeleton width={`${55 + ((i * 11) % 25)}%`} height={11} />
+              <Skeleton width={90} height={9} />
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
   }
 
   if (error) {

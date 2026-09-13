@@ -1,4 +1,4 @@
-import outreachApi from 'src/platform/outreach/api.js';
+import outreachGateway from '../gateway/outreach.js';
 
 /**
  * Outreach Controller
@@ -8,7 +8,7 @@ import outreachApi from 'src/platform/outreach/api.js';
 class OutreachController {
   /** @returns {Promise<Object>} { total, statusCounts, contacted, needsAttention, connectionBudget, messagesThisWeek } */
   async getSummary() {
-    const res = await outreachApi.getSummary();
+    const res = await outreachGateway.getSummary();
     if (!res?.success || !res?.data?.summary) {
       throw new Error(res?.message || 'Failed to load outreach summary');
     }
@@ -17,7 +17,7 @@ class OutreachController {
 
   /** @returns {Promise<Object>} { weekUsed, dayUsed, weeklyLimit, weeklyRemaining, resetsAt } */
   async getBudget() {
-    const res = await outreachApi.getBudget();
+    const res = await outreachGateway.getBudget();
     if (!res?.success || !res?.data?.budget) {
       throw new Error(res?.message || 'Failed to load connection budget');
     }
@@ -26,7 +26,7 @@ class OutreachController {
 
   /** @returns {Promise<Array>} outreach events, newest first */
   async getTimeline({ personId, profileUrl, limit } = {}) {
-    const res = await outreachApi.getTimeline({ personId, profileUrl, limit });
+    const res = await outreachGateway.getTimeline({ personId, profileUrl, limit });
     if (!res?.success || !res?.data) {
       throw new Error(res?.message || 'Failed to load outreach timeline');
     }
@@ -34,4 +34,5 @@ class OutreachController {
   }
 }
 
-export default new OutreachController();
+export const outreachController = new OutreachController();
+export default outreachController;

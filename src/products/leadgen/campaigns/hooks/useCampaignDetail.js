@@ -6,7 +6,7 @@ import {
 } from 'src/shared/utils/templateTokens.js';
 import { useCampaign } from './useCampaign.js';
 import { useExtension } from 'src/platform/extension/hooks/useExtension';
-import { useOutreachSummary } from 'src/platform/outreach/useOutreachSummary';
+import { useOutreachSummary } from 'src/platform/outreach/hooks/useOutreachSummary';
 import campaignsController from '../controller/campaigns.js';
 import { useToast } from 'src/ui/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';

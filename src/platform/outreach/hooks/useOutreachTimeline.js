@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import outreachController from 'src/platform/outreach/controller.js';
+import outreachController from '../controller/outreach.js';
 import { useErrorToast } from 'src/ui/primitives';
 
 /**

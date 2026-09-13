@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { MapPin, Mail, Phone, Globe } from 'lucide-react';
 import { Avatar, Badge, Drawer, EmptyState, Tabs } from 'src/ui/primitives';
 import { LinkedInIcon } from 'src/ui/icons';
-import { OutreachTimeline } from 'src/platform/outreach/OutreachTimeline';
+import { OutreachTimeline } from 'src/platform/outreach/components/OutreachTimeline';
 import { OutreachStatusCell } from 'src/platform/people/cells/OutreachStatusCell';
 import { ResearchPanel } from 'src/platform/research/ResearchPanel.jsx';
 import { absoluteTime } from 'src/shared/utils/outreach';

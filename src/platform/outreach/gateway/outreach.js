@@ -1,11 +1,11 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
 
 /**
- * Outreach API Client
+ * Outreach Gateway
  * Talks to /api/outreach — the append-only record of what we actually sent to
  * each person, plus the derived status counts and weekly send budget.
  */
-class OutreachApi {
+class OutreachGateway {
   /** Status counts + weekly connection budget. GET /outreach/summary */
   async getSummary() {
     const res = await apiGateway.get('/outreach/summary');
@@ -31,4 +31,5 @@ class OutreachApi {
   }
 }
 
-export default new OutreachApi();
+export const outreachGateway = new OutreachGateway();
+export default outreachGateway;

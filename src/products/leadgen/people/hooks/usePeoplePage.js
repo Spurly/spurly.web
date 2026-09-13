@@ -5,7 +5,7 @@ import { getToastError } from 'src/shared/utils/apiError';
 import { useAllProfiles } from 'src/platform/people/useAllProfiles';
 import { patchEntity } from 'src/shared/entities/patchEntity.js';
 import { useMetrics } from 'src/platform/people/useMetrics';
-import { useOutreachSummary } from 'src/platform/outreach/useOutreachSummary';
+import { useOutreachSummary } from 'src/platform/outreach/hooks/useOutreachSummary';
 import { useTableColumnOrder } from 'src/platform/people/useTableColumnOrder';
 import capturedLeadsController from 'src/platform/people/controller';
 import { exportProfilesAsCSV } from 'src/shared/utils/csvExport';
