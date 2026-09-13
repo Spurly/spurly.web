@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import notificationsController from 'src/platform/notifications/controller.js';
+import notificationsController from '../controller/notifications.js';
 
 /**
  * Polled, not pushed — same shape as the hub inbox (see hub_phase4_web) and

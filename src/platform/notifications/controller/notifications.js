@@ -1,4 +1,4 @@
-import notificationsApi from 'src/platform/notifications/api.js';
+import notificationsGateway from '../gateway/notifications.js';
 
 /**
  * Notifications Controller
@@ -8,7 +8,7 @@ import notificationsApi from 'src/platform/notifications/api.js';
 class NotificationsController {
   /** @returns {Promise<{ items: Array, unreadCount: number }>} */
   async list({ limit } = {}) {
-    const res = await notificationsApi.list({ limit });
+    const res = await notificationsGateway.list({ limit });
     if (!res?.success) {
       throw new Error(res?.message || 'Failed to load notifications');
     }
@@ -16,16 +16,17 @@ class NotificationsController {
   }
 
   async markRead(id) {
-    const res = await notificationsApi.markRead(id);
+    const res = await notificationsGateway.markRead(id);
     if (!res?.success) throw new Error(res?.message || 'Failed to mark notification read');
     return res.data;
   }
 
   async markAllRead() {
-    const res = await notificationsApi.markAllRead();
+    const res = await notificationsGateway.markAllRead();
     if (!res?.success) throw new Error(res?.message || 'Failed to mark notifications read');
     return res.data;
   }
 }
 
-export default new NotificationsController();
+export const notificationsController = new NotificationsController();
+export default notificationsController;

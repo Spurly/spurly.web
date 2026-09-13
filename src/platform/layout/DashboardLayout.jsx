@@ -21,7 +21,7 @@ import { SubscriptionContext } from "src/platform/billing/SubscriptionContext";
 import { useExtension } from "src/platform/extension/hooks/useExtension";
 import { Avatar, Tooltip } from "src/ui/primitives";
 import { ThemeToggle } from "src/ui/theme";
-import { NotificationBell } from "src/platform/notifications/NotificationBell.jsx";
+import { NotificationBell } from "src/platform/notifications/components/NotificationBell.jsx";
 import { SidebarBrand } from "./SidebarBrand";
 
 /**

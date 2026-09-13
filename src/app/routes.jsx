@@ -56,7 +56,7 @@ const CampaignDetailPage = lazy(() => import('src/products/leadgen/pages/campaig
 const TemplatesPage = lazy(() => import('src/products/leadgen/pages/templates').then((m) => ({ default: m.TemplatesPage })));
 const SettingsPage = lazy(() => import('src/products/leadgen/pages/settings').then((m) => ({ default: m.SettingsPage })));
 const LinkedInSettingsPage = lazy(() => import('src/products/hub/pages/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
-const NotificationsPage = lazy(() => import('src/platform/notifications/NotificationsPage.jsx'));
+const NotificationsPage = lazy(() => import('src/platform/notifications/pages/NotificationsPage.jsx'));
 const HubUpgradePage = lazy(() => import('src/products/hub/pages/upgrade'));
 const HubLeadsPage = lazy(() => import('src/products/hub/pages/leads').then((m) => ({ default: m.HubLeadsPage })));
 const HubCampaignsPage = lazy(() => import('src/products/hub/pages/campaigns').then((m) => ({ default: m.HubCampaignsPage })));

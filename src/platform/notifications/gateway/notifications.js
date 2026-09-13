@@ -1,11 +1,11 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
 
 /**
- * Notifications API Client
+ * Notifications Gateway
  * Talks to /api/notifications — Phase 7's in-app feed (bell + unread badge +
  * /dashboard/notifications). See spurly.backend/src/platform/notifications.
  */
-class NotificationsApi {
+class NotificationsGateway {
   /** Feed, newest first, + unread count. GET /notifications */
   async list({ limit = 30 } = {}) {
     const res = await apiGateway.get('/notifications', { params: { limit } });
@@ -25,4 +25,5 @@ class NotificationsApi {
   }
 }
 
-export default new NotificationsApi();
+export const notificationsGateway = new NotificationsGateway();
+export default notificationsGateway;

@@ -11,10 +11,10 @@ import {
   BatteryLow,
 } from 'lucide-react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
-import { Button, EmptyState } from 'src/ui/primitives';
+import { Button, EmptyState, Skeleton } from 'src/ui/primitives';
 import { relativeTime } from 'src/shared/utils/outreach';
-import { useNotifications } from './useNotifications.js';
-import { AvatarStack } from './AvatarStack.jsx';
+import { useNotifications } from '../hooks/useNotifications.js';
+import { AvatarStack } from '../components/AvatarStack.jsx';
 
 /**
  * /dashboard/notifications — the full history behind the bell's 8-item
@@ -101,7 +101,20 @@ export default function NotificationsPage() {
       }
     >
       {loading && items.length === 0 ? (
-        <div className="py-16 text-center text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">Loading…</div>
+        <div className="flex flex-col">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-start gap-3 px-4 py-3 border-b border-[var(--ui-border-hairline)] last:border-b-0"
+            >
+              <Skeleton width={32} height={32} radius="var(--ui-radius-pill)" />
+              <div className="min-w-0 flex-1 flex flex-col gap-1.5 pt-0.5">
+                <Skeleton width={`${60 + ((i * 7) % 30)}%`} height={11} />
+                <Skeleton width={64} height={9} />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : items.length === 0 ? (
         <EmptyState
           icon={<Bell size={18} />}
