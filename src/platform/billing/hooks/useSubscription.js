@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { SubscriptionContext } from 'src/platform/billing/SubscriptionContext';
+import { SubscriptionContext } from './SubscriptionContext';
 
 export function useSubscription() {
   const context = useContext(SubscriptionContext);

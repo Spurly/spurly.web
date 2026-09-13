@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/platform/auth/useAuth';
-import { useSubscription } from 'src/platform/billing/useSubscription';
+import { useSubscription } from 'src/platform/billing/hooks/useSubscription';
 import { postAuthDestination } from './postAuthDestination.js';
 import { AuthShell, WelcomeAside } from './AuthShell.jsx';
 

@@ -1,7 +1,7 @@
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from 'src/platform/auth/AuthContext';
-import { SubscriptionProvider } from 'src/platform/billing/SubscriptionContext';
+import { SubscriptionProvider } from 'src/platform/billing/hooks/SubscriptionContext';
 import { ToastProvider, ConfirmProvider } from 'src/ui/primitives';
 import { ThemeProvider } from 'src/ui/theme';
 import { AppRoutes } from 'src/app/routes';

@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from 'src/platform/auth/useAuth';
-import subscriptionsController from 'src/platform/billing/controller.js';
+import subscriptionsController from '../controller/subscriptions.js';
 
 export const SubscriptionContext = createContext();
 

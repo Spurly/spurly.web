@@ -17,7 +17,7 @@ import {
   Lock,
 } from "lucide-react";
 import { useAuth } from "src/platform/auth/useAuth.js";
-import { SubscriptionContext } from "src/platform/billing/SubscriptionContext";
+import { SubscriptionContext } from "src/platform/billing/hooks/SubscriptionContext";
 import { useExtension } from "src/platform/extension/hooks/useExtension";
 import { Avatar, Tooltip } from "src/ui/primitives";
 import { ThemeToggle } from "src/ui/theme";

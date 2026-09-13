@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { useSubscription } from 'src/platform/billing/useSubscription';
+import { useSubscription } from 'src/platform/billing/hooks/useSubscription';
 
 /**
  * Entitlement gate for /hub/*, nested inside SubscribeGate:

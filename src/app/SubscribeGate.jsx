@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { useSubscription } from 'src/platform/billing/useSubscription';
+import { useSubscription } from 'src/platform/billing/hooks/useSubscription';
 
 /**
  * Wraps ProtectedRoute content that additionally requires an ACTIVE

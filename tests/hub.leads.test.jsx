@@ -41,8 +41,8 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
 }));
 
 const { AuthContext } = await import('src/platform/auth/AuthContext');
-const { SubscriptionContext } = await import('src/platform/billing/SubscriptionContext');
-import { SubscriptionSummary } from 'src/platform/billing/Subscription';
+const { SubscriptionContext } = await import('src/platform/billing/hooks/SubscriptionContext');
+import { SubscriptionSummary } from 'src/platform/billing/entities/Subscription';
 
 /**
  * The REAL summary entity, not a hand-rolled `{ isActive: () => true }`.

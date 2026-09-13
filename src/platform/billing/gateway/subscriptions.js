@@ -5,15 +5,15 @@ import {
   PromoValidation,
   SubscriptionCreateResult,
   SubscriptionSummary,
-} from 'src/platform/billing/Subscription.js';
+} from '../entities/Subscription.js';
 
 /**
- * Subscriptions API Client
+ * Subscriptions Gateway
  * Handles all /subscriptions/* calls (the mandatory paywall and one-time
  * payment flow). Layer between the controller and the gateway — mirrors
  * authApi.js's shape and error handling exactly.
  */
-class SubscriptionsApi {
+class SubscriptionsGateway {
   /**
    * What the logged-in user would pay right now.
    * GET /subscriptions/pricing
@@ -126,4 +126,5 @@ class SubscriptionsApi {
   }
 }
 
-export default new SubscriptionsApi();
+export const subscriptionsGateway = new SubscriptionsGateway();
+export default subscriptionsGateway;

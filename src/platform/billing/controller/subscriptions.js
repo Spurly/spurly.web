@@ -1,4 +1,4 @@
-import subscriptionsApi from 'src/platform/billing/api.js';
+import subscriptionsGateway from '../gateway/subscriptions.js';
 
 /**
  * Subscriptions Controller
@@ -12,34 +12,35 @@ import subscriptionsApi from 'src/platform/billing/api.js';
 class SubscriptionsController {
   /**
    * @param {string} [code] - optional promo code to preview
-   * @returns {Promise<import('src/platform/billing/Subscription.js').PricingInfo>}
+   * @returns {Promise<import('../entities/Subscription.js').PricingInfo>}
    */
   async getPricing(code) {
-    return subscriptionsApi.getPricing(code);
+    return subscriptionsGateway.getPricing(code);
   }
 
   /**
    * @param {string} code
-   * @returns {Promise<import('src/platform/billing/Subscription.js').PromoValidation>}
+   * @returns {Promise<import('../entities/Subscription.js').PromoValidation>}
    */
   async validatePromo(code) {
-    return subscriptionsApi.validatePromo(code);
+    return subscriptionsGateway.validatePromo(code);
   }
 
   /**
    * @param {string} [code] - optional promo code to apply
-   * @returns {Promise<import('src/platform/billing/Subscription.js').SubscriptionCreateResult>}
+   * @returns {Promise<import('../entities/Subscription.js').SubscriptionCreateResult>}
    */
   async createSubscription(code) {
-    return subscriptionsApi.createSubscription(code);
+    return subscriptionsGateway.createSubscription(code);
   }
 
   /**
-   * @returns {Promise<import('src/platform/billing/Subscription.js').SubscriptionSummary>}
+   * @returns {Promise<import('../entities/Subscription.js').SubscriptionSummary>}
    */
   async getMySubscription() {
-    return subscriptionsApi.getMySubscription();
+    return subscriptionsGateway.getMySubscription();
   }
 }
 
-export default new SubscriptionsController();
+export const subscriptionsController = new SubscriptionsController();
+export default subscriptionsController;

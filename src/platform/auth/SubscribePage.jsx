@@ -1,14 +1,14 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/platform/auth/useAuth';
-import { useSubscription } from 'src/platform/billing/useSubscription';
+import { useSubscription } from 'src/platform/billing/hooks/useSubscription';
 import { useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import { AuthShell, WelcomeAside } from './AuthShell.jsx';
 import { TrustBadges, PhoneField, phoneIsValid, buildE164 } from './widgets.jsx';
 import { DEFAULT_COUNTRY } from './countryCodes.js';
 import { StarIcon } from './icons.jsx';
-import subscriptionsController from 'src/platform/billing/controller.js';
+import subscriptionsController from 'src/platform/billing/controller/subscriptions.js';
 import { loadCashfreeSdk } from './cashfreeSdk.js';
 import { postAuthDestination } from './postAuthDestination.js';
 
