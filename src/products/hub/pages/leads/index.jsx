@@ -49,6 +49,7 @@ export function HubLeadsPage() {
     deleteSearch,
     createCampaign,
     createMessageCampaign,
+    selectedAreAllFirstDegree,
     enrollInSequence,
     handleLeadResolved,
   } = useLeadsPage();
@@ -155,18 +156,24 @@ export function HubLeadsPage() {
                 >
                   {t.table.createCampaign}
                 </Button>
-                {/* A message campaign is scoped to leads who are already
-                    1st-degree connections — see createMessageCampaign's own
-                    comment. Selecting a mix is fine: anyone not yet connected
-                    is simply skipped once the campaign runs, same as every
-                    other skip reason on the detail page's member table. */}
+                {/* A message campaign may only ever be ALL 1st-degree
+                    connections -- the server rejects a mixed selection
+                    outright (NOT_ALL_FIRST_DEGREE) rather than quietly
+                    skipping whoever isn't connected yet, so the button
+                    reflects that up front instead of letting the click
+                    round-trip to a 400 the Degree column already predicted. */}
                 <Button
                   size="sm"
                   variant="secondary"
                   leadingIcon={<MessageSquare size={13} />}
                   onClick={createMessageCampaign}
                   loading={creating}
-                  disabled={creating || selected.size === 0}
+                  disabled={creating || selected.size === 0 || !selectedAreAllFirstDegree}
+                  title={
+                    selected.size > 0 && !selectedAreAllFirstDegree
+                      ? 'Everyone selected must already be a 1st-degree connection to message them'
+                      : undefined
+                  }
                 >
                   {t.table.createMessageCampaign}
                 </Button>

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useToast } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
+import { useAuth } from 'src/platform/auth/hooks/useAuth.js';
 import campaignController from '../controller/campaign.js';
 import { POLL_MS } from '../constants.js';
 
@@ -26,7 +27,18 @@ export function useCampaignDetail() {
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // The "review before sending" gate for a message campaign — see
+  // SendMessagePreviewDialog's own comment for why this exists and a connect
+  // campaign deliberately skips it. Members here are a fresh, small sample of
+  // real PENDING recipients, fetched only when the dialog opens, never the
+  // page's own (possibly filtered, possibly stale) members table.
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewMembers, setPreviewMembers] = useState([]);
+
   const toast = useToast();
+  const { user } = useAuth();
+  const senderName = (user?.name || '').split(' ')[0] || '';
   const mountedRef = useRef(true);
   /**
    * Set on every mount, not only cleared on unmount.
@@ -89,6 +101,39 @@ export function useCampaignDetail() {
     'Could not start that campaign',
   );
 
+  /**
+   * Opens the review dialog and fetches a fresh, small sample of real
+   * pending members to preview against. Fetched fresh rather than reusing
+   * the page's own `members` (which may be filtered to "Failed" or another
+   * status, or just stale) — the whole point of this dialog is to show who
+   * is genuinely about to be messaged.
+   */
+  const openStartPreview = async () => {
+    setPreviewOpen(true);
+    setPreviewLoading(true);
+    try {
+      const res = await campaignController.listMembers(id, { status: 'pending', page: 1, limit: 20 });
+      if (mountedRef.current) setPreviewMembers(res.members ?? []);
+    } catch (err) {
+      if (mountedRef.current) {
+        setPreviewMembers([]);
+        toast.error(getToastError(err, 'Could not load a preview'));
+      }
+    } finally {
+      if (mountedRef.current) setPreviewLoading(false);
+    }
+  };
+
+  const closeStartPreview = () => {
+    if (busy) return; // let `act`'s own busy-lock finish before this can be dismissed
+    setPreviewOpen(false);
+  };
+
+  const confirmStart = async () => {
+    await start();
+    if (mountedRef.current) setPreviewOpen(false);
+  };
+
   const pause = () => act(
     () => campaignController.pauseCampaign(id),
     'Paused. Nobody else will be contacted.',
@@ -142,6 +187,13 @@ export function useCampaignDetail() {
     saving,
     running,
     start,
+    previewOpen,
+    previewLoading,
+    previewMembers,
+    openStartPreview,
+    closeStartPreview,
+    confirmStart,
+    senderName,
     pause,
     retryFailed,
     saveNote,
