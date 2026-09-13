@@ -37,8 +37,8 @@ describe('DashboardLayout — grouped sidebar', () => {
   it('renders both product groups at once, no switcher', () => {
     renderLayout(true);
     const nav = screen.getByRole('navigation');
-    expect(within(nav).getByText('Capture')).toBeTruthy();
-    expect(within(nav).getByText('Hub')).toBeTruthy();
+    expect(within(nav).getByText('Extension Driven')).toBeTruthy();
+    expect(within(nav).getByText('Automated')).toBeTruthy();
     // Both groups' rows are on screen simultaneously.
     expect(within(nav).getByText('Contacts')).toBeTruthy();
     expect(within(nav).getByText('Leads')).toBeTruthy();

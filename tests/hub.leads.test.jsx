@@ -272,8 +272,8 @@ describe('hub leads', () => {
     // unique to each product, are on screen together without any click.
     renderAt('/hub/leads');
     const nav = await screen.findByRole('navigation');
-    expect(within(nav).getByText('Capture')).toBeInTheDocument();
-    expect(within(nav).getByText('Hub')).toBeInTheDocument();
+    expect(within(nav).getByText('Extension Driven')).toBeInTheDocument();
+    expect(within(nav).getByText('Automated')).toBeInTheDocument();
     expect(within(nav).getByText('Contacts')).toBeInTheDocument(); // Capture-only row
     expect(within(nav).getByText('Sequences')).toBeInTheDocument(); // Hub-only row
   });
