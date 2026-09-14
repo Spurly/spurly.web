@@ -175,6 +175,7 @@ export function DataTable({
             onToggleAll={table.toggleAll}
             density={density}
             sticky={stickyHeader}
+            scrolled={scrolled}
             reorderable={reorderable}
             onReorder={handleReorder}
           />

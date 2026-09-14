@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import personalizationController from 'src/products/leadgen/personalization/controller/personalization.js';
+import personalizationController from 'src/products/hub/personalization/controller/personalization.js';
 
 /**
  * Provider availability + the user's remaining daily AI quota.

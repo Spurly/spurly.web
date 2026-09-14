@@ -7,7 +7,7 @@ import { useToast } from 'src/ui/primitives';
 import personalizationController, {
   describeError,
   TONES,
-} from 'src/products/leadgen/personalization/controller/personalization.js';
+} from 'src/products/hub/personalization/controller/personalization.js';
 import { useAiStatus } from './hooks/useAiStatus.js';
 
 /**

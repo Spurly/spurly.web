@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from 'src/ui/primitives';
+import { AiWriteButton } from 'src/products/hub/personalization/AiWriteButton.jsx';
 
 /**
  * The message a `type: 'message'` campaign sends, mirroring NoteEditor's
@@ -40,9 +41,20 @@ export function MessageEditor({ campaign, onSave, saving }) {
             ? 'Pause the campaign to change the message — the people already messaged were sent the old one.'
             : `Use {{firstName}} to personalize · ${value.length}/${CAP} characters`}
         </span>
-        <Button size="sm" disabled={running || !dirty || saving || !value.trim()} onClick={() => onSave(value)}>
-          {saving ? 'Saving…' : 'Save message'}
-        </Button>
+        <div className="flex items-center gap-2">
+          {!running && (
+            <AiWriteButton
+              content={value}
+              type="DIRECT_MESSAGE"
+              maxLength={CAP}
+              disabled={saving}
+              onApply={setValue}
+            />
+          )}
+          <Button size="sm" disabled={running || !dirty || saving || !value.trim()} onClick={() => onSave(value)}>
+            {saving ? 'Saving…' : 'Save message'}
+          </Button>
+        </div>
       </div>
     </div>
   );

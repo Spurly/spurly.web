@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useToast } from 'src/ui/primitives';
 import personalizationController, {
   describeError,
-} from 'src/products/leadgen/personalization/controller/personalization.js';
+} from 'src/products/hub/personalization/controller/personalization.js';
 
 const EMPTY = {
   whatWeDo: '',

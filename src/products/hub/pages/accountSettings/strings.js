@@ -13,6 +13,7 @@ export const settingsStrings = {
     profile: 'Profile',
     billing: 'Billing & credits',
     extension: 'Extension',
+    ai: 'AI context',
   },
   profile: {
     sectionTitle: 'Your details',

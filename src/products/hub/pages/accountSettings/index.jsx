@@ -5,12 +5,14 @@ import { ProfileTab } from './components/ProfileTab.jsx';
 import { BillingTab } from './components/BillingTab.jsx';
 import { ExtensionTab } from './components/ExtensionTab.jsx';
 import { ServerSendingCard } from './components/ServerSendingCard.jsx';
+import { AiContextTab } from './components/AiContextTab.jsx';
 import { settingsStrings as t } from './strings.js';
 
 const TABS = [
   { id: 'profile', label: t.tabs.profile },
   { id: 'billing', label: t.tabs.billing },
   { id: 'extension', label: t.tabs.extension },
+  { id: 'ai', label: t.tabs.ai },
 ];
 
 /**
@@ -36,6 +38,7 @@ export function SettingsPage() {
             <ServerSendingCard />
           </div>
         )}
+        {activeTab === 'ai' && <AiContextTab />}
       </div>
     </DashboardLayout>
   );

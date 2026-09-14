@@ -37,18 +37,18 @@ const NAV_SECTIONS = [
   {
     label: "Prospect",
     items: [
-      { label: "Import", icon: Upload, href: "/dashboard/import" },
       { label: "Leads", icon: Radar, href: "/hub/leads" },
       { label: "Enrichment", icon: Sparkles, href: "/hub/enrichment" },
+      { label: "Import", icon: Upload, href: "/dashboard/import" },
     ],
   },
   {
     label: "Engage",
     items: [
-      { label: "Templates", icon: FileText, href: "/dashboard/templates" },
       { label: "Campaigns", icon: Send, href: "/hub/campaigns" },
       { label: "Sequences", icon: Workflow, href: "/hub/sequences" },
       { label: "Inbox", icon: Inbox, href: "/hub/inbox" },
+      { label: "Templates", icon: FileText, href: "/dashboard/templates" },
     ],
   },
   {
