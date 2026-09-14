@@ -6,14 +6,13 @@ import {
   findUnknownTokens,
   insertTokenAt,
 } from 'src/shared/utils/templateTokens.js';
-import { AiWriteButton } from 'src/products/leadgen/personalization/AiWriteButton.jsx';
 import {
   CONNECTION_NOTE_SOFT_LIMIT,
   NAME_MAX,
   SUBJECT_MAX,
   CONTENT_MAX,
   DESCRIPTION_MAX,
-} from 'src/products/leadgen/templates/constants.js';
+} from 'src/products/hub/templates/constants.js';
 
 /**
  * Create/edit form for a single message template.
@@ -152,14 +151,6 @@ export function TemplateEditor({
             {isConnection ? 'Invitation note' : 'Message'}
           </label>
           <div className="flex items-center gap-3">
-            <AiWriteButton
-              content={form.content}
-              type={type}
-              templateId={template?._id || null}
-              maxLength={CONTENT_MAX}
-              disabled={saving}
-              onApply={(text) => setForm((f) => ({ ...f, content: text }))}
-            />
             <button
               type="button"
               onClick={() => setShowPreview((v) => !v)}

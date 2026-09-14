@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from 'src/app/ProtectedRoute';
 import { AdminRoute } from 'src/app/AdminRoute';
 import { SubscribeGate } from 'src/app/SubscribeGate';
-import { HubGate } from 'src/app/HubGate';
 import { DashboardHomeRedirect } from 'src/app/DashboardHomeRedirect';
 import { RouteFallback } from 'src/app/RouteFallback';
 
@@ -50,11 +49,10 @@ const OnboardingSurveyPage = lazy(() => import('src/platform/pages/auth/Onboardi
 const InstallExtensionPage = lazy(() => import('src/platform/pages/auth/InstallExtensionPage.jsx'));
 
 // products/leadgen — the signed-in dashboard
-const TemplatesPage = lazy(() => import('src/products/leadgen/pages/templates').then((m) => ({ default: m.TemplatesPage })));
-const SettingsPage = lazy(() => import('src/products/leadgen/pages/settings').then((m) => ({ default: m.SettingsPage })));
+const TemplatesPage = lazy(() => import('src/products/hub/pages/templates').then((m) => ({ default: m.TemplatesPage })));
+const SettingsPage = lazy(() => import('src/products/hub/pages/accountSettings').then((m) => ({ default: m.SettingsPage })));
 const LinkedInSettingsPage = lazy(() => import('src/products/hub/pages/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
 const NotificationsPage = lazy(() => import('src/platform/pages/notifications/NotificationsPage.jsx'));
-const HubUpgradePage = lazy(() => import('src/products/hub/pages/upgrade'));
 const HubLeadsPage = lazy(() => import('src/products/hub/pages/leads').then((m) => ({ default: m.HubLeadsPage })));
 const HubCampaignsPage = lazy(() => import('src/products/hub/pages/campaigns').then((m) => ({ default: m.HubCampaignsPage })));
 const HubCampaignDetailPage = lazy(() => import('src/products/hub/pages/campaigns').then((m) => ({ default: m.HubCampaignDetailPage })));
@@ -64,7 +62,7 @@ const HubSequencesPage = lazy(() => import('src/products/hub/pages/sequences').t
 const HubNewSequencePage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubNewSequencePage })));
 const HubSequenceDetailPage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubSequenceDetailPage })));
 const HubInboxPage = lazy(() => import('src/products/hub/pages/inbox').then((m) => ({ default: m.HubInboxPage })));
-const ImportPage = lazy(() => import('src/products/leadgen/pages/import').then((m) => ({ default: m.ImportPage })));
+const ImportPage = lazy(() => import('src/products/hub/pages/import').then((m) => ({ default: m.ImportPage })));
 
 // Admin console
 const AdminUsersPage = lazy(() => import('src/platform/pages/admin/Users').then((m) => ({ default: m.AdminUsersPage })));
@@ -111,14 +109,13 @@ export function AppRoutes() {
       <Route path="/onboarding/install" element={<ProtectedRoute><SubscribeGate><InstallExtensionPage /></SubscribeGate></ProtectedRoute>} />
 
       {/* Dashboard (protected + requires an active subscription).
-          The People page was retired (2026-09-14) — there is no unconditional
-          landing surface anymore, since its natural replacement (Hub's lead
-          list) sits behind HubGate and a non-hub subscriber would fail it.
-          Login, password reset, onboarding, the LinkedIn callback and the
-          marketing nav all send users to bare /dashboard, so it stays alive
-          as an entitlement-aware redirect (see DashboardHomeRedirect) rather
-          than making all of those know which namespace this subscriber can
-          actually use. */}
+          The People page was retired (2026-09-14), and the old two-tier
+          leadgen/hub entitlement split was removed the same day — every
+          active subscriber now has full access to everything below, so
+          there is nothing left to branch on. Login, password reset,
+          onboarding, the LinkedIn callback and the marketing nav all send
+          users to bare /dashboard, so it stays alive as a plain redirect
+          to Hub's lead list (see DashboardHomeRedirect). */}
       <Route path="/dashboard" element={<ProtectedRoute><SubscribeGate><DashboardHomeRedirect /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/templates" element={<ProtectedRoute><SubscribeGate><TemplatesPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/import" element={<ProtectedRoute><SubscribeGate><ImportPage /></SubscribeGate></ProtectedRoute>} />
@@ -126,28 +123,27 @@ export function AppRoutes() {
       {/* No SubscribeGate, deliberately: a lapsed subscriber is exactly who needs to see the entitlement-grace-started notification telling them so. */}
       <Route path="/dashboard/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       {/* Hub's settings page, under /dashboard only because that is where the
-          user looks for settings. It carries HubGate like the rest of hub: this
-          is the page with the Connect button, and Connect is the click that
-          starts billing us for a linked account. */}
-      <Route path="/dashboard/settings/linkedin" element={<ProtectedRoute><SubscribeGate><HubGate><LinkedInSettingsPage /></HubGate></SubscribeGate></ProtectedRoute>} />
+          user looks for settings. This is the page with the Connect button,
+          and Connect is the click that starts billing us for a linked
+          account. */}
+      <Route path="/dashboard/settings/linkedin" element={<ProtectedRoute><SubscribeGate><LinkedInSettingsPage /></SubscribeGate></ProtectedRoute>} />
 
       {/* Hub — the second workspace. Its own namespace rather than a branch of
           /dashboard, so splitting it to its own bundle or subdomain later is
           moving a folder rather than a rewrite (ARCHITECTURE.md §2b). Same
-          guards as the dashboard, plus HubGate: signed in, then paid up, then
-          entitled. /hub/upgrade is deliberately OUTSIDE that last gate — it is
-          where HubGate sends people, and gating it would be a redirect loop. */}
+          guards as the dashboard: signed in, then paid up. The old second-tier
+          "hub" entitlement gate (HubGate, /hub/upgrade) was removed
+          2026-09-14 — every active subscriber now has full access. */}
       <Route path="/hub" element={<Navigate to="/hub/leads" replace />} />
-      <Route path="/hub/upgrade" element={<ProtectedRoute><SubscribeGate><HubUpgradePage /></SubscribeGate></ProtectedRoute>} />
-      <Route path="/hub/leads" element={<ProtectedRoute><SubscribeGate><HubGate><HubLeadsPage /></HubGate></SubscribeGate></ProtectedRoute>} />
-      <Route path="/hub/campaigns" element={<ProtectedRoute><SubscribeGate><HubGate><HubCampaignsPage /></HubGate></SubscribeGate></ProtectedRoute>} />
-      <Route path="/hub/campaigns/:id" element={<ProtectedRoute><SubscribeGate><HubGate><HubCampaignDetailPage /></HubGate></SubscribeGate></ProtectedRoute>} />
-      <Route path="/hub/enrichment" element={<ProtectedRoute><SubscribeGate><HubGate><HubEnrichmentPage /></HubGate></SubscribeGate></ProtectedRoute>} />
-      <Route path="/hub/enrichment/:id" element={<ProtectedRoute><SubscribeGate><HubGate><HubEnrichmentDetailPage /></HubGate></SubscribeGate></ProtectedRoute>} />
-      <Route path="/hub/sequences" element={<ProtectedRoute><SubscribeGate><HubGate><HubSequencesPage /></HubGate></SubscribeGate></ProtectedRoute>} />
-      <Route path="/hub/sequences/new" element={<ProtectedRoute><SubscribeGate><HubGate><HubNewSequencePage /></HubGate></SubscribeGate></ProtectedRoute>} />
-      <Route path="/hub/sequences/:id" element={<ProtectedRoute><SubscribeGate><HubGate><HubSequenceDetailPage /></HubGate></SubscribeGate></ProtectedRoute>} />
-      <Route path="/hub/inbox" element={<ProtectedRoute><SubscribeGate><HubGate><HubInboxPage /></HubGate></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/leads" element={<ProtectedRoute><SubscribeGate><HubLeadsPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/campaigns" element={<ProtectedRoute><SubscribeGate><HubCampaignsPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/campaigns/:id" element={<ProtectedRoute><SubscribeGate><HubCampaignDetailPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/enrichment" element={<ProtectedRoute><SubscribeGate><HubEnrichmentPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/enrichment/:id" element={<ProtectedRoute><SubscribeGate><HubEnrichmentDetailPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/sequences" element={<ProtectedRoute><SubscribeGate><HubSequencesPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/sequences/new" element={<ProtectedRoute><SubscribeGate><HubNewSequencePage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/sequences/:id" element={<ProtectedRoute><SubscribeGate><HubSequenceDetailPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/inbox" element={<ProtectedRoute><SubscribeGate><HubInboxPage /></SubscribeGate></ProtectedRoute>} />
 
       {/* Legacy /leads and /people paths — kept permanently so existing
           bookmarks and any extension deep links keep working. The People page

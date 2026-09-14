@@ -7,17 +7,10 @@ import leadController from 'src/products/hub/leads/controller/lead.js';
 /**
  * Hub's lead detail drawer — Phase 6, 1a/1b.
  *
- * Deliberately NOT built on `products/leadgen/pages/people/components/LeadDetailSidebar`, even though
- * the visual language (Drawer + identity block + Section blocks) is the same
- * on purpose. Hub's isolation boundary (see UNIPILE_MODULE_PLAN.md §0 /
- * [[unipile_api_module]]) shares exactly `platform/outreach` plus
- * auth/users/plans/credits with the rest of the app — a HubLead is not a
- * Person and has no `personId`. Reusing that component directly would mean
- * either passing it a HubLead pretending to be shaped like a Person (fragile:
- * its Research/Activity tabs call endpoints keyed on a Person's `_id`, which a
- * HubLead's `_id` is not), or threading new conditionals through a component
- * three other pages already depend on. A small local drawer, styled with the
- * same `--ui-*` tokens everything else uses, costs less than either.
+ * A small local drawer, styled with the same `--ui-*` tokens everything else
+ * uses, built specifically around a HubLead's shape (see
+ * UNIPILE_MODULE_PLAN.md §0 / [[unipile_api_module]]) rather than reusing
+ * another page's detail view.
  *
  * ONE PANEL, NOT TABS — for now. The Contacts drawer splits into tabs because
  * it mixes four independently-fetched concerns (profile, contact info,

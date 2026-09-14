@@ -1,11 +1,9 @@
 /**
- * Static UI copy for the leadgen settings page (all four tabs).
+ * Static UI copy for the account settings page.
  *
  * STATIC only — see hub/campaigns/pages/strings.js for the scope this
  * follows across the app: no i18n library is installed, so this is one
- * reviewable place for fixed copy, not a translation layer. Per-field help
- * text for the AI context tab stays in personalization's CONTEXT_FIELDS
- * (it's paired data, not flat copy); numbers, balances and status text
+ * reviewable place for fixed copy, not a translation layer. Numbers, balances and status text
  * built from live account/extension state stay inline where assembled.
  */
 export const settingsStrings = {
@@ -13,7 +11,6 @@ export const settingsStrings = {
   pageSubtitle: 'Manage your account, credits and extension.',
   tabs: {
     profile: 'Profile',
-    ai: 'AI context',
     billing: 'Billing & credits',
     extension: 'Extension',
   },

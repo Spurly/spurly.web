@@ -30,10 +30,9 @@ export function ServerSendingCard() {
             {t.serverSending.body}
           </p>
         </div>
-        {/* Deliberately status-blind: this card belongs to leadgen and the
-            account state belongs to hub, which leadgen may not import. The
-            wording reads correctly either way, and the page it links to is
-            the one place that knows the truth. */}
+        {/* Deliberately status-blind: the wording reads correctly whatever
+            the LinkedIn account's connection state is, and the page it
+            links to is the one place that knows the truth. */}
         <Link to="/dashboard/settings/linkedin">
           <Button variant="ghost" size="sm">{t.serverSending.manage}</Button>
         </Link>

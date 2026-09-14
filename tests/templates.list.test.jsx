@@ -13,7 +13,7 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
 }));
 
 const { renderWithProviders } = await import('./helpers.jsx');
-const { TemplatesPage } = await import('src/products/leadgen/pages/templates');
+const { TemplatesPage } = await import('src/products/hub/pages/templates');
 
 describe('TemplatesPage', () => {
   it('lists the templates returned by the API', async () => {

@@ -9,9 +9,9 @@ import { linkedInSettingsStrings as t } from './strings.js';
 /**
  * LinkedIn connection settings.
  *
- * A separate page rather than a tab on Settings, for two reasons: this belongs
- * to hub and the settings page belongs to leadgen (products never import each
- * other), and the server's hosted-auth flow already redirects back here.
+ * A separate page rather than a tab on Settings: the server's hosted-auth
+ * flow already redirects back here, and keeping it separate from the general
+ * account Settings page keeps that page focused on account-wide fields.
  *
  * The state that matters is not "connected / not connected" — it is closer to
  * five, and each one needs different words and a different action. Getting that

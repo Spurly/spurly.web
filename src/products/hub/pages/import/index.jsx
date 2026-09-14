@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
 import { PageTabs } from 'src/ui/primitives/PageTabs';
-import { useImportedLeads } from 'src/products/leadgen/import/hooks/useImportedLeads.js';
+import { useImportedLeads } from 'src/products/hub/import/hooks/useImportedLeads.js';
 import { UploadPanel } from './components/UploadPanel.jsx';
 import { StagingPanel } from './components/StagingPanel.jsx';
 import { importStrings as t } from './strings.js';

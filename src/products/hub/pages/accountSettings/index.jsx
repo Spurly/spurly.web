@@ -5,12 +5,10 @@ import { ProfileTab } from './components/ProfileTab.jsx';
 import { BillingTab } from './components/BillingTab.jsx';
 import { ExtensionTab } from './components/ExtensionTab.jsx';
 import { ServerSendingCard } from './components/ServerSendingCard.jsx';
-import { AiContextTab } from './components/AiContextTab.jsx';
 import { settingsStrings as t } from './strings.js';
 
 const TABS = [
   { id: 'profile', label: t.tabs.profile },
-  { id: 'ai', label: t.tabs.ai },
   { id: 'billing', label: t.tabs.billing },
   { id: 'extension', label: t.tabs.extension },
 ];
@@ -31,7 +29,6 @@ export function SettingsPage() {
       <PageTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="p-[var(--ui-pad-lg)] max-w-[720px]">
         {activeTab === 'profile' && <ProfileTab />}
-        {activeTab === 'ai' && <AiContextTab />}
         {activeTab === 'billing' && <BillingTab />}
         {activeTab === 'extension' && (
           <div className="flex flex-col gap-4">

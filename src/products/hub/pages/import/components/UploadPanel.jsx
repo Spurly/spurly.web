@@ -13,7 +13,7 @@ import {
   MAX_IMPORT_ROWS,
 } from 'src/shared/utils/csvImport.js';
 import { applyRememberedMapping, saveMapping } from './mappingMemory.js';
-import importController from 'src/products/leadgen/import/controller/import.js';
+import importController from 'src/products/hub/import/controller/import.js';
 import { FieldMappingPanel } from './FieldMappingPanel.jsx';
 import { buildPreviewColumns } from './columns.jsx';
 
