@@ -6,7 +6,6 @@ import { SubscriptionContext } from 'src/platform/billing/hooks/SubscriptionCont
 import { anonymousAuth, signedInAs } from './helpers.jsx';
 import { ProtectedRoute } from 'src/app/ProtectedRoute';
 import { SubscribeGate } from 'src/app/SubscribeGate';
-import { HubGate } from 'src/app/HubGate';
 import { SubscriptionSummary } from 'src/platform/billing/entities/Subscription';
 
 const summary = (over) => SubscriptionSummary.fromResponse({ status: 'active', ...over });
@@ -22,7 +21,6 @@ function renderAt(ui, { auth = signedInAs(), sub = { status: null, loading: fals
             <Route path="/dashboard" element={ui} />
             <Route path="/login" element={<div>login page</div>} />
             <Route path="/subscribe" element={<div>subscribe page</div>} />
-            <Route path="/hub/upgrade" element={<div>upgrade page</div>} />
           </Routes>
         </SubscriptionContext.Provider>
       </AuthContext.Provider>
@@ -60,7 +58,7 @@ describe('SubscribeGate', () => {
 
   it('renders the page when the subscription is active', () => {
     renderAt(<SubscribeGate><Secret /></SubscribeGate>,
-      { sub: { status: summary({ features: { hub: true } }), loading: false, ready: true } });
+      { sub: { status: summary({}), loading: false, ready: true } });
     expect(screen.getByText('secret content')).toBeInTheDocument();
   });
 
@@ -86,33 +84,8 @@ describe('SubscribeGate', () => {
   // must not admit the new one before their own status has come back.
   it('waits rather than admitting a stale active status after an account switch', () => {
     renderAt(<SubscribeGate><Secret /></SubscribeGate>,
-      { sub: { status: summary({ features: { hub: true } }), loading: false, ready: false } });
+      { sub: { status: summary({}), loading: false, ready: false } });
     expect(screen.queryByText('secret content')).not.toBeInTheDocument();
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
-  });
-});
-
-describe('HubGate', () => {
-  // The order of the two gates is the product decision: pay first, then
-  // upgrade. Sent to an upgrade page instead, a lapsed account is offered a
-  // tier it cannot buy until it settles the one it already has.
-  it('sends a subscriber whose plan lacks hub to the upgrade page', () => {
-    renderAt(<HubGate><Secret /></HubGate>,
-      { sub: { status: summary({ features: { hub: false } }), loading: false, ready: true } });
-    expect(screen.getByText('upgrade page')).toBeInTheDocument();
-    expect(screen.queryByText('secret content')).not.toBeInTheDocument();
-  });
-
-  it('renders hub for an entitled subscriber', () => {
-    renderAt(<HubGate><Secret /></HubGate>,
-      { sub: { status: summary({ features: { hub: true } }), loading: false, ready: true } });
-    expect(screen.getByText('secret content')).toBeInTheDocument();
-  });
-
-  it('waits rather than redirecting while the status is still unknown', () => {
-    renderAt(<HubGate><Secret /></HubGate>,
-      { sub: { status: null, loading: true, ready: false } });
-    expect(screen.queryByText('upgrade page')).not.toBeInTheDocument();
-    expect(screen.queryByText('secret content')).not.toBeInTheDocument();
   });
 });

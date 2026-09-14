@@ -120,16 +120,6 @@ export class SubscriptionSummary {
     return this.exempt === true;
   }
 
-  /**
-   * Does this account include the outreach hub?
-   *
-   * Entitlement AND standing, in that order — a hub plan that has lapsed is
-   * not access to anything, and the routes already send a lapsed account to
-   * /subscribe before this is ever asked.
-   */
-  hasHub() {
-    return this.isActive() && this.features.hub === true;
-  }
 }
 
 /** Generic { success, message, data, status } envelope, same shape as AuthResponse. */

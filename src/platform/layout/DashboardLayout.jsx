@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   PanelLeftClose,
@@ -13,10 +13,8 @@ import {
   Inbox,
   Workflow,
   Sparkles,
-  Lock,
 } from "lucide-react";
 import { useAuth } from "src/platform/auth/hooks/useAuth.js";
-import { SubscriptionContext } from "src/platform/billing/hooks/SubscriptionContext";
 import { useExtension } from "src/platform/extension/hooks/useExtension";
 import { Avatar, Tooltip } from "src/ui/primitives";
 import { ThemeToggle } from "src/ui/theme";
@@ -24,48 +22,22 @@ import { NotificationBell } from "src/platform/pages/notifications/components/No
 import { SidebarBrand } from "./SidebarBrand";
 
 /**
- * One sidebar, both products, always.
+ * One sidebar, one product now.
  *
  * This used to be two nav trees (`LEADGEN_SECTIONS` / `HUB_SECTIONS`) swapped
- * whole by a workspace switcher — see git history on this file, or
- * `ProductSwitcher.jsx` before it was deleted. That model treated Capture and
- * Hub as two apps sharing a shell. They are one app: a ₹5000 subscriber uses
- * both in the same session, and a ₹1500 subscriber should see what Hub is
- * without a context switch to find out.
+ * whole by a workspace switcher, then later two groups shown together with a
+ * lock on the entitlement-gated one. The leadgen product and the two-tier
+ * entitlement split were both removed 2026-09-14 — there is one product and
+ * one subscription tier, so there is one flat nav tree.
  *
- * `NAV_GROUPS` below is the single nav tree. Each group is one product; each
- * group's own sections are unchanged from before (Prospect / Engage / Manage).
- * A locked group's rows stay visible and lead to the upgrade page instead of
- * disappearing — see `hubLocked` below for why a whole-workspace lock that
- * hid every row was worse than this.
- */
-const LEADGEN_SECTIONS = [
-  {
-    label: "Prospect",
-    items: [{ label: "Import", icon: Upload, href: "/dashboard/import" }],
-  },
-  {
-    label: "Engage",
-    items: [
-      { label: "Templates", icon: FileText, href: "/dashboard/templates" },
-    ],
-  },
-  {
-    label: "Manage",
-    items: [{ label: "Settings", icon: Settings, href: "/dashboard/settings" }],
-  },
-];
-
-/**
  * In the order the work happens: source an audience, fill in what's missing
- * about it, then send. Enrichment and Campaigns both arrived after Leads —
- * before each existed, its row would have been a link to nothing, which
- * teaches the user the product is broken rather than that it is coming.
+ * about it, then send.
  */
-const HUB_SECTIONS = [
+const NAV_SECTIONS = [
   {
     label: "Prospect",
     items: [
+      { label: "Import", icon: Upload, href: "/dashboard/import" },
       { label: "Leads", icon: Radar, href: "/hub/leads" },
       { label: "Enrichment", icon: Sparkles, href: "/hub/enrichment" },
     ],
@@ -73,6 +45,7 @@ const HUB_SECTIONS = [
   {
     label: "Engage",
     items: [
+      { label: "Templates", icon: FileText, href: "/dashboard/templates" },
       { label: "Campaigns", icon: Send, href: "/hub/campaigns" },
       { label: "Sequences", icon: Workflow, href: "/hub/sequences" },
       { label: "Inbox", icon: Inbox, href: "/hub/inbox" },
@@ -81,31 +54,13 @@ const HUB_SECTIONS = [
   {
     label: "Manage",
     items: [
+      { label: "Settings", icon: Settings, href: "/dashboard/settings" },
       {
         label: "LinkedIn settings",
         icon: Settings,
         href: "/dashboard/settings/linkedin",
       },
     ],
-  },
-];
-
-/**
- * The two product groups. Names are deliberately about what the user does,
- * not how it is done — and never about the vendor, which must not reach the
- * UI at all.
- */
-const NAV_GROUPS = [
-  {
-    id: "leadgen",
-    label: "Extension Driven",
-    sections: LEADGEN_SECTIONS,
-  },
-  {
-    id: "hub",
-    label: "Automated",
-    hint: "Source leads and send from our servers, on a schedule",
-    sections: HUB_SECTIONS,
   },
 ];
 
@@ -120,13 +75,12 @@ const ADMIN_GROUP = {
   ],
 };
 
-const UPGRADE_HREF = "/hub/upgrade";
-
 const SIDEBAR_OPEN_KEY = "spurly.sidebarOpen";
 const WIDTH_EXPANDED = 244;
 const WIDTH_COLLAPSED = 56;
 
-function GroupHeader({ label, locked, expanded }) {
+function GroupHeader({ label, expanded }) {
+  if (!label) return null;
   if (!expanded) {
     return (
       <span
@@ -138,18 +92,11 @@ function GroupHeader({ label, locked, expanded }) {
   return (
     <p className="ui-micro px-2 h-7 flex items-center gap-1.5 font-semibold text-[var(--ui-text-secondary)]">
       {label}
-      {locked && (
-        <Lock
-          size={10}
-          className="shrink-0 text-[var(--ui-text-tertiary)]"
-          aria-hidden="true"
-        />
-      )}
     </p>
   );
 }
 
-function NavRow({ item, active, expanded, locked, onClick }) {
+function NavRow({ item, active, expanded, onClick }) {
   const Icon = item.icon;
 
   const row = (
@@ -175,23 +122,13 @@ function NavRow({ item, active, expanded, locked, onClick }) {
       {expanded && (
         <span className="truncate flex-1 text-left">{item.label}</span>
       )}
-      {expanded && locked && (
-        <Lock
-          size={12}
-          className="shrink-0 text-[var(--ui-text-tertiary)]"
-          aria-hidden="true"
-        />
-      )}
     </button>
   );
 
-  const tooltip = locked
-    ? `${item.label} — not included in your plan`
-    : item.label;
   return expanded ? (
     row
   ) : (
-    <Tooltip content={tooltip} placement="right">
+    <Tooltip content={item.label} placement="right">
       {row}
     </Tooltip>
   );
@@ -345,24 +282,8 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
     navigate("/");
   };
 
-  /**
-   * Hub is locked for a subscriber whose plan does not include it. Every Hub
-   * row still renders — see NAV_GROUPS — with a lock glyph, and routes to the
-   * upgrade page instead of its normal destination.
-   *
-   * The sidebar is a courtesy, not the boundary: the API refuses hub requests
-   * with 403 whatever is rendered here, and HubGate redirects anyone who types
-   * the URL. So an entitlement we have not fetched yet locks nothing — a lock
-   * flashed at a paying customer on every load would be worse than a second of
-   * an unlocked entry that works.
-   */
-  const billing = useContext(SubscriptionContext);
-  const hubLocked = billing?.status ? !billing.status.hasHub() : false;
-
   const groups = [
-    ...NAV_GROUPS.map((g) =>
-      g.id === "hub" ? { ...g, locked: hubLocked } : g,
-    ),
+    { id: "main", sections: NAV_SECTIONS },
     ...(user?.isAdmin ? [ADMIN_GROUP] : []),
   ];
 
@@ -406,11 +327,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
         <nav className="flex-1 overflow-y-auto px-2 pt-1">
           {groups.map((group) => (
             <div key={group.id} className="mb-4">
-              <GroupHeader
-                label={group.label}
-                locked={group.locked}
-                expanded={expanded}
-              />
+              <GroupHeader label={group.label} expanded={expanded} />
               {group.sections.map((section) => (
                 <div key={`${group.id}-${section.label}`} className="mb-3">
                   {expanded && (
@@ -423,12 +340,9 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
                       <NavRow
                         key={item.label}
                         item={item}
-                        active={!group.locked && isActive(item.href)}
+                        active={isActive(item.href)}
                         expanded={expanded}
-                        locked={group.locked}
-                        onClick={() =>
-                          navigate(group.locked ? UPGRADE_HREF : item.href)
-                        }
+                        onClick={() => navigate(item.href)}
                       />
                     ))}
                   </div>

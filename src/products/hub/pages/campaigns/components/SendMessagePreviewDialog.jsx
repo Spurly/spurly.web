@@ -13,10 +13,9 @@ import { previewTemplate, previewValuesFor } from 'src/shared/utils/templateToke
  * unchanged here on purpose. A `type: 'message'` campaign had no equivalent
  * — clicking Start fired the paced sender straight from the editor with
  * nothing in between, which is the gap this dialog closes. Mirrors the
- * per-recipient preview leadgen's CampaignDetailPage already offers
- * (EditorPreview), rendering the SAME token map (`previewTemplate` /
- * `previewValuesFor`) so a template that previews correctly there previews
- * correctly here too.
+ * per-recipient preview offered elsewhere in the app (EditorPreview),
+ * rendering the SAME token map (`previewTemplate` / `previewValuesFor`) so a
+ * template that previews correctly there previews correctly here too.
  *
  * Sampled from a handful of real PENDING members (fetched fresh when this
  * opens, not from whatever the page's own member table happens to be

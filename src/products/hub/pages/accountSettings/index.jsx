@@ -10,9 +10,9 @@ import { settingsStrings as t } from './strings.js';
 
 const TABS = [
   { id: 'profile', label: t.tabs.profile },
-  { id: 'ai', label: t.tabs.ai },
   { id: 'billing', label: t.tabs.billing },
   { id: 'extension', label: t.tabs.extension },
+  { id: 'ai', label: t.tabs.ai },
 ];
 
 /**
@@ -31,7 +31,6 @@ export function SettingsPage() {
       <PageTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="p-[var(--ui-pad-lg)] max-w-[720px]">
         {activeTab === 'profile' && <ProfileTab />}
-        {activeTab === 'ai' && <AiContextTab />}
         {activeTab === 'billing' && <BillingTab />}
         {activeTab === 'extension' && (
           <div className="flex flex-col gap-4">
@@ -39,6 +38,7 @@ export function SettingsPage() {
             <ServerSendingCard />
           </div>
         )}
+        {activeTab === 'ai' && <AiContextTab />}
       </div>
     </DashboardLayout>
   );

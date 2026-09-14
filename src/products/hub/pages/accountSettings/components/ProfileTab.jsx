@@ -2,7 +2,7 @@ import { User as UserIcon } from 'lucide-react';
 import { SectionCard } from 'src/ui/primitives/SectionCard';
 import { Field } from 'src/ui/primitives/Field';
 import { Button } from 'src/ui/primitives';
-import { useProfileTab } from 'src/products/leadgen/settings/hooks/useProfileTab.js';
+import { useProfileTab } from 'src/products/hub/accountSettings/hooks/useProfileTab.js';
 import { settingsStrings as t } from '../strings.js';
 
 export function ProfileTab() {

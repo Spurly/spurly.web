@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { Button } from 'src/ui/primitives';
+import { AiWriteButton } from 'src/products/hub/personalization/AiWriteButton.jsx';
 
 /**
  * The note, and the reason it may be locked.
@@ -58,9 +59,20 @@ export function NoteEditor({ campaign, account, onSave, saving }) {
             ? 'Pause the campaign to change the note — the people already invited were sent the old one.'
             : `${value.length}/${cap} characters`}
         </span>
-        <Button size="sm" disabled={running || !dirty || saving} onClick={() => onSave(value)}>
-          {saving ? 'Saving…' : 'Save note'}
-        </Button>
+        <div className="flex items-center gap-2">
+          {!running && (
+            <AiWriteButton
+              content={value}
+              type="CONNECTION_REQUEST"
+              maxLength={cap}
+              disabled={saving}
+              onApply={setValue}
+            />
+          )}
+          <Button size="sm" disabled={running || !dirty || saving} onClick={() => onSave(value)}>
+            {saving ? 'Saving…' : 'Save note'}
+          </Button>
+        </div>
       </div>
     </div>
   );

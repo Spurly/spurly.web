@@ -56,17 +56,6 @@ export function buildPlanColumns(onEdit) {
       render: (_v, row) => <NumberCell value={limit(row, 'sendMessagesPerDay')} />,
     },
     {
-      key: 'hub',
-      label: 'Hub',
-      width: 90,
-      // The column that costs money. A plan with hub lets its users link a
-      // LinkedIn account at ~€5/month each, so which plans carry it belongs on
-      // the list, not one click inside the edit modal.
-      render: (_v, row) => (row.features?.hub
-        ? <Badge size="sm" tone="accent">Included</Badge>
-        : <span className="text-[var(--ui-text-tertiary)]">—</span>),
-    },
-    {
       key: 'isActive',
       label: 'Status',
       width: 120,

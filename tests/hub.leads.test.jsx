@@ -293,16 +293,17 @@ describe('hub leads', () => {
     expect(screen.queryByText('4,211')).not.toBeInTheDocument();
   });
 
-  it('shows both product groups in the sidebar at once, no switcher', async () => {
-    // The workspace switcher (a dropdown that swapped the whole nav tree) is
-    // gone — replaced by one grouped sidebar. Both group headers, and a row
-    // unique to each product, are on screen together without any click.
+  it('shows the full sidebar, no switcher and nothing locked', async () => {
+    // The workspace switcher (a dropdown that swapped the whole nav tree) and
+    // the later two-group locked sidebar are both gone — replaced 2026-09-14
+    // by one flat nav tree. Every section and a row from each are on screen
+    // together without any click.
     renderAt('/hub/leads');
     const nav = await screen.findByRole('navigation');
-    expect(within(nav).getByText('Extension Driven')).toBeInTheDocument();
-    expect(within(nav).getByText('Automated')).toBeInTheDocument();
-    expect(within(nav).getByText('Contacts')).toBeInTheDocument(); // Capture-only row
-    expect(within(nav).getByText('Sequences')).toBeInTheDocument(); // Hub-only row
+    expect(within(nav).getByText('Prospect')).toBeInTheDocument();
+    expect(within(nav).getByText('Engage')).toBeInTheDocument();
+    expect(within(nav).getByText('Import')).toBeInTheDocument();
+    expect(within(nav).getByText('Sequences')).toBeInTheDocument();
   });
 });
 

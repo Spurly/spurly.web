@@ -18,6 +18,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./tests/setup.js'],
     include: ['tests/**/*.test.{js,jsx}'],
+    exclude: ['tests/_trash/**'],
     // The app is one bundle today; tests import real modules and stub only the
     // network layer, so a run stays fast without per-file isolation overhead.
     restoreMocks: true,

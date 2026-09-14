@@ -9,9 +9,7 @@ import templatesGateway from '../gateway/templates.js';
  *
  * TEMPLATE_TYPES and TYPE_FOR_ACTION stay here rather than in constants.js —
  * they're inherently coupled to this controller's shape and are imported by
- * name from this exact path by the page and the picker modal. (leadgen's
- * personalization controller keeps its own separate copy of TEMPLATE_TYPES;
- * deduping the two is out of scope for this pass — see its own file.)
+ * name from this exact path by the page and the picker modal.
  */
 
 /** Template types, as stored on the backend. */

@@ -3,6 +3,7 @@ import { Loader2, Send, Lock } from 'lucide-react';
 import { Avatar, Badge, Button } from 'src/ui/primitives';
 import { absoluteTime } from 'src/shared/utils/outreach';
 import { useThread } from 'src/products/hub/inbox/hooks/useThread.js';
+import { AiWriteButton } from 'src/products/hub/personalization/AiWriteButton.jsx';
 import { ThreadSkeleton } from './ThreadSkeleton.jsx';
 import { inboxStrings as t } from '../strings.js';
 
@@ -149,23 +150,37 @@ export function Thread({ chatId, onChanged }) {
           {t.thread.readOnly}
         </div>
       ) : (
-        <form onSubmit={send} className="shrink-0 border-t border-[var(--ui-border-hairline)] p-3 flex items-end gap-2">
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              // Enter makes a newline; Cmd/Ctrl+Enter sends. The opposite
-              // pairing turns a paragraph break into an outgoing message.
-              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) send(e);
-            }}
-            rows={2}
-            placeholder={t.thread.composerPlaceholder}
-            aria-label={t.thread.composerAriaLabel}
-            className="flex-1 resize-none rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-t-body)] leading-[1.5] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
-          />
-          <Button type="submit" disabled={sending || !draft.trim()} title={t.thread.sendTitle}>
-            {sending ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
-          </Button>
+        <form onSubmit={send} className="shrink-0 border-t border-[var(--ui-border-hairline)] p-3 flex flex-col gap-2">
+          {/* A reply is always a DIRECT_MESSAGE to one already-open thread —
+              never a CONNECTION_REQUEST note, and never tied to a saved
+              template — so the button gets no templateId here. */}
+          <div className="flex justify-end">
+            <AiWriteButton
+              content={draft}
+              type="DIRECT_MESSAGE"
+              maxLength={2000}
+              disabled={sending}
+              onApply={setDraft}
+            />
+          </div>
+          <div className="flex items-end gap-2">
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                // Enter makes a newline; Cmd/Ctrl+Enter sends. The opposite
+                // pairing turns a paragraph break into an outgoing message.
+                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) send(e);
+              }}
+              rows={2}
+              placeholder={t.thread.composerPlaceholder}
+              aria-label={t.thread.composerAriaLabel}
+              className="flex-1 resize-none rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-t-body)] leading-[1.5] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
+            />
+            <Button type="submit" disabled={sending || !draft.trim()} title={t.thread.sendTitle}>
+              {sending ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+            </Button>
+          </div>
         </form>
       )}
     </div>

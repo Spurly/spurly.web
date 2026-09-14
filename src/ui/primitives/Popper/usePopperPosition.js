@@ -104,6 +104,15 @@ export function usePopperPosition({
     const crossAxis = active === 'top' || active === 'bottom' ? 'x' : 'y';
     coords = clamp(coords, floating, padding, crossAxis);
 
+    /* 3. Clamp the main axis too. Flipping only helps when the OPPOSITE side
+          has room; when the floating element is taller than the space
+          available on both sides of a short/cramped viewport (e.g. opened
+          near the bottom of a short page), step 1 leaves it at the original
+          side and it renders partially off-screen. Clamping here is a no-op
+          whenever it already fits, and only kicks in for that cramped case. */
+    const mainAxis = crossAxis === 'x' ? 'y' : 'x';
+    coords = clamp(coords, floating, padding, mainAxis);
+
     setPosition({ x: Math.round(coords.x), y: Math.round(coords.y), placement: active, ready: true });
   }, [anchorRef, floatingRef, placement, offset, padding]);
 

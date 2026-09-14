@@ -6,14 +6,14 @@ import {
   findUnknownTokens,
   insertTokenAt,
 } from 'src/shared/utils/templateTokens.js';
-import { AiWriteButton } from 'src/products/leadgen/personalization/AiWriteButton.jsx';
+import { AiWriteButton } from 'src/products/hub/personalization/AiWriteButton.jsx';
 import {
   CONNECTION_NOTE_SOFT_LIMIT,
   NAME_MAX,
   SUBJECT_MAX,
   CONTENT_MAX,
   DESCRIPTION_MAX,
-} from 'src/products/leadgen/templates/constants.js';
+} from 'src/products/hub/templates/constants.js';
 
 /**
  * Create/edit form for a single message template.
