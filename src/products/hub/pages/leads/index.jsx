@@ -9,7 +9,7 @@ import { useLeadsPage } from "src/products/hub/leads/hooks/useLeadsPage.js";
 import { hubLeadColumns, hubLeadEnrichColumns } from "./components/columns.jsx";
 import { LeadDrawer } from "./components/LeadDrawer.jsx";
 import { AudienceForm } from "./components/AudienceForm.jsx";
-import { AudienceList, ImportStrip } from "./components/AudienceList.jsx";
+import { ImportStrip } from "./components/AudienceList.jsx";
 import { leadsStrings as t } from "./strings.js";
 
 /**
@@ -47,8 +47,6 @@ export function HubLeadsPage() {
     enrolling,
     loadLeads,
     createAudience,
-    runSearch,
-    deleteSearch,
     createCampaign,
     createMessageCampaign,
     selectedAreAllFirstDegree,
@@ -345,13 +343,6 @@ export function HubLeadsPage() {
         }
         disabled={needsAccount}
       >
-        <AudienceList
-          searches={searches}
-          onRun={runSearch}
-          onDelete={deleteSearch}
-          busy={submitting}
-        />
-
         <div
           className="flex items-center gap-3 px-[var(--ui-pad-lg)] border-y border-[var(--ui-border-hairline)] bg-[var(--ui-surface-sunken)]"
           style={{ height: "var(--ui-band)" }}
