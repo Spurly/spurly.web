@@ -86,7 +86,7 @@ export default function HubUpgradePage() {
           >
             {t.askButton}
           </Button>
-          <Button variant="ghost" onClick={() => navigate('/dashboard/people')}>
+          <Button variant="ghost" onClick={() => navigate('/dashboard')}>
             {t.backButton}
           </Button>
         </div>

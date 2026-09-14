@@ -9,7 +9,7 @@
  */
 export const importStrings = {
   pageTitle: 'Import',
-  pageSubtitle: 'Import a CSV, enrich the leads, then move them into Contacts.',
+  pageSubtitle: 'Import a CSV, enrich the leads, then send them to the Hub.',
   tabs: {
     staged: 'Staged leads',
     upload: 'Import CSV',

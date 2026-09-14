@@ -7,7 +7,6 @@
  *
  *   web  → { __spurly:'request',  id, action, payload }
  *   web  ← { __spurly:'response', id, ok, data, error }
- *   web  ← { __spurly:'event',    action, payload }        (progress/complete)
  *   web  ← { __spurly:'ready',    version, loggedIn }      (bridge announce)
  */
 
@@ -15,48 +14,12 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
 
 const ACTIONS = {
   PING: 'EXT_PING',
-  // Imported-lead enrichment (Import tab)
-  ENRICH_START: 'ENRICH_START',
-  ENRICH_STOP: 'ENRICH_STOP',
-  ENRICH_STATE: 'GET_ENRICH_STATE',
-  ENRICH_PROGRESS: 'ENRICH_PROGRESS',
-  ENRICH_COMPLETE: 'ENRICH_COMPLETE',
   // Single sign-on: hand this browser session to the extension
   AUTH_SYNC: 'AUTH_SYNC',
   AUTH_CLEAR: 'AUTH_CLEAR',
 };
 
-/**
- * Oldest extension build that can run imported-lead enrichment.
- *
- * Version-gating matters here because the failure mode is otherwise silent and
- * very confusing: an older build's bridge does not recognise ENRICH_START, so
- * the request is dropped and the page just times out — identical to "extension
- * not installed". Checking the version up front turns that into a sentence
- * that says what to do.
- */
-export const MIN_ENRICH_VERSION = '1.2.0';
-
-/** -1 / 0 / 1, comparing dotted numeric version strings. */
-export function compareVersions(a = '', b = '') {
-  const pa = String(a).split('.').map((n) => parseInt(n, 10) || 0);
-  const pb = String(b).split('.').map((n) => parseInt(n, 10) || 0);
-  const len = Math.max(pa.length, pb.length);
-  for (let i = 0; i < len; i += 1) {
-    const diff = (pa[i] || 0) - (pb[i] || 0);
-    if (diff !== 0) return diff > 0 ? 1 : -1;
-  }
-  return 0;
-}
-
-/** Does this reported extension version support enrichment? */
-export function supportsEnrichment(version) {
-  if (!version) return false;
-  return compareVersions(version, MIN_ENRICH_VERSION) >= 0;
-}
-
 const pending = new Map(); // id -> { resolve }
-const eventListeners = new Set();
 let seq = 0;
 
 /**
@@ -95,47 +58,9 @@ if (typeof window !== 'undefined') {
       const { resolve } = pending.get(d.id);
       pending.delete(d.id);
       resolve(d);
-    } else if (d.__spurly === 'event') {
-      eventListeners.forEach((cb) => {
-        try {
-          cb(d);
-        } catch (_) {
-          /* listener errors are their own problem */
-        }
-      });
     }
     // 'ready' broadcasts are informational; detection uses an active ping().
   });
-}
-
-/** `{ started:false, error }` is how the worker reports a not-signed-in
- *  extension on the enrichment path. */
-function looksSignedOut(result) {
-  return /not logged in/i.test(String(result?.error || result?.reason || ''));
-}
-
-/**
- * Run a bridge action, and if the extension says it is signed out, hand it this
- * browser's session and try once more.
- *
- * Sign-on is a push from this page, so the extension can be signed out at a
- * moment this page has no reason to push: the user signed out inside the panel,
- * or cleared extension storage, while this tab stayed open. They then press
- * Sync now and get "not logged in" — from an app that is plainly showing them
- * signed in. Repairing it here means the session is re-handed at the one moment
- * we know for certain it is needed, instead of waiting for the next page load.
- *
- * Only ever one retry: if the session we just pushed still isn't good enough,
- * the failure is real and the caller should see it.
- */
-async function withSessionRetry(run) {
-  const first = await run();
-  if (!looksSignedOut(first)) return first;
-
-  const { synced } = await syncAuthToExtension();
-  if (!synced) return first;
-
-  return run();
 }
 
 /** Low-level request/response with a timeout. Resolves null on timeout. */
@@ -221,56 +146,6 @@ export async function pingExtension(timeoutMs = 3000) {
   // warning just because the ping didn't come back in time.
   return { installed: present, loggedIn: false, loginKnown: false, version: null };
 }
-
-/**
- * Subscribe to bridge events (enrichment progress/completion, and anything
- * else the extension broadcasts). Callback gets { action, payload }; callers
- * filter on `action` themselves, since every event goes to every listener.
- * Returns an unsubscribe function.
- */
-export function onExtensionEvent(cb) {
-  eventListeners.add(cb);
-  return () => eventListeners.delete(cb);
-}
-
-/**
- * Ask the extension to drain the imported-lead enrichment queue.
- *
- * The queue itself lives on the backend — the page only says "go", so a run
- * of 500 leads doesn't have to be squeezed through a postMessage payload.
- * Resolves { started, total? } or { started:false, error }.
- */
-export async function startEnrichment(timeoutMs = 5000) {
-  // Opening the first tab and fetching the queue takes a beat longer than a
-  // campaign start, so this timeout is a little more generous.
-  return withSessionRetry(async () => {
-    const res = await request(ACTIONS.ENRICH_START, {}, timeoutMs);
-    if (!res) return { started: false, error: 'Extension did not respond' };
-    if (!res.ok) return { started: false, error: describeBridgeError(res.error) };
-    return res.data || { started: false, error: 'No response' };
-  });
-}
-
-/** Ask the extension to abort the running enrichment. */
-export async function stopEnrichment() {
-  const res = await request(ACTIONS.ENRICH_STOP, {}, 3000);
-  return res?.data || { stopped: false };
-}
-
-/**
- * Is an enrichment run still in flight? Used on mount, because the Import page
- * unmounts on navigation while the background worker keeps going.
- * Resolves { running, current, total }.
- */
-export async function getEnrichmentState() {
-  const res = await request(ACTIONS.ENRICH_STATE, {}, 2000);
-  return res?.data || { running: false, current: 0, total: 0 };
-}
-
-export const ENRICH_EVENTS = {
-  PROGRESS: ACTIONS.ENRICH_PROGRESS,
-  COMPLETE: ACTIONS.ENRICH_COMPLETE,
-};
 
 /**
  * Hand this browser session to the extension (single sign-on).

@@ -1,6 +1,9 @@
-import { Loader2, Play, Trash2, AlertTriangle, Check } from 'lucide-react';
-import { Button, Badge } from 'src/ui/primitives';
-import { isBusy, describeSearch } from 'src/products/hub/leads/hooks/audience.js';
+import { Loader2, Play, Trash2, AlertTriangle } from "lucide-react";
+import { Button, Badge } from "src/ui/primitives";
+import {
+  isBusy,
+  describeSearch,
+} from "src/products/hub/leads/hooks/audience.js";
 
 /**
  * The saved audiences, as a list you manage — inside the dock, not on the page.
@@ -25,47 +28,49 @@ import { isBusy, describeSearch } from 'src/products/hub/leads/hooks/audience.js
  */
 
 const STATUS_VIEW = {
-  queued: { label: 'Queued', tone: 'neutral', detail: 'Waiting for the importer. Starts within a minute.' },
-  running: { label: 'Importing', tone: 'info', detail: 'Reading results from LinkedIn.' },
-  done: { label: 'Imported', tone: 'success', detail: 'Everything LinkedIn returned is in.' },
-  failed: { label: 'Failed', tone: 'danger', detail: 'Stopped before finishing.' },
+  queued: {
+    label: "Queued",
+    tone: "neutral",
+    detail: "Waiting for the importer. Starts within a minute.",
+  },
+  running: {
+    label: "Importing",
+    tone: "info",
+    detail: "Reading results from LinkedIn.",
+  },
+  done: {
+    label: "Imported",
+    tone: "success",
+    detail: "Everything LinkedIn returned is in.",
+  },
+  failed: {
+    label: "Failed",
+    tone: "danger",
+    detail: "Stopped before finishing.",
+  },
 };
 
-function AudienceRow({ search, active, onSelect, onRun, onDelete, busy }) {
+function AudienceRow({ search, onRun, onDelete, busy }) {
   const view = STATUS_VIEW[search.status] ?? STATUS_VIEW.queued;
 
   return (
     <div
       className={[
-        'group relative flex items-center gap-3 px-[var(--ui-pad-lg)]',
-        'border-b border-[var(--ui-border-hairline)] last:border-b-0',
-        'transition-colors duration-[var(--ui-dur-fast)]',
-        active
-          ? 'bg-[var(--ui-accent-tint)] shadow-[inset_var(--ui-spine)_0_0_var(--ui-accent)]'
-          : 'hover:bg-[var(--ui-surface-hover)]',
-      ].join(' ')}
-      style={{ minHeight: 'var(--ui-row)' }}
+        "group relative flex items-center gap-3 px-[var(--ui-pad-lg)]",
+        "border-b border-[var(--ui-border-hairline)] last:border-b-0",
+        "transition-colors duration-[var(--ui-dur-fast)]",
+        "hover:bg-[var(--ui-surface-hover)]",
+      ].join(" ")}
+      style={{ minHeight: "var(--ui-row)" }}
     >
-      {/* A whole-row toggle rather than a control: it spans the row so the
-          filter target is the thing you are looking at. Kept as a button, not a
-          div with onClick, because it must stay keyboard-reachable. */}
-      {/* eslint-disable-next-line no-restricted-syntax */}
-      <button
-        type="button"
-        onClick={() => onSelect(active ? null : search._id)}
-        className="flex-1 min-w-0 text-left py-2.5 focus:outline-none focus-visible:underline"
-        aria-pressed={active}
-      >
-        <span className="flex items-center gap-2">
-          {active && <Check size={13} className="shrink-0 text-[var(--ui-accent-fg)]" aria-hidden="true" />}
-          <span className="block text-[var(--ui-t-body)] text-[var(--ui-text-primary)] truncate">
-            {search.name || 'Untitled audience'}
-          </span>
+      <div className="flex-1 min-w-0 py-2.5">
+        <span className="block text-[var(--ui-t-body)] text-[var(--ui-text-primary)] truncate">
+          {search.name || "Untitled audience"}
         </span>
         <span className="block ui-meta normal-case tracking-normal truncate mt-0.5">
           {describeSearch(search)}
         </span>
-      </button>
+      </div>
 
       <span className="ui-num text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] shrink-0">
         {search.importedCount?.toLocaleString() ?? 0}
@@ -81,8 +86,16 @@ function AudienceRow({ search, active, onSelect, onRun, onDelete, busy }) {
           variant="ghost"
           disabled={busy || isBusy(search)}
           onClick={() => onRun(search)}
-          title={search.status === 'done' ? 'Check for people who have appeared since' : 'Resume this import'}
-          aria-label={search.status === 'done' ? 'Check for new people' : 'Resume this import'}
+          title={
+            search.status === "done"
+              ? "Check for people who have appeared since"
+              : "Resume this import"
+          }
+          aria-label={
+            search.status === "done"
+              ? "Check for new people"
+              : "Resume this import"
+          }
         >
           <Play size={14} />
         </Button>
@@ -112,20 +125,19 @@ export function StoppedShortNotice({ search }) {
   if (!search?.error) return null;
   return (
     <div className="flex items-start gap-2.5 px-[var(--ui-pad-lg)] py-3 bg-[var(--ui-warning-tint)] shadow-[inset_var(--ui-spine)_0_0_var(--ui-warning-dot)]">
-      <AlertTriangle size={15} className="mt-px shrink-0 text-[var(--ui-warning-fg)]" aria-hidden="true" />
-      <p className="text-[var(--ui-t-label)] text-[var(--ui-warning-fg)] leading-relaxed">{search.error}</p>
+      <AlertTriangle
+        size={15}
+        className="mt-px shrink-0 text-[var(--ui-warning-fg)]"
+        aria-hidden="true"
+      />
+      <p className="text-[var(--ui-t-label)] text-[var(--ui-warning-fg)] leading-relaxed">
+        {search.error}
+      </p>
     </div>
   );
 }
 
-export function AudienceList({
-  searches,
-  activeSearchId,
-  onSelect,
-  onRun,
-  onDelete,
-  busy,
-}) {
+export function AudienceList({ searches, onRun, onDelete, busy }) {
   if (searches.length === 0) {
     return (
       <p className="px-[var(--ui-pad-lg)] py-5 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
@@ -134,17 +146,15 @@ export function AudienceList({
     );
   }
 
-  const active = searches.find((s) => s._id === activeSearchId) ?? null;
+  const failed = searches.find((s) => s.error) ?? null;
 
   return (
     <div>
-      <StoppedShortNotice search={active} />
+      <StoppedShortNotice search={failed} />
       {searches.map((search) => (
         <AudienceRow
           key={search._id}
           search={search}
-          active={search._id === activeSearchId}
-          onSelect={onSelect}
           onRun={onRun}
           onDelete={onDelete}
           busy={busy}
@@ -177,16 +187,24 @@ export function ImportStrip({ searches }) {
 
   return (
     <div className="flex items-center gap-3 px-[var(--ui-pad-lg)] py-2.5 rounded-[var(--ui-radius-md)] bg-[var(--ui-info-tint)] shadow-[inset_var(--ui-spine)_0_0_var(--ui-info-dot)]">
-      <Loader2 size={14} className="shrink-0 motion-safe:animate-spin text-[var(--ui-info-fg)]" aria-hidden="true" />
+      <Loader2
+        size={14}
+        className="shrink-0 motion-safe:animate-spin text-[var(--ui-info-fg)]"
+        aria-hidden="true"
+      />
       <p className="text-[var(--ui-t-label)] text-[var(--ui-info-fg)] min-w-0 truncate">
-        Importing{' '}
+        Importing{" "}
         <span className="font-semibold">
-          {running.length === 1 ? (lead.name || 'an audience') : `${running.length} audiences`}
+          {running.length === 1
+            ? lead.name || "an audience"
+            : `${running.length} audiences`}
         </span>
-        {' · '}
+        {" · "}
         <span className="ui-num">{imported.toLocaleString()}</span> so far
       </p>
-      <span className="ui-meta ml-auto shrink-0 hidden sm:block">You can leave this page</span>
+      <span className="ui-meta ml-auto shrink-0 hidden sm:block">
+        You can leave this page
+      </span>
     </div>
   );
 }

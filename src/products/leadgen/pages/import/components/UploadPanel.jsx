@@ -220,8 +220,8 @@ export function UploadPanel({ onStaged }) {
             )}
           </p>
           <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)] mt-2 max-w-sm">
-            Next: enrich them to pull in emails, headlines and experience — then move
-            the ones you want into Contacts.
+            Next: enrich them to pull in emails, headlines and experience — then send
+            the ones you want to your Hub leads.
           </p>
         </div>
         <div className="flex items-center gap-2.5 mt-1">
@@ -375,7 +375,7 @@ export function UploadPanel({ onStaged }) {
               <span className="font-medium text-[var(--ui-text-primary)]">{profileCount}</span> lead
               {profileCount === 1 ? '' : 's'}.{' '}
               <span style={{ color: 'var(--ui-text-tertiary)' }}>
-                Importing is free — you’re only charged when you enrich or move them to Contacts.
+                Importing is free — you’re only charged when you enrich or send them to the Hub.
               </span>
             </p>
             <div className="flex items-center gap-2 shrink-0">

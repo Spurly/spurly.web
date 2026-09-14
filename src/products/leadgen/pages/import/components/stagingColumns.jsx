@@ -49,13 +49,13 @@ export function EnrichStatusCell({ value, row = {} }) {
       >
         {s.label}
       </Badge>
-      {row.alreadyInPeople && (
+      {row.alreadyInHub && (
         <Badge
           size="sm"
           tone="accent"
-          title="Already in your Contacts list. Moving them updates the existing record."
+          title="Already in your Hub leads. Moving them updates the existing record."
         >
-          <Check size={10} className="mr-0.5" /> In Contacts
+          <Check size={10} className="mr-0.5" /> In Hub
         </Badge>
       )}
     </span>
@@ -63,7 +63,7 @@ export function EnrichStatusCell({ value, row = {} }) {
 }
 
 /**
- * Staging table — rows imported but not yet moved into People.
+ * Staging table — rows imported but not yet sent to the Hub.
  *
  * Shows Email alongside the basics because it's the clearest signal that
  * enrichment actually produced something, so the user can see at a glance

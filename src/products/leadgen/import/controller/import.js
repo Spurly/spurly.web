@@ -4,10 +4,11 @@ import importGateway from '../gateway/import.js';
  * Import Controller
  *
  * Orchestrates the CSV-import save flow for spurly.web. Parsed rows go into
- * the IMPORTED LEADS staging area — not straight into People. Staging is free;
- * the user then enriches the rows they care about (visiting each profile via
- * the extension) and promotes the finished ones into People, which is where
- * the PROFILE_CARD charge and the daily capture limit apply.
+ * the IMPORTED LEADS staging area — not straight into the Hub. Staging is
+ * free; the user promotes the rows they want into the Hub's own lead
+ * dataset (where the PROFILE_CARD charge and the daily capture limit
+ * apply), enriched or not — enrichment now happens on the Hub side after
+ * promotion, not while a lead sits in staging.
  *
  * Every other method here is a thin pass-through to the gateway — the hook
  * used to call the gateway directly for these, which this closes so the
@@ -63,17 +64,7 @@ class ImportController {
     return importGateway.getStats();
   }
 
-  /** Queue leads for enrichment. */
-  async queueEnrichment(ids) {
-    return importGateway.queueEnrichment(ids);
-  }
-
-  /** Clear the enrichment queue (Stop). */
-  async cancelEnrichment() {
-    return importGateway.cancelEnrichment();
-  }
-
-  /** Move staged leads into People. */
+  /** Send staged leads to the Hub. */
   async promoteLeads(ids) {
     return importGateway.promoteLeads(ids);
   }

@@ -4,6 +4,7 @@ import { useToast, useConfirm } from 'src/ui/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import leadController from '../controller/lead.js';
 import campaignController from 'src/products/hub/campaigns/controller/campaign.js';
+import enrichmentCampaignController from 'src/products/hub/enrichment/controller/campaign.js';
 import sequenceController from 'src/products/hub/sequences/controller/sequence.js';
 import { isBusy } from './audience.js';
 import { PAGE_SIZE, POLL_MS } from '../constants.js';
@@ -26,9 +27,26 @@ export function useLeadsPage() {
   const [needsAccount, setNeedsAccount] = useState(false);
   const [selected, setSelected] = useState(() => new Set());
   const [creating, setCreating] = useState(false);
+  const [creatingEnrichment, setCreatingEnrichment] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
   const [sequences, setSequences] = useState([]);
   const [enrolling, setEnrolling] = useState(false);
+
+  // ---- Enrich tab (HUB_CAPTURE_RESTRUCTURE_PLAN.md §11) ----
+  // Its own list/pagination/loading, separate from the "All leads" state
+  // above: this tab always shows every not-yet-enriched lead, server-side
+  // filtered, regardless of whatever search/audience filter or page the
+  // "All leads" tab currently has selected.
+  const [activeTab, setActiveTab] = useState('all');
+  const [enrichLeads, setEnrichLeads] = useState([]);
+  const [enrichPagination, setEnrichPagination] = useState({ page: 1, limit: PAGE_SIZE, total: 0 });
+  const [enrichLoading, setEnrichLoading] = useState(true);
+  const [enrichQuery, setEnrichQuery] = useState('');
+  // Separate Set from `selected` above on purpose: selecting rows to enrich
+  // must not also leave them selected for "Create Campaign" (or vice versa)
+  // when the user switches tabs.
+  const [enrichSelected, setEnrichSelected] = useState(() => new Set());
+  const [queuingEnrich, setQueuingEnrich] = useState(false);
 
   const toast = useToast();
   const confirm = useConfirm();
@@ -83,6 +101,44 @@ export function useLeadsPage() {
     return () => controller.abort();
   }, [loadSearches]);
 
+  // Comma-separated allow-list the server's enrichmentStatus filter accepts —
+  // everything short of 'enriched'. 'none' is the (rare, pre-backfill) state
+  // for a lead created before the enrichmentStatus field existed.
+  const NEEDS_ENRICHMENT_STATUSES = 'none,queued,enriching,failed';
+
+  const loadEnrichLeads = useCallback((signal, { page = 1 } = {}) => {
+    const live = () => mountedRef.current && !signal?.aborted;
+    // No setEnrichLoading(true) here — same convention as loadLeads above:
+    // `enrichLoading` starts true from useState and only ever goes false, in
+    // the .finally() below. Setting it back to true on every call (including
+    // from a synchronous effect body) is what trips
+    // react-hooks/set-state-in-effect for no benefit — a poll tick or a
+    // page change re-fetching in the background shouldn't flash the table
+    // back to a loading state anyway.
+    return leadController.listLeads({ enrichmentStatus: NEEDS_ENRICHMENT_STATUSES, q: enrichQuery, page, limit: PAGE_SIZE })
+      .then((res) => {
+        if (!live()) return;
+        setEnrichLeads(res.leads ?? []);
+        setEnrichPagination(res.pagination ?? { page, limit: PAGE_SIZE, total: 0 });
+      })
+      .catch((err) => { if (live()) toast.error(getToastError(err, 'Could not load leads')); })
+      .finally(() => { if (live()) setEnrichLoading(false); });
+  }, [toast, enrichQuery]);
+
+  // Same debounced-search shape as the "All leads" effect above (a zero
+  // delay when the query is empty covers the initial load too — this is the
+  // ONLY load-triggering effect for this tab, deliberately, same as
+  // loadLeads' own single effect above it: a second "just load once on
+  // mount" effect keyed on loadEnrichLeads would double-fetch every time
+  // enrichQuery changes and gives this callback a new identity). Loaded
+  // regardless of which tab is active — not gated on activeTab — so the tab
+  // strip's own count badge is right before the user ever switches to it.
+  useEffect(() => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => loadEnrichLeads(controller.signal, { page: 1 }), enrichQuery ? 300 : 0);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [loadEnrichLeads, enrichQuery]);
+
   // Sequences to enroll a selection into, from the picker in the table
   // toolbar. Loaded once — the list is short and this page already polls
   // elsewhere for things that actually change on their own; a sequence being
@@ -106,7 +162,18 @@ export function useLeadsPage() {
    * A permanent 5-second timer against a page most users leave open all day is
    * a cost with no reader; an import that finished has nothing left to report.
    */
-  const anyBusy = useMemo(() => searches.some(isBusy), [searches]);
+  // Extended (HUB_CAPTURE_RESTRUCTURE_PLAN.md §11) beyond just audience
+  // imports: also keep polling while any loaded lead — in either tab — is
+  // 'queued' or 'enriching', so a bulk enrichment run updates both tabs live
+  // and a freshly-resolved lead is already cached by the time the user opens
+  // it from the sidebar (see LeadDrawer's resolveLeadProfile short-circuit).
+  const anyBusy = useMemo(
+    () =>
+      searches.some(isBusy) ||
+      leads.some((l) => ['queued', 'enriching'].includes(l.enrichmentStatus)) ||
+      enrichLeads.some((l) => ['queued', 'enriching'].includes(l.enrichmentStatus)),
+    [searches, leads, enrichLeads],
+  );
 
   useEffect(() => {
     if (!anyBusy) return undefined;
@@ -126,10 +193,11 @@ export function useLeadsPage() {
      */
     pollRef.current = setInterval(() => {
       loadSearches().then(() => loadLeads(undefined, { page: pagination.page }));
+      loadEnrichLeads(undefined, { page: enrichPagination.page });
     }, POLL_MS);
 
     return () => clearInterval(pollRef.current);
-  }, [anyBusy, loadSearches, loadLeads, pagination.page]);
+  }, [anyBusy, loadSearches, loadLeads, pagination.page, loadEnrichLeads, enrichPagination.page]);
 
   /**
    * One path in, whichever way the audience was described.
@@ -255,6 +323,38 @@ export function useLeadsPage() {
   };
 
   /**
+   * Create an enrichment campaign straight from the "All leads" selection —
+   * same instant-action shape as createCampaign above, just for people whose
+   * profile may already look complete on screen but haven't been resolved
+   * through Unipile yet. Kept alongside (not instead of) the Enrich tab's own
+   * bulk action below: that tab's selection (enrichSelected) is scoped to
+   * leads the server has already flagged as needing it, while this one lets
+   * you enrich ANY selection without switching tabs first.
+   */
+  const createEnrichmentCampaign = async () => {
+    if (selected.size === 0 || creatingEnrichment) return;
+    setCreatingEnrichment(true);
+    try {
+      const { campaign, queued } = await enrichmentCampaignController.createEnrichmentCampaign({
+        leadIds: [...selected],
+      });
+      if (!campaign?._id) throw new Error('Enrichment campaign was not created');
+      toast.success(
+        queued > 0
+          ? `${queued} lead(s) queued for enrichment.`
+          : 'Nothing to enrich — the selected leads are already enriched.',
+      );
+      navigate(`/hub/enrichment/${campaign._id}`);
+    } catch (err) {
+      const code = err?.response?.data?.code;
+      if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
+      else toast.error(getToastError(err, 'Could not create that enrichment campaign'));
+    } finally {
+      if (mountedRef.current) setCreatingEnrichment(false);
+    }
+  };
+
+  /**
    * Enroll the current selection into an existing sequence, picked from the
    * toolbar select. Sequences themselves are built on their own page
    * (/hub/sequences/new) — a lead selection has nothing to configure, so this
@@ -284,8 +384,52 @@ export function useLeadsPage() {
   const handleLeadResolved = useCallback((updated) => {
     if (!updated?._id) return;
     setLeads((prev) => prev.map((l) => (l._id === updated._id ? { ...l, ...updated } : l)));
+    setEnrichLeads((prev) => prev.map((l) => (l._id === updated._id ? { ...l, ...updated } : l)));
     setSelectedLead((prev) => (prev && prev._id === updated._id ? { ...prev, ...updated } : prev));
   }, []);
+
+  /**
+   * Create a named enrichment campaign from the Enrich tab's current
+   * selection and land on its detail page — the same "instant action, land
+   * on result" shape as createCampaign above, and the same
+   * NO_LINKEDIN_ACCOUNT/LINKEDIN_ACCOUNT_NOT_READY handling as
+   * createAudience/createCampaign: queuing an enrichment run costs a real
+   * Unipile call per lead, so it fails at queue-time rather than stalling
+   * silently in the worker.
+   */
+  const queueEnrichment = useCallback(async () => {
+    if (enrichSelected.size === 0 || queuingEnrich) return;
+    const ids = [...enrichSelected];
+    setQueuingEnrich(true);
+    // Optimistic: mark them 'queued' locally in BOTH lists (a lead can be
+    // showing on "All leads" too) so neither view waits on a round trip to
+    // stop offering them, and so the anyBusy poll above has something to
+    // key on immediately instead of waiting for the first tick.
+    const markQueued = (list) =>
+      list.map((l) => (ids.includes(l._id) ? { ...l, enrichmentStatus: 'queued' } : l));
+    setLeads((prev) => markQueued(prev));
+    setEnrichLeads((prev) => markQueued(prev));
+    setEnrichSelected(new Set());
+    try {
+      const { campaign, queued } = await enrichmentCampaignController.createEnrichmentCampaign({ leadIds: ids });
+      if (!campaign?._id) throw new Error('Enrichment campaign was not created');
+      toast.success(
+        queued > 0
+          ? `${queued} lead(s) queued for enrichment.`
+          : 'Nothing to enrich — the selected leads are already enriched.',
+      );
+      navigate(`/hub/enrichment/${campaign._id}`);
+    } catch (err) {
+      const code = err?.response?.data?.code;
+      if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
+      else toast.error(getToastError(err, 'Could not create that enrichment campaign'));
+      // No rollback of the optimistic status beyond that — the next poll
+      // tick (anyBusy is already true, since these rows are 'queued' in
+      // local state) corrects it from the server's real state either way.
+    } finally {
+      if (mountedRef.current) setQueuingEnrich(false);
+    }
+  }, [enrichSelected, queuingEnrich, navigate, toast]);
 
   /**
    * Whether the current selection is safe to message.
@@ -327,6 +471,8 @@ export function useLeadsPage() {
     selected,
     setSelected,
     creating,
+    creatingEnrichment,
+    createEnrichmentCampaign,
     selectedLead,
     setSelectedLead,
     sequences,
@@ -340,5 +486,19 @@ export function useLeadsPage() {
     selectedAreAllFirstDegree,
     enrollInSequence,
     handleLeadResolved,
+
+    // Enrich tab
+    activeTab,
+    setActiveTab,
+    enrichLeads,
+    enrichPagination,
+    enrichLoading,
+    enrichQuery,
+    setEnrichQuery,
+    enrichSelected,
+    setEnrichSelected,
+    queuingEnrich,
+    loadEnrichLeads,
+    queueEnrichment,
   };
 }
