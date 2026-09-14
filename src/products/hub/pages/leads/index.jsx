@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
-import { Linkedin, Send, MessageSquare, Sparkles } from "lucide-react";
+import { Linkedin, Send, MessageSquare, Search, Sparkles } from "lucide-react";
 import { DashboardLayout } from "src/platform/layout/DashboardLayout";
 import { DataTable } from "src/platform/DataTable";
 import { SectionCard } from "src/ui/primitives/SectionCard";
 import { PageTabs } from "src/ui/primitives/PageTabs";
-import { Button } from "src/ui/primitives";
+import { Button, Dock } from "src/ui/primitives";
 import { useLeadsPage } from "src/products/hub/leads/hooks/useLeadsPage.js";
 import { hubLeadColumns, hubLeadEnrichColumns } from "./components/columns.jsx";
 import { LeadDrawer } from "./components/LeadDrawer.jsx";
+import { AudienceForm } from "./components/AudienceForm.jsx";
 import { ImportStrip } from "./components/AudienceList.jsx";
 import { leadsStrings as t } from "./strings.js";
 
@@ -31,6 +32,7 @@ export function HubLeadsPage() {
     query,
     setQuery,
     loading,
+    submitting,
     needsAccount,
     selected,
     setSelected,
@@ -42,6 +44,7 @@ export function HubLeadsPage() {
     sequences,
     enrolling,
     loadLeads,
+    createAudience,
     createCampaign,
     createMessageCampaign,
     selectedAreAllFirstDegree,
@@ -296,6 +299,20 @@ export function HubLeadsPage() {
           </div>
         )}
       </div>
+
+      {/* Parked at the bottom of every state of this page, including the
+          empty one — the primary action of the screen should not be reachable
+          only from inside an empty state that disappears the moment one lead
+          arrives. Only the build-a-new-audience form lives here now; the
+          saved-audience list/management (run, delete, pick-to-filter) was
+          removed from this page by product decision. */}
+      <Dock
+        label={t.dock.label}
+        icon={<Search size={16} />}
+        disabled={needsAccount}
+      >
+        <AudienceForm onSubmit={createAudience} submitting={submitting} />
+      </Dock>
 
       {selectedLead && (
         <LeadDrawer
