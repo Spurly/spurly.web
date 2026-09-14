@@ -3,9 +3,10 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
 /**
  * Imported Leads API Client
  *
- * The CSV staging area that sits in front of People. A row lives here from the
- * moment it's imported until the user promotes it — enrichment happens in
- * between, driven by the extension.
+ * The CSV staging area that sits in front of the Hub. A row lives here from
+ * the moment it's imported until the user promotes it — enrichment (if any)
+ * now happens after promotion, on the Hub side (products/hub/enrichment),
+ * not while a lead sits in staging.
  */
 class ImportGateway {
   /**
@@ -38,23 +39,7 @@ class ImportGateway {
     return response.data;
   }
 
-  /**
-   * Queue leads for enrichment. The extension picks the queue up from the
-   * backend, so the ids never travel through the page bridge.
-   * POST /imported-leads/enrich/queue
-   */
-  async queueEnrichment(ids) {
-    const response = await apiGateway.post('/imported-leads/enrich/queue', { ids });
-    return response.data;
-  }
-
-  /** Clear the queue (Stop). POST /imported-leads/enrich/cancel */
-  async cancelEnrichment() {
-    const response = await apiGateway.post('/imported-leads/enrich/cancel');
-    return response.data;
-  }
-
-  /** Move staged leads into People. POST /imported-leads/promote */
+  /** Send staged leads to the Hub. POST /imported-leads/promote */
   async promoteLeads(ids) {
     const response = await apiGateway.post('/imported-leads/promote', { ids });
     return response.data;

@@ -12,6 +12,7 @@ import {
   CheckCircle,
   PauseCircle,
   BatteryLow,
+  Sparkles,
 } from 'lucide-react';
 import { usePopperPosition } from 'src/ui/primitives/Popper';
 import { Button, IconButton } from 'src/ui/primitives';
@@ -42,6 +43,7 @@ const ICONS = {
   'check-circle': CheckCircle,
   'pause-circle': PauseCircle,
   'battery-low': BatteryLow,
+  'sparkles': Sparkles, // hub.leads_enrichment_completed
 };
 
 function FeedRow({ notification, onOpen }) {

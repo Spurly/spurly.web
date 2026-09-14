@@ -91,11 +91,18 @@ class HubSourcingGateway {
     return res.data?.data ?? {};
   }
 
-  /** GET /hub/leads — the contacts table. */
-  async listLeads({ searchId, q, page = 1, limit = 50 } = {}) {
+  /**
+   * GET /hub/leads — the contacts table.
+   * `enrichmentStatus` is a comma-separated allow-list (e.g.
+   * 'none,queued,enriching,failed' for the Needs enrichment tab) — passed
+   * straight through to the server so the filter is correct across every
+   * page, not just whatever page the caller already has loaded.
+   */
+  async listLeads({ searchId, q, enrichmentStatus, page = 1, limit = 50 } = {}) {
     const params = { page, limit };
     if (searchId) params.searchId = searchId;
     if (q) params.q = q;
+    if (enrichmentStatus) params.enrichmentStatus = enrichmentStatus;
     const res = await apiGateway.get('/hub/leads', { params });
     const data = res.data?.data ?? { leads: [], pagination: { page: 1, limit, total: 0 } };
     return { ...data, leads: Lead.fromList(data.leads ?? []) };

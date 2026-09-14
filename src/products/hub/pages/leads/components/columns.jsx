@@ -1,4 +1,5 @@
 import { LinkedInIcon } from 'src/ui/icons';
+import { Badge } from 'src/ui/primitives';
 import {
   TextCell,
   PersonCell,
@@ -134,5 +135,43 @@ export const hubLeadColumns = [
     // null means the vendor did not tell us; 0 would be a claim about their
     // audience, and someone would act on it.
     render: (value) => <TextCell value={formatFollowers(value)} tone="secondary" />,
+  },
+];
+
+/**
+ * Enrichment status, one badge per state — same shape as importedLeads'
+ * own EnrichStatusCell (stagingColumns.jsx), reused here rather than shared
+ * because the two enums differ ('none'/'failed' carry a `lastEnrichError`
+ * here; ImportedLead's is 'pending'/'enrichError').
+ */
+const ENRICH_STATUS = {
+  none:      { label: 'Not enriched', tone: 'neutral', dot: false },
+  queued:    { label: 'Queued',       tone: 'warning', dot: true },
+  enriching: { label: 'Enriching',    tone: 'info',    dot: true, pulse: true },
+  enriched:  { label: 'Enriched',     tone: 'success', dot: true },
+  failed:    { label: 'Failed',       tone: 'danger',  dot: true },
+};
+
+export function EnrichStatusCell({ value, row = {} }) {
+  const s = ENRICH_STATUS[value] || ENRICH_STATUS.none;
+  // The failure reason is the most useful thing here, and a tooltip keeps it
+  // out of the way until something has actually gone wrong.
+  const title = value === 'failed' && row.lastEnrichError ? row.lastEnrichError : undefined;
+  return <Badge variant="minimal" tone={s.tone} dot={s.dot} pulse={s.pulse} title={title}>{s.label}</Badge>;
+}
+
+/**
+ * Columns for the "Needs enrichment" tab — the same lead columns, plus a
+ * status badge at the end so a failed resolve (and why) is visible without
+ * opening the drawer. A dedicated array rather than mutating hubLeadColumns
+ * in place, so "All leads" is untouched.
+ */
+export const hubLeadEnrichColumns = [
+  ...hubLeadColumns,
+  {
+    key: 'enrichmentStatus',
+    label: 'Status',
+    width: 140,
+    render: (value, row) => <EnrichStatusCell value={value} row={row} />,
   },
 ];

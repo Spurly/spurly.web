@@ -4,6 +4,7 @@ import { ProtectedRoute } from 'src/app/ProtectedRoute';
 import { AdminRoute } from 'src/app/AdminRoute';
 import { SubscribeGate } from 'src/app/SubscribeGate';
 import { HubGate } from 'src/app/HubGate';
+import { DashboardHomeRedirect } from 'src/app/DashboardHomeRedirect';
 import { RouteFallback } from 'src/app/RouteFallback';
 
 /**
@@ -49,7 +50,6 @@ const OnboardingSurveyPage = lazy(() => import('src/platform/pages/auth/Onboardi
 const InstallExtensionPage = lazy(() => import('src/platform/pages/auth/InstallExtensionPage.jsx'));
 
 // products/leadgen — the signed-in dashboard
-const PeoplePage = lazy(() => import('src/products/leadgen/pages/people').then((m) => ({ default: m.PeoplePage })));
 const TemplatesPage = lazy(() => import('src/products/leadgen/pages/templates').then((m) => ({ default: m.TemplatesPage })));
 const SettingsPage = lazy(() => import('src/products/leadgen/pages/settings').then((m) => ({ default: m.SettingsPage })));
 const LinkedInSettingsPage = lazy(() => import('src/products/hub/pages/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
@@ -58,6 +58,8 @@ const HubUpgradePage = lazy(() => import('src/products/hub/pages/upgrade'));
 const HubLeadsPage = lazy(() => import('src/products/hub/pages/leads').then((m) => ({ default: m.HubLeadsPage })));
 const HubCampaignsPage = lazy(() => import('src/products/hub/pages/campaigns').then((m) => ({ default: m.HubCampaignsPage })));
 const HubCampaignDetailPage = lazy(() => import('src/products/hub/pages/campaigns').then((m) => ({ default: m.HubCampaignDetailPage })));
+const HubEnrichmentPage = lazy(() => import('src/products/hub/pages/enrichment').then((m) => ({ default: m.HubEnrichmentPage })));
+const HubEnrichmentDetailPage = lazy(() => import('src/products/hub/pages/enrichment').then((m) => ({ default: m.HubEnrichmentDetailPage })));
 const HubSequencesPage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubSequencesPage })));
 const HubNewSequencePage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubNewSequencePage })));
 const HubSequenceDetailPage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubSequenceDetailPage })));
@@ -109,12 +111,15 @@ export function AppRoutes() {
       <Route path="/onboarding/install" element={<ProtectedRoute><SubscribeGate><InstallExtensionPage /></SubscribeGate></ProtectedRoute>} />
 
       {/* Dashboard (protected + requires an active subscription).
-          People is the landing surface — there is no separate Home page. Login,
-          password reset, onboarding, the LinkedIn callback and the marketing nav
-          all send users to bare /dashboard, so it stays alive as a redirect
-          rather than making all of those know about /dashboard/people. */}
-      <Route path="/dashboard" element={<Navigate to="/dashboard/people" replace />} />
-      <Route path="/dashboard/people" element={<ProtectedRoute><SubscribeGate><PeoplePage /></SubscribeGate></ProtectedRoute>} />
+          The People page was retired (2026-09-14) — there is no unconditional
+          landing surface anymore, since its natural replacement (Hub's lead
+          list) sits behind HubGate and a non-hub subscriber would fail it.
+          Login, password reset, onboarding, the LinkedIn callback and the
+          marketing nav all send users to bare /dashboard, so it stays alive
+          as an entitlement-aware redirect (see DashboardHomeRedirect) rather
+          than making all of those know which namespace this subscriber can
+          actually use. */}
+      <Route path="/dashboard" element={<ProtectedRoute><SubscribeGate><DashboardHomeRedirect /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/templates" element={<ProtectedRoute><SubscribeGate><TemplatesPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/import" element={<ProtectedRoute><SubscribeGate><ImportPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/dashboard/settings" element={<ProtectedRoute><SubscribeGate><SettingsPage /></SubscribeGate></ProtectedRoute>} />
@@ -137,18 +142,22 @@ export function AppRoutes() {
       <Route path="/hub/leads" element={<ProtectedRoute><SubscribeGate><HubGate><HubLeadsPage /></HubGate></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/campaigns" element={<ProtectedRoute><SubscribeGate><HubGate><HubCampaignsPage /></HubGate></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/campaigns/:id" element={<ProtectedRoute><SubscribeGate><HubGate><HubCampaignDetailPage /></HubGate></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/enrichment" element={<ProtectedRoute><SubscribeGate><HubGate><HubEnrichmentPage /></HubGate></SubscribeGate></ProtectedRoute>} />
+      <Route path="/hub/enrichment/:id" element={<ProtectedRoute><SubscribeGate><HubGate><HubEnrichmentDetailPage /></HubGate></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/sequences" element={<ProtectedRoute><SubscribeGate><HubGate><HubSequencesPage /></HubGate></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/sequences/new" element={<ProtectedRoute><SubscribeGate><HubGate><HubNewSequencePage /></HubGate></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/sequences/:id" element={<ProtectedRoute><SubscribeGate><HubGate><HubSequenceDetailPage /></HubGate></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/inbox" element={<ProtectedRoute><SubscribeGate><HubGate><HubInboxPage /></HubGate></SubscribeGate></ProtectedRoute>} />
 
-      {/* Legacy /leads paths — kept permanently so existing bookmarks and any
-          extension deep links keep working after the rename to /people. The
-          per-lead page no longer exists (details open in a drawer on the list),
-          so old detail links land on the list rather than 404. */}
-      <Route path="/dashboard/leads" element={<Navigate to="/dashboard/people" replace />} />
-      <Route path="/dashboard/leads/:leadId" element={<Navigate to="/dashboard/people" replace />} />
-      <Route path="/dashboard/people/:leadId" element={<Navigate to="/dashboard/people" replace />} />
+      {/* Legacy /leads and /people paths — kept permanently so existing
+          bookmarks and any extension deep links keep working. The People page
+          itself was retired (2026-09-14); a stale Person id can't be resolved
+          against a HubLead anyway, so these land on bare /dashboard (see
+          DashboardHomeRedirect) rather than assuming every visitor has hub. */}
+      <Route path="/dashboard/leads" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/dashboard/leads/:leadId" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/dashboard/people" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/dashboard/people/:leadId" element={<Navigate to="/dashboard" replace />} />
 
       {/* Legacy /enrich path — same reasoning as /leads above. The page was
           briefly called Enrich; it is named Import again because importing is

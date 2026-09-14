@@ -16,9 +16,11 @@ import { importStrings as t } from './strings.js';
  * /dashboard/enrich URL still redirects here.
  *
  * Two steps, two tabs. A CSV lands in STAGING (free), gets enriched by the
- * extension visiting each profile, and only then moves into People — where the
- * capture charge and daily limit apply. Staging is a real collection, not a
- * preview, so a half-enriched import survives a page reload or a closed tab.
+ * extension visiting each profile, and only then moves into the Hub's own
+ * lead dataset — where the capture charge and daily limit apply (see
+ * HUB_CAPTURE_RESTRUCTURE_PLAN.md §6; this used to move into the flat People
+ * list instead). Staging is a real collection, not a preview, so a
+ * half-enriched import survives a page reload or a closed tab.
  */
 export function ImportPage() {
   const [activeTab, setActiveTab] = useState('staged');

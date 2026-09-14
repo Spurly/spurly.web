@@ -9,6 +9,16 @@
  */
 export const leadsStrings = {
   pageTitle: 'Leads',
+  tabs: {
+    all: 'All leads',
+    enrich: 'Needs enrichment',
+  },
+  enrichTab: {
+    searchPlaceholder: 'Search name, headline, company',
+    emptyMessage: 'Nothing needs enrichment',
+    emptyHint: 'Every captured lead here already has a full profile.',
+    enrichSelected: 'Create enrichment campaign',
+  },
   connectLinkedIn: {
     title: 'Connect LinkedIn first',
     body: 'Connect your LinkedIn account before importing.',
@@ -25,6 +35,7 @@ export const leadsStrings = {
     emptyHintImporting: 'Imports run in the background — this fills in as pages come back.',
     createCampaign: 'Send connection requests',
     createMessageCampaign: 'Send messages',
+    createEnrichmentCampaign: 'Enrich',
     enrollPlaceholder: 'Enroll in sequence…',
     enrolling: 'Enrolling…',
     enrollTitleDisabled: 'Create a sequence first',

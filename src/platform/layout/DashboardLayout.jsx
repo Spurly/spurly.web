@@ -5,7 +5,6 @@ import {
   PanelLeft,
   LogOut,
   Settings,
-  Users,
   Upload,
   Shield,
   Send,
@@ -13,6 +12,7 @@ import {
   Radar,
   Inbox,
   Workflow,
+  Sparkles,
   Lock,
 } from "lucide-react";
 import { useAuth } from "src/platform/auth/hooks/useAuth.js";
@@ -42,10 +42,7 @@ import { SidebarBrand } from "./SidebarBrand";
 const LEADGEN_SECTIONS = [
   {
     label: "Prospect",
-    items: [
-      { label: "Contacts", icon: Users, href: "/dashboard/people" },
-      { label: "Import", icon: Upload, href: "/dashboard/import" },
-    ],
+    items: [{ label: "Import", icon: Upload, href: "/dashboard/import" }],
   },
   {
     label: "Engage",
@@ -60,15 +57,18 @@ const LEADGEN_SECTIONS = [
 ];
 
 /**
- * Two items, in the order the work happens: source an audience, then send to
- * it. Campaigns arrived with the sending engine — before that the row would
- * have been a link to nothing, which teaches the user the product is broken
- * rather than that it is coming.
+ * In the order the work happens: source an audience, fill in what's missing
+ * about it, then send. Enrichment and Campaigns both arrived after Leads —
+ * before each existed, its row would have been a link to nothing, which
+ * teaches the user the product is broken rather than that it is coming.
  */
 const HUB_SECTIONS = [
   {
     label: "Prospect",
-    items: [{ label: "Leads", icon: Radar, href: "/hub/leads" }],
+    items: [
+      { label: "Leads", icon: Radar, href: "/hub/leads" },
+      { label: "Enrichment", icon: Sparkles, href: "/hub/enrichment" },
+    ],
   },
   {
     label: "Engage",
