@@ -246,7 +246,13 @@ function CreditsMeter({ expanded, balance, onTopUp }) {
   );
 }
 
-export function DashboardLayout({ children, title, subtitle, actions = null }) {
+export function DashboardLayout({
+  children,
+  title,
+  subtitle,
+  actions = null,
+  scrollable = true,
+}) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -444,7 +450,11 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
             paddingTop: "var(--ui-shell-x)",
           }}
         >
-          <div className="h-full min-h-0 overflow-auto rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]">
+          <div
+            className={`h-full min-h-0 rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] ${
+              scrollable ? "overflow-auto" : "overflow-hidden flex flex-col"
+            }`}
+          >
             {children}
           </div>
         </main>

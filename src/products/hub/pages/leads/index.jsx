@@ -84,8 +84,9 @@ export function HubLeadsPage() {
           ? ` · ${searches.length} ${searches.length === 1 ? "audience" : "audiences"}`
           : "")
       }
+      scrollable={false}
     >
-      <div className="flex flex-col gap-4 pb-20">
+      <div className="flex flex-col gap-4 h-full min-h-0 pb-20">
         {/*
          * Two tabs (HUB_CAPTURE_RESTRUCTURE_PLAN.md §11): "All leads" is
          * this page exactly as it always was; "Needs enrichment" is a
@@ -156,131 +157,135 @@ export function HubLeadsPage() {
         {activeTab === "all" && <ImportStrip searches={searches} />}
 
         {activeTab === "all" && (
-          <DataTable
-            columns={hubLeadColumns}
-            data={leads}
-            loading={loading}
-            emptyMessage={
-              activeSearchId
-                ? t.table.emptyMessageFiltered
-                : t.table.emptyMessageAll
-            }
-            emptyHint={
-              searches.length === 0
-                ? t.table.emptyHintNoAudience
-                : t.table.emptyHintImporting
-            }
-            selectable
-            selectedKeys={selected}
-            onSelectionChange={setSelected}
-            onRowClick={setSelectedLead}
-            toolbar={{
-              searchValue: query,
-              onSearch: setQuery,
-              searchPlaceholder: t.table.searchPlaceholder,
-              // The list picker — was a chip above the table fed by the dock's
-              // full audience panel, now a plain dropdown right where the rest
-              // of the table's filtering lives. Defaults to "All people"
-              // (activeSearchId === null); the dock still owns building and
-              // managing (run/delete) a saved search, this is only for
-              // choosing which one's results the table is showing.
-              filters: (
-                <select
-                  value={activeSearchId ?? ""}
-                  onChange={(e) => setActiveSearchId(e.target.value || null)}
-                  aria-label={t.table.listFilterLabel}
-                  className="text-[var(--ui-t-label)] h-7 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 text-[var(--ui-text-secondary)] max-w-[200px]"
-                >
-                  <option value="">{t.table.listFilterAll}</option>
-                  {searches.map((s) => (
-                    <option key={s._id} value={s._id}>
-                      {s.name || t.untitledAudience}
-                    </option>
-                  ))}
-                </select>
-              ),
-              bulkActions: (
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    leadingIcon={<Send size={13} />}
-                    onClick={createCampaign}
-                    loading={creating}
-                    disabled={creating || selected.size === 0}
-                  >
-                    {t.table.createCampaign}
-                  </Button>
-                  {/* A message campaign may only ever be ALL 1st-degree
-                    connections -- the server rejects a mixed selection
-                    outright (NOT_ALL_FIRST_DEGREE) rather than quietly
-                    skipping whoever isn't connected yet, so the button
-                    reflects that up front instead of letting the click
-                    round-trip to a 400 the Degree column already predicted. */}
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    leadingIcon={<MessageSquare size={13} />}
-                    onClick={createMessageCampaign}
-                    loading={creating}
-                    disabled={
-                      creating ||
-                      selected.size === 0 ||
-                      !selectedAreAllFirstDegree
-                    }
-                    title={
-                      selected.size > 0 && !selectedAreAllFirstDegree
-                        ? "Everyone selected must already be a 1st-degree connection to message them"
-                        : undefined
-                    }
-                  >
-                    {t.table.createMessageCampaign}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    leadingIcon={<Sparkles size={13} />}
-                    onClick={createEnrichmentCampaign}
-                    loading={creatingEnrichment}
-                    disabled={creatingEnrichment || selected.size === 0}
-                  >
-                    {t.table.createEnrichmentCampaign}
-                  </Button>
+          <div className="flex-1 min-h-0">
+            <DataTable
+              columns={hubLeadColumns}
+              data={leads}
+              loading={loading}
+              emptyMessage={
+                activeSearchId
+                  ? t.table.emptyMessageFiltered
+                  : t.table.emptyMessageAll
+              }
+              emptyHint={
+                searches.length === 0
+                  ? t.table.emptyHintNoAudience
+                  : t.table.emptyHintImporting
+              }
+              selectable
+              selectedKeys={selected}
+              onSelectionChange={setSelected}
+              onRowClick={setSelectedLead}
+              toolbar={{
+                searchValue: query,
+                onSearch: setQuery,
+                searchPlaceholder: t.table.searchPlaceholder,
+                // The list picker — was a chip above the table fed by the dock's
+                // full audience panel, now a plain dropdown right where the rest
+                // of the table's filtering lives. Defaults to "All people"
+                // (activeSearchId === null); the dock still owns building and
+                // managing (run/delete) a saved search, this is only for
+                // choosing which one's results the table is showing.
+                filters: (
                   <select
-                    value=""
-                    onChange={(e) => enrollInSequence(e.target.value)}
-                    disabled={
-                      enrolling || selected.size === 0 || sequences.length === 0
-                    }
-                    aria-label="Enroll selection in a sequence"
-                    title={
-                      sequences.length === 0
-                        ? t.table.enrollTitleDisabled
-                        : t.table.enrollTitleEnabled
-                    }
-                    className="text-[var(--ui-t-label)] h-7 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 text-[var(--ui-text-secondary)] disabled:opacity-50"
+                    value={activeSearchId ?? ""}
+                    onChange={(e) => setActiveSearchId(e.target.value || null)}
+                    aria-label={t.table.listFilterLabel}
+                    className="text-[var(--ui-t-label)] h-7 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 text-[var(--ui-text-secondary)] max-w-[200px]"
                   >
-                    <option value="" disabled>
-                      {enrolling
-                        ? t.table.enrolling
-                        : t.table.enrollPlaceholder}
-                    </option>
-                    {sequences.map((s) => (
+                    <option value="">{t.table.listFilterAll}</option>
+                    {searches.map((s) => (
                       <option key={s._id} value={s._id}>
-                        {s.name}
+                        {s.name || t.untitledAudience}
                       </option>
                     ))}
                   </select>
-                </div>
-              ),
-            }}
-            pagination={{
-              page: pagination.page,
-              pageSize: pagination.limit,
-              total: pagination.total,
-              onPageChange: (page) => loadLeads(undefined, { page }),
-            }}
-          />
+                ),
+                bulkActions: (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      leadingIcon={<Send size={13} />}
+                      onClick={createCampaign}
+                      loading={creating}
+                      disabled={creating || selected.size === 0}
+                    >
+                      {t.table.createCampaign}
+                    </Button>
+                    {/* A message campaign may only ever be ALL 1st-degree
+                      connections -- the server rejects a mixed selection
+                      outright (NOT_ALL_FIRST_DEGREE) rather than quietly
+                      skipping whoever isn't connected yet, so the button
+                      reflects that up front instead of letting the click
+                      round-trip to a 400 the Degree column already predicted. */}
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      leadingIcon={<MessageSquare size={13} />}
+                      onClick={createMessageCampaign}
+                      loading={creating}
+                      disabled={
+                        creating ||
+                        selected.size === 0 ||
+                        !selectedAreAllFirstDegree
+                      }
+                      title={
+                        selected.size > 0 && !selectedAreAllFirstDegree
+                          ? "Everyone selected must already be a 1st-degree connection to message them"
+                          : undefined
+                      }
+                    >
+                      {t.table.createMessageCampaign}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      leadingIcon={<Sparkles size={13} />}
+                      onClick={createEnrichmentCampaign}
+                      loading={creatingEnrichment}
+                      disabled={creatingEnrichment || selected.size === 0}
+                    >
+                      {t.table.createEnrichmentCampaign}
+                    </Button>
+                    <select
+                      value=""
+                      onChange={(e) => enrollInSequence(e.target.value)}
+                      disabled={
+                        enrolling ||
+                        selected.size === 0 ||
+                        sequences.length === 0
+                      }
+                      aria-label="Enroll selection in a sequence"
+                      title={
+                        sequences.length === 0
+                          ? t.table.enrollTitleDisabled
+                          : t.table.enrollTitleEnabled
+                      }
+                      className="text-[var(--ui-t-label)] h-7 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 text-[var(--ui-text-secondary)] disabled:opacity-50"
+                    >
+                      <option value="" disabled>
+                        {enrolling
+                          ? t.table.enrolling
+                          : t.table.enrollPlaceholder}
+                      </option>
+                      {sequences.map((s) => (
+                        <option key={s._id} value={s._id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ),
+              }}
+              pagination={{
+                page: pagination.page,
+                pageSize: pagination.limit,
+                total: pagination.total,
+                onPageChange: (page) => loadLeads(undefined, { page }),
+              }}
+            />
+          </div>
         )}
 
         {/*
@@ -292,40 +297,42 @@ export function HubLeadsPage() {
          * "All leads"'s selection or vice versa.
          */}
         {activeTab === "enrich" && (
-          <DataTable
-            columns={hubLeadEnrichColumns}
-            data={enrichLeads}
-            loading={enrichLoading}
-            emptyMessage={t.enrichTab.emptyMessage}
-            emptyHint={t.enrichTab.emptyHint}
-            selectable
-            selectedKeys={enrichSelected}
-            onSelectionChange={setEnrichSelected}
-            onRowClick={setSelectedLead}
-            toolbar={{
-              searchValue: enrichQuery,
-              onSearch: setEnrichQuery,
-              searchPlaceholder: t.enrichTab.searchPlaceholder,
-              bulkActions: (
-                <Button
-                  size="sm"
-                  variant="primary"
-                  leadingIcon={<Sparkles size={13} />}
-                  onClick={queueEnrichment}
-                  loading={queuingEnrich}
-                  disabled={queuingEnrich || enrichSelected.size === 0}
-                >
-                  {t.enrichTab.enrichSelected} ({enrichSelected.size})
-                </Button>
-              ),
-            }}
-            pagination={{
-              page: enrichPagination.page,
-              pageSize: enrichPagination.limit,
-              total: enrichPagination.total,
-              onPageChange: (page) => loadEnrichLeads(undefined, { page }),
-            }}
-          />
+          <div className="flex-1 min-h-0">
+            <DataTable
+              columns={hubLeadEnrichColumns}
+              data={enrichLeads}
+              loading={enrichLoading}
+              emptyMessage={t.enrichTab.emptyMessage}
+              emptyHint={t.enrichTab.emptyHint}
+              selectable
+              selectedKeys={enrichSelected}
+              onSelectionChange={setEnrichSelected}
+              onRowClick={setSelectedLead}
+              toolbar={{
+                searchValue: enrichQuery,
+                onSearch: setEnrichQuery,
+                searchPlaceholder: t.enrichTab.searchPlaceholder,
+                bulkActions: (
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    leadingIcon={<Sparkles size={13} />}
+                    onClick={queueEnrichment}
+                    loading={queuingEnrich}
+                    disabled={queuingEnrich || enrichSelected.size === 0}
+                  >
+                    {t.enrichTab.enrichSelected} ({enrichSelected.size})
+                  </Button>
+                ),
+              }}
+              pagination={{
+                page: enrichPagination.page,
+                pageSize: enrichPagination.limit,
+                total: enrichPagination.total,
+                onPageChange: (page) => loadEnrichLeads(undefined, { page }),
+              }}
+            />
+          </div>
         )}
       </div>
 

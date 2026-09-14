@@ -147,7 +147,7 @@ export function DataTable({
         </div>
       )}
 
-      <div className="flex-1 min-h-0 overflow-auto" onScroll={handleScroll}>
+      <div className="flex-1 min-h-0 overflow-auto relative" onScroll={handleScroll}>
         <table
           className="w-full"
           style={{
