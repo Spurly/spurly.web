@@ -37,18 +37,18 @@ const NAV_SECTIONS = [
   {
     label: "Prospect",
     items: [
+      { label: "Import", icon: Upload, href: "/dashboard/import" },
       { label: "Leads", icon: Radar, href: "/hub/leads" },
       { label: "Enrichment", icon: Sparkles, href: "/hub/enrichment" },
-      { label: "Import", icon: Upload, href: "/dashboard/import" },
     ],
   },
   {
     label: "Engage",
     items: [
+      { label: "Templates", icon: FileText, href: "/dashboard/templates" },
       { label: "Campaigns", icon: Send, href: "/hub/campaigns" },
       { label: "Sequences", icon: Workflow, href: "/hub/sequences" },
       { label: "Inbox", icon: Inbox, href: "/hub/inbox" },
-      { label: "Templates", icon: FileText, href: "/dashboard/templates" },
     ],
   },
   {
@@ -246,13 +246,7 @@ function CreditsMeter({ expanded, balance, onTopUp }) {
   );
 }
 
-export function DashboardLayout({
-  children,
-  title,
-  subtitle,
-  actions = null,
-  scrollable = true,
-}) {
+export function DashboardLayout({ children, title, subtitle, actions = null }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -450,11 +444,7 @@ export function DashboardLayout({
             paddingTop: "var(--ui-shell-x)",
           }}
         >
-          <div
-            className={`h-full min-h-0 rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] ${
-              scrollable ? "overflow-auto" : "overflow-hidden flex flex-col"
-            }`}
-          >
+          <div className="h-full min-h-0 overflow-auto rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]">
             {children}
           </div>
         </main>

@@ -13,7 +13,6 @@ import { moveColumn, shiftColumn } from '../columnOrder';
  * rows does not re-render a single cell while the user drags.
  */
 export function Header({
-  scrolled = false,
   columns = [],
   selectable = false,
   sort = {},
@@ -86,7 +85,7 @@ export function Header({
   };
 
   return (
-    <thead className={sticky ? `sticky top-0 z-[50] bg-[var(--ui-surface-card)] transition-shadow duration-[var(--ui-dur-base)] ${scrolled ? 'shadow-[0_1px_3px_rgba(24,24,27,0.07)]' : ''}` : undefined}>
+    <thead className={sticky ? 'sticky top-0 z-[2]' : undefined}>
       <tr
         onDragLeave={
           reorderable

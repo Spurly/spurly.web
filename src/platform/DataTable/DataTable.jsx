@@ -1,8 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
-import { useDataTable } from "./useDataTable";
-import { applyColumnOrder } from "./columnOrder";
-import { Colgroup, Header, Body, TableToolbar, Pagination } from "./parts";
-import { DEFAULT_DENSITY } from "src/ui/tokens";
+import { useCallback, useMemo, useState } from 'react';
+import { useDataTable } from './useDataTable';
+import { applyColumnOrder } from './columnOrder';
+import { Colgroup, Header, Body, TableToolbar, Pagination } from './parts';
+import { DEFAULT_DENSITY } from 'src/ui/tokens';
 
 const SELECTION_WIDTH = 40;
 
@@ -59,26 +59,12 @@ export function DataTable({
   pagination,
   toolbar,
   stickyHeader = true,
-  /* When true (default) the table always stretches to fill whatever height
-     its container gives it -- right for a table meant to own the whole
-     panel/modal it lives in. When false, the table caps at that height but
-     otherwise sizes to its own content, so a short result set doesn't leave
-     a slab of dead space between the last row and the pagination bar; a
-     long one still scrolls internally with the sticky header intact. */
-  fillHeight = true,
-  emptyMessage = "Nothing here yet",
+  emptyMessage = 'Nothing here yet',
   emptyHint,
   emptyAction = null,
-  className = "",
+  className = '',
 }) {
-  const table = useDataTable({
-    data,
-    rowKey,
-    selectedKeys,
-    onSelectionChange,
-    sort,
-    onSortChange,
-  });
+  const table = useDataTable({ data, rowKey, selectedKeys, onSelectionChange, sort, onSortChange });
 
   /* Order is controlled when the caller passes `columnOrder`; otherwise the
      table remembers it for the life of the mount. */
@@ -110,7 +96,7 @@ export function DataTable({
     if (missing.length) {
       console.warn(
         `[DataTable] Columns without an explicit width fall back to 160px under ` +
-          `table-layout: fixed. Set one for: ${missing.join(", ")}`,
+          `table-layout: fixed. Set one for: ${missing.join(', ')}`,
       );
     }
   }
@@ -134,16 +120,14 @@ export function DataTable({
       /* The skeleton body below is a LOADING state, and nothing about a grey
          bar says so to a screen reader — or to a test. One attribute on the
          container covers every table in the app. */
-      aria-busy={loading ? "true" : undefined}
-      role={loading ? "status" : undefined}
-      className={`flex flex-col min-h-0 bg-[var(--ui-surface-card)] ${
-        fillHeight ? "h-full" : "max-h-full"
-      } ${className}`}
+      aria-busy={loading ? 'true' : undefined}
+      role={loading ? 'status' : undefined}
+      className={`flex flex-col min-h-0 h-full bg-[var(--ui-surface-card)] ${className}`}
     >
       {toolbar && (
         <div
           className={`shrink-0 relative z-[3] transition-shadow duration-[var(--ui-dur-base)] ${
-            scrolled ? "shadow-[0_1px_3px_rgba(24,24,27,0.07)]" : ""
+            scrolled ? 'shadow-[0_1px_3px_rgba(24,24,27,0.07)]' : ''
           }`}
         >
           <TableToolbar
@@ -163,19 +147,16 @@ export function DataTable({
         </div>
       )}
 
-      <div
-        className="flex-1 min-h-0 overflow-auto relative"
-        onScroll={handleScroll}
-      >
+      <div className="flex-1 min-h-0 overflow-auto" onScroll={handleScroll}>
         <table
           className="w-full"
           style={{
-            tableLayout: "fixed",
+            tableLayout: 'fixed',
             minWidth: totalWidth,
             /* `separate` with zero spacing looks identical to `collapse` here —
                cell borders do the drawing — but lets a <tr> paint the inset
                shadow used for the hover and selection edge. */
-            borderCollapse: "separate",
+            borderCollapse: 'separate',
             borderSpacing: 0,
           }}
         >
@@ -194,7 +175,6 @@ export function DataTable({
             onToggleAll={table.toggleAll}
             density={density}
             sticky={stickyHeader}
-            scrolled={scrolled}
             reorderable={reorderable}
             onReorder={handleReorder}
           />
@@ -216,9 +196,7 @@ export function DataTable({
         </table>
       </div>
 
-      {pagination && !loading && data.length > 0 && (
-        <Pagination {...pagination} />
-      )}
+      {pagination && !loading && data.length > 0 && <Pagination {...pagination} />}
     </div>
   );
 }
