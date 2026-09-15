@@ -6,19 +6,17 @@
  * `status` and more, all read directly by the pages today. `raw` is the
  * escape hatch for anything not worth naming here.
  */
-export class EnrichmentCampaign {
-  constructor(data = {}) {
-    Object.assign(this, data);
-    this.raw = data;
-  }
-
-  static fromResponse(data) {
-    return data ? new EnrichmentCampaign(data) : null;
-  }
-
-  static fromList(list = []) {
-    return list.map(EnrichmentCampaign.fromResponse);
-  }
+function createEnrichmentCampaign(data = {}) {
+  return { ...data, raw: data };
 }
+
+export const EnrichmentCampaign = {
+  fromResponse(data) {
+    return data ? createEnrichmentCampaign(data) : null;
+  },
+  fromList(list = []) {
+    return list.map(EnrichmentCampaign.fromResponse);
+  },
+};
 
 export default EnrichmentCampaign;

@@ -13,7 +13,7 @@ import {
   SUBJECT_MAX,
   CONTENT_MAX,
   DESCRIPTION_MAX,
-} from 'src/products/templates/constants.js';
+} from 'src/products/templates/constants/constants.js';
 
 /**
  * Create/edit form for a single message template.

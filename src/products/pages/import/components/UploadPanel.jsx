@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import { UploadCloud, FileText, AlertCircle, CheckCircle, X, ArrowRight, SlidersHorizontal } from 'lucide-react';
 import { DataTable } from 'src/core/DataTable';
 import { Button, useToast } from 'src/core/primitives';
@@ -14,6 +15,7 @@ import {
 } from 'src/shared/utils/csvImport.js';
 import { applyRememberedMapping, saveMapping } from './mappingMemory.js';
 import importController from 'src/products/import/controller/import.js';
+import { IMPORT_EVENTS } from 'src/products/import/constants/constants.js';
 import { FieldMappingPanel } from './FieldMappingPanel.jsx';
 import { buildPreviewColumns } from './columns.jsx';
 
@@ -35,6 +37,7 @@ import { buildPreviewColumns } from './columns.jsx';
 export function UploadPanel({ onStaged }) {
   const fileInputRef = useRef(null);
   const toast = useToast();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
 
   const [step, setStep] = useState('upload'); // 'upload' | 'map' | 'preview'
   const [fileName, setFileName] = useState('');
@@ -146,16 +149,14 @@ export function UploadPanel({ onStaged }) {
     setStep('preview');
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!extracted || extracted.profiles.length === 0 || saving) return;
     if (extracted.profiles.length > MAX_IMPORT_ROWS) return;
     setSaving(true);
     setError(null);
-    try {
-      const res = await importController.importProfiles({
-        profiles: extracted.profiles,
-        sourceFile: fileName,
-      });
+
+    eventEmitter.once(IMPORT_EVENTS.IMPORT_SUCCESS, (res) => {
+      setSaving(false);
       setResult(res);
       onStaged?.(res);
       toast.success(`Imported ${(res?.savedCount ?? 0).toLocaleString()} leads`, {
@@ -163,7 +164,10 @@ export function UploadPanel({ onStaged }) {
           ? `${res.failedCount.toLocaleString()} row(s) couldn't be saved.`
           : 'They are waiting in Staging.',
       });
-    } catch (err) {
+    });
+
+    eventEmitter.once(IMPORT_EVENTS.IMPORT_FAILURE, (err) => {
+      setSaving(false);
       /* The detail belongs in the panel — this is the user's workspace for
          fixing a bad CSV, and the block right here is where they're already
          looking. The toast just says what failed. */
@@ -172,9 +176,12 @@ export function UploadPanel({ onStaged }) {
         detail: getApiErrorMessage(err, 'Something went wrong while saving. Try again in a moment.'),
       });
       toast.error(getToastError(err, "Couldn't save the import"));
-    } finally {
-      setSaving(false);
-    }
+    });
+
+    importController.importProfiles(eventEmitter, {
+      profiles: extracted.profiles,
+      sourceFile: fileName,
+    });
   };
 
   const profileCount = extracted?.profiles.length ?? 0;

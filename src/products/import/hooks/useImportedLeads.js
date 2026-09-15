@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import importController from '../controller/import.js';
-import { DEFAULT_LIMIT } from '../constants.js';
+import { DEFAULT_LIMIT, IMPORT_EVENTS } from '../constants/constants.js';
 
 /**
  * Owns the CSV staging area: the paginated list of imported leads, and
@@ -12,8 +13,17 @@ import { DEFAULT_LIMIT } from '../constants.js';
  * Unipile, after a lead is promoted — see products/enrichment. A staged
  * lead can be promoted enriched or not; either way it lands in the Hub the
  * same way, and enriching it there is one consistent flow instead of two.
+ *
+ * All server calls go through `importController`, which reports back over
+ * `eventEmitter` instead of returning promises — this hook has no
+ * async/await or try/catch of its own. `eventEmitter` is also returned so a
+ * caller (StagingPanel) can `.once()` a PROMOTE_SUCCESS/DELETE_SUCCESS for
+ * its own UI-only follow-up (toast copy, clearing selection) without this
+ * hook having to know about that.
  */
 export function useImportedLeads() {
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
+
   const [leads, setLeads] = useState([]);
   const [stats, setStats] = useState({ total: 0, byStatus: {} });
   const [pagination, setPagination] = useState({ total: 0, limit: DEFAULT_LIMIT, skip: 0 });
@@ -27,105 +37,99 @@ export function useImportedLeads() {
   const [actionError, setActionError] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  // Read inside callbacks/intervals that must not re-subscribe on every change.
-  const queryRef = useRef({ search, statusFilter, page, limit: DEFAULT_LIMIT });
-  useEffect(() => {
-    queryRef.current = { search, statusFilter, page, limit: pagination.limit || DEFAULT_LIMIT };
-  }, [search, statusFilter, page, pagination.limit]);
-
   /**
-   * @param {Object} overrides - query overrides for this call
    * @param {Object} [opts]
    * @param {boolean} [opts.silent] - refresh WITHOUT flipping `loading`.
    */
-  const fetchLeads = useCallback(async (overrides = {}, opts = {}) => {
-    const q = { ...queryRef.current, ...overrides };
-    if (!opts.silent) setLoading(true);
-    setError(null);
-    try {
-      const limit = q.limit || DEFAULT_LIMIT;
-      const [listRes, statsRes] = await Promise.all([
-        importController.getLeads({
-          limit,
-          skip: Math.max(0, (q.page - 1) * limit),
-          search: q.search,
-          enrichStatus: q.statusFilter,
-        }),
-        importController.getStats(),
-      ]);
+  const load = useCallback(
+    (opts = {}) => {
+      const limit = pagination.limit || DEFAULT_LIMIT;
+      if (!opts.silent) setLoading(true);
+      setError(null);
+      importController.loadLeads(eventEmitter, {
+        limit,
+        skip: Math.max(0, (page - 1) * limit),
+        search,
+        enrichStatus: statusFilter,
+      });
+    },
+    [eventEmitter, pagination.limit, page, search, statusFilter],
+  );
 
-      if (listRes?.success) {
-        setLeads(listRes.data?.leads || []);
-        setPagination(listRes.data?.pagination || { total: 0, limit, skip: 0 });
-      } else {
-        setError(listRes?.message || 'Could not load imported leads');
-      }
-      const nextStats = statsRes?.success ? statsRes.data || { total: 0, byStatus: {} } : null;
-      if (nextStats) setStats(nextStats);
-      return nextStats;
-    } catch (err) {
-      setError(err?.message || 'Could not load imported leads');
-      return null;
-    } finally {
-      if (!opts.silent) setLoading(false);
+  useEffect(() => {
+    function handleLoadSuccess(payload) {
+      setLeads(payload.leads);
+      setPagination(payload.pagination);
+      if (payload.stats) setStats(payload.stats);
+      setLoading(false);
     }
-  }, []);
+    function handleLoadFailure(message) {
+      setError(message);
+      setLoading(false);
+    }
+    function handlePromoteSuccess() {
+      setBusy(false);
+      load({ silent: true });
+    }
+    function handlePromoteFailure(message) {
+      setActionError(message);
+      setBusy(false);
+    }
+    function handleDeleteSuccess() {
+      setBusy(false);
+      load({ silent: true });
+    }
+    function handleDeleteFailure(message) {
+      setActionError(message);
+      setBusy(false);
+    }
+
+    eventEmitter.on(IMPORT_EVENTS.LOAD_SUCCESS, handleLoadSuccess);
+    eventEmitter.on(IMPORT_EVENTS.LOAD_FAILURE, handleLoadFailure);
+    eventEmitter.on(IMPORT_EVENTS.PROMOTE_SUCCESS, handlePromoteSuccess);
+    eventEmitter.on(IMPORT_EVENTS.PROMOTE_FAILURE, handlePromoteFailure);
+    eventEmitter.on(IMPORT_EVENTS.DELETE_SUCCESS, handleDeleteSuccess);
+    eventEmitter.on(IMPORT_EVENTS.DELETE_FAILURE, handleDeleteFailure);
+
+    return () => {
+      eventEmitter.off(IMPORT_EVENTS.LOAD_SUCCESS, handleLoadSuccess);
+      eventEmitter.off(IMPORT_EVENTS.LOAD_FAILURE, handleLoadFailure);
+      eventEmitter.off(IMPORT_EVENTS.PROMOTE_SUCCESS, handlePromoteSuccess);
+      eventEmitter.off(IMPORT_EVENTS.PROMOTE_FAILURE, handlePromoteFailure);
+      eventEmitter.off(IMPORT_EVENTS.DELETE_SUCCESS, handleDeleteSuccess);
+      eventEmitter.off(IMPORT_EVENTS.DELETE_FAILURE, handleDeleteFailure);
+    };
+  }, [eventEmitter, load]);
 
   // Debounced refetch on any query change. 350ms matches the DataTable toolbar.
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchLeads({ search, statusFilter, page });
+      load();
     }, 350);
     return () => clearTimeout(timer);
-  }, [search, statusFilter, page, fetchLeads]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, statusFilter, page]);
 
   /** Send selected leads to the Hub (and out of staging). */
   const promoteSelected = useCallback(
-    async (ids) => {
-      if (!ids?.length || busy) return { ok: false };
+    (ids) => {
+      if (!ids?.length || busy) return;
       setActionError(null);
       setBusy(true);
-      try {
-        const res = await importController.promoteLeads(ids);
-        if (!res?.success) {
-          setActionError(res?.message || 'Could not move those leads');
-          return { ok: false, error: res?.message };
-        }
-        await fetchLeads({}, { silent: true });
-        return { ok: true, promoted: res.data?.promoted || 0 };
-      } catch (err) {
-        const message = err?.message || 'Could not move those leads';
-        setActionError(message);
-        return { ok: false, error: message };
-      } finally {
-        setBusy(false);
-      }
+      importController.promoteLeads(eventEmitter, ids);
     },
-    [busy, fetchLeads],
+    [busy, eventEmitter],
   );
 
   /** Remove selected leads from staging without promoting them. */
   const deleteSelected = useCallback(
-    async (ids) => {
-      if (!ids?.length || busy) return { ok: false };
+    (ids) => {
+      if (!ids?.length || busy) return;
       setActionError(null);
       setBusy(true);
-      try {
-        const res = await importController.deleteLeads(ids);
-        if (!res?.success) {
-          setActionError(res?.message || 'Could not delete those leads');
-          return { ok: false };
-        }
-        await fetchLeads({}, { silent: true });
-        return { ok: true, deleted: res.data?.deleted || 0 };
-      } catch (err) {
-        setActionError(err?.message || 'Could not delete those leads');
-        return { ok: false };
-      } finally {
-        setBusy(false);
-      }
+      importController.deleteLeads(eventEmitter, ids);
     },
-    [busy, fetchLeads],
+    [busy, eventEmitter],
   );
 
   return {
@@ -149,7 +153,8 @@ export function useImportedLeads() {
 
     busy,
 
-    refresh: fetchLeads,
+    eventEmitter,
+    refresh: load,
     promoteSelected,
     deleteSelected,
   };

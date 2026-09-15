@@ -6,17 +6,15 @@
  * `unreadCount`, `backfilledAt` and more are all read directly by the
  * inbox list and thread header today.
  */
-export class Chat {
-  constructor(data = {}) {
-    Object.assign(this, data);
-    this.raw = data;
-  }
-
-  static fromResponse(data) {
-    return data ? new Chat(data) : null;
-  }
-
-  static fromList(list = []) {
-    return list.map(Chat.fromResponse);
-  }
+function createChat(data = {}) {
+  return { ...data, raw: data };
 }
+
+export const Chat = {
+  fromResponse(data) {
+    return data ? createChat(data) : null;
+  },
+  fromList(list = []) {
+    return list.map(Chat.fromResponse);
+  },
+};

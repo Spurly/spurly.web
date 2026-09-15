@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
-import { getAllUsers } from 'src/core/admin/gateway/admin.js';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import adminController from 'src/core/admin/controller/admin.js';
+import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
 import { RefreshCw } from 'lucide-react';
 import { AdminLayout } from 'src/core/pages/admin/components/AdminLayout';
 import { DataTable } from 'src/core/DataTable';
@@ -10,8 +12,15 @@ import PlanAssignModal from '../components/PlanAssignModal';
 import UserDetailsModal from '../components/UserDetailsModal';
 import { buildUserColumns } from './userColumns.jsx';
 
+/**
+ * `adminController` reports back over `eventEmitter` instead of
+ * returning/throwing, so this page has no async/await or try/catch of its
+ * own.
+ */
 export function AdminUsersPage() {
   const toast = useToast();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -23,32 +32,38 @@ export function AdminUsersPage() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Declared above the effect that calls them. They worked where they were —
-  // effects run after the component body — but a `const` referenced before its
-  // declaration is a temporal-dead-zone hazard the moment anything calls it
-  // earlier, and it blocks the React Compiler from optimising the component.
-  const fetchUsers = async () => {
+  // Declared above the effect that calls it, same reasoning as before: a
+  // `const` referenced before its declaration is a temporal-dead-zone
+  // hazard the moment anything calls it earlier, and it blocks the React
+  // Compiler from optimising the component.
+  const fetchUsers = useCallback(() => {
     setLoading(true);
     setError('');
-    try {
-      const result = await getAllUsers(pagination.limit, pagination.skip);
-      if (result.success) {
-        setUsers(result.data.users);
-        setPagination(result.data.pagination);
-      } else {
-        /* Load failures are toasted AND kept inline: the table behind this is
-           empty, and an empty admin table with no explanation reads as "no
-           users" rather than "we couldn't fetch them". */
-        setError(result.message || 'Failed to load users');
-        toast.error(getToastError(result, "Couldn't load users"));
-      }
-    } catch (err) {
-      setError(getApiErrorMessage(err, 'Failed to load users'));
-      toast.error(getToastError(err, "Couldn't load users"));
-    } finally {
+    adminController.getAllUsers(eventEmitter, pagination.limit, pagination.skip);
+  }, [eventEmitter, pagination.limit, pagination.skip]);
+
+  useEffect(() => {
+    function handleSuccess(data) {
+      setUsers(data.users);
+      setPagination(data.pagination);
       setLoading(false);
     }
-  };
+    function handleFailure(err) {
+      /* Load failures are toasted AND kept inline: the table behind this is
+         empty, and an empty admin table with no explanation reads as "no
+         users" rather than "we couldn't fetch them". */
+      setError(getApiErrorMessage(err, 'Failed to load users'));
+      toast.error(getToastError(err, "Couldn't load users"));
+      setLoading(false);
+    }
+
+    eventEmitter.on(ADMIN_EVENTS.GET_ALL_USERS_SUCCESS, handleSuccess);
+    eventEmitter.on(ADMIN_EVENTS.GET_ALL_USERS_FAILURE, handleFailure);
+    return () => {
+      eventEmitter.off(ADMIN_EVENTS.GET_ALL_USERS_SUCCESS, handleSuccess);
+      eventEmitter.off(ADMIN_EVENTS.GET_ALL_USERS_FAILURE, handleFailure);
+    };
+  }, [eventEmitter, toast]);
 
   useEffect(() => {
     fetchUsers();

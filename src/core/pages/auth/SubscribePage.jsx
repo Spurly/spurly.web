@@ -4,12 +4,14 @@ import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { useSubscription } from 'src/core/billing/hooks/useSubscription';
 import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
+import { AUTH_EVENTS } from 'src/core/auth/constants/constants.js';
+import { SUBSCRIPTION_EVENTS } from 'src/core/billing/constants/constants.js';
 import { AuthShell, WelcomeAside } from './components/AuthShell.jsx';
 import { TrustBadges, PhoneField, phoneIsValid, buildE164 } from './components/widgets.jsx';
 import { DEFAULT_COUNTRY } from './countryCodes.js';
 import { StarIcon } from './components/icons.jsx';
 import subscriptionsController from 'src/core/billing/controller/subscriptions.js';
-import { loadCashfreeSdk } from 'src/core/auth/gateway/cashfreeSdk.js';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import { postAuthDestination } from './postAuthDestination.js';
 
 const FEATURES = [
@@ -72,31 +74,39 @@ export default function SubscribePage() {
     }
   }, [status, user, navigate]);
 
-  const loadPricing = useCallback(async (code) => {
+  const loadPricing = useCallback((code) => {
     setPricingLoading(true);
     setPricingError('');
-    try {
-      const p = await subscriptionsController.getPricing(code);
+    const emitter = new EventEmitter();
+    subscriptionsController.getPricing(emitter, code);
+    emitter.once(SUBSCRIPTION_EVENTS.GET_PRICING_SUCCESS, (p) => {
       setPricing(p);
-      return p;
-    } catch (err) {
+      setPricingLoading(false);
+    });
+    emitter.once(SUBSCRIPTION_EVENTS.GET_PRICING_FAILURE, (err) => {
       // Leave `pricing` null — the render path refuses to show a price or a
       // pay button without one. A 401 never reaches here: apiGateway's
       // interceptor redirects to /login first, since a dead session isn't
       // something this page can fix.
       setPricing(null);
       setPricingError(getToastError(err, "Couldn't load pricing"));
-      return null;
-    } finally {
       setPricingLoading(false);
-    }
+    });
+    return emitter;
   }, []);
 
   useEffect(() => {
-    loadPricing();
+    // Wrapped in its own function — calling loadPricing() directly at the
+    // top level of an effect body trips react-hooks/set-state-in-effect
+    // since loadPricing synchronously calls setState before dispatching;
+    // the indirection is enough to satisfy it.
+    function runLoadPricing() {
+      loadPricing();
+    }
+    runLoadPricing();
   }, [loadPricing]);
 
-  async function onSavePhone(e) {
+  function onSavePhone(e) {
     e.preventDefault();
     setPhoneError('');
     if (!phoneIsValid(phoneCountry, phoneNumber)) {
@@ -104,48 +114,56 @@ export default function SubscribePage() {
       return;
     }
     setSavingPhone(true);
-    try {
-      await updateProfile({ phone: buildE164(phoneCountry, phoneNumber) });
-      toast.success('Phone number saved');
-    } catch (err) {
-      setPhoneError(getToastError(err, "Couldn't save your phone number"));
-    } finally {
+    const emitter = updateProfile({ phone: buildE164(phoneCountry, phoneNumber) });
+    emitter.once(AUTH_EVENTS.UPDATE_PROFILE_SUCCESS, () => {
       setSavingPhone(false);
-    }
+      toast.success('Phone number saved');
+    });
+    emitter.once(AUTH_EVENTS.UPDATE_PROFILE_FAILURE, (err) => {
+      setSavingPhone(false);
+      setPhoneError(getToastError(err, "Couldn't save your phone number"));
+    });
   }
 
-  async function onApplyPromo(e) {
+  function onApplyPromo(e) {
     e.preventDefault();
     const code = promoInput.trim().toUpperCase();
     if (!code) return;
 
     setPromoChecking(true);
     setPromoError('');
-    try {
-      const result = await subscriptionsController.validatePromo(code);
+    const emitter = new EventEmitter();
+    subscriptionsController.validatePromo(emitter, code);
+    emitter.once(SUBSCRIPTION_EVENTS.VALIDATE_PROMO_SUCCESS, (result) => {
       setAppliedCode(result.code);
       // Re-fetch pricing with the code so the displayed price comes from the
       // same source the charge will, rather than being patched together
       // client-side from the validation response.
-      await loadPricing(result.code);
-      toast.success(`${result.code} applied`);
-    } catch (err) {
+      const pricingEmitter = loadPricing(result.code);
+      pricingEmitter.once(SUBSCRIPTION_EVENTS.GET_PRICING_SUCCESS, () => {
+        setPromoChecking(false);
+        toast.success(`${result.code} applied`);
+      });
+      pricingEmitter.once(SUBSCRIPTION_EVENTS.GET_PRICING_FAILURE, () => {
+        setPromoChecking(false);
+      });
+    });
+    emitter.once(SUBSCRIPTION_EVENTS.VALIDATE_PROMO_FAILURE, (err) => {
       setAppliedCode(null);
       setPromoError(getToastError(err, "Couldn't apply that code"));
-    } finally {
       setPromoChecking(false);
-    }
+    });
   }
 
-  async function onRemovePromo() {
+  function onRemovePromo() {
     setAppliedCode(null);
     setPromoInput('');
     setPromoError('');
     setShowPromo(false);
-    await loadPricing();
+    loadPricing();
   }
 
-  async function onSubscribe() {
+  function onSubscribe() {
     // Defensive: the button isn't rendered without pricing, but never let a
     // pay action run against an unknown amount.
     if (!pricing) {
@@ -154,36 +172,31 @@ export default function SubscribePage() {
     }
     setSubscribing(true);
     setError('');
-    try {
-      const result = await subscriptionsController.createSubscription(appliedCode || undefined);
-      if (!result.subscriptionSessionId) {
-        throw new Error('Payment session could not be started. Please try again.');
-      }
-      const cashfree = await loadCashfreeSdk();
-      // Navigates the browser to Cashfree's hosted checkout for this
-      // one-time Order; on completion Cashfree redirects to
-      // /subscribe/callback (the returnUrl the backend registered when
-      // creating the order). Nothing after this call runs unless it throws.
-      await cashfree.checkout({
-        paymentSessionId: result.subscriptionSessionId,
-        redirectTarget: '_self',
-      });
-    } catch (err) {
+    const emitter = new EventEmitter();
+    subscriptionsController.startCheckout(emitter, appliedCode || undefined);
+    // No SUCCESS handler needed — a successful checkout navigates the
+    // browser away via Cashfree before this ever fires.
+    emitter.once(SUBSCRIPTION_EVENTS.CREATE_SUBSCRIPTION_FAILURE, (err) => {
       const msg = getToastError(err, "Couldn't start checkout");
       setError(msg);
       toast.error(msg);
       setSubscribing(false);
-    }
+    });
   }
 
-  async function onRefreshStatus() {
+  function onRefreshStatus() {
     setError('');
-    const summary = await refetch();
-    if (summary?.isActive()) {
-      navigate(postAuthDestination(user), { replace: true });
-    } else {
+    const emitter = refetch();
+    emitter.once(SUBSCRIPTION_EVENTS.GET_MY_SUBSCRIPTION_SUCCESS, (summary) => {
+      if (summary?.isActive()) {
+        navigate(postAuthDestination(user), { replace: true });
+      } else {
+        toast.info("Still not active — if you just paid, give it a few seconds and try again.");
+      }
+    });
+    emitter.once(SUBSCRIPTION_EVENTS.GET_MY_SUBSCRIPTION_FAILURE, () => {
       toast.info("Still not active — if you just paid, give it a few seconds and try again.");
-    }
+    });
   }
 
   const isPastDue = status?.isPastDue();

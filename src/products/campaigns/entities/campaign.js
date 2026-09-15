@@ -9,19 +9,20 @@
  * escape hatch, and copying every enumerable field onto the instance means
  * nothing is missing from day one either.
  */
-export class Campaign {
-  constructor(data = {}) {
-    Object.assign(this, data);
+function createCampaign(data = {}) {
+  return {
+    ...data,
     // Always preserve the raw payload for anything not copied above, and for
     // callers (CSV export, the outreach log) that want the untouched response.
-    this.raw = data;
-  }
-
-  static fromResponse(data) {
-    return data ? new Campaign(data) : null;
-  }
-
-  static fromList(list = []) {
-    return list.map(Campaign.fromResponse);
-  }
+    raw: data,
+  };
 }
+
+export const Campaign = {
+  fromResponse(data) {
+    return data ? createCampaign(data) : null;
+  },
+  fromList(list = []) {
+    return list.map(Campaign.fromResponse);
+  },
+};

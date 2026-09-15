@@ -1,15 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Loader, Plus, Ticket, Gift, X, Pencil, Trash2 } from 'lucide-react';
-import {
-  getPromoCodes,
-  createPromoCode,
-  updatePromoCode,
-  deletePromoCode,
-  getBillingExemptions,
-  grantBillingExemption,
-  revokeBillingExemption,
-  getAllUsers,
-} from 'src/core/admin/gateway/admin.js';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import adminController from 'src/core/admin/controller/admin.js';
+import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
 import { AdminLayout } from 'src/core/pages/admin/components/AdminLayout';
 import { Button, Badge, useToast, useConfirm } from 'src/core/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
@@ -32,6 +25,10 @@ import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
  * screen for that reason: they are what an account is given for less money,
  * this is what an account costs us. Every linked LinkedIn account is about
  * €5/month against the vendor's peak-connected figure for a rolling 30 days.
+ *
+ * Every network call goes through `adminController`, which reports back
+ * over an `eventEmitter` instead of returning/throwing — no async/await or
+ * try/catch anywhere on this page, only in the controller/gateway.
  */
 
 const money = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
@@ -93,47 +90,51 @@ function toFormState(promo) {
 
 function PromoForm({ editing, onCancel, onCreated }) {
   const toast = useToast();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
   const [form, setForm] = useState(() => toFormState(editing));
   const [saving, setSaving] = useState(false);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
   const isPercent = form.discountType === 'percent';
 
-  async function submit(e) {
+  function submit(e) {
     e.preventDefault();
     setSaving(true);
-    try {
-      const payload = {
-        code: form.code.trim().toUpperCase(),
-        description: form.description.trim() || undefined,
-        discountType: form.discountType,
-        appliesTo: form.appliesTo,
-        perUserLimit: Number(form.perUserLimit) || 1,
-        maxRedemptions: form.maxRedemptions === '' ? null : Number(form.maxRedemptions),
-        expiresAt: form.expiresAt || null,
-      };
-      if (isPercent) payload.percentOff = Number(form.percentOff);
-      else payload.firstCycleAmountINR = Number(form.firstCycleAmountINR);
 
-      // The code itself is the identity customers have already been given —
-      // changing it on an existing record would silently break every link and
-      // email that referenced it. Edit changes the terms, never the code.
-      if (editing) delete payload.code;
+    const payload = {
+      code: form.code.trim().toUpperCase(),
+      description: form.description.trim() || undefined,
+      discountType: form.discountType,
+      appliesTo: form.appliesTo,
+      perUserLimit: Number(form.perUserLimit) || 1,
+      maxRedemptions: form.maxRedemptions === '' ? null : Number(form.maxRedemptions),
+      expiresAt: form.expiresAt || null,
+    };
+    if (isPercent) payload.percentOff = Number(form.percentOff);
+    else payload.firstCycleAmountINR = Number(form.firstCycleAmountINR);
 
-      const result = editing
-        ? await updatePromoCode(editing._id, payload)
-        : await createPromoCode(payload);
+    // The code itself is the identity customers have already been given —
+    // changing it on an existing record would silently break every link and
+    // email that referenced it. Edit changes the terms, never the code.
+    if (editing) delete payload.code;
 
-      if (result.success) {
-        toast.success(`${editing ? editing.code : payload.code} ${editing ? 'updated' : 'created'}`);
-        onCreated();
-      } else {
-        toast.error(getToastError(result, "Couldn't save the code"));
-      }
-    } catch (err) {
-      toast.error(getToastError(err, "Couldn't save the code"));
-    } finally {
+    const successEvent = editing ? ADMIN_EVENTS.UPDATE_PROMO_CODE_SUCCESS : ADMIN_EVENTS.CREATE_PROMO_CODE_SUCCESS;
+    const failureEvent = editing ? ADMIN_EVENTS.UPDATE_PROMO_CODE_FAILURE : ADMIN_EVENTS.CREATE_PROMO_CODE_FAILURE;
+
+    eventEmitter.once(successEvent, () => {
+      toast.success(`${editing ? editing.code : payload.code} ${editing ? 'updated' : 'created'}`);
       setSaving(false);
+      onCreated();
+    });
+    eventEmitter.once(failureEvent, (err) => {
+      toast.error(getToastError(err, "Couldn't save the code"));
+      setSaving(false);
+    });
+
+    if (editing) {
+      adminController.updatePromoCode(eventEmitter, editing._id, payload);
+    } else {
+      adminController.createPromoCode(eventEmitter, payload);
     }
   }
 
@@ -330,6 +331,7 @@ function PromoRow({ promo, onToggle, onEdit, onDelete }) {
 
 function ExemptionForm({ onCancel, onGranted }) {
   const toast = useToast();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
   const [email, setEmail] = useState('');
   const [reason, setReason] = useState('');
   const [until, setUntil] = useState('');
@@ -341,51 +343,51 @@ function ExemptionForm({ onCancel, onGranted }) {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      setUsersLoading(true);
-      setUsersError('');
-      try {
-        // 100 is the server's max page size for this endpoint. A dropdown
-        // beyond that would need real search-as-you-type, which this screen
-        // doesn't need yet — comping accounts is a rare, deliberate action.
-        const result = await getAllUsers(100, 0);
-        if (cancelled) return;
-        if (result.success) {
-          setUsers(result.data.users || []);
-        } else {
-          setUsersError(result.message || 'Failed to load users');
-        }
-      } catch (err) {
-        if (!cancelled) setUsersError(getApiErrorMessage(err, 'Failed to load users'));
-      } finally {
-        if (!cancelled) setUsersLoading(false);
-      }
-    })();
+    setUsersLoading(true);
+    setUsersError('');
+
+    // 100 is the server's max page size for this endpoint. A dropdown
+    // beyond that would need real search-as-you-type, which this screen
+    // doesn't need yet — comping accounts is a rare, deliberate action.
+    eventEmitter.once(ADMIN_EVENTS.GET_ALL_USERS_SUCCESS, (data) => {
+      if (cancelled) return;
+      setUsers(data.users || []);
+      setUsersLoading(false);
+    });
+    eventEmitter.once(ADMIN_EVENTS.GET_ALL_USERS_FAILURE, (err) => {
+      if (cancelled) return;
+      setUsersError(getApiErrorMessage(err, 'Failed to load users'));
+      setUsersLoading(false);
+    });
+
+    adminController.getAllUsers(eventEmitter, 100, 0);
+
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [eventEmitter]);
 
-  async function submit(e) {
+  function submit(e) {
     e.preventDefault();
     setSaving(true);
-    try {
-      const result = await grantBillingExemption({
-        email: email.trim(),
-        reason: reason.trim(),
-        until: until || null,
-      });
-      if (result.success) {
-        toast.success(`${email.trim()} comped`);
-        onGranted();
-      } else {
-        toast.error(getToastError(result, "Couldn't comp that account"));
-      }
-    } catch (err) {
-      toast.error(getToastError(err, "Couldn't comp that account"));
-    } finally {
+
+    const trimmedEmail = email.trim();
+
+    eventEmitter.once(ADMIN_EVENTS.GRANT_BILLING_EXEMPTION_SUCCESS, () => {
+      toast.success(`${trimmedEmail} comped`);
       setSaving(false);
-    }
+      onGranted();
+    });
+    eventEmitter.once(ADMIN_EVENTS.GRANT_BILLING_EXEMPTION_FAILURE, (err) => {
+      toast.error(getToastError(err, "Couldn't comp that account"));
+      setSaving(false);
+    });
+
+    adminController.grantBillingExemption(eventEmitter, {
+      email: trimmedEmail,
+      reason: reason.trim(),
+      until: until || null,
+    });
   }
 
   const field =
@@ -459,6 +461,7 @@ function ExemptionForm({ onCancel, onGranted }) {
 export function AdminBillingPage() {
   const toast = useToast();
   const confirm = useConfirm();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
 
   const [promos, setPromos] = useState([]);
   const [promosLoading, setPromosLoading] = useState(true);
@@ -471,83 +474,82 @@ export function AdminBillingPage() {
   const [exError, setExError] = useState('');
   const [showExForm, setShowExForm] = useState(false);
 
+  function fetchPromos() {
+    setPromosLoading(true);
+    setPromosError('');
+    adminController.getPromoCodes(eventEmitter);
+  }
+
+  function fetchExemptions() {
+    setExLoading(true);
+    setExError('');
+    adminController.getBillingExemptions(eventEmitter);
+  }
+
+  useEffect(() => {
+    // The promo-codes controller nests its payload as { promoCodes: [...] }
+    // while billing-exemptions returns the array directly. Accept either
+    // rather than assuming — a shape mismatch here renders a silent empty
+    // state, which reads as "no codes exist" instead of "we failed".
+    function handlePromosSuccess(data) {
+      const list = Array.isArray(data) ? data : data?.promoCodes || [];
+      setPromos(list);
+      setPromosLoading(false);
+    }
+    function handlePromosFailure(err) {
+      setPromosError(getApiErrorMessage(err, 'Failed to load promo codes'));
+      setPromosLoading(false);
+    }
+    function handleExemptionsSuccess(data) {
+      const list = Array.isArray(data) ? data : data?.exemptions || [];
+      setExemptions(list);
+      setExLoading(false);
+    }
+    function handleExemptionsFailure(err) {
+      setExError(getApiErrorMessage(err, 'Failed to load comped accounts'));
+      setExLoading(false);
+    }
+
+    eventEmitter.on(ADMIN_EVENTS.GET_PROMO_CODES_SUCCESS, handlePromosSuccess);
+    eventEmitter.on(ADMIN_EVENTS.GET_PROMO_CODES_FAILURE, handlePromosFailure);
+    eventEmitter.on(ADMIN_EVENTS.GET_BILLING_EXEMPTIONS_SUCCESS, handleExemptionsSuccess);
+    eventEmitter.on(ADMIN_EVENTS.GET_BILLING_EXEMPTIONS_FAILURE, handleExemptionsFailure);
+
+    return () => {
+      eventEmitter.off(ADMIN_EVENTS.GET_PROMO_CODES_SUCCESS, handlePromosSuccess);
+      eventEmitter.off(ADMIN_EVENTS.GET_PROMO_CODES_FAILURE, handlePromosFailure);
+      eventEmitter.off(ADMIN_EVENTS.GET_BILLING_EXEMPTIONS_SUCCESS, handleExemptionsSuccess);
+      eventEmitter.off(ADMIN_EVENTS.GET_BILLING_EXEMPTIONS_FAILURE, handleExemptionsFailure);
+    };
+  }, [eventEmitter]);
 
   useEffect(() => {
     fetchPromos();
     fetchExemptions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function fetchPromos() {
-    setPromosLoading(true);
-    setPromosError('');
-    try {
-      const result = await getPromoCodes();
-      if (result.success) {
-        // The promo-codes controller nests its payload as { promoCodes: [...] }
-        // while billing-exemptions returns the array directly. Accept either
-        // rather than assuming — a shape mismatch here renders a silent empty
-        // state, which reads as "no codes exist" instead of "we failed".
-        const list = Array.isArray(result.data)
-          ? result.data
-          : result.data?.promoCodes || [];
-        setPromos(list);
-      } else {
-        setPromosError(result.message || 'Failed to load promo codes');
-      }
-    } catch (err) {
-      setPromosError(getApiErrorMessage(err, 'Failed to load promo codes'));
-    } finally {
-      setPromosLoading(false);
-    }
-  }
-
-  async function fetchExemptions() {
-    setExLoading(true);
-    setExError('');
-    try {
-      const result = await getBillingExemptions();
-      if (result.success) {
-        const list = Array.isArray(result.data)
-          ? result.data
-          : result.data?.exemptions || [];
-        setExemptions(list);
-      } else {
-        setExError(result.message || 'Failed to load comped accounts');
-      }
-    } catch (err) {
-      setExError(getApiErrorMessage(err, 'Failed to load comped accounts'));
-    } finally {
-      setExLoading(false);
-    }
-  }
-
-  async function togglePromo(promo) {
-    try {
-      const result = await updatePromoCode(promo._id, { active: !promo.active });
-      if (result.success) {
-        toast.success(`${promo.code} ${promo.active ? 'disabled' : 'enabled'}`);
-        fetchPromos();
-      } else {
-        toast.error(getToastError(result, "Couldn't update the code"));
-      }
-    } catch (err) {
+  function togglePromo(promo) {
+    eventEmitter.once(ADMIN_EVENTS.UPDATE_PROMO_CODE_SUCCESS, () => {
+      toast.success(`${promo.code} ${promo.active ? 'disabled' : 'enabled'}`);
+      fetchPromos();
+    });
+    eventEmitter.once(ADMIN_EVENTS.UPDATE_PROMO_CODE_FAILURE, (err) => {
       toast.error(getToastError(err, "Couldn't update the code"));
-    }
+    });
+    adminController.updatePromoCode(eventEmitter, promo._id, { active: !promo.active });
   }
 
-  async function removePromo(promo) {
-    try {
-      const result = await deletePromoCode(promo._id);
-      if (result.success) {
-        toast.success(`${promo.code} deleted`);
-        fetchPromos();
-      } else {
-        // The server refuses to delete a redeemed code (409) and explains why.
-        toast.error(getToastError(result, "Couldn't delete the code"));
-      }
-    } catch (err) {
+  function removePromo(promo) {
+    eventEmitter.once(ADMIN_EVENTS.DELETE_PROMO_CODE_SUCCESS, () => {
+      toast.success(`${promo.code} deleted`);
+      fetchPromos();
+    });
+    // The server refuses to delete a redeemed code (409) and explains why.
+    eventEmitter.once(ADMIN_EVENTS.DELETE_PROMO_CODE_FAILURE, (err) => {
       toast.error(getToastError(err, "Couldn't delete the code"));
-    }
+    });
+    adminController.deletePromoCode(eventEmitter, promo._id);
   }
 
   function startEdit(promo) {
@@ -560,18 +562,15 @@ export function AdminBillingPage() {
     setEditingPromo(null);
   }
 
-  async function revoke(row) {
-    try {
-      const result = await revokeBillingExemption(row.email);
-      if (result.success) {
-        toast.success(`Comp revoked — falls back to ${result.data.fallsBackTo}`);
-        fetchExemptions();
-      } else {
-        toast.error(getToastError(result, "Couldn't revoke the comp"));
-      }
-    } catch (err) {
+  function revoke(row) {
+    eventEmitter.once(ADMIN_EVENTS.REVOKE_BILLING_EXEMPTION_SUCCESS, (data) => {
+      toast.success(`Comp revoked — falls back to ${data.fallsBackTo}`);
+      fetchExemptions();
+    });
+    eventEmitter.once(ADMIN_EVENTS.REVOKE_BILLING_EXEMPTION_FAILURE, (err) => {
       toast.error(getToastError(err, "Couldn't revoke the comp"));
-    }
+    });
+    adminController.revokeBillingExemption(eventEmitter, row.email);
   }
 
   const th = 'pb-2 pr-3 text-left text-[var(--ui-t-meta)] font-medium uppercase tracking-wider text-[var(--ui-text-secondary)]';

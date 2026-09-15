@@ -2,12 +2,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast, useConfirm } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import leadController from '../controller/lead.js';
 import campaignController from 'src/products/campaigns/controller/campaign.js';
+import { CAMPAIGN_EVENTS } from 'src/products/campaigns/constants/constants.js';
 import enrichmentCampaignController from 'src/products/enrichment/controller/campaign.js';
+import { ENRICHMENT_EVENTS } from 'src/products/enrichment/constants/constants.js';
 import sequenceController from 'src/products/sequences/controller/sequence.js';
+import { SEQUENCE_EVENTS } from 'src/products/sequences/constants/constants.js';
 import { isBusy } from './audience.js';
-import { PAGE_SIZE, POLL_MS } from '../constants.js';
+import { PAGE_SIZE, POLL_MS, LEAD_EVENTS } from '../constants/constants.js';
 
 /**
  * All state and orchestration for the hub leads page — importing an
@@ -15,6 +19,16 @@ import { PAGE_SIZE, POLL_MS } from '../constants.js';
  * a sequence), and the lead drawer. Moved out of the page component itself
  * so the page is UI only; every effect, poll, and error-toast path below is
  * unchanged from when it lived there.
+ *
+ * Every server call goes through a controller, which reports back over an
+ * EventEmitter instead of returning a promise — this hook has no
+ * async/await or try/catch of its own. Loaders that can overlap
+ * (loadSearches/loadLeads/loadEnrichLeads race against typing and polling)
+ * use a fresh, one-shot EventEmitter per call plus a "latest call wins"
+ * token ref — the event-driven replacement for the AbortController this
+ * hook used to carry, since none of these gateway calls ever actually
+ * supported real request cancellation; the signal only ever gated which
+ * response's setState calls survived.
  */
 export function useLeadsPage() {
   const [searches, setSearches] = useState([]);
@@ -54,11 +68,8 @@ export function useLeadsPage() {
   const pollRef = useRef(null);
 
   /**
-   * Whether this component is still on screen.
-   *
-   * The load functions used to guard their setState purely on an AbortSignal,
-   * which conflated two different questions: "did we navigate away?" and "did
-   * this effect re-run?". See the polling effect below for what that cost.
+   * Whether this component is still on screen. Every load below checks this
+   * before writing state, same as it always did.
    */
   const mountedRef = useRef(true);
   /**
@@ -76,29 +87,43 @@ export function useLeadsPage() {
     return () => { mountedRef.current = false; };
   }, []);
 
-  const loadSearches = useCallback((signal) => {
-    const live = () => mountedRef.current && !signal?.aborted;
-    return leadController.listSearches()
-      .then((next) => { if (live()) setSearches(next); })
-      .catch((err) => { if (live()) toast.error(getToastError(err, 'Could not load your audiences')); });
+  const loadSearchesTokenRef = useRef(null);
+  const loadSearches = useCallback(() => {
+    const token = {};
+    loadSearchesTokenRef.current = token;
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.LIST_SEARCHES_SUCCESS, (next) => {
+      if (!mountedRef.current || loadSearchesTokenRef.current !== token) return;
+      setSearches(next);
+    });
+    callEmitter.once(LEAD_EVENTS.LIST_SEARCHES_FAILURE, (error) => {
+      if (!mountedRef.current || loadSearchesTokenRef.current !== token) return;
+      toast.error(getToastError(error, 'Could not load your audiences'));
+    });
+    leadController.listSearches(callEmitter);
   }, [toast]);
 
-  const loadLeads = useCallback((signal, { page = 1 } = {}) => {
-    const live = () => mountedRef.current && !signal?.aborted;
-    return leadController.listLeads({ searchId: activeSearchId, q: query, page, limit: PAGE_SIZE })
-      .then((res) => {
-        if (!live()) return;
-        setLeads(res.leads ?? []);
-        setPagination(res.pagination ?? { page, limit: PAGE_SIZE, total: 0 });
-      })
-      .catch((err) => { if (live()) toast.error(getToastError(err, 'Could not load leads')); })
-      .finally(() => { if (live()) setLoading(false); });
+  const loadLeadsTokenRef = useRef(null);
+  const loadLeads = useCallback(({ page = 1 } = {}) => {
+    const token = {};
+    loadLeadsTokenRef.current = token;
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.LIST_LEADS_SUCCESS, (res) => {
+      if (!mountedRef.current || loadLeadsTokenRef.current !== token) return;
+      setLeads(res.leads ?? []);
+      setPagination(res.pagination ?? { page, limit: PAGE_SIZE, total: 0 });
+      setLoading(false);
+    });
+    callEmitter.once(LEAD_EVENTS.LIST_LEADS_FAILURE, (error) => {
+      if (!mountedRef.current || loadLeadsTokenRef.current !== token) return;
+      toast.error(getToastError(error, 'Could not load leads'));
+      setLoading(false);
+    });
+    leadController.listLeads(callEmitter, { searchId: activeSearchId, q: query, page, limit: PAGE_SIZE });
   }, [activeSearchId, query, toast]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    loadSearches(controller.signal);
-    return () => controller.abort();
+    loadSearches();
   }, [loadSearches]);
 
   // Comma-separated allow-list the server's enrichmentStatus filter accepts —
@@ -106,37 +131,43 @@ export function useLeadsPage() {
   // for a lead created before the enrichmentStatus field existed.
   const NEEDS_ENRICHMENT_STATUSES = 'none,queued,enriching,failed';
 
-  const loadEnrichLeads = useCallback((signal, { page = 1 } = {}) => {
-    const live = () => mountedRef.current && !signal?.aborted;
+  const loadEnrichLeadsTokenRef = useRef(null);
+  const loadEnrichLeads = useCallback(({ page = 1 } = {}) => {
+    const token = {};
+    loadEnrichLeadsTokenRef.current = token;
     // No setEnrichLoading(true) here — same convention as loadLeads above:
     // `enrichLoading` starts true from useState and only ever goes false, in
-    // the .finally() below. Setting it back to true on every call (including
-    // from a synchronous effect body) is what trips
+    // the success/failure handler below. Setting it back to true on every
+    // call (including from a synchronous effect body) is what trips
     // react-hooks/set-state-in-effect for no benefit — a poll tick or a
     // page change re-fetching in the background shouldn't flash the table
     // back to a loading state anyway.
-    return leadController.listLeads({ enrichmentStatus: NEEDS_ENRICHMENT_STATUSES, q: enrichQuery, page, limit: PAGE_SIZE })
-      .then((res) => {
-        if (!live()) return;
-        setEnrichLeads(res.leads ?? []);
-        setEnrichPagination(res.pagination ?? { page, limit: PAGE_SIZE, total: 0 });
-      })
-      .catch((err) => { if (live()) toast.error(getToastError(err, 'Could not load leads')); })
-      .finally(() => { if (live()) setEnrichLoading(false); });
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.LIST_LEADS_SUCCESS, (res) => {
+      if (!mountedRef.current || loadEnrichLeadsTokenRef.current !== token) return;
+      setEnrichLeads(res.leads ?? []);
+      setEnrichPagination(res.pagination ?? { page, limit: PAGE_SIZE, total: 0 });
+      setEnrichLoading(false);
+    });
+    callEmitter.once(LEAD_EVENTS.LIST_LEADS_FAILURE, (error) => {
+      if (!mountedRef.current || loadEnrichLeadsTokenRef.current !== token) return;
+      toast.error(getToastError(error, 'Could not load leads'));
+      setEnrichLoading(false);
+    });
+    leadController.listLeads(callEmitter, { enrichmentStatus: NEEDS_ENRICHMENT_STATUSES, q: enrichQuery, page, limit: PAGE_SIZE });
   }, [toast, enrichQuery]);
 
-  // Same debounced-search shape as the "All leads" effect above (a zero
+  // Same debounced-search shape as the "All leads" effect below (a zero
   // delay when the query is empty covers the initial load too — this is the
   // ONLY load-triggering effect for this tab, deliberately, same as
-  // loadLeads' own single effect above it: a second "just load once on
+  // loadLeads' own single effect below it: a second "just load once on
   // mount" effect keyed on loadEnrichLeads would double-fetch every time
   // enrichQuery changes and gives this callback a new identity). Loaded
   // regardless of which tab is active — not gated on activeTab — so the tab
   // strip's own count badge is right before the user ever switches to it.
   useEffect(() => {
-    const controller = new AbortController();
-    const timer = setTimeout(() => loadEnrichLeads(controller.signal, { page: 1 }), enrichQuery ? 300 : 0);
-    return () => { clearTimeout(timer); controller.abort(); };
+    const timer = setTimeout(() => loadEnrichLeads({ page: 1 }), enrichQuery ? 300 : 0);
+    return () => clearTimeout(timer);
   }, [loadEnrichLeads, enrichQuery]);
 
   // Sequences to enroll a selection into, from the picker in the table
@@ -144,16 +175,18 @@ export function useLeadsPage() {
   // elsewhere for things that actually change on their own; a sequence being
   // created/deleted mid-visit here is rare enough not to warrant a poll.
   useEffect(() => {
-    sequenceController.listSequences()
-      .then((next) => { if (mountedRef.current) setSequences(next); })
-      .catch(() => {}); // silent: the picker just stays empty, not a page-breaking error
+    const callEmitter = new EventEmitter();
+    callEmitter.once(SEQUENCE_EVENTS.LIST_SEQUENCES_SUCCESS, (next) => {
+      if (mountedRef.current) setSequences(next);
+    });
+    // Silent on failure: the picker just stays empty, not a page-breaking error.
+    sequenceController.listSequences(callEmitter);
   }, []);
 
   useEffect(() => {
-    const controller = new AbortController();
     // Debounced so typing in the search box is not one request per keystroke.
-    const t = setTimeout(() => loadLeads(controller.signal, { page: 1 }), query ? 300 : 0);
-    return () => { clearTimeout(t); controller.abort(); };
+    const t = setTimeout(() => loadLeads({ page: 1 }), query ? 300 : 0);
+    return () => clearTimeout(t);
   }, [loadLeads, query]);
 
   /**
@@ -179,21 +212,20 @@ export function useLeadsPage() {
     if (!anyBusy) return undefined;
 
     /**
-     * The tick deliberately carries NO abort signal.
-     *
-     * It used to share one controller with this effect, aborted on cleanup —
-     * and the effect's cleanup runs the instant `anyBusy` flips false, which is
-     * the moment the searches poll reports the import finished. So the very
-     * fetch that would have filled the table was discarded, every time, and the
-     * page sat on "No leads yet" over an import that had plainly succeeded
-     * until the user reloaded. Observed in production, first run.
-     *
-     * A poll tick is a short GET with nothing to cancel; `mountedRef` already
-     * stops it writing to a component that has gone away.
+     * The tick deliberately does not chain off one another the way the old
+     * promise-based version did (`loadSearches().then(() => loadLeads(...))`)
+     * — these are now fire-and-forget dispatches, and there was never a hard
+     * ordering requirement between the two: each one lands the moment its
+     * own response arrives, guarded by the same "latest call wins" token
+     * every loader already carries. A poll tick that lands after the page
+     * moved to a different search/query is simply the stale side of that
+     * same guard — this is a short GET with nothing to cancel; `mountedRef`
+     * and the token refs already stop it writing anything wrong.
      */
     pollRef.current = setInterval(() => {
-      loadSearches().then(() => loadLeads(undefined, { page: pagination.page }));
-      loadEnrichLeads(undefined, { page: enrichPagination.page });
+      loadSearches();
+      loadLeads({ page: pagination.page });
+      loadEnrichLeads({ page: enrichPagination.page });
     }, POLL_MS);
 
     return () => clearInterval(pollRef.current);
@@ -209,54 +241,60 @@ export function useLeadsPage() {
    * exactly one of `searchUrl` or `filters`; the endpoint has always accepted
    * either. Two copies of error handling is two places for it to drift.
    */
-  const createAudience = async (payload) => {
+  const createAudience = useCallback((payload) => {
     if (submitting) return;
     setSubmitting(true);
     setNeedsAccount(false);
-    try {
-      await leadController.createSearch(payload);
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.CREATE_SEARCH_SUCCESS, () => {
       toast.success('Queued. Importing starts within a minute.');
-      await loadSearches();
-    } catch (err) {
+      if (mountedRef.current) setSubmitting(false);
+      loadSearches();
+    });
+    callEmitter.once(LEAD_EVENTS.CREATE_SEARCH_FAILURE, (error) => {
       // The one refusal worth handling rather than toasting: no usable
       // LinkedIn connection. A toast would vanish, and the fix is a different
       // page.
-      const code = err?.response?.data?.code;
+      const code = error?.response?.data?.code;
       if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
-      else toast.error(getToastError(err, 'Could not queue that search'));
-    } finally {
+      else toast.error(getToastError(error, 'Could not queue that search'));
       if (mountedRef.current) setSubmitting(false);
-    }
-  };
+    });
+    leadController.createSearch(callEmitter, payload);
+  }, [submitting, toast, loadSearches]);
 
-  const runSearch = async (search) => {
-    try {
-      await leadController.runSearch(search._id);
+  const runSearch = useCallback((search) => {
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.RUN_SEARCH_SUCCESS, () => {
       toast.success(search.status === 'done' ? 'Checking for new people.' : 'Resuming where it stopped.');
-      await loadSearches();
-    } catch (err) {
-      toast.error(getToastError(err, 'Could not start that import'));
-    }
-  };
+      loadSearches();
+    });
+    callEmitter.once(LEAD_EVENTS.RUN_SEARCH_FAILURE, (error) => {
+      toast.error(getToastError(error, 'Could not start that import'));
+    });
+    leadController.runSearch(callEmitter, search._id);
+  }, [toast, loadSearches]);
 
-  const deleteSearch = async (search) => {
-    const ok = await confirm({
+  const deleteSearch = useCallback((search) => {
+    confirm({
       title: 'Remove this audience?',
       // Says exactly what survives. "Are you sure?" would leave the user
       // guessing whether their leads go with it — they do not.
       body: `The ${search.importedCount?.toLocaleString() ?? 0} leads it imported stay in your list. Only the saved search is removed.`,
       confirmLabel: 'Remove',
+    }).then((ok) => {
+      if (!ok) return;
+      const callEmitter = new EventEmitter();
+      callEmitter.once(LEAD_EVENTS.DELETE_SEARCH_SUCCESS, () => {
+        setActiveSearchId((prev) => (prev === search._id ? null : prev));
+        loadSearches();
+      });
+      callEmitter.once(LEAD_EVENTS.DELETE_SEARCH_FAILURE, (error) => {
+        toast.error(getToastError(error, 'Could not remove that audience'));
+      });
+      leadController.deleteSearch(callEmitter, search._id);
     });
-    if (!ok) return;
-
-    try {
-      await leadController.deleteSearch(search._id);
-      if (activeSearchId === search._id) setActiveSearchId(null);
-      await loadSearches();
-    } catch (err) {
-      toast.error(getToastError(err, 'Could not remove that audience'));
-    }
-  };
+  }, [confirm, toast, loadSearches]);
 
   /**
    * Selection to campaign in one click, no dialog.
@@ -270,26 +308,30 @@ export function useLeadsPage() {
    * Nothing is sent by this. The campaign starts as a draft, which is why this
    * button can be a single click at all.
    */
-  const createCampaign = async () => {
+  const createCampaign = useCallback(() => {
     if (selected.size === 0 || creating) return;
     setCreating(true);
-    try {
-      const { campaign, enrolled } = await campaignController.createCampaign({
-        leadIds: [...selected],
-      });
-      if (!campaign?._id) throw new Error('Campaign was not created');
+    const callEmitter = new EventEmitter();
+    callEmitter.once(CAMPAIGN_EVENTS.CREATE_CAMPAIGN_SUCCESS, ({ campaign, enrolled }) => {
+      if (!campaign?._id) {
+        toast.error('Could not create that campaign');
+        if (mountedRef.current) setCreating(false);
+        return;
+      }
       // Says what actually joined rather than what was selected — they differ
       // whenever a lead is already in that campaign.
       toast.success(`${enrolled} lead(s) added. Nothing sends until you start it.`);
-      navigate(`/hub/campaigns/${campaign._id}`);
-    } catch (err) {
-      const code = err?.response?.data?.code;
-      if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
-      else toast.error(getToastError(err, 'Could not create that campaign'));
-    } finally {
       if (mountedRef.current) setCreating(false);
-    }
-  };
+      navigate(`/hub/campaigns/${campaign._id}`);
+    });
+    callEmitter.once(CAMPAIGN_EVENTS.CREATE_CAMPAIGN_FAILURE, (error) => {
+      const code = error?.response?.data?.code;
+      if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
+      else toast.error(getToastError(error, 'Could not create that campaign'));
+      if (mountedRef.current) setCreating(false);
+    });
+    campaignController.createCampaign(callEmitter, { leadIds: [...selected] });
+  }, [selected, creating, toast, navigate]);
 
   /**
    * Same one-click, no-dialog shape as createCampaign above, for a
@@ -302,25 +344,28 @@ export function useLeadsPage() {
    * when the campaign runs (the detail page's member table says why, same as
    * every other skip reason).
    */
-  const createMessageCampaign = async () => {
+  const createMessageCampaign = useCallback(() => {
     if (selected.size === 0 || creating) return;
     setCreating(true);
-    try {
-      const { campaign, enrolled } = await campaignController.createCampaign({
-        type: 'message',
-        leadIds: [...selected],
-      });
-      if (!campaign?._id) throw new Error('Campaign was not created');
+    const callEmitter = new EventEmitter();
+    callEmitter.once(CAMPAIGN_EVENTS.CREATE_CAMPAIGN_SUCCESS, ({ campaign, enrolled }) => {
+      if (!campaign?._id) {
+        toast.error('Could not create that campaign');
+        if (mountedRef.current) setCreating(false);
+        return;
+      }
       toast.success(`${enrolled} lead(s) added. Write your message, then start it.`);
-      navigate(`/hub/campaigns/${campaign._id}`);
-    } catch (err) {
-      const code = err?.response?.data?.code;
-      if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
-      else toast.error(getToastError(err, 'Could not create that campaign'));
-    } finally {
       if (mountedRef.current) setCreating(false);
-    }
-  };
+      navigate(`/hub/campaigns/${campaign._id}`);
+    });
+    callEmitter.once(CAMPAIGN_EVENTS.CREATE_CAMPAIGN_FAILURE, (error) => {
+      const code = error?.response?.data?.code;
+      if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
+      else toast.error(getToastError(error, 'Could not create that campaign'));
+      if (mountedRef.current) setCreating(false);
+    });
+    campaignController.createCampaign(callEmitter, { type: 'message', leadIds: [...selected] });
+  }, [selected, creating, toast, navigate]);
 
   /**
    * Create an enrichment campaign straight from the "All leads" selection —
@@ -331,28 +376,32 @@ export function useLeadsPage() {
    * leads the server has already flagged as needing it, while this one lets
    * you enrich ANY selection without switching tabs first.
    */
-  const createEnrichmentCampaign = async () => {
+  const createEnrichmentCampaign = useCallback(() => {
     if (selected.size === 0 || creatingEnrichment) return;
     setCreatingEnrichment(true);
-    try {
-      const { campaign, queued } = await enrichmentCampaignController.createEnrichmentCampaign({
-        leadIds: [...selected],
-      });
-      if (!campaign?._id) throw new Error('Enrichment campaign was not created');
+    const callEmitter = new EventEmitter();
+    callEmitter.once(ENRICHMENT_EVENTS.CREATE_ENRICHMENT_CAMPAIGN_SUCCESS, ({ campaign, queued }) => {
+      if (!campaign?._id) {
+        toast.error('Could not create that enrichment campaign');
+        if (mountedRef.current) setCreatingEnrichment(false);
+        return;
+      }
       toast.success(
         queued > 0
           ? `${queued} lead(s) queued for enrichment.`
           : 'Nothing to enrich — the selected leads are already enriched.',
       );
-      navigate(`/hub/enrichment/${campaign._id}`);
-    } catch (err) {
-      const code = err?.response?.data?.code;
-      if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
-      else toast.error(getToastError(err, 'Could not create that enrichment campaign'));
-    } finally {
       if (mountedRef.current) setCreatingEnrichment(false);
-    }
-  };
+      navigate(`/hub/enrichment/${campaign._id}`);
+    });
+    callEmitter.once(ENRICHMENT_EVENTS.CREATE_ENRICHMENT_CAMPAIGN_FAILURE, (error) => {
+      const code = error?.response?.data?.code;
+      if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
+      else toast.error(getToastError(error, 'Could not create that enrichment campaign'));
+      if (mountedRef.current) setCreatingEnrichment(false);
+    });
+    enrichmentCampaignController.createEnrichmentCampaign(callEmitter, { leadIds: [...selected] });
+  }, [selected, creatingEnrichment, toast, navigate]);
 
   /**
    * Enroll the current selection into an existing sequence, picked from the
@@ -361,19 +410,21 @@ export function useLeadsPage() {
    * is deliberately the same "instant action, land on the result" shape as
    * createCampaign above, just against a sequence someone already made.
    */
-  const enrollInSequence = async (sequenceId) => {
+  const enrollInSequence = useCallback((sequenceId) => {
     if (!sequenceId || selected.size === 0 || enrolling) return;
     setEnrolling(true);
-    try {
-      const { enrolled } = await sequenceController.enrollLeads(sequenceId, { leadIds: [...selected] });
+    const callEmitter = new EventEmitter();
+    callEmitter.once(SEQUENCE_EVENTS.ENROLL_LEADS_SUCCESS, ({ enrolled }) => {
       toast.success(`${enrolled} lead(s) enrolled. Nothing runs until the sequence is started.`);
-      navigate(`/hub/sequences/${sequenceId}`);
-    } catch (err) {
-      toast.error(getToastError(err, 'Could not enroll those leads'));
-    } finally {
       if (mountedRef.current) setEnrolling(false);
-    }
-  };
+      navigate(`/hub/sequences/${sequenceId}`);
+    });
+    callEmitter.once(SEQUENCE_EVENTS.ENROLL_LEADS_FAILURE, (error) => {
+      toast.error(getToastError(error, 'Could not enroll those leads'));
+      if (mountedRef.current) setEnrolling(false);
+    });
+    sequenceController.enrollLeads(callEmitter, sequenceId, { leadIds: [...selected] });
+  }, [selected, enrolling, toast, navigate]);
 
   /**
    * Folds a resolved profile back into the table row that's already on
@@ -397,7 +448,7 @@ export function useLeadsPage() {
    * Unipile call per lead, so it fails at queue-time rather than stalling
    * silently in the worker.
    */
-  const queueEnrichment = useCallback(async () => {
+  const queueEnrichment = useCallback(() => {
     if (enrichSelected.size === 0 || queuingEnrich) return;
     const ids = [...enrichSelected];
     setQueuingEnrich(true);
@@ -410,25 +461,31 @@ export function useLeadsPage() {
     setLeads((prev) => markQueued(prev));
     setEnrichLeads((prev) => markQueued(prev));
     setEnrichSelected(new Set());
-    try {
-      const { campaign, queued } = await enrichmentCampaignController.createEnrichmentCampaign({ leadIds: ids });
-      if (!campaign?._id) throw new Error('Enrichment campaign was not created');
+    const callEmitter = new EventEmitter();
+    callEmitter.once(ENRICHMENT_EVENTS.CREATE_ENRICHMENT_CAMPAIGN_SUCCESS, ({ campaign, queued }) => {
+      if (!campaign?._id) {
+        toast.error('Could not create that enrichment campaign');
+        if (mountedRef.current) setQueuingEnrich(false);
+        return;
+      }
       toast.success(
         queued > 0
           ? `${queued} lead(s) queued for enrichment.`
           : 'Nothing to enrich — the selected leads are already enriched.',
       );
+      if (mountedRef.current) setQueuingEnrich(false);
       navigate(`/hub/enrichment/${campaign._id}`);
-    } catch (err) {
-      const code = err?.response?.data?.code;
+    });
+    callEmitter.once(ENRICHMENT_EVENTS.CREATE_ENRICHMENT_CAMPAIGN_FAILURE, (error) => {
+      const code = error?.response?.data?.code;
       if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
-      else toast.error(getToastError(err, 'Could not create that enrichment campaign'));
+      else toast.error(getToastError(error, 'Could not create that enrichment campaign'));
       // No rollback of the optimistic status beyond that — the next poll
       // tick (anyBusy is already true, since these rows are 'queued' in
       // local state) corrects it from the server's real state either way.
-    } finally {
       if (mountedRef.current) setQueuingEnrich(false);
-    }
+    });
+    enrichmentCampaignController.createEnrichmentCampaign(callEmitter, { leadIds: ids });
   }, [enrichSelected, queuingEnrich, navigate, toast]);
 
   /**

@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useToast, useConfirm } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import sequenceController from '../controller/sequence.js';
-import { POLL_MS } from '../constants.js';
+import { POLL_MS, SEQUENCE_EVENTS } from '../constants/constants.js';
 
 /** Only a running sequence has anything left to poll for. */
 export const isLive = (s) => s?.status === 'running';
@@ -13,6 +14,8 @@ export const isLive = (s) => s?.status === 'running';
  * path below is the same as when it lived there.
  */
 export function useSequencesPage() {
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
+
   const [sequences, setSequences] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -20,16 +23,67 @@ export function useSequencesPage() {
   const toast = useToast();
   const confirm = useConfirm();
 
-  const mountedRef = useRef(true);
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; };
-  }, []);
+  const load = useCallback(() => {
+    sequenceController.listSequences(eventEmitter);
+  }, [eventEmitter]);
 
-  const load = useCallback(() => sequenceController.listSequences()
-    .then((next) => { if (mountedRef.current) setSequences(next); })
-    .catch((err) => { if (mountedRef.current) toast.error(getToastError(err, 'Could not load your sequences')); })
-    .finally(() => { if (mountedRef.current) setLoading(false); }), [toast]);
+  useEffect(() => {
+    function handleListSuccess(next) {
+      setSequences(next);
+      setLoading(false);
+    }
+    function handleListFailure(error) {
+      toast.error(getToastError(error, 'Could not load your sequences'));
+      setLoading(false);
+    }
+    function handleStartSuccess() {
+      toast.success('Started. Steps run on their own schedule.');
+      setBusy(false);
+      load();
+    }
+    function handleStartFailure(error) {
+      toast.error(getToastError(error, 'Could not start that sequence'));
+      setBusy(false);
+    }
+    function handlePauseSuccess() {
+      toast.success('Paused. Enrollment progress is kept.');
+      setBusy(false);
+      load();
+    }
+    function handlePauseFailure(error) {
+      toast.error(getToastError(error, 'Could not pause that sequence'));
+      setBusy(false);
+    }
+    function handleDeleteSuccess() {
+      toast.success('Sequence removed');
+      setBusy(false);
+      load();
+    }
+    function handleDeleteFailure(error) {
+      toast.error(getToastError(error, 'Could not remove that sequence'));
+      setBusy(false);
+    }
+
+    eventEmitter.on(SEQUENCE_EVENTS.LIST_SEQUENCES_SUCCESS, handleListSuccess);
+    eventEmitter.on(SEQUENCE_EVENTS.LIST_SEQUENCES_FAILURE, handleListFailure);
+    eventEmitter.on(SEQUENCE_EVENTS.START_SEQUENCE_SUCCESS, handleStartSuccess);
+    eventEmitter.on(SEQUENCE_EVENTS.START_SEQUENCE_FAILURE, handleStartFailure);
+    eventEmitter.on(SEQUENCE_EVENTS.PAUSE_SEQUENCE_SUCCESS, handlePauseSuccess);
+    eventEmitter.on(SEQUENCE_EVENTS.PAUSE_SEQUENCE_FAILURE, handlePauseFailure);
+    eventEmitter.on(SEQUENCE_EVENTS.DELETE_SEQUENCE_SUCCESS, handleDeleteSuccess);
+    eventEmitter.on(SEQUENCE_EVENTS.DELETE_SEQUENCE_FAILURE, handleDeleteFailure);
+
+    return () => {
+      eventEmitter.off(SEQUENCE_EVENTS.LIST_SEQUENCES_SUCCESS, handleListSuccess);
+      eventEmitter.off(SEQUENCE_EVENTS.LIST_SEQUENCES_FAILURE, handleListFailure);
+      eventEmitter.off(SEQUENCE_EVENTS.START_SEQUENCE_SUCCESS, handleStartSuccess);
+      eventEmitter.off(SEQUENCE_EVENTS.START_SEQUENCE_FAILURE, handleStartFailure);
+      eventEmitter.off(SEQUENCE_EVENTS.PAUSE_SEQUENCE_SUCCESS, handlePauseSuccess);
+      eventEmitter.off(SEQUENCE_EVENTS.PAUSE_SEQUENCE_FAILURE, handlePauseFailure);
+      eventEmitter.off(SEQUENCE_EVENTS.DELETE_SEQUENCE_SUCCESS, handleDeleteSuccess);
+      eventEmitter.off(SEQUENCE_EVENTS.DELETE_SEQUENCE_FAILURE, handleDeleteFailure);
+    };
+  }, [eventEmitter, load, toast]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -40,42 +94,27 @@ export function useSequencesPage() {
     return () => clearInterval(t);
   }, [anyLive, load]);
 
-  const act = async (fn, sequence, okMessage, failMessage) => {
+  const start = useCallback((sequence) => {
     setBusy(true);
-    try {
-      await fn(sequence._id);
-      toast.success(okMessage);
-      await load();
-    } catch (err) {
-      toast.error(getToastError(err, failMessage));
-    } finally {
-      if (mountedRef.current) setBusy(false);
-    }
-  };
+    sequenceController.startSequence(eventEmitter, sequence._id);
+  }, [eventEmitter]);
 
-  const start = (sequence) => act(
-    (id) => sequenceController.startSequence(id),
-    sequence,
-    'Started. Steps run on their own schedule.',
-    'Could not start that sequence',
-  );
+  const pause = useCallback((sequence) => {
+    setBusy(true);
+    sequenceController.pauseSequence(eventEmitter, sequence._id);
+  }, [eventEmitter]);
 
-  const pause = (sequence) => act(
-    (id) => sequenceController.pauseSequence(id),
-    sequence,
-    'Paused. Enrollment progress is kept.',
-    'Could not pause that sequence',
-  );
-
-  const remove = async (sequence) => {
-    const ok = await confirm({
+  const remove = useCallback((sequence) => {
+    confirm({
       title: 'Remove this sequence?',
       body: 'Actions it already took for enrolled leads are not undone — only the sequence and its enrollment records are removed.',
       confirmLabel: 'Remove',
+    }).then((ok) => {
+      if (!ok) return;
+      setBusy(true);
+      sequenceController.deleteSequence(eventEmitter, sequence._id);
     });
-    if (!ok) return;
-    act((id) => sequenceController.deleteSequence(id), sequence, 'Sequence removed', 'Could not remove that sequence');
-  };
+  }, [confirm, eventEmitter]);
 
   return { sequences, loading, busy, start, pause, remove };
 }

@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
+import { AUTH_EVENTS } from 'src/core/auth/constants/constants.js';
 import { AuthShell, FeaturesAside } from './components/AuthShell.jsx';
 
 /**
@@ -36,29 +37,27 @@ export default function VerifyEmailPage() {
 
   if (!email) return null;
 
-  async function onSubmit(e) {
+  function onSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    try {
-      await verifySignupOtp({ email, code: code.trim() });
+    const emitter = verifySignupOtp({ email, code: code.trim() });
+    emitter.once(AUTH_EVENTS.VERIFY_SIGNUP_OTP_SUCCESS, () => {
+      setLoading(false);
       toast.success('Account created', { description: 'Welcome to Spurly.' });
       navigate('/subscribe', { replace: true });
-    } catch (err) {
-      toast.error(getToastError(err, "That code didn't work. Check it and try again."));
-    } finally {
+    });
+    emitter.once(AUTH_EVENTS.VERIFY_SIGNUP_OTP_FAILURE, (err) => {
       setLoading(false);
-    }
+      toast.error(getToastError(err, "That code didn't work. Check it and try again."));
+    });
   }
 
-  async function onResend() {
+  function onResend() {
     setResending(true);
-    try {
-      // We don't keep the password around on this page, so a true resend isn't
-      // possible here — guide the user back to the form to restart cleanly.
-      navigate('/signup', { state: { email, name } });
-    } finally {
-      setResending(false);
-    }
+    // We don't keep the password around on this page, so a true resend isn't
+    // possible here — guide the user back to the form to restart cleanly.
+    navigate('/signup', { state: { email, name } });
+    setResending(false);
   }
 
   return (

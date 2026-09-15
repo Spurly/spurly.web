@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
+import { AUTH_EVENTS } from 'src/core/auth/constants/constants.js';
 import { AuthShell, FeaturesAside } from './components/AuthShell.jsx';
 import {
   GoogleButton, PasswordField, PasswordRules, passwordMeetsRules, TrustBadges,
@@ -43,7 +44,7 @@ export default function SignupPage() {
   const canSubmit = form.name.trim() && form.email.trim() && phoneOk
     && passwordMeetsRules(form.password) && !loading;
 
-  async function onSubmit(e) {
+  function onSubmit(e) {
     e.preventDefault();
     setError('');
     if (!passwordMeetsRules(form.password)) {
@@ -55,27 +56,28 @@ export default function SignupPage() {
       return;
     }
     setLoading(true);
-    try {
-      await requestSignupOtp({
-        name: form.name.trim(),
-        email: form.email.trim(),
-        password: form.password,
-        // Single-field UI: confirmation mirrors the password (rules enforced above).
-        confirmPassword: form.password,
-        phone: buildE164(form.phoneCountry, form.phoneNumber),
-        referralCode: form.referralCode.trim() || undefined,
-      });
+    const emitter = requestSignupOtp({
+      name: form.name.trim(),
+      email: form.email.trim(),
+      password: form.password,
+      // Single-field UI: confirmation mirrors the password (rules enforced above).
+      confirmPassword: form.password,
+      phone: buildE164(form.phoneCountry, form.phoneNumber),
+      referralCode: form.referralCode.trim() || undefined,
+    });
+    emitter.once(AUTH_EVENTS.REQUEST_SIGNUP_OTP_SUCCESS, () => {
+      setLoading(false);
       toast.success('Verification code sent', {
         description: `We emailed a code to ${form.email.trim()}.`,
       });
       navigate('/signup/verify', {
         state: { email: form.email.trim(), name: form.name.trim() },
       });
-    } catch (err) {
-      toast.error(getToastError(err, "Couldn't create your account"));
-    } finally {
+    });
+    emitter.once(AUTH_EVENTS.REQUEST_SIGNUP_OTP_FAILURE, (err) => {
       setLoading(false);
-    }
+      toast.error(getToastError(err, "Couldn't create your account"));
+    });
   }
 
   return (

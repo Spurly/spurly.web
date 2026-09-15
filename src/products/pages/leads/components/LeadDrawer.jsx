@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapPin, Briefcase, GraduationCap, Users, UserX } from 'lucide-react';
 import { Avatar, Badge, Button, Drawer, Skeleton } from 'src/core/primitives';
 import { LinkedInIcon } from 'src/core/icons';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import leadController from 'src/products/leads/controller/lead.js';
+import { LEAD_EVENTS } from 'src/products/leads/constants/constants.js';
 
 /**
  * Hub's lead detail drawer — Phase 6, 1a/1b.
@@ -235,23 +237,24 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
     if (!lead || lead.profileResolvedAt) return undefined;
 
     const requestId = ++requestIdRef.current;
-    leadController
-      .resolveProfile(lead._id)
-      .then((updated) => {
-        if (requestIdRef.current !== requestId || !updated) return;
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.RESOLVE_PROFILE_SUCCESS, (updated) => {
+      if (requestIdRef.current !== requestId) return;
+      if (updated) {
         setResolved(updated);
         onResolved?.(updated);
-      })
-      .catch((err) => {
-        if (requestIdRef.current !== requestId) return;
-        // Not a toast: the drawer itself is the place to say this, and a
-        // failed resolve should not block reading what the lead list already
-        // knew (name, headline, location) — only the extra sections stay empty.
-        setError(err?.response?.data?.message || 'Could not load the full profile.');
-      })
-      .finally(() => {
-        if (requestIdRef.current === requestId) setResolving(false);
-      });
+      }
+      setResolving(false);
+    });
+    callEmitter.once(LEAD_EVENTS.RESOLVE_PROFILE_FAILURE, (err) => {
+      if (requestIdRef.current !== requestId) return;
+      // Not a toast: the drawer itself is the place to say this, and a
+      // failed resolve should not block reading what the lead list already
+      // knew (name, headline, location) — only the extra sections stay empty.
+      setError(err?.response?.data?.message || 'Could not load the full profile.');
+      setResolving(false);
+    });
+    leadController.resolveProfile(callEmitter, lead._id);
 
     return () => { requestIdRef.current += 1; };
   }, [lead, onResolved]);
@@ -262,17 +265,19 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
     if (withdrawing) return;
     setWithdrawing(true);
     setWithdrawError(null);
-    leadController
-      .withdrawInvitation(lead._id)
-      .then((updated) => {
-        if (!updated) return;
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.WITHDRAW_INVITATION_SUCCESS, (updated) => {
+      if (updated) {
         setResolved(updated);
         onResolved?.(updated);
-      })
-      .catch((err) => {
-        setWithdrawError(err?.response?.data?.message || 'Could not withdraw this invitation.');
-      })
-      .finally(() => setWithdrawing(false));
+      }
+      setWithdrawing(false);
+    });
+    callEmitter.once(LEAD_EVENTS.WITHDRAW_INVITATION_FAILURE, (err) => {
+      setWithdrawError(err?.response?.data?.message || 'Could not withdraw this invitation.');
+      setWithdrawing(false);
+    });
+    leadController.withdrawInvitation(callEmitter, lead._id);
   };
 
   if (!lead) return null;

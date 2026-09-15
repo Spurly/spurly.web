@@ -1,13 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Sparkles, Undo2, X, RefreshCw, Settings2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { usePopperPosition } from 'src/core/primitives/Popper';
 import { useToast } from 'src/core/primitives';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import personalizationController, {
   describeError,
-  TONES,
 } from 'src/products/personalization/controller/personalization.js';
+import { TONES, PERSONALIZATION_EVENTS } from 'src/products/personalization/constants/constants.js';
 import { useAiStatus } from './hooks/useAiStatus.js';
 
 /**
@@ -47,6 +48,7 @@ export function AiWriteButton({
     useAiStatus();
 
   const toast = useToast();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
 
   const [open, setOpen] = useState(false);
   const [tone, setTone] = useState(null);
@@ -114,20 +116,13 @@ export function AiWriteButton({
   const effectiveTone = tone || status?.defaultTone || 'professional';
   const contextConfigured = status?.contextConfigured !== false;
 
-  const run = async (regenerate = false) => {
+  const run = (regenerate = false) => {
     setBusy(true);
+    const currentContent = content;
 
-    try {
-      const draft = await personalizationController.compose({
-        content,
-        type,
-        templateId,
-        tone: effectiveTone,
-        instruction,
-        regenerate,
-      });
-
-      setPreviousContent(content);
+    eventEmitter.once(PERSONALIZATION_EVENTS.COMPOSE_SUCCESS, (draft) => {
+      setBusy(false);
+      setPreviousContent(currentContent);
       lastAppliedRef.current = draft.text;
       onApply(draft.text.slice(0, maxLength));
       setOpen(false);
@@ -135,11 +130,20 @@ export function AiWriteButton({
       toast.success(regenerate ? 'Rewritten' : 'Draft written', {
         description: 'Undo is available next to the button.',
       });
-    } catch (err) {
-      toast.error(describeError(err, regenerate ? "Couldn't rewrite this" : "Couldn't write a draft"));
-    } finally {
+    });
+    eventEmitter.once(PERSONALIZATION_EVENTS.COMPOSE_FAILURE, (err) => {
       setBusy(false);
-    }
+      toast.error(describeError(err, regenerate ? "Couldn't rewrite this" : "Couldn't write a draft"));
+    });
+
+    personalizationController.compose(eventEmitter, {
+      content,
+      type,
+      templateId,
+      tone: effectiveTone,
+      instruction,
+      regenerate,
+    });
   };
 
   const undo = () => {

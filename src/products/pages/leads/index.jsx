@@ -276,7 +276,7 @@ export function HubLeadsPage() {
               page: pagination.page,
               pageSize: pagination.limit,
               total: pagination.total,
-              onPageChange: (page) => loadLeads(undefined, { page }),
+              onPageChange: (page) => loadLeads({ page }),
             }}
           />
         )}
@@ -321,7 +321,7 @@ export function HubLeadsPage() {
               page: enrichPagination.page,
               pageSize: enrichPagination.limit,
               total: enrichPagination.total,
-              onPageChange: (page) => loadEnrichLeads(undefined, { page }),
+              onPageChange: (page) => loadEnrichLeads({ page }),
             }}
           />
         )}

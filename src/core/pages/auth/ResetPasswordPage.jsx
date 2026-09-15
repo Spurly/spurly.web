@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
+import { AUTH_EVENTS } from 'src/core/auth/constants/constants.js';
 import { AuthShell, FeaturesAside } from './components/AuthShell.jsx';
 import { PasswordField, PasswordRules, passwordMeetsRules } from './components/widgets.jsx';
 import { MailIcon } from './components/icons.jsx';
@@ -30,7 +31,7 @@ export default function ResetPasswordPage() {
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  async function onSubmit(e) {
+  function onSubmit(e) {
     e.preventDefault();
     setError('');
     if (!passwordMeetsRules(form.password)) {
@@ -42,20 +43,21 @@ export default function ResetPasswordPage() {
       return;
     }
     setLoading(true);
-    try {
-      await resetPassword({
-        email: form.email.trim(),
-        code: form.code.trim(),
-        password: form.password,
-        confirmPassword: form.confirmPassword,
-      });
+    const emitter = resetPassword({
+      email: form.email.trim(),
+      code: form.code.trim(),
+      password: form.password,
+      confirmPassword: form.confirmPassword,
+    });
+    emitter.once(AUTH_EVENTS.RESET_PASSWORD_SUCCESS, () => {
+      setLoading(false);
       toast.success('Password updated', { description: 'You are now signed in.' });
       navigate('/dashboard', { replace: true });
-    } catch (err) {
-      toast.error(getToastError(err, "Couldn't reset your password"));
-    } finally {
+    });
+    emitter.once(AUTH_EVENTS.RESET_PASSWORD_FAILURE, (err) => {
       setLoading(false);
-    }
+      toast.error(getToastError(err, "Couldn't reset your password"));
+    });
   }
 
   return (

@@ -4,6 +4,7 @@ import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { useAuth } from 'src/core/auth/hooks/useAuth.js';
 import { useMessageTemplates } from 'src/products/templates/hooks/useMessageTemplates.js';
 import { TEMPLATE_TYPES } from 'src/products/templates/controller/templates.js';
+import { TEMPLATE_EVENTS } from 'src/products/templates/constants/constants.js';
 import { useToast, useConfirm } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import { TemplateEditor } from './components/TemplateEditor.jsx';
@@ -41,6 +42,7 @@ export function TemplatesPage() {
     templates,
     loading,
     error,
+    eventEmitter,
     create,
     update,
     remove,
@@ -70,24 +72,33 @@ export function TemplatesPage() {
     setEditing(null);
   }, [type]);
 
-  const handleSubmit = async (payload) => {
+  const handleSubmit = (payload) => {
     const isEdit = editing && editing !== 'new';
     setSaving(true);
-    try {
-      if (isEdit) {
-        await update(editing._id, payload);
-      } else {
-        await create(payload);
-      }
+
+    const successEvent = isEdit ? TEMPLATE_EVENTS.UPDATE_SUCCESS : TEMPLATE_EVENTS.CREATE_SUCCESS;
+    const failureEvent = isEdit ? TEMPLATE_EVENTS.UPDATE_FAILURE : TEMPLATE_EVENTS.CREATE_FAILURE;
+
+    eventEmitter.once(successEvent, () => {
+      setSaving(false);
       setEditing(null);
       toast.success(isEdit ? t.toasts.updated : t.toasts.created);
-    } catch (err) {
-      toast.error(getToastError(err, t.toasts.saveErrorFallback));
-    } finally {
+    });
+    eventEmitter.once(failureEvent, (err) => {
       setSaving(false);
+      toast.error(getToastError(err, t.toasts.saveErrorFallback));
+    });
+
+    if (isEdit) {
+      update(editing._id, payload);
+    } else {
+      create(payload);
     }
   };
 
+  // `confirm()` is a UI-dialog promise, not a network call — the
+  // no-async-in-components rule is about controller error handling, so
+  // awaiting it here (and nowhere else in this handler) is fine.
   const handleDelete = async (template) => {
     const ok = await confirm({
       title: `Delete "${template.name}"?`,
@@ -96,32 +107,35 @@ export function TemplatesPage() {
     });
     if (!ok) return;
 
-    try {
-      await remove(template._id);
+    eventEmitter.once(TEMPLATE_EVENTS.DELETE_SUCCESS, () => {
       if (editing && editing !== 'new' && editing._id === template._id) setEditing(null);
       toast.success(`Deleted "${template.name}"`);
-    } catch (err) {
+    });
+    eventEmitter.once(TEMPLATE_EVENTS.DELETE_FAILURE, (err) => {
       toast.error(getToastError(err, t.toasts.deleteErrorFallback));
-    }
+    });
+    remove(template._id);
   };
 
-  const handleDuplicate = async (template) => {
-    try {
-      const copy = await duplicate(template._id, `${template.name} (copy)`.slice(0, 100));
+  const handleDuplicate = (template) => {
+    eventEmitter.once(TEMPLATE_EVENTS.DUPLICATE_SUCCESS, (copy) => {
       setEditing(copy);
       toast.success(t.toasts.duplicated);
-    } catch (err) {
+    });
+    eventEmitter.once(TEMPLATE_EVENTS.DUPLICATE_FAILURE, (err) => {
       toast.error(getToastError(err, t.toasts.duplicateErrorFallback));
-    }
+    });
+    duplicate(template._id, `${template.name} (copy)`.slice(0, 100));
   };
 
-  const handleFavorite = async (template) => {
-    try {
-      await toggleFavorite(template);
+  const handleFavorite = (template) => {
+    eventEmitter.once(TEMPLATE_EVENTS.TOGGLE_FAVORITE_SUCCESS, () => {
       toast.success(template.isFavorite ? t.toasts.removedFavorite : t.toasts.addedFavorite);
-    } catch (err) {
+    });
+    eventEmitter.once(TEMPLATE_EVENTS.TOGGLE_FAVORITE_FAILURE, (err) => {
       toast.error(getToastError(err, t.toasts.favoriteErrorFallback));
-    }
+    });
+    toggleFavorite(template);
   };
 
   const activeTab = TABS.find((tab) => tab.id === type);

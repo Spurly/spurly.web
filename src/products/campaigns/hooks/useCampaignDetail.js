@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import { useAuth } from 'src/core/auth/hooks/useAuth.js';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import campaignController from '../controller/campaign.js';
-import { POLL_MS } from '../constants.js';
-
+import { POLL_MS, CAMPAIGN_EVENTS } from '../constants/constants.js';
 
 /**
  * All state for one campaign's detail page: the campaign envelope (campaign +
@@ -19,6 +19,8 @@ import { POLL_MS } from '../constants.js';
  */
 export function useCampaignDetail() {
   const { id } = useParams();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
+
   const [data, setData] = useState(null);
   const [members, setMembers] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0 });
@@ -40,6 +42,10 @@ export function useCampaignDetail() {
   const { user } = useAuth();
   const senderName = (user?.name || '').split(' ')[0] || '';
   const mountedRef = useRef(true);
+  // Which field saveNote/saveMessageTemplate last wrote — updateCampaign
+  // shares one event pair for both, so the UPDATE_CAMPAIGN_SUCCESS handler
+  // reads this to know which toast copy to show.
+  const pendingSaveKindRef = useRef(null);
   /**
    * Set on every mount, not only cleared on unmount.
    *
@@ -55,51 +61,21 @@ export function useCampaignDetail() {
     return () => { mountedRef.current = false; };
   }, []);
 
-  const load = useCallback(() => campaignController.getCampaign(id)
-    .then((next) => { if (mountedRef.current) setData(next); })
-    .catch((err) => { if (mountedRef.current) toast.error(getToastError(err, 'Could not load that campaign')); })
-    .finally(() => { if (mountedRef.current) setLoading(false); }), [id, toast]);
+  const load = useCallback(() => {
+    campaignController.getCampaign(eventEmitter, id);
+  }, [eventEmitter, id]);
 
-  const loadMembers = useCallback((page = 1) => campaignController
-    .listMembers(id, { status: statusFilter || undefined, page })
-    .then((res) => {
-      if (!mountedRef.current) return;
-      setMembers(res.members ?? []);
-      setPagination(res.pagination ?? { page, limit: 50, total: 0 });
-    })
-    .catch((err) => { if (mountedRef.current) toast.error(getToastError(err, 'Could not load members')); }), [id, statusFilter, toast]);
-
-  useEffect(() => { load(); }, [load]);
-  useEffect(() => { loadMembers(1); }, [loadMembers]);
+  const loadMembers = useCallback((page = 1) => {
+    campaignController.listMembers(eventEmitter, id, { status: statusFilter || undefined, page });
+  }, [eventEmitter, id, statusFilter]);
 
   const campaign = data?.campaign ?? null;
   const running = campaign?.status === 'running';
 
-  useEffect(() => {
-    if (!running) return undefined;
-    const t = setInterval(() => { load().then(() => loadMembers(pagination.page)); }, POLL_MS);
-    return () => clearInterval(t);
-  }, [running, load, loadMembers, pagination.page]);
-
-  const act = async (fn, okMessage, failMessage) => {
+  const start = useCallback(() => {
     setBusy(true);
-    try {
-      const result = await fn();
-      toast.success(typeof okMessage === 'function' ? okMessage(result) : okMessage);
-      await load();
-      await loadMembers(pagination.page);
-    } catch (err) {
-      toast.error(getToastError(err, failMessage));
-    } finally {
-      if (mountedRef.current) setBusy(false);
-    }
-  };
-
-  const start = () => act(
-    () => campaignController.startCampaign(id),
-    'Started. Sending is paced through your working hours.',
-    'Could not start that campaign',
-  );
+    campaignController.startCampaign(eventEmitter, id);
+  }, [eventEmitter, id]);
 
   /**
    * Opens the review dialog and fetches a fresh, small sample of real
@@ -107,73 +83,167 @@ export function useCampaignDetail() {
    * the page's own `members` (which may be filtered to "Failed" or another
    * status, or just stale) — the whole point of this dialog is to show who
    * is genuinely about to be messaged.
+   *
+   * Uses its own one-shot EventEmitter rather than the page's shared one:
+   * this is a fire-and-forget preview load with no cross-call coordination
+   * need, and reusing the shared emitter would collide with the page's own
+   * LIST_MEMBERS handling.
    */
-  const openStartPreview = async () => {
+  const openStartPreview = useCallback(() => {
     setPreviewOpen(true);
     setPreviewLoading(true);
-    try {
-      const res = await campaignController.listMembers(id, { status: 'pending', page: 1, limit: 20 });
-      if (mountedRef.current) setPreviewMembers(res.members ?? []);
-    } catch (err) {
-      if (mountedRef.current) {
-        setPreviewMembers([]);
-        toast.error(getToastError(err, 'Could not load a preview'));
-      }
-    } finally {
-      if (mountedRef.current) setPreviewLoading(false);
-    }
-  };
+    const previewEmitter = new EventEmitter();
+    previewEmitter.once(CAMPAIGN_EVENTS.LIST_MEMBERS_SUCCESS, (res) => {
+      if (!mountedRef.current) return;
+      setPreviewMembers(res.members ?? []);
+      setPreviewLoading(false);
+    });
+    previewEmitter.once(CAMPAIGN_EVENTS.LIST_MEMBERS_FAILURE, (error) => {
+      if (!mountedRef.current) return;
+      setPreviewMembers([]);
+      toast.error(getToastError(error, 'Could not load a preview'));
+      setPreviewLoading(false);
+    });
+    campaignController.listMembers(previewEmitter, id, { status: 'pending', page: 1, limit: 20 });
+  }, [id, toast]);
 
-  const closeStartPreview = () => {
-    if (busy) return; // let `act`'s own busy-lock finish before this can be dismissed
+  const closeStartPreview = useCallback(() => {
+    if (busy) return; // let the in-flight start finish before this can be dismissed
     setPreviewOpen(false);
-  };
+  }, [busy]);
 
-  const confirmStart = async () => {
-    await start();
-    if (mountedRef.current) setPreviewOpen(false);
-  };
+  const confirmStart = useCallback(() => {
+    start();
+    setPreviewOpen(false);
+  }, [start]);
 
-  const pause = () => act(
-    () => campaignController.pauseCampaign(id),
-    'Paused. Nobody else will be contacted.',
-    'Could not pause that campaign',
-  );
+  const pause = useCallback(() => {
+    setBusy(true);
+    campaignController.pauseCampaign(eventEmitter, id);
+  }, [eventEmitter, id]);
 
-  const retryFailed = () => act(
-    () => campaignController.retryFailed(id),
-    (r) => (r.leftAlone
-      ? `${r.requeued} queued again. ${r.leftAlone} left alone — those may already have been sent.`
-      : `${r.requeued} queued again`),
-    'Could not queue those again',
-  );
+  const retryFailed = useCallback(() => {
+    setBusy(true);
+    campaignController.retryFailed(eventEmitter, id);
+  }, [eventEmitter, id]);
 
-  const saveNote = async (note) => {
+  const saveNote = useCallback((note) => {
     setSaving(true);
-    try {
-      await campaignController.updateCampaign(id, { note });
-      toast.success('Note saved');
-      await load();
-    } catch (err) {
-      toast.error(getToastError(err, 'Could not save that note'));
-    } finally {
-      if (mountedRef.current) setSaving(false);
-    }
-  };
+    pendingSaveKindRef.current = 'note';
+    campaignController.updateCampaign(eventEmitter, id, { note });
+  }, [eventEmitter, id]);
 
   /** Same shape as saveNote, for a `type: 'message'` campaign's template. */
-  const saveMessageTemplate = async (messageTemplate) => {
+  const saveMessageTemplate = useCallback((messageTemplate) => {
     setSaving(true);
-    try {
-      await campaignController.updateCampaign(id, { messageTemplate });
-      toast.success('Message saved');
-      await load();
-    } catch (err) {
-      toast.error(getToastError(err, 'Could not save that message'));
-    } finally {
+    pendingSaveKindRef.current = 'message';
+    campaignController.updateCampaign(eventEmitter, id, { messageTemplate });
+  }, [eventEmitter, id]);
+
+  useEffect(() => {
+    function handleGetSuccess(next) {
+      if (!mountedRef.current) return;
+      setData(next);
+      setLoading(false);
+    }
+    function handleGetFailure(error) {
+      if (!mountedRef.current) return;
+      toast.error(getToastError(error, 'Could not load that campaign'));
+      setLoading(false);
+    }
+    function handleListMembersSuccess(res) {
+      if (!mountedRef.current) return;
+      setMembers(res.members ?? []);
+      setPagination(res.pagination ?? { page: 1, limit: 50, total: 0 });
+    }
+    function handleListMembersFailure(error) {
+      if (!mountedRef.current) return;
+      toast.error(getToastError(error, 'Could not load members'));
+    }
+    function handleStartSuccess() {
+      toast.success('Started. Sending is paced through your working hours.');
+      if (mountedRef.current) setBusy(false);
+      load();
+      loadMembers(pagination.page);
+    }
+    function handleStartFailure(error) {
+      toast.error(getToastError(error, 'Could not start that campaign'));
+      if (mountedRef.current) setBusy(false);
+    }
+    function handlePauseSuccess() {
+      toast.success('Paused. Nobody else will be contacted.');
+      if (mountedRef.current) setBusy(false);
+      load();
+      loadMembers(pagination.page);
+    }
+    function handlePauseFailure(error) {
+      toast.error(getToastError(error, 'Could not pause that campaign'));
+      if (mountedRef.current) setBusy(false);
+    }
+    function handleRetrySuccess(result) {
+      toast.success(result.leftAlone
+        ? `${result.requeued} queued again. ${result.leftAlone} left alone — those may already have been sent.`
+        : `${result.requeued} queued again`);
+      if (mountedRef.current) setBusy(false);
+      load();
+      loadMembers(pagination.page);
+    }
+    function handleRetryFailure(error) {
+      toast.error(getToastError(error, 'Could not queue those again'));
+      if (mountedRef.current) setBusy(false);
+    }
+    function handleUpdateSuccess() {
+      toast.success(pendingSaveKindRef.current === 'message' ? 'Message saved' : 'Note saved');
+      pendingSaveKindRef.current = null;
+      if (mountedRef.current) setSaving(false);
+      load();
+    }
+    function handleUpdateFailure(error) {
+      const failMessage = pendingSaveKindRef.current === 'message'
+        ? 'Could not save that message'
+        : 'Could not save that note';
+      pendingSaveKindRef.current = null;
+      toast.error(getToastError(error, failMessage));
       if (mountedRef.current) setSaving(false);
     }
-  };
+
+    eventEmitter.on(CAMPAIGN_EVENTS.GET_CAMPAIGN_SUCCESS, handleGetSuccess);
+    eventEmitter.on(CAMPAIGN_EVENTS.GET_CAMPAIGN_FAILURE, handleGetFailure);
+    eventEmitter.on(CAMPAIGN_EVENTS.LIST_MEMBERS_SUCCESS, handleListMembersSuccess);
+    eventEmitter.on(CAMPAIGN_EVENTS.LIST_MEMBERS_FAILURE, handleListMembersFailure);
+    eventEmitter.on(CAMPAIGN_EVENTS.START_CAMPAIGN_SUCCESS, handleStartSuccess);
+    eventEmitter.on(CAMPAIGN_EVENTS.START_CAMPAIGN_FAILURE, handleStartFailure);
+    eventEmitter.on(CAMPAIGN_EVENTS.PAUSE_CAMPAIGN_SUCCESS, handlePauseSuccess);
+    eventEmitter.on(CAMPAIGN_EVENTS.PAUSE_CAMPAIGN_FAILURE, handlePauseFailure);
+    eventEmitter.on(CAMPAIGN_EVENTS.RETRY_FAILED_SUCCESS, handleRetrySuccess);
+    eventEmitter.on(CAMPAIGN_EVENTS.RETRY_FAILED_FAILURE, handleRetryFailure);
+    eventEmitter.on(CAMPAIGN_EVENTS.UPDATE_CAMPAIGN_SUCCESS, handleUpdateSuccess);
+    eventEmitter.on(CAMPAIGN_EVENTS.UPDATE_CAMPAIGN_FAILURE, handleUpdateFailure);
+
+    return () => {
+      eventEmitter.off(CAMPAIGN_EVENTS.GET_CAMPAIGN_SUCCESS, handleGetSuccess);
+      eventEmitter.off(CAMPAIGN_EVENTS.GET_CAMPAIGN_FAILURE, handleGetFailure);
+      eventEmitter.off(CAMPAIGN_EVENTS.LIST_MEMBERS_SUCCESS, handleListMembersSuccess);
+      eventEmitter.off(CAMPAIGN_EVENTS.LIST_MEMBERS_FAILURE, handleListMembersFailure);
+      eventEmitter.off(CAMPAIGN_EVENTS.START_CAMPAIGN_SUCCESS, handleStartSuccess);
+      eventEmitter.off(CAMPAIGN_EVENTS.START_CAMPAIGN_FAILURE, handleStartFailure);
+      eventEmitter.off(CAMPAIGN_EVENTS.PAUSE_CAMPAIGN_SUCCESS, handlePauseSuccess);
+      eventEmitter.off(CAMPAIGN_EVENTS.PAUSE_CAMPAIGN_FAILURE, handlePauseFailure);
+      eventEmitter.off(CAMPAIGN_EVENTS.RETRY_FAILED_SUCCESS, handleRetrySuccess);
+      eventEmitter.off(CAMPAIGN_EVENTS.RETRY_FAILED_FAILURE, handleRetryFailure);
+      eventEmitter.off(CAMPAIGN_EVENTS.UPDATE_CAMPAIGN_SUCCESS, handleUpdateSuccess);
+      eventEmitter.off(CAMPAIGN_EVENTS.UPDATE_CAMPAIGN_FAILURE, handleUpdateFailure);
+    };
+  }, [eventEmitter, load, loadMembers, toast, pagination.page]);
+
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => { loadMembers(1); }, [loadMembers]);
+
+  useEffect(() => {
+    if (!running) return undefined;
+    const t = setInterval(() => { load(); loadMembers(pagination.page); }, POLL_MS);
+    return () => clearInterval(t);
+  }, [running, load, loadMembers, pagination.page]);
 
   return {
     data,

@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import { useToast } from 'src/core/primitives';
 import personalizationController, {
   describeError,
 } from 'src/products/personalization/controller/personalization.js';
+import { PERSONALIZATION_EVENTS } from 'src/products/personalization/constants/constants.js';
 
 const EMPTY = {
   whatWeDo: '',
@@ -16,9 +18,14 @@ const EMPTY = {
  * State for the "Context for Spurly" tab. Moved out of the tab component
  * unchanged, including the load-error-stays-on-screen / save-error-toasts
  * distinction (see the comment this carried in the page).
+ *
+ * `personalizationController` reports over `eventEmitter` instead of
+ * returning/throwing, so this hook has no async/await or try/catch of its
+ * own.
  */
 export function useAiContextTab() {
   const toast = useToast();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
 
   const [form, setForm] = useState(EMPTY);
   const [saved, setSaved] = useState(EMPTY);
@@ -31,61 +38,63 @@ export function useAiContextTab() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    let alive = true;
+    function handleContextSuccess(data) {
+      const next = {
+        whatWeDo: data.whatWeDo || '',
+        targetAudience: data.targetAudience || '',
+        outreachGoal: data.outreachGoal || '',
+        voiceRules: data.voiceRules || '',
+        defaultTone: data.defaultTone || 'professional',
+      };
+      setForm(next);
+      setSaved(next);
+      setPreview(data.preview || '');
+      setLoading(false);
+    }
+    function handleContextFailure(err) {
+      setError(describeError(err, "Couldn't load your AI context"));
+      toast.error(describeError(err, "Couldn't load your AI context"));
+      setLoading(false);
+    }
 
-    personalizationController
-      .getContext()
-      .then((data) => {
-        if (!alive) return;
-        const next = {
-          whatWeDo: data.whatWeDo || '',
-          targetAudience: data.targetAudience || '',
-          outreachGoal: data.outreachGoal || '',
-          voiceRules: data.voiceRules || '',
-          defaultTone: data.defaultTone || 'professional',
-        };
-        setForm(next);
-        setSaved(next);
-        setPreview(data.preview || '');
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (!alive) return;
-        setError(describeError(err, "Couldn't load your AI context"));
-        toast.error(describeError(err, "Couldn't load your AI context"));
-        setLoading(false);
-      });
+    eventEmitter.on(PERSONALIZATION_EVENTS.CONTEXT_SUCCESS, handleContextSuccess);
+    eventEmitter.on(PERSONALIZATION_EVENTS.CONTEXT_FAILURE, handleContextFailure);
+    personalizationController.getContext(eventEmitter);
 
     return () => {
-      alive = false;
+      eventEmitter.off(PERSONALIZATION_EVENTS.CONTEXT_SUCCESS, handleContextSuccess);
+      eventEmitter.off(PERSONALIZATION_EVENTS.CONTEXT_FAILURE, handleContextFailure);
     };
-  }, [toast]);
+  }, [eventEmitter, toast]);
 
   const dirty = Object.keys(EMPTY).some((key) => form[key] !== saved[key]);
 
-  const handleSave = async (e) => {
+  const handleSave = (e) => {
     e.preventDefault();
     if (!dirty || saving) return;
 
     setSaving(true);
 
-    try {
-      // Send only what changed — a partial save keeps the request honest about
-      // the user's intent and avoids clobbering a field edited in another tab.
-      const patch = {};
-      for (const key of Object.keys(EMPTY)) {
-        if (form[key] !== saved[key]) patch[key] = form[key];
-      }
+    // Send only what changed — a partial save keeps the request honest about
+    // the user's intent and avoids clobbering a field edited in another tab.
+    const patch = {};
+    for (const key of Object.keys(EMPTY)) {
+      if (form[key] !== saved[key]) patch[key] = form[key];
+    }
+    const nextForm = form;
 
-      const data = await personalizationController.saveContext(patch);
-      setSaved(form);
+    eventEmitter.once(PERSONALIZATION_EVENTS.SAVE_CONTEXT_SUCCESS, (data) => {
+      setSaving(false);
+      setSaved(nextForm);
       setPreview(data.preview || '');
       toast.success('Context saved');
-    } catch (err) {
-      toast.error(describeError(err, "Couldn't save your AI context"));
-    } finally {
+    });
+    eventEmitter.once(PERSONALIZATION_EVENTS.SAVE_CONTEXT_FAILURE, (err) => {
       setSaving(false);
-    }
+      toast.error(describeError(err, "Couldn't save your AI context"));
+    });
+
+    personalizationController.saveContext(eventEmitter, patch);
   };
 
   return { form, setForm, preview, loading, saving, error, dirty, handleSave };

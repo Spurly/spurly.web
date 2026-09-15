@@ -5,13 +5,12 @@
  * `connected`, `linkedinName`, `needsReconnect`, `connectionMethod`,
  * `isPremium` and more are all read directly by the settings page today.
  */
-export class Account {
-  constructor(data = {}) {
-    Object.assign(this, data);
-    this.raw = data;
-  }
-
-  static fromResponse(data) {
-    return data ? new Account(data) : null;
-  }
+function createAccount(data = {}) {
+  return { ...data, raw: data };
 }
+
+export const Account = {
+  fromResponse(data) {
+    return data ? createAccount(data) : null;
+  },
+};

@@ -1,9 +1,16 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast, useConfirm } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import accountController from '../controller/account.js';
-import { POLL_INTERVAL_MS, POLL_TIMEOUT_MS, POLL_VENDOR_CHECK_EVERY, REDIRECT_MAX_ATTEMPTS } from '../constants.js';
+import {
+  ACCOUNT_EVENTS,
+  POLL_INTERVAL_MS,
+  POLL_TIMEOUT_MS,
+  POLL_VENDOR_CHECK_EVERY,
+  REDIRECT_MAX_ATTEMPTS,
+} from '../constants/constants.js';
 
 /**
  * All state and orchestration for the LinkedIn settings page. Moved out of
@@ -11,8 +18,15 @@ import { POLL_INTERVAL_MS, POLL_TIMEOUT_MS, POLL_VENDOR_CHECK_EVERY, REDIRECT_MA
  * "ask the vendor directly" pulls (the post-redirect retry loop and the
  * CONNECTING poll) are the same as when they lived there; see the comments
  * on each for why they exist at all.
+ *
+ * try/catch and async/await live in the controller+gateway only. The one
+ * exception in this file is `handleDisconnect`'s `await confirm(...)` —
+ * that awaits a UI dialog promise, not a network call, so it carries no
+ * try/catch and nothing about its result reaches the controller as
+ * anything other than a plain boolean.
  */
 export function useLinkedInSettings() {
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
   const [account, setAccount] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -23,30 +37,33 @@ export function useLinkedInSettings() {
   const pollRef = useRef(null);
 
   /**
-   * Fetch and apply, with every setState confined to a promise callback rather
-   * than run straight down the effect body — which is what
-   * react-hooks/set-state-in-effect is asking for, and it has a point: the
-   * awaited version also had no way to stop, so leaving the page mid-request
-   * set state on a component that was already gone.
-   *
-   * `signal` is optional because the click handlers call this too, and a
-   * user-initiated reload has nothing to cancel against.
+   * Fires the GET call; the outcome always lands in the same place (the
+   * subscription effect right below), which is what lets every caller below
+   * just call `load()` and move on rather than each handling its own
+   * success/failure.
    */
-  const load = useCallback((signal) => {
-    const live = () => !signal?.aborted;
-    return accountController.get()
-      .then((next) => { if (live()) setAccount(next); })
-      .catch((err) => {
-        if (live()) toast.error(getToastError(err, 'Could not load your LinkedIn connection'));
-      })
-      .finally(() => { if (live()) setLoading(false); });
-  }, [toast]);
+  const load = useCallback(() => {
+    accountController.get(eventEmitter);
+  }, [eventEmitter]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    load(controller.signal);
-    return () => controller.abort();
-  }, [load]);
+    const onGetSuccess = (next) => {
+      setAccount(next);
+      setLoading(false);
+    };
+    const onGetFailure = (err) => {
+      toast.error(getToastError(err, 'Could not load your LinkedIn connection'));
+      setLoading(false);
+    };
+    eventEmitter.on(ACCOUNT_EVENTS.GET_SUCCESS, onGetSuccess);
+    eventEmitter.on(ACCOUNT_EVENTS.GET_FAILURE, onGetFailure);
+    return () => {
+      eventEmitter.off(ACCOUNT_EVENTS.GET_SUCCESS, onGetSuccess);
+      eventEmitter.off(ACCOUNT_EVENTS.GET_FAILURE, onGetFailure);
+    };
+  }, [eventEmitter, toast]);
+
+  useEffect(() => { load(); }, [load]);
 
   /**
    * The hosted flow redirects back here with ?linked=1 or ?linked=0. Read it
@@ -62,6 +79,11 @@ export function useLinkedInSettings() {
 
     setSearchParams({}, { replace: true });
 
+    if (linked !== '1') {
+      load();
+      return undefined;
+    }
+
     /**
      * 🔴 ASK THE VENDOR, don't just re-read our own row.
      *
@@ -72,36 +94,41 @@ export function useLinkedInSettings() {
      * the page ended up saying "Not connected" over an account the vendor
      * showed as Running, for ever, every single time.
      *
-     * `refresh` is the pull, and the server adopts an unbound account when it
-     * can prove we asked for it. Retried twice because hosted auth returns the
-     * user a moment before the account is listable; bounded because a third
-     * silence is a real problem and should look like one.
-     *
-     * Deliberately NOT cancelled on cleanup, unlike the mount load above.
-     * Stripping the param changes searchParams, which re-runs this effect — so
-     * a cleanup that aborted would kill the very request it just started.
+     * Retried twice because hosted auth returns the user a moment before the
+     * account is listable; bounded because a third silence is a real problem
+     * and should look like one.
      */
-    if (linked !== '1') {
-      load();
-      return undefined;
-    }
-
     let attempts = 0;
     let timer = null;
-    const pull = () => {
-      attempts += 1;
-      accountController.refresh()
-        .then((next) => {
-          setAccount(next);
-          setLoading(false);
-          if (!next?.connected && attempts < REDIRECT_MAX_ATTEMPTS) timer = setTimeout(pull, POLL_INTERVAL_MS);
-        })
-        .catch(() => load());
+    let cancelled = false;
+
+    const onPullSuccess = (next) => {
+      if (cancelled) return;
+      setAccount(next);
+      setLoading(false);
+      if (!next?.connected && attempts < REDIRECT_MAX_ATTEMPTS) {
+        timer = setTimeout(pull, POLL_INTERVAL_MS);
+      }
     };
+    const onPullFailure = () => {
+      if (cancelled) return;
+      load();
+    };
+    function pull() {
+      attempts += 1;
+      eventEmitter.once(ACCOUNT_EVENTS.REFRESH_SUCCESS, onPullSuccess);
+      eventEmitter.once(ACCOUNT_EVENTS.REFRESH_FAILURE, onPullFailure);
+      accountController.refresh(eventEmitter);
+    }
     pull();
 
-    return () => clearTimeout(timer);
-  }, [searchParams, setSearchParams, toast, load]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+      eventEmitter.off(ACCOUNT_EVENTS.REFRESH_SUCCESS, onPullSuccess);
+      eventEmitter.off(ACCOUNT_EVENTS.REFRESH_FAILURE, onPullFailure);
+    };
+  }, [searchParams, setSearchParams, toast, load, eventEmitter]);
 
   /**
    * While CONNECTING, poll — and every third tick ask the vendor directly
@@ -134,50 +161,59 @@ export function useLinkedInSettings() {
       }
       // Cheap read most ticks; ask the vendor every third one.
       if (ticks % POLL_VENDOR_CHECK_EVERY === 0) {
-        accountController.refresh().then(setAccount).catch(() => load());
+        eventEmitter.once(ACCOUNT_EVENTS.REFRESH_SUCCESS, setAccount);
+        eventEmitter.once(ACCOUNT_EVENTS.REFRESH_FAILURE, load);
+        accountController.refresh(eventEmitter);
       } else {
         load();
       }
     }, POLL_INTERVAL_MS);
 
     return () => clearInterval(pollRef.current);
-  }, [account?.status, load]);
+  }, [account?.status, load, eventEmitter]);
 
-  const handleConnect = async () => {
+  const handleConnect = () => {
     if (busy) return;
 
     /**
      * The tab is opened NOW, synchronously, and pointed at the URL once it
-     * arrives. Opening it after the await would be a popup the browser blocks,
-     * because by then the click is no longer what caused it.
+     * arrives. Opening it after the response would be a popup the browser
+     * blocks, because by then the click is no longer what caused it.
      */
     const tab = window.open('', '_blank');
     setBusy(true);
 
-    try {
-      const { url } = await accountController.createLink();
-      if (!url) throw new Error('No connection link was returned');
-
+    eventEmitter.once(ACCOUNT_EVENTS.CREATE_LINK_SUCCESS, (data) => {
+      setBusy(false);
+      const url = data?.url;
+      if (!url) {
+        tab?.close();
+        toast.error('No connection link was returned');
+        return;
+      }
       if (tab) tab.location = url;
       else window.location.assign(url);
-    } catch (err) {
+    });
+    eventEmitter.once(ACCOUNT_EVENTS.CREATE_LINK_FAILURE, (err) => {
+      setBusy(false);
       tab?.close();
       toast.error(getToastError(err, 'Could not start the LinkedIn connection'));
-    } finally {
-      setBusy(false);
-    }
+    });
+    accountController.createLink(eventEmitter);
   };
 
-  const handleRefresh = async () => {
+  const handleRefresh = () => {
     if (busy) return;
     setBusy(true);
-    try {
-      setAccount(await accountController.refresh());
-    } catch (err) {
-      toast.error(getToastError(err, 'Could not refresh the connection'));
-    } finally {
+    eventEmitter.once(ACCOUNT_EVENTS.REFRESH_SUCCESS, (next) => {
+      setAccount(next);
       setBusy(false);
-    }
+    });
+    eventEmitter.once(ACCOUNT_EVENTS.REFRESH_FAILURE, (err) => {
+      setBusy(false);
+      toast.error(getToastError(err, 'Could not refresh the connection'));
+    });
+    accountController.refresh(eventEmitter);
   };
 
   const handleDisconnect = async () => {
@@ -193,15 +229,16 @@ export function useLinkedInSettings() {
     if (!ok) return;
 
     setBusy(true);
-    try {
-      await accountController.disconnect();
+    eventEmitter.once(ACCOUNT_EVENTS.DISCONNECT_SUCCESS, () => {
       toast.success('LinkedIn disconnected');
-      await load();
-    } catch (err) {
-      toast.error(getToastError(err, 'Could not disconnect'));
-    } finally {
       setBusy(false);
-    }
+      load();
+    });
+    eventEmitter.once(ACCOUNT_EVENTS.DISCONNECT_FAILURE, (err) => {
+      setBusy(false);
+      toast.error(getToastError(err, 'Could not disconnect'));
+    });
+    accountController.disconnect(eventEmitter);
   };
 
   return { account, loading, busy, handleConnect, handleRefresh, handleDisconnect };

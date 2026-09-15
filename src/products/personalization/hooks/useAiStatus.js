@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import personalizationController from 'src/products/personalization/controller/personalization.js';
+import { PERSONALIZATION_EVENTS } from 'src/products/personalization/constants/constants.js';
 
 /**
  * Provider availability + the user's remaining daily AI quota.
@@ -12,56 +14,65 @@ import personalizationController from 'src/products/personalization/controller/p
  * A failed status check resolves to `available: false` rather than throwing —
  * the AI controls are an enhancement, and a status outage should grey them out,
  * not break the page they live on.
+ *
+ * No promises here, on purpose: `loadStatus` is callback-based and dedupes
+ * concurrent callers on `readyEmitter`, so this file (like every hook) has no
+ * async/await or try/catch of its own — those stay in the controller/gateway.
  */
 
 const CACHE_TTL_MS = 60_000;
 
 let cached = null;
 let cachedAt = 0;
-let inflight = null;
+let requestInFlight = false;
+const readyEmitter = new EventEmitter();
 
 /** Test/logout seam — forget the cached status. */
 export function resetAiStatusCache() {
   cached = null;
   cachedAt = 0;
-  inflight = null;
+  requestInFlight = false;
 }
 
-async function loadStatus(force = false) {
-  if (!force && cached && Date.now() - cachedAt < CACHE_TTL_MS) return cached;
+function loadStatus(callback, force = false) {
+  if (!force && cached && Date.now() - cachedAt < CACHE_TTL_MS) {
+    callback(cached);
+    return;
+  }
 
   // Collapse concurrent callers onto one request.
-  if (!force && inflight) return inflight;
+  readyEmitter.once('ready', callback);
+  if (!force && requestInFlight) return;
 
-  inflight = personalizationController
-    .getStatus()
-    .then((data) => {
-      cached = { ...data, failed: false, failure: null };
-      cachedAt = Date.now();
-      return cached;
-    })
-    .catch((error) => {
-      // `failed` distinguishes "the server told us no provider is configured"
-      // from "we never reached the server". Both leave available:false, but
-      // only the first should silently hide the AI controls — a status call
-      // that 401s or times out is a bug worth surfacing, and collapsing the two
-      // makes a broken deployment look like an uninstalled feature.
-      cached = {
-        available: false,
-        providers: [],
-        quota: null,
-        tones: [],
-        failed: true,
-        failure: error?.message || 'Could not reach the personalization service',
-      };
-      cachedAt = Date.now();
-      return cached;
-    })
-    .finally(() => {
-      inflight = null;
-    });
+  requestInFlight = true;
+  const requestEmitter = new EventEmitter();
 
-  return inflight;
+  requestEmitter.once(PERSONALIZATION_EVENTS.STATUS_SUCCESS, (data) => {
+    cached = { ...data, failed: false, failure: null };
+    cachedAt = Date.now();
+    requestInFlight = false;
+    readyEmitter.emit('ready', cached);
+  });
+  requestEmitter.once(PERSONALIZATION_EVENTS.STATUS_FAILURE, (error) => {
+    // `failed` distinguishes "the server told us no provider is configured"
+    // from "we never reached the server". Both leave available:false, but
+    // only the first should silently hide the AI controls — a status call
+    // that 401s or times out is a bug worth surfacing, and collapsing the two
+    // makes a broken deployment look like an uninstalled feature.
+    cached = {
+      available: false,
+      providers: [],
+      quota: null,
+      tones: [],
+      failed: true,
+      failure: error?.message || 'Could not reach the personalization service',
+    };
+    cachedAt = Date.now();
+    requestInFlight = false;
+    readyEmitter.emit('ready', cached);
+  });
+
+  personalizationController.getStatus(requestEmitter);
 }
 
 /**
@@ -77,11 +88,10 @@ export function useAiStatus(enabled = true) {
 
     let alive = true;
 
-    loadStatus().then((data) => {
-      if (alive) {
-        setStatus(data);
-        setLoading(false);
-      }
+    loadStatus((data) => {
+      if (!alive) return;
+      setStatus(data);
+      setLoading(false);
     });
 
     return () => {
@@ -90,10 +100,8 @@ export function useAiStatus(enabled = true) {
   }, [enabled]);
 
   /** Re-read after a generation, so the quota counter reflects what was spent. */
-  const refresh = useCallback(async () => {
-    const data = await loadStatus(true);
-    setStatus(data);
-    return data;
+  const refresh = useCallback(() => {
+    loadStatus((data) => setStatus(data), true);
   }, []);
 
   return {

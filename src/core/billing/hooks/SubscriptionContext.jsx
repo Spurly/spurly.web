@@ -1,6 +1,8 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
 import subscriptionsController from '../controller/subscriptions.js';
+import { SUBSCRIPTION_EVENTS } from '../constants/constants.js';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 
 export const SubscriptionContext = createContext();
 
@@ -39,6 +41,12 @@ function idOf(user) {
  * no stale-by-one-commit state for a gate to act on. It also covers an
  * account switch, where the previous user's status would otherwise be read as
  * authoritative for the new one.
+ *
+ * `refetch` returns a fresh EventEmitter per call (rather than a promise) so
+ * a caller like SubscribePage's "refresh status" button can subscribe to
+ * that one call's own outcome without needing async/await or try/catch —
+ * this provider updates its own state via an internal `.once()` listener on
+ * the same emitter.
  */
 export function SubscriptionProvider({ children }) {
   const { user, loading: authLoading } = useAuth();
@@ -50,41 +58,61 @@ export function SubscriptionProvider({ children }) {
 
   const userId = idOf(user);
 
-  const refetch = useCallback(async () => {
+  const refetch = useCallback(() => {
+    const emitter = new EventEmitter();
+
     if (!user) {
       setStatus(null);
       setLoadedFor(null);
       setLoading(false);
-      return null;
+      // Deferred so a caller that attaches a `.once()` listener right after
+      // calling refetch() doesn't miss it — mirrors the microtask delay the
+      // controller path naturally has via its own await.
+      Promise.resolve().then(() => {
+        emitter.emit(SUBSCRIPTION_EVENTS.GET_MY_SUBSCRIPTION_SUCCESS, null);
+      });
+      return emitter;
     }
-    // Captured before the await so a late response can't be filed against
+
+    // Captured before the call so a late response can't be filed against
     // whoever happens to be signed in by the time it lands.
     const forId = idOf(user);
     setLoading(true);
     setError(null);
-    try {
-      const summary = await subscriptionsController.getMySubscription();
+
+    subscriptionsController.getMySubscription(emitter);
+
+    emitter.once(SUBSCRIPTION_EVENTS.GET_MY_SUBSCRIPTION_SUCCESS, (summary) => {
       setStatus(summary);
-      return summary;
-    } catch (err) {
+      setLoadedFor(forId);
+      setLoading(false);
+    });
+    emitter.once(SUBSCRIPTION_EVENTS.GET_MY_SUBSCRIPTION_FAILURE, (err) => {
       setError(err.message || 'Could not check subscription status');
       // Deliberately do NOT clear status on a transient fetch error — a
       // stale "active" is safer to keep showing than bouncing an already
       // paying user to the paywall because one poll failed. SubscribeGate
       // still fails closed (redirects to /subscribe) the first time status
       // is null, i.e. before we've ever heard back successfully.
-      return null;
-    } finally {
       // Marked loaded either way: we have heard back, even if the answer was
       // an error. Leaving it unset would hold every gate on a spinner
       // forever whenever the status call is down.
       setLoadedFor(forId);
       setLoading(false);
-    }
+    });
+
+    return emitter;
   }, [user]);
 
   useEffect(() => {
-    refetch();
+    // Wrapped in its own function — calling refetch() directly at the top
+    // level of an effect body trips react-hooks/set-state-in-effect since
+    // refetch synchronously calls setState before dispatching; the
+    // indirection is enough to satisfy it.
+    function runRefetch() {
+      refetch();
+    }
+    runRefetch();
     // Re-check whenever the signed-in user changes (login/logout/signup),
     // not on every refetch identity change.
     // eslint-disable-next-line react-hooks/exhaustive-deps

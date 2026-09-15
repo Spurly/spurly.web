@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
+import { AUTH_EVENTS } from 'src/core/auth/constants/constants.js';
 import { AuthShell, FeaturesAside } from './components/AuthShell.jsx';
 import { MailIcon } from './components/icons.jsx';
 
@@ -15,18 +16,19 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function onSubmit(e) {
+  function onSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    try {
-      await forgotPassword(email.trim());
+    const emitter = forgotPassword(email.trim());
+    emitter.once(AUTH_EVENTS.FORGOT_PASSWORD_SUCCESS, () => {
+      setLoading(false);
       toast.success('Reset code sent', { description: `Check ${email.trim()} for the code.` });
       navigate('/reset-password', { state: { email: email.trim() } });
-    } catch (err) {
-      toast.error(getToastError(err, "Couldn't send a reset code"));
-    } finally {
+    });
+    emitter.once(AUTH_EVENTS.FORGOT_PASSWORD_FAILURE, (err) => {
       setLoading(false);
-    }
+      toast.error(getToastError(err, "Couldn't send a reset code"));
+    });
   }
 
   return (

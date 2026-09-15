@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
+import { AUTH_EVENTS } from 'src/core/auth/constants/constants.js';
 import { AuthShell, FeaturesAside } from './components/AuthShell.jsx';
 import { GoogleButton, PasswordField } from './components/widgets.jsx';
 import { MailIcon } from './components/icons.jsx';
@@ -34,20 +35,21 @@ export default function LoginPage() {
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  async function onSubmit(e) {
+  function onSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    try {
-      const { user } = await login(form.email.trim(), form.password);
+    const emitter = login(form.email.trim(), form.password);
+    emitter.once(AUTH_EVENTS.LOGIN_SUCCESS, ({ user }) => {
+      setLoading(false);
       toast.success('Signed in');
       const next = params.get('next');
       if (next) navigate(next, { replace: true });
       else navigate(postAuthDestination(user), { replace: true });
-    } catch (err) {
-      toast.error(getToastError(err, "Couldn't sign you in"));
-    } finally {
+    });
+    emitter.once(AUTH_EVENTS.LOGIN_FAILURE, (err) => {
       setLoading(false);
-    }
+      toast.error(getToastError(err, "Couldn't sign you in"));
+    });
   }
 
   return (

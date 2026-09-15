@@ -4,6 +4,8 @@ import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { useToast } from 'src/core/primitives';
 import { getApiErrorMessage } from 'src/shared/utils/apiError';
 import authController from 'src/core/auth/controller/auth.js';
+import { AUTH_EVENTS } from 'src/core/auth/constants/constants.js';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 
 export function LinkedInCallbackPage() {
   const [searchParams] = useSearchParams();
@@ -25,41 +27,46 @@ export function LinkedInCallbackPage() {
       setTimeout(() => navigate('/?auth=signin'), 3000);
     };
 
-    const handleCallback = async () => {
-      try {
-        // Get the authorization code from URL parameters
-        const code = searchParams.get('code');
-        const state = searchParams.get('state');
-        const errorParam = searchParams.get('error');
+    const handleCallback = () => {
+      // Get the authorization code from URL parameters
+      const code = searchParams.get('code');
+      const errorParam = searchParams.get('error');
 
-        // Check for errors from LinkedIn
-        if (errorParam) {
-          fail(`LinkedIn login failed: ${errorParam}`);
-          return;
-        }
+      // Check for errors from LinkedIn
+      if (errorParam) {
+        fail(`LinkedIn login failed: ${errorParam}`);
+        return;
+      }
 
-        // Check if we have the code
-        if (!code) {
-          fail('No authorization code received from LinkedIn');
-          return;
-        }
+      // Check if we have the code
+      if (!code) {
+        fail('No authorization code received from LinkedIn');
+        return;
+      }
 
-        // Exchange code for token
-        const result = await authController.handleLinkedInCallback(code);
-
-        if (result && result.token && result.user) {
-          // Refresh the auth context
-          await refetchUser();
-          toast.success('Signed in with LinkedIn');
-          // Redirect to dashboard
-          navigate('/dashboard');
+      // Exchange code for token
+      const callEmitter = new EventEmitter();
+      callEmitter.once(AUTH_EVENTS.HANDLE_LINKEDIN_CALLBACK_SUCCESS, ({ user, token }) => {
+        if (user && token) {
+          // Refresh the auth context, then land on the dashboard once it does.
+          const refetchEmitter = refetchUser();
+          refetchEmitter.once(AUTH_EVENTS.FETCH_CURRENT_USER_SUCCESS, () => {
+            toast.success('Signed in with LinkedIn');
+            navigate('/dashboard');
+          });
+          refetchEmitter.once(AUTH_EVENTS.FETCH_CURRENT_USER_FAILURE, (err) => {
+            console.error('LinkedIn callback error:', err);
+            fail(getApiErrorMessage(err, 'LinkedIn login failed. Please try again.'));
+          });
         } else {
           fail('Failed to complete LinkedIn login');
         }
-      } catch (err) {
+      });
+      callEmitter.once(AUTH_EVENTS.HANDLE_LINKEDIN_CALLBACK_FAILURE, (err) => {
         console.error('LinkedIn callback error:', err);
         fail(getApiErrorMessage(err, 'LinkedIn login failed. Please try again.'));
-      }
+      });
+      authController.handleLinkedInCallback(callEmitter, code);
     };
 
     handleCallback();

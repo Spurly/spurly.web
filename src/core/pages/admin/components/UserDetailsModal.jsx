@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { X, Loader } from 'lucide-react';
-import { getUserDetails, getUserPayments } from 'src/core/admin/gateway/admin.js';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import adminController from 'src/core/admin/controller/admin.js';
+import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
 import { Badge, useToast } from 'src/core/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 
@@ -193,6 +195,7 @@ function BillingHistory({ payments, loading }) {
 
 export default function UserDetailsModal({ user, onClose }) {
   const toast = useToast();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [payments, setPayments] = useState([]);
@@ -203,48 +206,54 @@ export default function UserDetailsModal({ user, onClose }) {
 
   useEffect(() => {
     let active = true;
-    (async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const result = await getUserDetails(user._id);
-        if (!active) return;
-        if (result.success && result.data?.user) {
-          setDetails(result.data.user);
-        } else {
-          setError(result.message || 'Failed to load user details');
-          toast.error(getToastError(result, "Couldn't load this user"));
-        }
-      } catch (err) {
-        if (active) {
-          setError(getApiErrorMessage(err, 'Failed to load user details'));
-          toast.error(getToastError(err, "Couldn't load this user"));
-        }
-      } finally {
-        if (active) setLoading(false);
+    setLoading(true);
+    setError('');
+
+    eventEmitter.once(ADMIN_EVENTS.GET_USER_DETAILS_SUCCESS, (data) => {
+      if (!active) return;
+      if (data?.user) {
+        setDetails(data.user);
+      } else {
+        setError('Failed to load user details');
+        toast.error("Couldn't load this user");
       }
-    })();
+      setLoading(false);
+    });
+    eventEmitter.once(ADMIN_EVENTS.GET_USER_DETAILS_FAILURE, (err) => {
+      if (!active) return;
+      setError(getApiErrorMessage(err, 'Failed to load user details'));
+      toast.error(getToastError(err, "Couldn't load this user"));
+      setLoading(false);
+    });
+
+    adminController.getUserDetails(eventEmitter, user._id);
+
     return () => {
       active = false;
     };
-  }, [user._id, toast]);
+  }, [user._id, eventEmitter, toast]);
 
   // Fetched separately from the user record: a payments hiccup shouldn't
   // blank out the whole modal, and vice versa.
   useEffect(() => {
     let active = true;
-    (async () => {
-      setPaymentsLoading(true);
-      try {
-        const result = await getUserPayments(user._id);
-        if (active && result.success) setPayments(result.data?.payments || []);
-      } catch (err) {
-        // Non-fatal — the section renders its own empty state.
-        console.error('[Admin] Could not load payments for user:', err?.message);
-      } finally {
-        if (active) setPaymentsLoading(false);
-      }
-    })();
+    setPaymentsLoading(true);
+
+    const paymentsEmitter = new EventEmitter();
+    paymentsEmitter.once(ADMIN_EVENTS.GET_USER_PAYMENTS_SUCCESS, (data) => {
+      if (!active) return;
+      setPayments(data?.payments || []);
+      setPaymentsLoading(false);
+    });
+    paymentsEmitter.once(ADMIN_EVENTS.GET_USER_PAYMENTS_FAILURE, (err) => {
+      if (!active) return;
+      // Non-fatal — the section renders its own empty state.
+      console.error('[Admin] Could not load payments for user:', err?.message);
+      setPaymentsLoading(false);
+    });
+
+    adminController.getUserPayments(paymentsEmitter, user._id);
+
     return () => {
       active = false;
     };

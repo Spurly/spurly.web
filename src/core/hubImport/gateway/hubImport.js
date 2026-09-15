@@ -11,12 +11,10 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  * Returns the raw created search/audience row — just `{ _id, name, mode,
  * status, ... }` — callers here only need the id to link to `/hub/leads`.
  */
-class HubImportGateway {
-  async createManualAudience({ name, seeds }) {
-    const res = await apiGateway.post('/hub/searches/import', { name, seeds });
-    return res.data?.data?.search ?? null;
-  }
+async function createManualAudience({ name, seeds }) {
+  const res = await apiGateway.post('/hub/searches/import', { name, seeds });
+  return res.data?.data?.search ?? null;
 }
 
-export const hubImportGateway = new HubImportGateway();
+const hubImportGateway = { createManualAudience };
 export default hubImportGateway;

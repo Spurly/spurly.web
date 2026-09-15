@@ -15,54 +15,56 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  * rather than the gateway's 10s default — the backend caps each provider
  * attempt at 15s and may try three, so a client giving up at 10s would abandon
  * requests the server is about to answer.
+ *
+ * Plain async functions, no try/catch: the shared apiGateway response
+ * interceptor already normalizes every failure.
  */
 
 const GENERATE_TIMEOUT_MS = 45000;
 
-class PersonalizationApi {
-  /** GET /personalization/status — providers, quota, whether context is set */
-  async status() {
-    const res = await apiGateway.get('/personalization/status');
-    return res.data;
-  }
-
-  /** GET /personalization/context — the user's saved "Context for Spurly" */
-  async getContext() {
-    const res = await apiGateway.get('/personalization/context');
-    return res.data;
-  }
-
-  /**
-   * PUT /personalization/context — partial save
-   * @param {Object} patch - any of whatWeDo, targetAudience, outreachGoal,
-   *                         voiceRules, defaultTone
-   */
-  async updateContext(patch) {
-    const res = await apiGateway.put('/personalization/context', patch);
-    return res.data;
-  }
-
-  /**
-   * POST /personalization/compose
-   *
-   * One endpoint for both writing and improving: an empty `content` means
-   * "write me one", non-empty means "improve this". The server decides, so the
-   * caller doesn't have to branch.
-   *
-   * @param {Object} payload
-   * @param {string} [payload.content]
-   * @param {'CONNECTION_REQUEST'|'DIRECT_MESSAGE'} payload.type
-   * @param {string} [payload.templateId]
-   * @param {string} [payload.tone]
-   * @param {string} [payload.instruction]
-   * @param {boolean} [payload.regenerate]
-   */
-  async compose(payload) {
-    const res = await apiGateway.post('/personalization/compose', payload, {
-      timeout: GENERATE_TIMEOUT_MS,
-    });
-    return res.data;
-  }
+/** GET /personalization/status — providers, quota, whether context is set */
+async function status() {
+  const res = await apiGateway.get('/personalization/status');
+  return res.data;
 }
 
-export default new PersonalizationApi();
+/** GET /personalization/context — the user's saved "Context for Spurly" */
+async function getContext() {
+  const res = await apiGateway.get('/personalization/context');
+  return res.data;
+}
+
+/**
+ * PUT /personalization/context — partial save
+ * @param {Object} patch - any of whatWeDo, targetAudience, outreachGoal,
+ *                         voiceRules, defaultTone
+ */
+async function updateContext(patch) {
+  const res = await apiGateway.put('/personalization/context', patch);
+  return res.data;
+}
+
+/**
+ * POST /personalization/compose
+ *
+ * One endpoint for both writing and improving: an empty `content` means
+ * "write me one", non-empty means "improve this". The server decides, so the
+ * caller doesn't have to branch.
+ *
+ * @param {Object} payload
+ * @param {string} [payload.content]
+ * @param {'CONNECTION_REQUEST'|'DIRECT_MESSAGE'} payload.type
+ * @param {string} [payload.templateId]
+ * @param {string} [payload.tone]
+ * @param {string} [payload.instruction]
+ * @param {boolean} [payload.regenerate]
+ */
+async function compose(payload) {
+  const res = await apiGateway.post('/personalization/compose', payload, {
+    timeout: GENERATE_TIMEOUT_MS,
+  });
+  return res.data;
+}
+
+const personalizationApi = { status, getContext, updateContext, compose };
+export default personalizationApi;

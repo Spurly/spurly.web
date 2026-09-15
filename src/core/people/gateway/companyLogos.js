@@ -6,19 +6,18 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  * image URLs. See src/core/people/hooks/companyLogo.js for the store that batches
  * these calls.
  */
-class CompanyLogosGateway {
-  /**
-   * POST /companies/logos  Body: { names: string[] }
-   *
-   * @param {string[]} names
-   * @returns {Promise<Object<string,string>>} name -> domain, resolved only
-   */
-  async getLogos(names) {
-    const res = await apiGateway.post('/companies/logos', { names });
-    // res.data is the standard { success, message, data, status } envelope.
-    return res?.data?.data?.logos ?? {};
-  }
+
+/**
+ * POST /companies/logos  Body: { names: string[] }
+ *
+ * @param {string[]} names
+ * @returns {Promise<Object<string,string>>} name -> domain, resolved only
+ */
+async function getLogos(names) {
+  const res = await apiGateway.post('/companies/logos', { names });
+  // res.data is the standard { success, message, data, status } envelope.
+  return res?.data?.data?.logos ?? {};
 }
 
-export const companyLogosGateway = new CompanyLogosGateway();
+const companyLogosGateway = { getLogos };
 export default companyLogosGateway;

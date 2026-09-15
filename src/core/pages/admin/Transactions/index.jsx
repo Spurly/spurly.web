@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
-import { getTransactions } from 'src/core/admin/gateway/admin.js';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import adminController from 'src/core/admin/controller/admin.js';
+import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
 import { AdminLayout } from 'src/core/pages/admin/components/AdminLayout';
 import { DataTable } from 'src/core/DataTable';
 import { Dropdown } from 'src/core/primitives/Dropdown';
@@ -14,37 +16,50 @@ const TYPE_OPTIONS = [
   ['ADMIN_ADJUSTMENT', 'Admin Adjustment'],
 ];
 
+/**
+ * `adminController` reports back over `eventEmitter` instead of
+ * returning/throwing, so this page has no async/await or try/catch of its
+ * own.
+ */
 export function AdminTransactionsPage() {
   const toast = useToast();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
+
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [pagination, setPagination] = useState({ total: 0, limit: 50, skip: 0, pages: 0 });
   const [filterType, setFilterType] = useState('');
 
-  // Declared above the effect that calls them. They worked where they were —
-  // effects run after the component body — but a `const` referenced before its
-  // declaration is a temporal-dead-zone hazard the moment anything calls it
-  // earlier, and it blocks the React Compiler from optimising the component.
-  const fetchTransactions = async () => {
+  // Declared above the effect that calls it, same reasoning as before: a
+  // `const` referenced before its declaration is a temporal-dead-zone
+  // hazard the moment anything calls it earlier, and it blocks the React
+  // Compiler from optimising the component.
+  const fetchTransactions = useCallback(() => {
     setLoading(true);
     setError('');
-    try {
-      const result = await getTransactions(pagination.limit, pagination.skip, filterType || null);
-      if (result.success) {
-        setTransactions(result.data.transactions);
-        setPagination(result.data.pagination);
-      } else {
-        setError(result.message || 'Failed to load transactions');
-        toast.error(getToastError(result, "Couldn't load transactions"));
-      }
-    } catch (err) {
-      setError(getApiErrorMessage(err, 'Failed to load transactions'));
-      toast.error(getToastError(err, "Couldn't load transactions"));
-    } finally {
+    adminController.getTransactions(eventEmitter, pagination.limit, pagination.skip, filterType || null);
+  }, [eventEmitter, pagination.limit, pagination.skip, filterType]);
+
+  useEffect(() => {
+    function handleSuccess(data) {
+      setTransactions(data.transactions);
+      setPagination(data.pagination);
       setLoading(false);
     }
-  };
+    function handleFailure(err) {
+      setError(getApiErrorMessage(err, 'Failed to load transactions'));
+      toast.error(getToastError(err, "Couldn't load transactions"));
+      setLoading(false);
+    }
+
+    eventEmitter.on(ADMIN_EVENTS.GET_TRANSACTIONS_SUCCESS, handleSuccess);
+    eventEmitter.on(ADMIN_EVENTS.GET_TRANSACTIONS_FAILURE, handleFailure);
+    return () => {
+      eventEmitter.off(ADMIN_EVENTS.GET_TRANSACTIONS_SUCCESS, handleSuccess);
+      eventEmitter.off(ADMIN_EVENTS.GET_TRANSACTIONS_FAILURE, handleFailure);
+    };
+  }, [eventEmitter, toast]);
 
   useEffect(() => {
     fetchTransactions();

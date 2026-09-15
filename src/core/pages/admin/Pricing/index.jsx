@@ -1,10 +1,7 @@
-import { useState, useEffect } from 'react';
-import {
-  getActionCosts,
-  updateActionCost,
-  updateActionBilling,
-  getPlans,
-} from 'src/core/admin/gateway/admin.js';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import adminController from 'src/core/admin/controller/admin.js';
+import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
 import { Loader, Save, Check, AlertCircle, Plus } from 'lucide-react';
 import { AdminLayout } from 'src/core/pages/admin/components/AdminLayout';
 import { DataTable } from 'src/core/DataTable';
@@ -13,8 +10,16 @@ import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 import PlanFormModal from '../components/PlanFormModal';
 import { buildPlanColumns } from './planColumns.jsx';
 
+/**
+ * All network calls go through `adminController`, which reports back over
+ * `eventEmitter` instead of returning/throwing — this page has no
+ * async/await or try/catch of its own; that stays confined to the
+ * controller and gateway.
+ */
 export function AdminPricingPage() {
   const toast = useToast();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
+
   const [costs, setCosts] = useState([]);
   const [drafts, setDrafts] = useState({}); // feature -> string value being edited
   const [loading, setLoading] = useState(true);
@@ -30,57 +35,64 @@ export function AdminPricingPage() {
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null); // null => create mode
 
-  // Declared above the effect that calls them. They worked where they were —
-  // effects run after the component body — but a `const` referenced before its
-  // declaration is a temporal-dead-zone hazard the moment anything calls it
-  // earlier, and it blocks the React Compiler from optimising the component.
-  const fetchCosts = async () => {
+  // Declared above the effect that calls them, same reasoning as before: a
+  // `const` referenced before its declaration is a temporal-dead-zone
+  // hazard the moment anything calls it earlier, and it blocks the React
+  // Compiler from optimising the component.
+  const fetchCosts = useCallback(() => {
     setLoading(true);
     setError('');
-    try {
-      const result = await getActionCosts();
-      if (result.success) {
-        setCosts(result.data.costs);
-        const initialDrafts = {};
-        result.data.costs.forEach((c) => {
-          initialDrafts[c.feature] = String(c.cost);
-        });
-        setDrafts(initialDrafts);
-      } else {
-        setError(result.message || 'Failed to load action costs');
-        toast.error(getToastError(result, "Couldn't load action costs"));
-      }
-    } catch (err) {
-      setError(getApiErrorMessage(err, 'Failed to load action costs'));
-      toast.error(getToastError(err, "Couldn't load action costs"));
-    } finally {
-      setLoading(false);
-    }
-  };
+    adminController.getActionCosts(eventEmitter);
+  }, [eventEmitter]);
 
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(() => {
     setPlansLoading(true);
     setPlansError('');
-    try {
-      const result = await getPlans();
-      if (result.success) {
-        setPlans(result.data.plans || []);
-      } else {
-        setPlansError(result.message || 'Failed to load plans');
-        toast.error(getToastError(result, "Couldn't load plans"));
-      }
-    } catch (err) {
-      setPlansError(getApiErrorMessage(err, 'Failed to load plans'));
-      toast.error(getToastError(err, "Couldn't load plans"));
-    } finally {
+    adminController.getPlans(eventEmitter);
+  }, [eventEmitter]);
+
+  useEffect(() => {
+    function handleCostsSuccess(data) {
+      setCosts(data.costs);
+      const initialDrafts = {};
+      data.costs.forEach((c) => {
+        initialDrafts[c.feature] = String(c.cost);
+      });
+      setDrafts(initialDrafts);
+      setLoading(false);
+    }
+    function handleCostsFailure(err) {
+      setError(getApiErrorMessage(err, 'Failed to load action costs'));
+      toast.error(getToastError(err, "Couldn't load action costs"));
+      setLoading(false);
+    }
+    function handlePlansSuccess(data) {
+      setPlans(data.plans || []);
       setPlansLoading(false);
     }
-  };
+    function handlePlansFailure(err) {
+      setPlansError(getApiErrorMessage(err, 'Failed to load plans'));
+      toast.error(getToastError(err, "Couldn't load plans"));
+      setPlansLoading(false);
+    }
+
+    eventEmitter.on(ADMIN_EVENTS.GET_ACTION_COSTS_SUCCESS, handleCostsSuccess);
+    eventEmitter.on(ADMIN_EVENTS.GET_ACTION_COSTS_FAILURE, handleCostsFailure);
+    eventEmitter.on(ADMIN_EVENTS.GET_PLANS_SUCCESS, handlePlansSuccess);
+    eventEmitter.on(ADMIN_EVENTS.GET_PLANS_FAILURE, handlePlansFailure);
+
+    return () => {
+      eventEmitter.off(ADMIN_EVENTS.GET_ACTION_COSTS_SUCCESS, handleCostsSuccess);
+      eventEmitter.off(ADMIN_EVENTS.GET_ACTION_COSTS_FAILURE, handleCostsFailure);
+      eventEmitter.off(ADMIN_EVENTS.GET_PLANS_SUCCESS, handlePlansSuccess);
+      eventEmitter.off(ADMIN_EVENTS.GET_PLANS_FAILURE, handlePlansFailure);
+    };
+  }, [eventEmitter, toast]);
 
   useEffect(() => {
     fetchCosts();
     fetchPlans();
-  }, []);
+  }, [fetchCosts, fetchPlans]);
 
   const handleCreatePlan = () => {
     setEditingPlan(null);
@@ -103,7 +115,7 @@ export function AdminPricingPage() {
     setSavedFeature(null);
   };
 
-  const handleSave = async (feature) => {
+  const handleSave = (feature) => {
     const raw = drafts[feature];
     const value = Number(raw);
     /* Field validation — stays inline, next to the input it's about. */
@@ -115,60 +127,55 @@ export function AdminPricingPage() {
     setSavingFeature(feature);
     setError('');
     setSavedFeature(null);
-    try {
-      const result = await updateActionCost(feature, value);
-      if (result.success) {
-        setCosts((prev) =>
-          prev.map((c) =>
-            c.feature === feature ? { ...c, cost: value, updatedAt: result.data.updatedAt } : c
-          )
-        );
-        setSavedFeature(feature);
-        setTimeout(() => setSavedFeature(null), 2500);
-        toast.success(`${feature} now costs ${value} credit${value === 1 ? '' : 's'}`);
-      } else {
-        toast.error(getToastError(result, "Couldn't update the cost"));
-      }
-    } catch (err) {
-      toast.error(getToastError(err, "Couldn't update the cost"));
-    } finally {
+
+    eventEmitter.once(ADMIN_EVENTS.UPDATE_ACTION_COST_SUCCESS, (data) => {
+      setCosts((prev) =>
+        prev.map((c) =>
+          c.feature === feature ? { ...c, cost: value, updatedAt: data.updatedAt } : c
+        )
+      );
+      setSavedFeature(feature);
+      setTimeout(() => setSavedFeature(null), 2500);
+      toast.success(`${feature} now costs ${value} credit${value === 1 ? '' : 's'}`);
       setSavingFeature(null);
-    }
+    });
+    eventEmitter.once(ADMIN_EVENTS.UPDATE_ACTION_COST_FAILURE, (err) => {
+      toast.error(getToastError(err, "Couldn't update the cost"));
+      setSavingFeature(null);
+    });
+
+    adminController.updateActionCost(eventEmitter, feature, value);
   };
 
-  const handleToggleBilling = async (feature, nextEnabled) => {
+  const handleToggleBilling = (feature, nextEnabled) => {
     setTogglingFeature(feature);
     setError('');
     setCosts((prev) =>
       prev.map((c) => (c.feature === feature ? { ...c, billingEnabled: nextEnabled } : c))
     );
-    try {
-      const result = await updateActionBilling(feature, nextEnabled);
-      if (!result.success) {
-        setCosts((prev) =>
-          prev.map((c) => (c.feature === feature ? { ...c, billingEnabled: !nextEnabled } : c))
-        );
-        /* The optimistic toggle above has just been rolled back. A toast is the
-           only signal the user gets that the switch flipped back on purpose. */
-        toast.error(getToastError(result, "Couldn't update billing"));
-      } else {
-        setCosts((prev) =>
-          prev.map((c) =>
-            c.feature === feature
-              ? { ...c, billingEnabled: result.data.billingEnabled, updatedAt: result.data.updatedAt }
-              : c
-          )
-        );
-        toast.success(`Billing ${nextEnabled ? 'enabled' : 'disabled'} for ${feature}`);
-      }
-    } catch (err) {
+
+    eventEmitter.once(ADMIN_EVENTS.UPDATE_ACTION_BILLING_SUCCESS, (data) => {
+      setCosts((prev) =>
+        prev.map((c) =>
+          c.feature === feature
+            ? { ...c, billingEnabled: data.billingEnabled, updatedAt: data.updatedAt }
+            : c
+        )
+      );
+      toast.success(`Billing ${nextEnabled ? 'enabled' : 'disabled'} for ${feature}`);
+      setTogglingFeature(null);
+    });
+    eventEmitter.once(ADMIN_EVENTS.UPDATE_ACTION_BILLING_FAILURE, (err) => {
       setCosts((prev) =>
         prev.map((c) => (c.feature === feature ? { ...c, billingEnabled: !nextEnabled } : c))
       );
+      /* The optimistic toggle above has just been rolled back. A toast is the
+         only signal the user gets that the switch flipped back on purpose. */
       toast.error(getToastError(err, "Couldn't update billing"));
-    } finally {
       setTogglingFeature(null);
-    }
+    });
+
+    adminController.updateActionBilling(eventEmitter, feature, nextEnabled);
   };
 
   const isDirty = (c) => String(drafts[c.feature]) !== String(c.cost);

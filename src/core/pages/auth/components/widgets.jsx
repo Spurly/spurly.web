@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "src/core/auth/hooks/useAuth";
+import { AUTH_EVENTS } from "src/core/auth/constants/constants.js";
 import {
   GoogleIcon,
   EyeIcon,
@@ -36,20 +37,24 @@ export function GoogleButton({ label = "Continue with Google", onError }) {
     return () => window.removeEventListener("pageshow", onPageShow);
   }, []);
 
-  async function onClick() {
+  function onClick() {
     setLoading(true);
-    try {
-      const url = await getGoogleAuthUrl();
-      if (!url)
-        throw new Error("Could not start Google sign-in. Please try again.");
+    const emitter = getGoogleAuthUrl();
+    emitter.once(AUTH_EVENTS.GET_GOOGLE_AUTH_URL_SUCCESS, (url) => {
+      if (!url) {
+        onError?.("Could not start Google sign-in. Please try again.");
+        setLoading(false);
+        return;
+      }
       window.location.assign(url);
       // No reset: the browser navigates away on success.
-    } catch (err) {
+    });
+    emitter.once(AUTH_EVENTS.GET_GOOGLE_AUTH_URL_FAILURE, (err) => {
       onError?.(
         err?.message || "Could not start Google sign-in. Please try again.",
       );
       setLoading(false);
-    }
+    });
   }
 
   return (

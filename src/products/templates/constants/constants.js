@@ -1,0 +1,27 @@
+/**
+ * LinkedIn truncates invitation notes at 200 characters. The Campaign schema
+ * allows 300, so this is a soft warning in the editor rather than a hard cap.
+ */
+export const CONNECTION_NOTE_SOFT_LIMIT = 200;
+
+/** Field length caps enforced client-side in the template editor. */
+export const NAME_MAX = 100;
+export const SUBJECT_MAX = 200;
+export const CONTENT_MAX = 5000;
+export const DESCRIPTION_MAX = 500;
+
+/** Events the templates controller emits and the templates hooks listen for. */
+export const TEMPLATE_EVENTS = {
+  LIST_SUCCESS: 'TEMPLATES_LIST_SUCCESS',
+  LIST_FAILURE: 'TEMPLATES_LIST_FAILURE',
+  CREATE_SUCCESS: 'TEMPLATES_CREATE_SUCCESS',
+  CREATE_FAILURE: 'TEMPLATES_CREATE_FAILURE',
+  UPDATE_SUCCESS: 'TEMPLATES_UPDATE_SUCCESS',
+  UPDATE_FAILURE: 'TEMPLATES_UPDATE_FAILURE',
+  DELETE_SUCCESS: 'TEMPLATES_DELETE_SUCCESS',
+  DELETE_FAILURE: 'TEMPLATES_DELETE_FAILURE',
+  DUPLICATE_SUCCESS: 'TEMPLATES_DUPLICATE_SUCCESS',
+  DUPLICATE_FAILURE: 'TEMPLATES_DUPLICATE_FAILURE',
+  TOGGLE_FAVORITE_SUCCESS: 'TEMPLATES_TOGGLE_FAVORITE_SUCCESS',
+  TOGGLE_FAVORITE_FAILURE: 'TEMPLATES_TOGGLE_FAVORITE_FAILURE',
+};

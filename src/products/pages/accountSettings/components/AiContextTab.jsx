@@ -1,7 +1,7 @@
 import { Sparkles, AlertTriangle } from 'lucide-react';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { Button } from 'src/core/primitives';
-import { CONTEXT_FIELDS, TONES } from 'src/products/personalization/controller/personalization.js';
+import { CONTEXT_FIELDS, TONES } from 'src/products/personalization/constants/constants.js';
 import { useAiContextTab } from 'src/products/accountSettings/hooks/useAiContextTab.js';
 import { settingsStrings as t } from '../strings.js';
 

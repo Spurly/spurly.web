@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { IconButton } from 'src/core/primitives';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import leadController from 'src/products/leads/controller/lead.js';
+import { LEAD_EVENTS } from 'src/products/leads/constants/constants.js';
 
 /**
  * PHASE 8 — one multi-select id-lookup filter (location, industry, current
@@ -37,22 +39,21 @@ export function FilterTagPicker({ type, label, placeholder, value, onChange, dis
   const runSearch = useCallback((keywords) => {
     const seq = ++requestSeq.current;
     setLoading(true);
-    leadController
-      .searchAudienceParams({ type, keywords, limit: 8 })
-      .then((params) => {
-        // A slower earlier request landing after a faster later one would
-        // otherwise flash stale results under fresh keystrokes.
-        if (seq !== requestSeq.current) return;
-        setResults(params.filter((p) => p.id && !value.some((v) => v.id === p.id)));
-        setOpen(true);
-      })
-      .catch(() => {
-        if (seq !== requestSeq.current) return;
-        setResults([]);
-      })
-      .finally(() => {
-        if (seq === requestSeq.current) setLoading(false);
-      });
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.SEARCH_AUDIENCE_PARAMS_SUCCESS, (params) => {
+      // A slower earlier request landing after a faster later one would
+      // otherwise flash stale results under fresh keystrokes.
+      if (seq !== requestSeq.current) return;
+      setResults(params.filter((p) => p.id && !value.some((v) => v.id === p.id)));
+      setOpen(true);
+      setLoading(false);
+    });
+    callEmitter.once(LEAD_EVENTS.SEARCH_AUDIENCE_PARAMS_FAILURE, () => {
+      if (seq !== requestSeq.current) return;
+      setResults([]);
+      setLoading(false);
+    });
+    leadController.searchAudienceParams(callEmitter, { type, keywords, limit: 8 });
   }, [type, value]);
 
   const handleTextChange = (e) => {

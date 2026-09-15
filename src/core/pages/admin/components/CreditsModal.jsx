@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { X, Plus, Minus, Loader } from 'lucide-react';
-import { updateCredits } from 'src/core/admin/gateway/admin.js';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import adminController from 'src/core/admin/controller/admin.js';
+import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
 import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 
 export default function CreditsModal({ user, onClose, onSuccess }) {
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
   const [mode, setMode] = useState('add'); // 'add' or 'deduct'
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
@@ -13,7 +16,7 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
   const [error, setError] = useState('');
   const toast = useToast();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
 
@@ -30,31 +33,23 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
 
     setLoading(true);
 
-    try {
-      const result = await updateCredits(
-        user._id,
-        numAmount,
-        mode === 'add' ? 'add' : 'deduct',
-        reason
+    eventEmitter.once(ADMIN_EVENTS.UPDATE_CREDITS_SUCCESS, () => {
+      toast.success(
+        `${numAmount.toLocaleString()} credits ${mode === 'add' ? 'added to' : 'deducted from'} ${user.name || user.email}`,
       );
-
-      if (result.success) {
-        toast.success(
-          `${numAmount.toLocaleString()} credits ${mode === 'add' ? 'added to' : 'deducted from'} ${user.name || user.email}`,
-        );
-        setAmount('');
-        setReason('');
-        /* The confirmation now lives outside the modal, so there's no reason to
-           hold it open — close as soon as the write lands. */
-        onSuccess();
-      } else {
-        toast.error(getToastError(result, "Couldn't update credits"));
-      }
-    } catch (err) {
-      toast.error(getToastError(err, "Couldn't update credits"));
-    } finally {
+      setAmount('');
+      setReason('');
       setLoading(false);
-    }
+      /* The confirmation now lives outside the modal, so there's no reason to
+         hold it open — close as soon as the write lands. */
+      onSuccess();
+    });
+    eventEmitter.once(ADMIN_EVENTS.UPDATE_CREDITS_FAILURE, (err) => {
+      toast.error(getToastError(err, "Couldn't update credits"));
+      setLoading(false);
+    });
+
+    adminController.updateCredits(eventEmitter, user._id, numAmount, mode === 'add' ? 'add' : 'deduct', reason);
   };
 
   return (

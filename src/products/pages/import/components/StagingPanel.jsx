@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { ArrowRight, Trash2, AlertCircle, X, UploadCloud } from 'lucide-react';
 import { DataTable } from 'src/core/DataTable';
 import { Button, useToast } from 'src/core/primitives';
+import { IMPORT_EVENTS } from 'src/products/import/constants/constants.js';
 import { stagingColumns } from './stagingColumns.jsx';
 
 /**
@@ -33,6 +34,11 @@ const STATUS_FILTERS = [
  * button — it's retired for CSV rows specifically now that promotion already
  * sends straight into HubLead, unenriched, the same destination that flow
  * existed to reach (HUB_CAPTURE_RESTRUCTURE_PLAN.md §6).
+ *
+ * `promoteSelected`/`deleteSelected` fire the controller and let `store`'s
+ * own hook update the table; this panel only needs to know the outcome to
+ * clear the selection and show a toast, so it listens for that on
+ * `store.eventEmitter` with `.once()` instead of awaiting anything itself.
  */
 export function StagingPanel({ store, onGoToUpload }) {
   const {
@@ -50,6 +56,7 @@ export function StagingPanel({ store, onGoToUpload }) {
     page,
     setPage,
     busy,
+    eventEmitter,
     promoteSelected,
     deleteSelected,
   } = store;
@@ -86,22 +93,24 @@ export function StagingPanel({ store, onGoToUpload }) {
 
   const clearSelection = () => setSelected(new Set());
 
-  const handlePromote = async () => {
+  const handlePromote = () => {
     if (selectedIds.length === 0) return;
-    const res = await promoteSelected(selectedIds);
-    if (res?.ok) {
+    const count = selectedIds.length;
+    eventEmitter.once(IMPORT_EVENTS.PROMOTE_SUCCESS, ({ promoted } = {}) => {
       clearSelection();
-      toast.success(`Sent ${(res.promoted || selectedIds.length).toLocaleString()} to Hub`);
-    }
+      toast.success(`Sent ${(promoted || count).toLocaleString()} to Hub`);
+    });
+    promoteSelected(selectedIds);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (selectedIds.length === 0) return;
-    const res = await deleteSelected(selectedIds);
-    if (res?.ok) {
+    const count = selectedIds.length;
+    eventEmitter.once(IMPORT_EVENTS.DELETE_SUCCESS, ({ deleted } = {}) => {
       clearSelection();
-      toast.success(`Deleted ${(res.deleted || selectedIds.length).toLocaleString()} staged leads`);
-    }
+      toast.success(`Deleted ${(deleted || count).toLocaleString()} staged leads`);
+    });
+    deleteSelected(selectedIds);
     setConfirmDelete(false);
   };
 

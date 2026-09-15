@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { X, Loader } from 'lucide-react';
-import { getPlans, assignUserPlan } from 'src/core/admin/gateway/admin.js';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import adminController from 'src/core/admin/controller/admin.js';
+import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
 import { Dropdown } from 'src/core/primitives/Dropdown';
 import { useToast } from 'src/core/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
@@ -12,6 +14,7 @@ import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
  */
 export default function PlanAssignModal({ user, onClose, onSuccess }) {
   const currentPlanId = user.planId?._id || user.planId || '';
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
 
   const [plans, setPlans] = useState([]);
   const [selectedPlanId, setSelectedPlanId] = useState(currentPlanId);
@@ -25,33 +28,29 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
 
   useEffect(() => {
     let active = true;
-    (async () => {
-      setPlansLoading(true);
-      setError('');
-      try {
-        const result = await getPlans();
-        if (!active) return;
-        if (result.success) {
-          setPlans(result.data.plans || []);
-        } else {
-          setError(result.message || 'Failed to load plans');
-          toast.error(getToastError(result, "Couldn't load plans"));
-        }
-      } catch (err) {
-        if (active) {
-          setError(getApiErrorMessage(err, 'Failed to load plans'));
-          toast.error(getToastError(err, "Couldn't load plans"));
-        }
-      } finally {
-        if (active) setPlansLoading(false);
-      }
-    })();
+    setPlansLoading(true);
+    setError('');
+
+    eventEmitter.once(ADMIN_EVENTS.GET_PLANS_SUCCESS, (data) => {
+      if (!active) return;
+      setPlans(data.plans || []);
+      setPlansLoading(false);
+    });
+    eventEmitter.once(ADMIN_EVENTS.GET_PLANS_FAILURE, (err) => {
+      if (!active) return;
+      setError(getApiErrorMessage(err, 'Failed to load plans'));
+      toast.error(getToastError(err, "Couldn't load plans"));
+      setPlansLoading(false);
+    });
+
+    adminController.getPlans(eventEmitter);
+
     return () => {
       active = false;
     };
-  }, [toast]);
+  }, [eventEmitter, toast]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
 
@@ -61,24 +60,23 @@ export default function PlanAssignModal({ user, onClose, onSuccess }) {
     }
 
     setLoading(true);
-    try {
-      const result = await assignUserPlan(user._id, selectedPlanId);
-      if (result.success) {
-        const label = plans.find((p) => p._id === selectedPlanId)?.displayName;
-        toast.success(
-          label
-            ? `${user.name || user.email} moved to ${label}`
-            : 'Plan assigned',
-        );
-        onSuccess();
-      } else {
-        toast.error(getToastError(result, "Couldn't assign the plan"));
-      }
-    } catch (err) {
-      toast.error(getToastError(err, "Couldn't assign the plan"));
-    } finally {
+
+    eventEmitter.once(ADMIN_EVENTS.ASSIGN_USER_PLAN_SUCCESS, () => {
+      const label = plans.find((p) => p._id === selectedPlanId)?.displayName;
+      toast.success(
+        label
+          ? `${user.name || user.email} moved to ${label}`
+          : 'Plan assigned',
+      );
       setLoading(false);
-    }
+      onSuccess();
+    });
+    eventEmitter.once(ADMIN_EVENTS.ASSIGN_USER_PLAN_FAILURE, (err) => {
+      toast.error(getToastError(err, "Couldn't assign the plan"));
+      setLoading(false);
+    });
+
+    adminController.assignUserPlan(eventEmitter, user._id, selectedPlanId);
   };
 
   const currentPlanLabel = user.planId?.displayName || null;

@@ -4,19 +4,17 @@
  * Same pass-through shape as Campaign/Lead/Audience — see
  * hub/campaigns/entities/campaign.js for why: `_id`, `name`, `status`,
  * `steps`, `pausedReason`, `error` and more are all read directly by the
- * pages today, and a thin Object.assign means nothing is missing on day one.
+ * pages today, and a thin spread means nothing is missing on day one.
  */
-export class Sequence {
-  constructor(data = {}) {
-    Object.assign(this, data);
-    this.raw = data;
-  }
-
-  static fromResponse(data) {
-    return data ? new Sequence(data) : null;
-  }
-
-  static fromList(list = []) {
-    return list.map(Sequence.fromResponse);
-  }
+function createSequence(data = {}) {
+  return { ...data, raw: data };
 }
+
+export const Sequence = {
+  fromResponse(data) {
+    return data ? createSequence(data) : null;
+  },
+  fromList(list = []) {
+    return list.map(Sequence.fromResponse);
+  },
+};

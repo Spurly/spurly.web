@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { X, Loader } from 'lucide-react';
-import { createPlan, updatePlan } from 'src/core/admin/gateway/admin.js';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import adminController from 'src/core/admin/controller/admin.js';
+import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
 import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 
@@ -23,6 +25,7 @@ import { getToastError } from 'src/shared/utils/apiError';
  */
 export default function PlanFormModal({ plan, onClose, onSuccess }) {
   const isEdit = Boolean(plan);
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
 
   const [name, setName] = useState(plan?.name || '');
   const [displayName, setDisplayName] = useState(plan?.displayName || '');
@@ -49,7 +52,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
     return Number.isFinite(n) && n >= 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
 
@@ -79,49 +82,45 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
       sendConnectionsPerDay: Number(sendConnectionsPerDay),
       sendMessagesPerDay: Number(sendMessagesPerDay),
     };
+    const features = { hub };
+    const trimmedDisplayName = displayName.trim();
 
     setLoading(true);
-    try {
-      let result;
-      const features = { hub };
 
-      if (isEdit) {
-        result = await updatePlan(plan._id, {
-          displayName: displayName.trim(),
-          isActive,
-          rank: Number(rank),
-          limits,
-          features,
-        });
-      } else {
-        result = await createPlan({
-          name: name.trim().toLowerCase(),
-          displayName: displayName.trim(),
-          isActive,
-          rank: Number(rank),
-          limits,
-          features,
-        });
-      }
+    const successEvent = isEdit ? ADMIN_EVENTS.UPDATE_PLAN_SUCCESS : ADMIN_EVENTS.CREATE_PLAN_SUCCESS;
+    const failureEvent = isEdit ? ADMIN_EVENTS.UPDATE_PLAN_FAILURE : ADMIN_EVENTS.CREATE_PLAN_FAILURE;
 
-      if (result.success) {
-        toast.success(
-          isEdit ? `Updated ${displayName.trim()}` : `Created ${displayName.trim()}`,
-        );
-        onSuccess();
-      } else {
-        // Shown in the form as well as the toast: the superset invariant's
-        // refusal names a field and another plan, and it is the kind of
-        // sentence you want to still be on screen while you fix the number.
-        setError(result.message || 'The plan could not be saved');
-        toast.error(getToastError(result, isEdit ? "Couldn't update the plan" : "Couldn't create the plan"));
-      }
-    } catch (err) {
-      toast.error(
-        getToastError(err, isEdit ? "Couldn't update the plan" : "Couldn't create the plan"),
-      );
-    } finally {
+    eventEmitter.once(successEvent, () => {
+      toast.success(isEdit ? `Updated ${trimmedDisplayName}` : `Created ${trimmedDisplayName}`);
       setLoading(false);
+      onSuccess();
+    });
+    eventEmitter.once(failureEvent, (err) => {
+      // Shown in the form as well as the toast: the superset invariant's
+      // refusal names a field and another plan, and it is the kind of
+      // sentence you want to still be on screen while you fix the number.
+      setError(err?.message || 'The plan could not be saved');
+      toast.error(getToastError(err, isEdit ? "Couldn't update the plan" : "Couldn't create the plan"));
+      setLoading(false);
+    });
+
+    if (isEdit) {
+      adminController.updatePlan(eventEmitter, plan._id, {
+        displayName: trimmedDisplayName,
+        isActive,
+        rank: Number(rank),
+        limits,
+        features,
+      });
+    } else {
+      adminController.createPlan(eventEmitter, {
+        name: name.trim().toLowerCase(),
+        displayName: trimmedDisplayName,
+        isActive,
+        rank: Number(rank),
+        limits,
+        features,
+      });
     }
   };
 

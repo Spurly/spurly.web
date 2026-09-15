@@ -1,10 +1,19 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import templatesController from '../controller/templates.js';
+import { TEMPLATE_EVENTS } from '../constants/constants.js';
 import { useErrorToast } from 'src/core/primitives';
 
 /**
  * Loads the user's message templates for one type and exposes optimistic
  * mutations for the Templates page and the campaign picker.
+ *
+ * Every mutation fires `templatesController` and lets it report back over
+ * `eventEmitter` — no async/await or try/catch here. `eventEmitter` is
+ * returned so a caller (the page, the picker modal) can `.once()` its own
+ * per-call follow-up (a toast, closing the editor, handing back the
+ * created/duplicated record) without this hook needing to know about any
+ * of that; this hook only owns keeping `templates` in sync.
  *
  * @param {Object} params
  * @param {'CONNECTION_REQUEST'|'DIRECT_MESSAGE'} params.type
@@ -12,94 +21,121 @@ import { useErrorToast } from 'src/core/primitives';
  * @param {boolean} [params.enabled=true] - skip fetching (e.g. a closed modal)
  */
 export function useMessageTemplates({ type, search = '', enabled = true }) {
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
+
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState(null);
 
-  // Guards against a slow earlier request landing after a newer one and
-  // repainting the list with stale results when the type tab is switched fast.
+  // Guards against a slow earlier list request landing after a newer one and
+  // repainting the list with stale results when the type tab is switched
+  // fast. Each call gets its own private emitter so an old request's
+  // response can never reach a listener meant for a newer one.
   const requestRef = useRef(0);
-  const mountedRef = useRef(true);
 
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  const refresh = useCallback(async () => {
+  const load = useCallback(() => {
     if (!enabled) return;
     const requestId = requestRef.current + 1;
     requestRef.current = requestId;
 
     setLoading(true);
     setError(null);
-    try {
-      const { templates: list } = await templatesController.listTemplates({
-        type,
-        search,
-      });
-      if (!mountedRef.current || requestRef.current !== requestId) return;
+
+    const requestEmitter = new EventEmitter();
+    requestEmitter.once(TEMPLATE_EVENTS.LIST_SUCCESS, ({ templates: list }) => {
+      if (requestRef.current !== requestId) return;
       setTemplates(list);
-    } catch (err) {
-      if (!mountedRef.current || requestRef.current !== requestId) return;
-      setError(err.message || 'Failed to load templates');
+      setLoading(false);
+    });
+    requestEmitter.once(TEMPLATE_EVENTS.LIST_FAILURE, (err) => {
+      if (requestRef.current !== requestId) return;
+      setError(err?.message || 'Failed to load templates');
       setTemplates([]);
-    } finally {
-      if (mountedRef.current && requestRef.current === requestId) setLoading(false);
-    }
-  }, [type, search, enabled]);
+      setLoading(false);
+    });
+    templatesController.listTemplates(requestEmitter, { type, search });
+  }, [enabled, type, search]);
 
   useEffect(() => {
     if (!enabled) return;
-    refresh();
-  }, [refresh, enabled]);
+    load();
+  }, [load, enabled]);
 
-  const create = useCallback(async (payload) => {
-    const created = await templatesController.createTemplate(payload);
-    setTemplates((list) => [created, ...list]);
-    return created;
-  }, []);
-
-  const update = useCallback(async (templateId, payload) => {
-    const updated = await templatesController.updateTemplate(templateId, payload);
-    setTemplates((list) => list.map((t) => (t._id === templateId ? updated : t)));
-    return updated;
-  }, []);
-
-  const remove = useCallback(async (templateId) => {
-    // Optimistic: keep a copy so a failed delete can be put back.
-    let snapshot = [];
-    setTemplates((list) => {
-      snapshot = list;
-      return list.filter((t) => t._id !== templateId);
-    });
-    try {
-      await templatesController.deleteTemplate(templateId);
-    } catch (err) {
-      setTemplates(snapshot);
-      throw err;
+  // Non-optimistic mutations only land in `templates` once the server has
+  // confirmed them.
+  useEffect(() => {
+    function handleCreateSuccess(created) {
+      setTemplates((list) => [created, ...list]);
     }
-  }, []);
-
-  const duplicate = useCallback(async (templateId, newName) => {
-    const copy = await templatesController.duplicateTemplate(templateId, newName);
-    setTemplates((list) => [copy, ...list]);
-    return copy;
-  }, []);
-
-  const toggleFavorite = useCallback(async (template) => {
-    // Optimistic — the star is cosmetic, so a failed toggle just rolls back.
-    const { _id, isFavorite } = template;
-    setTemplates((list) => list.map((t) => (t._id === _id ? { ...t, isFavorite: !isFavorite } : t)));
-    try {
-      await templatesController.toggleFavorite(_id);
-    } catch (err) {
-      setTemplates((list) => list.map((t) => (t._id === _id ? { ...t, isFavorite } : t)));
-      throw err;
+    function handleUpdateSuccess(updated) {
+      setTemplates((list) => list.map((t) => (t._id === updated._id ? updated : t)));
     }
-  }, []);
+    function handleDuplicateSuccess(copy) {
+      setTemplates((list) => [copy, ...list]);
+    }
+
+    eventEmitter.on(TEMPLATE_EVENTS.CREATE_SUCCESS, handleCreateSuccess);
+    eventEmitter.on(TEMPLATE_EVENTS.UPDATE_SUCCESS, handleUpdateSuccess);
+    eventEmitter.on(TEMPLATE_EVENTS.DUPLICATE_SUCCESS, handleDuplicateSuccess);
+
+    return () => {
+      eventEmitter.off(TEMPLATE_EVENTS.CREATE_SUCCESS, handleCreateSuccess);
+      eventEmitter.off(TEMPLATE_EVENTS.UPDATE_SUCCESS, handleUpdateSuccess);
+      eventEmitter.off(TEMPLATE_EVENTS.DUPLICATE_SUCCESS, handleDuplicateSuccess);
+    };
+  }, [eventEmitter]);
+
+  const create = useCallback(
+    (payload) => {
+      templatesController.createTemplate(eventEmitter, payload);
+    },
+    [eventEmitter],
+  );
+
+  const update = useCallback(
+    (templateId, payload) => {
+      templatesController.updateTemplate(eventEmitter, templateId, payload);
+    },
+    [eventEmitter],
+  );
+
+  // Optimistic: the row disappears immediately and comes back if the
+  // delete fails.
+  const remove = useCallback(
+    (templateId) => {
+      let snapshot = [];
+      setTemplates((list) => {
+        snapshot = list;
+        return list.filter((t) => t._id !== templateId);
+      });
+      eventEmitter.once(TEMPLATE_EVENTS.DELETE_FAILURE, () => {
+        setTemplates(snapshot);
+      });
+      templatesController.deleteTemplate(eventEmitter, templateId);
+    },
+    [eventEmitter],
+  );
+
+  const duplicate = useCallback(
+    (templateId, newName) => {
+      templatesController.duplicateTemplate(eventEmitter, templateId, newName);
+    },
+    [eventEmitter],
+  );
+
+  // Optimistic — the star is cosmetic, so it flips immediately and rolls
+  // back on failure without waiting on the request.
+  const toggleFavorite = useCallback(
+    (template) => {
+      const { _id, isFavorite } = template;
+      setTemplates((list) => list.map((t) => (t._id === _id ? { ...t, isFavorite: !isFavorite } : t)));
+      eventEmitter.once(TEMPLATE_EVENTS.TOGGLE_FAVORITE_FAILURE, () => {
+        setTemplates((list) => list.map((t) => (t._id === _id ? { ...t, isFavorite } : t)));
+      });
+      templatesController.toggleFavorite(eventEmitter, _id);
+    },
+    [eventEmitter],
+  );
 
   /* Reported twice on purpose: the inline block the page renders (which
      persists next to the empty table) and one toast (which catches the eye
@@ -107,5 +143,16 @@ export function useMessageTemplates({ type, search = '', enabled = true }) {
      text goes inline, where there's room for it. */
   useErrorToast(error, "Couldn't load your templates");
 
-  return { templates, loading, error, refresh, create, update, remove, duplicate, toggleFavorite };
+  return {
+    templates,
+    loading,
+    error,
+    eventEmitter,
+    refresh: load,
+    create,
+    update,
+    remove,
+    duplicate,
+    toggleFavorite,
+  };
 }

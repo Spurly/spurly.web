@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, AlertTriangle } from 'lucide-react';
-import { getPayments } from 'src/core/admin/gateway/admin.js';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import adminController from 'src/core/admin/controller/admin.js';
+import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
 import { AdminLayout } from 'src/core/pages/admin/components/AdminLayout';
 import { DataTable } from 'src/core/DataTable';
 import { Dropdown } from 'src/core/primitives/Dropdown';
@@ -43,6 +45,7 @@ function Stat({ label, value, hint, warn = false }) {
 
 export function AdminPaymentsPage() {
   const toast = useToast();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
   const [payments, setPayments] = useState([]);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -52,34 +55,41 @@ export function AdminPaymentsPage() {
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
-  // Declared above the effect that calls it. A hoisted `function` is safe here,
-  // but keeping definition before use is what lets the React Compiler reason
-  // about the component, and it removes the question entirely.
-  async function fetchPayments() {
+  // Declared above the effect that calls it, same reasoning as before: a
+  // `const` referenced before its declaration is a temporal-dead-zone
+  // hazard the moment anything calls it earlier, and it blocks the React
+  // Compiler from optimising the component.
+  const fetchPayments = useCallback(() => {
     setLoading(true);
     setError('');
-    try {
-      const result = await getPayments({
-        limit: pagination.limit,
-        skip: pagination.skip,
-        status: status || null,
-        search: search || null,
-      });
-      if (result.success) {
-        setPayments(result.data.payments || []);
-        setPagination((prev) => ({ ...prev, ...result.data.pagination }));
-        setSummary(result.data.summary || null);
-      } else {
-        setError(result.message || 'Failed to load payments');
-        toast.error(getToastError(result, "Couldn't load payments"));
-      }
-    } catch (err) {
-      setError(getApiErrorMessage(err, 'Failed to load payments'));
-      toast.error(getToastError(err, "Couldn't load payments"));
-    } finally {
+    adminController.getPayments(eventEmitter, {
+      limit: pagination.limit,
+      skip: pagination.skip,
+      status: status || null,
+      search: search || null,
+    });
+  }, [eventEmitter, pagination.limit, pagination.skip, status, search]);
+
+  useEffect(() => {
+    function handleSuccess(data) {
+      setPayments(data.payments || []);
+      setPagination((prev) => ({ ...prev, ...data.pagination }));
+      setSummary(data.summary || null);
       setLoading(false);
     }
-  }
+    function handleFailure(err) {
+      setError(getApiErrorMessage(err, 'Failed to load payments'));
+      toast.error(getToastError(err, "Couldn't load payments"));
+      setLoading(false);
+    }
+
+    eventEmitter.on(ADMIN_EVENTS.GET_PAYMENTS_SUCCESS, handleSuccess);
+    eventEmitter.on(ADMIN_EVENTS.GET_PAYMENTS_FAILURE, handleFailure);
+    return () => {
+      eventEmitter.off(ADMIN_EVENTS.GET_PAYMENTS_SUCCESS, handleSuccess);
+      eventEmitter.off(ADMIN_EVENTS.GET_PAYMENTS_FAILURE, handleFailure);
+    };
+  }, [eventEmitter, toast]);
 
   useEffect(() => {
     fetchPayments();

@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import adminController from 'src/core/admin/controller/admin.js';
+import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
 import {
   ResponsiveContainer,
   BarChart,
@@ -40,11 +43,7 @@ import { Button, useToast } from 'src/core/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 import { Dropdown } from 'src/core/primitives/Dropdown';
 import { Field } from 'src/core/primitives/Field';
-import {
-  getAnalyticsOverview,
-  getUserUsageAnalytics,
-  getUserDailyActivity,
-} from 'src/core/admin/gateway/admin.js';
+
 
 /*
  * Chart series read from the token layer like everything else.
@@ -227,14 +226,16 @@ export function AdminInsightsPage() {
   // Load overview once (and on manual refresh).
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      try {
-        const ov = await getAnalyticsOverview();
-        if (!cancelled && ov.success) setOverview(ov.data);
-      } catch {
-        /* handled by table error surface */
-      }
-    })();
+    const overviewEmitter = new EventEmitter();
+
+    overviewEmitter.once(ADMIN_EVENTS.GET_ANALYTICS_OVERVIEW_SUCCESS, (data) => {
+      if (!cancelled) setOverview(data);
+    });
+    // No failure handler needed — the per-user table below surfaces its own
+    // error, and the overview cards simply keep showing their '—' fallback.
+
+    adminController.getAnalyticsOverview(overviewEmitter);
+
     return () => {
       cancelled = true;
     };
@@ -245,26 +246,24 @@ export function AdminInsightsPage() {
     let cancelled = false;
     setLoading(true);
     setError('');
-    const t = setTimeout(async () => {
-      try {
-        const res = await getUserUsageAnalytics(pagination.limit, pagination.skip, search, sort);
+
+    const t = setTimeout(() => {
+      const usageEmitter = new EventEmitter();
+      usageEmitter.once(ADMIN_EVENTS.GET_USER_USAGE_ANALYTICS_SUCCESS, (data) => {
         if (cancelled) return;
-        if (res.success) {
-          setUsers(res.data.users);
-          setPagination((p) => ({ ...p, ...res.data.pagination }));
-        } else {
-          setError(res.message || 'Failed to load usage');
-          toast.error(getToastError(res, "Couldn't load usage"));
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(getApiErrorMessage(err, 'Failed to load usage'));
-          toast.error(getToastError(err, "Couldn't load usage"));
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+        setUsers(data.users);
+        setPagination((p) => ({ ...p, ...data.pagination }));
+        setLoading(false);
+      });
+      usageEmitter.once(ADMIN_EVENTS.GET_USER_USAGE_ANALYTICS_FAILURE, (err) => {
+        if (cancelled) return;
+        setError(getApiErrorMessage(err, 'Failed to load usage'));
+        toast.error(getToastError(err, "Couldn't load usage"));
+        setLoading(false);
+      });
+      adminController.getUserUsageAnalytics(usageEmitter, pagination.limit, pagination.skip, search, sort);
     }, search ? 300 : 0); // small debounce while typing search
+
     return () => {
       cancelled = true;
       clearTimeout(t);
@@ -272,18 +271,23 @@ export function AdminInsightsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.skip, sort, search, refreshKey]);
 
-  const openDrill = async (user) => {
+  const openDrill = (user) => {
     setDrillUser(user);
     setDrillData(null);
     setDrillLoading(true);
-    try {
-      const res = await getUserDailyActivity(user.userId, 30);
-      if (res.success) setDrillData(res.data);
-    } catch {
-      /* modal shows empty state */
-    } finally {
+
+    const drillEmitter = new EventEmitter();
+    drillEmitter.once(ADMIN_EVENTS.GET_USER_DAILY_ACTIVITY_SUCCESS, (data) => {
+      setDrillData(data);
       setDrillLoading(false);
-    }
+    });
+    // No failure handler needed — !drillLoading && !drillData already
+    // renders the "couldn't load" empty state.
+    drillEmitter.once(ADMIN_EVENTS.GET_USER_DAILY_ACTIVITY_FAILURE, () => {
+      setDrillLoading(false);
+    });
+
+    adminController.getUserDailyActivity(drillEmitter, user.userId, 30);
   };
 
   // Derived chart series

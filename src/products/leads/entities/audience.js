@@ -6,17 +6,15 @@
  * `filters`, `importedCount` and more, all read directly by AudienceList and
  * the leads page today.
  */
-export class Audience {
-  constructor(data = {}) {
-    Object.assign(this, data);
-    this.raw = data;
-  }
-
-  static fromResponse(data) {
-    return data ? new Audience(data) : null;
-  }
-
-  static fromList(list = []) {
-    return list.map(Audience.fromResponse);
-  }
+function createAudience(data = {}) {
+  return { ...data, raw: data };
 }
+
+export const Audience = {
+  fromResponse(data) {
+    return data ? createAudience(data) : null;
+  },
+  fromList(list = []) {
+    return list.map(Audience.fromResponse);
+  },
+};

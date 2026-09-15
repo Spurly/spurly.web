@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "src/core/auth/hooks/useAuth";
 import { useToast } from "src/core/primitives";
 import { getToastError } from "src/shared/utils/apiError";
+import { AUTH_EVENTS } from "src/core/auth/constants/constants.js";
 import { AuthShell, WelcomeAside, Stepper } from "./components/AuthShell.jsx";
 import { Dropdown } from "src/core/primitives/Dropdown";
 import {
@@ -127,26 +128,27 @@ export default function OnboardingSurveyPage() {
   ];
   const canSubmit = required.every((k) => String(form[k]).trim()) && !loading;
 
-  async function onSubmit(e) {
+  function onSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    try {
-      await completeOnboarding({
-        role: form.role,
-        teamSizeRange: form.teamSizeRange,
-        primaryGoal: form.primaryGoal,
-        monthlyActivity: form.monthlyActivity,
-        linkedinPlan: form.linkedinPlan,
-        companyName: form.companyName.trim(),
-        companyWebsite: form.companyWebsite.trim() || undefined,
-      });
+    const emitter = completeOnboarding({
+      role: form.role,
+      teamSizeRange: form.teamSizeRange,
+      primaryGoal: form.primaryGoal,
+      monthlyActivity: form.monthlyActivity,
+      linkedinPlan: form.linkedinPlan,
+      companyName: form.companyName.trim(),
+      companyWebsite: form.companyWebsite.trim() || undefined,
+    });
+    emitter.once(AUTH_EVENTS.COMPLETE_ONBOARDING_SUCCESS, () => {
+      setLoading(false);
       toast.success("Details saved");
       navigate("/onboarding/install", { replace: true });
-    } catch (err) {
-      toast.error(getToastError(err, "Couldn't save your details"));
-    } finally {
+    });
+    emitter.once(AUTH_EVENTS.COMPLETE_ONBOARDING_FAILURE, (err) => {
       setLoading(false);
-    }
+      toast.error(getToastError(err, "Couldn't save your details"));
+    });
   }
 
   return (

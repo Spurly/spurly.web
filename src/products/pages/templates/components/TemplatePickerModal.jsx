@@ -3,6 +3,7 @@ import { X, Search, Star, FileText, Plus, ArrowLeft, AlertCircle } from 'lucide-
 import { useAuth } from 'src/core/auth/hooks/useAuth.js';
 import { useMessageTemplates } from 'src/products/templates/hooks/useMessageTemplates.js';
 import { TYPE_FOR_ACTION } from 'src/products/templates/controller/templates.js';
+import { TEMPLATE_EVENTS } from 'src/products/templates/constants/constants.js';
 import { previewTemplate } from 'src/shared/utils/templateTokens.js';
 import { TemplateEditor } from './TemplateEditor.jsx';
 
@@ -31,7 +32,7 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
   const [formError, setFormError] = useState(null);
   const dialogRef = useRef(null);
 
-  const { templates, loading, error, create } = useMessageTemplates({ type });
+  const { templates, loading, error, eventEmitter, create } = useMessageTemplates({ type });
 
   // Esc closes — a modal that can only be dismissed by mouse is a papercut.
   useEffect(() => {
@@ -59,17 +60,20 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
     });
   }, [templates, search]);
 
-  const handleCreate = async (payload) => {
+  const handleCreate = (payload) => {
     setSaving(true);
     setFormError(null);
-    try {
-      const created = await create(payload);
+
+    eventEmitter.once(TEMPLATE_EVENTS.CREATE_SUCCESS, (created) => {
       // Creating from here almost always means "and use it now".
       onPick(created);
-    } catch (err) {
-      setFormError(err.message || 'Could not save the template');
+    });
+    eventEmitter.once(TEMPLATE_EVENTS.CREATE_FAILURE, (err) => {
+      setFormError(err?.message || 'Could not save the template');
       setSaving(false);
-    }
+    });
+
+    create(payload);
   };
 
   const isConnection = action === 'connection';
