@@ -110,13 +110,17 @@ export function useImportedLeads() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, statusFilter, page]);
 
-  /** Send selected leads to the Hub (and out of staging). */
+  /**
+   * Send selected leads to the Hub (and out of staging), grouped under a
+   * named audience. `audienceName` is optional — leave it blank and the
+   * server names the audience itself with a dated default.
+   */
   const promoteSelected = useCallback(
-    (ids) => {
+    (ids, audienceName) => {
       if (!ids?.length || busy) return;
       setActionError(null);
       setBusy(true);
-      importController.promoteLeads(eventEmitter, ids);
+      importController.promoteLeads(eventEmitter, ids, audienceName);
     },
     [busy, eventEmitter],
   );

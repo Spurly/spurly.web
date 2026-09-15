@@ -10,7 +10,7 @@ import {
   DetailActionsSkeleton,
   DetailSubtitleSkeleton,
 } from '../components/DetailPageSkeleton.jsx';
-import { SequenceFlowBuilder } from './components/SequenceFlowBuilder.jsx';
+import { SequenceFlowBuilder, SequenceStepsReadOnly } from './components/SequenceFlowBuilder.jsx';
 import { hubEnrollmentColumns } from './components/columns.jsx';
 import { SEQUENCE_STATUS_VIEW as STATUS_VIEW } from './components/statusView.js';
 import { sequencesStrings } from './strings.js';
@@ -130,21 +130,33 @@ export function SequenceDetailPage() {
           </div>
         )}
 
-        <SectionCard title={t.stepsSectionTitle} noPadding>
-          {isDraft && stepsDirty && (
-            <div className="flex items-center justify-end px-[var(--ui-pad-lg)] py-2 border-b border-[var(--ui-border-hairline)]" style={{ background: 'var(--ui-surface-sunken)' }}>
-              <Button size="sm" disabled={saving || !!stepsValidation} loading={saving} onClick={saveSteps}>
-                {t.saveSteps}
-              </Button>
-            </div>
-          )}
-          <SequenceFlowBuilder
-            steps={draftSteps ?? sequence.steps}
-            onChange={setDraftSteps}
-            readOnly={!isDraft}
-          />
-          {isDraft && stepsValidation && (
-            <p className="px-[var(--ui-pad-lg)] pb-3 text-[var(--ui-t-meta)] text-[var(--ui-danger-fg)]">{stepsValidation}</p>
+        <SectionCard
+          title={t.stepsSectionTitle}
+          noPadding
+          collapsible={!isDraft}
+          defaultCollapsed={!isDraft}
+          collapsedSummary={!isDraft ? `${sequence.steps.length} step(s)` : undefined}
+        >
+          {isDraft ? (
+            <>
+              {stepsDirty && (
+                <div className="flex items-center justify-end px-[var(--ui-pad-lg)] py-2 border-b border-[var(--ui-border-hairline)]" style={{ background: 'var(--ui-surface-sunken)' }}>
+                  <Button size="sm" disabled={saving || !!stepsValidation} loading={saving} onClick={saveSteps}>
+                    {t.saveSteps}
+                  </Button>
+                </div>
+              )}
+              <SequenceFlowBuilder
+                steps={draftSteps ?? sequence.steps}
+                onChange={setDraftSteps}
+                readOnly={false}
+              />
+              {stepsValidation && (
+                <p className="px-[var(--ui-pad-lg)] pb-3 text-[var(--ui-t-meta)] text-[var(--ui-danger-fg)]">{stepsValidation}</p>
+              )}
+            </>
+          ) : (
+            <SequenceStepsReadOnly steps={sequence.steps} />
           )}
         </SectionCard>
 

@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Workflow } from 'lucide-react';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
-import { DataTable } from 'src/core/DataTable';
+import { DataTable, sortRows, filterRows } from 'src/core/DataTable';
 import { Button, EmptyState } from 'src/core/primitives';
 import { useSequencesPage } from 'src/products/sequences/hooks/useSequencesPage.js';
 import { hubSequenceListColumns } from './components/listColumns.jsx';
@@ -28,10 +28,18 @@ export function HubSequencesPage() {
   const { sequences, loading, busy, start, pause, remove } = useSequencesPage();
   const navigate = useNavigate();
 
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState({ key: null, direction: null });
+
   const columns = useMemo(
     () => hubSequenceListColumns({ onStart: start, onPause: pause, onDelete: remove, busy }),
     [busy], // eslint-disable-line react-hooks/exhaustive-deps
   );
+
+  const visibleSequences = useMemo(() => {
+    const filtered = filterRows(sequences, search, ['name']);
+    return sortRows(filtered, sort, { steps: (row) => row.steps?.length ?? 0 });
+  }, [sequences, search, sort]);
 
   return (
     <DashboardLayout
@@ -49,12 +57,20 @@ export function HubSequencesPage() {
       ) : (
         <DataTable
           columns={columns}
-          data={sequences}
+          data={visibleSequences}
           rowKey={(row) => row._id}
           loading={loading}
           onRowClick={(row) => navigate(`/hub/sequences/${row._id}`)}
-          emptyMessage={t.emptyTitle}
-          emptyHint={t.emptyHint}
+          emptyMessage={search ? 'No sequences match your search' : t.emptyTitle}
+          emptyHint={search ? 'Try a different search term' : t.emptyHint}
+          reorderable
+          sort={sort}
+          onSortChange={setSort}
+          toolbar={{
+            searchValue: search,
+            onSearch: setSearch,
+            searchPlaceholder: 'Search sequences by name...',
+          }}
         />
       )}
     </DashboardLayout>

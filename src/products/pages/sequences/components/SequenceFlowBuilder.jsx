@@ -145,7 +145,7 @@ function ConfigFields({ step, onConfigChange, disabled }) {
 }
 
 /** One-line summary shown under a node's title, in both edit and read-only views. */
-function stepSummary(step) {
+export function stepSummary(step) {
   const { type, config } = step;
   switch (type) {
     case 'connect':
@@ -494,6 +494,51 @@ function Gap({ nextStep, readOnly, isDragActive, isOver, onDragOver, onDrop, onA
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Compact, static rendering of a sequence's steps for once it has left
+ * draft — no dotted canvas, no drag handles or add-step menus (nothing here
+ * is editable once running/paused/done, see SequenceDetailPage), just a
+ * simple vertical timeline sized to actually fit the content instead of a
+ * fixed-width node canvas built for editing.
+ */
+export function SequenceStepsReadOnly({ steps }) {
+  if (!steps.length) {
+    return (
+      <p className="px-[var(--ui-pad-lg)] py-4 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">No steps.</p>
+    );
+  }
+
+  return (
+    <div className="flex flex-col px-[var(--ui-pad-lg)] py-3">
+      {steps.map((step, index) => {
+        const def = STEP_TYPE_MAP[step.type];
+        const Icon = def?.icon;
+        const waitDays = step.delayDays ?? 0;
+        const isLast = index === steps.length - 1;
+        return (
+          <div key={index} className="flex gap-3">
+            <div className="flex flex-col items-center">
+              <span className="shrink-0 grid place-items-center w-6 h-6 rounded-[var(--ui-radius-sm)] bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)]">
+                {Icon && <Icon size={13} aria-hidden="true" />}
+              </span>
+              {!isLast && (
+                <span className="w-px flex-1 my-1" style={{ background: 'var(--ui-border)' }} aria-hidden="true" />
+              )}
+            </div>
+            <div className={`flex-1 min-w-0 ${isLast ? '' : 'pb-4'}`}>
+              {waitDays > 0 && (
+                <p className="text-[var(--ui-t-micro)] text-[var(--ui-text-tertiary)] mb-1">Waits {waitDays} day(s) first</p>
+              )}
+              <p className="text-[var(--ui-t-label)] font-medium text-[var(--ui-text-primary)]">{def?.label ?? step.type}</p>
+              <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">{stepSummary(step)}</p>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

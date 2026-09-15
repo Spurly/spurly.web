@@ -82,12 +82,19 @@ async function loadLeads(eventEmitter, { limit, skip, search, enrichStatus } = {
   }
 }
 
-/** Emits PROMOTE_SUCCESS with { promoted }, or PROMOTE_FAILURE with a message. */
-async function promoteLeads(eventEmitter, ids) {
+/**
+ * Emits PROMOTE_SUCCESS with { promoted, audience }, or PROMOTE_FAILURE with
+ * a message. `audienceName` is optional — passed through as typed; the
+ * server falls back to a dated default when it's blank.
+ */
+async function promoteLeads(eventEmitter, ids, audienceName) {
   try {
-    const res = await importGateway.promoteLeads(ids);
+    const res = await importGateway.promoteLeads(ids, audienceName);
     if (!res?.success) throw new Error(res?.message || 'Could not move those leads');
-    eventEmitter.emit(IMPORT_EVENTS.PROMOTE_SUCCESS, { promoted: res.data?.promoted || 0 });
+    eventEmitter.emit(IMPORT_EVENTS.PROMOTE_SUCCESS, {
+      promoted: res.data?.promoted || 0,
+      audience: res.data?.audience || null,
+    });
   } catch (error) {
     eventEmitter.emit(IMPORT_EVENTS.PROMOTE_FAILURE, error?.message || 'Could not move those leads');
   }

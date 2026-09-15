@@ -1,6 +1,6 @@
 import { Pause, Play, Trash2 } from 'lucide-react';
 import { IconButton } from 'src/core/primitives';
-import { ActionsCell, NumberCell } from 'src/core/DataTable';
+import { ActionsCell, NumberCell, DateCell } from 'src/core/DataTable';
 import { isLive } from 'src/products/sequences/hooks/useSequencesPage.js';
 import { SEQUENCE_STATUS_VIEW as STATUS_VIEW } from './statusView.js';
 import { ListStatusCell } from '../../components/ListStatusCell.jsx';
@@ -18,6 +18,7 @@ export function hubSequenceListColumns({ onStart, onPause, onDelete, busy }) {
       key: 'name',
       label: 'Sequence',
       width: 280,
+      sortable: true,
       title: (row) => row.name,
       render: (value) => (
         <span className="font-medium text-[var(--ui-text-primary)]">{value || 'Untitled sequence'}</span>
@@ -28,6 +29,7 @@ export function hubSequenceListColumns({ onStart, onPause, onDelete, busy }) {
       label: 'Steps',
       width: 90,
       align: 'right',
+      sortable: true,
       /* The step COUNT, not the steps: what each one does is the detail page's
          job, and a list of four verbs per row would out-shout the names. */
       render: (value) => <NumberCell value={value?.length ?? 0} />,
@@ -35,7 +37,8 @@ export function hubSequenceListColumns({ onStart, onPause, onDelete, busy }) {
     {
       key: 'status',
       label: 'Status',
-      width: 230,
+      width: 200,
+      sortable: true,
       render: (_value, row) => (
         <ListStatusCell
           view={STATUS_VIEW[row.status] ?? STATUS_VIEW.draft}
@@ -45,10 +48,25 @@ export function hubSequenceListColumns({ onStart, onPause, onDelete, busy }) {
       ),
     },
     {
+      key: 'lastRunAt',
+      label: 'Last activity',
+      width: 140,
+      sortable: true,
+      render: (value) => <DateCell value={value} />,
+    },
+    {
+      key: 'createdAt',
+      label: 'Created',
+      width: 120,
+      sortable: true,
+      render: (value) => <DateCell value={value} />,
+    },
+    {
       key: 'actions',
       label: '',
       width: 92,
       align: 'right',
+      locked: true,
       render: (_value, row) => {
         const running = isLive(row);
         return (

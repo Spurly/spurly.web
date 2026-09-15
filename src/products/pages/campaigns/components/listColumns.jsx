@@ -1,6 +1,6 @@
 import { Pause, Play, Trash2 } from 'lucide-react';
 import { IconButton } from 'src/core/primitives';
-import { ActionsCell, TextCell } from 'src/core/DataTable';
+import { ActionsCell, TextCell, DateCell } from 'src/core/DataTable';
 import { isLive } from 'src/products/campaigns/hooks/useCampaigns.js';
 import { CountPills } from './CountPills.jsx';
 import { CAMPAIGN_STATUS_VIEW as STATUS_VIEW } from './statusView.js';
@@ -22,6 +22,7 @@ export function hubCampaignListColumns({ onStart, onPause, onDelete, busy }) {
       key: 'name',
       label: 'Campaign',
       width: 260,
+      sortable: true,
       title: (row) => row.name,
       render: (value) => (
         <span className="font-medium text-[var(--ui-text-primary)]">{value || 'Untitled campaign'}</span>
@@ -36,7 +37,8 @@ export function hubCampaignListColumns({ onStart, onPause, onDelete, busy }) {
     {
       key: 'status',
       label: 'Status',
-      width: 230,
+      width: 200,
+      sortable: true,
       render: (_value, row) => (
         <ListStatusCell
           view={STATUS_VIEW[row.status] ?? STATUS_VIEW.draft}
@@ -49,15 +51,31 @@ export function hubCampaignListColumns({ onStart, onPause, onDelete, busy }) {
       key: 'type',
       label: 'Sends',
       width: 90,
+      sortable: true,
       /* What a campaign DOES, not what it says — the note or message text
          itself is on the detail page. */
       render: (value) => <TextCell value={value === 'message' ? 'Message' : 'Connect'} tone="secondary" />,
+    },
+    {
+      key: 'lastRunAt',
+      label: 'Last activity',
+      width: 140,
+      sortable: true,
+      render: (value) => <DateCell value={value} />,
+    },
+    {
+      key: 'createdAt',
+      label: 'Created',
+      width: 120,
+      sortable: true,
+      render: (value) => <DateCell value={value} />,
     },
     {
       key: 'actions',
       label: '',
       width: 92,
       align: 'right',
+      locked: true,
       render: (_value, row) => {
         const running = isLive(row);
         return (

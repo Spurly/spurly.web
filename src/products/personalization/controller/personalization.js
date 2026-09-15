@@ -88,9 +88,14 @@ async function saveContext(eventEmitter, patch) {
  * @param {string} [params.tone]
  * @param {string} [params.instruction]
  * @param {boolean} [params.regenerate]
+ * @param {string} [params.recipientName] - set ONLY for a reply to one open
+ *   inbox thread (see AiWriteButton's use in Thread.jsx). Its presence tells
+ *   the server this is a one-off reply to a known person, not a campaign
+ *   template — the server then writes literal text instead of {{tokens}},
+ *   since nothing fills a token in outside a campaign send.
  * Emits COMPOSE_SUCCESS with the draft ({ text, mode, ... }), or COMPOSE_FAILURE.
  */
-async function compose(eventEmitter, { content = '', type, templateId, tone, instruction = '', regenerate = false }) {
+async function compose(eventEmitter, { content = '', type, templateId, tone, instruction = '', regenerate = false, recipientName = '' }) {
   try {
     const payload = { type, regenerate };
 
@@ -99,6 +104,7 @@ async function compose(eventEmitter, { content = '', type, templateId, tone, ins
     if (templateId) payload.templateId = templateId;
     if (tone) payload.tone = tone;
     if (instruction?.trim()) payload.instruction = instruction.trim();
+    if (recipientName?.trim()) payload.recipientName = recipientName.trim();
 
     const data = await call(() => personalizationApi.compose(payload), 'Failed to generate a message');
     eventEmitter.emit(PERSONALIZATION_EVENTS.COMPOSE_SUCCESS, data);

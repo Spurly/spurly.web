@@ -39,9 +39,14 @@ async function getStats() {
   return response.data;
 }
 
-/** Send staged leads to the Hub. POST /imported-leads/promote */
-async function promoteLeads(ids) {
-  const response = await apiGateway.post('/imported-leads/promote', { ids });
+/**
+ * Send staged leads to the Hub. POST /imported-leads/promote
+ * `audienceName` is optional — the batch always lands under a Hub audience,
+ * named by the caller or (if omitted) auto-named server-side with a dated
+ * default, so promoted leads are never left unfiled.
+ */
+async function promoteLeads(ids, audienceName) {
+  const response = await apiGateway.post('/imported-leads/promote', { ids, audienceName });
   return response.data;
 }
 

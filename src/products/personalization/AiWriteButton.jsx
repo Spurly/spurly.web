@@ -29,17 +29,26 @@ import { useAiStatus } from './hooks/useAiStatus.js';
  * per-person generation, which is why one review covers the whole send.
  *
  * Props:
- *   content     — current text in the box
- *   type        — 'CONNECTION_REQUEST' | 'DIRECT_MESSAGE'
- *   templateId  — saved template id, when editing one
- *   maxLength   — parent's character cap, so a result can't overflow the field
- *   disabled    — parent-owned (e.g. while saving or sending)
- *   onApply     — (newContent) => void
+ *   content       — current text in the box
+ *   type          — 'CONNECTION_REQUEST' | 'DIRECT_MESSAGE'
+ *   templateId    — saved template id, when editing one
+ *   recipientName — set ONLY when the box is replying to one already-open
+ *                   conversation (Thread.jsx), never for a campaign or saved
+ *                   template. Its presence tells the server to write literal
+ *                   text addressed to this person instead of a {{token}}
+ *                   template — there is no fill-at-send-time step for a
+ *                   manual inbox reply, so a token here would be sent to them
+ *                   exactly as written. Mutually exclusive with templateId in
+ *                   practice: a saved template always goes to many people.
+ *   maxLength     — parent's character cap, so a result can't overflow the field
+ *   disabled      — parent-owned (e.g. while saving or sending)
+ *   onApply       — (newContent) => void
  */
 export function AiWriteButton({
   content = '',
   type,
   templateId = null,
+  recipientName = '',
   maxLength = 2000,
   disabled = false,
   onApply,
@@ -140,6 +149,7 @@ export function AiWriteButton({
       content,
       type,
       templateId,
+      recipientName,
       tone: effectiveTone,
       instruction,
       regenerate,
@@ -285,9 +295,13 @@ export function AiWriteButton({
           </div>
 
           <p className="text-[var(--ui-t-meta)] leading-relaxed text-[var(--ui-text-tertiary)]">
-            {hasContent
-              ? 'Your {{tokens}} are kept exactly as they are. You can undo straight after.'
-              : 'It writes one message with {{tokens}}, filled in per person when the campaign sends.'}
+            {recipientName
+              ? (hasContent
+                ? `Written directly to ${recipientName} — no placeholders. You can undo straight after.`
+                : `It writes one reply, addressed to ${recipientName} directly.`)
+              : hasContent
+                ? 'Your {{tokens}} are kept exactly as they are. You can undo straight after.'
+                : 'It writes one message with {{tokens}}, filled in per person when the campaign sends.'}
           </p>
 
           <div className="flex items-center justify-between gap-2">

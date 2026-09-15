@@ -153,11 +153,18 @@ export function Thread({ chatId, onChanged }) {
         <form onSubmit={send} className="shrink-0 border-t border-[var(--ui-border-hairline)] p-3 flex flex-col gap-2">
           {/* A reply is always a DIRECT_MESSAGE to one already-open thread —
               never a CONNECTION_REQUEST note, and never tied to a saved
-              template — so the button gets no templateId here. */}
+              template — so the button gets no templateId here. It DOES get
+              recipientName: this is a reply to one known person, not a
+              campaign, and there is no extension fill-at-send-time step for
+              a manual inbox reply — so the draft must never contain a
+              {{token}}. Passing the name here is what tells the server to
+              write literal text instead (see AiWriteButton and
+              personalization/prompts.js#personalizationBlock). */}
           <div className="flex justify-end">
             <AiWriteButton
               content={draft}
               type="DIRECT_MESSAGE"
+              recipientName={chat?.display?.name || ''}
               maxLength={2000}
               disabled={sending}
               onApply={setDraft}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   PanelLeftClose,
@@ -37,9 +37,9 @@ const NAV_SECTIONS = [
   {
     label: "Prospect",
     items: [
-      { label: "Import", icon: Upload, href: "/dashboard/import" },
       { label: "Leads", icon: Radar, href: "/hub/leads" },
       { label: "Enrichment", icon: Sparkles, href: "/hub/enrichment" },
+      { label: "Import", icon: Upload, href: "/dashboard/import" },
     ],
   },
   {
@@ -64,16 +64,7 @@ const NAV_SECTIONS = [
   },
 ];
 
-const ADMIN_GROUP = {
-  id: "admin",
-  label: "Manage",
-  sections: [
-    {
-      label: "Admin",
-      items: [{ label: "Admin", icon: Shield, href: "/admin/users" }],
-    },
-  ],
-};
+const ADMIN_ITEM = { label: "Admin", icon: Shield, href: "/admin/users" };
 
 const SIDEBAR_OPEN_KEY = "spurly.sidebarOpen";
 const WIDTH_EXPANDED = 244;
@@ -268,24 +259,47 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
     window.localStorage.setItem(SIDEBAR_OPEN_KEY, String(expanded));
   }, [expanded]);
 
-  const isActive = useCallback(
-    (href) =>
-      href.startsWith("/admin")
-        ? location.pathname.startsWith("/admin")
-        : location.pathname === href ||
-          location.pathname.startsWith(`${href}/`),
-    [location.pathname],
+  const groups = [
+    {
+      id: "main",
+      sections: NAV_SECTIONS.map((section) =>
+        section.label === "Manage" && user?.isAdmin
+          ? { ...section, items: [...section.items, ADMIN_ITEM] }
+          : section,
+      ),
+    },
+  ];
+
+  /**
+   * Some routes nest under a sibling's href (e.g. Settings at
+   * "/dashboard/settings" and LinkedIn settings at
+   * "/dashboard/settings/linkedin"), so a naive prefix match lights up both.
+   * Pick only the most specific (longest) matching href.
+   */
+  const allHrefs = useMemo(
+    () => groups.flatMap((g) => g.sections.flatMap((s) => s.items.map((i) => i.href))),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [user?.isAdmin],
   );
+
+  const activeHref = useMemo(() => {
+    const pathname = location.pathname;
+    let best = null;
+    for (const href of allHrefs) {
+      const matches = href.startsWith("/admin")
+        ? pathname.startsWith("/admin")
+        : pathname === href || pathname.startsWith(`${href}/`);
+      if (matches && (!best || href.length > best.length)) best = href;
+    }
+    return best;
+  }, [allHrefs, location.pathname]);
+
+  const isActive = useCallback((href) => href === activeHref, [activeHref]);
 
   const handleLogout = () => {
     logout();
     navigate("/");
   };
-
-  const groups = [
-    { id: "main", sections: NAV_SECTIONS },
-    ...(user?.isAdmin ? [ADMIN_GROUP] : []),
-  ];
 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--ui-surface-page)]">
@@ -444,7 +458,7 @@ export function DashboardLayout({ children, title, subtitle, actions = null }) {
             paddingTop: "var(--ui-shell-x)",
           }}
         >
-          <div className="h-full min-h-0 overflow-auto rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]">
+          <div className="h-full min-h-0 flex flex-col overflow-hidden rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]">
             {children}
           </div>
         </main>

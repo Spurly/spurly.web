@@ -4,7 +4,7 @@ import { DashboardLayout } from "src/core/layout/DashboardLayout";
 import { DataTable } from "src/core/DataTable";
 import { SectionCard } from "src/core/primitives/SectionCard";
 import { PageTabs } from "src/core/primitives/PageTabs";
-import { Button, Dock, Tag } from "src/core/primitives";
+import { Button, Dock, Dropdown, Tag } from "src/core/primitives";
 import { useLeadsPage } from "src/products/leads/hooks/useLeadsPage.js";
 import { hubLeadColumns, hubLeadEnrichColumns } from "./components/columns.jsx";
 import { LeadDrawer } from "./components/LeadDrawer.jsx";
@@ -83,7 +83,7 @@ export function HubLeadsPage() {
           : "")
       }
     >
-      <div className="flex flex-col gap-4 pb-20">
+      <div className="flex flex-col gap-4 h-full min-h-0 overflow-hidden">
         {/*
          * Two tabs (HUB_CAPTURE_RESTRUCTURE_PLAN.md §11): "All leads" is
          * this page exactly as it always was; "Needs enrichment" is a
@@ -155,6 +155,7 @@ export function HubLeadsPage() {
 
         {activeTab === "all" && (
           <DataTable
+            className="flex-1"
             columns={hubLeadColumns}
             data={leads}
             loading={loading}
@@ -183,19 +184,18 @@ export function HubLeadsPage() {
               // managing (run/delete) a saved search, this is only for
               // choosing which one's results the table is showing.
               filters: (
-                <select
+                <Dropdown
+                  variant="dashboard"
+                  size="sm"
                   value={activeSearchId ?? ""}
-                  onChange={(e) => setActiveSearchId(e.target.value || null)}
-                  aria-label={t.table.listFilterLabel}
-                  className="text-[var(--ui-t-label)] h-7 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 text-[var(--ui-text-secondary)] max-w-[200px]"
-                >
-                  <option value="">{t.table.listFilterAll}</option>
-                  {searches.map((s) => (
-                    <option key={s._id} value={s._id}>
-                      {s.name || t.untitledAudience}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setActiveSearchId(val || null)}
+                  ariaLabel={t.table.listFilterLabel}
+                  placeholder={t.table.listFilterAll}
+                  options={[
+                    ["", t.table.listFilterAll],
+                    ...searches.map((s) => [s._id, s.name || t.untitledAudience]),
+                  ]}
+                />
               ),
               bulkActions: (
                 <div className="flex items-center gap-2">
@@ -244,31 +244,25 @@ export function HubLeadsPage() {
                   >
                     {t.table.createEnrichmentCampaign}
                   </Button>
-                  <select
+                  <Dropdown
+                    variant="dashboard"
+                    size="sm"
                     value=""
-                    onChange={(e) => enrollInSequence(e.target.value)}
+                    onChange={(val) => enrollInSequence(val)}
                     disabled={
                       enrolling || selected.size === 0 || sequences.length === 0
                     }
-                    aria-label="Enroll selection in a sequence"
+                    ariaLabel="Enroll selection in a sequence"
                     title={
                       sequences.length === 0
                         ? t.table.enrollTitleDisabled
                         : t.table.enrollTitleEnabled
                     }
-                    className="text-[var(--ui-t-label)] h-7 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 text-[var(--ui-text-secondary)] disabled:opacity-50"
-                  >
-                    <option value="" disabled>
-                      {enrolling
-                        ? t.table.enrolling
-                        : t.table.enrollPlaceholder}
-                    </option>
-                    {sequences.map((s) => (
-                      <option key={s._id} value={s._id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder={
+                      enrolling ? t.table.enrolling : t.table.enrollPlaceholder
+                    }
+                    options={sequences.map((s) => [s._id, s.name])}
+                  />
                 </div>
               ),
             }}
@@ -291,6 +285,7 @@ export function HubLeadsPage() {
          */}
         {activeTab === "enrich" && (
           <DataTable
+            className="flex-1"
             columns={hubLeadEnrichColumns}
             data={enrichLeads}
             loading={enrichLoading}

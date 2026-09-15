@@ -70,7 +70,7 @@ export function HeaderCell({
       onDragEnd={draggable ? onDragEnd : undefined}
       onKeyDown={draggable ? (e) => onKeyDown?.(e, column) : undefined}
       className={[
-        'relative whitespace-nowrap bg-[var(--ui-surface-card)] border-b border-[var(--ui-border)]',
+        'relative whitespace-nowrap bg-[var(--ui-surface-sunken)] border-b border-[var(--ui-border-strong)] shadow-[var(--ui-shadow-sm)]',
         ALIGN[column.align] || ALIGN.left,
         draggable ? 'cursor-grab active:cursor-grabbing select-none' : '',
         isDragging ? 'opacity-40' : '',

@@ -1,9 +1,23 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ArrowRight, Trash2, AlertCircle, X, UploadCloud } from 'lucide-react';
 import { DataTable } from 'src/core/DataTable';
-import { Button, useToast } from 'src/core/primitives';
+import { Button, Input, useToast } from 'src/core/primitives';
 import { IMPORT_EVENTS } from 'src/products/import/constants/constants.js';
 import { stagingColumns } from './stagingColumns.jsx';
+
+/**
+ * Preview only — mirrors the backend's own default-name format
+ * (defaultAudienceName in products/hub/sourcing/service.js) so the
+ * placeholder shown here never drifts from what actually gets saved when
+ * the user leaves the field blank. Built by hand rather than via
+ * Intl.DateTimeFormat for the same reason as the backend: en-GB's own short
+ * month for September is "Sept", not "Sep".
+ */
+const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function defaultAudienceNamePreview() {
+  const now = new Date();
+  return `CSV Import - ${now.getDate()} ${SHORT_MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+}
 
 /**
  * Every status a staged lead can be in needs a chip. Omitting one produces the
@@ -64,6 +78,8 @@ export function StagingPanel({ store, onGoToUpload }) {
   const toast = useToast();
   const [selected, setSelected] = useState(new Set());
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmPromote, setConfirmPromote] = useState(false);
+  const [audienceName, setAudienceName] = useState('');
 
   /* The block below is the real home for this: it's long and instructional
      and stays relevant until acted on. The toast is only a pointer to it —
@@ -93,14 +109,26 @@ export function StagingPanel({ store, onGoToUpload }) {
 
   const clearSelection = () => setSelected(new Set());
 
+  // "Send to Hub" opens the naming step rather than promoting immediately —
+  // every batch lands under a Hub audience now, so the user gets one chance
+  // to name it before it's created.
+  const openPromoteConfirm = () => {
+    if (selectedIds.length === 0) return;
+    setAudienceName('');
+    setConfirmPromote(true);
+  };
+
   const handlePromote = () => {
     if (selectedIds.length === 0) return;
     const count = selectedIds.length;
-    eventEmitter.once(IMPORT_EVENTS.PROMOTE_SUCCESS, ({ promoted } = {}) => {
+    const name = audienceName.trim();
+    eventEmitter.once(IMPORT_EVENTS.PROMOTE_SUCCESS, ({ promoted, audience } = {}) => {
       clearSelection();
-      toast.success(`Sent ${(promoted || count).toLocaleString()} to Hub`);
+      setConfirmPromote(false);
+      const audienceLabel = audience?.name ? ` into "${audience.name}"` : '';
+      toast.success(`Sent ${(promoted || count).toLocaleString()} to Hub${audienceLabel}`);
     });
-    promoteSelected(selectedIds);
+    promoteSelected(selectedIds, name || undefined);
   };
 
   const handleDelete = () => {
@@ -198,6 +226,7 @@ export function StagingPanel({ store, onGoToUpload }) {
           loading={loading}
           error={error}
           selectable
+          reorderable
           selectedKeys={selected}
           onSelectionChange={setSelected}
           emptyMessage={
@@ -215,7 +244,7 @@ export function StagingPanel({ store, onGoToUpload }) {
               selected.size > 0 ? (
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={handlePromote}
+                    onClick={openPromoteConfirm}
                     disabled={busy}
                     title={
                       unenrichedSelected > 0
@@ -256,6 +285,56 @@ export function StagingPanel({ store, onGoToUpload }) {
           enriched. Moving {unenrichedSelected === 1 ? 'it' : 'them'} now carries across only the
           fields from your CSV.
         </p>
+      )}
+
+      {/* Promote confirmation — names the Hub audience this batch lands in */}
+      {confirmPromote && (
+        <div
+          className="fixed inset-0 z-[var(--ui-z-modal)] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setConfirmPromote(false);
+          }}
+        >
+          <div
+            className="w-full max-w-sm rounded-[var(--ui-radius-lg)] p-[var(--ui-pad-lg)] shadow-[var(--ui-shadow-lg)]"
+            style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
+          >
+            <h3 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
+              Send {selected.size} lead{selected.size === 1 ? '' : 's'} to Hub
+            </h3>
+            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-2">
+              They'll land in Hub under one audience, so you can find this batch again later.
+            </p>
+            <label
+              className="block text-[var(--ui-t-label)] font-medium mt-4 mb-1.5"
+              style={{ color: 'var(--ui-text-secondary)' }}
+              htmlFor="promote-audience-name"
+            >
+              Audience name (optional)
+            </label>
+            <Input
+              id="promote-audience-name"
+              fullWidth
+              value={audienceName}
+              onChange={(e) => setAudienceName(e.target.value)}
+              placeholder={defaultAudienceNamePreview()}
+              maxLength={200}
+              autoFocus
+            />
+            <p className="text-[var(--ui-t-label)] mt-1.5" style={{ color: 'var(--ui-text-tertiary)' }}>
+              Leave blank and it's named automatically, like the placeholder above.
+            </p>
+            <div className="flex items-center justify-end gap-2 mt-5">
+              <Button variant="ghost" onClick={() => setConfirmPromote(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={handlePromote} disabled={busy}>
+                {busy ? 'Sending…' : 'Send to Hub'}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Delete confirmation */}

@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Radar } from 'lucide-react';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
-import { DataTable } from 'src/core/DataTable';
+import { DataTable, sortRows, filterRows } from 'src/core/DataTable';
 import { Button, EmptyState } from 'src/core/primitives';
 import { useCampaigns } from 'src/products/campaigns/hooks/useCampaigns.js';
 import { hubCampaignListColumns } from './components/listColumns.jsx';
@@ -31,6 +31,9 @@ export function HubCampaignsPage() {
   const { campaigns, loading, busy, start, pause, remove } = useCampaigns();
   const navigate = useNavigate();
 
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState({ key: null, direction: null });
+
   const columns = useMemo(
     () => hubCampaignListColumns({ onStart: start, onPause: pause, onDelete: remove, busy }),
     // `start`/`pause`/`remove` are rebuilt every render by the hook; depending
@@ -39,6 +42,11 @@ export function HubCampaignsPage() {
     // here a column actually reads.
     [busy], // eslint-disable-line react-hooks/exhaustive-deps
   );
+
+  const visibleCampaigns = useMemo(() => {
+    const filtered = filterRows(campaigns, search, ['name']);
+    return sortRows(filtered, sort, { counts: (row) => row.counts?.total ?? 0 });
+  }, [campaigns, search, sort]);
 
   return (
     <DashboardLayout title={t.pageTitle} subtitle={t.pageSubtitle}>
@@ -52,12 +60,20 @@ export function HubCampaignsPage() {
       ) : (
         <DataTable
           columns={columns}
-          data={campaigns}
+          data={visibleCampaigns}
           rowKey={(row) => row._id}
           loading={loading}
           onRowClick={(row) => navigate(`/hub/campaigns/${row._id}`)}
-          emptyMessage={t.emptyTitle}
-          emptyHint={t.emptyHint}
+          emptyMessage={search ? 'No campaigns match your search' : t.emptyTitle}
+          emptyHint={search ? 'Try a different search term' : t.emptyHint}
+          reorderable
+          sort={sort}
+          onSortChange={setSort}
+          toolbar={{
+            searchValue: search,
+            onSearch: setSearch,
+            searchPlaceholder: 'Search campaigns by name...',
+          }}
         />
       )}
     </DashboardLayout>
