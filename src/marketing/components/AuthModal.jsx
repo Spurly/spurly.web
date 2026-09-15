@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from 'src/platform/auth/hooks/useAuth';
-import { useToast } from 'src/ui/primitives';
+import { useAuth } from 'src/core/auth/hooks/useAuth';
+import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
+import { AUTH_EVENTS } from 'src/core/auth/constants/constants.js';
 
 /**
  * Marketing auth modal. Views:
@@ -37,7 +38,7 @@ export function AuthModal({ initialView = 'signin', onClose }) {
   const go = (next) => { setError(''); setNotice(''); setView(next); };
   const onSuccess = () => { onClose(); navigate('/dashboard'); };
 
-  async function submit(e) {
+  function submit(e) {
     e.preventDefault();
     setError('');
 
@@ -49,43 +50,63 @@ export function AuthModal({ initialView = 'signin', onClose }) {
     }
 
     setLoading(true);
-    try {
-      if (view === 'signin') {
-        await login(form.email.trim(), form.password);
+
+    const fail = (err) => {
+      setLoading(false);
+      toast.error(getToastError(err, "That didn't work. Try again."));
+    };
+
+    if (view === 'signin') {
+      const emitter = login(form.email.trim(), form.password);
+      emitter.once(AUTH_EVENTS.LOGIN_SUCCESS, () => {
+        setLoading(false);
         toast.success('Signed in');
         onSuccess();
-      } else if (view === 'signup') {
-        await requestSignupOtp({
-          name: form.name.trim(),
-          email: form.email.trim(),
-          password: form.password,
-          confirmPassword: form.confirmPassword,
-          referralCode: form.referralCode.trim() || undefined,
-        });
+      });
+      emitter.once(AUTH_EVENTS.LOGIN_FAILURE, fail);
+    } else if (view === 'signup') {
+      const emitter = requestSignupOtp({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        confirmPassword: form.confirmPassword,
+        referralCode: form.referralCode.trim() || undefined,
+      });
+      emitter.once(AUTH_EVENTS.REQUEST_SIGNUP_OTP_SUCCESS, () => {
+        setLoading(false);
         go('signupOtp');
         setNotice(`We emailed a 6-digit code to ${form.email.trim()}.`);
-      } else if (view === 'signupOtp') {
-        await verifySignupOtp({ email: form.email.trim(), code: form.code.trim() });
+      });
+      emitter.once(AUTH_EVENTS.REQUEST_SIGNUP_OTP_FAILURE, fail);
+    } else if (view === 'signupOtp') {
+      const emitter = verifySignupOtp({ email: form.email.trim(), code: form.code.trim() });
+      emitter.once(AUTH_EVENTS.VERIFY_SIGNUP_OTP_SUCCESS, () => {
+        setLoading(false);
         toast.success('Account created', { description: 'Welcome to Spurly.' });
         onSuccess();
-      } else if (view === 'forgot') {
-        await forgotPassword(form.email.trim());
+      });
+      emitter.once(AUTH_EVENTS.VERIFY_SIGNUP_OTP_FAILURE, fail);
+    } else if (view === 'forgot') {
+      const emitter = forgotPassword(form.email.trim());
+      emitter.once(AUTH_EVENTS.FORGOT_PASSWORD_SUCCESS, () => {
+        setLoading(false);
         go('reset');
         setNotice(`If an account exists, a reset code was sent to ${form.email.trim()}.`);
-      } else if (view === 'reset') {
-        await resetPassword({
-          email: form.email.trim(),
-          code: form.code.trim(),
-          password: form.password,
-          confirmPassword: form.confirmPassword,
-        });
+      });
+      emitter.once(AUTH_EVENTS.FORGOT_PASSWORD_FAILURE, fail);
+    } else if (view === 'reset') {
+      const emitter = resetPassword({
+        email: form.email.trim(),
+        code: form.code.trim(),
+        password: form.password,
+        confirmPassword: form.confirmPassword,
+      });
+      emitter.once(AUTH_EVENTS.RESET_PASSWORD_SUCCESS, () => {
+        setLoading(false);
         toast.success('Password updated');
         onSuccess();
-      }
-    } catch (err) {
-      toast.error(getToastError(err, "That didn't work. Try again."));
-    } finally {
-      setLoading(false);
+      });
+      emitter.once(AUTH_EVENTS.RESET_PASSWORD_FAILURE, fail);
     }
   }
 

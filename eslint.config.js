@@ -72,15 +72,27 @@ export default [
    * The app drifted into seventeen font sizes, twenty-two border radii, three
    * font weights and a fourth colour palette because nothing stopped a call
    * site from inventing a value. Every rule below is scoped to application
-   * code — src/ui/ is where new values are allowed to be defined, and
-   * src/marketing/ is a deliberately different visual register.
+   * code — the design-system corner of src/core/ (primitives, tokens, theme,
+   * icons, and the ui-flavoured layout atoms) is where new values are allowed
+   * to be defined, and src/marketing/ is a deliberately different visual
+   * register. The rest of src/core/ (auth, billing, admin, DataTable, ...)
+   * still has to consume tokens like every product does.
    *
    * These are warnings, not errors, so an in-progress branch still builds.
    * They exist to make the drift visible in review.
    */
   {
     files: ['src/**/*.{js,jsx}'],
-    ignores: ['src/ui/**', 'src/marketing/**', 'src/_trash/**'],
+    ignores: [
+      'src/core/primitives/**',
+      'src/core/tokens/**',
+      'src/core/theme/**',
+      'src/core/icons/**',
+      'src/core/layout/Card/**',
+      'src/core/layout/Toolbar/**',
+      'src/marketing/**',
+      'src/_trash/**',
+    ],
     rules: {
       /*
        * All guards live in ONE `no-restricted-syntax` entry on purpose. Flat
@@ -94,7 +106,7 @@ export default [
         {
           selector: 'JSXOpeningElement[name.name="button"]',
           message:
-            'Use <Button> or <IconButton> from src/ui/primitives instead of a raw <button>. ' +
+            'Use <Button> or <IconButton> from src/core/primitives instead of a raw <button>. ' +
             'Button owns height, radius, hover, disabled and the focus ring; a hand-rolled ' +
             'one opts out of all five.',
         },
@@ -184,7 +196,7 @@ export default [
      * Last in the array on purpose: flat config is last-wins, so an override
      * placed before the block it overrides is silently re-enabled by it.
      */
-    files: ['src/ui/icons/**', 'src/platform/pages/auth/components/icons.jsx'],
+    files: ['src/core/icons/**', 'src/core/pages/auth/components/icons.jsx'],
     rules: { 'no-restricted-syntax': 'off' },
   },
 ]

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useLocation } from 'react-router-dom';
-import { DashboardLayout } from 'src/platform/layout/DashboardLayout';
+import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { renderWithProviders } from './helpers.jsx';
 
 /**

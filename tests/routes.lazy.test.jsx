@@ -8,12 +8,12 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
   'GET /*': { success: true, data: {} },
 }));
 
-const { AuthContext } = await import('src/platform/auth/hooks/AuthContext');
-const { SubscriptionContext } = await import('src/platform/billing/hooks/SubscriptionContext');
-const { ToastProvider, ConfirmProvider } = await import('src/ui/primitives');
+const { AuthContext } = await import('src/core/auth/hooks/AuthContext');
+const { SubscriptionContext } = await import('src/core/billing/hooks/SubscriptionContext');
+const { ToastProvider, ConfirmProvider } = await import('src/core/primitives');
 const { AppRoutes } = await import('src/app/routes');
 const { anonymousAuth, signedInAs } = await import('./helpers.jsx');
-const { SubscriptionSummary } = await import('src/platform/billing/entities/Subscription');
+const { SubscriptionSummary } = await import('src/core/billing/entities/Subscription');
 
 /** The real entity, not a hand-rolled stand-in — see hub.leads.test.jsx. */
 const subscriber = SubscriptionSummary.fromResponse({ status: 'active', features: { hub: true } });

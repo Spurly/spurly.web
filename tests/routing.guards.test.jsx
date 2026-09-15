@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { AuthContext } from 'src/platform/auth/hooks/AuthContext';
-import { SubscriptionContext } from 'src/platform/billing/hooks/SubscriptionContext';
+import { AuthContext } from 'src/core/auth/hooks/AuthContext';
+import { SubscriptionContext } from 'src/core/billing/hooks/SubscriptionContext';
 import { anonymousAuth, signedInAs } from './helpers.jsx';
 import { ProtectedRoute } from 'src/app/ProtectedRoute';
 import { SubscribeGate } from 'src/app/SubscribeGate';
-import { SubscriptionSummary } from 'src/platform/billing/entities/Subscription';
+import { SubscriptionSummary } from 'src/core/billing/entities/Subscription';
 
 const summary = (over) => SubscriptionSummary.fromResponse({ status: 'active', ...over });
 

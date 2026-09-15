@@ -1,0 +1,192 @@
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import adminController from 'src/core/admin/controller/admin.js';
+import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
+import { RefreshCw } from 'lucide-react';
+import { AdminLayout } from 'src/core/pages/admin/components/AdminLayout';
+import { DataTable } from 'src/core/DataTable';
+import { Button, useToast } from 'src/core/primitives';
+import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
+import CreditsModal from '../components/CreditsModal';
+import PlanAssignModal from '../components/PlanAssignModal';
+import UserDetailsModal from '../components/UserDetailsModal';
+import { buildUserColumns } from './userColumns.jsx';
+
+/**
+ * `adminController` reports back over `eventEmitter` instead of
+ * returning/throwing, so this page has no async/await or try/catch of its
+ * own.
+ */
+export function AdminUsersPage() {
+  const toast = useToast();
+  const eventEmitter = useMemo(() => new EventEmitter(), []);
+
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [pagination, setPagination] = useState({ total: 0, limit: 20, skip: 0, pages: 0 });
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
+  const [showPlanModal, setShowPlanModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Declared above the effect that calls it, same reasoning as before: a
+  // `const` referenced before its declaration is a temporal-dead-zone
+  // hazard the moment anything calls it earlier, and it blocks the React
+  // Compiler from optimising the component.
+  const fetchUsers = useCallback(() => {
+    setLoading(true);
+    setError('');
+    adminController.getAllUsers(eventEmitter, pagination.limit, pagination.skip);
+  }, [eventEmitter, pagination.limit, pagination.skip]);
+
+  useEffect(() => {
+    function handleSuccess(data) {
+      setUsers(data.users);
+      setPagination(data.pagination);
+      setLoading(false);
+    }
+    function handleFailure(err) {
+      /* Load failures are toasted AND kept inline: the table behind this is
+         empty, and an empty admin table with no explanation reads as "no
+         users" rather than "we couldn't fetch them". */
+      setError(getApiErrorMessage(err, 'Failed to load users'));
+      toast.error(getToastError(err, "Couldn't load users"));
+      setLoading(false);
+    }
+
+    eventEmitter.on(ADMIN_EVENTS.GET_ALL_USERS_SUCCESS, handleSuccess);
+    eventEmitter.on(ADMIN_EVENTS.GET_ALL_USERS_FAILURE, handleFailure);
+    return () => {
+      eventEmitter.off(ADMIN_EVENTS.GET_ALL_USERS_SUCCESS, handleSuccess);
+      eventEmitter.off(ADMIN_EVENTS.GET_ALL_USERS_FAILURE, handleFailure);
+    };
+  }, [eventEmitter, toast]);
+
+  useEffect(() => {
+    fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.skip, refreshTrigger]);
+
+  const handleCreditsClick = (user) => {
+    setSelectedUser(user);
+    setShowCreditsModal(true);
+  };
+
+  const handleCreditsSuccess = () => {
+    setShowCreditsModal(false);
+    setSelectedUser(null);
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
+  const handlePlanClick = (user) => {
+    setSelectedUser(user);
+    setShowPlanModal(true);
+  };
+
+  const handlePlanSuccess = () => {
+    setShowPlanModal(false);
+    setSelectedUser(null);
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
+  const handleRowClick = (user) => {
+    setSelectedUser(user);
+    setShowDetailsModal(true);
+  };
+
+  const handleDetailsClose = () => {
+    setShowDetailsModal(false);
+    setSelectedUser(null);
+  };
+
+  const filteredUsers = searchTerm
+    ? users.filter((u) => {
+        const q = searchTerm.toLowerCase();
+        return u.email?.toLowerCase().includes(q) || u.name?.toLowerCase().includes(q);
+      })
+    : users;
+
+  const columns = buildUserColumns({
+    onManageCredits: handleCreditsClick,
+    onManagePlan: handlePlanClick,
+  });
+
+  const currentPage = Math.floor(pagination.skip / pagination.limit) + 1;
+
+  return (
+    <AdminLayout title="Users" subtitle="Manage user plans & credit balances">
+      <div className="space-y-6">
+        {error && (
+          <div
+            className="p-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium"
+            style={{
+              background: 'var(--ui-danger-tint)',
+              color: 'var(--ui-danger)',
+              border: '1px solid rgba(255,69,58,0.2)',
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border-hairline)] overflow-hidden shadow-sm">
+          <DataTable
+            columns={columns}
+            data={filteredUsers}
+            rowKey={(row) => row._id}
+            onRowClick={handleRowClick}
+            loading={loading}
+            emptyMessage={searchTerm ? 'No users match your search' : 'No users found'}
+            emptyHint={searchTerm ? 'Try a different search term' : undefined}
+            toolbar={{
+              searchValue: searchTerm,
+              onSearch: setSearchTerm,
+              searchPlaceholder: 'Search by email or name (current page)...',
+              actions: (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  leadingIcon={<RefreshCw size={15} className={loading ? 'animate-spin' : ''} />}
+                  onClick={() => setRefreshTrigger((prev) => prev + 1)}
+                  disabled={loading}
+                >
+                  Refresh
+                </Button>
+              ),
+            }}
+            pagination={{
+              page: currentPage,
+              pageSize: pagination.limit,
+              total: pagination.total,
+              onPageChange: (p) =>
+                setPagination((prev) => ({ ...prev, skip: Math.max(0, (p - 1) * prev.limit) })),
+            }}
+          />
+        </div>
+
+        {showCreditsModal && selectedUser && (
+          <CreditsModal
+            user={selectedUser}
+            onClose={() => setShowCreditsModal(false)}
+            onSuccess={handleCreditsSuccess}
+          />
+        )}
+
+        {showPlanModal && selectedUser && (
+          <PlanAssignModal
+            user={selectedUser}
+            onClose={() => setShowPlanModal(false)}
+            onSuccess={handlePlanSuccess}
+          />
+        )}
+
+        {showDetailsModal && selectedUser && (
+          <UserDetailsModal user={selectedUser} onClose={handleDetailsClose} />
+        )}
+      </div>
+    </AdminLayout>
+  );
+}
