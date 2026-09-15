@@ -1,9 +1,9 @@
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from 'src/platform/auth/hooks/AuthContext';
-import { SubscriptionProvider } from 'src/platform/billing/hooks/SubscriptionContext';
-import { ToastProvider, ConfirmProvider } from 'src/ui/primitives';
-import { ThemeProvider } from 'src/ui/theme';
+import { AuthProvider } from 'src/core/auth/hooks/AuthContext';
+import { SubscriptionProvider } from 'src/core/billing/hooks/SubscriptionContext';
+import { ToastProvider, ConfirmProvider } from 'src/core/primitives';
+import { ThemeProvider } from 'src/core/theme';
 import { AppRoutes } from 'src/app/routes';
 
 function App() {

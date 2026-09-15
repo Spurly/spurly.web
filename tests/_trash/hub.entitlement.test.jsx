@@ -26,12 +26,12 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
   'GET /subscriptions/me': () => ({ success: true, data: subscriptionResponse }),
 }));
 
-const { AuthProvider } = await import('src/platform/auth/hooks/AuthContext');
-const { SubscriptionProvider } = await import('src/platform/billing/hooks/SubscriptionContext');
+const { AuthProvider } = await import('src/core/auth/hooks/AuthContext');
+const { SubscriptionProvider } = await import('src/core/billing/hooks/SubscriptionContext');
 const { ProtectedRoute } = await import('src/app/ProtectedRoute');
 const { SubscribeGate } = await import('src/app/SubscribeGate');
 const { HubGate } = await import('src/app/HubGate');
-const { SubscriptionSummary } = await import('src/platform/billing/entities/Subscription');
+const { SubscriptionSummary } = await import('src/core/billing/entities/Subscription');
 
 function TrackLocation({ into }) {
   const { pathname } = useLocation();

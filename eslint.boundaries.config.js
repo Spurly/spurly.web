@@ -5,7 +5,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
  * Architecture enforcement for spurly.web — the frontend half of the rule in
  * spurly.backend/ARCHITECTURE.md.
  *
- *     shared / ui  <-  platform  <-  products
+ *     shared  <-  core  <-  products
  *
  * Kept in its OWN config, separate from eslint.config.js, on purpose: the
  * general lint currently reports 38 pre-existing code-quality errors
@@ -35,7 +35,7 @@ export default [
     settings: {
       'boundaries/include': ['src/**/*.js', 'src/**/*.jsx'],
       // CRITICAL: imports here are written against Vite's `src` alias
-      // (`from 'src/platform/...'`), which plain node resolution cannot follow —
+      // (`from 'src/core/...'`), which plain node resolution cannot follow —
       // without this every import looks external and the rule silently matches
       // NOTHING. Treating the repo root as a module directory makes `src/x`
       // resolve to <root>/src/x, the same way Vite resolves it.
@@ -44,10 +44,9 @@ export default [
       },
       'boundaries/elements': [
         { type: 'app',      pattern: 'src/app' },
-        { type: 'shared',   pattern: 'src/shared/*',     capture: ['mod'] },
-        { type: 'ui',       pattern: 'src/ui' },
-        { type: 'platform', pattern: 'src/platform/*',   capture: ['mod'] },
-        { type: 'product',  pattern: 'src/products/*/*', capture: ['product', 'mod'] },
+        { type: 'shared',   pattern: 'src/shared/*',   capture: ['mod'] },
+        { type: 'core',     pattern: 'src/core/*',     capture: ['mod'] },
+        { type: 'product',  pattern: 'src/products/*', capture: ['mod'] },
       ],
     },
     rules: {
@@ -56,23 +55,23 @@ export default [
         policies: [
           // The composition root wires everything together.
           { from: { element: { type: 'app' } },
-            allow: { to: { element: { types: { anyOf: ['app', 'shared', 'ui', 'platform', 'product'] } } } } },
+            allow: { to: { element: { types: { anyOf: ['app', 'shared', 'core', 'product'] } } } } },
 
-          // A product may use shared, ui, platform, and its OWN product's features.
+          // A product may use shared, core, and any other product
+          // module. There is only one product (Hub) today — its former
+          // internal modules (campaigns, leads, sequences, pages, ...) now
+          // sit directly under src/products/*, so this stays as permissive
+          // as cross-module imports already were before that flattening.
           { from: { element: { type: 'product' } },
-            allow: { to: { element: [
-              { types: { anyOf: ['shared', 'ui'] } },
-              { type: 'platform' },
-              { type: 'product', captured: { product: '{{from.product}}' } },
-            ] } } },
+            allow: { to: { element: { types: { anyOf: ['shared', 'core', 'product'] } } } } },
 
-          // Platform: shared, ui, and other platform modules. Never a product.
-          { from: { element: { type: 'platform' } },
-            allow: { to: { element: { types: { anyOf: ['shared', 'ui', 'platform'] } } } } },
+          // Core: shared and other core modules only. Never a product — this
+          // is the one rule that used to be split between `ui` (zero domain
+          // knowledge) and `platform` (domain-aware); merging them into one
+          // `core` layer means that distinction is no longer enforced here.
+          { from: { element: { type: 'core' } },
+            allow: { to: { element: { types: { anyOf: ['shared', 'core'] } } } } },
 
-          // The design system and shared utilities know nothing about the domain.
-          { from: { element: { type: 'ui' } },
-            allow: { to: { element: { types: { anyOf: ['ui', 'shared'] } } } } },
           { from: { element: { type: 'shared' } },
             allow: { to: { element: { types: { anyOf: ['shared'] } } } } },
         ],

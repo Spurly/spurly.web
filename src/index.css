@@ -1,6 +1,6 @@
 @import "tailwindcss";
-@import "./ui/tokens/tokens.css";
-@import "./ui/tokens/cursor.css";
+@import "./core/tokens/tokens.css";
+@import "./core/tokens/cursor.css";
 @config "../tailwind.config.js";
 
 /* ============================================================
@@ -9,7 +9,7 @@
    READ THIS BEFORE ADDING ANYTHING HERE.
 
    This file used to be the app's design system. It is not any more —
-   src/ui/tokens/tokens.css is. What remains here is two things:
+   src/core/tokens/tokens.css is. What remains here is two things:
 
      1. A COMPATIBILITY LAYER. Around 700 call sites across 30 files
         still write var(--text-primary), var(--brand-purple),

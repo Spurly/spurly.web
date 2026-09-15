@@ -76,9 +76,9 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
   'PATCH /*': { success: true, data: {} },
 }));
 
-const { AuthContext } = await import('src/platform/auth/hooks/AuthContext');
-const { SubscriptionContext } = await import('src/platform/billing/hooks/SubscriptionContext');
-import { SubscriptionSummary } from 'src/platform/billing/entities/Subscription';
+const { AuthContext } = await import('src/core/auth/hooks/AuthContext');
+const { SubscriptionContext } = await import('src/core/billing/hooks/SubscriptionContext');
+import { SubscriptionSummary } from 'src/core/billing/entities/Subscription';
 
 /**
  * The REAL summary entity, not a hand-rolled `{ isActive: () => true }`.
@@ -87,7 +87,7 @@ import { SubscriptionSummary } from 'src/platform/billing/entities/Subscription'
  */
 const hubSubscriber = SubscriptionSummary.fromResponse({ status: 'active', features: { hub: true } });
 
-const { ToastProvider, ConfirmProvider } = await import('src/ui/primitives');
+const { ToastProvider, ConfirmProvider } = await import('src/core/primitives');
 const { AppRoutes } = await import('src/app/routes');
 const { signedInAs } = await import('./helpers.jsx');
 

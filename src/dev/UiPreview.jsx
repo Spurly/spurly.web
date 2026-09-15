@@ -1,4 +1,4 @@
-import { LinkedInIcon } from 'src/ui/icons';
+import { LinkedInIcon } from 'src/core/icons';
 import { useState } from 'react';
 import { Plus, Trash2, Search } from 'lucide-react';
 import {
@@ -15,8 +15,8 @@ import {
   Dialog,
   Drawer,
   useToast,
-} from 'src/ui/primitives';
-import { DataTable, TextCell, PersonCell, LinkCell } from 'src/platform/DataTable';
+} from 'src/core/primitives';
+import { DataTable, TextCell, PersonCell, LinkCell } from 'src/core/DataTable';
 
 /**
  * Every primitive, in every state, on one page.

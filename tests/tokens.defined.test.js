@@ -21,7 +21,7 @@ const ROOT = process.cwd();
 const SRC = join(ROOT, 'src');
 
 const SHEETS = [
-  join(SRC, 'ui/tokens/tokens.css'),
+  join(SRC, 'core/tokens/tokens.css'),
   join(SRC, 'index.css'),
   // Marketing is a deliberately separate visual register with its own scale.
   join(SRC, 'marketing/marketing.css'),

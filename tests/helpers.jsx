@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { AuthContext } from 'src/platform/auth/hooks/AuthContext';
-import { ToastProvider, ConfirmProvider } from 'src/ui/primitives';
+import { AuthContext } from 'src/core/auth/hooks/AuthContext';
+import { ToastProvider, ConfirmProvider } from 'src/core/primitives';
 
 /**
  * The app's real provider tree, with auth supplied directly rather than by

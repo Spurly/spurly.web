@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from 'src/platform/auth/hooks/useAuth';
-import { useToast } from 'src/ui/primitives';
+import { useAuth } from 'src/core/auth/hooks/useAuth';
+import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 
 /**

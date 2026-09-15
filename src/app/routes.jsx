@@ -38,39 +38,39 @@ const FoundersPost = lazy(() => import('src/marketing/pages/blog/FoundersPost.js
 const RecruitersPost = lazy(() => import('src/marketing/pages/blog/RecruitersPost.jsx'));
 
 // Auth + onboarding
-const SignupPage = lazy(() => import('src/platform/pages/auth/SignupPage.jsx'));
-const VerifyEmailPage = lazy(() => import('src/platform/pages/auth/VerifyEmailPage.jsx'));
-const LoginPage = lazy(() => import('src/platform/pages/auth/LoginPage.jsx'));
-const ForgotPasswordPage = lazy(() => import('src/platform/pages/auth/ForgotPasswordPage.jsx'));
-const ResetPasswordPage = lazy(() => import('src/platform/pages/auth/ResetPasswordPage.jsx'));
-const SubscribePage = lazy(() => import('src/platform/pages/auth/SubscribePage.jsx'));
-const SubscribeCallbackPage = lazy(() => import('src/platform/pages/auth/SubscribeCallbackPage.jsx'));
-const OnboardingSurveyPage = lazy(() => import('src/platform/pages/auth/OnboardingSurveyPage.jsx'));
-const InstallExtensionPage = lazy(() => import('src/platform/pages/auth/InstallExtensionPage.jsx'));
+const SignupPage = lazy(() => import('src/core/pages/auth/SignupPage.jsx'));
+const VerifyEmailPage = lazy(() => import('src/core/pages/auth/VerifyEmailPage.jsx'));
+const LoginPage = lazy(() => import('src/core/pages/auth/LoginPage.jsx'));
+const ForgotPasswordPage = lazy(() => import('src/core/pages/auth/ForgotPasswordPage.jsx'));
+const ResetPasswordPage = lazy(() => import('src/core/pages/auth/ResetPasswordPage.jsx'));
+const SubscribePage = lazy(() => import('src/core/pages/auth/SubscribePage.jsx'));
+const SubscribeCallbackPage = lazy(() => import('src/core/pages/auth/SubscribeCallbackPage.jsx'));
+const OnboardingSurveyPage = lazy(() => import('src/core/pages/auth/OnboardingSurveyPage.jsx'));
+const InstallExtensionPage = lazy(() => import('src/core/pages/auth/InstallExtensionPage.jsx'));
 
 // products/leadgen — the signed-in dashboard
-const TemplatesPage = lazy(() => import('src/products/hub/pages/templates').then((m) => ({ default: m.TemplatesPage })));
-const SettingsPage = lazy(() => import('src/products/hub/pages/accountSettings').then((m) => ({ default: m.SettingsPage })));
-const LinkedInSettingsPage = lazy(() => import('src/products/hub/pages/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
-const NotificationsPage = lazy(() => import('src/platform/pages/notifications/NotificationsPage.jsx'));
-const HubLeadsPage = lazy(() => import('src/products/hub/pages/leads').then((m) => ({ default: m.HubLeadsPage })));
-const HubCampaignsPage = lazy(() => import('src/products/hub/pages/campaigns').then((m) => ({ default: m.HubCampaignsPage })));
-const HubCampaignDetailPage = lazy(() => import('src/products/hub/pages/campaigns').then((m) => ({ default: m.HubCampaignDetailPage })));
-const HubEnrichmentPage = lazy(() => import('src/products/hub/pages/enrichment').then((m) => ({ default: m.HubEnrichmentPage })));
-const HubEnrichmentDetailPage = lazy(() => import('src/products/hub/pages/enrichment').then((m) => ({ default: m.HubEnrichmentDetailPage })));
-const HubSequencesPage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubSequencesPage })));
-const HubNewSequencePage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubNewSequencePage })));
-const HubSequenceDetailPage = lazy(() => import('src/products/hub/pages/sequences').then((m) => ({ default: m.HubSequenceDetailPage })));
-const HubInboxPage = lazy(() => import('src/products/hub/pages/inbox').then((m) => ({ default: m.HubInboxPage })));
-const ImportPage = lazy(() => import('src/products/hub/pages/import').then((m) => ({ default: m.ImportPage })));
+const TemplatesPage = lazy(() => import('src/products/pages/templates').then((m) => ({ default: m.TemplatesPage })));
+const SettingsPage = lazy(() => import('src/products/pages/accountSettings').then((m) => ({ default: m.SettingsPage })));
+const LinkedInSettingsPage = lazy(() => import('src/products/pages/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
+const NotificationsPage = lazy(() => import('src/core/pages/notifications/NotificationsPage.jsx'));
+const HubLeadsPage = lazy(() => import('src/products/pages/leads').then((m) => ({ default: m.HubLeadsPage })));
+const HubCampaignsPage = lazy(() => import('src/products/pages/campaigns').then((m) => ({ default: m.HubCampaignsPage })));
+const HubCampaignDetailPage = lazy(() => import('src/products/pages/campaigns').then((m) => ({ default: m.HubCampaignDetailPage })));
+const HubEnrichmentPage = lazy(() => import('src/products/pages/enrichment').then((m) => ({ default: m.HubEnrichmentPage })));
+const HubEnrichmentDetailPage = lazy(() => import('src/products/pages/enrichment').then((m) => ({ default: m.HubEnrichmentDetailPage })));
+const HubSequencesPage = lazy(() => import('src/products/pages/sequences').then((m) => ({ default: m.HubSequencesPage })));
+const HubNewSequencePage = lazy(() => import('src/products/pages/sequences').then((m) => ({ default: m.HubNewSequencePage })));
+const HubSequenceDetailPage = lazy(() => import('src/products/pages/sequences').then((m) => ({ default: m.HubSequenceDetailPage })));
+const HubInboxPage = lazy(() => import('src/products/pages/inbox').then((m) => ({ default: m.HubInboxPage })));
+const ImportPage = lazy(() => import('src/products/pages/import').then((m) => ({ default: m.ImportPage })));
 
 // Admin console
-const AdminUsersPage = lazy(() => import('src/platform/pages/admin/Users').then((m) => ({ default: m.AdminUsersPage })));
-const AdminInsightsPage = lazy(() => import('src/platform/pages/admin/Insights').then((m) => ({ default: m.AdminInsightsPage })));
-const AdminTransactionsPage = lazy(() => import('src/platform/pages/admin/Transactions').then((m) => ({ default: m.AdminTransactionsPage })));
-const AdminPricingPage = lazy(() => import('src/platform/pages/admin/Pricing').then((m) => ({ default: m.AdminPricingPage })));
-const AdminPaymentsPage = lazy(() => import('src/platform/pages/admin/Payments').then((m) => ({ default: m.AdminPaymentsPage })));
-const AdminBillingPage = lazy(() => import('src/platform/pages/admin/Billing').then((m) => ({ default: m.AdminBillingPage })));
+const AdminUsersPage = lazy(() => import('src/core/pages/admin/Users').then((m) => ({ default: m.AdminUsersPage })));
+const AdminInsightsPage = lazy(() => import('src/core/pages/admin/Insights').then((m) => ({ default: m.AdminInsightsPage })));
+const AdminTransactionsPage = lazy(() => import('src/core/pages/admin/Transactions').then((m) => ({ default: m.AdminTransactionsPage })));
+const AdminPricingPage = lazy(() => import('src/core/pages/admin/Pricing').then((m) => ({ default: m.AdminPricingPage })));
+const AdminPaymentsPage = lazy(() => import('src/core/pages/admin/Payments').then((m) => ({ default: m.AdminPaymentsPage })));
+const AdminBillingPage = lazy(() => import('src/core/pages/admin/Billing').then((m) => ({ default: m.AdminBillingPage })));
 
 const UiPreview = lazy(() => import('src/dev/UiPreview.jsx').then((m) => ({ default: m.UiPreview })));
 
