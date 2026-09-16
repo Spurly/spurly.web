@@ -25,9 +25,20 @@ import { LEAD_EVENTS } from 'src/products/leads/constants/constants.js';
  * THE RESOLVE-ON-OPEN TRIGGER — this is the surface Sarthak chose (2026-09-10)
  * for Phase 6 1a's "resolve once, on open" requirement: opening this drawer
  * is what fires `GET /hub/leads/:id/profile`. The backend is what actually
- * enforces "once" (it no-ops on an already-resolved lead unless `force` is
- * passed); this component only has to show a loading state while that
- * decision is made server-side, not make the decision itself.
+ * enforces "once" against the VENDOR (it no-ops the Unipile call on an
+ * already-resolved lead unless `force` is passed, see resolveLeadProfile) —
+ * this component only has to show a loading state while that decision is
+ * made server-side, not make the decision itself.
+ *
+ * ALWAYS fetches on open now, even for a lead that's already resolved —
+ * changed 2026-09-16 alongside GET /hub/leads dropping `fullProfile` from
+ * its response (see that route's own comment): the list no longer carries
+ * enough to render this drawer's Experience/Education/Skills sections on
+ * its own, so this is genuinely the only place that data comes from. The
+ * "once" guarantee still holds where it matters (never re-hitting Unipile
+ * for data already resolved) — this just changed from an in-browser cache
+ * to a DB-backed one, an unnoticeable network round trip instead of a free
+ * skip.
  *
  * RENDER WITH `key={lead._id}` from the caller. That is what resets
  * `resolved`/`error` state between leads instead of an effect syncing it
@@ -217,7 +228,7 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
      every setState in this file confined to a promise callback — the
      convention LinkedInSettingsPage's `load()` documents, and the same fix
      for the same react-hooks/set-state-in-effect warning. */
-  const [resolving, setResolving] = useState(() => Boolean(lead && !lead.profileResolvedAt));
+  const [resolving, setResolving] = useState(() => Boolean(lead));
   const [error, setError] = useState(null);
   const [withdrawing, setWithdrawing] = useState(false);
   const [withdrawError, setWithdrawError] = useState(null);
@@ -234,7 +245,7 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
      That leaves this effect free to do only what it's actually for: firing
      the resolve fetch. */
   useEffect(() => {
-    if (!lead || lead.profileResolvedAt) return undefined;
+    if (!lead) return undefined;
 
     const requestId = ++requestIdRef.current;
     const callEmitter = new EventEmitter();
