@@ -56,12 +56,20 @@ export function Stat({
   value2 = null,
   max = null,
   tone = 'accent',
+  size = 'lg',
   className = '',
 }) {
+  // `size="sm"` is for a reading crammed several-to-a-row in a narrow rail
+  // (the campaign/sequence detail console) — the full --ui-t-metric (28px)
+  // treatment is sized for a single reading owning its own card (credits,
+  // dashboard tiles) and reads as oversized once four of them share a
+  // 376px-wide grid. `.ui-num` gives the same mono/tabular/medium figure
+  // treatment without hardcoding the metric size, same as FactList's dd.
+  const readingClass = size === 'sm' ? 'ui-num text-[var(--ui-t-section)]' : 'ui-reading';
   return (
     <div className={`min-w-0 ${className}`}>
       <div className="ui-micro truncate">{label}</div>
-      <div className="ui-reading mt-2 truncate">
+      <div className={`${readingClass} ${size === 'sm' ? 'mt-1' : 'mt-2'} truncate`}>
         {value}
         {value2 != null && <span className="text-[var(--ui-text-quaternary)]">/{value2}</span>}
         {suffix && (

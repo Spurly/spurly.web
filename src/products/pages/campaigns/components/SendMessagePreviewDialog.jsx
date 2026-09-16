@@ -1,33 +1,52 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Loader2, MessageSquare } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, MessageSquare, UserPlus } from 'lucide-react';
 import { Dialog, Button, IconButton } from 'src/core/primitives';
 import { previewTemplate, previewValuesFor } from 'src/shared/utils/templateTokens.js';
 
 /**
- * The confirmation Hub's message campaigns were missing: what will actually
- * be sent, to how many people, before "Start sending" does anything
+ * The confirmation both campaign types were missing: what will actually be
+ * sent, to how many people, before "Start sending" does anything
  * irreversible.
  *
- * A `type: 'connect'` campaign's note is already visible on the page above
- * the Start button (NoteEditor), and that flow is live in production and
- * unchanged here on purpose. A `type: 'message'` campaign had no equivalent
- * — clicking Start fired the paced sender straight from the editor with
- * nothing in between, which is the gap this dialog closes. Mirrors the
- * per-recipient preview offered elsewhere in the app (EditorPreview),
- * rendering the SAME token map (`previewTemplate` / `previewValuesFor`) so a
- * template that previews correctly there previews correctly here too.
+ * Originally built for `type: 'message'` campaigns only — a `connect`
+ * campaign's note was already visible on the page above the Start button
+ * (NoteEditor) and this dialog felt redundant on top of it. Generalized to
+ * `mode: 'connect'` too so both flows get the same "who, and what exactly"
+ * check immediately before the paced sender starts, rather than one flow
+ * having a safety net the other doesn't. `template` is whichever field the
+ * mode sends — `messageTemplate` for a message campaign, `note` for a
+ * connect one — and an empty connect template renders the plain-invitation
+ * copy rather than nothing, since "no note" is itself the thing to confirm.
  *
  * Sampled from a handful of real PENDING members (fetched fresh when this
  * opens, not from whatever the page's own member table happens to be
  * filtered to) so the person on screen is genuinely who is about to be
- * messaged, not a placeholder.
+ * contacted, not a placeholder.
  */
+const COPY = {
+  message: {
+    confirmLabel: 'Send messages',
+    confirmingLabel: 'Starting…',
+    ConfirmIcon: MessageSquare,
+    verb: 'message',
+    emptyPreview: 'Nothing to preview — the message is empty.',
+  },
+  connect: {
+    confirmLabel: 'Send connection requests',
+    confirmingLabel: 'Starting…',
+    ConfirmIcon: UserPlus,
+    verb: 'invitation',
+    emptyPreview: 'Plain connection request — no note.',
+  },
+};
+
 export function SendMessagePreviewDialog({
   open,
   onClose,
   onConfirm,
   confirming,
-  messageTemplate,
+  mode = 'message',
+  template,
   members,
   membersLoading,
   pendingCount,
@@ -39,6 +58,7 @@ export function SendMessagePreviewDialog({
   // same "reset by remounting" trick NoteEditor/MessageEditor use for their
   // own seeded-once state.
   const [index, setIndex] = useState(0);
+  const copy = COPY[mode] ?? COPY.message;
 
   const pool = members || [];
   const safeIndex = pool.length ? index % pool.length : 0;
@@ -47,7 +67,7 @@ export function SendMessagePreviewDialog({
     person ? { name: person.name, title: person.headline } : {},
     senderName,
   );
-  const rendered = previewTemplate(messageTemplate, values);
+  const rendered = template?.trim() ? previewTemplate(template, values) : '';
 
   return (
     <Dialog
@@ -56,7 +76,7 @@ export function SendMessagePreviewDialog({
       title="Review before sending"
       description={
         pendingCount > 0
-          ? `This message goes to ${pendingCount.toLocaleString()} ${pendingCount === 1 ? 'person' : 'people'}, paced through your working hours — not all at once.`
+          ? `This ${copy.verb} goes to ${pendingCount.toLocaleString()} ${pendingCount === 1 ? 'person' : 'people'}, paced through your working hours — not all at once.`
           : 'Nobody is queued to receive this right now.'
       }
       size="md"
@@ -69,11 +89,11 @@ export function SendMessagePreviewDialog({
           </Button>
           <Button
             size="sm"
-            leadingIcon={confirming ? <Loader2 size={13} className="animate-spin" /> : <MessageSquare size={13} />}
+            leadingIcon={confirming ? <Loader2 size={13} className="animate-spin" /> : <copy.ConfirmIcon size={13} />}
             disabled={confirming || pendingCount === 0}
             onClick={onConfirm}
           >
-            {confirming ? 'Starting…' : 'Send messages'}
+            {confirming ? copy.confirmingLabel : copy.confirmLabel}
           </Button>
         </>
       }
@@ -114,7 +134,7 @@ export function SendMessagePreviewDialog({
               )}
             </div>
             <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] whitespace-pre-wrap">
-              {rendered || <span className="text-[var(--ui-text-tertiary)]">Nothing to preview — the message is empty.</span>}
+              {rendered || <span className="text-[var(--ui-text-tertiary)]">{copy.emptyPreview}</span>}
             </p>
           </div>
         )}

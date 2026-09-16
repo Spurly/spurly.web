@@ -505,6 +505,66 @@ function Gap({ nextStep, readOnly, isDragActive, isOver, onDragOver, onDrop, onA
  * simple vertical timeline sized to actually fit the content instead of a
  * fixed-width node canvas built for editing.
  */
+/**
+ * A horizontal strip of steps, connected end to end — for a running or
+ * finished sequence, where the point is "what does this sequence actually
+ * do" at a glance, next to the enrolled table, rather than a tall vertical
+ * list that competes with it for space. `SequenceStepsReadOnly` (below)
+ * keeps that vertical shape for the sequences LIST page's expandable
+ * summary, where full width isn't available; this is for the detail page's
+ * console rail-and-table layout specifically.
+ */
+export function SequenceStepsStrip({ steps }) {
+  if (!steps.length) {
+    return (
+      <p className="px-[var(--ui-pad-lg)] py-4 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">No steps.</p>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto bg-[var(--ui-surface-sunken)] p-[var(--ui-pad-lg)]">
+      <div className="flex items-stretch min-w-min">
+        {steps.map((step, index) => {
+          const def = STEP_TYPE_MAP[step.type];
+          const Icon = def?.icon;
+          const waitDays = step.delayDays ?? 0;
+          const isFirst = index === 0;
+          return (
+            <Fragment key={index}>
+              {!isFirst && (
+                <div className="w-11 shrink-0 flex flex-col items-center justify-center relative">
+                  <span className="absolute left-0 right-0 top-1/2 h-px bg-[var(--ui-border-strong)]" aria-hidden="true" />
+                  {waitDays > 0 && (
+                    <span className="relative inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--ui-radius-pill)] bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] ui-num text-[var(--ui-t-micro)]">
+                      {waitDays}d
+                    </span>
+                  )}
+                </div>
+              )}
+              <div className="shrink-0 w-[212px] flex flex-col gap-2 p-3 rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-sm)]">
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 grid place-items-center w-[26px] h-[26px] rounded-[var(--ui-radius-sm)] bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)]">
+                    {Icon && <Icon size={14} aria-hidden="true" />}
+                  </span>
+                  <span className="flex-1 min-w-0 text-[var(--ui-t-label)] font-semibold truncate text-[var(--ui-text-primary)]">
+                    {def?.label ?? step.type}
+                  </span>
+                  <span className="ui-num text-[var(--ui-t-micro)] text-[var(--ui-text-quaternary)]">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                </div>
+                <p className="text-[var(--ui-t-meta)] leading-snug text-[var(--ui-text-tertiary)] h-[35px] overflow-hidden">
+                  {stepSummary(step)}
+                </p>
+              </div>
+            </Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function SequenceStepsReadOnly({ steps }) {
   if (!steps.length) {
     return (
