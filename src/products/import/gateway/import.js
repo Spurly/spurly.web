@@ -40,13 +40,25 @@ async function getStats() {
 }
 
 /**
- * Send staged leads to the Hub. POST /imported-leads/promote
- * `audienceName` is optional — the batch always lands under a Hub audience,
- * named by the caller or (if omitted) auto-named server-side with a dated
- * default, so promoted leads are never left unfiled.
+ * Queue staged leads for import. POST /imported-leads/promote
+ *
+ * Does NOT write straight into the Hub — the selected rows are resolved
+ * through LinkedIn first (Unipile), one Hub audience per call, named by the
+ * caller or (if omitted) auto-named server-side with a dated default. A row
+ * disappears from staging on its own, the moment it's actually resolved and
+ * lands in Hub Leads (see the Import page's polling).
  */
 async function promoteLeads(ids, audienceName) {
   const response = await apiGateway.post('/imported-leads/promote', { ids, audienceName });
+  return response.data;
+}
+
+/**
+ * Put failed rows back to 'pending' so they can be re-selected and re-sent.
+ * POST /imported-leads/retry
+ */
+async function retryLeads(ids) {
+  const response = await apiGateway.post('/imported-leads/retry', { ids });
   return response.data;
 }
 
@@ -59,5 +71,5 @@ async function deleteLeads(ids) {
   return response.data;
 }
 
-const importGateway = { stageLeads, getLeads, getStats, promoteLeads, deleteLeads };
+const importGateway = { stageLeads, getLeads, getStats, promoteLeads, retryLeads, deleteLeads };
 export default importGateway;

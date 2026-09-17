@@ -6,10 +6,11 @@ import { IMPORT_EVENTS } from '../constants/constants.js';
  *
  * Orchestrates the CSV-import save flow for spurly.web. Parsed rows go into
  * the IMPORTED LEADS staging area — not straight into the Hub. Staging is
- * free; the user promotes the rows they want into the Hub's own lead
- * dataset (where the PROFILE_CARD charge and the daily capture limit
- * apply), enriched or not — enrichment now happens on the Hub side after
- * promotion, not while a lead sits in staging.
+ * free; sending the rows the user wants queues them for import
+ * (2026-09-18) — each one is resolved through LinkedIn (Unipile) BEFORE it
+ * lands in the Hub's own lead dataset, so a lead only ever reaches Hub
+ * Leads already sendable. A row leaves staging on its own once that
+ * resolve finishes; failed ones stay behind for the user to retry.
  *
  * try/catch and async/await live here (and in the gateway) only. Every
  * method takes the caller's `eventEmitter` first and reports the outcome by
@@ -83,20 +84,35 @@ async function loadLeads(eventEmitter, { limit, skip, search, enrichStatus } = {
 }
 
 /**
- * Emits PROMOTE_SUCCESS with { promoted, audience }, or PROMOTE_FAILURE with
- * a message. `audienceName` is optional — passed through as typed; the
- * server falls back to a dated default when it's blank.
+ * Emits PROMOTE_SUCCESS with { queued, audience }, or PROMOTE_FAILURE with a
+ * message. `audienceName` is optional — passed through as typed; the server
+ * falls back to a dated default when it's blank. Queuing does not move
+ * anything into the Hub itself — see this file's header.
  */
 async function promoteLeads(eventEmitter, ids, audienceName) {
   try {
     const res = await importGateway.promoteLeads(ids, audienceName);
-    if (!res?.success) throw new Error(res?.message || 'Could not move those leads');
+    if (!res?.success) throw new Error(res?.message || 'Could not send those leads');
     eventEmitter.emit(IMPORT_EVENTS.PROMOTE_SUCCESS, {
-      promoted: res.data?.promoted || 0,
+      queued: res.data?.queued || 0,
       audience: res.data?.audience || null,
     });
   } catch (error) {
-    eventEmitter.emit(IMPORT_EVENTS.PROMOTE_FAILURE, error?.message || 'Could not move those leads');
+    eventEmitter.emit(IMPORT_EVENTS.PROMOTE_FAILURE, error?.message || 'Could not send those leads');
+  }
+}
+
+/**
+ * Emits RETRY_SUCCESS with { reset }, or RETRY_FAILURE with a message.
+ * Resets failed rows back to 'pending' so they show up ready to re-send.
+ */
+async function retryLeads(eventEmitter, ids) {
+  try {
+    const res = await importGateway.retryLeads(ids);
+    if (!res?.success) throw new Error(res?.message || 'Could not reset those leads');
+    eventEmitter.emit(IMPORT_EVENTS.RETRY_SUCCESS, { reset: res.data?.reset || 0 });
+  } catch (error) {
+    eventEmitter.emit(IMPORT_EVENTS.RETRY_FAILURE, error?.message || 'Could not reset those leads');
   }
 }
 
@@ -111,5 +127,5 @@ async function deleteLeads(eventEmitter, ids) {
   }
 }
 
-const importController = { importProfiles, loadLeads, promoteLeads, deleteLeads };
+const importController = { importProfiles, loadLeads, promoteLeads, retryLeads, deleteLeads };
 export default importController;

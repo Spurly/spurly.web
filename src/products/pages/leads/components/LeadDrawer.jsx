@@ -268,7 +268,16 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
     leadController.resolveProfile(callEmitter, lead._id);
 
     return () => { requestIdRef.current += 1; };
-  }, [lead, onResolved]);
+    // Deliberately keyed on `lead._id`, not `lead` itself: `onResolved` folds
+    // the resolve response back into `selectedLead` as a NEW object with the
+    // same `_id` (see useLeadsPage's handleLeadResolved), so depending on the
+    // whole `lead` reference here would refire this effect on every resolve,
+    // which resolves again, which refires again — an infinite loop of
+    // `GET .../profile` calls. The component is already remounted by the
+    // caller's `key={lead._id}` when the id actually changes, so `lead._id`
+    // is the only piece of this that this effect needs to react to.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lead?._id, onResolved]);
 
   const degreeLabel = useMemo(() => ({ 1: '1st', 2: '2nd', 3: '3rd' }[resolved?.connectionDegree] ?? null), [resolved]);
 

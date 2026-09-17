@@ -4,23 +4,28 @@ import importController from '../controller/import.js';
 import { DEFAULT_LIMIT, IMPORT_EVENTS } from '../constants/constants.js';
 
 /**
- * Owns the CSV staging area: the paginated list of imported leads, and
- * promotion into the Hub.
+ * Owns the CSV/extension staging area: the paginated list of imported
+ * leads, and queueing them for import into the Hub.
  *
- * Enrichment used to run here too — an extension-driven run that visited
- * each staged profile before it was sent to the Hub. That path is retired
- * (2026-09-14): enrichment now happens entirely on the Hub side, through
- * Unipile, after a lead is promoted — see products/enrichment. A staged
- * lead can be promoted enriched or not; either way it lands in the Hub the
- * same way, and enriching it there is one consistent flow instead of two.
+ * 2026-09-18: sending a staged row no longer promotes it into the Hub
+ * directly. It queues a manual Hub audience that resolves each profile
+ * through Unipile first, and a row disappears from this list on its own,
+ * server-side, once that resolve lands it in Hub Leads — the server does the
+ * work; this hook just needs to keep asking. `pollTick` below re-fetches on
+ * an interval WHENEVER any row is 'queued', so the table visibly drains
+ * without the user needing to refresh, and stops polling the moment nothing
+ * is left in flight.
  *
  * All server calls go through `importController`, which reports back over
  * `eventEmitter` instead of returning promises — this hook has no
  * async/await or try/catch of its own. `eventEmitter` is also returned so a
- * caller (StagingPanel) can `.once()` a PROMOTE_SUCCESS/DELETE_SUCCESS for
- * its own UI-only follow-up (toast copy, clearing selection) without this
- * hook having to know about that.
+ * caller (StagingPanel) can `.once()` a PROMOTE_SUCCESS/DELETE_SUCCESS/
+ * RETRY_SUCCESS for its own UI-only follow-up (toast copy, clearing
+ * selection) without this hook having to know about that.
  */
+
+/** How often to re-poll while something is still resolving. */
+const POLL_INTERVAL_MS = 4000;
 export function useImportedLeads() {
   const eventEmitter = useMemo(() => new EventEmitter(), []);
 
@@ -84,12 +89,23 @@ export function useImportedLeads() {
       setBusy(false);
     }
 
+    function handleRetrySuccess() {
+      setBusy(false);
+      load({ silent: true });
+    }
+    function handleRetryFailure(message) {
+      setActionError(message);
+      setBusy(false);
+    }
+
     eventEmitter.on(IMPORT_EVENTS.LOAD_SUCCESS, handleLoadSuccess);
     eventEmitter.on(IMPORT_EVENTS.LOAD_FAILURE, handleLoadFailure);
     eventEmitter.on(IMPORT_EVENTS.PROMOTE_SUCCESS, handlePromoteSuccess);
     eventEmitter.on(IMPORT_EVENTS.PROMOTE_FAILURE, handlePromoteFailure);
     eventEmitter.on(IMPORT_EVENTS.DELETE_SUCCESS, handleDeleteSuccess);
     eventEmitter.on(IMPORT_EVENTS.DELETE_FAILURE, handleDeleteFailure);
+    eventEmitter.on(IMPORT_EVENTS.RETRY_SUCCESS, handleRetrySuccess);
+    eventEmitter.on(IMPORT_EVENTS.RETRY_FAILURE, handleRetryFailure);
 
     return () => {
       eventEmitter.off(IMPORT_EVENTS.LOAD_SUCCESS, handleLoadSuccess);
@@ -98,8 +114,21 @@ export function useImportedLeads() {
       eventEmitter.off(IMPORT_EVENTS.PROMOTE_FAILURE, handlePromoteFailure);
       eventEmitter.off(IMPORT_EVENTS.DELETE_SUCCESS, handleDeleteSuccess);
       eventEmitter.off(IMPORT_EVENTS.DELETE_FAILURE, handleDeleteFailure);
+      eventEmitter.off(IMPORT_EVENTS.RETRY_SUCCESS, handleRetrySuccess);
+      eventEmitter.off(IMPORT_EVENTS.RETRY_FAILURE, handleRetryFailure);
     };
   }, [eventEmitter, load]);
+
+  // Poll while anything is mid-resolve, so a lead visibly disappears from
+  // this table on its own once it lands in Hub Leads — no manual refresh,
+  // and no polling at all once the queue is empty.
+  const queuedCount = stats.byStatus?.queued || 0;
+  const hasQueued = queuedCount > 0;
+  useEffect(() => {
+    if (!hasQueued) return undefined;
+    const interval = setInterval(() => load({ silent: true }), POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [hasQueued, load]);
 
   // Debounced refetch on any query change. 350ms matches the DataTable toolbar.
   useEffect(() => {
@@ -136,6 +165,17 @@ export function useImportedLeads() {
     [busy, eventEmitter],
   );
 
+  /** Reset failed rows back to 'pending' so they can be re-sent. */
+  const retrySelected = useCallback(
+    (ids) => {
+      if (!ids?.length || busy) return;
+      setActionError(null);
+      setBusy(true);
+      importController.retryLeads(eventEmitter, ids);
+    },
+    [busy, eventEmitter],
+  );
+
   return {
     leads,
     stats,
@@ -161,5 +201,6 @@ export function useImportedLeads() {
     refresh: load,
     promoteSelected,
     deleteSelected,
+    retrySelected,
   };
 }

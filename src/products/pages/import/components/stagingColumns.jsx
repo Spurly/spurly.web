@@ -24,12 +24,25 @@ function StagedEmail({ value }) {
   );
 }
 
+/**
+ * 2026-09-18: 'queued' now means "sending — being resolved through LinkedIn
+ * right now", not "waiting its turn for the old extension-driven enrichment"
+ * (that path is retired, see importedLeads/routes.js on the backend). A row
+ * in this status simply vanishes from the table once it lands in Hub Leads;
+ * 'enriching'/'enriched' are not set by the current pipeline but are kept
+ * for schema compatibility with older staged rows.
+ */
 const ENRICH_STATUS = {
-  pending:   { label: 'Not enriched', tone: 'neutral', dot: false },
-  queued:    { label: 'Queued',       tone: 'warning', dot: true },
-  enriching: { label: 'Enriching',    tone: 'info',    dot: true, pulse: true },
-  enriched:  { label: 'Enriched',     tone: 'success', dot: true },
-  failed:    { label: 'Failed',       tone: 'danger',  dot: true },
+  pending:   { label: 'Not sent',  tone: 'neutral', dot: false },
+  queued:    { label: 'Sending…',  tone: 'info',    dot: true, pulse: true },
+  enriching: { label: 'Sending…',  tone: 'info',    dot: true, pulse: true },
+  enriched:  { label: 'Enriched',  tone: 'success', dot: true },
+  failed:    { label: 'Failed',    tone: 'danger',  dot: true },
+};
+
+const ORIGIN_LABEL = {
+  csv: 'CSV Import',
+  extension: 'Extension',
 };
 
 export function EnrichStatusCell({ value, row = {} }) {
@@ -94,5 +107,15 @@ export const stagingColumns = [
   { key: 'company', label: 'Company', width: 160, render: (value) => <CompanyCell value={value} /> },
   { key: 'email', label: 'Email', width: 200, render: (value) => <StagedEmail value={value} /> },
   { key: 'location', label: 'Location', width: 170, render: (value) => <LocationCell value={value} /> },
-  { key: 'sourceFile', label: 'Source', width: 170, render: (value) => <TextCell value={value} tone="tertiary" /> },
+  {
+    key: 'origin',
+    label: 'Imported via',
+    width: 130,
+    render: (value) => (
+      <Badge variant="minimal" tone={value === 'extension' ? 'accent' : 'neutral'}>
+        {ORIGIN_LABEL[value] || 'CSV Import'}
+      </Badge>
+    ),
+  },
+  { key: 'sourceFile', label: 'File', width: 150, render: (value) => <TextCell value={value} tone="tertiary" /> },
 ];
