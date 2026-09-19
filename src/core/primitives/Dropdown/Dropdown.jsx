@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { usePopperPosition } from 'src/core/primitives/Popper';
 
 /**
  * Reusable custom dropdown select component.
@@ -36,11 +38,16 @@ export function Dropdown({
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
+  // Dashboard variant only: the menu portals to <body>, so outside-click
+  // detection and positioning need a ref to it separate from wrapRef.
+  const menuRef = useRef(null);
 
   useEffect(() => {
     if (!open) return;
     function handleClick(e) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+      if (wrapRef.current?.contains(e.target)) return;
+      if (menuRef.current?.contains(e.target)) return;
+      setOpen(false);
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
@@ -49,6 +56,32 @@ export function Dropdown({
   useEffect(() => {
     if (disabled) setOpen(false);
   }, [disabled]);
+
+  // Non-sm dashboard menus match the trigger's width. Read via effect, not
+  // during render — refs aren't safe to read while rendering.
+  const [anchorWidth, setAnchorWidth] = useState(null);
+  useEffect(() => {
+    if (variant !== 'dashboard' || !open) return undefined;
+    const measure = () => setAnchorWidth(wrapRef.current?.offsetWidth ?? null);
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [variant, open]);
+
+  /* Dashboard variant's menu portals to <body> and positions with `fixed`
+     viewport coordinates instead of `absolute`. The trigger lives inside the
+     table toolbar's bulk-action bar, which needs `overflow-x-auto` for its
+     own horizontal scroll — and per spec, setting one axis to a non-visible
+     overflow forces the other axis to clip too, so an absolutely-positioned
+     menu there was getting clipped behind the table rather than floating
+     above them. Same fix as NotificationBell / AiWriteButton. */
+  const position = usePopperPosition({
+    anchorRef: wrapRef,
+    floatingRef: menuRef,
+    placement: 'bottom',
+    offset: 6,
+    open: variant === 'dashboard' && open,
+  });
 
   const selectedLabel = options.find(([v]) => v === value)?.[1];
 
@@ -150,48 +183,54 @@ export function Dropdown({
           <svg width={isSm ? 14 : 16} height={isSm ? 14 : 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
         </span>
       </button>
-      {open && (
-        <ul
-          className={[
-            'absolute top-[calc(100%+6px)] z-50 bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-popover)] overflow-y-auto sp-pop',
-            isSm
-              /* right-0, not left-0: this trigger typically sits at the
-                 right edge of a toolbar, and a 200px menu growing rightward
-                 from there runs off the viewport with nothing to clip it
-                 back into view. Anchoring to the trigger's right edge and
-                 growing leftward keeps it on-screen. */
-              ? 'right-0 min-w-[200px] max-w-[280px] rounded-[var(--ui-radius-md)] p-1 max-h-[280px]'
-              : 'left-0 right-0 rounded-[var(--ui-radius-md)] p-1.5 max-h-[240px]',
-          ].join(' ')}
-          role="listbox"
-        >
-          {options.map(([val, label]) => (
-            <li
-              key={val}
-              className={[
-                'flex items-center justify-between gap-2 rounded-[var(--ui-radius-sm)] cursor-pointer transition-colors truncate',
-                isSm ? 'px-2 h-8 text-[length:var(--ui-t-control)]' : 'px-3 h-9 text-[length:var(--ui-t-body)]',
-                val === value
-                  /* Was var(--accent-subtle, rgba(79,70,229,0.08)). --accent-subtle
-                     has never been defined, so every selected dropdown item was
-                     rendering the fallback: indigo, from a palette this product
-                     stopped using two redesigns ago. Now the standard stateful
-                     selected treatment — accent tint, accent text. */
-                  ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-medium'
-                  : 'text-[var(--ui-text-body)] hover:bg-[var(--ui-surface-hover)]',
-              ].join(' ')}
-              role="option"
-              aria-selected={val === value}
-              onClick={() => pick(val)}
-            >
-              <span className="truncate">{label}</span>
-              {val === value && (
-                <svg className="shrink-0" width={isSm ? 13 : 16} height={isSm ? 13 : 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+      {open &&
+        createPortal(
+          <ul
+            ref={menuRef}
+            className={[
+              'fixed z-50 bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-popover)] overflow-y-auto sp-pop',
+              isSm
+                ? 'min-w-[200px] max-w-[280px] rounded-[var(--ui-radius-md)] p-1 max-h-[280px]'
+                : 'rounded-[var(--ui-radius-md)] p-1.5 max-h-[240px]',
+            ].join(' ')}
+            style={{
+              left: position.x,
+              top: position.y,
+              // Non-sm menus match the full-width trigger's own width rather
+              // than a fixed one; sm menus size to their content instead.
+              width: isSm ? undefined : (anchorWidth ?? undefined),
+              visibility: position.ready ? 'visible' : 'hidden',
+            }}
+            role="listbox"
+          >
+            {options.map(([val, label]) => (
+              <li
+                key={val}
+                className={[
+                  'flex items-center justify-between gap-2 rounded-[var(--ui-radius-sm)] cursor-pointer transition-colors truncate',
+                  isSm ? 'px-2 h-8 text-[length:var(--ui-t-control)]' : 'px-3 h-9 text-[length:var(--ui-t-body)]',
+                  val === value
+                    /* Was var(--accent-subtle, rgba(79,70,229,0.08)). --accent-subtle
+                       has never been defined, so every selected dropdown item was
+                       rendering the fallback: indigo, from a palette this product
+                       stopped using two redesigns ago. Now the standard stateful
+                       selected treatment — accent tint, accent text. */
+                    ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-medium'
+                    : 'text-[var(--ui-text-body)] hover:bg-[var(--ui-surface-hover)]',
+                ].join(' ')}
+                role="option"
+                aria-selected={val === value}
+                onClick={() => pick(val)}
+              >
+                <span className="truncate">{label}</span>
+                {val === value && (
+                  <svg className="shrink-0" width={isSm ? 13 : 16} height={isSm ? 13 : 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                )}
+              </li>
+            ))}
+          </ul>,
+          document.body,
+        )}
     </div>
   );
 }
