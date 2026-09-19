@@ -29,16 +29,16 @@ const money = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 function Stat({ label, value, hint, warn = false }) {
   return (
     <div className="flex min-w-0 flex-col gap-1 rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-4 py-3">
-      <span className="text-[var(--ui-t-meta)] font-medium uppercase tracking-wider text-[var(--ui-text-secondary)]">
+      <span className="text-[length:var(--ui-t-meta)] font-medium uppercase tracking-wider text-[var(--ui-text-secondary)]">
         {label}
       </span>
-      <span className="flex items-center gap-1.5 text-[var(--ui-t-metric)] font-semibold tabular-nums leading-none text-[var(--ui-text-primary)]">
+      <span className="flex items-center gap-1.5 text-[length:var(--ui-t-metric)] font-semibold tabular-nums leading-none text-[var(--ui-text-primary)]">
         {/* The icon carries the warning as much as the colour does, so the
             state survives a colourblind reader and a greyscale print. */}
         {warn && <AlertTriangle size={16} className="text-[var(--ui-warning-fg)]" />}
         {value}
       </span>
-      {hint && <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-secondary)]">{hint}</span>}
+      {hint && <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)]">{hint}</span>}
     </div>
   );
 }
@@ -137,7 +137,7 @@ export function AdminPaymentsPage() {
         {summary?.stuck > 0 && (
           <div className="flex items-start gap-2.5 rounded-[var(--ui-radius-md)] border border-[var(--ui-warning-border)] bg-[var(--ui-warning-tint)] px-4 py-3">
             <AlertTriangle size={16} className="mt-0.5 shrink-0 text-[var(--ui-warning-fg)]" />
-            <p className="text-[var(--ui-t-body)] leading-relaxed text-[var(--ui-text-primary)]">
+            <p className="text-[length:var(--ui-t-body)] leading-relaxed text-[var(--ui-text-primary)]">
               {summary.stuck} payment{summary.stuck === 1 ? '' : 's'} created over an hour ago and
               still unconfirmed. Usually this means Cashfree webhooks aren't reaching the server —
               check the webhook endpoint is publicly reachable. Reconciliation will still settle
@@ -164,7 +164,7 @@ export function AdminPaymentsPage() {
                 className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--ui-text-tertiary)]"
               />
               <input
-                className="h-8 w-[260px] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] pl-8 pr-3 text-[var(--ui-t-body)]"
+                className="h-8 w-[260px] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] pl-8 pr-3 text-[length:var(--ui-t-body)]"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search email or order id"
@@ -175,7 +175,7 @@ export function AdminPaymentsPage() {
           {search && (
             <button
               type="button"
-              className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] underline underline-offset-2"
+              className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] underline underline-offset-2"
               onClick={() => {
                 setSearchInput('');
                 setSearch('');

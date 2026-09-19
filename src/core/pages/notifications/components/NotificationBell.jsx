@@ -14,6 +14,7 @@ import {
   BatteryLow,
   Sparkles,
 } from 'lucide-react';
+import { BellIcon } from 'src/core/icons';
 import { usePopperPosition } from 'src/core/primitives/Popper';
 import { Button, IconButton } from 'src/core/primitives';
 import { relativeTime } from 'src/shared/utils/outreach';
@@ -71,11 +72,11 @@ function FeedRow({ notification, onOpen }) {
       </span>
       <span className="min-w-0 flex-1">
         <span
-          className={`block text-[var(--ui-t-body)] leading-snug ${unread ? 'text-[var(--ui-text-primary)] font-medium' : 'text-[var(--ui-text-secondary)]'}`}
+          className={`block text-[length:var(--ui-t-body)] leading-snug ${unread ? 'text-[var(--ui-text-primary)] font-medium' : 'text-[var(--ui-text-secondary)]'}`}
         >
           {notification.text}
         </span>
-        <span className="block text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-0.5">
+        <span className="block text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-0.5">
           {relativeTime(notification.createdAt)}
         </span>
         {notification.type === 'hub.connections_sent' && (
@@ -137,20 +138,23 @@ export function NotificationBell() {
   return (
     <>
       <span className="relative inline-flex" ref={triggerRef}>
+        {/* 32px, bordered, on the canvas beside the page's primary action —
+            the handoff's header bell. Unread is a small accent dot, not a
+            red count: it is news, not an error. */}
         <IconButton
-          icon={<Bell size={16} />}
+          icon={<BellIcon size={16} />}
           label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
-          size="sm"
+          size="md"
+          variant="secondary"
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
+          className="!text-[var(--ui-text-secondary)] hover:!text-[var(--ui-text-primary)]"
         />
         {unreadCount > 0 && (
           <span
-            className="absolute top-0.5 right-0.5 grid place-items-center min-w-[14px] h-[14px] px-[3px] rounded-full text-[var(--ui-t-micro)] font-medium leading-none text-white pointer-events-none"
-            style={{ background: 'var(--ui-danger)' }}
-          >
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
+            className="absolute top-[5px] right-[5px] w-1.5 h-1.5 rounded-full pointer-events-none bg-[var(--ui-accent)] shadow-[0_0_0_2px_var(--ui-surface-card)]"
+            aria-hidden="true"
+          />
         )}
       </span>
 
@@ -167,11 +171,11 @@ export function NotificationBell() {
               visibility: position.ready ? 'visible' : 'hidden',
               background: 'var(--ui-surface-card)',
               border: '1px solid var(--ui-border)',
-              boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
+              boxShadow: 'var(--ui-shadow-popover)',
             }}
           >
             <div className="flex items-center justify-between px-3 h-10 shrink-0 border-b border-[var(--ui-border-hairline)]">
-              <span className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">Notifications</span>
+              <span className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">Notifications</span>
               {unreadCount > 0 && (
                 <Button variant="ghost" size="sm" leadingIcon={<CheckCheck size={12} />} onClick={markAllRead}>
                   Mark all read
@@ -181,7 +185,7 @@ export function NotificationBell() {
 
             <div className="max-h-[360px] overflow-y-auto p-1.5">
               {items.length === 0 ? (
-                <div className="py-8 px-3 text-center text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">
+                <div className="py-8 px-3 text-center text-[length:var(--ui-t-body)] text-[var(--ui-text-tertiary)]">
                   You're all caught up.
                 </div>
               ) : (

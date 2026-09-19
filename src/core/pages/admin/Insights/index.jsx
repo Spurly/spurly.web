@@ -120,7 +120,7 @@ function TrendPill({ pct }) {
   const color = flat ? 'var(--ui-text-tertiary)' : up ? 'var(--ui-success)' : 'var(--ui-danger)';
   const Icon = flat ? Minus : up ? TrendingUp : TrendingDown;
   return (
-    <span className="inline-flex items-center gap-1 text-[var(--ui-t-label)] font-medium tabular-nums" style={{ color }}>
+    <span className="inline-flex items-center gap-1 text-[length:var(--ui-t-label)] font-medium tabular-nums" style={{ color }}>
       <Icon size={13} />
       {up ? '+' : ''}{pct}%
     </span>
@@ -131,11 +131,11 @@ function TrendPill({ pct }) {
 function StatTile({ label, value, sub, color, icon: Icon }) {
   return (
     <div className="rounded-[var(--ui-radius-lg)] p-3" style={{ background: 'var(--ui-surface-sunken)' }}>
-      <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] flex items-center gap-1">
+      <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] flex items-center gap-1">
         {Icon && <Icon size={12} />} {label}
       </p>
-      <p className="text-[var(--ui-t-metric)] font-medium leading-tight" style={{ color: color || 'var(--ui-text-primary)' }}>{value}</p>
-      {sub && <p className="text-[var(--ui-t-micro)] text-[var(--ui-text-tertiary)] mt-0.5">{sub}</p>}
+      <p className="text-[length:var(--ui-t-metric)] font-medium leading-tight" style={{ color: color || 'var(--ui-text-primary)' }}>{value}</p>
+      {sub && <p className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)] mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -152,7 +152,7 @@ function Funnel({ funnel }) {
     <div className="space-y-2.5">
       {steps.map((s) => (
         <div key={s.label} className="flex items-center gap-3">
-          <span className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] w-24 shrink-0">{s.label}</span>
+          <span className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] w-24 shrink-0">{s.label}</span>
           <div className="flex-1 h-6 rounded-[var(--ui-radius-md)] overflow-hidden" style={{ background: 'var(--ui-surface-sunken)' }}>
             <div
               className="h-full rounded-[var(--ui-radius-md)] transition-colors"
@@ -163,10 +163,10 @@ function Funnel({ funnel }) {
               }}
             />
           </div>
-          <span className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tabular-nums w-12 shrink-0 text-right">
+          <span className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tabular-nums w-12 shrink-0 text-right">
             {s.value.toLocaleString()}
           </span>
-          <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] w-24 shrink-0 text-right">
+          <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] w-24 shrink-0 text-right">
             {s.rate !== null ? `${s.rate}% of captures` : 'baseline'}
           </span>
         </div>
@@ -197,10 +197,10 @@ function SegmentBar({ segments }) {
           <div key={s.key} className="flex flex-col">
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full" style={{ background: s.color }} />
-              <span className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tabular-nums">{segments?.[s.key] ?? 0}</span>
+              <span className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tabular-nums">{segments?.[s.key] ?? 0}</span>
             </div>
-            <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-secondary)] mt-0.5">{s.label}</span>
-            <span className="text-[var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">{s.hint}</span>
+            <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)] mt-0.5">{s.label}</span>
+            <span className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">{s.hint}</span>
           </div>
         ))}
       </div>
@@ -316,7 +316,7 @@ export function AdminInsightsPage() {
             {row.name || '—'}
             {row.activeToday && <Flame size={13} style={{ color: 'var(--ui-success)' }} title="Active today" />}
           </div>
-          <div className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">{row.email}</div>
+          <div className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">{row.email}</div>
         </div>
       ),
     },
@@ -339,7 +339,7 @@ export function AdminInsightsPage() {
               style={{ width: `${Math.min(100, (value / 30) * 100)}%`, background: 'var(--brand-gradient-vivid, var(--ui-accent))' }}
             />
           </div>
-          <span className="tabular-nums text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] w-5 text-left">{value}</span>
+          <span className="tabular-nums text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] w-5 text-left">{value}</span>
         </div>
       ),
     },
@@ -376,7 +376,7 @@ export function AdminInsightsPage() {
       label: 'Last active',
       minWidth: '120px',
       render: (value, row) => (
-        <div className="text-[var(--ui-t-label)] tabular-nums">
+        <div className="text-[length:var(--ui-t-label)] tabular-nums">
           <span className="text-[var(--ui-text-secondary)]">{value ? shortDate(value) : '—'}</span>
           {row.daysSinceActive !== null && row.daysSinceActive !== undefined && (
             <span className="text-[var(--ui-text-tertiary)] block">
@@ -436,11 +436,11 @@ export function AdminInsightsPage() {
                   <f.icon size={20} />
                 </div>
                 <div>
-                  <p className="text-[var(--ui-t-metric)] font-medium tabular-nums text-[var(--ui-text-primary)] leading-none">
+                  <p className="text-[length:var(--ui-t-metric)] font-medium tabular-nums text-[var(--ui-text-primary)] leading-none">
                     {(overview?.actions?.last30Days?.[f.key] ?? 0).toLocaleString()}
                   </p>
-                  <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1">{f.label} · last 30 days</p>
-                  <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
+                  <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1">{f.label} · last 30 days</p>
+                  <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
                     {(overview?.actions?.last7Days?.[f.key] ?? 0).toLocaleString()} in 7d · {(overview?.actions?.today?.[f.key] ?? 0).toLocaleString()} today
                   </p>
                 </div>
@@ -503,7 +503,7 @@ export function AdminInsightsPage() {
         {/* Per-user table */}
         {error && (
           <div
-            className="p-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium"
+            className="p-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] font-medium"
             style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)', border: '1px solid rgba(255,69,58,0.2)' }}
           >
             {error}
@@ -589,11 +589,11 @@ export function AdminInsightsPage() {
               <div className="flex items-center gap-3 min-w-0">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] truncate">{drillUser.name || drillUser.email}</h3>
+                    <h3 className="text-[length:var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] truncate">{drillUser.name || drillUser.email}</h3>
                     <SegmentBadge seg={drillUser.segment} />
                     {drillData && <TrendPill pct={drillData.summary.wowTrendPct} />}
                   </div>
-                  <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">{drillUser.email} · {drillUser.plan}</p>
+                  <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">{drillUser.email} · {drillUser.plan}</p>
                 </div>
               </div>
               <button onClick={() => setDrillUser(null)} className="text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-primary)] shrink-0">
@@ -622,13 +622,13 @@ export function AdminInsightsPage() {
                   {/* Funnel + Sources/Enrichment side by side */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
                     <div>
-                      <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-3 flex items-center gap-1.5">
+                      <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-3 flex items-center gap-1.5">
                         <Layers size={14} /> Outreach funnel · last {drillData.windowDays} days
                       </p>
                       <Funnel funnel={drillData.funnel} />
                     </div>
                     <div>
-                      <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-3 flex items-center gap-1.5">
+                      <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-3 flex items-center gap-1.5">
                         <Sparkles size={14} /> Capture sources & enrichment
                       </p>
                       <div className="grid grid-cols-2 gap-3">
@@ -641,7 +641,7 @@ export function AdminInsightsPage() {
                   </div>
 
                   {/* Weekly activity */}
-                  <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-2">Weekly activity</p>
+                  <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-2">Weekly activity</p>
                   <ResponsiveContainer width="100%" height={180}>
                     <BarChart
                       data={drillData.weekly.map((w) => ({
@@ -663,7 +663,7 @@ export function AdminInsightsPage() {
                   </ResponsiveContainer>
 
                   {/* Daily activity */}
-                  <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-2 mt-5">
+                  <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-2 mt-5">
                     Daily activity · last {drillData.windowDays} days
                   </p>
                   <ResponsiveContainer width="100%" height={220}>
@@ -687,7 +687,7 @@ export function AdminInsightsPage() {
                     </BarChart>
                   </ResponsiveContainer>
 
-                  <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-4">
+                  <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-4">
                     Recorded outreach (lifetime, from credit ledger): {drillData.activity.lifetimeConnections.toLocaleString()} connections · {drillData.activity.lifetimeMessages.toLocaleString()} messages · Credit balance {drillData.user.creditBalance}
                   </p>
                 </>

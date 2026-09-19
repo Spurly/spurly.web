@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useDataTable } from './useDataTable';
 import { applyColumnOrder } from './columnOrder';
-import { Colgroup, Header, Body, TableToolbar, Pagination } from './parts';
+import { Colgroup, Header, Body, TableToolbar, Pagination, BulkActionBar } from './parts';
 import { DEFAULT_DENSITY } from 'src/core/tokens';
 
-const SELECTION_WIDTH = 40;
+const SELECTION_WIDTH = 44;
 
 /**
  * Server-side oriented data table.
@@ -58,10 +58,12 @@ export function DataTable({
   onSortChange,
   pagination,
   toolbar,
+  banner = null,
   stickyHeader = true,
   emptyMessage = 'Nothing here yet',
   emptyHint,
   emptyAction = null,
+  emptyIcon = null,
   className = '',
 }) {
   const table = useDataTable({ data, rowKey, selectedKeys, onSelectionChange, sort, onSortChange });
@@ -131,17 +133,31 @@ export function DataTable({
           }`}
         >
           <TableToolbar
-            {...toolbar}
-            selectedCount={selectable ? table.selectedCount : 0}
-            onClearSelection={selectable ? table.clearSelection : undefined}
+            searchValue={toolbar.searchValue}
+            onSearch={toolbar.onSearch}
+            searchPlaceholder={toolbar.searchPlaceholder}
+            searchDebounce={toolbar.searchDebounce}
+            chips={toolbar.chips}
+            filters={toolbar.filters}
+            actions={toolbar.actions}
           />
         </div>
+      )}
+
+      {/* A band between the toolbar and the rows for whatever Spurly is doing
+          to this list right now (the working line). Owned by the page. */}
+      {banner}
+
+      {selectable && table.selectedCount > 0 && (
+        <BulkActionBar count={table.selectedCount} onClear={table.clearSelection}>
+          {toolbar?.bulkActions}
+        </BulkActionBar>
       )}
 
       {error && (
         <div
           role="alert"
-          className="mx-3 my-2 px-3 py-2 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-label)] bg-[var(--ui-danger-tint)] text-[var(--ui-danger-fg)]"
+          className="mx-3 my-2 px-3 py-2 rounded-[var(--ui-radius-sm)] text-[length:var(--ui-t-label)] bg-[var(--ui-danger-tint)] text-[var(--ui-danger-fg)]"
         >
           {error}
         </div>
@@ -191,6 +207,7 @@ export function DataTable({
             emptyMessage={emptyMessage}
             emptyHint={emptyHint}
             emptyAction={emptyAction}
+            emptyIcon={emptyIcon}
             colCount={colCount}
           />
         </table>

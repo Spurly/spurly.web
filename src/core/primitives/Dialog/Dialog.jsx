@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { X } from 'lucide-react';
+import { CloseIcon } from 'src/core/icons';
 import { Overlay } from '../Overlay';
 import { IconButton } from '../IconButton';
 
@@ -7,7 +7,7 @@ const SIZES = {
   sm: 'max-w-sm',
   md: 'max-w-md',
   lg: 'max-w-lg',
-  xl: 'max-w-2xl',
+  xl: 'max-w-[660px]',
 };
 
 /**
@@ -41,35 +41,35 @@ export function Dialog({
       describedBy={description ? descId : undefined}
       closeOnBackdrop={closeOnBackdrop}
       closeOnEscape={closeOnEscape}
-      panelClassName={`w-full ${SIZES[size] ?? SIZES.md} max-h-[calc(100vh-4rem)] rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-lg)]`}
+      panelClassName={`w-full ${SIZES[size] ?? SIZES.md} max-h-[calc(100vh-3rem)] rounded-[var(--ui-radius-xl)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-modal)] overflow-hidden`}
     >
       {(title || !hideClose) && (
-        <div className="flex items-start gap-3 px-4 pt-4 pb-3 shrink-0">
+        <div className="flex items-start gap-3 px-5 pt-[18px] pb-3 shrink-0">
           <div className="min-w-0 flex-1">
             {title && (
               <h2
                 id={titleId}
-                className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] leading-snug"
+                className="text-[length:var(--ui-t-figure)] font-semibold tracking-[var(--ui-track-tight)] text-[var(--ui-text-primary)] leading-snug"
               >
                 {title}
               </h2>
             )}
             {description && (
-              <p id={descId} className="mt-1 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-relaxed">
+              <p id={descId} className="mt-1 text-[length:var(--ui-t-control)] text-[var(--ui-text-secondary)] leading-[1.45]">
                 {description}
               </p>
             )}
           </div>
           {!hideClose && (
-            <IconButton size="sm" variant="ghost" label="Close" icon={<X size={15} />} onClick={onClose} />
+            <IconButton size="sm" variant="ghost" label="Close" icon={<CloseIcon size={15} strokeWidth={2.2} />} onClick={onClose} className="!w-7 !h-7 !text-[var(--ui-text-quaternary)]" />
           )}
         </div>
       )}
 
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4">{children}</div>
+      <div className="flex-1 min-h-0 overflow-y-auto px-5 pb-5">{children}</div>
 
       {footer && (
-        <div className="flex items-center justify-end gap-2 px-4 py-3 shrink-0 border-t border-[var(--ui-border-hairline)]">
+        <div className="flex items-center justify-end gap-2 px-5 py-3.5 shrink-0 border-t border-[var(--ui-neutral-150)] bg-[var(--ui-surface-header)]">
           {footer}
         </div>
       )}

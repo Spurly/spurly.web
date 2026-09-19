@@ -50,10 +50,10 @@ function Row({ notification, onOpen }) {
     <button
       type="button"
       onClick={() => onOpen(notification)}
-      className="w-full flex items-start gap-3 px-4 py-3 text-left border-b border-[var(--ui-border-hairline)] last:border-b-0 hover:bg-[var(--ui-surface-rail-hover)] transition-colors focus:outline-none"
+      className={`w-full flex items-start gap-3 px-4 py-3.5 text-left border-b border-[var(--ui-border-hairline)] last:border-b-0 transition-colors hover:bg-[var(--ui-surface-hover)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)] ${unread ? 'shadow-[inset_2px_0_0_var(--ui-accent)]' : ''}`}
     >
       <span
-        className="mt-0.5 grid place-items-center w-8 h-8 rounded-full shrink-0"
+        className="mt-0.5 grid place-items-center w-[30px] h-[30px] rounded-[var(--ui-radius-btn)] shrink-0"
         style={{
           background: unread ? 'var(--ui-accent-tint)' : 'var(--ui-surface-sunken)',
           color: unread ? 'var(--ui-accent-fg)' : 'var(--ui-text-tertiary)',
@@ -63,11 +63,11 @@ function Row({ notification, onOpen }) {
       </span>
       <span className="min-w-0 flex-1">
         <span
-          className={`block text-[var(--ui-t-body)] leading-snug ${unread ? 'text-[var(--ui-text-primary)] font-medium' : 'text-[var(--ui-text-secondary)]'}`}
+          className={`block text-[length:var(--ui-t-control)] leading-[1.45] ${unread ? 'text-[var(--ui-text-primary)] font-medium' : 'text-[var(--ui-text-body)]'}`}
         >
           {notification.text}
         </span>
-        <span className="block text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-1">
+        <span className="block font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-neutral-400)] mt-1">
           {ago(notification.createdAt)}
         </span>
         {notification.type === 'hub.connections_sent' && (
@@ -91,10 +91,14 @@ export default function NotificationsPage() {
   return (
     <DashboardLayout
       title="Notifications"
-      subtitle={unreadCount > 0 ? `${unreadCount} unread` : undefined}
+      subtitle={
+        unreadCount > 0
+          ? `${unreadCount} unread. Everything Spurly did or needs from you, newest first.`
+          : 'Everything Spurly did or needs from you, newest first.'
+      }
       actions={
         unreadCount > 0 ? (
-          <Button variant="secondary" size="sm" leadingIcon={<CheckCheck size={13} />} onClick={markAllRead}>
+          <Button variant="secondary" leadingIcon={<CheckCheck size={13} />} onClick={markAllRead}>
             Mark all read
           </Button>
         ) : null
@@ -117,12 +121,12 @@ export default function NotificationsPage() {
         </div>
       ) : items.length === 0 ? (
         <EmptyState
-          icon={<Bell size={18} />}
+          icon={<Bell size={20} strokeWidth={1.6} />}
           title="No notifications yet"
           hint="Account and campaign alerts — like a LinkedIn account needing reconnecting — will show up here."
         />
       ) : (
-        <div className="flex flex-col">
+        <div className="flex flex-col overflow-y-auto">
           {items.map((n) => (
             <Row key={n._id} notification={n} onOpen={(notif) => !notif.readAt && markRead(notif._id)} />
           ))}

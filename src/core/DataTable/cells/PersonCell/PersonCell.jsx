@@ -28,6 +28,7 @@ export function PersonCell({
   profileUrl = null,
   meta = null,
   metaTitle,
+  subtitle = null,
   density = 'default',
 }) {
   const captured = useProfilePhoto(profileUrl);
@@ -38,13 +39,20 @@ export function PersonCell({
   const src = avatar || captured || null;
 
   return (
-    <span className="flex items-center gap-2 min-w-0 w-full">
+    <span className="flex items-center gap-2.5 min-w-0 w-full">
       <Avatar src={src} name={name} size={d.avatar} />
-      <span className="truncate font-medium text-[var(--ui-text-primary)]">{name}</span>
+      {subtitle ? (
+        <span className="min-w-0 flex flex-col">
+          <span className="truncate text-[length:var(--ui-t-nav)] font-medium leading-[1.3] text-[var(--ui-text-primary)]">{name}</span>
+          <span className="truncate text-[length:var(--ui-t-meta)] leading-[1.35] text-[var(--ui-text-quaternary)]">{subtitle}</span>
+        </span>
+      ) : (
+        <span className="truncate text-[length:var(--ui-t-nav)] font-medium text-[var(--ui-text-primary)]">{name}</span>
+      )}
       {meta && (
         <span
           title={metaTitle}
-          className="ml-auto shrink-0 pl-2 text-[var(--ui-t-meta)] tabular-nums text-[var(--ui-text-tertiary)]"
+          className="ml-auto shrink-0 pl-2 text-[length:var(--ui-t-meta)] tabular-nums text-[var(--ui-text-tertiary)]"
         >
           {meta}
         </span>

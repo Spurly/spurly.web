@@ -100,7 +100,7 @@ export function SendMessagePreviewDialog({
     >
       <div className="flex flex-col gap-3">
         {membersLoading ? (
-          <div className="flex items-center gap-2 py-6 justify-center text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
+          <div className="flex items-center gap-2 py-6 justify-center text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
             <Loader2 size={14} className="animate-spin" /> Loading a preview…
           </div>
         ) : (
@@ -108,7 +108,7 @@ export function SendMessagePreviewDialog({
             className="rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-sunken)] p-3"
           >
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[var(--ui-t-label)] font-medium text-[var(--ui-text-primary)] truncate">
+              <span className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-primary)] truncate">
                 {person ? (person.name || 'This person') : 'Sample recipient'}
               </span>
               {pool.length > 1 && (
@@ -120,7 +120,7 @@ export function SendMessagePreviewDialog({
                     icon={<ChevronLeft size={13} />}
                     onClick={() => setIndex((i) => (i - 1 + pool.length) % pool.length)}
                   />
-                  <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums">
+                  <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums">
                     {safeIndex + 1}/{pool.length}
                   </span>
                   <IconButton
@@ -133,14 +133,14 @@ export function SendMessagePreviewDialog({
                 </div>
               )}
             </div>
-            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] whitespace-pre-wrap">
+            <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)] whitespace-pre-wrap">
               {rendered || <span className="text-[var(--ui-text-tertiary)]">{copy.emptyPreview}</span>}
             </p>
           </div>
         )}
 
         {!membersLoading && pool.length === 0 && pendingCount > 0 && (
-          <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
+          <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
             Showing sample placeholders — could not load a real recipient just now.
           </p>
         )}

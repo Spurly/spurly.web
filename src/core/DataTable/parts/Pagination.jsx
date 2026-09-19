@@ -1,5 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { IconButton, Button } from 'src/core/primitives';
+import { ChevronLeftIcon, ChevronRightIcon } from 'src/core/icons';
 
 /**
  * Builds a page window with ellipses, always including first and last, so the
@@ -31,57 +30,74 @@ export function Pagination({
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, total);
 
+  /* v3 (Leads v2): a 48px band, mono range on the left, 28px mono page
+     buttons in the middle (current page on the accent tint), and a mono
+     ROWS picker on the right. */
+  const pageBtn =
+    'min-w-7 h-7 px-[7px] rounded-[var(--ui-radius-sm)] font-[family-name:var(--ui-font-mono)] tabular-nums text-[length:var(--ui-t-meta)] ' +
+    'transition-colors duration-[140ms] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]';
+  const arrowBtn =
+    'grid place-items-center w-7 h-7 rounded-[var(--ui-radius-sm)] text-[var(--ui-text-secondary)] transition-colors duration-[140ms] ' +
+    'hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)] ' +
+    'disabled:text-[var(--ui-text-disabled)] disabled:cursor-not-allowed disabled:hover:bg-transparent ' +
+    'focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]';
+
   return (
-    <div
-      className="flex items-center justify-between gap-4 shrink-0 border-t border-[var(--ui-border-hairline)]"
-      style={{ height: 'var(--ui-band)', paddingInline: 'var(--ui-pad-x)' }}
-    >
-      <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] tabular-nums shrink-0">
+    <div className="flex items-center justify-between gap-3 shrink-0 h-12 px-[var(--ui-card-x)] border-t border-[var(--ui-neutral-150)] bg-[var(--ui-surface-card)]">
+      <p className="ui-num !font-normal text-[length:var(--ui-t-meta)] text-[var(--ui-text-quaternary)] whitespace-nowrap shrink-0">
         {start.toLocaleString()}–{end.toLocaleString()} of {total.toLocaleString()}
       </p>
 
-      <div className="flex items-center gap-0.5">
-        <IconButton
-          size="sm"
-          label="Previous page"
-          icon={<ChevronLeft size={15} />}
+      <div className="flex items-center gap-0.5" role="group" aria-label="Pagination">
+        <button
+          type="button"
+          aria-label="Previous page"
+          className={arrowBtn}
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-        />
+        >
+          <ChevronLeftIcon size={15} strokeWidth={2} />
+        </button>
         {buildPages(page, totalPages).map((p) =>
           typeof p === 'string' ? (
-            <span key={p} className="px-1 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]" aria-hidden="true">
+            <span key={p} className="px-1 ui-num text-[length:var(--ui-t-meta)] text-[var(--ui-text-disabled)]" aria-hidden="true">
               …
             </span>
           ) : (
-            <Button
+            <button
               key={p}
-              size="sm"
-              variant={page === p ? 'accentSoft' : 'ghost'}
+              type="button"
               onClick={() => onPageChange(p)}
               aria-current={page === p ? 'page' : undefined}
-              className="min-w-7 tabular-nums px-1.5"
+              className={[
+                pageBtn,
+                page === p
+                  ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-medium'
+                  : 'text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)]',
+              ].join(' ')}
             >
               {p}
-            </Button>
+            </button>
           ),
         )}
-        <IconButton
-          size="sm"
-          label="Next page"
-          icon={<ChevronRight size={15} />}
+        <button
+          type="button"
+          aria-label="Next page"
+          className={arrowBtn}
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-        />
+        >
+          <ChevronRightIcon size={15} strokeWidth={2} />
+        </button>
       </div>
 
       {onPageSizeChange ? (
-        <label className="flex items-center gap-1.5 shrink-0">
-          <span className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">Rows</span>
+        <label className="flex items-center gap-[7px] shrink-0">
+          <span className="ui-micro !text-[var(--ui-text-secondary)] !tracking-[var(--ui-track-meta)]">Rows</span>
           <select
             value={pageSize}
             onChange={(e) => onPageSizeChange(parseInt(e.target.value, 10))}
-            className="h-7 pl-2 pr-6 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] text-[var(--ui-t-label)] text-[var(--ui-text-primary)] cursor-pointer hover:border-[var(--ui-border-strong)] focus:outline-none focus:border-[var(--ui-accent)] transition-colors"
+            className="h-7 pl-[9px] pr-6 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-meta)] text-[var(--ui-text-body)] cursor-pointer hover:border-[var(--ui-accent-border)] focus:outline-none focus:border-[var(--ui-accent)] transition-colors"
           >
             {pageSizeOptions.map((opt) => (
               <option key={opt} value={opt}>
@@ -91,7 +107,7 @@ export function Pagination({
           </select>
         </label>
       ) : (
-        <span className="shrink-0" />
+        <span className="shrink-0 w-px" />
       )}
     </div>
   );

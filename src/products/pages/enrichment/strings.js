@@ -5,8 +5,9 @@
 export const enrichmentStrings = {
   list: {
     pageTitle: 'Enrichment',
-    pageSubtitle: 'Named batches of leads sent through bulk enrichment together.',
-    emptyTitle: 'No enrichment campaigns yet',
+    pageSubtitle: 'Spurly fills in what the search left out — title, company, history — for leads you pick. Each batch runs in the background.',
+    enrichLeads: 'Enrich leads',
+    emptyTitle: 'No enrichment batches yet',
     emptyHint: 'Select some leads on the "Needs enrichment" tab of the leads page, then enrich them from the selection.',
     goToLeads: 'Go to leads',
   },

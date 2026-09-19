@@ -166,10 +166,10 @@ export function StagingPanel({ store, onGoToUpload }) {
           <UploadCloud size={26} style={{ color: 'var(--ui-accent)' }} />
         </div>
         <div>
-          <h2 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em]">
+          <h2 className="text-[length:var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em]">
             Nothing staged yet
           </h2>
-          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1.5 max-w-md">
+          <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1.5 max-w-md">
             Import a CSV and the leads will land here, ready to send to your Hub leads.
           </p>
         </div>
@@ -189,7 +189,7 @@ export function StagingPanel({ store, onGoToUpload }) {
           style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
         >
           <AlertCircle size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
-          <p className="flex-1 text-[var(--ui-t-body)] pr-6" style={{ color: 'var(--ui-text-secondary)' }}>
+          <p className="flex-1 text-[length:var(--ui-t-body)] pr-6" style={{ color: 'var(--ui-text-secondary)' }}>
             {actionError}
           </p>
           <button
@@ -211,7 +211,7 @@ export function StagingPanel({ store, onGoToUpload }) {
             <button
               key={filter.id}
               onClick={() => setStatusFilter(filter.id)}
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] font-medium transition-colors"
               style={{
                 background: active ? 'var(--ui-accent-tint)' : 'var(--ui-surface-card)',
                 color: active ? 'var(--ui-accent)' : 'var(--ui-text-secondary)',
@@ -256,7 +256,7 @@ export function StagingPanel({ store, onGoToUpload }) {
                   <button
                     onClick={openPromoteConfirm}
                     disabled={busy}
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ background: 'var(--ui-success-tint)', color: 'var(--ui-success)' }}
                   >
                     <ArrowRight size={14} />
@@ -267,7 +267,7 @@ export function StagingPanel({ store, onGoToUpload }) {
                       onClick={handleRetry}
                       disabled={busy}
                       title={`Reset ${failedSelected} failed lead${failedSelected === 1 ? '' : 's'} to try sending again`}
-                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{ background: 'var(--ui-accent-tint)', color: 'var(--ui-accent)' }}
                     >
                       <RotateCcw size={14} />
@@ -277,7 +277,7 @@ export function StagingPanel({ store, onGoToUpload }) {
                   <button
                     onClick={() => setConfirmDelete(true)}
                     disabled={busy}
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ color: 'var(--ui-danger)' }}
                   >
                     <Trash2 size={14} />
@@ -297,7 +297,7 @@ export function StagingPanel({ store, onGoToUpload }) {
 
       {/* Sets expectations before the async part starts */}
       {selected.size > 0 && (
-        <p className="text-[var(--ui-t-label)] px-1" style={{ color: 'var(--ui-text-tertiary)' }}>
+        <p className="text-[length:var(--ui-t-label)] px-1" style={{ color: 'var(--ui-text-tertiary)' }}>
           Sending resolves each profile through LinkedIn before it lands in Hub — this can take a
           little while for a larger batch. Rows disappear from this table as they land; anything that
           can’t be resolved shows up here as Failed, ready to retry.
@@ -317,15 +317,15 @@ export function StagingPanel({ store, onGoToUpload }) {
             className="w-full max-w-sm rounded-[var(--ui-radius-lg)] p-[var(--ui-pad-lg)] shadow-[var(--ui-shadow-lg)]"
             style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
           >
-            <h3 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
+            <h3 className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
               Send {selected.size} lead{selected.size === 1 ? '' : 's'} to Hub
             </h3>
-            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-2">
+            <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-2">
               We'll resolve each profile through LinkedIn first, then land them in Hub under one
               audience so you can find this batch again later.
             </p>
             <label
-              className="block text-[var(--ui-t-label)] font-medium mt-4 mb-1.5"
+              className="block text-[length:var(--ui-t-label)] font-medium mt-4 mb-1.5"
               style={{ color: 'var(--ui-text-secondary)' }}
               htmlFor="promote-audience-name"
             >
@@ -340,7 +340,7 @@ export function StagingPanel({ store, onGoToUpload }) {
               maxLength={200}
               autoFocus
             />
-            <p className="text-[var(--ui-t-label)] mt-1.5" style={{ color: 'var(--ui-text-tertiary)' }}>
+            <p className="text-[length:var(--ui-t-label)] mt-1.5" style={{ color: 'var(--ui-text-tertiary)' }}>
               Leave blank and it's named automatically, like the placeholder above.
             </p>
             <div className="flex items-center justify-end gap-2 mt-5">
@@ -368,10 +368,10 @@ export function StagingPanel({ store, onGoToUpload }) {
             className="w-full max-w-sm rounded-[var(--ui-radius-lg)] p-[var(--ui-pad-lg)] shadow-[var(--ui-shadow-lg)]"
             style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
           >
-            <h3 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
+            <h3 className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
               Delete {selected.size} staged lead{selected.size === 1 ? '' : 's'}?
             </h3>
-            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-2">
+            <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-2">
               This removes them from staging only. Anyone already sent to your Hub leads stays
               there.
             </p>

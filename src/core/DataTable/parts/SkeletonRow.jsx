@@ -10,8 +10,8 @@ export function SkeletonRow({ index = 0, columns = [], selectable = false, densi
   return (
     <tr style={{ height: d.row }}>
       {selectable && (
-        <td className="border-b border-[var(--ui-border-hairline)]" style={{ padding: `0 ${d.padX}px` }}>
-          <Skeleton width={15} height={15} />
+        <td className="border-b border-[var(--ui-border-hairline)]" style={{ padding: `0 0 0 ${d.padX}px` }}>
+          <Skeleton width={15} height={15} radius="var(--ui-radius-2xs)" />
         </td>
       )}
       {columns.map((column, i) => (
@@ -20,7 +20,7 @@ export function SkeletonRow({ index = 0, columns = [], selectable = false, densi
           className="border-b border-[var(--ui-border-hairline)]"
           style={{ padding: `0 ${d.padX}px` }}
         >
-          <Skeleton width={WIDTHS[(index + i) % WIDTHS.length]} height={9} />
+          <Skeleton width={WIDTHS[(index + i) % WIDTHS.length]} height={9} radius="var(--ui-radius-2xs)" />
         </td>
       ))}
     </tr>

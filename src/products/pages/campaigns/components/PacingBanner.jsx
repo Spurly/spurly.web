@@ -16,15 +16,25 @@ export function PacingBanner({ campaign, pacing, sender }) {
   const sending = pacing.ok;
   return (
     <div
-      className="flex items-start gap-2 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--ui-border-hairline)]"
-      style={{ background: sending ? 'var(--ui-success-tint)' : 'var(--ui-surface-sunken)' }}
+      className={`relative overflow-hidden flex items-start gap-2.5 px-[var(--ui-card-x)] py-2.5 border-b ${
+        sending
+          ? 'bg-[var(--ui-accent-wash)] border-[var(--ui-accent-tint-strong)] shadow-[inset_2px_0_0_var(--ui-accent)]'
+          : 'bg-[var(--ui-surface-header)] border-[var(--ui-neutral-150)]'
+      }`}
     >
-      <Clock size={14} className="mt-0.5 shrink-0 text-[var(--ui-text-tertiary)]" aria-hidden="true" />
+      {sending ? (
+        <>
+          <span className="sp-scan" aria-hidden="true" />
+          <span className="relative mt-[6px] w-1.5 h-1.5 rounded-full shrink-0 bg-[var(--ui-accent)] sp-pulse" aria-hidden="true" />
+        </>
+      ) : (
+        <Clock size={14} className="mt-0.5 shrink-0 text-[var(--ui-text-quaternary)]" aria-hidden="true" />
+      )}
       <div className="min-w-0">
-        <p className="text-[var(--ui-t-label)] text-[var(--ui-text-primary)]">
+        <p className={`relative text-[length:var(--ui-t-label)] ${sending ? 'text-[var(--ui-accent-fg)] font-medium' : 'text-[var(--ui-text-primary)]'}`}>
           {sending ? 'Sending now, a few at a time.' : pacing.message}
         </p>
-        <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-0.5">
+        <p className="relative text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-0.5">
           {pacing.window.startHour}:00–{pacing.window.endHour}:00 {pacing.timezone.replace('_', ' ')} ·
           {' '}up to {pacing.hourlyCap}/hour ·
           {' '}{pacing.weekUsed} of {pacing.weeklyLimit} invitations used this week
@@ -38,7 +48,7 @@ export function PacingBanner({ campaign, pacing, sender }) {
             deliberately idle and one that nothing is serving look identical
             without it. */}
         {sender?.lastRunAt && (
-          <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-0.5">
+          <p className="relative font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)] mt-1">
             Sender last checked in {sinceLabel(sender.lastRunAt)}.
           </p>
         )}

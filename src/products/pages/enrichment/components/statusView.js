@@ -5,6 +5,6 @@
  * (nothing here is ever stopped mid-way by the user).
  */
 export const ENRICHMENT_STATUS_VIEW = {
-  running: { label: 'Running', tone: 'info', detail: 'Still resolving profiles.' },
+  running: { label: 'Enriching', tone: 'accent', detail: 'Still resolving profiles.' },
   done: { label: 'Done', tone: 'success', detail: 'Every lead in this campaign has a final status.' },
 };

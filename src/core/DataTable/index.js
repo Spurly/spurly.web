@@ -3,3 +3,4 @@ export { useDataTable } from './useDataTable';
 export { applyColumnOrder, moveColumn, shiftColumn, isCustomOrder } from './columnOrder';
 export { sortRows, filterRows } from './clientTableUtils';
 export * from './cells';
+export { soonLabel } from './soonLabel';

@@ -1,46 +1,39 @@
-import { useState } from 'react';
-import { DashboardLayout } from 'src/core/layout/DashboardLayout';
-import { PageTabs } from 'src/core/primitives/PageTabs';
+import { useSearchParams } from 'react-router-dom';
+import { SettingsFrame, SETTINGS_TABS } from './components/SettingsFrame.jsx';
 import { ProfileTab } from './components/ProfileTab.jsx';
 import { BillingTab } from './components/BillingTab.jsx';
 import { ExtensionTab } from './components/ExtensionTab.jsx';
 import { ServerSendingCard } from './components/ServerSendingCard.jsx';
 import { AiContextTab } from './components/AiContextTab.jsx';
-import { settingsStrings as t } from './strings.js';
+import { SendingLimitsTab } from './components/SendingLimitsTab.jsx';
+import { TeamTab } from './components/TeamTab.jsx';
 
-const TABS = [
-  { id: 'profile', label: t.tabs.profile },
-  { id: 'billing', label: t.tabs.billing },
-  { id: 'extension', label: t.tabs.extension },
-  { id: 'ai', label: t.tabs.ai },
-];
+export { SettingsFrame } from './components/SettingsFrame.jsx';
 
 /**
- * Account settings.
- *
- * Deliberately narrow for now: the three things a user actually needs to see
- * about their own account. Sending limits, notifications and team management
- * are planned but are not stubbed out here — an empty tab reads as broken,
- * whereas a missing tab reads as "not built yet".
+ * Settings — every tab except LinkedIn (which has its own route and renders
+ * the same frame, see pages/settings). The tab lives in `?tab=` so it
+ * survives a refresh and can be linked to.
  */
 export function SettingsPage() {
-  const [activeTab, setActiveTab] = useState('profile');
+  const [params] = useSearchParams();
+  const requested = params.get('tab');
+  const activeTab = SETTINGS_TABS.some((x) => x.id === requested) && requested !== 'linkedin' ? requested : 'account';
 
   return (
-    <DashboardLayout title={t.pageTitle} subtitle={t.pageSubtitle}>
-      <PageTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="p-[var(--ui-pad-lg)] max-w-[720px]">
-        {activeTab === 'profile' && <ProfileTab />}
-        {activeTab === 'billing' && <BillingTab />}
-        {activeTab === 'extension' && (
-          <div className="flex flex-col gap-4">
-            <ExtensionTab />
-            <ServerSendingCard />
-          </div>
-        )}
-        {activeTab === 'ai' && <AiContextTab />}
-      </div>
-    </DashboardLayout>
+    <SettingsFrame activeTab={activeTab}>
+      {activeTab === 'account' && <ProfileTab />}
+      {activeTab === 'limits' && <SendingLimitsTab />}
+      {activeTab === 'ai' && <AiContextTab />}
+      {activeTab === 'extension' && (
+        <>
+          <ExtensionTab />
+          <ServerSendingCard />
+        </>
+      )}
+      {activeTab === 'team' && <TeamTab />}
+      {activeTab === 'billing' && <BillingTab />}
+    </SettingsFrame>
   );
 }
 

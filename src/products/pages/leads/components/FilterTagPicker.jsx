@@ -83,7 +83,7 @@ export function FilterTagPicker({ type, label, placeholder, value, onChange, dis
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tracking-[-0.006em]">
+        <label className="ui-micro !text-[var(--ui-text-secondary)]">
           {label}
         </label>
       )}
@@ -93,7 +93,7 @@ export function FilterTagPicker({ type, label, placeholder, value, onChange, dis
           {value.map((v) => (
             <span
               key={v.id}
-              className="inline-flex items-center gap-1 h-6 pl-2 pr-1 rounded-[var(--ui-radius-sm)] bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] text-[var(--ui-t-label)]"
+              className="inline-flex items-center gap-1 h-6 pl-2 pr-1 rounded-[var(--ui-radius-sm)] bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] text-[length:var(--ui-t-label)]"
             >
               {v.title}
               {!disabled && (
@@ -119,7 +119,7 @@ export function FilterTagPicker({ type, label, placeholder, value, onChange, dis
           onChange={handleTextChange}
           onFocus={() => results.length > 0 && setOpen(true)}
           placeholder={placeholder}
-          className="w-full h-8 pl-3 pr-8 bg-[var(--ui-surface-card)] border border-[var(--ui-border)] rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] tracking-[-0.006em] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors disabled:opacity-45 disabled:cursor-not-allowed"
+          className="w-full h-8 pl-3 pr-8 bg-[var(--ui-surface-card)] border border-[var(--ui-border)] rounded-[var(--ui-radius-sm)] text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] tracking-[-0.006em] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors disabled:opacity-45 disabled:cursor-not-allowed"
         />
         {loading && (
           <Loader2
@@ -135,14 +135,14 @@ export function FilterTagPicker({ type, label, placeholder, value, onChange, dis
             className="absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-md)] py-1"
           >
             {results.length === 0 && !loading && (
-              <li className="px-3 py-2 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">No matches</li>
+              <li className="px-3 py-2 text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">No matches</li>
             )}
             {results.map((r) => (
               <li key={r.id}>
                 <button
                   type="button"
                   onClick={() => pick(r)}
-                  className="w-full text-left px-3 py-1.5 text-[var(--ui-t-body)] text-[var(--ui-text-primary)] hover:bg-[var(--ui-surface-sunken)]"
+                  className="w-full text-left px-3 py-1.5 text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)] hover:bg-[var(--ui-surface-sunken)]"
                 >
                   {r.title}
                 </button>

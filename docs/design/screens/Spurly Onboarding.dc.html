@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#f7f9fc; -webkit-font-smoothing:antialiased; }
+  * { box-sizing:border-box; }
+  a { color:#0544a5; text-decoration:none; }
+  a:hover { color:#3c83f6; text-decoration:underline; }
+  @keyframes sp-pulse { 0%,100% { opacity:1; transform:scale(1);} 50% { opacity:.3; transform:scale(.75);} }
+  @keyframes sp-rise { from { transform:translateY(10px); opacity:0; } to { transform:none; opacity:1; } }
+  @keyframes sp-scan { 0% { left:-32%; } 100% { left:100%; } }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+</style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;min-height:100vh;width:100%;background:#f7f9fc;font-family:Geist,'Helvetica Neue',Arial,sans-serif;color:#18181b;font-size:14px;letter-spacing:-0.006em;">
+
+  <header style="flex-shrink:0;border-bottom:1px solid #e9eaee;background:#ffffff;">
+    <div style="max-width:880px;margin:0 auto;padding:16px 24px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img src="assets/spurly-icon.png" alt="" style="width:22px;height:22px;object-fit:contain;" />
+        <span style="font-size:14.5px;font-weight:600;letter-spacing:-0.024em;">Spurly</span>
+        <div style="flex:1;"></div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:11.5px;color:#0544a5;">{{ pct }}%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:14px;">
+        <sc-for list="{{ steps }}" as="st" hint-placeholder-count="5">
+          <div style="flex:1;min-width:0;">
+            <p style="margin:0 0 6px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color 180ms ease;color:{{ st.fg }}">{{ st.label }}</p>
+            <div style="height:3px;border-radius:99px;background:#eceff4;overflow:hidden;">
+              <div style="height:100%;border-radius:99px;background:#3c83f6;transition:width 340ms cubic-bezier(.32,.72,0,1);width:{{ st.w }};"></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </header>
+
+  <main style="flex:1;display:flex;align-items:flex-start;justify-content:center;padding:40px 24px 120px;">
+    <div style="width:100%;max-width:600px;">
+
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#0544a5;">{{ kicker }}</span>
+      </div>
+      <h1 style="margin:10px 0 0;font-size:28px;font-weight:600;letter-spacing:-0.032em;line-height:1.16;">{{ title }}</h1>
+      <p style="margin:9px 0 0;font-size:14.5px;color:#5e616e;line-height:1.6;max-width:56ch;">{{ body }}</p>
+
+      <div style="margin-top:24px;background:#ffffff;border:1px solid #e4e4e7;border-radius:16px;padding:22px;box-shadow:0 1px 2px rgba(24,24,27,.03);animation:sp-rise 240ms cubic-bezier(.32,.72,0,1) both;">
+
+        <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div>
+              <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;margin-bottom:7px;">Full name</label>
+              <input type="text" value="Marcus Kellner" style="width:100%;height:40px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;background:#ffffff;font-family:inherit;font-size:14px;color:#18181b;outline:none;transition:border-color 160ms ease,box-shadow 160ms ease;" style-focus="border-color:#3c83f6;box-shadow:0 0 0 3px rgba(60,131,246,.14);" />
+            </div>
+            <div>
+              <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;margin-bottom:7px;">Company website</label>
+              <input type="text" value="northwind.io" style="width:100%;height:40px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;background:#ffffff;font-family:inherit;font-size:14px;color:#18181b;outline:none;transition:border-color 160ms ease,box-shadow 160ms ease;" style-focus="border-color:#3c83f6;box-shadow:0 0 0 3px rgba(60,131,246,.14);" />
+              <p style="margin:8px 0 0;font-size:12.5px;color:#5e616e;line-height:1.5;">Spurly reads your site to draft an ICP on the next step. You can rewrite all of it.</p>
+            </div>
+            <div>
+              <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;margin-bottom:7px;">What do you sell?</label>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                <sc-for list="{{ sellOptions }}" as="o" hint-placeholder-count="4">
+                  <button type="button" onClick="{{ o.pick }}" style="height:32px;padding:0 13px;border-radius:99px;font-family:inherit;font-size:13px;cursor:pointer;white-space:nowrap;transition:background-color 160ms ease,border-color 160ms ease,color 160ms ease;border:1px solid {{ o.border }};background:{{ o.bg }};color:{{ o.fg }}">{{ o.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isIcp }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;margin-bottom:7px;">Describe your best customer</label>
+            <textarea rows="3" style="width:100%;padding:11px 12px;border:1px solid #e4e4e7;border-radius:10px;background:#ffffff;font-family:inherit;font-size:14px;line-height:1.55;color:#18181b;resize:none;outline:none;transition:border-color 160ms ease,box-shadow 160ms ease;" style-focus="border-color:#3c83f6;box-shadow:0 0 0 3px rgba(60,131,246,.14);">VP or Head of Revenue Operations at logistics companies in Europe, 200–2000 employees, who have posted about tooling in the last 90 days.</textarea>
+
+            <div style="position:relative;display:flex;align-items:center;gap:9px;margin-top:14px;padding:11px 13px;border:1px solid #dbe7fb;background:#f3f8ff;border-radius:11px;overflow:hidden;">
+              <span style="position:absolute;top:0;bottom:0;width:30%;background:linear-gradient(90deg,transparent,rgba(60,131,246,.12),transparent);animation:sp-scan 2s linear infinite;"></span>
+              <span style="position:relative;width:6px;height:6px;border-radius:99px;background:#3c83f6;animation:sp-pulse 1.4s ease-in-out infinite;flex-shrink:0;"></span>
+              <span style="position:relative;font-size:12.5px;color:#0544a5;"><strong style="font-weight:500;">{{ verb }}…</strong> Spurly read northwind.io and drafted these segments.</span>
+            </div>
+
+            <p style="margin:18px 0 9px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Proposed segments</p>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <sc-for list="{{ segments }}" as="sg" hint-placeholder-count="3">
+                <button type="button" onClick="{{ sg.toggle }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:12px 13px;border-radius:11px;font-family:inherit;text-align:left;cursor:pointer;transition:border-color 160ms ease,background-color 160ms ease;border:1px solid {{ sg.border }};background:{{ sg.bg }}">
+                  <span style="display:grid;place-items:center;width:16px;height:16px;border-radius:5px;flex-shrink:0;transition:background-color 140ms ease,border-color 140ms ease;border:1.5px solid {{ sg.checkBorder }};background:{{ sg.checkBg }}">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ sg.tick }}"><path d="M4 12.5l5.2 5.2L20 6.8"></path></svg>
+                  </span>
+                  <span style="min-width:0;flex:1;">
+                    <span style="display:block;font-size:13.5px;font-weight:500;color:#18181b;">{{ sg.name }}</span>
+                    <span style="display:block;font-size:12.5px;color:#5e616e;line-height:1.5;margin-top:2px;">{{ sg.desc }}</span>
+                  </span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:12px;color:#0544a5;flex-shrink:0;">{{ sg.size }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isLinkedIn }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid #dbe7fb;background:#f3f8ff;border-radius:12px;box-shadow:inset 2px 0 0 #3c83f6;">
+              <span style="display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:#e6efff;color:#0a66c2;flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M7.5 10.5v6"></path><path d="M7.5 7.6v.1"></path><path d="M11.5 16.5v-6"></path><path d="M11.5 13.2a2.7 2.7 0 0 1 5 1.2v2.1"></path></svg>
+              </span>
+              <div style="min-width:0;">
+                <p style="margin:0;font-size:13.5px;font-weight:500;">Searches run through your own account</p>
+                <p style="margin:4px 0 0;font-size:12.5px;color:#5e616e;line-height:1.55;">Spurly never posts, and never messages anyone until you start a campaign. Disconnect at any time from Settings.</p>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px;">
+              <sc-for list="{{ linkedinChecks }}" as="c" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid #edeef2;border-radius:11px;">
+                  <span style="width:7px;height:7px;border-radius:99px;flex-shrink:0;background:{{ c.dot }};animation:{{ c.anim }}"></span>
+                  <span style="flex:1;min-width:0;font-size:13px;color:#18181b;">{{ c.label }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.09em;text-transform:uppercase;flex-shrink:0;color:{{ c.fg }}">{{ c.state }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <button type="button" style="display:flex;align-items:center;justify-content:center;gap:9px;width:100%;height:40px;margin-top:16px;border:1px solid #cfe0fa;background:#ffffff;border-radius:9px;font-family:inherit;font-size:14px;font-weight:500;color:#0544a5;cursor:pointer;transition:background-color 160ms ease,border-color 160ms ease;" style-hover="background:#eaf2ff;border-color:#b9d4ff;">Install the Chrome extension</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isPrefs }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div>
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;">
+                <label style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Daily invite cap</label>
+                <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500;color:#18181b;">25 / day</span>
+              </div>
+              <div style="height:3px;border-radius:99px;background:#eceff4;overflow:hidden;margin-top:10px;"><div style="height:100%;width:50%;background:#3c83f6;border-radius:99px;"></div></div>
+              <p style="margin:9px 0 0;font-size:12.5px;color:#5e616e;line-height:1.5;">LinkedIn throttles above roughly 30 a day for most accounts. Spurly stops before you get restricted rather than after.</p>
+            </div>
+
+            <div>
+              <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;margin-bottom:9px;">Sending window</label>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                <sc-for list="{{ windows }}" as="w" hint-placeholder-count="3">
+                  <button type="button" onClick="{{ w.pick }}" style="height:32px;padding:0 13px;border-radius:99px;font-family:inherit;font-size:13px;cursor:pointer;white-space:nowrap;transition:background-color 160ms ease,border-color 160ms ease,color 160ms ease;border:1px solid {{ w.border }};background:{{ w.bg }};color:{{ w.fg }}">{{ w.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:9px;">
+              <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="3">
+                <button type="button" onClick="{{ t.toggle }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:12px 13px;border:1px solid #edeef2;border-radius:11px;background:#ffffff;font-family:inherit;text-align:left;cursor:pointer;transition:border-color 160ms ease;" style-hover="border-color:#b9d4ff;">
+                  <span style="min-width:0;flex:1;">
+                    <span style="display:block;font-size:13.5px;font-weight:500;color:#18181b;">{{ t.label }}</span>
+                    <span style="display:block;font-size:12.5px;color:#5e616e;line-height:1.5;margin-top:2px;">{{ t.desc }}</span>
+                  </span>
+                  <span style="position:relative;width:34px;height:20px;border-radius:99px;flex-shrink:0;transition:background-color 180ms ease;background:{{ t.trackBg }}">
+                    <span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:99px;background:#ffffff;box-shadow:0 1px 3px rgba(10,18,32,.28);transition:transform 220ms cubic-bezier(.32,.72,0,1);transform:translateX({{ t.knobX }});"></span>
+                  </span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isReady }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #dbe7fb;background:#f3f8ff;border-radius:12px;box-shadow:inset 2px 0 0 #3c83f6;">
+              <span style="width:7px;height:7px;border-radius:99px;background:#3c83f6;animation:sp-pulse 1.4s ease-in-out infinite;flex-shrink:0;"></span>
+              <div style="min-width:0;">
+                <p style="margin:0;font-size:13.5px;font-weight:500;">Your first audience is already importing</p>
+                <p style="margin:3px 0 0;font-size:12.5px;color:#5e616e;line-height:1.5;">{{ verb }}… {{ count }} people so far. It keeps running whether this tab is open or not.</p>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px;">
+              <sc-for list="{{ readyStats }}" as="r" hint-placeholder-count="3">
+                <div style="padding:13px;border:1px solid #edeef2;border-radius:12px;">
+                  <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">{{ r.k }}</p>
+                  <p style="margin:6px 0 0;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:22px;font-weight:500;letter-spacing:-0.02em;color:#18181b;">{{ r.v }}</p>
+                </div>
+              </sc-for>
+            </div>
+
+            <p style="margin:18px 0 9px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">What happens next</p>
+            <div style="display:flex;flex-direction:column;gap:13px;padding-left:4px;">
+              <sc-for list="{{ nextUp }}" as="n" hint-placeholder-count="3">
+                <div style="display:flex;gap:11px;">
+                  <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;">
+                    <span style="width:7px;height:7px;border-radius:99px;background:{{ n.dot }};"></span>
+                    <span style="flex:1;width:1px;background:#e9eaee;margin-top:4px;"></span>
+                  </div>
+                  <div style="min-width:0;padding-bottom:2px;">
+                    <p style="margin:0;font-size:13px;color:#18181b;line-height:1.45;">{{ n.label }}</p>
+                    <p style="margin:2px 0 0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;">{{ n.at }}</p>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </main>
+
+  <footer style="position:fixed;left:0;right:0;bottom:0;z-index:30;border-top:1px solid #e9eaee;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);">
+    <div style="max-width:600px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:12px 24px;">
+      <button type="button" onClick="{{ skip }}" style="border:0;background:transparent;font-family:inherit;font-size:13px;color:#5e616e;cursor:pointer;padding:0;white-space:nowrap;transition:color 140ms ease;" style-hover="color:#18181b;">Skip for now</button>
+      <div style="flex:1;"></div>
+      <button type="button" onClick="{{ back }}" style="height:38px;padding:0 15px;border:1px solid #e4e4e7;background:#ffffff;border-radius:9px;font-family:inherit;font-size:13.5px;font-weight:500;cursor:pointer;white-space:nowrap;transition:border-color 160ms ease,box-shadow 160ms ease;color:{{ backFg }}" style-hover="border-color:#b9d4ff;box-shadow:0 0 0 3px rgba(60,131,246,.10);">Back</button>
+      <button type="button" onClick="{{ next }}" style="display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border:0;background:#3c83f6;border-radius:9px;font-family:inherit;font-size:13.5px;font-weight:500;color:#ffffff;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff;transition:background-color 160ms ease,box-shadow 160ms ease,transform 160ms ease;" style-hover="background:#1e6fe8;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff, 0 5px 16px rgba(60,131,246,.34);" style-active="transform:translateY(1px);">
+        {{ cta }}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"></path><path d="M13 6l6 6-6 6"></path></svg>
+      </button>
+    </div>
+  </footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1100,&quot;height&quot;:900}}">
+const VERBS = ['Sourcing', 'Paging', 'Reading', 'Scoring', 'Spurling', 'Reconciling', 'Enriching'];
+
+const STEPS = [
+  { key: 'profile', label: 'Profile', kicker: 'Step 1 · Account', title: 'Who is running this?', body: 'Your name goes on every invite Spurly sends, so it is worth getting right. The company site is how Spurly learns what you sell.', cta: 'Continue' },
+  { key: 'icp', label: 'Audience', kicker: 'Step 2 · ICP', title: 'Who should Spurly go after?', body: 'Write it the way you would brief a new rep. Spurly turns it into filters and segments you can edit before anything runs.', cta: 'Use these segments' },
+  { key: 'linkedin', label: 'LinkedIn', kicker: 'Step 3 · Connection', title: 'Connect your LinkedIn', body: 'Nothing in Spurly can run until this is linked — searches, enrichment and sending all go through your own account.', cta: 'Continue' },
+  { key: 'prefs', label: 'Limits', kicker: 'Step 4 · Preferences', title: 'Set your sending limits', body: 'Spurly runs unattended, so the guardrails matter more than the speed. These can all be changed later in Settings.', cta: 'Save limits' },
+  { key: 'ready', label: 'Ready', kicker: 'Step 5 · Ready', title: 'Spurly is already working', body: 'Setup is done. Your first audience started importing the moment you confirmed the segments.', cta: 'Open Leads' },
+];
+
+class Component extends DCLogic {
+  state = {
+    i: 0, verb: 0, count: 86,
+    sell: 'Software', segs: new Set(['s1', 's2']), window: 'Working hours',
+    toggles: new Set(['t1', 't3']),
+  };
+
+  componentDidMount() {
+    this._t = setInterval(() => this.setState((s) => ({ verb: s.verb + 1, count: s.count + 4 + Math.floor(Math.random() * 9) })), 2600);
+  }
+  componentWillUnmount() { clearInterval(this._t); }
+
+  pill(on) {
+    return on
+      ? { border: '#b9d4ff', bg: '#eaf2ff', fg: '#0544a5' }
+      : { border: '#e4e4e7', bg: '#ffffff', fg: '#2e3038' };
+  }
+
+  renderVals() {
+    const { i, verb, count } = this.state;
+    const step = STEPS[i];
+
+    const SEGS = [
+      { id: 's1', name: 'RevOps leaders, EU logistics', desc: 'VP / Head of RevOps · 200–2000 employees · posted in the last 90 days', size: '1,240' },
+      { id: 's2', name: 'Sales leadership, freight & 3PL', desc: 'CRO / VP Sales · Europe · second-degree paths only', size: '860' },
+      { id: 's3', name: 'Ops directors, maritime', desc: 'Director+ · shipping and port operators · any degree', size: '415' },
+    ];
+
+    const TOGGLES = [
+      { id: 't1', label: 'Enrich every lead on arrival', desc: 'Company, title and location are filled in before you ever open the row.' },
+      { id: 't2', label: 'Auto-pause on a reply', desc: 'A person who answers stops receiving anything else from a sequence.' },
+      { id: 't3', label: 'Weekly digest', desc: 'One email on Monday with what ran, what replied, and what stalled.' },
+    ];
+
+    return {
+      steps: STEPS.map((s, idx) => ({ label: s.label, fg: idx <= i ? '#0544a5' : '#5e616e', w: idx <= i ? '100%' : '0%' })),
+      pct: Math.round((i / (STEPS.length - 1)) * 100),
+      kicker: step.kicker, title: step.title, body: step.body, cta: step.cta,
+
+      isProfile: step.key === 'profile',
+      isIcp: step.key === 'icp',
+      isLinkedIn: step.key === 'linkedin',
+      isPrefs: step.key === 'prefs',
+      isReady: step.key === 'ready',
+
+      back: () => this.setState((s) => ({ i: Math.max(0, s.i - 1) })),
+      backFg: i === 0 ? '#9aa0b0' : '#2e3038',
+      next: () => this.setState((s) => ({ i: Math.min(STEPS.length - 1, s.i + 1) })),
+      skip: () => this.setState({ i: STEPS.length - 1 }),
+
+      sellOptions: ['Software', 'Services', 'Logistics', 'Recruiting'].map((label) => ({
+        label, ...this.pill(this.state.sell === label), pick: () => this.setState({ sell: label }),
+      })),
+
+      verb: VERBS[verb % VERBS.length],
+      count: count.toLocaleString(),
+
+      segments: SEGS.map((sg) => {
+        const on = this.state.segs.has(sg.id);
+        return {
+          ...sg,
+          border: on ? '#b9d4ff' : '#edeef2',
+          bg: on ? '#f7faff' : '#ffffff',
+          checkBg: on ? '#3c83f6' : '#ffffff',
+          checkBorder: on ? '#3c83f6' : '#cfd3dd',
+          tick: on ? 1 : 0,
+          toggle: () => this.setState((s) => {
+            const n = new Set(s.segs);
+            if (n.has(sg.id)) n.delete(sg.id); else n.add(sg.id);
+            return { segs: n };
+          }),
+        };
+      }),
+
+      linkedinChecks: [
+        { label: 'Account linked', state: 'connected', dot: '#12b981', fg: '#07784f', anim: 'none' },
+        { label: 'Chrome extension', state: 'checking', dot: '#3c83f6', fg: '#0544a5', anim: 'sp-pulse 1.4s ease-in-out infinite' },
+        { label: 'Search permissions', state: 'pending', dot: '#c3c7d1', fg: '#777a88', anim: 'none' },
+      ],
+
+      windows: ['Working hours', 'Mornings only', 'Around the clock'].map((label) => ({
+        label, ...this.pill(this.state.window === label), pick: () => this.setState({ window: label }),
+      })),
+
+      toggles: TOGGLES.map((t) => {
+        const on = this.state.toggles.has(t.id);
+        return {
+          ...t,
+          trackBg: on ? '#3c83f6' : '#d7dbe3',
+          knobX: on ? '14px' : '0px',
+          toggle: () => this.setState((s) => {
+            const n = new Set(s.toggles);
+            if (n.has(t.id)) n.delete(t.id); else n.add(t.id);
+            return { toggles: n };
+          }),
+        };
+      }),
+
+      readyStats: [
+        { k: 'Segments live', v: String(this.state.segs.size) },
+        { k: 'Daily cap', v: '25' },
+        { k: 'Credits', v: '1,284' },
+      ],
+      nextUp: [
+        { label: 'Spurly finishes paging your first audience', at: 'a few minutes', dot: '#3c83f6' },
+        { label: 'Every lead is enriched and scored against your ICP', at: 'as they arrive', dot: '#c3c7d1' },
+        { label: 'You review the top of the list and start a campaign', at: 'when you are ready', dot: '#c3c7d1' },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

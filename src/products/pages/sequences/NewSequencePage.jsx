@@ -45,12 +45,12 @@ export function NewSequencePage() {
       actions={<Button disabled={!canCreate} loading={creating} onClick={openNameDialog}>{t.createButton}</Button>}
     >
       <div className="flex flex-col h-full min-h-0 gap-3">
-        <Link to="/hub/sequences" className="shrink-0 inline-flex items-center gap-1 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] hover:underline">
+        <Link to="/hub/sequences" className="shrink-0 inline-flex items-center gap-1 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] hover:underline">
           <ArrowLeft size={13} aria-hidden="true" /> {t.allSequences}
         </Link>
 
         {validationError && (
-          <p className="shrink-0 text-[var(--ui-t-label)] text-[var(--ui-danger-fg)]">{validationError}</p>
+          <p className="shrink-0 text-[length:var(--ui-t-label)] text-[var(--ui-danger-fg)]">{validationError}</p>
         )}
 
         <SectionCard

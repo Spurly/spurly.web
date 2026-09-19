@@ -53,6 +53,7 @@ const TemplatesPage = lazy(() => import('src/products/pages/templates').then((m)
 const SettingsPage = lazy(() => import('src/products/pages/accountSettings').then((m) => ({ default: m.SettingsPage })));
 const LinkedInSettingsPage = lazy(() => import('src/products/pages/settings').then((m) => ({ default: m.LinkedInSettingsPage })));
 const NotificationsPage = lazy(() => import('src/core/pages/notifications/NotificationsPage.jsx'));
+const HubDashboardPage = lazy(() => import('src/products/pages/dashboard').then((m) => ({ default: m.HubDashboardPage })));
 const HubLeadsPage = lazy(() => import('src/products/pages/leads').then((m) => ({ default: m.HubLeadsPage })));
 const HubCampaignsPage = lazy(() => import('src/products/pages/campaigns').then((m) => ({ default: m.HubCampaignsPage })));
 const HubCampaignDetailPage = lazy(() => import('src/products/pages/campaigns').then((m) => ({ default: m.HubCampaignDetailPage })));
@@ -134,7 +135,8 @@ export function AppRoutes() {
           guards as the dashboard: signed in, then paid up. The old second-tier
           "hub" entitlement gate (HubGate, /hub/upgrade) was removed
           2026-09-14 — every active subscriber now has full access. */}
-      <Route path="/hub" element={<Navigate to="/hub/leads" replace />} />
+      <Route path="/hub" element={<Navigate to="/hub/dashboard" replace />} />
+      <Route path="/hub/dashboard" element={<ProtectedRoute><SubscribeGate><HubDashboardPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/leads" element={<ProtectedRoute><SubscribeGate><HubLeadsPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/campaigns" element={<ProtectedRoute><SubscribeGate><HubCampaignsPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/hub/campaigns/:id" element={<ProtectedRoute><SubscribeGate><HubCampaignDetailPage /></SubscribeGate></ProtectedRoute>} />

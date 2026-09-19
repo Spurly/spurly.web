@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { Loader2, Send, Lock } from 'lucide-react';
-import { Avatar, Badge, Button } from 'src/core/primitives';
+import { Loader2, Lock } from 'lucide-react';
+import { Avatar, Badge, Button, SoonTag } from 'src/core/primitives';
+import { SendIcon, SparkIcon } from 'src/core/icons';
 import { absoluteTime } from 'src/shared/utils/outreach';
 import { useThread } from 'src/products/inbox/hooks/useThread.js';
 import { AiWriteButton } from 'src/products/personalization/AiWriteButton.jsx';
@@ -41,7 +42,7 @@ function Bubble({ message }) {
   if (message.isEvent) {
     return (
       <li className="flex justify-center">
-        <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] px-2 py-1">{message.text || 'Activity'}</span>
+        <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] px-2 py-1">{message.text || 'Activity'}</span>
       </li>
     );
   }
@@ -51,16 +52,16 @@ function Bubble({ message }) {
       <div className="max-w-[min(68ch,78%)]">
         <div
           className={[
-            'rounded-[var(--ui-radius-md)] px-3 py-2 text-[var(--ui-t-body)] leading-[1.5] whitespace-pre-wrap break-words',
+            'rounded-[var(--ui-radius-lg)] px-3.5 py-2.5 text-[length:var(--ui-t-control)] leading-[1.6] whitespace-pre-wrap break-words',
             mine
-              ? 'bg-[var(--ui-surface-sunken)] text-[var(--ui-text-primary)]'
+              ? 'bg-[var(--ui-accent)] text-[var(--ui-accent-on)] shadow-[var(--ui-btn-shadow)]'
               : 'bg-[var(--ui-surface-card)] border border-[var(--ui-border)] text-[var(--ui-text-primary)]',
           ].join(' ')}
         >
           {message.text || <span className="text-[var(--ui-text-tertiary)]">(no text)</span>}
         </div>
-        <div className={`mt-1 text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums ${mine ? 'text-right' : ''}`}>
-          {absoluteTime(message.timestamp)}
+        <div className={`mt-1.5 font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)] tabular-nums ${mine ? 'text-right' : ''}`}>
+          {mine ? 'You' : message.senderName || ''}{mine || message.senderName ? ' · ' : ''}{absoluteTime(message.timestamp)}
         </div>
       </div>
     </li>
@@ -79,7 +80,7 @@ export function Thread({ chatId, onChanged }) {
 
   if (!chatId) {
     return (
-      <div className="grid place-items-center h-full text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">
+      <div className="grid place-items-center h-full bg-[var(--ui-surface-page)] text-[length:var(--ui-t-control)] text-[var(--ui-text-secondary)]">
         {t.thread.pickConversation}
       </div>
     );
@@ -91,34 +92,47 @@ export function Thread({ chatId, onChanged }) {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <header
-        className="flex items-center gap-2 shrink-0 border-b border-[var(--ui-border-hairline)] px-4"
-        style={{ height: 'var(--ui-band)' }}
-      >
-        <Avatar src={chat?.display?.pictureUrl || null} name={chat?.display?.name || ''} size={22} />
-        <span className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] truncate">
-          {chat?.display?.name || 'Unnamed conversation'}
-        </span>
+      <header className="flex items-center gap-3 shrink-0 border-b border-[var(--ui-border)] px-5 h-14">
+        <Avatar src={chat?.display?.pictureUrl || null} name={chat?.display?.name || ''} size={30} />
+        <div className="min-w-0 flex-1">
+          <p className="text-[length:var(--ui-t-nav)] font-semibold text-[var(--ui-text-primary)] truncate leading-[1.3]">
+            {chat?.display?.name || 'Unnamed conversation'}
+          </p>
+          {chat?.display?.headline && (
+            <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)] truncate leading-[1.35]">{chat.display.headline}</p>
+          )}
+        </div>
         {DEGREE_LABEL[chat?.connectionDegree] && (
-          <Badge tone="neutral" title="How you are connected on LinkedIn">
-            {DEGREE_LABEL[chat.connectionDegree]}
+          <Badge tone={chat.connectionDegree === 1 ? 'success' : 'neutral'} dot title="How you are connected on LinkedIn">
+            {DEGREE_LABEL[chat.connectionDegree]} degree
           </Badge>
+        )}
+        {chat?.display?.profileUrl && (
+          <a
+            href={chat.display.profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center h-8 px-3.5 rounded-[var(--ui-radius-btn)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] text-[length:var(--ui-t-control)] font-medium text-[var(--ui-text-body)] transition-[border-color,box-shadow] duration-[var(--ui-dur-fast)] hover:border-[var(--ui-accent-border)] hover:shadow-[var(--ui-hover-ring)] hover:no-underline"
+          >
+            View profile
+          </a>
         )}
       </header>
 
-      <div className="flex-1 min-h-0 overflow-auto px-4 py-4">
+      <div className="flex-1 min-h-0 overflow-auto bg-[var(--ui-surface-page)]">
+        <div className="max-w-[680px] mx-auto px-5 py-6">
         {data?.historyPending && (
           // An un-swept conversation and a conversation with nothing in it look
           // identical, and only one of them is the truth.
-          <p className="mb-3 text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] text-center">
+          <p className="mb-3 text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] text-center">
             {t.thread.historyPending}
           </p>
         )}
 
         {messages.length === 0 && !data?.historyPending ? (
-          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)] text-center py-8">{t.thread.noMessages}</p>
+          <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-tertiary)] text-center py-8">{t.thread.noMessages}</p>
         ) : (
-          <ul className="flex flex-col gap-3">
+          <ul className="flex flex-col gap-4">
             {messages.map((message, index) => {
               // Derived from the previous message rather than carried in a
               // variable across the map: reassigning during render is exactly
@@ -130,7 +144,7 @@ export function Thread({ chatId, onChanged }) {
                 <div key={message._id} className="contents">
                   {showDay && (
                     <li className="flex justify-center">
-                      <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums">{day}</span>
+                      <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums">{day}</span>
                     </li>
                   )}
                   <Bubble message={message} />
@@ -140,53 +154,73 @@ export function Thread({ chatId, onChanged }) {
           </ul>
         )}
         <div ref={bottomRef} />
+        </div>
       </div>
 
       {readOnly ? (
-        <div className="shrink-0 border-t border-[var(--ui-border-hairline)] px-4 py-3 flex items-center gap-2 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
+        <div className="shrink-0 border-t border-[var(--ui-border)] px-5 py-3.5 flex items-center gap-2 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] bg-[var(--ui-surface-header)]">
           <Lock size={13} aria-hidden="true" />
           {/* Not a disabled composer. A box you can type into and never send
               from is worse than no box — it invites the work, then refuses it. */}
           {t.thread.readOnly}
         </div>
       ) : (
-        <form onSubmit={send} className="shrink-0 border-t border-[var(--ui-border-hairline)] p-3 flex flex-col gap-2">
-          {/* A reply is always a DIRECT_MESSAGE to one already-open thread —
-              never a CONNECTION_REQUEST note, and never tied to a saved
-              template — so the button gets no templateId here. It DOES get
-              recipientName: this is a reply to one known person, not a
-              campaign, and there is no extension fill-at-send-time step for
-              a manual inbox reply — so the draft must never contain a
-              {{token}}. Passing the name here is what tells the server to
-              write literal text instead (see AiWriteButton and
-              personalization/prompts.js#personalizationBlock). */}
-          <div className="flex justify-end">
-            <AiWriteButton
-              content={draft}
-              type="DIRECT_MESSAGE"
-              recipientName={chat?.display?.name || ''}
-              maxLength={2000}
-              disabled={sending}
-              onApply={setDraft}
-            />
-          </div>
-          <div className="flex items-end gap-2">
-            <textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                // Enter makes a newline; Cmd/Ctrl+Enter sends. The opposite
-                // pairing turns a paragraph break into an outgoing message.
-                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) send(e);
-              }}
-              rows={2}
-              placeholder={t.thread.composerPlaceholder}
-              aria-label={t.thread.composerAriaLabel}
-              className="flex-1 resize-none rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-t-body)] leading-[1.5] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
-            />
-            <Button type="submit" disabled={sending || !draft.trim()} title={t.thread.sendTitle}>
-              {sending ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
-            </Button>
+        <form onSubmit={send} className="shrink-0 border-t border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-5 pt-3.5 pb-4">
+          <div className="max-w-[680px] mx-auto flex flex-col gap-2.5">
+            {/* The handoff's suggested-reply chips need an intent read of the
+                thread (not built). The chips' place is kept, marked SOON. */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {['Reply to their question', 'Offer two times', 'Ask who else reviews'].map((label) => (
+                <span
+                  key={label}
+                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-[var(--ui-radius-pill)] border border-[var(--ui-accent-tint-strong)] text-[length:var(--ui-t-label)] text-[var(--ui-accent-fg)] opacity-60 cursor-not-allowed"
+                  title="Suggested replies are coming soon"
+                >
+                  <SparkIcon size={11} strokeWidth={1.9} />
+                  {label}
+                </span>
+              ))}
+              <SoonTag />
+            </div>
+            <div className="rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] focus-within:border-[var(--ui-accent)] focus-within:shadow-[var(--ui-focus-ring)] transition-[border-color,box-shadow] duration-[var(--ui-dur-fast)] overflow-hidden">
+              <textarea
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) send(e);
+                }}
+                rows={3}
+                placeholder={t.thread.composerPlaceholder}
+                aria-label={t.thread.composerAriaLabel}
+                className="block w-full resize-none bg-transparent px-3.5 py-3 text-[length:var(--ui-t-control)] leading-[1.6] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-quaternary)] focus:outline-none"
+              />
+              <div className="flex items-center gap-2 px-3 py-2 border-t border-[var(--ui-border-hairline)] bg-[var(--ui-surface-header)]">
+                <span className="flex-1 min-w-0 truncate font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)]">
+                  ⌘↵ to send · edit freely
+                </span>
+                {/* A reply is always a DIRECT_MESSAGE to one already-open
+                    thread, to one known person — recipientName tells the
+                    server to write literal text, never a {{token}}. */}
+                <AiWriteButton
+                  content={draft}
+                  type="DIRECT_MESSAGE"
+                  recipientName={chat?.display?.name || ''}
+                  maxLength={2000}
+                  disabled={sending}
+                  onApply={setDraft}
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  variant="primary"
+                  disabled={sending || !draft.trim()}
+                  title={t.thread.sendTitle}
+                  leadingIcon={sending ? <Loader2 size={13} className="animate-spin" /> : <SendIcon size={13} strokeWidth={1.9} />}
+                >
+                  Send
+                </Button>
+              </div>
+            </div>
           </div>
         </form>
       )}

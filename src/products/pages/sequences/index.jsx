@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Workflow } from 'lucide-react';
+import { PlusIcon, SequenceIcon } from 'src/core/icons';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { DataTable, sortRows, filterRows } from 'src/core/DataTable';
-import { Button, EmptyState } from 'src/core/primitives';
+import { Button, FilterPills } from 'src/core/primitives';
 import { useSequencesPage } from 'src/products/sequences/hooks/useSequencesPage.js';
 import { hubSequenceListColumns } from './components/listColumns.jsx';
 import { sequencesStrings } from './strings.js';
@@ -41,38 +41,60 @@ export function HubSequencesPage() {
     return sortRows(filtered, sort, { steps: (row) => row.steps?.length ?? 0 });
   }, [sequences, search, sort]);
 
+  const [status, setStatus] = useState('all');
+  const byStatus = status === 'all' ? visibleSequences : visibleSequences.filter((q) => q.status === status);
+  const countOf = (id) => sequences.filter((q) => q.status === id).length;
+
   return (
     <DashboardLayout
       title={t.pageTitle}
       subtitle={t.pageSubtitle}
-      actions={<Button leadingIcon={<Plus size={13} />} onClick={() => navigate('/hub/sequences/new')}>{t.newSequence}</Button>}
+      actions={
+        <Button variant="primary" leadingIcon={<PlusIcon size={14} strokeWidth={2} />} onClick={() => navigate('/hub/sequences/new')}>
+          {t.newSequence}
+        </Button>
+      }
     >
-      {!loading && sequences.length === 0 ? (
-        <EmptyState
-          icon={<Workflow size={20} />}
-          title={t.emptyTitle}
-          hint={t.emptyHint}
-          action={<Button onClick={() => navigate('/hub/sequences/new')}>{t.newSequence}</Button>}
-        />
-      ) : (
-        <DataTable
-          columns={columns}
-          data={visibleSequences}
-          rowKey={(row) => row._id}
-          loading={loading}
-          onRowClick={(row) => navigate(`/hub/sequences/${row._id}`)}
-          emptyMessage={search ? 'No sequences match your search' : t.emptyTitle}
-          emptyHint={search ? 'Try a different search term' : t.emptyHint}
-          reorderable
-          sort={sort}
-          onSortChange={setSort}
-          toolbar={{
-            searchValue: search,
-            onSearch: setSearch,
-            searchPlaceholder: 'Search sequences by name...',
-          }}
-        />
-      )}
+      <DataTable
+        columns={columns}
+        data={byStatus}
+        rowKey={(row) => row._id}
+        loading={loading}
+        onRowClick={(row) => navigate(`/hub/sequences/${row._id}`)}
+        emptyIcon={<SequenceIcon size={22} strokeWidth={1.6} />}
+        emptyMessage={search || status !== 'all' ? 'No sequences match' : t.emptyTitle}
+        emptyHint={search || status !== 'all' ? 'Try a different search or filter.' : t.emptyHint}
+        emptyAction={
+          !search && status === 'all' ? (
+            <Button variant="primary" onClick={() => navigate('/hub/sequences/new')}>
+              {t.newSequence}
+            </Button>
+          ) : null
+        }
+        reorderable
+        sort={sort}
+        onSortChange={setSort}
+        toolbar={{
+          searchValue: search,
+          onSearch: setSearch,
+          searchPlaceholder: 'Search sequences by name',
+          chips: (
+            <FilterPills
+              size="sm"
+              ariaLabel="Filter sequences by status"
+              value={status}
+              onChange={setStatus}
+              options={[
+                { id: 'all', label: 'All', count: sequences.length },
+                { id: 'running', label: 'Live', count: countOf('running') },
+                { id: 'paused', label: 'Paused', count: countOf('paused') },
+                { id: 'draft', label: 'Draft', count: countOf('draft') },
+                { id: 'done', label: 'Finished', count: countOf('done') },
+              ].filter((o) => o.id === 'all' || o.count > 0)}
+            />
+          ),
+        }}
+      />
     </DashboardLayout>
   );
 }

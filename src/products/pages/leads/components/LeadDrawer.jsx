@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { MapPin, Briefcase, GraduationCap, Users, UserX } from 'lucide-react';
-import { Avatar, Badge, Button, Drawer, Skeleton } from 'src/core/primitives';
-import { LinkedInIcon } from 'src/core/icons';
+import { Briefcase, GraduationCap, Users, UserX } from 'lucide-react';
+import { Avatar, Badge, Button, Drawer, Skeleton, SoonTag } from 'src/core/primitives';
+import { LinkedInIcon, SparkIcon } from 'src/core/icons';
+import { absoluteTime } from 'src/shared/utils/outreach';
+import { leadStatus, formatFollowers } from './columns.jsx';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import leadController from 'src/products/leads/controller/lead.js';
 import { LEAD_EVENTS } from 'src/products/leads/constants/constants.js';
@@ -54,7 +56,7 @@ function ChipList({ items = [] }) {
       {items.map((item, i) => (
         <span
           key={`${item}-${i}`}
-          className="inline-flex items-center h-6 px-2 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]"
+          className="inline-flex items-center h-6 px-2 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]"
         >
           {item}
         </span>
@@ -65,12 +67,8 @@ function ChipList({ items = [] }) {
 
 function Section({ title, children }) {
   return (
-    <section className="px-4 py-3 border-t first:border-t-0 border-[var(--ui-border-hairline)]">
-      {title && (
-        <h3 className="text-[var(--ui-t-micro)] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)] mb-2">
-          {title}
-        </h3>
-      )}
+    <section className="px-5 pt-[22px]">
+      {title && <h3 className="ui-micro !text-[var(--ui-text-secondary)] mb-2.5">{title}</h3>}
       {children}
     </section>
   );
@@ -86,9 +84,9 @@ function HistoryRow({ icon: Icon, primary, secondary, meta }) {
         <Icon size={13} />
       </span>
       <div className="min-w-0">
-        <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] leading-snug">{primary}</p>
-        {secondary && <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-snug">{secondary}</p>}
-        {meta && <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] leading-snug mt-0.5">{meta}</p>}
+        <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] leading-snug">{primary}</p>
+        {secondary && <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-snug">{secondary}</p>}
+        {meta && <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] leading-snug mt-0.5">{meta}</p>}
       </div>
     </div>
   );
@@ -122,14 +120,14 @@ function PendingInvitationBanner({ lead, onWithdraw, withdrawing, withdrawError 
     <Section>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)]">
+          <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)]">
             Invitation pending
             {lead.pendingInvitationSource === 'external' && (
               <span className="text-[var(--ui-text-tertiary)]"> — sent outside Spurly</span>
             )}
           </p>
           {withdrawError && (
-            <p className="text-[var(--ui-t-label)] text-[var(--ui-danger-fg)] mt-1">{withdrawError}</p>
+            <p className="text-[length:var(--ui-t-label)] text-[var(--ui-danger-fg)] mt-1">{withdrawError}</p>
           )}
         </div>
         <Button size="sm" variant="ghost" leadingIcon={<UserX size={13} />} onClick={onWithdraw} loading={withdrawing} disabled={withdrawing}>
@@ -150,7 +148,7 @@ function ResolvedProfilePanel({ lead }) {
     <>
       {profile.summary && (
         <Section title="About">
-          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] leading-relaxed whitespace-pre-line">
+          <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] leading-relaxed whitespace-pre-line">
             {profile.summary}
           </p>
         </Section>
@@ -161,16 +159,16 @@ function ResolvedProfilePanel({ lead }) {
           <dl className="flex flex-col gap-1.5">
             {profile.connections_count != null && (
               <div className="flex items-baseline gap-3">
-                <dt className="w-24 shrink-0 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">Connections</dt>
-                <dd className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] tabular-nums">
+                <dt className="w-24 shrink-0 text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">Connections</dt>
+                <dd className="text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)] tabular-nums">
                   {profile.connections_count.toLocaleString()}
                 </dd>
               </div>
             )}
             {lead.followersCount != null && (
               <div className="flex items-baseline gap-3">
-                <dt className="w-24 shrink-0 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">Followers</dt>
-                <dd className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] tabular-nums">
+                <dt className="w-24 shrink-0 text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">Followers</dt>
+                <dd className="text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)] tabular-nums">
                   {lead.followersCount.toLocaleString()}
                 </dd>
               </div>
@@ -302,58 +300,101 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
 
   if (!lead) return null;
 
+  const status = leadStatus(resolved || lead);
+  const profileRows = [
+    ['Title', resolved?.currentTitle],
+    ['Company', resolved?.companyName],
+    ['Location', lead.location],
+    ['Degree', degreeLabel],
+    ['Followers', resolved?.followersCount != null ? formatFollowers(resolved.followersCount) : null],
+    ['Status', { connected: 'Connected', invited: 'Invitation pending', new: 'Not contacted' }[status]],
+    ['Enrichment', { none: 'Not enriched', queued: 'Queued', enriching: 'Enriching', enriched: 'Enriched', failed: 'Failed' }[resolved?.enrichmentStatus] ?? null],
+  ].filter(([, v]) => v);
+
+  const timeline = [
+    resolved?.pendingInvitationSentAt && { label: 'Connection request sent', at: resolved.pendingInvitationSentAt, live: true },
+    resolved?.profileResolvedAt && { label: 'Full profile resolved', at: resolved.profileResolvedAt },
+    (resolved?.createdAt || lead.createdAt) && { label: 'Imported into Spurly', at: resolved?.createdAt || lead.createdAt },
+  ].filter(Boolean);
+
   return (
-    <Drawer open onClose={onClose} title={lead.name} showHeader={false} size="md">
-      <div className="px-4 py-4 pr-10">
-        <div className="flex items-start gap-3">
-          <Avatar src={lead.profilePictureUrl || null} name={lead.name} size={44} shape="square" />
+    <Drawer open onClose={onClose} title={lead.name} eyebrow="Lead" size="md">
+      <div className="px-5 pt-5">
+        <div className="flex items-center gap-[13px]">
+          <Avatar src={lead.profilePictureUrl || null} name={lead.name} size={48} />
           <div className="min-w-0 flex-1">
-            <h2 className="text-[var(--ui-t-body)] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] leading-tight">
+            <h2 className="text-[length:var(--ui-t-heading)] font-semibold tracking-[var(--ui-track-tight)] text-[var(--ui-text-primary)] leading-[1.2]">
               {lead.name}
             </h2>
-            {(resolved?.currentTitle || resolved?.companyName) && (
-              <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5 leading-snug">
-                {resolved.currentTitle}
-                {resolved.companyName ? ` · ${resolved.companyName}` : ''}
-              </p>
-            )}
-            {!resolved?.currentTitle && !resolved?.companyName && lead.headline && (
-              <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5 leading-snug">{lead.headline}</p>
-            )}
-            {lead.location && (
-              <p className="flex items-center gap-1.5 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-1">
-                <MapPin size={12} aria-hidden="true" />
-                {lead.location}
-              </p>
-            )}
+            <p className="mt-1 text-[length:var(--ui-t-control)] text-[var(--ui-text-secondary)] leading-[1.4]">
+              {lead.headline ||
+                [resolved?.currentTitle, resolved?.companyName].filter(Boolean).join(' · ')}
+            </p>
+          </div>
+          {/* Fit reading — the handoff's top-right number. Not built yet. */}
+          <div className="text-right shrink-0">
+            <div className="ui-num text-[length:var(--ui-t-section)] leading-none text-[var(--ui-text-disabled)]">—</div>
+            <div className="mt-1 flex items-center justify-end gap-1">
+              <span className="ui-micro !text-[length:var(--ui-t-micro)] !text-[var(--ui-text-secondary)]">Fit</span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap mt-3">
-          {degreeLabel && (
-            <Badge size="sm" tone="neutral">
-              {degreeLabel} degree
-            </Badge>
-          )}
-          {lead.isPremium && (
-            <Badge size="sm" tone="accent">
-              Premium
-            </Badge>
-          )}
+        <div className="flex items-center gap-[7px] mt-4">
           <a
             href={lead.profileUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 h-6 px-2 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)]"
+            className="flex-1 inline-flex items-center justify-center gap-[7px] h-8 rounded-[var(--ui-radius-btn)] bg-[var(--ui-accent)] text-[var(--ui-accent-on)] text-[length:var(--ui-t-control)] font-medium shadow-[var(--ui-btn-shadow)] hover:bg-[var(--ui-accent-hover)] hover:shadow-[var(--ui-btn-shadow-hover)] transition-[background-color,box-shadow] duration-[var(--ui-dur-fast)]"
           >
-            <LinkedInIcon size={12} />
+            <LinkedInIcon size={13} />
             View on LinkedIn
           </a>
+          {lead.isPremium && <Badge tone="accent">Premium</Badge>}
+        </div>
+
+        {/* Why this lead + Suggested opener: the handoff's two AI panels.
+            Both need the scoring pass (UI_REDESIGN_DEFERRED_FEATURES.md §1),
+            so they render in their designed place, marked as coming. */}
+        <div className="mt-5 px-4 py-3.5 rounded-[var(--ui-radius-md)] bg-[var(--ui-accent-wash)] border border-[var(--ui-accent-tint-strong)] shadow-[inset_2px_0_0_var(--ui-accent)]">
+          <div className="flex items-center gap-[7px] mb-2">
+            <SparkIcon size={13} strokeWidth={1.9} className="text-[var(--ui-accent-fg)]" />
+            <span className="ui-micro !text-[var(--ui-accent-fg)]">Why this lead</span>
+            <SoonTag />
+          </div>
+          <p className="text-[length:var(--ui-t-control)] text-[var(--ui-text-body)] leading-[1.6]">
+            Spurly will score every lead against your ICP and explain the score here in a sentence you can overrule.
+          </p>
+        </div>
+
+        <div className="mt-3 rounded-[var(--ui-radius-md)] border border-[var(--ui-neutral-150)] overflow-hidden">
+          <div className="flex items-center justify-between gap-2 px-[13px] py-2.5 border-b border-[var(--ui-border-hairline)] bg-[var(--ui-surface-header)]">
+            <span className="ui-micro !text-[var(--ui-text-secondary)]">Suggested opener</span>
+            <SoonTag />
+          </div>
+          <p className="px-[13px] py-[13px] text-[length:var(--ui-t-control)] text-[var(--ui-text-quaternary)] leading-[1.6]">
+            A first line drafted from this person&rsquo;s own profile, ready to edit or regenerate.
+          </p>
         </div>
       </div>
 
+      {profileRows.length > 0 && (
+        <Section title="Profile">
+          <div className="rounded-[var(--ui-radius-md)] border border-[var(--ui-neutral-150)] overflow-hidden">
+            {profileRows.map(([k, v]) => (
+              <div key={k} className="flex items-center gap-3 px-[13px] py-2.5 border-b border-[var(--ui-border-hairline)] last:border-b-0">
+                <span className="w-[104px] shrink-0 font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] uppercase tracking-[0.09em] text-[var(--ui-text-secondary)]">
+                  {k}
+                </span>
+                <span className="flex-1 min-w-0 text-right truncate text-[length:var(--ui-t-control)] text-[var(--ui-text-primary)]">{v}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
       {resolving && (
-        <div className="px-4 py-3 flex flex-col gap-2">
+        <div className="px-5 pt-5 flex flex-col gap-2">
           <Skeleton width="75%" height={11} />
           <Skeleton width="50%" height={11} />
           <Skeleton width="65%" height={11} />
@@ -362,7 +403,7 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
 
       {!resolving && error && (
         <Section>
-          <p className="text-[var(--ui-t-label)] text-[var(--ui-danger-fg)]">{error}</p>
+          <p className="text-[length:var(--ui-t-label)] text-[var(--ui-danger-fg)]">{error}</p>
         </Section>
       )}
 
@@ -375,14 +416,38 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
 
       {!resolving && !error && <ResolvedProfilePanel lead={resolved} />}
 
-      {!resolving && !error && !resolved?.profileResolvedAt && (
-        <Section>
-          <div className="flex items-center gap-2 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
-            <Users size={13} aria-hidden="true" />
-            Nothing more to show yet — this profile hasn't been resolved.
+      {timeline.length > 0 && (
+        <Section title="Activity">
+          <div className="flex flex-col gap-3.5 pl-1">
+            {timeline.map((ev) => (
+              <div key={ev.label} className="flex gap-[11px]">
+                <div className="flex flex-col items-center shrink-0 pt-1">
+                  <span
+                    className="w-[7px] h-[7px] rounded-full"
+                    style={{ background: ev.live ? 'var(--ui-accent)' : 'var(--ui-border-strong)' }}
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[length:var(--ui-t-control)] text-[var(--ui-text-primary)] leading-[1.4]">{ev.label}</p>
+                  <p className="mt-0.5 font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-neutral-400)]">
+                    {absoluteTime(ev.at)}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </Section>
       )}
+
+      {!resolving && !error && !resolved?.profileResolvedAt && (
+        <Section>
+          <div className="flex items-center gap-2 text-[length:var(--ui-t-label)] text-[var(--ui-text-quaternary)]">
+            <Users size={13} aria-hidden="true" />
+            Nothing more to show yet — this profile hasn&rsquo;t been resolved.
+          </div>
+        </Section>
+      )}
+      <div className="h-6 shrink-0" />
     </Drawer>
   );
 }

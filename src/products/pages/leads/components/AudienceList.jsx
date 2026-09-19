@@ -1,9 +1,31 @@
-import { Loader2, Play, Trash2, AlertTriangle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Play, Trash2, AlertTriangle } from "lucide-react";
 import { Button, Badge } from "src/core/primitives";
 import {
   isBusy,
   describeSearch,
 } from "src/products/leads/hooks/audience.js";
+
+/**
+ * The working-line strip's rotating verb (spurlyDESIGN.md: "the product
+ * tells you what it is doing and why, in words, while it does it"). Only
+ * verbs for work this page actually does — the design's own list also
+ * includes "Scoring" and "Spurling" for the fit-scoring feature, which
+ * doesn't exist yet (see docs/UI_REDESIGN_DEFERRED_FEATURES.md), so those
+ * are left out rather than implied.
+ */
+const WORKING_VERBS = ["Sourcing", "Paging", "Reading", "Reconciling"];
+const VERB_INTERVAL_MS = 2600;
+
+function useWorkingVerb(active) {
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    if (!active) return undefined;
+    const t = setInterval(() => setIndex((i) => (i + 1) % WORKING_VERBS.length), VERB_INTERVAL_MS);
+    return () => clearInterval(t);
+  }, [active]);
+  return WORKING_VERBS[index];
+}
 
 /**
  * The saved audiences, as a list you manage — inside the dock, not on the page.
@@ -64,7 +86,7 @@ function AudienceRow({ search, onRun, onDelete, busy }) {
       style={{ minHeight: "var(--ui-row)" }}
     >
       <div className="flex-1 min-w-0 py-2.5">
-        <span className="block text-[var(--ui-t-body)] text-[var(--ui-text-primary)] truncate">
+        <span className="block text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)] truncate">
           {search.name || "Untitled audience"}
         </span>
         <span className="block ui-meta normal-case tracking-normal truncate mt-0.5">
@@ -72,7 +94,7 @@ function AudienceRow({ search, onRun, onDelete, busy }) {
         </span>
       </div>
 
-      <span className="ui-num text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] shrink-0">
+      <span className="ui-num text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] shrink-0">
         {search.importedCount?.toLocaleString() ?? 0}
       </span>
 
@@ -130,7 +152,7 @@ export function StoppedShortNotice({ search }) {
         className="mt-px shrink-0 text-[var(--ui-warning-fg)]"
         aria-hidden="true"
       />
-      <p className="text-[var(--ui-t-label)] text-[var(--ui-warning-fg)] leading-relaxed">
+      <p className="text-[length:var(--ui-t-label)] text-[var(--ui-warning-fg)] leading-relaxed">
         {search.error}
       </p>
     </div>
@@ -140,7 +162,7 @@ export function StoppedShortNotice({ search }) {
 export function AudienceList({ searches, onRun, onDelete, busy }) {
   if (searches.length === 0) {
     return (
-      <p className="px-[var(--ui-pad-lg)] py-5 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
+      <p className="px-[var(--ui-pad-lg)] py-5 text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
         No saved audiences yet. Build one below and it will appear here.
       </p>
     );
@@ -180,29 +202,26 @@ export function AudienceList({ searches, onRun, onDelete, busy }) {
  */
 export function ImportStrip({ searches }) {
   const running = searches.filter(isBusy);
+  const verb = useWorkingVerb(running.length > 0);
   if (running.length === 0) return null;
 
   const imported = running.reduce((sum, s) => sum + (s.importedCount ?? 0), 0);
   const lead = running[0];
 
   return (
-    <div className="flex items-center gap-3 px-[var(--ui-pad-lg)] py-2.5 rounded-[var(--ui-radius-md)] bg-[var(--ui-info-tint)] shadow-[inset_var(--ui-spine)_0_0_var(--ui-info-dot)]">
-      <Loader2
-        size={14}
-        className="shrink-0 motion-safe:animate-spin text-[var(--ui-info-fg)]"
+    <div className="relative overflow-hidden flex items-center gap-3 px-[var(--ui-pad-lg)] py-2.5 rounded-[var(--ui-radius-md)] bg-[var(--ui-accent-wash)] shadow-[inset_var(--ui-spine)_0_0_var(--ui-accent)]">
+      <span className="sp-scan" aria-hidden="true" />
+      <span
+        className="relative w-1.5 h-1.5 rounded-full shrink-0 bg-[var(--ui-accent)] sp-pulse"
         aria-hidden="true"
       />
-      <p className="text-[var(--ui-t-label)] text-[var(--ui-info-fg)] min-w-0 truncate">
-        Importing{" "}
-        <span className="font-semibold">
-          {running.length === 1
-            ? lead.name || "an audience"
-            : `${running.length} audiences`}
-        </span>
-        {" · "}
+      <p className="relative text-[length:var(--ui-t-label)] text-[var(--ui-accent-fg)] min-w-0 truncate">
+        <span className="font-semibold">{verb}…</span>{" "}
+        {running.length === 1 ? lead.name || "an audience" : `${running.length} audiences`}
+        {" · imports run in the background · "}
         <span className="ui-num">{imported.toLocaleString()}</span> so far
       </p>
-      <span className="ui-meta ml-auto shrink-0 hidden sm:block">
+      <span className="relative ui-meta ml-auto shrink-0 hidden sm:block text-[var(--ui-accent-fg)]">
         You can leave this page
       </span>
     </div>

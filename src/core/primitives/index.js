@@ -5,7 +5,7 @@ export { Badge } from './Badge';
 /* Badge reports a machine state; Tag carries something a person typed.
    See Badge.jsx for why that split is worth two components. */
 export { Tag } from './Tag';
-export { Meter, Stat } from './Meter';
+export { Meter, Stat, StatTile, SoonTag } from './Meter';
 export { Avatar } from './Avatar';
 export { Checkbox } from './Checkbox';
 export { Tooltip } from './Tooltip';
@@ -25,3 +25,7 @@ export { MetricCard } from './MetricCard';
 export { SectionCard } from './SectionCard';
 export { Field } from './Field';
 export { PageTabs } from './PageTabs';
+export { WorkingLine } from './WorkingLine';
+export { FilterPills } from './FilterPills';
+export { Menu } from './Menu';
+export { Switch, SwitchRow } from './Switch';

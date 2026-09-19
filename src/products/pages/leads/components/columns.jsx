@@ -1,10 +1,11 @@
-import { LinkedInIcon } from 'src/core/icons';
 import { Badge } from 'src/core/primitives';
 import {
   TextCell,
   PersonCell,
   LocationCell,
-  LinkCell,
+  ActivityCell,
+  SoonCell,
+  soonLabel,
 } from 'src/core/DataTable';
 
 /** 1st / 2nd / 3rd, from the normalised degree the backend stores. */
@@ -18,7 +19,7 @@ const DEGREE_LABEL = { 1: '1st', 2: '2nd', 3: '3rd' };
  * claims a precision nobody has, and a comma-formatted figure is exactly the
  * kind of number someone quotes in a pitch. "21K" says what we actually know.
  */
-function formatFollowers(n) {
+export function formatFollowers(n) {
   if (n == null) return '—';
   if (n >= 1_000_000) return `${Math.round(n / 100_000) / 10}M`;
   if (n >= 1_000) {
@@ -59,82 +60,130 @@ function formatFollowers(n) {
  * reachable at all.
  */
 /*
- * WIDTHS, RE-MEASURED Sep 2026.
+ * v3 (Blue identity) — the Leads v2 table, column for column:
  *
- * These were set against 13px in the system font stack. Body text is now 14px
- * in Instrument Sans, which is both larger and wider per character, so every
- * column began clipping a few characters earlier than it was drawn to. Raised
- * ~15% across the board -- the measured difference, not a guess at one.
+ *   Name (+ headline under it) · Title · Company · Location · Deg ·
+ *   Fit · Signal · Status · Enrichment · Last activity
  *
- * Nothing breaks when a width is wrong, because Cell owns the clamp and every
- * truncated value carries its full text in a `title`. It just reads worse, and
- * a headline cut at "Full Stack Developer | React.js | No..." is the single
- * most common cell on this screen.
+ * Fit and Signal are drawn but not built — no scoring pass exists yet
+ * (docs/UI_REDESIGN_DEFERRED_FEATURES.md §1). They render as SOON columns
+ * rather than being left out, so the screen reads as designed and nobody
+ * mistakes an em dash for a score.
+ *
+ * Status is DERIVED from real fields, never guessed: a 1st-degree lead is
+ * Connected; one with an invitation out is Invited; everyone else is New.
+ * Last activity is the invitation if there is one, else when the lead was
+ * imported. The LinkedIn link lives on the lead drawer (one click away) —
+ * the handoff's table has no link column.
+ *
+ * Followers dropped off the table (it was never in the handoff). The value
+ * is still in the lead drawer's profile block.
  */
+const STATUS_VIEW = {
+  connected: { label: 'Connected', tone: 'success' },
+  invited: { label: 'Invited', tone: 'accent' },
+  new: { label: 'New', tone: 'neutral' },
+};
+
+export function leadStatus(row = {}) {
+  if (row.connectionDegree === 1) return 'connected';
+  if (row.pendingInvitationSentAt || row.pendingInvitationId) return 'invited';
+  return 'new';
+}
+
+function StatusCell({ row }) {
+  const view = STATUS_VIEW[leadStatus(row)];
+  return (
+    <Badge tone={view.tone} dot>
+      {view.label}
+    </Badge>
+  );
+}
+
+function activityOf(row = {}) {
+  if (row.pendingInvitationSentAt) return { label: 'Invite sent', at: row.pendingInvitationSentAt };
+  if (row.createdAt) return { label: 'Imported', at: row.createdAt };
+  return { label: null, at: null };
+}
+
 export const hubLeadColumns = [
-  {
-    key: 'profileUrl',
-    label: <LinkedInIcon size={14} aria-label="LinkedIn" />,
-    width: 48,
-    align: 'center',
-    render: (value) => <LinkCell href={value} icon={<LinkedInIcon size={14} />} label="Open LinkedIn profile" />,
-  },
   {
     key: 'name',
     label: 'Name',
-    width: 230,
+    width: 250,
     sortable: true,
-    title: (row) => row.name,
-    render: (value, row) => <PersonCell name={value} avatar={row.profilePictureUrl} profileUrl={row.profileUrl} />,
-  },
-  {
-    key: 'headline',
-    label: 'Headline',
-    width: 320,
-    title: (row) => row.headline,
-    render: (value) => <TextCell value={value} tone="secondary" />,
-  },
-  {
-    key: 'companyName',
-    label: 'Company',
-    width: 184,
-    sortable: true,
-    title: (row) => row.companyName,
-    // Blank means "not resolved yet or genuinely has none" — both read the
-    // same as an empty cell, which is correct: there is nothing false to
-    // assert either way. See the module comment above.
-    render: (value) => <TextCell value={value || '—'} tone="secondary" />,
+    title: (row) => [row.name, row.headline].filter(Boolean).join(' — '),
+    render: (value, row) => (
+      <PersonCell name={value} avatar={row.profilePictureUrl} profileUrl={row.profileUrl} subtitle={row.headline} />
+    ),
   },
   {
     key: 'currentTitle',
     label: 'Title',
-    width: 208,
+    width: 176,
     title: (row) => row.currentTitle,
-    render: (value) => <TextCell value={value || '—'} tone="secondary" />,
+    // Blank until the lead's full profile has been resolved (open the
+    // drawer, or enrich) — correctly empty, not broken.
+    render: (value) => <TextCell value={value || null} tone="body" />,
+  },
+  {
+    key: 'companyName',
+    label: 'Company',
+    width: 158,
+    sortable: true,
+    title: (row) => row.companyName,
+    render: (value) => <TextCell value={value || null} tone="body" />,
   },
   {
     key: 'location',
     label: 'Location',
-    width: 208,
+    width: 150,
     sortable: true,
     render: (value) => <LocationCell value={value} />,
   },
   {
     key: 'connectionDegree',
-    label: 'Degree',
-    width: 88,
+    label: 'Deg',
+    width: 64,
     align: 'center',
-    render: (value) => <TextCell value={DEGREE_LABEL[value] ?? '—'} tone="secondary" />,
+    render: (value) => (
+      <span className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)]">
+        {DEGREE_LABEL[value] ?? '—'}
+      </span>
+    ),
   },
   {
-    key: 'followersCount',
-    label: 'Followers',
-    width: 126,
-    align: 'right',
-    sortable: true,
-    // null means the vendor did not tell us; 0 would be a claim about their
-    // audience, and someone would act on it.
-    render: (value) => <TextCell value={formatFollowers(value)} tone="secondary" />,
+    key: 'fitScore',
+    label: soonLabel('Fit'),
+    width: 118,
+    render: () => <SoonCell meter />,
+  },
+  {
+    key: 'fitReason',
+    label: soonLabel('Signal'),
+    width: 168,
+    render: () => <SoonCell />,
+  },
+  {
+    key: 'leadStatus',
+    label: 'Status',
+    width: 128,
+    render: (_value, row) => <StatusCell row={row} />,
+  },
+  {
+    key: 'enrichmentStatus',
+    label: 'Enrichment',
+    width: 150,
+    render: (value, row) => <EnrichStatusCell value={value} row={row} />,
+  },
+  {
+    key: 'lastActivity',
+    label: 'Last activity',
+    width: 140,
+    render: (_value, row) => {
+      const a = activityOf(row);
+      return <ActivityCell label={a.label} at={a.at} />;
+    },
   },
 ];
 
@@ -145,7 +194,7 @@ export const hubLeadColumns = [
  * here; ImportedLead's is 'pending'/'enrichError').
  */
 const ENRICH_STATUS = {
-  none:      { label: 'Not enriched', tone: 'neutral', dot: false },
+  none:      { label: 'Not enriched', tone: 'neutral', dot: true },
   queued:    { label: 'Queued',       tone: 'warning', dot: true },
   enriching: { label: 'Enriching',    tone: 'info',    dot: true, pulse: true },
   enriched:  { label: 'Enriched',     tone: 'success', dot: true },
@@ -161,17 +210,8 @@ export function EnrichStatusCell({ value, row = {} }) {
 }
 
 /**
- * Columns for the "Needs enrichment" tab — the same lead columns, plus a
- * status badge at the end so a failed resolve (and why) is visible without
- * opening the drawer. A dedicated array rather than mutating hubLeadColumns
- * in place, so "All leads" is untouched.
+ * Columns for the "Needs enrichment" tab — the same table. Enrichment is
+ * already a column in v3, so this is the one array under a second name
+ * (kept so the page, and anything importing it, stays unchanged).
  */
-export const hubLeadEnrichColumns = [
-  ...hubLeadColumns,
-  {
-    key: 'enrichmentStatus',
-    label: 'Status',
-    width: 140,
-    render: (value, row) => <EnrichStatusCell value={value} row={row} />,
-  },
-];
+export const hubLeadEnrichColumns = hubLeadColumns;

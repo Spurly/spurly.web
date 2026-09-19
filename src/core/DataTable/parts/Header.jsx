@@ -101,8 +101,8 @@ export function Header({
         {selectable && (
           <th
             scope="col"
-            className="bg-[var(--ui-surface-sunken)] border-b border-[var(--ui-border-strong)] shadow-[var(--ui-shadow-sm)]"
-            style={{ height: d.header, padding: `0 ${d.padX}px` }}
+            className="bg-[var(--ui-surface-header)] border-b border-[var(--ui-border)]"
+            style={{ height: d.header, padding: `0 0 0 ${d.padX}px` }}
           >
             <div className="flex items-center h-full">
               <SelectionCheckbox

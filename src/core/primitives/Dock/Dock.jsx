@@ -87,7 +87,7 @@ export function Dock({
               'pointer-events-auto inline-flex items-center gap-3 h-[46px] pl-[18px] pr-2.5',
               'rounded-[var(--ui-radius-pill)] bg-[var(--ui-surface-card)]',
               'border border-[var(--ui-border)] shadow-[var(--ui-shadow-dock)]',
-              'text-[var(--ui-t-body)] font-semibold text-[var(--ui-text-primary)]',
+              'text-[length:var(--ui-t-body)] font-semibold text-[var(--ui-text-primary)]',
               'origin-bottom transition-[transform,border-color] duration-[var(--ui-dur-base)]',
               'ease-[cubic-bezier(0.32,0.72,0,1)]',
               /* The Dock magnification, kept. motion-safe so it simply does
@@ -138,7 +138,7 @@ export function Dock({
           className="flex items-center gap-3 shrink-0 border-b border-[var(--ui-border-hairline)]"
           style={{ height: 'var(--ui-band)', paddingInline: 'var(--ui-pad-lg)' }}
         >
-          <span className="text-[var(--ui-t-section)] font-semibold truncate">{label}</span>
+          <span className="text-[length:var(--ui-t-section)] font-semibold truncate">{label}</span>
           {badge}
           <div className="flex-1" />
           {actions}

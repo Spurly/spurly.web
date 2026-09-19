@@ -31,7 +31,7 @@ export function MessageEditor({ campaign, onSave, saving }) {
   if (!expanded) {
     return (
       <div className="px-[var(--ui-pad-lg)] py-3 flex items-center justify-between gap-3">
-        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] truncate">
+        <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] truncate">
           “{value}”
         </p>
         <Button
@@ -57,10 +57,10 @@ export function MessageEditor({ campaign, onSave, saving }) {
         onChange={(e) => setValue(e.target.value)}
         aria-label="Campaign message"
         placeholder="Hi {{firstName}}, …"
-        className="w-full text-[var(--ui-t-body)] rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-text-primary)] disabled:opacity-60"
+        className="w-full text-[length:var(--ui-t-body)] rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-text-primary)] disabled:opacity-60"
       />
       <div className="flex items-center justify-between">
-        <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
+        <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
           {running
             ? 'Pause the campaign to change the message — the people already messaged were sent the old one.'
             : `Use {{firstName}} to personalize · ${value.length}/${CAP} characters`}

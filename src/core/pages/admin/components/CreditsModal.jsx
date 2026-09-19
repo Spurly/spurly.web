@@ -57,7 +57,7 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between p-[var(--ui-pad-lg)] border-b border-[var(--ui-border-hairline)]">
-          <h2 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)]">Manage Credits</h2>
+          <h2 className="text-[length:var(--ui-t-section)] font-medium text-[var(--ui-text-primary)]">Manage Credits</h2>
           <button
             onClick={onClose}
             className="text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-secondary)] transition-colors"
@@ -69,13 +69,13 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
         {/* User Info */}
         <div className="p-[var(--ui-pad-lg)] bg-[var(--ui-surface-page)] border-b border-[var(--ui-border-hairline)]">
           <div className="space-y-2">
-            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+            <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
               <strong>Email:</strong> {user.email}
             </p>
-            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+            <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
               <strong>Name:</strong> {user.name}
             </p>
-            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+            <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
               <strong>Current Balance:</strong>
               <span className="ml-2 inline-block bg-[var(--ui-info-tint)] text-[var(--ui-info-fg)] px-3 py-1 rounded-full font-medium">
                 {user.creditBalance?.toFixed(1) || 0}
@@ -88,7 +88,7 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
         <form onSubmit={handleSubmit} className="p-[var(--ui-pad-lg)] space-y-4">
           {/* Mode Selection */}
           <div className="space-y-2">
-            <label className="block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">Action</label>
+            <label className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">Action</label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
@@ -119,7 +119,7 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
 
           {/* Amount */}
           <div>
-            <label className="block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">
+            <label className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">
               {mode === 'add' ? 'Credits to Add' : 'Credits to Deduct'}
             </label>
             <input
@@ -135,7 +135,7 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
 
           {/* Reason */}
           <div>
-            <label className="block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">Reason</label>
+            <label className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">Reason</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
@@ -148,7 +148,7 @@ export default function CreditsModal({ user, onClose, onSuccess }) {
 
           {/* Error */}
           {error && (
-            <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[var(--ui-t-label)]">
+            <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[length:var(--ui-t-label)]">
               {error}
             </div>
           )}

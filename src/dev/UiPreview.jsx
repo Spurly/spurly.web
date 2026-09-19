@@ -34,7 +34,7 @@ import { DataTable, TextCell, PersonCell, LinkCell } from 'src/core/DataTable';
 function Row({ label, children }) {
   return (
     <div className="flex items-start gap-4 py-2.5 border-b border-[var(--ui-border-hairline)] last:border-b-0">
-      <span className="w-40 shrink-0 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] pt-1.5">{label}</span>
+      <span className="w-40 shrink-0 text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)] pt-1.5">{label}</span>
       <div className="flex items-center gap-2 flex-wrap min-w-0">{children}</div>
     </div>
   );
@@ -43,7 +43,7 @@ function Row({ label, children }) {
 function Group({ title, children }) {
   return (
     <section className="mb-8">
-      <h2 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-1">{title}</h2>
+      <h2 className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-1">{title}</h2>
       <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-4 py-1">
         {children}
       </div>
@@ -79,8 +79,8 @@ export function UiPreview() {
   return (
     <div className="min-h-screen bg-[var(--ui-surface-page)] p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] mb-1">UI preview</h1>
-        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)] mb-8">
+        <h1 className="text-[length:var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] mb-1">UI preview</h1>
+        <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-tertiary)] mb-8">
           Every primitive in every state. Dev only.
         </p>
 
@@ -287,7 +287,7 @@ export function UiPreview() {
             <Button variant="secondary" onClick={() => setNestedOpen(true)}>
               Open a second dialog (tests stacking)
             </Button>
-            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
+            <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
               Escape should close only the topmost. Tab should never leave this panel.
             </p>
           </div>
@@ -300,7 +300,7 @@ export function UiPreview() {
           title="Second dialog"
           footer={<Button onClick={() => setNestedOpen(false)}>Close</Button>}
         >
-          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
+          <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
             Closing this should leave the first dialog open, and the page behind should still be
             scroll-locked.
           </p>
@@ -314,10 +314,10 @@ export function UiPreview() {
           footer={<Button variant="secondary" onClick={() => setDrawerOpen(false)}>Close</Button>}
         >
           <div className="p-4 flex flex-col gap-3">
-            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] leading-relaxed">{LONG}</p>
+            <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] leading-relaxed">{LONG}</p>
             <Input placeholder="Focus should start here or on the close button" fullWidth />
             {Array.from({ length: 12 }, (_, i) => (
-              <p key={i} className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">
+              <p key={i} className="text-[length:var(--ui-t-body)] text-[var(--ui-text-tertiary)]">
                 Scroll row {i + 1} — the drawer body scrolls, the header and footer don't.
               </p>
             ))}

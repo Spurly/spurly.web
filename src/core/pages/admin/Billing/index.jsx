@@ -40,8 +40,8 @@ function Section({ icon: Icon, title, description, action, children }) {
         <div className="flex items-start gap-3 min-w-0">
           <Icon size={18} className="mt-0.5 shrink-0 text-[var(--ui-text-secondary)]" />
           <div className="min-w-0">
-            <h2 className="text-[var(--ui-t-body)] font-semibold text-[var(--ui-text-primary)]">{title}</h2>
-            <p className="mt-0.5 text-[var(--ui-t-body)] leading-relaxed text-[var(--ui-text-secondary)]">
+            <h2 className="text-[length:var(--ui-t-body)] font-semibold text-[var(--ui-text-primary)]">{title}</h2>
+            <p className="mt-0.5 text-[length:var(--ui-t-body)] leading-relaxed text-[var(--ui-text-secondary)]">
               {description}
             </p>
           </div>
@@ -55,7 +55,7 @@ function Section({ icon: Icon, title, description, action, children }) {
 
 function Empty({ children }) {
   return (
-    <p className="py-6 text-center text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">{children}</p>
+    <p className="py-6 text-center text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">{children}</p>
   );
 }
 
@@ -139,8 +139,8 @@ function PromoForm({ editing, onCancel, onCreated }) {
   }
 
   const field =
-    'w-full rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] px-3 py-2 text-[var(--ui-t-body)]';
-  const label = 'block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-1';
+    'w-full rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] px-3 py-2 text-[length:var(--ui-t-body)]';
+  const label = 'block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-1';
 
   return (
     <form
@@ -235,7 +235,7 @@ function PromoForm({ editing, onCancel, onCreated }) {
       </div>
 
       {form.appliesTo === 'any_payment' && !form.expiresAt && (
-        <p className="mt-3 text-[var(--ui-t-label)] leading-relaxed text-[var(--ui-warning-fg)]">
+        <p className="mt-3 text-[length:var(--ui-t-label)] leading-relaxed text-[var(--ui-warning-fg)]">
           This code works on renewals and never expires — anyone who learns it keeps the
           discount indefinitely. Consider setting an expiry.
         </p>
@@ -263,24 +263,24 @@ function PromoRow({ promo, onToggle, onEdit, onDelete }) {
   return (
     <tr className="border-b border-[var(--ui-border-hairline)] last:border-0">
       <td className="py-3 pr-3">
-        <span className="font-mono text-[var(--ui-t-body)] font-semibold tracking-wider text-[var(--ui-text-primary)]">
+        <span className="font-mono text-[length:var(--ui-t-body)] font-semibold tracking-wider text-[var(--ui-text-primary)]">
           {promo.code}
         </span>
         {promo.autoApply && (
           <Badge size="sm" tone="accent" className="ml-2">Auto</Badge>
         )}
         {promo.description && (
-          <div className="mt-0.5 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">{promo.description}</div>
+          <div className="mt-0.5 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">{promo.description}</div>
         )}
       </td>
-      <td className="py-3 pr-3 text-[var(--ui-t-body)] text-[var(--ui-text-primary)]">{worth}</td>
-      <td className="py-3 pr-3 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+      <td className="py-3 pr-3 text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)]">{worth}</td>
+      <td className="py-3 pr-3 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
         {promo.appliesTo === 'any_payment' ? 'Any payment' : 'First payment'}
       </td>
-      <td className="py-3 pr-3 text-right text-[var(--ui-t-body)] tabular-nums text-[var(--ui-text-primary)]">
+      <td className="py-3 pr-3 text-right text-[length:var(--ui-t-body)] tabular-nums text-[var(--ui-text-primary)]">
         {promo.redemptions} / {cap}
       </td>
-      <td className="py-3 pr-3 text-right text-[var(--ui-t-body)] tabular-nums text-[var(--ui-text-secondary)]">
+      <td className="py-3 pr-3 text-right text-[length:var(--ui-t-body)] tabular-nums text-[var(--ui-text-secondary)]">
         {money(promo.totalDiscountGiven)}
       </td>
       <td className="py-3 pr-3">
@@ -391,8 +391,8 @@ function ExemptionForm({ onCancel, onGranted }) {
   }
 
   const field =
-    'w-full rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] px-3 py-2 text-[var(--ui-t-body)]';
-  const label = 'block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-1';
+    'w-full rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] px-3 py-2 text-[length:var(--ui-t-body)]';
+  const label = 'block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-1';
 
   return (
     <form
@@ -425,7 +425,7 @@ function ExemptionForm({ onCancel, onGranted }) {
             ))}
           </select>
           {usersError && (
-            <p className="mt-1 text-[var(--ui-t-label)] text-[var(--ui-warning-fg)]">{usersError}</p>
+            <p className="mt-1 text-[length:var(--ui-t-label)] text-[var(--ui-warning-fg)]">{usersError}</p>
           )}
         </div>
         <div>
@@ -444,7 +444,7 @@ function ExemptionForm({ onCancel, onGranted }) {
           <input id="ex-until" type="date" className={field} value={until} onChange={(e) => setUntil(e.target.value)} />
         </div>
       </div>
-      <p className="mt-3 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+      <p className="mt-3 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
         A reason is required — six months from now an unexplained comp is
         indistinguishable from a billing bug.
       </p>
@@ -573,7 +573,7 @@ export function AdminBillingPage() {
     adminController.revokeBillingExemption(eventEmitter, row.email);
   }
 
-  const th = 'pb-2 pr-3 text-left text-[var(--ui-t-meta)] font-medium uppercase tracking-wider text-[var(--ui-text-secondary)]';
+  const th = 'pb-2 pr-3 text-left text-[length:var(--ui-t-meta)] font-medium uppercase tracking-wider text-[var(--ui-text-secondary)]';
 
   return (
     <AdminLayout title="Billing" subtitle="Promo codes and comped accounts">
@@ -620,7 +620,7 @@ export function AdminBillingPage() {
             <Empty>No promo codes yet.</Empty>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-[var(--ui-t-body)]">
+              <table className="w-full text-[length:var(--ui-t-body)]">
                 <thead>
                   <tr className="border-b border-[var(--ui-border-hairline)]">
                     <th className={th}>Code</th>
@@ -680,7 +680,7 @@ export function AdminBillingPage() {
             <Empty>No comped accounts.</Empty>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-[var(--ui-t-body)]">
+              <table className="w-full text-[length:var(--ui-t-body)]">
                 <thead>
                   <tr className="border-b border-[var(--ui-border-hairline)]">
                     <th className={th}>Account</th>
@@ -696,13 +696,13 @@ export function AdminBillingPage() {
                       <td className="py-3 pr-3">
                         <div className="font-medium text-[var(--ui-text-primary)]">{row.email}</div>
                         {row.name && (
-                          <div className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">{row.name}</div>
+                          <div className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">{row.name}</div>
                         )}
                       </td>
-                      <td className="py-3 pr-3 text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
+                      <td className="py-3 pr-3 text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
                         {row.billingExemptReason || '—'}
                       </td>
-                      <td className="py-3 pr-3 text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
+                      <td className="py-3 pr-3 text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
                         {row.billingExemptUntil
                           ? new Date(row.billingExemptUntil).toLocaleDateString()
                           : 'Indefinite'}

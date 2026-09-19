@@ -13,7 +13,7 @@ import { countryCodeFromLocation, countryNameFromCode, flagUrl } from 'src/share
  * unreachable. A load failure hides the image rather than leaving a broken-image
  * glyph in the middle of the table.
  */
-export function LocationCell({ value, tone = 'secondary' }) {
+export function LocationCell({ value, tone = 'secondary', flag = false }) {
   const [failed, setFailed] = useState(false);
 
   if (value === null || value === undefined || value === '') {
@@ -27,7 +27,7 @@ export function LocationCell({ value, tone = 'secondary' }) {
   };
 
   const code = countryCodeFromLocation(value);
-  const showFlag = Boolean(code) && !failed;
+  const showFlag = flag && Boolean(code) && !failed;
 
   return (
     <span className={`flex items-center gap-1.5 min-w-0 ${tones[tone] ?? tones.secondary}`}>

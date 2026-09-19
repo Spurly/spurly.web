@@ -24,16 +24,16 @@ export function TemplateCard({ template, active, onOpen, onFavorite, onDuplicate
           onOpen();
         }
       }}
-      className="group text-left rounded-[var(--ui-radius-lg)] p-4 cursor-pointer transition-colors focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
-      style={{
-        background: active ? 'var(--ui-accent-tint)' : 'var(--ui-surface-card)',
-        border: `1px solid ${active ? 'var(--ui-accent)' : 'var(--ui-border-hairline)'}`,
-      }}
+      className={`group text-left rounded-[var(--ui-radius-lg)] px-4 py-3.5 border cursor-pointer transition-[border-color,box-shadow,background-color] duration-[var(--ui-dur-fast)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)] ${
+        active
+          ? 'bg-[var(--ui-accent-wash)] border-[var(--ui-accent-border)] shadow-[inset_2px_0_0_var(--ui-accent)]'
+          : 'bg-[var(--ui-surface-card)] border-[var(--ui-border)] hover:border-[var(--ui-accent-border)] hover:shadow-[var(--ui-hover-ring)]'
+      }`}
     >
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] truncate">
+            <h3 className="text-[length:var(--ui-t-nav)] font-medium text-[var(--ui-text-primary)] truncate">
               {template.name}
             </h3>
             {template.isFavorite && (
@@ -41,12 +41,12 @@ export function TemplateCard({ template, active, onOpen, onFavorite, onDuplicate
             )}
           </div>
           {template.description && (
-            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5 truncate">
+            <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5 truncate">
               {template.description}
             </p>
           )}
           <p
-            className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1.5 leading-snug"
+            className="text-[length:var(--ui-t-control)] text-[var(--ui-text-body)] mt-1.5 leading-[1.55]"
             style={{
               display: '-webkit-box',
               WebkitLineClamp: 2,
@@ -57,7 +57,7 @@ export function TemplateCard({ template, active, onOpen, onFavorite, onDuplicate
             {template.content}
           </p>
           {template.usageCount > 0 && (
-            <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-2 tabular-nums">
+            <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)] mt-2 tabular-nums">
               Used {template.usageCount} time{template.usageCount === 1 ? '' : 's'}
             </p>
           )}
@@ -94,7 +94,7 @@ function IconAction({ label, children, onClick, danger = false }) {
       title={label}
       aria-label={label}
       onClick={onClick}
-      className={`w-8 h-8 grid place-items-center rounded-[var(--ui-radius-md)] transition-colors ${
+      className={`w-7 h-7 grid place-items-center rounded-[var(--ui-radius-sm)] transition-colors ${
         danger
           ? 'text-[var(--ui-text-tertiary)] hover:text-[var(--ui-danger-fg)] hover:bg-[var(--ui-danger-tint)]'
           : 'text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-primary)] hover:bg-[var(--ui-surface-hover)]'

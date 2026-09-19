@@ -43,21 +43,20 @@ export function ImportPage() {
   ];
 
   return (
-    <DashboardLayout title={t.pageTitle} subtitle={t.pageSubtitle}>
-      <div className="flex flex-col h-full overflow-hidden">
-        <PageTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
-
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-[var(--ui-pad-lg)] flex flex-col gap-6 w-full max-w-[1400px]">
-            {activeTab === 'upload' ? (
-              <div className="max-w-[1100px] flex flex-col gap-6">
-                <UploadPanel onStaged={handleStaged} />
-              </div>
-            ) : (
-              <StagingPanel store={store} onGoToUpload={() => setActiveTab('upload')} />
-            )}
+    <DashboardLayout
+      title={t.pageTitle}
+      subtitle={t.pageSubtitle}
+      layout="page"
+      tabs={<PageTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />}
+    >
+      <div className="flex flex-col gap-4 w-full max-w-[1400px]">
+        {activeTab === 'upload' ? (
+          <div className="max-w-[1100px] flex flex-col gap-4">
+            <UploadPanel onStaged={handleStaged} />
           </div>
-        </div>
+        ) : (
+          <StagingPanel store={store} onGoToUpload={() => setActiveTab('upload')} />
+        )}
       </div>
     </DashboardLayout>
   );

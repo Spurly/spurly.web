@@ -30,10 +30,10 @@ export function ExtensionTab() {
             <Puzzle size={19} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="text-[var(--ui-t-body)] font-medium" style={{ color: status.color }}>
+            <div className="text-[length:var(--ui-t-body)] font-medium" style={{ color: status.color }}>
               {status.label}
             </div>
-            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5">
+            <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5">
               {version ? `Version ${version}` : t.extension.defaultCaption}
             </p>
           </div>
@@ -53,14 +53,14 @@ export function ExtensionTab() {
             className="rounded-[var(--ui-radius-lg)] p-4"
             style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
           >
-            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] leading-relaxed">
+            <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)] leading-relaxed">
               {t.extension.notInstalledBody}
             </p>
             <a
               href={t.extension.installUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 mt-3 text-[var(--ui-t-body)] font-medium"
+              className="inline-flex items-center gap-1.5 mt-3 text-[length:var(--ui-t-body)] font-medium"
               style={{ color: 'var(--ui-accent-fg)' }}
             >
               {t.extension.installLink}
@@ -74,7 +74,7 @@ export function ExtensionTab() {
             className="rounded-[var(--ui-radius-lg)] p-4"
             style={{ background: 'var(--ui-warning-tint)', border: '1px solid rgba(245,158,11,0.25)' }}
           >
-            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)] leading-relaxed">
+            <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)] leading-relaxed">
               {t.extension.notSignedInBody}
             </p>
           </div>

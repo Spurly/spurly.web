@@ -19,10 +19,10 @@ import { Meter, Stat } from 'src/core/primitives/Meter';
  */
 export function DetailConsole({ main, rail, className = '' }) {
   return (
-    <div className={`h-full min-h-0 flex flex-col p-[var(--ui-pad-lg)] overflow-hidden ${className}`}>
+    <div className={`h-full min-h-0 flex flex-col overflow-hidden ${className}`}>
       <div className="flex-1 min-h-0 flex items-stretch gap-4 overflow-hidden">
         <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-4 overflow-hidden">{main}</div>
-        <div className="w-[376px] shrink-0 min-h-0 flex flex-col gap-3.5 overflow-y-auto">{rail}</div>
+        <div className="w-[376px] shrink-0 min-h-0 flex flex-col gap-3 overflow-y-auto pb-1">{rail}</div>
       </div>
     </div>
   );
@@ -63,7 +63,7 @@ export function Breadcrumb({ parent, parentHref, title }) {
 export function RailCard({ title, children, grow = false, tone = 'default', className = '' }) {
   const toneBorder =
     tone === 'accent'
-      ? 'border-[var(--ui-accent-border)] shadow-[var(--ui-focus-ring)]'
+      ? 'border-[var(--ui-accent-tint-strong)] shadow-[inset_2px_0_0_var(--ui-accent)]'
       : 'border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)]';
 
   return (
@@ -76,8 +76,8 @@ export function RailCard({ title, children, grow = false, tone = 'default', clas
       ].filter(Boolean).join(' ')}
     >
       {title && (
-        <div className="shrink-0 flex items-center h-11 px-[var(--ui-pad-lg)] border-b border-[var(--ui-border-hairline)]">
-          <h2 className="ui-micro">{title}</h2>
+        <div className="shrink-0 flex items-center h-12 px-4 border-b border-[var(--ui-neutral-150)]">
+          <h2 className={`ui-micro ${tone === 'accent' ? '!text-[var(--ui-accent-fg)]' : '!text-[var(--ui-text-secondary)]'}`}>{title}</h2>
         </div>
       )}
       <div className={grow ? 'flex-1 min-h-0 flex flex-col overflow-y-auto' : ''}>{children}</div>
@@ -109,11 +109,11 @@ export function FactList({ items }) {
       {items.map((item) => (
         <div
           key={item.label}
-          className="flex items-baseline justify-between gap-3 py-[7px] border-b border-[var(--ui-border-hairline)] last:border-b-0"
+          className="flex items-center justify-between gap-3 py-2.5 border-b border-[var(--ui-border-hairline)] last:border-b-0"
         >
-          <dt className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] shrink-0">{item.label}</dt>
+          <dt className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] uppercase tracking-[0.09em] text-[var(--ui-text-secondary)] shrink-0">{item.label}</dt>
           <dd
-            className="ui-num text-[var(--ui-t-label)] text-right truncate"
+            className="text-[length:var(--ui-t-control)] text-[var(--ui-text-primary)] text-right truncate"
             style={item.tone ? { color: item.tone } : undefined}
           >
             {item.value}
@@ -131,12 +131,12 @@ export function ProgressMeter({ label, valueLabel, value, max, tone = 'accent', 
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">{label}</span>
-        <span className="ui-num text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">{valueLabel}</span>
+        <span className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">{label}</span>
+        <span className="ui-num !font-normal text-[length:var(--ui-t-meta)] text-[var(--ui-text-body)]">{valueLabel}</span>
       </div>
       <Meter value={value} max={max} tone={tone} label={label} />
       {caption && (
-        <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-quaternary)] leading-relaxed">{caption}</p>
+        <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-quaternary)] leading-relaxed">{caption}</p>
       )}
     </div>
   );

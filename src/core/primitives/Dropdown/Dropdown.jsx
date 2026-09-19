@@ -115,22 +115,22 @@ export function Dropdown({
         title={title}
         aria-label={ariaLabel}
         className={[
-          isSm ? 'h-8 max-w-[200px]' : 'w-full h-11',
+          isSm ? 'h-[var(--ui-ctl-h)] max-w-[220px]' : 'w-full h-[var(--ui-ctl-h-lg)]',
           icon ? (isSm ? 'pl-8' : 'pl-10') : (isSm ? 'pl-3' : 'pl-4'),
           isSm ? 'pr-7' : 'pr-10',
           'bg-[var(--ui-surface-card)] border text-left tracking-[-0.006em] focus:outline-none transition-colors flex items-center',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
           isSm
-            ? 'rounded-[var(--ui-radius-sm)] text-[var(--ui-t-label)]'
-            : 'rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)]',
+            ? 'rounded-[var(--ui-radius-sm)] text-[length:var(--ui-t-label)]'
+            : 'rounded-[var(--ui-radius-btn)] text-[length:var(--ui-t-body)]',
           error
             ? 'border-[var(--ui-danger)] focus:shadow-[0_0_0_3px_rgba(255,69,58,0.18)]'
             : open
-              ? 'border-[var(--ui-accent)] shadow-[0_0_0_3px_var(--ui-accent-tint-strong)]'
-              : 'border-[var(--ui-border-hairline)] hover:border-[var(--ui-border-strong)]',
+              ? 'border-[var(--ui-accent)] shadow-[var(--ui-focus-ring)]'
+              : 'border-[var(--ui-border)] hover:border-[var(--ui-accent-border)] hover:shadow-[var(--ui-hover-ring)]',
           value
-            ? (isSm ? 'text-[var(--ui-text-secondary)]' : 'text-[var(--ui-text-primary)]')
-            : 'text-[var(--ui-text-tertiary)]',
+            ? (isSm ? 'text-[var(--ui-text-body)]' : 'text-[var(--ui-text-primary)]')
+            : (isSm ? 'text-[var(--ui-text-body)]' : 'text-[var(--ui-text-quaternary)]'),
         ].join(' ')}
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
@@ -153,7 +153,7 @@ export function Dropdown({
       {open && (
         <ul
           className={[
-            'absolute top-[calc(100%+6px)] z-50 bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[0_12px_36px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.06)] overflow-y-auto animate-[fadeSlideDown_0.15s_ease]',
+            'absolute top-[calc(100%+6px)] z-50 bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-popover)] overflow-y-auto sp-pop',
             isSm
               /* right-0, not left-0: this trigger typically sits at the
                  right edge of a toolbar, and a 200px menu growing rightward
@@ -161,7 +161,7 @@ export function Dropdown({
                  back into view. Anchoring to the trigger's right edge and
                  growing leftward keeps it on-screen. */
               ? 'right-0 min-w-[200px] max-w-[280px] rounded-[var(--ui-radius-md)] p-1 max-h-[280px]'
-              : 'left-0 right-0 rounded-[var(--ui-radius-lg)] p-1.5 max-h-[240px]',
+              : 'left-0 right-0 rounded-[var(--ui-radius-md)] p-1.5 max-h-[240px]',
           ].join(' ')}
           role="listbox"
         >
@@ -170,7 +170,7 @@ export function Dropdown({
               key={val}
               className={[
                 'flex items-center justify-between gap-2 rounded-[var(--ui-radius-sm)] cursor-pointer transition-colors truncate',
-                isSm ? 'px-2.5 py-1.5 text-[var(--ui-t-label)]' : 'px-3.5 py-2.5 text-[var(--ui-t-body)]',
+                isSm ? 'px-2 h-8 text-[length:var(--ui-t-control)]' : 'px-3 h-9 text-[length:var(--ui-t-body)]',
                 val === value
                   /* Was var(--accent-subtle, rgba(79,70,229,0.08)). --accent-subtle
                      has never been defined, so every selected dropdown item was
@@ -178,7 +178,7 @@ export function Dropdown({
                      stopped using two redesigns ago. Now the standard stateful
                      selected treatment — accent tint, accent text. */
                   ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-medium'
-                  : 'text-[var(--ui-text-primary)] hover:bg-[var(--ui-surface-hover)]',
+                  : 'text-[var(--ui-text-body)] hover:bg-[var(--ui-surface-hover)]',
               ].join(' ')}
               role="option"
               aria-selected={val === value}

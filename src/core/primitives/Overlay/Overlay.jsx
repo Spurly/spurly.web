@@ -69,7 +69,7 @@ export function Overlay({
          white canvas and sits almost invisibly on the dark one. A hardcoded
          colour beside a tokenised surface is the same pairing that produced
          the white-on-white bug in /admin. */
-      className={`fixed inset-0 flex bg-[var(--ui-scrim)] ${alignment} ${className}`}
+      className={`fixed inset-0 flex bg-[var(--ui-scrim)] sp-scrim ${alignment} ${className}`}
       style={{ zIndex: 'var(--ui-z-modal)' }}
     >
       <div
@@ -81,7 +81,9 @@ export function Overlay({
         aria-describedby={describedBy}
         tabIndex={-1}
         style={panelStyle}
-        className={`relative flex flex-col bg-[var(--ui-surface-card)] outline-none ${panelClassName}`}
+        className={`relative flex flex-col bg-[var(--ui-surface-card)] outline-none ${
+          align === 'center' ? 'sp-modal' : align === 'right' || align === 'left' ? 'sp-drawer' : ''
+        } ${panelClassName}`}
       >
         {children}
       </div>

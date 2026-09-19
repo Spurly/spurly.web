@@ -17,6 +17,7 @@ export function Body({
   emptyMessage = 'Nothing here yet',
   emptyHint,
   emptyAction = null,
+  emptyIcon = null,
   colCount = 0,
 }) {
   if (loading) {
@@ -40,7 +41,7 @@ export function Body({
       <tbody>
         <tr>
           <td colSpan={colCount}>
-            <EmptyState title={emptyMessage} hint={emptyHint} action={emptyAction} />
+            <EmptyState icon={emptyIcon} title={emptyMessage} hint={emptyHint} action={emptyAction} />
           </td>
         </tr>
       </tbody>

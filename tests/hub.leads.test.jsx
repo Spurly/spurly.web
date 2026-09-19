@@ -169,9 +169,14 @@ describe('hub leads', () => {
     expect(dockImportButton).toBeDisabled();
   });
 
-  it('/hub lands on leads rather than 404ing', async () => {
+  it('/hub lands on the dashboard, not leads, and not a 404', async () => {
+    // Repointed 2026-09-19 (Blue Identity v3, Phase 4b): /hub used to
+    // redirect straight to /hub/leads since Hub had no landing page of its
+    // own. It now redirects to /hub/dashboard instead — see
+    // docs/UI_REDESIGN_PLAN.md. The subtitle is a more stable assertion
+    // than the h1, which includes a time-of-day greeting.
     renderAt('/hub');
-    await waitFor(() => expect(screen.getByRole('heading', { name: /leads/i })).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/what changed since you were last here/i)).toBeInTheDocument());
   });
 
   it('reports progress as a running count, with no percentage anywhere', async () => {

@@ -233,10 +233,10 @@ table { font-variant-numeric: tabular-nums; }
 
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, system-ui, "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 15px;
+    font-family: var(--ui-font-sans);
+    font-size: var(--ui-t-body);
     line-height: 1.6;
-    letter-spacing: -0.006em;
+    letter-spacing: var(--ui-track-base);
     color: var(--text-primary);
     background: var(--surface-canvas);
     -webkit-font-smoothing: antialiased;

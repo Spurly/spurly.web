@@ -20,14 +20,14 @@ export function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconne
               <Linkedin size={19} />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">{t.notConnected.title}</div>
-              <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5">
+              <div className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">{t.notConnected.title}</div>
+              <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5">
                 {t.notConnected.body}
               </p>
             </div>
           </div>
 
-          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
+          <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
             {t.notConnected.authNoteBefore}
             <span className="text-[var(--ui-text-primary)] font-medium">
               {t.notConnected.authNoteBold}
@@ -68,10 +68,10 @@ export function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconne
             <Linkedin size={19} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="text-[var(--ui-t-body)] font-medium" style={{ color: view?.tone }}>
+            <div className="text-[length:var(--ui-t-body)] font-medium" style={{ color: view?.tone }}>
               {view?.label ?? account.status}
             </div>
-            <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5 truncate">
+            <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5 truncate">
               {account.linkedinName || view?.detail}
             </p>
           </div>
@@ -92,7 +92,7 @@ export function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconne
             style={{ background: 'var(--ui-warning-tint)' }}
           >
             <AlertTriangle size={16} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-warning)' }} />
-            <div className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
+            <div className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
               <div className="text-[var(--ui-text-primary)] font-medium">{view?.detail}</div>
               {RECONNECT_HINT[account.connectionMethod] && (
                 <p className="mt-0.5">{RECONNECT_HINT[account.connectionMethod]}</p>

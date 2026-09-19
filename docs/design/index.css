@@ -1,0 +1,439 @@
+/* ============================================================
+   SPURLY — index.css
+   Blue identity, v3 · Sep 2026
+
+   ONE FILE. Replaces src/index.css, src/core/tokens/tokens.css and
+   tailwind.config.js. Tailwind v4, so @theme generates the utilities
+   and there is no config file to keep in sync. Drop it in, delete the
+   other two imports, done.
+
+   ------------------------------------------------------------
+   HOW TO USE IT
+
+     @theme        Tailwind utilities. `bg-accent`, `text-steel`,
+                   `font-mono`, `rounded-card` all work from here.
+     --ui-*        Read directly in new components.
+     LEGACY BLOCK  ~700 old call sites (var(--text-primary),
+                   var(--brand-purple)…) aliased so unmigrated pages
+                   reskin without being edited. Never give one of
+                   these a literal value again — alias it or delete it.
+
+   THE RULE: if a component needs a value that has no token, add the
+   token. Never a literal in a component. That rule is the only reason
+   this is one readable file and not a thousand scattered hexes.
+
+   ------------------------------------------------------------
+   THE DIRECTION: "console".
+
+   Spurly is a machine that runs while you sleep. Imports queue,
+   workers page LinkedIn, a daily cap ticks up, credits drain. Almost
+   everything on screen is a READING, so the system reports readings
+   precisely. Three load-bearing ideas:
+
+     1. THE SPINE — a 2px accent bar marks whatever is live: the active
+        nav row, a selected row, a running import, an AI panel, a
+        notice's severity. One motif, one meaning. It replaces the
+        instinct to put a card around things.
+
+     2. READINGS IN MONO — every count, rate, cap, timestamp, column
+        header, status label and keyboard hint is mono, tabular. Prose
+        stays sans. A column header can then never be mistaken for
+        data, and a count ticking 99 -> 100 never shifts its column.
+
+     3. ONE METER — 18/25 sent today, 412 imported, 1,284 credits,
+        31.2% connected, a lead's fit score, a campaign's progress all
+        render as the same 3px bar under the same mono figure.
+   ============================================================ */
+
+@import "tailwindcss";
+
+@theme {
+  /* ---- Neutral ramp, blue-biased ---------------------------
+     Every step carries a few points of #3c83f6. Cool, not cold:
+     saturation stays under 0.02 at the light end, so the page reads
+     as paper rather than as a screen. A pure grey next to a saturated
+     blue reads as two unrelated systems. */
+  --color-chalk:   #ffffff;
+  --color-canvas:  #f7f9fc;
+  --color-rail:    #f2f5fa;
+  --color-vapor:   #edeef2;
+  --color-bone:    #e4e4e7;
+  --color-ash:     #cfd3dd;
+  --color-mist:    #9aa0b0;
+  --color-fog:     #777a88;
+  --color-steel:   #5e616e;
+  --color-slate:   #2e3038;
+  --color-carbon:  #18181b;
+  --color-ink:     #0d0d10;
+
+  /* ---- Accent — #3c83f6 ------------------------------------
+     One family covers a fill under white text (#3c83f6) AND text on
+     white (#0544a5, 8.1:1). A primary button and an accent link never
+     come from two different blues.
+
+     Blue is scarce on purpose. It gets exactly: the one primary
+     action per screen, the active nav row, selection, the spine,
+     focus rings, links, the current page in pagination, and anything
+     Spurly itself is doing. Everything else is neutral. A screen
+     where the badges, icons, headings and borders have all gone blue
+     has no accent left — an accent is a contrast, not a colour. */
+  --color-signal:       #3c83f6;
+  --color-signal-hover: #1e6fe8;
+  --color-azure:        #0544a5;  /* accent as text */
+  --color-dusk:         #022c70;  /* button inner lip */
+  --color-glow:         #81b6ff;  /* button top highlight */
+  --color-tint:         #eaf2ff;  /* selected / active wash */
+  --color-tint-strong:  #dbe7fb;
+  --color-tint-border:  #b9d4ff;
+  --color-wash:         #f3f8ff;  /* AI / working surfaces */
+
+  /* ---- Semantic --------------------------------------------
+     Tints are OPAQUE, not rgba. A translucent tint over a white row
+     mixes to one colour and over a hovered row to another; that
+     inconsistency is what reads as muddy.
+
+     Four stops each: fill (white text sits on it), -fg (the role as
+     text on its tint), -dot (minimal status), -tint. */
+  --color-success:      #0d9668;
+  --color-success-fg:   #07784f;
+  --color-success-dot:  #12b981;
+  --color-success-tint: #e8faf2;
+
+  --color-warning:      #d97706;
+  --color-warning-fg:   #a45309;
+  --color-warning-dot:  #f59e0b;
+  --color-warning-tint: #fef6e7;
+
+  --color-danger:       #dc2626;
+  --color-danger-fg:    #b31b1b;
+  --color-danger-dot:   #ef4444;
+  --color-danger-tint:  #fdeff0;
+
+  /* Info borrows the accent family. With a blue accent, a separate
+     indigo info state is a fight nobody wins — the distinction is
+     carried by the spine and the dot, not by a second near-blue. */
+
+  /* ---- Identity colours ------------------------------------
+     Avatar hues, hashed from the person's name. Stable across
+     sessions, so the same person is always the same colour and rows
+     become recognisable before they are read. Functional, not
+     decorative — the one place colour is allowed to be plentiful.
+     Slot 1 is the brand blue, so the commonest hash lands on-brand. */
+  --color-av-1-bg: #dbe7fb;  --color-av-1-fg: #0544a5;
+  --color-av-2-bg: #e3e0fb;  --color-av-2-fg: #4436b8;
+  --color-av-3-bg: #d5f0e6;  --color-av-3-fg: #07784f;
+  --color-av-4-bg: #fde8ea;  --color-av-4-fg: #9f1239;
+  --color-av-5-bg: #ffeedd;  --color-av-5-fg: #9a3412;
+  --color-av-6-bg: #d6f1f4;  --color-av-6-fg: #115e59;
+  --color-av-7-bg: #fdf0cd;  --color-av-7-fg: #854d0e;
+  --color-av-8-bg: #dee6ff;  --color-av-8-fg: #2c3fa8;
+
+  /* ---- Typefaces -------------------------------------------
+     Two families, split by JOB not by size.
+
+       sans — says things. Labels, names, headlines, buttons, prose.
+       mono — reports readings. Counts, rates, caps, timestamps,
+              column headers, status labels, keyboard hints, ids.
+
+     Geist replaces Instrument Sans: it sets tighter at 13-14px, where
+     nearly all of this product lives, and its figures are closer in
+     colour to Plex Mono's, so the two faces sit in one table row
+     without either looking pasted in. Load both in index.html. */
+  --font-sans: "Geist", -apple-system, BlinkMacSystemFont, system-ui,
+               "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", SFMono-Regular,
+               Menlo, Consolas, monospace;
+
+  /* ---- Type scale ------------------------------------------
+     Eight steps, and only eight. The app once carried seventeen px
+     sizes, five inside a 2.5px band (11.5/12/12.5/13/13.5) — the eye
+     cannot resolve those as separate levels, so five tiers rendered
+     as one flat mass. That is what "no hierarchy" actually was.
+
+       display  page title. The only 26px on a screen.
+       metric   a reading. Always mono, always tabular.
+       section  a card or sheet heading.
+       body     the default. Cells, inputs, buttons, menu items.
+       nav      sidebar rows.
+       label    field labels, hints, errors, tags, pagination.
+       meta     mono. Badges, timestamps, counts.
+       micro    mono. Column headers, rail labels, stat labels. */
+  --text-display: 26px;
+  --text-metric:  26px;
+  --text-section: 16px;
+  --text-body:    14px;
+  --text-nav:     13.5px;
+  --text-label:   12.5px;
+  --text-meta:    11.5px;
+  --text-micro:   10.5px;
+
+  /* Three weights. Emphasis is carried by size and colour first;
+     weight is the third lever, and using all three at once is what
+     makes an interface shout. There is no 700 in app chrome. */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-strong: 600;
+
+  /* Optical tracking. Large text needs pulling in; small mono caps
+     need room or they set as a solid block. */
+  --tracking-display: -0.03em;
+  --tracking-tight:   -0.024em;
+  --tracking-base:    -0.006em;
+  --tracking-meta:     0.11em;
+  --tracking-micro:    0.13em;
+
+  /* ---- Radii -----------------------------------------------
+     Nothing above 18px except pills. Large radii on everything is the
+     "startup template" tell the brief asked us to avoid. */
+  --radius-chip:   6px;
+  --radius-ctl:    8px;
+  --radius-btn:    9px;
+  --radius-panel: 12px;
+  --radius-card:  14px;
+  --radius-modal: 18px;
+  --radius-pill:  999px;
+
+  /* ---- Elevation -------------------------------------------
+     Ordered by distance from the page, not by importance. */
+  --shadow-card:    0 1px 2px rgba(24, 24, 27, 0.03);
+  --shadow-lift:    0 4px 16px rgba(60, 131, 246, 0.09);
+  --shadow-popover: 0 14px 38px rgba(24, 24, 27, 0.14),
+                    0 2px 6px rgba(24, 24, 27, 0.05);
+  --shadow-modal:   0 32px 80px rgba(10, 18, 32, 0.26);
+  --shadow-drawer:  -24px 0 60px rgba(10, 18, 32, 0.14);
+
+  /* ---- Motion ----------------------------------------------
+     Two curves, three durations, one rule: things that react to a
+     POINTER use `ease`; things that TRAVEL use the decelerating
+     curve. That distinction is what makes the product feel
+     considered rather than merely fast. */
+  --ease-spur:  cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-meter: cubic-bezier(0.2, 0, 0.1, 1);
+}
+
+/* ============================================================
+   APPLICATION TOKENS
+
+   @theme above is the palette; this is what the palette MEANS.
+   Components read these, not the raw colours — so "the selected row
+   background" is one decision in one place, not forty.
+   ============================================================ */
+
+:root {
+  /* ---- Text -----------------------------------------------
+     Four steps. Tertiary carries real information (column headers,
+     counts, subtitles) so it stays at 4.5:1. Quaternary is the
+     decorative step: the em-dash in an empty cell, a placeholder.
+     Never body copy. */
+  --ui-text-primary:    var(--color-carbon);
+  --ui-text-secondary:  var(--color-steel);
+  --ui-text-tertiary:   var(--color-steel);
+  --ui-text-quaternary: var(--color-fog);
+  --ui-text-disabled:   var(--color-ash);
+  --ui-text-inverse:    var(--color-chalk);
+
+  /* ---- Surfaces -------------------------------------------
+     Three planes, ordered: the rail recedes, the canvas sits in the
+     middle, the card advances. A screen is not a collection of
+     floating boxes — the leads table is ONE card containing toolbar,
+     bulk bar, table and pagination, not four stacked cards. */
+  --ui-surface-page:   var(--color-canvas);
+  --ui-surface-card:   var(--color-chalk);
+  --ui-surface-rail:   var(--color-rail);
+  --ui-surface-sunken: var(--color-rail);
+  --ui-surface-hover:  #f4f8ff;
+  --ui-surface-active: var(--color-tint);
+  --ui-surface-raised: var(--color-chalk);
+
+  /* The rail sits ON the sunken plane, so hovering a nav row against
+     it would be invisible. Any surface that itself sits on sunken
+     needs its own hover one step further down the ramp. */
+  --ui-surface-rail-hover:  #e7ecf5;
+  --ui-surface-rail-active: #e4eaf4;
+
+  /* ---- Borders --------------------------------------------- */
+  --ui-border-hairline: #f1f2f5;   /* dividers INSIDE a card */
+  --ui-border:          var(--color-bone);
+  --ui-border-strong:   var(--color-ash);
+  --ui-border-accent:   var(--color-tint-border);
+
+  /* ---- Accent ---------------------------------------------- */
+  --ui-accent:      var(--color-signal);
+  --ui-accent-hover:var(--color-signal-hover);
+  --ui-accent-on:   var(--color-chalk);
+  --ui-accent-fg:   var(--color-azure);
+  --ui-accent-dot:  var(--color-signal);
+  --ui-accent-tint: var(--color-tint);
+  --ui-accent-wash: var(--color-wash);
+
+  /* ---- The two structural constants ------------------------ */
+  --ui-spine:   2px;
+  --ui-meter-h: 3px;
+
+  /* ---- Density ---------------------------------------------
+     Row height is a TOKEN, not cell padding. Rows are 58px rather
+     than v2's 44 because the fit meter needs the extra room. */
+  --ui-row-h:       58px;
+  --ui-row-header-h:44px;
+  --ui-nav-h:       36px;
+  --ui-ctl-h:       30px;   /* toolbar buttons, inputs, chips */
+  --ui-ctl-h-lg:    40px;   /* form inputs, auth, modals */
+  --ui-topbar-h:    56px;
+
+  /* ---- Layout gutters --------------------------------------
+     One ladder, so everything in a page's left rail lands on the
+     same vertical line. */
+  --ui-shell-x:  24px;
+  --ui-card-x:   14px;
+  --ui-rail-w:  244px;
+
+  /* ---- Motion ---------------------------------------------- */
+  --ui-dur-hover:  160ms;
+  --ui-dur-enter:  220ms;
+  --ui-dur-travel: 280ms;
+
+  /* ---- Composite: the primary button -----------------------
+     Not a flat fill. Three stacked inner shadows give it a physical
+     edge — a hairline of deep blue around it, a dark bottom lip, a
+     light top highlight — and the drop shadow appears only on hover,
+     so the button lifts toward the cursor rather than floating
+     permanently. One token, so all ~40 call sites agree. */
+  --ui-btn-shadow:
+    0 0 0 0.5px var(--color-azure),
+    inset 0 -1px 0 0 var(--color-dusk),
+    inset 0 0.5px 0 0 var(--color-glow);
+  --ui-btn-shadow-hover:
+    0 0 0 0.5px var(--color-azure),
+    inset 0 -1px 0 0 var(--color-dusk),
+    inset 0 0.5px 0 0 var(--color-glow),
+    0 5px 16px rgba(60, 131, 246, 0.34);
+
+  /* One focus ring, everywhere. 3px at 14% — visible on white and on
+     the tint, and never reads as an error. */
+  --ui-focus-ring: 0 0 0 3px rgba(60, 131, 246, 0.14);
+  --ui-hover-ring: 0 0 0 3px rgba(60, 131, 246, 0.10);
+}
+
+/* ============================================================
+   LEGACY COMPATIBILITY
+
+   ~700 call sites across 30 files still write var(--text-primary),
+   var(--brand-purple), var(--surface-sunken) and friends. Each is
+   aliased here so unmigrated pages (Settings, Templates, Enrich,
+   Campaign detail, Admin) reskin without being edited.
+
+   Do not give any of these a literal value again. Alias it, or delete
+   it once the last call site is migrated. Nothing new goes here.
+   ============================================================ */
+
+:root {
+  --text-primary:    var(--ui-text-primary);
+  --text-secondary:  var(--ui-text-secondary);
+  --text-tertiary:   var(--ui-text-tertiary);
+  --text-muted:      var(--ui-text-quaternary);
+  --text-inverse:    var(--ui-text-inverse);
+
+  --surface-page:    var(--ui-surface-page);
+  --surface-card:    var(--ui-surface-card);
+  --surface-sunken:  var(--ui-surface-sunken);
+  --surface-hover:   var(--ui-surface-hover);
+
+  --border-subtle:   var(--ui-border-hairline);
+  --border-default:  var(--ui-border);
+  --border-strong:   var(--ui-border-strong);
+
+  /* The violet is gone. These names stay so nothing 404s to
+     transparent, and they now resolve to the blue. */
+  --brand-purple:       var(--ui-accent);
+  --brand-purple-hover: var(--ui-accent-hover);
+  --brand-purple-tint:  var(--ui-accent-tint);
+  --brand-purple-text:  var(--ui-accent-fg);
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--ui-surface-page);
+  color: var(--ui-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  letter-spacing: var(--tracking-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--ui-accent-fg); text-decoration: none; }
+a:hover { color: var(--ui-accent); text-decoration: underline; }
+
+/* Every reading is tabular. Without this, a count ticking 99 -> 100
+   shifts its whole column, which is the single most obvious tell that
+   a dashboard was not thought about. */
+.mono, th, [data-reading] {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #dfe3ea;
+  border-radius: var(--radius-pill);
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-ash); background-clip: content-box; }
+
+/* ============================================================
+   MOTION
+
+   Named so a component writes `animation: sp-drawer var(--ui-dur-travel)
+   var(--ease-spur) both` rather than inventing its own timing.
+   ============================================================ */
+
+@keyframes sp-pulse  { 0%, 100% { opacity: 1; transform: scale(1); }
+                       50%      { opacity: .3; transform: scale(.75); } }
+@keyframes sp-rise   { from { transform: translateY(8px);  opacity: 0; }
+                       to   { transform: none;             opacity: 1; } }
+@keyframes sp-pop    { from { transform: translateY(-6px) scale(.98); opacity: 0; }
+                       to   { transform: none; opacity: 1; } }
+@keyframes sp-modal  { from { transform: translateY(14px) scale(.985); opacity: 0; }
+                       to   { transform: none; opacity: 1; } }
+@keyframes sp-drawer { from { transform: translateX(24px); opacity: 0; }
+                       to   { transform: none;             opacity: 1; } }
+@keyframes sp-scrim  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sp-scan   { 0% { left: -32%; } 100% { left: 100%; } }
+@keyframes sp-sweep  { 0% { transform: translateX(-100%); }
+                       100% { transform: translateX(320%); } }
+@keyframes sp-flow   { to { stroke-dashoffset: -16; } }
+
+/* Not optional, and not per-component. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   CONTRAST — the one failure mode this system invites
+
+   10-11px mono micro-labels set in --color-mist compute to about
+   2.4:1 and fail outright. It has already happened twice. Micro
+   labels use --color-steel. --color-mist is for NON-TEXT only:
+   dots, dividers, disabled glyphs.
+   ============================================================ */
+
+/* ============================================================
+   DARK MODE
+   Deliberately not here yet. The blue ramp needs its own pass —
+   lifting #3c83f6 to roughly #5b9bff so it holds on a dark ground —
+   and that is real work, not a find-and-replace. When it lands, it
+   goes in ONE block at the bottom of this file, and nothing else in
+   the codebase branches on colour scheme.
+   ============================================================ */

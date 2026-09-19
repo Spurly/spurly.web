@@ -10,9 +10,10 @@
  */
 export const inboxStrings = {
   pageTitle: 'Inbox',
+  pageSubtitle: 'Replies only. A conversation lands here the moment someone answers.',
   refreshTitle: 'Check for new messages',
   search: {
-    placeholder: 'Search',
+    placeholder: 'Search conversations',
     ariaLabel: 'Search conversations',
     unread: 'Unread',
     unreadTitle: 'Show only conversations with unread messages',

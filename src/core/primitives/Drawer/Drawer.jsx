@@ -1,9 +1,9 @@
 import { useId } from 'react';
-import { X } from 'lucide-react';
+import { CloseIcon } from 'src/core/icons';
 import { Overlay } from '../Overlay';
 import { IconButton } from '../IconButton';
 
-const WIDTHS = { sm: 360, md: 440, lg: 560 };
+const WIDTHS = { sm: 360, md: 404, lg: 560 };
 
 /**
  * Side-anchored panel.
@@ -47,31 +47,31 @@ export function Drawer({
       closeOnBackdrop={closeOnBackdrop}
       closeOnEscape={closeOnEscape}
       panelStyle={{ width: WIDTHS[size] ?? WIDTHS.md, maxWidth: '100vw' }}
-      panelClassName={`h-full shadow-[var(--ui-shadow-lg)] ${
+      panelClassName={`h-full shadow-[var(--ui-shadow-drawer)] ${
         side === 'right'
           ? 'border-l border-[var(--ui-border)]'
           : 'border-r border-[var(--ui-border)]'
       }`}
     >
       {showHeader ? (
-        <div className="flex items-center gap-3 shrink-0 border-b border-[var(--ui-border-hairline)]"
+        <div className="flex items-center gap-3 shrink-0 border-b border-[var(--ui-neutral-150)]"
           style={{ height: 'var(--ui-band)', paddingInline: 'var(--ui-pad-x)' }}>
           <div className="min-w-0 flex-1">
             {eyebrow && (
-              <p className="text-[var(--ui-t-micro)] font-medium uppercase tracking-[0.06em] text-[var(--ui-text-tertiary)] leading-none">
+              <p className="ui-micro !text-[var(--ui-text-secondary)] leading-none">
                 {eyebrow}
               </p>
             )}
             {title && (
               <h2
                 id={titleId}
-                className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] truncate leading-tight mt-1"
+                className="text-[length:var(--ui-t-nav)] font-medium text-[var(--ui-text-primary)] truncate leading-tight mt-1"
               >
                 {title}
               </h2>
             )}
           </div>
-          <IconButton size="sm" variant="ghost" label="Close" icon={<X size={15} />} onClick={onClose} />
+          <IconButton size="sm" variant="ghost" label="Close" icon={<CloseIcon size={15} strokeWidth={2.2} />} onClick={onClose} />
         </div>
       ) : (
         /* Above any sticky content inside the scroll area, so it stays
@@ -80,7 +80,7 @@ export function Drawer({
           size="sm"
           variant="ghost"
           label="Close"
-          icon={<X size={15} />}
+          icon={<CloseIcon size={15} strokeWidth={2.2} />}
           onClick={onClose}
           className="absolute top-2 right-2 z-20"
         />

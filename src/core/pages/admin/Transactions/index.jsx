@@ -73,7 +73,7 @@ export function AdminTransactionsPage() {
       <div className="space-y-6">
         {error && (
           <div
-            className="p-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] font-medium"
+            className="p-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] font-medium"
             style={{
               background: 'var(--ui-danger-tint)',
               color: 'var(--ui-danger)',

@@ -6,7 +6,7 @@ export function Skeleton({ width = '100%', height = 10, radius = 'var(--ui-radiu
   return (
     <span
       aria-hidden="true"
-      className={`block bg-[var(--ui-surface-active)] animate-pulse ${className}`}
+      className={`block bg-[var(--ui-neutral-150)] animate-pulse ${className}`}
       style={{
         width: typeof width === 'number' ? `${width}px` : width,
         height: typeof height === 'number' ? `${height}px` : height,

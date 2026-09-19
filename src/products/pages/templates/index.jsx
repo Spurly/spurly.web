@@ -1,11 +1,12 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Plus, Search, FileText, AlertCircle, UserPlus, MessageSquare } from 'lucide-react';
+import { AlertCircle, UserPlus, MessageSquare } from 'lucide-react';
+import { PlusIcon, SearchIcon, TemplateIcon, CloseIcon } from 'src/core/icons';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { useAuth } from 'src/core/auth/hooks/useAuth.js';
 import { useMessageTemplates } from 'src/products/templates/hooks/useMessageTemplates.js';
 import { TEMPLATE_TYPES } from 'src/products/templates/controller/templates.js';
 import { TEMPLATE_EVENTS } from 'src/products/templates/constants/constants.js';
-import { useToast, useConfirm } from 'src/core/primitives';
+import { Button, EmptyState, IconButton, Input, PageTabs, useToast, useConfirm } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import { TemplateEditor } from './components/TemplateEditor.jsx';
 import { TemplateCard } from './components/TemplateCard.jsx';
@@ -142,123 +143,74 @@ export function TemplatesPage() {
   const editingId = editing && editing !== 'new' ? editing._id : null;
 
   return (
-    <DashboardLayout title={t.pageTitle} subtitle={t.pageSubtitle}>
+    <DashboardLayout
+      title={t.pageTitle}
+      subtitle={t.pageSubtitle}
+      actions={
+        <Button variant="primary" leadingIcon={<PlusIcon size={14} strokeWidth={2} />} onClick={() => setEditing('new')}>
+          {t.newTemplate}
+        </Button>
+      }
+      tabs={
+        <PageTabs
+          tabs={TABS.map((tab) => ({ id: tab.id, label: tab.label, count: tab.id === type && !loading ? templates.length : undefined }))}
+          activeTab={type}
+          onTabChange={setType}
+        />
+      }
+    >
       <div className="flex h-full min-h-0 overflow-hidden">
-        {/* Left: type tabs + list */}
         <div className="flex flex-col min-h-0 flex-1 min-w-0">
-          {/* Toolbar */}
-          <div className="shrink-0 px-[var(--ui-pad-lg)] pt-[var(--ui-pad-lg)] pb-4 border-b border-[var(--ui-border-hairline)] flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <div
-                className="inline-flex p-1 rounded-[var(--ui-radius-lg)] gap-1"
-                style={{ background: 'var(--ui-surface-sunken)' }}
-              >
-                {TABS.map((tab) => {
-                  const Icon = tab.icon;
-                  const active = type === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setType(tab.id)}
-                      className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-md)] text-[var(--ui-t-body)] font-medium transition-colors ${
-                        active
-                          ? 'text-[var(--ui-accent-fg)]'
-                          : 'text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)]'
-                      }`}
-                      style={active ? { background: 'var(--ui-surface-card)', boxShadow: 'var(--ui-shadow-sm)' } : undefined}
-                    >
-                      <Icon size={14} />
-                      {tab.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="flex-1" />
-
-              <button
-                onClick={() => setEditing('new')}
-                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] font-medium text-white transition-colors hover:brightness-95"
-                style={{ background: 'var(--ui-accent)' }}
-              >
-                <Plus size={15} /> {t.newTemplate}
-              </button>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="relative flex-1 max-w-[340px]">
-                <Search
-                  size={15}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ui-text-tertiary)]"
-                />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder={t.searchPlaceholder}
-                  className="w-full h-9 pl-9 pr-3 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors"
-                />
-              </div>
-              <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] truncate">
-                {activeTab?.blurb}
-              </p>
-            </div>
+          <div className="shrink-0 flex items-center gap-3 min-h-[var(--ui-band)] px-[var(--ui-card-x)] border-b border-[var(--ui-neutral-150)]">
+            <Input
+              size="sm"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t.searchPlaceholder}
+              aria-label={t.searchPlaceholder}
+              leadingIcon={<SearchIcon size={14} strokeWidth={2} />}
+              className="w-[260px] [&>input]:w-full"
+            />
+            <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)] truncate">
+              {activeTab?.blurb}
+            </p>
           </div>
 
-          {/* Load failure only — kept inline because the list behind it is
-              empty, and an empty list with no explanation reads as "you have no
-              templates". Action failures are toasts. */}
+          {/* Load failure only — the list behind it is empty, and an empty list
+              with no explanation reads as "you have no templates". */}
           {error && (
-            <div
-              className="mx-6 mt-4 flex items-center gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)]"
-              style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)' }}
-            >
+            <div className="mx-4 mt-3 flex items-center gap-2 px-3 py-2.5 rounded-[var(--ui-radius-md)] bg-[var(--ui-danger-tint)] text-[var(--ui-danger-fg)] text-[length:var(--ui-t-control)]">
               <AlertCircle size={14} className="shrink-0" />
               {error}
             </div>
           )}
 
-          {/* List */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-[var(--ui-pad-lg)] py-4">
+          <div className="flex-1 min-h-0 overflow-y-auto p-4">
             {loading ? (
-              <div className="flex flex-col gap-2.5">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="h-[86px] rounded-[var(--ui-radius-lg)] animate-pulse"
-                    style={{ background: 'var(--ui-surface-sunken)' }}
-                  />
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="h-[112px] rounded-[var(--ui-radius-lg)] bg-[var(--ui-neutral-150)] animate-pulse" />
                 ))}
               </div>
             ) : filtered.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-16 gap-3">
-                <div
-                  className="w-12 h-12 rounded-[var(--ui-radius-lg)] grid place-items-center"
-                  style={{ background: 'var(--ui-accent-tint)' }}
-                >
-                  <FileText size={22} style={{ color: 'var(--ui-accent)' }} />
-                </div>
-                <div>
-                  <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
-                    {search ? t.emptySearch : t.emptyAll}
-                  </p>
-                  <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1 max-w-[380px]">
-                    {search
-                      ? t.emptySearchHint
-                      : `Create a ${type === TEMPLATE_TYPES.CONNECTION ? 'connection note' : 'message'} template to reuse it across campaigns and the extension.`}
-                  </p>
-                </div>
-                {!search && (
-                  <button
-                    onClick={() => setEditing('new')}
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] font-medium text-white"
-                    style={{ background: 'var(--ui-accent)' }}
-                  >
-                    <Plus size={15} /> {t.newTemplate}
-                  </button>
-                )}
-              </div>
+              <EmptyState
+                icon={<TemplateIcon size={22} strokeWidth={1.6} />}
+                title={search ? t.emptySearch : t.emptyAll}
+                hint={
+                  search
+                    ? t.emptySearchHint
+                    : `Create a ${type === TEMPLATE_TYPES.CONNECTION ? 'connection note' : 'message'} template to reuse it across campaigns and the extension.`
+                }
+                action={
+                  !search ? (
+                    <Button variant="primary" leadingIcon={<PlusIcon size={14} strokeWidth={2} />} onClick={() => setEditing('new')}>
+                      {t.newTemplate}
+                    </Button>
+                  ) : null
+                }
+              />
             ) : (
-              <div className="flex flex-col gap-2.5">
+              <div className={`grid grid-cols-1 ${editing ? '' : 'xl:grid-cols-2'} gap-3`}>
                 {filtered.map((template) => (
                   <TemplateCard
                     key={template._id}
@@ -275,26 +227,28 @@ export function TemplatesPage() {
           </div>
         </div>
 
-        {/* Right: editor rail */}
+        {/* Right: the editor, as an inspector (same shape as the sequence builder's). */}
         {editing && (
-          <aside
-            className="w-[420px] xl:w-[480px] shrink-0 overflow-y-auto p-[var(--ui-pad-lg)]"
-            style={{ borderLeft: '1px solid var(--ui-border-hairline)', background: 'var(--ui-surface-card)' }}
-          >
-            <h2 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mb-1">
-              {editing === 'new' ? t.editor.newHeading : t.editor.editHeading}
-            </h2>
-            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] mb-5">
-              {type === TEMPLATE_TYPES.CONNECTION ? t.editor.connectionSubtitle : t.editor.messageSubtitle}
-            </p>
-            <TemplateEditor
-              type={type}
-              template={editing === 'new' ? null : editing}
-              saving={saving}
-              senderName={senderName}
-              onSubmit={handleSubmit}
-              onCancel={() => setEditing(null)}
-            />
+          <aside className="w-[420px] xl:w-[460px] shrink-0 flex flex-col min-h-0 border-l border-[var(--ui-border)] bg-[var(--ui-surface-card)]">
+            <div className="shrink-0 flex items-center justify-between h-12 px-4 border-b border-[var(--ui-neutral-150)]">
+              <span className="ui-micro !text-[var(--ui-text-secondary)]">
+                {editing === 'new' ? t.editor.newHeading : t.editor.editHeading}
+              </span>
+              <IconButton size="sm" variant="ghost" label="Close" icon={<CloseIcon size={14} strokeWidth={2.2} />} onClick={() => setEditing(null)} className="!w-7 !h-7" />
+            </div>
+            <div className="flex-1 min-h-0 overflow-y-auto p-4">
+              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mb-4">
+                {type === TEMPLATE_TYPES.CONNECTION ? t.editor.connectionSubtitle : t.editor.messageSubtitle}
+              </p>
+              <TemplateEditor
+                type={type}
+                template={editing === 'new' ? null : editing}
+                saving={saving}
+                senderName={senderName}
+                onSubmit={handleSubmit}
+                onCancel={() => setEditing(null)}
+              />
+            </div>
           </aside>
         )}
       </div>

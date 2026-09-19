@@ -7,7 +7,7 @@
  */
 export const templatesStrings = {
   pageTitle: 'Templates',
-  pageSubtitle: 'Reusable copy for connection notes and messages.',
+  pageSubtitle: 'Reusable copy for connection notes and messages — the frames Spurly personalises for each person.',
   tabs: {
     connection: {
       label: 'Connection notes',
@@ -19,7 +19,7 @@ export const templatesStrings = {
     },
   },
   newTemplate: 'New template',
-  searchPlaceholder: 'Search templates…',
+  searchPlaceholder: 'Search templates',
   emptySearch: 'No templates match your search',
   emptyAll: 'No templates yet',
   emptySearchHint: 'Try a different search term.',
