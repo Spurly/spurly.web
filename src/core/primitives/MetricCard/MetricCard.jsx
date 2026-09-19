@@ -22,24 +22,24 @@ export function MetricCard({ label, value, change, delta, changeType, icon, vari
         </div>
       )}
       <p
-        className="text-[var(--ui-t-meta)] font-medium uppercase tracking-[0.04em] mb-2"
+        className="text-[length:var(--ui-t-meta)] font-medium uppercase tracking-[0.04em] mb-2"
         style={{ color: hintColor ?? 'var(--ui-text-tertiary)' }}
       >{label}</p>
-      <p className="text-[var(--ui-t-metric)] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] leading-none tabular-nums">{value}</p>
+      <p className="text-[length:var(--ui-t-metric)] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] leading-none tabular-nums">{value}</p>
       {deltaValue !== undefined && (
         <div className="flex items-center gap-1.5 mt-3">
           <span
-            className="text-[var(--ui-t-body)] font-medium"
+            className="text-[length:var(--ui-t-body)] font-medium"
             style={{ color: isPositive ? 'var(--ui-success)' : 'var(--ui-danger)' }}
           >
             {isPositive ? '+' : ''}{typeof deltaValue === 'number' ? deltaValue.toFixed(1) : deltaValue}%
           </span>
-          <span className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">vs last 7 days</span>
+          <span className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">vs last 7 days</span>
         </div>
       )}
       {hint && deltaValue === undefined && (
         <p
-          className="text-[var(--ui-t-meta)] leading-snug mt-6"
+          className="text-[length:var(--ui-t-meta)] leading-snug mt-6"
           style={{ color: hintColor ?? 'var(--ui-text-tertiary)' }}
         >
           {hint}

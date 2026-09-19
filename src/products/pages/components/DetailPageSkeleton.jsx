@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
 import { DataTable } from 'src/core/DataTable';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { Skeleton } from 'src/core/primitives';
@@ -26,8 +24,6 @@ import { Skeleton } from 'src/core/primitives';
 const BODY_WIDTHS = ['92%', '78%', '86%', '54%'];
 
 export function DetailPageSkeleton({
-  backTo,
-  backLabel,
   sectionTitle,
   bodyRows = 4,
   columns = [],
@@ -35,32 +31,33 @@ export function DetailPageSkeleton({
 }) {
   return (
     <div className="flex flex-col gap-4" role="status" aria-busy="true" aria-label={label}>
-      <Link
-        to={backTo}
-        className="inline-flex items-center gap-1 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] hover:underline"
-      >
-        <ArrowLeft size={13} aria-hidden="true" /> {backLabel}
-      </Link>
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-4 pt-4 pb-3.5 flex flex-col gap-3">
+            <Skeleton width={84} height={8} />
+            <Skeleton width={56} height={20} />
+            <Skeleton width="100%" height={3} />
+          </div>
+        ))}
+      </div>
 
-      <SectionCard title={sectionTitle} noPadding>
-        <div className="px-[var(--ui-pad-lg)] py-4 flex flex-col gap-3">
-          {Array.from({ length: bodyRows }, (_, i) => (
-            <Skeleton key={i} width={BODY_WIDTHS[i % BODY_WIDTHS.length]} height={10} />
-          ))}
-        </div>
-      </SectionCard>
+      {sectionTitle && (
+        <SectionCard title={sectionTitle}>
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: bodyRows }, (_, i) => (
+              <Skeleton key={i} width={BODY_WIDTHS[i % BODY_WIDTHS.length]} height={10} />
+            ))}
+          </div>
+        </SectionCard>
+      )}
 
-      <DataTable columns={columns} data={[]} loading />
+      <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] overflow-hidden">
+        <DataTable columns={columns} data={[]} loading stickyHeader={false} />
+      </div>
     </div>
   );
 }
 
-/**
- * The header's own placeholder: the status badge and the start/pause control
- * that both detail pages put in `actions`, at their real sizes. Without it
- * the header band is empty on arrival and then sprouts two controls, which
- * is the one part of the page a reader is looking straight at.
- */
 export function DetailActionsSkeleton() {
   return (
     <span className="flex items-center gap-2" aria-hidden="true">

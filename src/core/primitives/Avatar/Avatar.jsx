@@ -18,7 +18,13 @@ export function Avatar({
   className = '',
 }) {
   const [failed, setFailed] = useState(false);
-  const initial = (name || '').trim().charAt(0).toUpperCase() || '?';
+  /* Two initials, first and last word ("Amara Osei" → AO), as the handoff
+     draws them — one letter alone collides constantly in a list of people. */
+  const words = (name || '').trim().split(/\s+/).filter(Boolean);
+  const initial =
+    words.length === 0
+      ? '?'
+      : (words[0][0] + (words.length > 1 ? words[words.length - 1][0] : '')).toUpperCase();
   const showImage = src && !failed;
   const radius = shape === 'circle' ? '50%' : 'var(--ui-radius-xs)';
 
@@ -44,12 +50,12 @@ export function Avatar({
   return (
     <span
       aria-hidden="true"
-      className={`shrink-0 grid place-items-center font-medium ${className}`}
+      className={`shrink-0 grid place-items-center font-semibold ${className}`}
       style={{
         width: size,
         height: size,
         borderRadius: radius,
-        fontSize: Math.max(9, Math.round(size * 0.45)),
+        fontSize: Math.max(9, Math.round(size * 0.38 * 2) / 2),
         background: palette.bg,
         color: palette.fg,
       }}

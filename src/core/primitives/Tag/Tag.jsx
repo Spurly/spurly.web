@@ -32,7 +32,7 @@ export function Tag({
       title={title}
       className={[
         'inline-flex items-center gap-1.5 h-6 max-w-full rounded-[var(--ui-radius-xs)]',
-        'text-[var(--ui-t-label)] font-medium whitespace-nowrap',
+        'text-[length:var(--ui-t-label)] font-medium whitespace-nowrap',
         removable ? 'pl-2.5 pr-1' : 'px-2.5',
         palette,
         className,

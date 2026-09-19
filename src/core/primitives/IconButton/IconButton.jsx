@@ -1,9 +1,9 @@
 import { BASE, VARIANTS } from '../Button/variants';
 
 const SQUARE = {
-  sm: 'w-7 h-7 rounded-[var(--ui-radius-sm)]',
-  md: 'w-8 h-8 rounded-[var(--ui-radius-sm)]',
-  lg: 'w-9 h-9 rounded-[var(--ui-radius-md)]',
+  sm: 'w-[var(--ui-ctl-h)] h-[var(--ui-ctl-h)] rounded-[var(--ui-radius-sm)]',
+  md: 'w-8 h-8 rounded-[var(--ui-radius-btn)]',
+  lg: 'w-9 h-9 rounded-[var(--ui-radius-btn)]', // v3: matches Button's lg radius step
 };
 
 /**

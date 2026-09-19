@@ -65,7 +65,7 @@ export function Stat({
   // dashboard tiles) and reads as oversized once four of them share a
   // 376px-wide grid. `.ui-num` gives the same mono/tabular/medium figure
   // treatment without hardcoding the metric size, same as FactList's dd.
-  const readingClass = size === 'sm' ? 'ui-num text-[var(--ui-t-section)]' : 'ui-reading';
+  const readingClass = size === 'sm' ? 'ui-num text-[length:var(--ui-t-section)]' : 'ui-reading';
   return (
     <div className={`min-w-0 ${className}`}>
       <div className="ui-micro truncate">{label}</div>
@@ -73,7 +73,7 @@ export function Stat({
         {value}
         {value2 != null && <span className="text-[var(--ui-text-quaternary)]">/{value2}</span>}
         {suffix && (
-          <span className="text-[var(--ui-t-section)] text-[var(--ui-text-tertiary)]">{suffix}</span>
+          <span className="text-[length:var(--ui-t-section)] text-[var(--ui-text-tertiary)]">{suffix}</span>
         )}
       </div>
       {max != null && (

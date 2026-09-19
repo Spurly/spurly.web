@@ -11,6 +11,7 @@ export function TextCell({ value, tone = 'primary' }) {
 
   const tones = {
     primary: 'text-[var(--ui-text-primary)]',
+    body: 'text-[var(--ui-text-body)]',
     secondary: 'text-[var(--ui-text-secondary)]',
     tertiary: 'text-[var(--ui-text-tertiary)]',
   };

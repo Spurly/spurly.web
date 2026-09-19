@@ -1,17 +1,24 @@
 import { useState } from 'react';
-import { ArrowRight, ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDownIcon, ChevronRightIcon } from 'src/core/icons';
 
 /**
- * `collapsible` sections start collapsed (`defaultCollapsed`, default true
- * once collapsible) and show `collapsedSummary` inline next to the title
- * instead of the body — for content that matters most while it's being set
- * up (a campaign's message, a sequence's steps) but turns into visual
- * weight sitting on top of the real point of the page (the members/
- * enrollments table) once it's just sitting there unchanged.
+ * A titled card region — the handoff's panel: a 48px header carrying a
+ * MONO MICRO-CAPS label ("CAMPAIGNS RUNNING", "INVOICES", "TOP OF THE LIST")
+ * and, on the right, one quiet text action ("Manage", "All leads"), over a
+ * hairline, then the body.
+ *
+ * `tone="accent"` is for a panel Spurly itself is speaking in ("WORTH YOUR
+ * ATTENTION", "CURRENT PLAN"): the label goes accent-blue, with an optional
+ * leading glyph, and `spine` adds the 2px live edge down the left side.
  */
 export function SectionCard({
   title,
   onViewAll,
+  viewAllLabel = 'View all',
+  action = null,
+  icon = null,
+  tone = 'neutral',
+  spine = false,
   children,
   noPadding = false,
   className = '',
@@ -22,41 +29,60 @@ export function SectionCard({
 }) {
   const [collapsed, setCollapsed] = useState(collapsible && defaultCollapsed);
   const isCollapsed = collapsible && collapsed;
+  const accent = tone === 'accent';
 
   return (
-    <div className={`rounded-[var(--ui-radius-lg)] bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)] overflow-hidden ${className}`}>
-      <div
-        className={`flex items-center justify-between gap-3 px-[var(--ui-pad-lg)] h-[var(--ui-band)] border-b border-[var(--ui-border-hairline)] shrink-0 ${collapsible ? 'cursor-pointer select-none' : ''}`}
-        onClick={collapsible ? () => setCollapsed((c) => !c) : undefined}
-        role={collapsible ? 'button' : undefined}
-        aria-expanded={collapsible ? !collapsed : undefined}
-      >
-        <div className="flex items-center gap-2 min-w-0">
-          {collapsible && (
-            isCollapsed
-              ? <ChevronRight size={14} className="shrink-0 text-[var(--ui-text-tertiary)]" aria-hidden="true" />
-              : <ChevronDown size={14} className="shrink-0 text-[var(--ui-text-tertiary)]" aria-hidden="true" />
-          )}
-          <h3 className="text-[var(--ui-t-section)] font-semibold tracking-[var(--ui-track-base)] text-[var(--ui-text-primary)] shrink-0">{title}</h3>
-          {isCollapsed && collapsedSummary && (
-            <span className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] truncate">{collapsedSummary}</span>
-          )}
-        </div>
-        {onViewAll && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onViewAll(); }}
-            className="inline-flex items-center gap-1 text-[var(--ui-t-label)] font-semibold text-[var(--ui-accent-fg)] hover:underline transition-colors shrink-0"
-          >
-            View all
-            <ArrowRight size={14} />
-          </button>
-        )}
-      </div>
-      {!isCollapsed && (
-        <div className={`${noPadding ? '' : 'p-[var(--ui-pad-lg)]'} ${bodyClassName}`}>
-          {children}
+    <div
+      className={[
+        'rounded-[var(--ui-radius-lg)] bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)] overflow-hidden',
+        spine ? 'shadow-[inset_2px_0_0_var(--ui-accent),var(--ui-shadow-sm)]' : '',
+        className,
+      ].join(' ')}
+    >
+      {title && (
+        <div
+          className={`flex items-center justify-between gap-3 px-4 h-12 border-b border-[var(--ui-neutral-150)] shrink-0 ${collapsible ? 'cursor-pointer select-none' : ''}`}
+          onClick={collapsible ? () => setCollapsed((c) => !c) : undefined}
+          role={collapsible ? 'button' : undefined}
+          aria-expanded={collapsible ? !collapsed : undefined}
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            {collapsible &&
+              (isCollapsed ? (
+                <ChevronRightIcon size={13} strokeWidth={2} className="shrink-0 text-[var(--ui-text-quaternary)]" />
+              ) : (
+                <ChevronDownIcon size={13} strokeWidth={2} className="shrink-0 text-[var(--ui-text-quaternary)]" />
+              ))}
+            {icon && <span className={`shrink-0 ${accent ? 'text-[var(--ui-accent)]' : 'text-[var(--ui-text-quaternary)]'}`}>{icon}</span>}
+            <h3
+              className={`ui-micro !text-[length:var(--ui-t-micro)] shrink-0 ${
+                accent ? '!text-[var(--ui-accent-fg)]' : '!text-[var(--ui-text-secondary)]'
+              }`}
+            >
+              {title}
+            </h3>
+            {isCollapsed && collapsedSummary && (
+              <span className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] truncate">{collapsedSummary}</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {action}
+            {onViewAll && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onViewAll();
+                }}
+                className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-accent-fg)] hover:underline shrink-0 focus:outline-none focus-visible:underline"
+              >
+                {viewAllLabel}
+              </button>
+            )}
+          </div>
         </div>
       )}
+      {!isCollapsed && <div className={`${noPadding ? '' : 'p-4'} ${bodyClassName}`}>{children}</div>}
     </div>
   );
 }

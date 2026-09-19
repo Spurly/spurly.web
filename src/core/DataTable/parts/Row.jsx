@@ -24,7 +24,7 @@ export function Row({
          this is free. Requires border-collapse: separate on the table — under
          `collapse`, shadows on a <tr> don't paint reliably. */
       className={[
-        'group transition-[background-color,box-shadow] duration-[var(--ui-dur-fast)]',
+        'group transition-[background-color,box-shadow] duration-[140ms]',
         onRowClick ? 'cursor-pointer' : '',
         isSelected
           ? 'bg-[var(--ui-accent-tint)] shadow-[inset_2px_0_0_var(--ui-accent)]'
@@ -37,7 +37,7 @@ export function Row({
       {selectable && (
         <td
           className="border-b border-[var(--ui-border-hairline)]"
-          style={{ padding: `0 ${d.padX}px` }}
+          style={{ padding: `0 0 0 ${d.padX}px` }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center h-full">

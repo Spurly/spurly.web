@@ -29,7 +29,7 @@ export function ThemeToggle({ expanded = true, className = '' }) {
       aria-label={`Theme: ${view.label}. ${view.next}.`}
       className={[
         'flex items-center gap-2 h-7 rounded-[var(--ui-radius-sm)]',
-        'text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]',
+        'text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]',
         'hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)]',
         'transition-colors duration-[var(--ui-dur-fast)]',
         'focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]',

@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
-import { Loader2, Pause, Play, RotateCcw } from 'lucide-react';
+import { Pause, Play, RotateCcw } from 'lucide-react';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { DataTable } from 'src/core/DataTable';
-import { DetailConsole, Breadcrumb, RailCard, ReadingsGrid, FactList, ProgressMeter } from 'src/core/layout';
-import { Button, Badge, Tabs } from 'src/core/primitives';
+import { DetailConsole, RailCard, ReadingsGrid, FactList, ProgressMeter } from 'src/core/layout';
+import { Button, Badge, FilterPills } from 'src/core/primitives';
 import { useCampaignDetail } from 'src/products/campaigns/hooks/useCampaignDetail.js';
 import {
   DetailPageSkeleton,
@@ -76,10 +76,10 @@ export function CampaignDetailPage() {
         title={t.loadingPageTitle}
         subtitle={<DetailSubtitleSkeleton />}
         actions={<DetailActionsSkeleton />}
+        backTo="/hub/campaigns"
+        layout="page"
       >
         <DetailPageSkeleton
-          backTo="/hub/campaigns"
-          backLabel={t.allCampaigns}
           sectionTitle={t.messageSectionTitle}
           columns={hubMemberColumns}
           label={t.loading}
@@ -90,8 +90,8 @@ export function CampaignDetailPage() {
 
   if (!campaign) {
     return (
-      <DashboardLayout title={t.loadingPageTitle}>
-        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] p-[var(--ui-pad-lg)]">
+      <DashboardLayout title={t.loadingPageTitle} backTo="/hub/campaigns" layout="page">
+        <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
           {t.notFound} <Link to="/hub/campaigns" className="underline">{t.backToCampaigns}</Link>
         </p>
       </DashboardLayout>
@@ -145,35 +145,43 @@ export function CampaignDetailPage() {
       ]
     : null;
 
+  const metaParts = [
+    `${(counts.total ?? 0).toLocaleString()} people`,
+    `${doneCount.toLocaleString()} ${doneVerb}`,
+    isMessage ? null : `${(counts.connected ?? 0).toLocaleString()} accepted`,
+    campaign.lastRunAt ? `last send ${sinceLabel(campaign.lastRunAt)}` : null,
+  ].filter(Boolean);
+
   return (
     <DashboardLayout
-      title={<Breadcrumb parent="Campaigns" parentHref="/hub/campaigns" title={campaign.name} />}
+      title={campaign.name}
+      backTo="/hub/campaigns"
+      backLabel={t.allCampaigns}
+      layout="plain"
+      badge={
+        <Badge tone={view.tone} dot pulse={running}>
+          {view.label}
+        </Badge>
+      }
+      subtitle={
+        <span className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-meta)] text-[var(--ui-text-quaternary)]">
+          {metaParts.join(' · ')}
+        </span>
+      }
       actions={
-        <div className="flex items-center gap-2">
-          <Badge tone={view.tone}>
-            <span className="inline-flex items-center gap-1">
-              {running && <Loader2 size={11} className="animate-spin" aria-hidden="true" />}
-              {view.label}
-            </span>
-          </Badge>
+        <>
           {counts.failed > 0 && (
-            <Button
-              size="sm"
-              variant="ghost"
-              leadingIcon={<RotateCcw size={13} />}
-              disabled={busy}
-              onClick={retryFailed}
-            >
+            <Button leadingIcon={<RotateCcw size={13} />} disabled={busy} onClick={retryFailed}>
               {t.retryFailed}
             </Button>
           )}
           {running ? (
-            <Button size="sm" variant="secondary" leadingIcon={<Pause size={13} />} disabled={busy} onClick={pause}>
+            <Button variant="secondary" leadingIcon={<Pause size={13} />} disabled={busy} onClick={pause}>
               {t.pause}
             </Button>
           ) : (
             <Button
-              size="sm"
+              variant="primary"
               leadingIcon={<Play size={13} />}
               disabled={busy || campaign.status === 'done'}
               onClick={openStartPreview}
@@ -181,7 +189,7 @@ export function CampaignDetailPage() {
               {campaign.status === 'paused' ? t.resume : t.startSending}
             </Button>
           )}
-        </div>
+        </>
       }
     >
       <DetailConsole
@@ -192,7 +200,7 @@ export function CampaignDetailPage() {
                 className="flex items-start gap-2 px-[var(--ui-pad-lg)] py-3 rounded-[var(--ui-radius-md)] shrink-0"
                 style={{ background: 'var(--ui-warning-tint)' }}
               >
-                <p className="text-[var(--ui-t-label)]" style={{ color: 'var(--ui-warning-fg)' }}>{campaign.error}</p>
+                <p className="text-[length:var(--ui-t-label)]" style={{ color: 'var(--ui-warning-fg)' }}>{campaign.error}</p>
               </div>
             )}
 
@@ -207,13 +215,13 @@ export function CampaignDetailPage() {
                 emptyMessage={statusFilter ? 'Nobody in this state' : 'Nobody in this campaign'}
                 emptyHint={statusFilter ? 'Try another filter.' : 'Add leads from the leads page.'}
                 toolbar={{
-                  filters: (
-                    <Tabs
-                      tabs={filterTabs}
-                      activeTab={statusFilter}
-                      onTabChange={setStatusFilter}
+                  chips: (
+                    <FilterPills
+                      size="sm"
+                      options={filterTabs}
+                      value={statusFilter}
+                      onChange={setStatusFilter}
                       ariaLabel="Filter by status"
-                      flush={false}
                     />
                   ),
                 }}
@@ -237,7 +245,7 @@ export function CampaignDetailPage() {
                     style={{ background: TONE_DOT[view.tone] ?? TONE_DOT.neutral }}
                     aria-hidden="true"
                   />
-                  <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">{view.detail}</p>
+                  <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">{view.detail}</p>
                 </div>
                 <ReadingsGrid items={readings} />
                 <ProgressMeter

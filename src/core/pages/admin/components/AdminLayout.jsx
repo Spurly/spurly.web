@@ -35,7 +35,7 @@ export function AdminLayout({ children, title, subtitle }) {
               <button
                 key={tab.href}
                 onClick={() => navigate(tab.href)}
-                className={`flex items-center gap-2 px-4 py-3 text-[var(--ui-t-label)] font-medium border-b-2 -mb-px transition-colors ${
+                className={`flex items-center gap-2 px-4 py-3 text-[length:var(--ui-t-label)] font-medium border-b-2 -mb-px transition-colors ${
                   active
                     ? 'border-[var(--ui-accent)] text-[var(--ui-accent-fg)]'
                     : 'border-transparent text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-primary)]'
@@ -49,7 +49,7 @@ export function AdminLayout({ children, title, subtitle }) {
           <div className="flex-1" />
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 px-4 py-3 text-[var(--ui-t-label)] font-medium text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-primary)] transition-colors"
+            className="flex items-center gap-2 px-4 py-3 text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-primary)] transition-colors"
           >
             <ArrowLeft size={16} />
             Back to dashboard

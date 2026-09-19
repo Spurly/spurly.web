@@ -12,10 +12,12 @@ const JUSTIFY = { left: 'justify-start', center: 'justify-center', right: 'justi
  * a <button> and a plain one doesn't. Setting it on the content guarantees both
  * branches render identically.
  *
- * Sentence case, not uppercase micro-caps. Letter-spaced all-caps headers are
- * the single most dating detail in a data table.
+ * v3 (Blue identity): mono micro-caps. "Readings in mono" — a column header
+ * set in the mono face can never be mistaken for data (spurlyDESIGN.md).
  */
-const LABEL = 'text-[var(--ui-t-meta)] font-medium text-[var(--ui-text-tertiary)]';
+const LABEL =
+  'font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] font-medium uppercase ' +
+  'tracking-[var(--ui-track-meta)]';
 
 /**
  * REORDERING
@@ -70,7 +72,7 @@ export function HeaderCell({
       onDragEnd={draggable ? onDragEnd : undefined}
       onKeyDown={draggable ? (e) => onKeyDown?.(e, column) : undefined}
       className={[
-        'relative whitespace-nowrap bg-[var(--ui-surface-sunken)] border-b border-[var(--ui-border-strong)] shadow-[var(--ui-shadow-sm)]',
+        'relative whitespace-nowrap bg-[var(--ui-surface-header)] border-b border-[var(--ui-border)]',
         ALIGN[column.align] || ALIGN.left,
         draggable ? 'cursor-grab active:cursor-grabbing select-none' : '',
         isDragging ? 'opacity-40' : '',
@@ -88,7 +90,8 @@ export function HeaderCell({
             'group/sort inline-flex items-center gap-1 w-full',
             JUSTIFY[column.align] || JUSTIFY.left,
             LABEL,
-            'hover:text-[var(--ui-text-secondary)] transition-colors',
+            active ? 'text-[var(--ui-accent-fg)]' : 'text-[var(--ui-text-quaternary)] hover:text-[var(--ui-text-secondary)]',
+            'transition-colors',
             'focus:outline-none focus-visible:text-[var(--ui-accent-fg)]',
           ].join(' ')}
         >
@@ -96,7 +99,7 @@ export function HeaderCell({
           <SortIcon active={active} direction={sort.direction} />
         </button>
       ) : (
-        <span className={`inline-flex items-center ${LABEL}`}>{column.label}</span>
+        <span className={`inline-flex items-center ${LABEL} text-[var(--ui-text-quaternary)]`}>{column.label}</span>
       )}
 
       {dropEdge && (

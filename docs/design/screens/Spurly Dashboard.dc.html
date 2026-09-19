@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#f7f9fc; -webkit-font-smoothing:antialiased; }
+  * { box-sizing:border-box; }
+  a { color:#0544a5; text-decoration:none; }
+  a:hover { color:#3c83f6; text-decoration:underline; }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb { background:#dfe3ea; border-radius:99px; border:3px solid transparent; background-clip:content-box; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  @keyframes sp-pulse { 0%,100% { opacity:1; transform:scale(1);} 50% { opacity:.3; transform:scale(.75);} }
+  @keyframes sp-rise { from { transform:translateY(8px); opacity:0; } to { transform:none; opacity:1; } }
+  @keyframes sp-scan { 0% { left:-32%; } 100% { left:100%; } }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+</style>
+</helmet>
+
+<div style="display:flex;height:100vh;min-height:600px;width:100%;overflow:hidden;background:#f7f9fc;font-family:Geist,'Helvetica Neue',Arial,sans-serif;color:#18181b;font-size:14px;letter-spacing:-0.006em;">
+
+  <aside style="width:244px;flex-shrink:0;display:flex;flex-direction:column;background:#f2f5fa;border-right:1px solid #e4e4e7;">
+    <div style="display:flex;align-items:center;gap:9px;height:56px;flex-shrink:0;padding:0 16px;">
+      <img src="assets/spurly-icon.png" alt="" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;" />
+      <span style="font-size:15px;font-weight:600;letter-spacing:-0.024em;">Spurly</span>
+    </div>
+
+    <div style="padding:0 12px 12px;">
+      <button type="button" style="display:flex;align-items:center;gap:8px;width:100%;height:34px;padding:0 10px;border:1px solid #dfe3ea;background:#ffffff;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;color:#5e616e;text-align:left;transition:border-color 160ms ease,box-shadow 160ms ease,color 160ms ease;" style-hover="border-color:#b9d4ff;color:#18181b;box-shadow:0 0 0 3px rgba(60,131,246,.10);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3c83f6" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path></svg>
+        <span style="flex:1;">Ask Spurly</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;border:1px solid #e9eaee;border-radius:4px;padding:1px 4px;">⌘K</span>
+      </button>
+    </div>
+
+    <nav style="flex:1;overflow-y:auto;padding:0 12px;display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <p style="margin:0 0 4px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Prospect</p>
+        <a href="#" style="position:relative;display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:500;color:#0544a5;background:#e6efff;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <span style="position:absolute;left:0;top:8px;bottom:8px;width:2px;border-radius:0 99px 99px 0;background:#3c83f6;"></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M3 11l9-7 9 7v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Home</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="2"></circle><path d="M12 5a7 7 0 0 1 7 7"></path><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Leads</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;flex-shrink:0;">1.2K</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path><path d="M18.5 15.5l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Enrichment</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#a45309;flex-shrink:0;"><span style="width:5px;height:5px;border-radius:99px;background:#f59e0b;animation:sp-pulse 1.6s ease-in-out infinite;"></span>14</span>
+        </a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <p style="margin:0 0 4px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Engage</p>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M21 3L3 10.5l7 2.5 2.5 7z"></path><path d="M21 3l-11 10"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Campaigns</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;flex-shrink:0;">3</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="3" width="6" height="6" rx="1.5"></rect><rect x="15" y="15" width="6" height="6" rx="1.5"></rect><path d="M6 9v4a2 2 0 0 0 2 2h7"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Sequences</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M4 13h4l1.5 3h5L16 13h4"></path><path d="M4 13l2.5-8h11L20 13v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Inbox</span>
+          <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:#3c83f6;color:#ffffff;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;flex-shrink:0;">7</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7z"></path><path d="M14 3v4h4"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Templates</span>
+        </a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <p style="margin:0 0 4px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Manage</p>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Settings</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M7.5 10.5v6"></path><path d="M7.5 7.6v.1"></path><path d="M11.5 16.5v-6"></path><path d="M11.5 13.2a2.7 2.7 0 0 1 5 1.2v2.1"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">LinkedIn</span>
+          <span style="width:6px;height:6px;border-radius:99px;background:#12b981;flex-shrink:0;"></span>
+        </a>
+      </div>
+    </nav>
+
+    <div style="flex-shrink:0;padding:10px 12px 12px;border-top:1px solid #e4e4e7;">
+      <div style="padding:4px 10px 8px;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Daily cap</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:11px;color:#5e616e;">18/25</span>
+        </div>
+        <div style="height:3px;border-radius:99px;background:#e0e5ee;overflow:hidden;margin-top:6px;">
+          <div style="height:100%;width:72%;border-radius:99px;background:#3c83f6;"></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;height:44px;padding:0 8px;border-radius:8px;cursor:pointer;transition:background-color 160ms ease;" style-hover="background:#e7ecf5;">
+        <div style="width:26px;height:26px;border-radius:99px;background:#dbe7fb;color:#0544a5;display:grid;place-items:center;font-size:11px;font-weight:600;flex-shrink:0;">MK</div>
+        <div style="min-width:0;flex:1;">
+          <p style="margin:0;font-size:12.5px;font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marcus Kellner</p>
+          <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">marcus@spurly.io</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;">
+    <header style="flex-shrink:0;display:flex;align-items:flex-start;gap:16px;padding:20px 24px 0;">
+      <div style="min-width:0;flex:1;">
+        <h1 style="margin:0;font-size:26px;font-weight:600;letter-spacing:-0.03em;line-height:1.15;">Good morning, Marcus</h1>
+        <p style="margin:5px 0 0;font-size:13.5px;color:#5e616e;line-height:1.45;max-width:62ch;">Spurly worked overnight. Here is what changed while you were away, and the three things worth your attention today.</p>
+      </div>
+      <button type="button" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 14px;border:0;background:#3c83f6;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#ffffff;cursor:pointer;flex-shrink:0;margin-top:4px;white-space:nowrap;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff;transition:background-color 160ms ease,box-shadow 160ms ease,transform 160ms ease;" style-hover="background:#1e6fe8;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff, 0 5px 16px rgba(60,131,246,.34);" style-active="transform:translateY(1px);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+        New audience
+      </button>
+    </header>
+
+    <main style="flex:1;min-height:0;overflow-y:auto;padding:20px 24px 28px;">
+
+      <div style="position:relative;display:flex;align-items:center;gap:10px;padding:0 14px;height:44px;background:#f3f8ff;border:1px solid #dbe7fb;border-radius:11px;overflow:hidden;box-shadow:inset 2px 0 0 #3c83f6;">
+        <span style="position:absolute;top:0;bottom:0;width:30%;background:linear-gradient(90deg,transparent,rgba(60,131,246,.10),transparent);animation:sp-scan 2.4s linear infinite;"></span>
+        <span style="position:relative;width:6px;height:6px;border-radius:99px;background:#3c83f6;animation:sp-pulse 1.4s ease-in-out infinite;flex-shrink:0;"></span>
+        <span style="position:relative;font-size:12.5px;color:#0544a5;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><strong style="font-weight:500;">{{ verb }}…</strong> <span style="color:#3f6ba8;">EU logistics — VP+ · 2 campaigns sending · 14 profiles queued for enrichment</span></span>
+        <span style="position:relative;margin-left:auto;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:11.5px;color:#0544a5;flex-shrink:0;">{{ count }} today</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px;">
+        <sc-for list="{{ metrics }}" as="m" hint-placeholder-count="4">
+          <div style="padding:16px;background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;box-shadow:0 1px 2px rgba(24,24,27,.03);transition:border-color 160ms ease,box-shadow 160ms ease;" style-hover="border-color:#b9d4ff;box-shadow:0 4px 16px rgba(60,131,246,.09);">
+            <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">{{ m.k }}</p>
+            <p style="margin:8px 0 0;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:26px;font-weight:500;letter-spacing:-0.024em;line-height:1;">{{ m.v }}</p>
+            <div style="height:3px;border-radius:99px;background:#eceff4;overflow:hidden;margin-top:12px;">
+              <div style="height:100%;border-radius:99px;transition:width 340ms cubic-bezier(.2,0,.1,1);width:{{ m.w }};background:{{ m.bar }}"></div>
+            </div>
+            <p style="margin:9px 0 0;font-size:12px;color:#5e616e;line-height:1.45;">{{ m.note }}</p>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:12px;align-items:start;">
+
+        <div style="background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+          <div style="display:flex;align-items:center;gap:8px;padding:0 16px;height:48px;border-bottom:1px solid #edeef2;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0544a5" stroke-width="1.9" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path></svg>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#0544a5;">Worth your attention</span>
+          </div>
+          <sc-for list="{{ attention }}" as="a" hint-placeholder-count="3">
+            <div style="display:flex;align-items:flex-start;gap:11px;padding:14px 16px;border-bottom:1px solid #f4f5f8;cursor:pointer;transition:background-color 140ms ease;" style-hover="background:#f7faff;">
+              <span style="width:7px;height:7px;border-radius:99px;flex-shrink:0;margin-top:5px;background:{{ a.dot }};"></span>
+              <div style="min-width:0;flex:1;">
+                <p style="margin:0;font-size:13.5px;font-weight:500;line-height:1.4;">{{ a.title }}</p>
+                <p style="margin:3px 0 0;font-size:12.5px;color:#5e616e;line-height:1.55;">{{ a.body }}</p>
+              </div>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#0544a5;flex-shrink:0;white-space:nowrap;">{{ a.cta }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+          <div style="display:flex;align-items:center;gap:8px;padding:0 16px;height:48px;border-bottom:1px solid #edeef2;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Top of the list</span>
+            <div style="flex:1;"></div>
+            <a href="#" style="font-size:12.5px;">All leads</a>
+          </div>
+          <sc-for list="{{ topLeads }}" as="l" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:11px;padding:11px 16px;border-bottom:1px solid #f4f5f8;cursor:pointer;transition:background-color 140ms ease,box-shadow 140ms ease;" style-hover="background:#f4f8ff;box-shadow:inset 2px 0 0 #3c83f6;">
+              <div style="width:28px;height:28px;border-radius:99px;display:grid;place-items:center;font-size:11px;font-weight:600;flex-shrink:0;color:{{ l.avFg }};background:{{ l.avBg }}">{{ l.initials }}</div>
+              <div style="min-width:0;flex:1;">
+                <p style="margin:0;font-size:13.5px;font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ l.name }}</p>
+                <p style="margin:1px 0 0;font-size:11.5px;color:#5e616e;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ l.role }}</p>
+              </div>
+              <div style="flex-shrink:0;text-align:right;">
+                <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500;line-height:1.2;color:{{ l.fitFg }}">{{ l.fit }}</p>
+                <div style="height:3px;width:56px;border-radius:99px;background:#eceff4;overflow:hidden;margin-top:4px;"><div style="height:100%;border-radius:99px;width:{{ l.fitW }};background:{{ l.fitBar }}"></div></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:12px;align-items:start;">
+
+        <div style="background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+          <div style="display:flex;align-items:center;gap:8px;padding:0 16px;height:48px;border-bottom:1px solid #edeef2;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Campaigns running</span>
+            <div style="flex:1;"></div>
+            <a href="#" style="font-size:12.5px;">Manage</a>
+          </div>
+          <sc-for list="{{ campaigns }}" as="c" hint-placeholder-count="3">
+            <div style="padding:13px 16px;border-bottom:1px solid #f4f5f8;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="width:6px;height:6px;border-radius:99px;flex-shrink:0;background:{{ c.dot }};animation:{{ c.anim }}"></span>
+                <span style="flex:1;min-width:0;font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.name }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.09em;text-transform:uppercase;flex-shrink:0;color:{{ c.fg }}">{{ c.state }}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:9px;">
+                <div style="flex:1;height:3px;border-radius:99px;background:#eceff4;overflow:hidden;"><div style="height:100%;border-radius:99px;width:{{ c.w }};background:{{ c.bar }}"></div></div>
+                <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:11px;color:#5e616e;flex-shrink:0;">{{ c.progress }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+          <div style="display:flex;align-items:center;gap:8px;padding:0 16px;height:48px;border-bottom:1px solid #edeef2;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Overnight</span>
+          </div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:14px;">
+            <sc-for list="{{ timeline }}" as="t" hint-placeholder-count="4">
+              <div style="display:flex;gap:11px;">
+                <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;">
+                  <span style="width:7px;height:7px;border-radius:99px;background:{{ t.dot }};"></span>
+                  <span style="flex:1;width:1px;background:#e9eaee;margin-top:4px;"></span>
+                </div>
+                <div style="min-width:0;padding-bottom:2px;">
+                  <p style="margin:0;font-size:13px;line-height:1.45;">{{ t.label }}</p>
+                  <p style="margin:2px 0 0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;">{{ t.at }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+const VERBS = ['Sourcing', 'Paging', 'Reading', 'Scoring', 'Spurling', 'Reconciling', 'Enriching'];
+
+const NAV = [
+  { label: 'Prospect', items: [
+    { label: 'Home', count: '', active: true },
+    { label: 'Leads', count: '1.2K' },
+    { label: 'Enrichment', count: '14', warn: true },
+  ] },
+  { label: 'Engage', items: [
+    { label: 'Campaigns', count: '3' },
+    { label: 'Sequences', count: '' },
+    { label: 'Inbox', count: '7', accent: true },
+    { label: 'Templates', count: '' },
+  ] },
+  { label: 'Manage', items: [
+    { label: 'Settings', count: '' },
+    { label: 'LinkedIn', count: '' },
+  ] },
+];
+
+const TOP = [
+  { name: 'Amara Osei', role: 'VP RevOps · Northwind Logistics', fit: 94 },
+  { name: 'Jonas Lindqvist', role: 'CRO · Nordvik Marine', fit: 91 },
+  { name: 'Sofia Marchetti', role: 'Head of Partnerships · Verdana', fit: 89 },
+  { name: 'Daniel Reyes', role: 'Head of Sales · Energy One', fit: 88 },
+];
+
+const AV = [['#dbe7fb', '#0544a5'], ['#e3e0fb', '#4436b8'], ['#d5f0e6', '#07784f'], ['#fde8ea', '#9f1239'], ['#ffeedd', '#9a3412'], ['#d6f1f4', '#115e59']];
+function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
+function initials(n) { return n.split(/[\s-]+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase(); }
+
+class Component extends DCLogic {
+  state = { verb: 0, count: 18 };
+
+  componentDidMount() {
+    this._t = setInterval(() => this.setState((s) => ({ verb: s.verb + 1, count: s.count })), 2600);
+  }
+  componentWillUnmount() { clearInterval(this._t); }
+
+  renderVals() {
+    return {
+      verb: VERBS[this.state.verb % VERBS.length],
+      count: '412',
+
+      navGroups: NAV.map((g) => ({
+        label: g.label,
+        items: g.items.map((it) => ({
+          label: it.label,
+          count: it.count,
+          weight: it.active ? 500 : 400,
+          fg: it.active ? '#0544a5' : '#5e616e',
+          bg: it.active ? '#e6efff' : 'transparent',
+          spine: it.active ? '#3c83f6' : 'transparent',
+          dot: it.active ? '#3c83f6' : it.warn ? '#f59e0b' : it.accent ? '#12b981' : '#cfd3dd',
+          countFg: it.active ? '#5b87c8' : '#777a88',
+        })),
+      })),
+
+      metrics: [
+        { k: 'Leads sourced', v: '1,214', w: '78%', bar: '#3c83f6', note: '412 arrived in the last 24 hours' },
+        { k: 'Invites sent today', v: '18', w: '72%', bar: '#3c83f6', note: '7 left before the daily cap' },
+        { k: 'Connect rate', v: '31.2%', w: '31%', bar: '#12b981', note: 'Up 4.1 points on last week' },
+        { k: 'Replies waiting', v: '7', w: '54%', bar: '#f59e0b', note: 'Oldest has been sitting 2 days' },
+      ],
+
+      attention: [
+        { dot: '#12b981', title: 'Sofia Marchetti replied four hours ago', body: 'She asked for the partnership one-pager. The thread is still warm.', cta: 'Open' },
+        { dot: '#ef4444', title: '14 enrichments failed overnight', body: 'All fourteen hit the same rate limit at 03:40. Re-queueing costs nothing.', cta: 'Retry' },
+        { dot: '#f59e0b', title: 'Nordic CROs runs out of leads in 2 days', body: 'The audience has 60 people left and the sequence sends 25 a day.', cta: 'Top up' },
+      ],
+
+      topLeads: TOP.map((l) => {
+        const [avBg, avFg] = AV[hash(l.name) % AV.length];
+        const good = l.fit >= 80;
+        return {
+          ...l, avBg, avFg, initials: initials(l.name),
+          fitFg: good ? '#07784f' : '#18181b',
+          fitBar: good ? '#12b981' : '#3c83f6',
+          fitW: `${l.fit}%`,
+        };
+      }),
+
+      campaigns: [
+        { name: 'EU logistics — VP+', state: 'sending', dot: '#3c83f6', fg: '#0544a5', anim: 'sp-pulse 1.6s ease-in-out infinite', w: '64%', bar: '#3c83f6', progress: '160/250' },
+        { name: 'Nordic CROs', state: 'sending', dot: '#3c83f6', fg: '#0544a5', anim: 'sp-pulse 1.6s ease-in-out infinite', w: '88%', bar: '#3c83f6', progress: '190/215' },
+        { name: 'DACH partnerships', state: 'paused', dot: '#f59e0b', fg: '#a45309', anim: 'none', w: '22%', bar: '#f59e0b', progress: '44/200' },
+      ],
+
+      timeline: [
+        { label: '412 leads imported from EU logistics — VP+', at: '03:12 · 4h 18m run', dot: '#3c83f6' },
+        { label: '286 profiles enriched and scored', at: '04:02', dot: '#3c83f6' },
+        { label: '14 enrichments failed on a rate limit', at: '03:40', dot: '#ef4444' },
+        { label: '18 invites sent, 6 accepted', at: '09:00 onwards', dot: '#12b981' },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

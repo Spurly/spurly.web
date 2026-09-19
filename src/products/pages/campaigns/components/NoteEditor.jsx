@@ -38,16 +38,16 @@ export function NoteEditor({ campaign, account, onSave, saving }) {
       <div className="px-[var(--ui-pad-lg)] py-3">
         <div className="flex items-center gap-2">
           <Lock size={13} className="shrink-0 text-[var(--ui-text-tertiary)]" aria-hidden="true" />
-          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)]">Plain connection request — no note</p>
+          <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)]">Plain connection request — no note</p>
           <button
             onClick={() => setShowWhy((s) => !s)}
-            className="inline-flex items-center gap-1 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-secondary)] hover:underline shrink-0"
+            className="inline-flex items-center gap-1 text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-secondary)] hover:underline shrink-0"
           >
             <Info size={12} aria-hidden="true" /> Why?
           </button>
         </div>
         {showWhy && (
-          <p className="mt-1.5 pl-[21px] text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+          <p className="mt-1.5 pl-[21px] text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
             Notes need LinkedIn Premium. On a free account LinkedIn drops the note after about five
             invitations a month without saying so, so Spurly does not offer one rather than let a
             campaign quietly stop personalising halfway through.
@@ -60,12 +60,20 @@ export function NoteEditor({ campaign, account, onSave, saving }) {
   if (!expanded) {
     return (
       <div className="px-[var(--ui-pad-lg)] py-3 flex items-center justify-between gap-3">
-        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] truncate">
-          {value ? `“${value}”` : 'No note'}
-        </p>
+        <div className="min-w-0">
+          <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] truncate">
+            {value ? `“${value}”` : 'No note'}
+          </p>
+          {running && (
+            <p className="mt-0.5 text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
+              Pause the campaign to change the note — the people already invited were sent the old one.
+            </p>
+          )}
+        </div>
         <Button
           size="sm"
           variant="ghost"
+          aria-label="Edit note"
           disabled={running}
           trailingIcon={<ChevronDown size={13} />}
           onClick={() => setExpanded(true)}
@@ -86,10 +94,10 @@ export function NoteEditor({ campaign, account, onSave, saving }) {
         onChange={(e) => setValue(e.target.value)}
         aria-label="Connection note"
         placeholder="Say why you are reaching out…"
-        className="w-full text-[var(--ui-t-body)] rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-text-primary)] disabled:opacity-60"
+        className="w-full text-[length:var(--ui-t-body)] rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-text-primary)] disabled:opacity-60"
       />
       <div className="flex items-center justify-between">
-        <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
+        <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
           {running
             ? 'Pause the campaign to change the note — the people already invited were sent the old one.'
             : `${value.length}/${cap} characters`}

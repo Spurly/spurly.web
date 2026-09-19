@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Sparkles, Undo2, X, RefreshCw, Settings2 } from 'lucide-react';
+import { SparkIcon } from 'src/core/icons';
+import { Undo2, X, RefreshCw, Settings2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { usePopperPosition } from 'src/core/primitives/Popper';
 import { useToast } from 'src/core/primitives';
@@ -171,7 +172,7 @@ export function AiWriteButton({
   if (failed) {
     return (
       <span
-        className="shrink-0 whitespace-nowrap text-[var(--ui-t-label)]"
+        className="shrink-0 whitespace-nowrap text-[length:var(--ui-t-label)]"
         style={{ color: 'var(--ui-warning-fg)' }}
         title={failure || ''}
       >
@@ -196,7 +197,7 @@ export function AiWriteButton({
         <button
           type="button"
           onClick={undo}
-          className="inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)] transition-colors"
+          className="inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)] transition-colors"
         >
           <Undo2 size={12} />
           Undo
@@ -209,10 +210,9 @@ export function AiWriteButton({
         onClick={() => setOpen((v) => !v)}
         disabled={disabled || busy}
         title={outOfQuota ? "You've used today's AI quota" : undefined}
-        className="inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 h-7 px-2.5 rounded-[var(--ui-radius-md)] text-[var(--ui-t-label)] font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        style={{ background: 'var(--ui-accent-tint)', color: 'var(--ui-accent)' }}
+        className="inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 h-[var(--ui-ctl-h)] px-2.5 rounded-[var(--ui-radius-sm)] border border-[var(--ui-accent-border)] bg-[var(--ui-surface-card)] text-[var(--ui-accent-fg)] text-[length:var(--ui-t-label)] font-medium transition-colors hover:bg-[var(--ui-accent-tint)] disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        <Sparkles size={12} />
+        <SparkIcon size={12} strokeWidth={1.9} />
         {label}
       </button>
 
@@ -227,13 +227,13 @@ export function AiWriteButton({
               // Hidden until the first measurement lands, so it never flashes
               // at 0,0 before the popper has placed it.
               visibility: position.ready ? 'visible' : 'hidden',
-              background: 'var(--surface-raised, var(--ui-surface-sunken))',
+              background: 'var(--ui-surface-card)',
               border: '1px solid var(--ui-border)',
-              boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
+              boxShadow: 'var(--ui-shadow-popover)',
             }}
           >
           <div className="flex items-center justify-between">
-            <span className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
+            <span className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
               {hasContent ? 'Improve this message' : 'Write a message'}
             </span>
             <button
@@ -251,7 +251,7 @@ export function AiWriteButton({
           {!contextConfigured && (
             <Link
               to="/dashboard/settings"
-              className="flex items-start gap-2 px-2.5 py-2 rounded-[var(--ui-radius-md)] text-[var(--ui-t-label)] leading-relaxed"
+              className="flex items-start gap-2 px-2.5 py-2 rounded-[var(--ui-radius-md)] text-[length:var(--ui-t-label)] leading-relaxed"
               style={{ background: 'var(--ui-warning-tint)', color: 'var(--ui-warning)' }}
             >
               <Settings2 size={13} className="shrink-0 mt-px" />
@@ -262,14 +262,14 @@ export function AiWriteButton({
           )}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">Tone</label>
+            <label className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">Tone</label>
             <div className="flex flex-wrap gap-1.5">
               {TONES.map((t) => (
                 <button
                   key={t.value}
                   type="button"
                   onClick={() => setTone(t.value)}
-                  className="px-2.5 h-7 rounded-[var(--ui-radius-md)] text-[var(--ui-t-label)] font-medium transition-colors"
+                  className="px-2.5 h-7 rounded-[var(--ui-radius-md)] text-[length:var(--ui-t-label)] font-medium transition-colors"
                   style={
                     effectiveTone === t.value
                       ? { background: 'var(--ui-accent-tint-strong)', color: 'var(--ui-accent)' }
@@ -283,18 +283,18 @@ export function AiWriteButton({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+            <label className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
               Anything specific? <span className="text-[var(--ui-text-tertiary)]">— optional</span>
             </label>
             <input
               value={instruction}
               onChange={(e) => setInstruction(e.target.value.slice(0, 300))}
               placeholder="e.g. shorter, mention we're hiring"
-              className="w-full h-9 px-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)]"
+              className="w-full h-9 px-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)]"
             />
           </div>
 
-          <p className="text-[var(--ui-t-meta)] leading-relaxed text-[var(--ui-text-tertiary)]">
+          <p className="text-[length:var(--ui-t-meta)] leading-relaxed text-[var(--ui-text-tertiary)]">
             {recipientName
               ? (hasContent
                 ? `Written directly to ${recipientName} — no placeholders. You can undo straight after.`
@@ -306,7 +306,7 @@ export function AiWriteButton({
 
           <div className="flex items-center justify-between gap-2">
             {quota ? (
-              <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
+              <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
                 {quota.remaining} left today
               </span>
             ) : (
@@ -318,7 +318,7 @@ export function AiWriteButton({
                   type="button"
                   onClick={() => run(true)}
                   disabled={disabled || busy || outOfQuota}
-                  className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-[var(--ui-radius-md)] text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-hover)] disabled:opacity-40"
+                  className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-[var(--ui-radius-md)] text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-hover)] disabled:opacity-40"
                 >
                   <RefreshCw size={12} />
                   Try again
@@ -328,7 +328,7 @@ export function AiWriteButton({
                 type="button"
                 onClick={() => run(false)}
                 disabled={disabled || busy || outOfQuota}
-                className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] font-medium text-white transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[length:var(--ui-t-body)] font-medium text-white transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{ background: 'var(--ui-accent)' }}
               >
                 {busy ? 'Working…' : hasContent ? 'Improve' : 'Write'}

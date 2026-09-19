@@ -33,7 +33,7 @@ export function Checkbox({
         .filter(Boolean)
         .join(' ')}
     >
-      <span className="relative grid place-items-center shrink-0" style={{ width: 17, height: 17 }}>
+      <span className="relative grid place-items-center shrink-0" style={{ width: 15, height: 15 }}>
         <input
           ref={ref}
           type="checkbox"
@@ -46,7 +46,7 @@ export function Checkbox({
         <span
           aria-hidden="true"
           className={[
-            'w-full h-full grid place-items-center rounded-[var(--ui-radius-xs)] border',
+            'w-full h-full grid place-items-center rounded-[var(--ui-radius-2xs)] border-[1.5px]',
             'transition-[background-color,border-color] duration-[var(--ui-dur-fast)] ease-[cubic-bezier(0.2,0,0.1,1)]',
             active
               ? 'bg-[var(--ui-accent)] border-[var(--ui-accent)] text-[var(--ui-accent-on)]'
@@ -55,13 +55,13 @@ export function Checkbox({
           ].join(' ')}
         >
           {indeterminate && !checked ? (
-            <Minus size={11} strokeWidth={3} />
+            <Minus size={10} strokeWidth={3.4} />
           ) : checked ? (
-            <Check size={11} strokeWidth={3} />
+            <Check size={10} strokeWidth={3.4} />
           ) : null}
         </span>
       </span>
-      {label && <span className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)]">{label}</span>}
+      {label && <span className="text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)]">{label}</span>}
     </label>
   );
 }

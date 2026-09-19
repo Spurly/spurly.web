@@ -1,17 +1,27 @@
-import { Link } from "react-router-dom";
-import { Linkedin, Send, MessageSquare, Search, Sparkles } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { DashboardLayout } from "src/core/layout/DashboardLayout";
 import { DataTable } from "src/core/DataTable";
-import { SectionCard } from "src/core/primitives/SectionCard";
-import { PageTabs } from "src/core/primitives/PageTabs";
-import { Button, Dock, Dropdown, Tag } from "src/core/primitives";
+import { Button, Dropdown, PageTabs, SoonTag, WorkingLine } from "src/core/primitives";
+import {
+  PlusIcon,
+  SendIcon,
+  MessageIcon,
+  SparkIcon,
+  LeadsIcon,
+  EnrichIcon,
+  LinkedInLineIcon,
+} from "src/core/icons";
+import { useAuth } from "src/core/auth/hooks/useAuth.js";
 import { useLeadsPage } from "src/products/leads/hooks/useLeadsPage.js";
+import { isBusy } from "src/products/leads/hooks/audience.js";
 import { hubLeadColumns, hubLeadEnrichColumns } from "./components/columns.jsx";
 import { LeadDrawer } from "./components/LeadDrawer.jsx";
-import { AudienceForm } from "./components/AudienceForm.jsx";
-import { ImportStrip } from "./components/AudienceList.jsx";
+import { NewAudienceModal } from "./components/NewAudienceModal.jsx";
+import { AudiencePicker } from "./components/AudiencePicker.jsx";
 import { leadsStrings as t } from "./strings.js";
 
+const WORKING_VERBS = ["Sourcing", "Paging", "Reading", "Reconciling"];
 /**
  * Hub leads — paste a LinkedIn search, get an audience.
  *
@@ -47,6 +57,8 @@ export function HubLeadsPage() {
     enrolling,
     loadLeads,
     createAudience,
+    runSearch,
+    deleteSearch,
     createCampaign,
     createMessageCampaign,
     selectedAreAllFirstDegree,
@@ -68,287 +80,241 @@ export function HubLeadsPage() {
     queueEnrichment,
   } = useLeadsPage();
 
+  const { user } = useAuth();
+  const location = useLocation();
+  const [audienceOpen, setAudienceOpen] = useState(false);
+
+  /* Arriving from Enrichment's "Enrich leads" lands on the Needs enrichment
+     tab. Read once, on arrival. */
+  const arrivalTab = location.state?.tab;
+  const arrivalNewAudience = Boolean(location.state?.newAudience);
+  useEffect(() => {
+    if (arrivalTab === "enrich") setActiveTab("enrich"); // eslint-disable-line react-hooks/set-state-in-effect
+    if (arrivalNewAudience) setAudienceOpen(true); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [arrivalTab, arrivalNewAudience, setActiveTab]);
+  const closeAudience = useCallback(() => setAudienceOpen(false), []);
+
   const tabs = [
     { id: "all", label: t.tabs.all },
     { id: "enrich", label: t.tabs.enrich, count: enrichPagination.total },
   ];
 
+  const running = searches.filter(isBusy);
+  const importedSoFar = running.reduce((sum, s) => sum + (s.importedCount ?? 0), 0);
+  const workingLine =
+    activeTab === "all" && running.length > 0 ? (
+      <WorkingLine variant="band" verbs={WORKING_VERBS} trailing={`${importedSoFar.toLocaleString()} so far`}>
+        {running.length === 1 ? running[0].name || "an audience" : `${running.length} audiences`}
+        {" · imports run in the background, you can leave the page"}
+      </WorkingLine>
+    ) : null;
+
+  const connectBanner = needsAccount ? (
+    <div className="flex items-start gap-3 px-[var(--ui-card-x)] py-3 bg-[var(--ui-warning-tint)] border-b border-[var(--ui-warning-border)] shadow-[inset_2px_0_0_var(--ui-warning-dot)]">
+      <LinkedInLineIcon size={16} className="mt-0.5 shrink-0 text-[var(--ui-warning-fg)]" />
+      <div className="min-w-0">
+        <p className="text-[length:var(--ui-t-control)] font-medium text-[var(--ui-text-primary)]">{t.connectLinkedIn.title}</p>
+        <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-0.5">{t.connectLinkedIn.hint}</p>
+      </div>
+      <Link
+        to="/dashboard/settings/linkedin"
+        className="ml-auto shrink-0 self-center text-[length:var(--ui-t-label)] font-medium text-[var(--ui-accent-fg)] hover:underline"
+      >
+        {t.connectLinkedIn.cta}
+      </Link>
+    </div>
+  ) : null;
+
+  /* "+ Filter" — the handoff's status / fit filter popover. Lead-status and
+     fit filters need server-side support that isn't built yet, so the
+     control is shown in its place, marked SOON. */
+  const filterChip = (
+    <span
+      className="inline-flex items-center gap-1.5 h-[var(--ui-ctl-h)] px-2.5 rounded-[var(--ui-radius-sm)] border border-dashed border-[var(--ui-border-strong)] text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] whitespace-nowrap cursor-not-allowed shrink-0"
+      title="Status and fit filters are coming soon"
+    >
+      <PlusIcon size={12} strokeWidth={2} />
+      Filter
+      <SoonTag />
+    </span>
+  );
+
+  const picker = (
+    <AudiencePicker
+      searches={searches}
+      activeSearchId={activeSearchId}
+      onChange={setActiveSearchId}
+      onRun={runSearch}
+      onDelete={deleteSearch}
+      label={t.table.listFilterLabel}
+    />
+  );
+
   return (
     <DashboardLayout
       title={t.pageTitle}
-      subtitle={
-        `${pagination.total.toLocaleString()} ${pagination.total === 1 ? "person" : "people"}` +
-        (searches.length
-          ? ` · ${searches.length} ${searches.length === 1 ? "audience" : "audiences"}`
-          : "")
+      subtitle={t.pageSubtitle}
+      actions={
+        <Button
+          variant="primary"
+          leadingIcon={<PlusIcon size={14} strokeWidth={2} />}
+          onClick={() => setAudienceOpen(true)}
+          disabled={needsAccount}
+        >
+          {t.newAudience}
+        </Button>
       }
+      tabs={<PageTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />}
     >
-      <div className="flex flex-col gap-4 h-full min-h-0 overflow-hidden">
-        {/*
-         * Two tabs (HUB_CAPTURE_RESTRUCTURE_PLAN.md §11): "All leads" is
-         * this page exactly as it always was; "Needs enrichment" is a
-         * server-filtered view of the same HubLead collection with one
-         * job — select some, hit Enrich, Unipile fills them in through the
-         * bulk queue + enrichJob.js worker, and this same page's polling
-         * (useLeadsPage's anyBusy) picks the result up live either way.
-         */}
-        <PageTabs
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
+      {connectBanner}
 
-        {/*
-         * The import form moved into the dock at the bottom of the screen.
-         *
-         * What is left here is the one thing that must interrupt: a missing
-         * LinkedIn connection. That is not a form problem, it is a "nothing
-         * on this page can work yet" problem, and burying it inside a panel
-         * the user has to open first would hide the reason their imports
-         * fail behind the very control that fails. Shown regardless of tab —
-         * enrichment costs a Unipile call same as importing does, so it
-         * needs the same account before either tab's action can work.
-         */}
-        {needsAccount && (
-          <SectionCard title={t.connectLinkedIn.title}>
-            <div className="flex items-start gap-3">
-              <Linkedin
-                size={17}
-                className="mt-0.5 shrink-0 text-[var(--ui-text-tertiary)]"
-                aria-hidden="true"
-              />
-              <div>
-                <p className="text-[var(--ui-t-body)] text-[var(--ui-text-primary)]">
-                  {t.connectLinkedIn.body}
-                </p>
-                <p className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-1">
-                  {t.connectLinkedIn.hint}
-                </p>
-                <Link
-                  to="/dashboard/settings/linkedin"
-                  className="inline-block mt-3 text-[var(--ui-t-body)] font-semibold text-[var(--ui-accent-fg)] hover:underline"
-                >
-                  {t.connectLinkedIn.cta}
-                </Link>
-              </div>
-            </div>
-          </SectionCard>
-        )}
-
-        {/*
-         * What is left of the Audiences card, and why.
-         *
-         * The card was doing four jobs at once — filtering the table,
-         * reporting progress, managing the audience, and surfacing the
-         * stopped-short error — from a permanent box sitting between the page
-         * header and the thing you came to look at.
-         *
-         * Only progress earns a permanent place: an import runs for minutes
-         * and somebody is waiting on it, so hiding it behind a closed panel
-         * would be worse than the card was. ImportStrip exists exactly while
-         * something is running and then disappears, rather than taking up
-         * space to report that nothing is happening.
-         *
-         * The filter is one chip. Management moved into the dock.
-         */}
-        {activeTab === "all" && <ImportStrip searches={searches} />}
-
-        {activeTab === "all" && (
-          <DataTable
-            className="flex-1"
-            columns={hubLeadColumns}
-            data={leads}
-            loading={loading}
-            emptyMessage={
-              activeSearchId
-                ? t.table.emptyMessageFiltered
-                : t.table.emptyMessageAll
-            }
-            emptyHint={
-              searches.length === 0
-                ? t.table.emptyHintNoAudience
-                : t.table.emptyHintImporting
-            }
-            selectable
-            selectedKeys={selected}
-            onSelectionChange={setSelected}
-            onRowClick={setSelectedLead}
-            toolbar={{
-              searchValue: query,
-              onSearch: setQuery,
-              searchPlaceholder: t.table.searchPlaceholder,
-              // The list picker — was a chip above the table fed by the dock's
-              // full audience panel, now a plain dropdown right where the rest
-              // of the table's filtering lives. Defaults to "All people"
-              // (activeSearchId === null); the dock still owns building and
-              // managing (run/delete) a saved search, this is only for
-              // choosing which one's results the table is showing.
-              filters: (
-                <Dropdown
-                  variant="dashboard"
-                  size="sm"
-                  value={activeSearchId ?? ""}
-                  onChange={(val) => setActiveSearchId(val || null)}
-                  ariaLabel={t.table.listFilterLabel}
-                  placeholder={t.table.listFilterAll}
-                  options={[
-                    ["", t.table.listFilterAll],
-                    ...searches.map((s) => [s._id, s.name || t.untitledAudience]),
-                  ]}
-                />
-              ),
-              bulkActions: (
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    leadingIcon={<Send size={13} />}
-                    onClick={createCampaign}
-                    loading={creating}
-                    disabled={creating || selected.size === 0}
-                  >
-                    {t.table.createCampaign}
-                  </Button>
-                  {/* A message campaign may only ever be ALL 1st-degree
-                    connections -- the server rejects a mixed selection
-                    outright (NOT_ALL_FIRST_DEGREE) rather than quietly
-                    skipping whoever isn't connected yet, so the button
-                    reflects that up front instead of letting the click
-                    round-trip to a 400 the Degree column already predicted. */}
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    leadingIcon={<MessageSquare size={13} />}
-                    onClick={createMessageCampaign}
-                    loading={creating}
-                    disabled={
-                      creating ||
-                      selected.size === 0 ||
-                      !selectedAreAllFirstDegree
-                    }
-                    title={
-                      selected.size > 0 && !selectedAreAllFirstDegree
-                        ? "Everyone selected must already be a 1st-degree connection to message them"
-                        : undefined
-                    }
-                  >
-                    {t.table.createMessageCampaign}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    leadingIcon={<Sparkles size={13} />}
-                    onClick={createEnrichmentCampaign}
-                    loading={creatingEnrichment}
-                    disabled={creatingEnrichment || selected.size === 0}
-                  >
-                    {t.table.createEnrichmentCampaign}
-                  </Button>
-                  <Dropdown
-                    variant="dashboard"
-                    size="sm"
-                    value=""
-                    onChange={(val) => enrollInSequence(val)}
-                    disabled={
-                      enrolling || selected.size === 0 || sequences.length === 0
-                    }
-                    ariaLabel="Enroll selection in a sequence"
-                    title={
-                      sequences.length === 0
-                        ? t.table.enrollTitleDisabled
-                        : t.table.enrollTitleEnabled
-                    }
-                    placeholder={
-                      enrolling ? t.table.enrolling : t.table.enrollPlaceholder
-                    }
-                    options={sequences.map((s) => [s._id, s.name])}
-                  />
-                </div>
-              ),
-            }}
-            pagination={{
-              page: pagination.page,
-              pageSize: pagination.limit,
-              total: pagination.total,
-              onPageChange: (page) => loadLeads({ page }),
-            }}
-          />
-        )}
-
-        {/*
-         * "Needs enrichment" — same table, server-filtered
-         * (enrichmentStatus !== 'enriched'), with one bulk action instead of
-         * campaigns/sequences: those act on people you're ready to reach out
-         * to, this acts on people you don't have a full profile for yet.
-         * Selection is its own Set (enrichSelected) so it never bleeds into
-         * "All leads"'s selection or vice versa.
-         */}
-        {activeTab === "enrich" && (
-          <DataTable
-            className="flex-1"
-            columns={hubLeadEnrichColumns}
-            data={enrichLeads}
-            loading={enrichLoading}
-            emptyMessage={t.enrichTab.emptyMessage}
-            emptyHint={t.enrichTab.emptyHint}
-            selectable
-            selectedKeys={enrichSelected}
-            onSelectionChange={setEnrichSelected}
-            onRowClick={setSelectedLead}
-            toolbar={{
-              searchValue: enrichQuery,
-              onSearch: setEnrichQuery,
-              searchPlaceholder: t.enrichTab.searchPlaceholder,
-              bulkActions: (
+      {activeTab === "all" && (
+        <DataTable
+          className="flex-1"
+          columns={hubLeadColumns}
+          data={leads}
+          loading={loading}
+          banner={workingLine}
+          emptyMessage={activeSearchId ? t.table.emptyMessageFiltered : t.table.emptyMessageAll}
+          emptyHint={searches.length === 0 ? t.table.emptyHintNoAudience : t.table.emptyHintImporting}
+          emptyIcon={<LeadsIcon size={22} strokeWidth={1.6} />}
+          emptyAction={
+            <Button variant="primary" onClick={() => setAudienceOpen(true)} disabled={needsAccount}>
+              {t.newAudience}
+            </Button>
+          }
+          selectable
+          selectedKeys={selected}
+          onSelectionChange={setSelected}
+          onRowClick={setSelectedLead}
+          toolbar={{
+            searchValue: query,
+            onSearch: setQuery,
+            searchPlaceholder: t.table.searchPlaceholder,
+            chips: filterChip,
+            filters: picker,
+            bulkActions: (
+              <>
                 <Button
                   size="sm"
                   variant="primary"
-                  leadingIcon={<Sparkles size={13} />}
-                  onClick={queueEnrichment}
-                  loading={queuingEnrich}
-                  disabled={queuingEnrich || enrichSelected.size === 0}
+                  leadingIcon={<SendIcon size={13} strokeWidth={1.9} />}
+                  onClick={createCampaign}
+                  loading={creating}
+                  disabled={creating || selected.size === 0}
                 >
-                  {t.enrichTab.enrichSelected} ({enrichSelected.size})
+                  {t.table.createCampaign}
                 </Button>
-              ),
-            }}
-            pagination={{
-              page: enrichPagination.page,
-              pageSize: enrichPagination.limit,
-              total: enrichPagination.total,
-              onPageChange: (page) => loadEnrichLeads({ page }),
-            }}
-          />
-        )}
-      </div>
+                {/* A message campaign may only ever be ALL 1st-degree
+                    connections — the server rejects a mixed selection
+                    (NOT_ALL_FIRST_DEGREE), so the button says so up front. */}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  leadingIcon={<MessageIcon size={13} />}
+                  onClick={createMessageCampaign}
+                  loading={creating}
+                  disabled={creating || selected.size === 0 || !selectedAreAllFirstDegree}
+                  title={
+                    selected.size > 0 && !selectedAreAllFirstDegree
+                      ? "Everyone selected must already be a 1st-degree connection to message them"
+                      : undefined
+                  }
+                >
+                  {t.table.createMessageCampaign}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="accentOutline"
+                  leadingIcon={<SparkIcon size={13} strokeWidth={1.9} />}
+                  disabled
+                  title="AI-drafted openers are coming soon"
+                >
+                  {t.table.draftOpeners}
+                  <SoonTag className="ml-1" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={createEnrichmentCampaign}
+                  loading={creatingEnrichment}
+                  disabled={creatingEnrichment || selected.size === 0}
+                >
+                  {t.table.createEnrichmentCampaign}
+                </Button>
+                <div className="flex-1 min-w-1" />
+                <Dropdown
+                  variant="dashboard"
+                  size="sm"
+                  value=""
+                  onChange={(val) => enrollInSequence(val)}
+                  disabled={enrolling || selected.size === 0 || sequences.length === 0}
+                  ariaLabel="Enroll selection in a sequence"
+                  title={sequences.length === 0 ? t.table.enrollTitleDisabled : t.table.enrollTitleEnabled}
+                  placeholder={enrolling ? t.table.enrolling : t.table.enrollPlaceholder}
+                  options={sequences.map((s) => [s._id, s.name])}
+                />
+              </>
+            ),
+          }}
+          pagination={{
+            page: pagination.page,
+            pageSize: pagination.limit,
+            total: pagination.total,
+            onPageChange: (page) => loadLeads({ page }),
+          }}
+        />
+      )}
 
-      {/* Parked at the bottom of every state of this page, including the
-          empty one — the primary action of the screen should not be reachable
-          only from inside an empty state that disappears the moment one lead
-          arrives. */}
-      <Dock
-        label={t.dock.label}
-        icon={<Search size={16} />}
-        badge={
-          searches.length > 0 ? (
-            <Tag tone="accent">
-              {searches.length} {t.dock.saved}
-            </Tag>
-          ) : null
-        }
-        disabled={needsAccount}
-      >
-        <div
-          className="flex items-center gap-3 px-[var(--ui-pad-lg)] border-y border-[var(--ui-border-hairline)] bg-[var(--ui-surface-sunken)]"
-          style={{ height: "var(--ui-band)" }}
-        >
-          <span className="text-[var(--ui-t-section)] font-semibold">
-            {t.dock.buildNew}
-          </span>
-        </div>
+      {/* "Needs enrichment" — the same table, server-filtered
+          (enrichmentStatus !== 'enriched'), with one bulk action. Selection
+          is its own Set so it never bleeds into "All leads". */}
+      {activeTab === "enrich" && (
+        <DataTable
+          className="flex-1"
+          columns={hubLeadEnrichColumns}
+          data={enrichLeads}
+          loading={enrichLoading}
+          emptyMessage={t.enrichTab.emptyMessage}
+          emptyHint={t.enrichTab.emptyHint}
+          emptyIcon={<EnrichIcon size={22} strokeWidth={1.6} />}
+          selectable
+          selectedKeys={enrichSelected}
+          onSelectionChange={setEnrichSelected}
+          onRowClick={setSelectedLead}
+          toolbar={{
+            searchValue: enrichQuery,
+            onSearch: setEnrichQuery,
+            searchPlaceholder: t.enrichTab.searchPlaceholder,
+            bulkActions: (
+              <Button
+                size="sm"
+                variant="primary"
+                leadingIcon={<SparkIcon size={13} strokeWidth={1.9} />}
+                onClick={queueEnrichment}
+                loading={queuingEnrich}
+                disabled={queuingEnrich || enrichSelected.size === 0}
+              >
+                {t.enrichTab.enrichSelected} ({enrichSelected.size})
+              </Button>
+            ),
+          }}
+          pagination={{
+            page: enrichPagination.page,
+            pageSize: enrichPagination.limit,
+            total: enrichPagination.total,
+            onPageChange: (page) => loadEnrichLeads({ page }),
+          }}
+        />
+      )}
 
-        <AudienceForm onSubmit={createAudience} submitting={submitting} />
-      </Dock>
+      <NewAudienceModal
+        open={audienceOpen}
+        onClose={closeAudience}
+        onSubmit={createAudience}
+        submitting={submitting}
+        creditBalance={user?.creditBalance ?? 0}
+      />
 
       {selectedLead && (
         <LeadDrawer

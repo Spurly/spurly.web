@@ -33,24 +33,29 @@ export const DENSITY = {
    * same vertical line as everything else in the card.
    */
   compact: {
-    row: 36,
+    row: 44,
+    header: 40,
+    padX: 14,
+    fontSize: 13,
+    avatar: 24,
+  },
+  /*
+   * v3 (Blue identity): 58px rows, 44px header, 14px gutters, 13px cells.
+   * The fit meter and the two-line name cell (name over headline) need the
+   * extra height — spurlyDESIGN.md, "Density".
+   */
+  default: {
+    row: 58,
+    header: 44,
+    padX: 14,
+    fontSize: 13,
+    avatar: 30,
+  },
+  comfortable: {
+    row: 64,
     header: 44,
     padX: 16,
     fontSize: 13,
-    avatar: 22,
-  },
-  default: {
-    row: 44,
-    header: 52,
-    padX: 16,
-    fontSize: 14,
-    avatar: 28,
-  },
-  comfortable: {
-    row: 56,
-    header: 52,
-    padX: 16,
-    fontSize: 14,
     avatar: 32,
   },
 };

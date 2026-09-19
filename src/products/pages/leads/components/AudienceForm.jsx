@@ -37,7 +37,7 @@ const NETWORK_DISTANCE_OPTIONS = [
  * importer rather than here. Caught at the field, with the fix rather than a
  * verdict: "that's a profile, run the search first".
  */
-function urlProblem(raw) {
+export function urlProblem(raw) {
   const v = raw.trim();
   if (!v) return null;
   if (!/linkedin\.com/i.test(v)) return 'That doesn\'t look like a LinkedIn URL.';
@@ -110,7 +110,7 @@ export function AudienceForm({ initialCompany = null, onSubmit, submitting = fal
   return (
     <form onSubmit={submit} className="flex flex-col">
       <div className="p-[var(--ui-pad-lg)] flex flex-col gap-2">
-        <label htmlFor="audience-url" className="text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">
+        <label htmlFor="audience-url" className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">
           Paste a LinkedIn search URL
           <span className="font-normal text-[var(--ui-text-tertiary)]"> · optional</span>
         </label>
@@ -133,13 +133,13 @@ export function AudienceForm({ initialCompany = null, onSubmit, submitting = fal
           )}
         </div>
         {urlError ? (
-          <p className="text-[var(--ui-t-label)] text-[var(--ui-danger-fg)] leading-relaxed">{urlError}</p>
+          <p className="text-[length:var(--ui-t-label)] text-[var(--ui-danger-fg)] leading-relaxed">{urlError}</p>
         ) : usingUrl ? (
-          <p className="text-[var(--ui-t-label)] text-[var(--ui-accent-fg)] leading-relaxed">
+          <p className="text-[length:var(--ui-t-label)] text-[var(--ui-accent-fg)] leading-relaxed">
             Using this URL. The filters below are off — a results URL already carries its own.
           </p>
         ) : (
-          <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] leading-relaxed">
+          <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)] leading-relaxed">
             Run the search on LinkedIn, then paste the results URL. Or leave this empty and build the
             audience from the filters below.
           </p>
@@ -168,7 +168,7 @@ export function AudienceForm({ initialCompany = null, onSubmit, submitting = fal
             value={school} onChange={setSchool} disabled={filtersOff} />
 
           <div className="flex flex-col gap-2">
-            <span className="text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">
+            <span className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">
               Connection degree
             </span>
             <div
@@ -186,7 +186,7 @@ export function AudienceForm({ initialCompany = null, onSubmit, submitting = fal
                     onClick={() => toggleDistance(opt.value)}
                     aria-pressed={active}
                     className={[
-                      'h-[30px] px-3.5 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-label)] font-medium',
+                      'h-[30px] px-3.5 rounded-[var(--ui-radius-sm)] text-[length:var(--ui-t-label)] font-medium',
                       'transition-colors duration-[var(--ui-dur-fast)]',
                       'focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]',
                       'disabled:cursor-not-allowed',
@@ -203,7 +203,7 @@ export function AudienceForm({ initialCompany = null, onSubmit, submitting = fal
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="audience-keywords" className="text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">
+            <label htmlFor="audience-keywords" className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">
               Keywords
             </label>
             <Input id="audience-keywords" fullWidth value={keywords} disabled={filtersOff}
@@ -211,7 +211,7 @@ export function AudienceForm({ initialCompany = null, onSubmit, submitting = fal
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="audience-title" className="text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">
+            <label htmlFor="audience-title" className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">
               Title contains
             </label>
             <Input id="audience-title" fullWidth value={title} disabled={filtersOff}
@@ -219,7 +219,7 @@ export function AudienceForm({ initialCompany = null, onSubmit, submitting = fal
           </div>
         </div>
 
-        <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] leading-relaxed">
+        <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)] leading-relaxed">
           Pick from the suggestions as you type — LinkedIn matches its own internal ids, not plain
           text, so a filter only takes effect once you have selected a chip.
         </p>

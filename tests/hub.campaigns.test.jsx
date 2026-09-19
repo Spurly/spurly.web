@@ -179,6 +179,9 @@ describe('campaign detail', () => {
     renderAt('/hub/campaigns/camp-1');
     await waitFor(() => expect(screen.getByText(/plain connection request/i)).toBeInTheDocument());
     expect(screen.queryByLabelText(/connection note/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /edit note/i })).not.toBeInTheDocument();
+    // The reason sits one click away ("Why?") rather than as permanent weight.
+    await userEvent.click(screen.getByRole('button', { name: /why\?/i }));
     expect(screen.getByText(/need linkedin premium/i)).toBeInTheDocument();
   });
 
@@ -187,6 +190,7 @@ describe('campaign detail', () => {
 
     renderAt('/hub/campaigns/camp-1');
 
+    await userEvent.click(await screen.findByRole('button', { name: /edit note/i }));
     const field = await screen.findByLabelText(/connection note/i);
     expect(field).toHaveAttribute('maxLength', '300');
   });
@@ -196,8 +200,8 @@ describe('campaign detail', () => {
 
     renderAt('/hub/campaigns/camp-1');
 
-    const field = await screen.findByLabelText(/connection note/i);
-    expect(field).toBeDisabled();
+    const edit = await screen.findByRole('button', { name: /edit note/i });
+    expect(edit).toBeDisabled();
     expect(screen.getByText(/pause the campaign to change the note/i)).toBeInTheDocument();
   });
 

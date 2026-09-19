@@ -12,7 +12,8 @@
 export const campaignsStrings = {
   list: {
     pageTitle: 'Campaigns',
-    pageSubtitle: 'Connection requests and messages, sent from our servers on a human schedule.',
+    pageSubtitle: 'Each campaign pairs an audience with what to send, and runs inside your daily cap. Spurly reports what it did, not what it might do.',
+    newCampaign: 'New campaign',
     sectionTitle: 'Campaigns',
     loading: 'Loading…',
     emptyTitle: 'No campaigns yet',

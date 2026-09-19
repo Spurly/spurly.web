@@ -80,13 +80,13 @@ export function LinkedInCallbackPage() {
             <div className="w-12 h-12 border-4 border-white/20 border-t-spurly-purple rounded-full animate-spin"></div>
           </div>
         </div>
-        <h1 className="text-[var(--ui-t-metric)] font-medium text-white mb-4">Completing LinkedIn Login</h1>
-        <p className="text-[var(--ui-text-secondary)] text-[var(--ui-t-body)]">Please wait while we authenticate you...</p>
+        <h1 className="text-[length:var(--ui-t-metric)] font-medium text-white mb-4">Completing LinkedIn Login</h1>
+        <p className="text-[var(--ui-text-secondary)] text-[length:var(--ui-t-body)]">Please wait while we authenticate you...</p>
 
         {error && (
           <div className="mt-8 text-[var(--ui-danger-fg)] text-center">
-            <p className="text-[var(--ui-t-body)] font-medium mb-2">⚠️ {error}</p>
-            <p className="text-[var(--ui-t-label)]">Redirecting back to login page...</p>
+            <p className="text-[length:var(--ui-t-body)] font-medium mb-2">⚠️ {error}</p>
+            <p className="text-[length:var(--ui-t-label)]">Redirecting back to login page...</p>
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { DashboardLayout } from 'src/core/layout/DashboardLayout';
+import { SettingsFrame } from '../accountSettings/components/SettingsFrame.jsx';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { Skeleton } from 'src/core/primitives';
 import { useLinkedInSettings } from 'src/products/settings/hooks/useLinkedInSettings.js';
@@ -21,8 +21,7 @@ export function LinkedInSettingsPage() {
   const { account, loading, busy, handleConnect, handleRefresh, handleDisconnect } = useLinkedInSettings();
 
   return (
-    <DashboardLayout title={t.pageTitle} subtitle={t.pageSubtitle}>
-      <div className="p-[var(--ui-pad-lg)] max-w-[720px] flex flex-col gap-4">
+    <SettingsFrame activeTab="linkedin">
         {loading ? (
           <SectionCard title={t.sectionTitle}>
             <div className="flex flex-col gap-3">
@@ -42,8 +41,7 @@ export function LinkedInSettingsPage() {
             {account?.connected && !account?.isPremium && <FreeAccountNotice />}
           </>
         )}
-      </div>
-    </DashboardLayout>
+    </SettingsFrame>
   );
 }
 

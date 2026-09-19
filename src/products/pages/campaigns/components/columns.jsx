@@ -1,5 +1,4 @@
-import { LinkedInIcon } from 'src/core/icons';
-import { TextCell, PersonCell, LinkCell, DateCell } from 'src/core/DataTable';
+import { TextCell, PersonCell, ActivityCell } from 'src/core/DataTable';
 import { Badge } from 'src/core/primitives';
 
 /**
@@ -18,11 +17,11 @@ import { Badge } from 'src/core/primitives';
 
 const STATUS_VIEW = {
   pending: { label: 'Queued', tone: 'neutral' },
-  invited: { label: 'Invited', tone: 'success' },
+  invited: { label: 'Invited', tone: 'accent' },
   skipped: { label: 'Skipped', tone: 'neutral' },
   failed: { label: 'Failed', tone: 'danger' },
   connected: { label: 'Connected', tone: 'success' },
-  messaged: { label: 'Messaged', tone: 'info' },
+  messaged: { label: 'Messaged', tone: 'accent' },
 };
 
 /**
@@ -42,33 +41,23 @@ const SKIP_REASON = {
 
 export const hubMemberColumns = [
   {
-    key: 'profileUrl',
-    label: <LinkedInIcon size={14} aria-label="LinkedIn" />,
-    width: 44,
-    align: 'center',
-    render: (value) => <LinkCell href={value} icon={<LinkedInIcon size={14} />} label="Open LinkedIn profile" />,
-  },
-  {
     key: 'name',
     label: 'Name',
-    width: 200,
-    title: (row) => row.name,
-    render: (value, row) => <PersonCell name={value} profileUrl={row.profileUrl} />,
-  },
-  {
-    key: 'headline',
-    label: 'Headline',
-    width: 260,
-    title: (row) => row.headline,
-    render: (value) => <TextCell value={value} tone="secondary" />,
+    width: 300,
+    title: (row) => [row.name, row.headline].filter(Boolean).join(' — '),
+    render: (value, row) => <PersonCell name={value} profileUrl={row.profileUrl} subtitle={row.headline} />,
   },
   {
     key: 'status',
     label: 'Status',
-    width: 120,
+    width: 130,
     render: (value) => {
       const view = STATUS_VIEW[value] ?? STATUS_VIEW.pending;
-      return <Badge tone={view.tone}>{view.label}</Badge>;
+      return (
+        <Badge tone={view.tone} dot>
+          {view.label}
+        </Badge>
+      );
     },
   },
   {
@@ -78,14 +67,12 @@ export const hubMemberColumns = [
     // One column for both explanations: a row is skipped or it failed, never
     // both, and two half-empty columns would read as missing data.
     title: (row) => SKIP_REASON[row.skipReason] || row.lastError || '',
-    render: (value, row) => (
-      <TextCell value={SKIP_REASON[value] || row.lastError || '—'} tone="secondary" />
-    ),
+    render: (value, row) => <TextCell value={SKIP_REASON[value] || row.lastError || null} tone="secondary" />,
   },
   {
     key: 'sentAt',
     label: 'Sent',
-    width: 140,
-    render: (value) => (value ? <DateCell value={value} /> : <TextCell value="—" tone="tertiary" />),
+    width: 130,
+    render: (value) => <ActivityCell label={value ? 'Sent' : null} at={value} />,
   },
 ];

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#f7f9fc; -webkit-font-smoothing:antialiased; }
+  * { box-sizing:border-box; }
+  a { color:#0544a5; text-decoration:none; }
+  a:hover { color:#3c83f6; text-decoration:underline; }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb { background:#dfe3ea; border-radius:99px; border:3px solid transparent; background-clip:content-box; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  @keyframes sp-pulse { 0%,100% { opacity:1; transform:scale(1);} 50% { opacity:.3; transform:scale(.75);} }
+  @keyframes sp-rise { from { transform:translateY(8px); opacity:0; } to { transform:none; opacity:1; } }
+  @keyframes sp-scan { 0% { left:-32%; } 100% { left:100%; } }
+  @keyframes sp-drawer { from { transform:translateX(24px); opacity:0; } to { transform:none; opacity:1; } }
+  @keyframes sp-scrim { from { opacity:0; } to { opacity:1; } }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+</style>
+</helmet>
+
+<div style="display:flex;height:100vh;min-height:600px;width:100%;overflow:hidden;background:#f7f9fc;font-family:Geist,'Helvetica Neue',Arial,sans-serif;color:#18181b;font-size:14px;letter-spacing:-0.006em;">
+
+  <aside style="width:244px;flex-shrink:0;display:flex;flex-direction:column;background:#f2f5fa;border-right:1px solid #e4e4e7;">
+    <div style="display:flex;align-items:center;gap:9px;height:56px;flex-shrink:0;padding:0 16px;">
+      <img src="assets/spurly-icon.png" alt="" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;" />
+      <span style="font-size:15px;font-weight:600;letter-spacing:-0.024em;">Spurly</span>
+    </div>
+    <div style="padding:0 12px 12px;">
+      <button type="button" style="display:flex;align-items:center;gap:8px;width:100%;height:34px;padding:0 10px;border:1px solid #dfe3ea;background:#ffffff;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;color:#5e616e;text-align:left;transition:border-color 160ms ease,box-shadow 160ms ease,color 160ms ease;" style-hover="border-color:#b9d4ff;color:#18181b;box-shadow:0 0 0 3px rgba(60,131,246,.10);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3c83f6" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path></svg>
+        <span style="flex:1;">Ask Spurly</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;border:1px solid #e9eaee;border-radius:4px;padding:1px 4px;">⌘K</span>
+      </button>
+    </div>
+    <nav style="flex:1;overflow-y:auto;padding:0 12px;display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <p style="margin:0 0 4px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Prospect</p>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M3 11l9-7 9 7v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Home</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="2"></circle><path d="M12 5a7 7 0 0 1 7 7"></path><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Leads</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;flex-shrink:0;">1.2K</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path><path d="M18.5 15.5l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Enrichment</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#a45309;flex-shrink:0;"><span style="width:5px;height:5px;border-radius:99px;background:#f59e0b;animation:sp-pulse 1.6s ease-in-out infinite;"></span>14</span>
+        </a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <p style="margin:0 0 4px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Engage</p>
+        <a href="#" style="position:relative;display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:500;color:#0544a5;background:#e6efff;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <span style="position:absolute;left:0;top:8px;bottom:8px;width:2px;border-radius:0 99px 99px 0;background:#3c83f6;"></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M21 3L3 10.5l7 2.5 2.5 7z"></path><path d="M21 3l-11 10"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Campaigns</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#5b87c8;flex-shrink:0;">3</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="3" width="6" height="6" rx="1.5"></rect><rect x="15" y="15" width="6" height="6" rx="1.5"></rect><path d="M6 9v4a2 2 0 0 0 2 2h7"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Sequences</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M4 13h4l1.5 3h5L16 13h4"></path><path d="M4 13l2.5-8h11L20 13v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Inbox</span>
+          <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:#3c83f6;color:#ffffff;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;flex-shrink:0;">7</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7z"></path><path d="M14 3v4h4"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Templates</span>
+        </a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <p style="margin:0 0 4px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Manage</p>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Settings</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M7.5 10.5v6"></path><path d="M7.5 7.6v.1"></path><path d="M11.5 16.5v-6"></path><path d="M11.5 13.2a2.7 2.7 0 0 1 5 1.2v2.1"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">LinkedIn</span>
+          <span style="width:6px;height:6px;border-radius:99px;background:#12b981;flex-shrink:0;"></span>
+        </a>
+      </div>
+    </nav>
+    <div style="flex-shrink:0;padding:10px 12px 12px;border-top:1px solid #e4e4e7;">
+      <div style="padding:4px 10px 8px;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Daily cap</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:11px;color:#5e616e;">18/25</span>
+        </div>
+        <div style="height:3px;border-radius:99px;background:#e0e5ee;overflow:hidden;margin-top:6px;"><div style="height:100%;width:72%;border-radius:99px;background:#3c83f6;"></div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;height:44px;padding:0 8px;border-radius:8px;cursor:pointer;transition:background-color 160ms ease;" style-hover="background:#e7ecf5;">
+        <div style="width:26px;height:26px;border-radius:99px;background:#dbe7fb;color:#0544a5;display:grid;place-items:center;font-size:11px;font-weight:600;flex-shrink:0;">MK</div>
+        <div style="min-width:0;flex:1;">
+          <p style="margin:0;font-size:12.5px;font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marcus Kellner</p>
+          <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">marcus@spurly.io</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;">
+    <header style="flex-shrink:0;display:flex;align-items:flex-start;gap:16px;padding:20px 24px 0;">
+      <div style="min-width:0;flex:1;">
+        <h1 style="margin:0;font-size:26px;font-weight:600;letter-spacing:-0.03em;line-height:1.15;">Campaigns</h1>
+        <p style="margin:5px 0 0;font-size:13.5px;color:#5e616e;line-height:1.45;max-width:62ch;">Each campaign pairs an audience with a sequence and runs inside your daily cap. Spurly reports what it did, not what it might do.</p>
+      </div>
+      <button type="button" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 14px;border:0;background:#3c83f6;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#ffffff;cursor:pointer;flex-shrink:0;margin-top:4px;white-space:nowrap;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff;transition:background-color 160ms ease,box-shadow 160ms ease,transform 160ms ease;" style-hover="background:#1e6fe8;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff, 0 5px 16px rgba(60,131,246,.34);" style-active="transform:translateY(1px);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+        New campaign
+      </button>
+    </header>
+
+    <main style="flex:1;min-height:0;overflow-y:auto;padding:18px 24px 28px;">
+
+      <div style="position:relative;display:flex;align-items:center;gap:10px;padding:0 14px;height:42px;background:#f3f8ff;border:1px solid #dbe7fb;border-radius:11px;overflow:hidden;box-shadow:inset 2px 0 0 #3c83f6;">
+        <span style="position:absolute;top:0;bottom:0;width:30%;background:linear-gradient(90deg,transparent,rgba(60,131,246,.10),transparent);animation:sp-scan 2.4s linear infinite;"></span>
+        <span style="position:relative;width:6px;height:6px;border-radius:99px;background:#3c83f6;animation:sp-pulse 1.4s ease-in-out infinite;flex-shrink:0;"></span>
+        <span style="position:relative;font-size:12.5px;color:#0544a5;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><strong style="font-weight:500;">{{ verb }}…</strong> <span style="color:#3f6ba8;">2 campaigns sending · next send in 11 minutes</span></span>
+        <span style="position:relative;margin-left:auto;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:11.5px;color:#0544a5;flex-shrink:0;">18 sent today</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:14px;">
+        <sc-for list="{{ metrics }}" as="m" hint-placeholder-count="4">
+          <div style="padding:16px;background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;box-shadow:0 1px 2px rgba(24,24,27,.03);transition:border-color 160ms ease,box-shadow 160ms ease;" style-hover="border-color:#b9d4ff;box-shadow:0 4px 16px rgba(60,131,246,.09);">
+            <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">{{ m.k }}</p>
+            <p style="margin:8px 0 0;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:26px;font-weight:500;letter-spacing:-0.024em;line-height:1;">{{ m.v }}</p>
+            <div style="height:3px;border-radius:99px;background:#eceff4;overflow:hidden;margin-top:12px;"><div style="height:100%;border-radius:99px;width:{{ m.w }};background:{{ m.bar }}"></div></div>
+            <p style="margin:9px 0 0;font-size:12px;color:#5e616e;line-height:1.45;">{{ m.note }}</p>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:6px;margin:18px 0 12px;flex-wrap:wrap;">
+        <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+          <button type="button" onClick="{{ f.pick }}" style="display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:99px;font-family:inherit;font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background-color 160ms ease,border-color 160ms ease,color 160ms ease;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }}">
+            {{ f.label }}
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:{{ f.countFg }};">{{ f.count }}</span>
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px;">
+        <sc-for list="{{ campaigns }}" as="c" hint-placeholder-count="4">
+          <div onClick="{{ c.open }}" style="position:relative;padding:18px;background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;cursor:pointer;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,27,.03);transition:border-color 180ms ease,box-shadow 180ms ease,transform 180ms ease;animation:sp-rise 240ms cubic-bezier(.32,.72,0,1) both;" style-hover="border-color:#b9d4ff;box-shadow:0 8px 24px rgba(60,131,246,.12);transform:translateY(-2px);">
+            <span style="position:absolute;left:0;top:0;bottom:0;width:2px;background:{{ c.spine }};"></span>
+
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="min-width:0;flex:1;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="display:inline-flex;align-items:center;gap:6px;height:21px;padding:0 8px;border-radius:6px;font-size:11px;font-weight:500;white-space:nowrap;color:{{ c.stateFg }};background:{{ c.stateBg }}">
+                    <span style="width:5px;height:5px;border-radius:99px;background:{{ c.stateDot }};animation:{{ c.anim }}"></span>{{ c.state }}
+                  </span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;white-space:nowrap;">{{ c.updated }}</span>
+                </div>
+                <p style="margin:9px 0 0;font-size:15.5px;font-weight:600;letter-spacing:-0.022em;line-height:1.3;">{{ c.name }}</p>
+                <p style="margin:4px 0 0;font-size:12.5px;color:#5e616e;line-height:1.5;">{{ c.audience }} · {{ c.sequence }}</p>
+              </div>
+              <button type="button" aria-label="More" style="display:grid;place-items:center;width:28px;height:28px;border:0;background:transparent;border-radius:7px;color:#9aa0b0;cursor:pointer;flex-shrink:0;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#f0f2f6;color:#18181b;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle></svg>
+              </button>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px;margin-top:14px;">
+              <div style="flex:1;height:3px;border-radius:99px;background:#eceff4;overflow:hidden;"><div style="height:100%;border-radius:99px;transition:width 340ms cubic-bezier(.2,0,.1,1);width:{{ c.w }};background:{{ c.bar }}"></div></div>
+              <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:11px;color:#5e616e;flex-shrink:0;white-space:nowrap;">{{ c.progress }}</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid #f1f2f5;">
+              <sc-for list="{{ c.stats }}" as="s" hint-placeholder-count="3">
+                <div style="min-width:0;">
+                  <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:#5e616e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ s.k }}</p>
+                  <p style="margin:5px 0 0;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:15px;font-weight:500;letter-spacing:-0.018em;color:{{ s.fg }}">{{ s.v }}</p>
+                </div>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ c.hasNote }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:flex-start;gap:8px;margin-top:13px;padding:10px 11px;border-radius:10px;background:{{ c.noteBg }};">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="{{ c.noteFg }}" stroke-width="1.9" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path></svg>
+                <span style="font-size:12px;line-height:1.55;color:{{ c.noteFg }}">{{ c.note }}</span>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </main>
+  </div>
+
+  <sc-if value="{{ detail }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:60;display:flex;justify-content:flex-end;">
+      <div onClick="{{ closeDetail }}" style="position:absolute;inset:0;background:rgba(10,18,32,.28);animation:sp-scrim 200ms ease both;"></div>
+      <div style="position:relative;width:428px;max-width:94vw;height:100%;background:#ffffff;border-left:1px solid #e4e4e7;box-shadow:-24px 0 60px rgba(10,18,32,.14);display:flex;flex-direction:column;animation:sp-drawer 280ms cubic-bezier(.32,.72,0,1) both;overflow:hidden;">
+        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:10px;height:52px;padding:0 16px;border-bottom:1px solid #edeef2;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Campaign</span>
+          <button type="button" onClick="{{ closeDetail }}" aria-label="Close" style="display:grid;place-items:center;width:28px;height:28px;border:0;background:transparent;border-radius:7px;color:#777a88;cursor:pointer;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#f0f2f6;color:#18181b;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>
+          </button>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow-y:auto;padding:20px 20px 24px;">
+          <span style="display:inline-flex;align-items:center;gap:6px;height:21px;padding:0 8px;border-radius:6px;font-size:11px;font-weight:500;color:{{ detail.stateFg }};background:{{ detail.stateBg }}">
+            <span style="width:5px;height:5px;border-radius:99px;background:{{ detail.stateDot }};animation:{{ detail.anim }}"></span>{{ detail.state }}
+          </span>
+          <h2 style="margin:10px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.026em;line-height:1.25;">{{ detail.name }}</h2>
+          <p style="margin:6px 0 0;font-size:13px;color:#5e616e;line-height:1.55;">{{ detail.audience }} · {{ detail.sequence }}</p>
+
+          <div style="display:flex;align-items:center;gap:7px;margin-top:16px;">
+            <button type="button" style="flex:1;height:32px;border:0;background:#3c83f6;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#ffffff;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff;transition:background-color 160ms ease,box-shadow 160ms ease;" style-hover="background:#1e6fe8;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff, 0 4px 14px rgba(60,131,246,.3);">{{ detail.primary }}</button>
+            <button type="button" style="height:32px;padding:0 13px;border:1px solid #e4e4e7;background:#ffffff;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#2e3038;cursor:pointer;white-space:nowrap;transition:border-color 160ms ease,box-shadow 160ms ease;" style-hover="border-color:#b9d4ff;box-shadow:0 0 0 3px rgba(60,131,246,.10);">Edit sequence</button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px;">
+            <sc-for list="{{ detail.stats }}" as="s" hint-placeholder-count="4">
+              <div style="padding:12px;border:1px solid #edeef2;border-radius:11px;">
+                <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">{{ s.k }}</p>
+                <p style="margin:6px 0 0;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:19px;font-weight:500;letter-spacing:-0.02em;color:{{ s.fg }}">{{ s.v }}</p>
+              </div>
+            </sc-for>
+          </div>
+
+          <p style="margin:22px 0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Funnel</p>
+          <div style="display:flex;flex-direction:column;gap:11px;">
+            <sc-for list="{{ detail.funnel }}" as="f" hint-placeholder-count="5">
+              <div>
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;">
+                  <span style="font-size:12.5px;color:#2e3038;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ f.label }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:11.5px;color:#5e616e;flex-shrink:0;">{{ f.v }}</span>
+                </div>
+                <div style="height:3px;border-radius:99px;background:#eceff4;overflow:hidden;margin-top:6px;"><div style="height:100%;border-radius:99px;transition:width 340ms cubic-bezier(.2,0,.1,1);width:{{ f.w }};background:{{ f.bar }}"></div></div>
+              </div>
+            </sc-for>
+          </div>
+
+          <p style="margin:22px 0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Recent activity</p>
+          <div style="display:flex;flex-direction:column;gap:14px;padding-left:4px;">
+            <sc-for list="{{ detail.timeline }}" as="t" hint-placeholder-count="4">
+              <div style="display:flex;gap:11px;">
+                <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;">
+                  <span style="width:7px;height:7px;border-radius:99px;background:{{ t.dot }};"></span>
+                  <span style="flex:1;width:1px;background:#e9eaee;margin-top:4px;"></span>
+                </div>
+                <div style="min-width:0;padding-bottom:2px;">
+                  <p style="margin:0;font-size:13px;line-height:1.45;">{{ t.label }}</p>
+                  <p style="margin:2px 0 0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;">{{ t.at }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+const VERBS = ['Sending', 'Watching', 'Scoring', 'Spurling', 'Reconciling', 'Drafting'];
+
+const NAV = [
+  { label: 'Prospect', items: [
+    { label: 'Home', count: '' },
+    { label: 'Leads', count: '1.2K' },
+    { label: 'Enrichment', count: '14', warn: true },
+  ] },
+  { label: 'Engage', items: [
+    { label: 'Campaigns', count: '3', active: true },
+    { label: 'Sequences', count: '' },
+    { label: 'Inbox', count: '7', accent: true },
+    { label: 'Templates', count: '' },
+  ] },
+  { label: 'Manage', items: [
+    { label: 'Settings', count: '' },
+    { label: 'LinkedIn', count: '' },
+  ] },
+];
+
+const STATE = {
+  Sending:  ['#eaf2ff', '#0544a5', '#3c83f6', 'sp-pulse 1.6s ease-in-out infinite', '#3c83f6'],
+  Paused:   ['#fef6e7', '#a45309', '#f59e0b', 'none', '#f59e0b'],
+  Draft:    ['#f0f2f6', '#2e3038', '#9aa0b0', 'none', '#cfd3dd'],
+  Finished: ['#e8faf2', '#07784f', '#12b981', 'none', '#12b981'],
+};
+
+const CAMPAIGNS = [
+  {
+    id: 'c1', name: 'EU logistics — VP+ outreach', audience: '214 leads', sequence: '6-step sequence', state: 'Sending', updated: 'sent 11m ago',
+    w: '64%', progress: '160/250',
+    stats: [{ k: 'Accepted', v: '61' }, { k: 'Replied', v: '12' }, { k: 'Reply rate', v: '5.6%', good: true }],
+    note: 'Reply rate is running 2.1 points above your account average.', noteGood: true,
+    funnel: [
+      { label: 'Enrolled', v: '214', w: '100%' },
+      { label: 'Invite sent', v: '196', w: '92%' },
+      { label: 'Accepted', v: '61', w: '31%' },
+      { label: 'Messaged', v: '61', w: '31%' },
+      { label: 'Replied', v: '12', w: '6%', good: true },
+    ],
+    timeline: [
+      { label: 'Sofia Marchetti replied', at: '4h ago', dot: '#12b981' },
+      { label: '18 invites sent inside the daily cap', at: 'today, 09:00 onwards', dot: '#3c83f6' },
+      { label: 'Spurly drafted 14 openers', at: 'today, 08:40', dot: '#3c83f6' },
+      { label: 'Campaign resumed after cap reset', at: 'today, 08:00', dot: '#c3c7d1' },
+    ],
+  },
+  {
+    id: 'c2', name: 'Nordic CROs', audience: '215 leads', sequence: '4-step sequence', state: 'Sending', updated: 'sent 32m ago',
+    w: '88%', progress: '190/215',
+    stats: [{ k: 'Accepted', v: '74' }, { k: 'Replied', v: '19' }, { k: 'Reply rate', v: '8.8%', good: true }],
+    note: 'Runs out of leads in 2 days at the current send rate.', noteGood: false,
+    funnel: [
+      { label: 'Enrolled', v: '215', w: '100%' },
+      { label: 'Invite sent', v: '190', w: '88%' },
+      { label: 'Accepted', v: '74', w: '34%' },
+      { label: 'Messaged', v: '74', w: '34%' },
+      { label: 'Replied', v: '19', w: '9%', good: true },
+    ],
+    timeline: [
+      { label: 'Audience is 88% consumed', at: 'now', dot: '#f59e0b' },
+      { label: '11 invites sent', at: 'today, 09:20', dot: '#3c83f6' },
+      { label: 'Jonas Lindqvist accepted', at: 'yesterday', dot: '#12b981' },
+      { label: 'Follow-up step edited', at: '2 days ago', dot: '#c3c7d1' },
+    ],
+  },
+  {
+    id: 'c3', name: 'DACH partnerships', audience: '200 leads', sequence: '5-step sequence', state: 'Paused', updated: 'paused 2d ago',
+    w: '22%', progress: '44/200',
+    stats: [{ k: 'Accepted', v: '12' }, { k: 'Replied', v: '1' }, { k: 'Reply rate', v: '2.3%' }],
+    note: 'Paused by you after the first 44 sends. Nothing has gone out since.', noteGood: false,
+    funnel: [
+      { label: 'Enrolled', v: '200', w: '100%' },
+      { label: 'Invite sent', v: '44', w: '22%' },
+      { label: 'Accepted', v: '12', w: '6%' },
+      { label: 'Messaged', v: '12', w: '6%' },
+      { label: 'Replied', v: '1', w: '1%' },
+    ],
+    timeline: [
+      { label: 'Campaign paused by Marcus', at: '2 days ago', dot: '#f59e0b' },
+      { label: '44 invites sent', at: '3 days ago', dot: '#3c83f6' },
+      { label: 'Campaign started', at: '4 days ago', dot: '#c3c7d1' },
+    ],
+  },
+  {
+    id: 'c4', name: 'Q3 winbacks', audience: '128 leads', sequence: '3-step sequence', state: 'Finished', updated: 'ended 6d ago',
+    w: '100%', progress: '128/128',
+    stats: [{ k: 'Accepted', v: '39' }, { k: 'Replied', v: '14' }, { k: 'Reply rate', v: '10.9%', good: true }],
+    note: '', noteGood: true,
+    funnel: [
+      { label: 'Enrolled', v: '128', w: '100%' },
+      { label: 'Invite sent', v: '128', w: '100%' },
+      { label: 'Accepted', v: '39', w: '30%' },
+      { label: 'Messaged', v: '39', w: '30%' },
+      { label: 'Replied', v: '14', w: '11%', good: true },
+    ],
+    timeline: [
+      { label: 'Campaign completed', at: '6 days ago', dot: '#12b981' },
+      { label: 'Final 22 invites sent', at: '7 days ago', dot: '#3c83f6' },
+      { label: 'Campaign started', at: '3 weeks ago', dot: '#c3c7d1' },
+    ],
+  },
+];
+
+class Component extends DCLogic {
+  state = { verb: 0, filter: 'All', detail: null };
+
+  componentDidMount() { this._t = setInterval(() => this.setState((s) => ({ verb: s.verb + 1 })), 2600); }
+  componentWillUnmount() { clearInterval(this._t); }
+
+  decorate(c) {
+    const [stateBg, stateFg, stateDot, anim, spine] = STATE[c.state];
+    return {
+      ...c, stateBg, stateFg, stateDot, anim, spine,
+      bar: c.state === 'Paused' ? '#f59e0b' : c.state === 'Finished' ? '#12b981' : '#3c83f6',
+      stats: c.stats.map((s) => ({ ...s, fg: s.good ? '#07784f' : '#18181b' })),
+      hasNote: !!c.note,
+      noteBg: c.noteGood ? '#e8faf2' : '#fef6e7',
+      noteFg: c.noteGood ? '#07784f' : '#a45309',
+      funnel: c.funnel.map((f) => ({ ...f, bar: f.good ? '#12b981' : '#3c83f6' })),
+      primary: c.state === 'Sending' ? 'Pause campaign' : c.state === 'Paused' ? 'Resume campaign' : 'Duplicate',
+    };
+  }
+
+  renderVals() {
+    const { verb, filter, detail } = this.state;
+    const counts = { All: CAMPAIGNS.length };
+    ['Sending', 'Paused', 'Finished'].forEach((k) => { counts[k] = CAMPAIGNS.filter((c) => c.state === k).length; });
+    const shown = filter === 'All' ? CAMPAIGNS : CAMPAIGNS.filter((c) => c.state === filter);
+    const d = detail ? this.decorate(CAMPAIGNS.find((c) => c.id === detail)) : null;
+
+    return {
+      verb: VERBS[verb % VERBS.length],
+
+      navGroups: NAV.map((g) => ({
+        label: g.label,
+        items: g.items.map((it) => ({
+          label: it.label, count: it.count,
+          weight: it.active ? 500 : 400,
+          fg: it.active ? '#0544a5' : '#5e616e',
+          bg: it.active ? '#e6efff' : 'transparent',
+          spine: it.active ? '#3c83f6' : 'transparent',
+          dot: it.active ? '#3c83f6' : it.warn ? '#f59e0b' : it.accent ? '#12b981' : '#cfd3dd',
+          countFg: it.active ? '#5b87c8' : '#777a88',
+        })),
+      })),
+
+      metrics: [
+        { k: 'Sending now', v: '2', w: '50%', bar: '#3c83f6', note: 'Both inside the 25-a-day cap' },
+        { k: 'In flight', v: '429', w: '76%', bar: '#3c83f6', note: 'People part-way through a sequence' },
+        { k: 'Accepted', v: '186', w: '31%', bar: '#12b981', note: '31% of everyone invited' },
+        { k: 'Replies waiting', v: '7', w: '54%', bar: '#f59e0b', note: 'Oldest has been sitting 2 days' },
+      ],
+
+      filters: ['All', 'Sending', 'Paused', 'Finished'].map((label) => {
+        const on = filter === label;
+        return {
+          label, count: counts[label] || 0,
+          border: on ? '#b9d4ff' : '#e4e4e7',
+          bg: on ? '#eaf2ff' : '#ffffff',
+          fg: on ? '#0544a5' : '#2e3038',
+          countFg: on ? '#3f6ba8' : '#777a88',
+          pick: () => this.setState({ filter: label }),
+        };
+      }),
+
+      campaigns: shown.map((c) => ({ ...this.decorate(c), open: () => this.setState({ detail: c.id }) })),
+
+      detail: d && {
+        ...d,
+        stats: [
+          { k: 'Enrolled', v: d.funnel[0].v, fg: '#18181b' },
+          { k: 'Invites sent', v: d.funnel[1].v, fg: '#18181b' },
+          { k: 'Accepted', v: d.funnel[2].v, fg: '#18181b' },
+          { k: 'Replied', v: d.funnel[4].v, fg: '#07784f' },
+        ],
+      },
+      closeDetail: () => this.setState({ detail: null }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

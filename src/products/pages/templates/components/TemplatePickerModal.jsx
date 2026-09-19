@@ -119,12 +119,12 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
               </div>
             )}
             <div className="min-w-0">
-              <h2 className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em] truncate">
+              <h2 className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em] truncate">
                 {creating
                   ? `New ${isConnection ? 'connection note' : 'message'} template`
                   : `Choose a ${isConnection ? 'connection note' : 'message'}`}
               </h2>
-              <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5">
+              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5">
                 {creating
                   ? 'It will be saved and applied to this campaign.'
                   : 'The text is copied in — you can edit it before sending.'}
@@ -168,7 +168,7 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search templates…"
                   autoFocus
-                  className="w-full h-9 pl-9 pr-3 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors"
+                  className="w-full h-9 pl-9 pr-3 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] transition-colors"
                 />
               </div>
             </div>
@@ -177,7 +177,7 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
             <div className="flex-1 min-h-0 overflow-y-auto px-[var(--ui-pad-lg)] pb-4">
               {error && (
                 <div
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-body)] mb-3"
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] mb-3"
                   style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)' }}
                 >
                   <AlertCircle size={14} className="shrink-0" />
@@ -197,10 +197,10 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
                 </div>
               ) : filtered.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
+                  <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
                     {search ? 'No templates match your search' : 'No templates yet'}
                   </p>
-                  <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1">
+                  <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1">
                     {search
                       ? 'Try a different search term.'
                       : 'Create one here, or on the Templates page.'}
@@ -222,7 +222,7 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
                         }}
                       >
                         <div className="flex items-center gap-2">
-                          <span className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] truncate">
+                          <span className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] truncate">
                             {template.name}
                           </span>
                           {template.isFavorite && (
@@ -234,7 +234,7 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
                           )}
                           {willTrim && (
                             <span
-                              className="ml-auto shrink-0 text-[var(--ui-t-meta)] font-medium px-1.5 py-0.5 rounded-[var(--ui-radius-sm)]"
+                              className="ml-auto shrink-0 text-[length:var(--ui-t-meta)] font-medium px-1.5 py-0.5 rounded-[var(--ui-radius-sm)]"
                               style={{ background: 'var(--ui-warning-tint)', color: 'var(--ui-warning)' }}
                             >
                               Will be trimmed
@@ -244,7 +244,7 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
                         {/* Preview with sample data — closer to what actually
                             goes out than the raw {{token}} form. */}
                         <p
-                          className="text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-1 leading-snug"
+                          className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-1 leading-snug"
                           style={{
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
@@ -271,7 +271,7 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
                   setFormError(null);
                   setCreating(true);
                 }}
-                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] font-medium transition-colors"
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-sm)] text-[length:var(--ui-t-body)] font-medium transition-colors"
                 style={{
                   background: 'var(--ui-surface-sunken)',
                   color: 'var(--ui-text-primary)',
@@ -283,7 +283,7 @@ export function TemplatePickerModal({ action, onPick, onClose, maxLength }) {
               <div className="flex-1" />
               <button
                 onClick={onClose}
-                className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[var(--ui-t-body)] font-medium text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-hover)] hover:text-[var(--ui-text-primary)] transition-colors"
+                className="h-8 px-3 rounded-[var(--ui-radius-sm)] text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-hover)] hover:text-[var(--ui-text-primary)] transition-colors"
               >
                 Cancel
               </button>

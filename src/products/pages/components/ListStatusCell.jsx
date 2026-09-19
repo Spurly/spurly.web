@@ -30,7 +30,7 @@ export function ListStatusCell({ view, running = false, pausedReason }) {
         {view.label}
       </Badge>
       {reason && (
-        <span className="truncate text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]" title={reason}>
+        <span className="truncate text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]" title={reason}>
           {reason}
         </span>
       )}

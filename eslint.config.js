@@ -120,12 +120,14 @@ export default [
            * decision the design system makes, and a component repeating the
            * number is a copy that goes stale the day the scale moves.
            *
-           * text-[var(--ui-t-body)] passes. text-[14px] does not, even though
+           * text-[length:var(--ui-t-body)] passes. (The `length:` hint is
+           * REQUIRED: Tailwind v4 reads a bare text-[var(--x)] as a COLOUR,
+           * which silently dropped every token font size to the 14px body.) text-[14px] does not, even though
            * today they are the same 14 pixels -- that is the point.
            */
           selector: 'Literal[value=/text-\\[[0-9.]+px\\]/]',
           message:
-            'Use a type token: text-[var(--ui-t-display|metric|section|nav|body|label|meta|micro)].',
+            'Use a type token: text-[length:var(--ui-t-display|metric|section|nav|body|label|meta|micro|control|title|figure)].',
         },
         {
           /*

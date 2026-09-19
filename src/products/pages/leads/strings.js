@@ -9,6 +9,10 @@
  */
 export const leadsStrings = {
   pageTitle: 'Leads',
+  // The handoff's line is "…sourced for you, scored against your ICP". Fit
+  // scoring is not built yet, so the scoring clause waits for it.
+  pageSubtitle: 'Everyone Spurly has sourced for you. Imports keep running in the background — the list fills in as pages come back.',
+  newAudience: 'New audience',
   tabs: {
     all: 'All leads',
     enrich: 'Needs enrichment',
@@ -28,12 +32,13 @@ export const leadsStrings = {
   filteredBy: 'Filtered by',
   untitledAudience: 'Untitled audience',
   table: {
-    searchPlaceholder: 'Search name, headline, company',
+    searchPlaceholder: 'Search by name, headline or company',
     emptyMessageFiltered: 'No leads from this audience yet',
     emptyMessageAll: 'No leads yet',
-    emptyHintNoAudience: 'Paste a LinkedIn search or build one from filters above to get your first audience.',
+    emptyHintNoAudience: 'Paste a LinkedIn search you already trust, or build one from LinkedIn’s filters. Imports run in the background — this fills in as pages come back.',
     emptyHintImporting: 'Imports run in the background — this fills in as pages come back.',
-    createCampaign: 'Send connection requests',
+    createCampaign: 'Send requests',
+    draftOpeners: 'Draft openers',
     createMessageCampaign: 'Send messages',
     createEnrichmentCampaign: 'Enrich',
     enrollPlaceholder: 'Enroll in sequence…',

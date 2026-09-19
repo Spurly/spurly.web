@@ -38,7 +38,7 @@ export function Cell({ row = {}, column = {}, density = 'default' }) {
       <div
         title={derivedTitle || undefined}
         className={[
-          'flex items-center h-full min-w-0 overflow-hidden text-[var(--ui-text-primary)]',
+          'flex items-center h-full min-w-0 overflow-hidden text-[var(--ui-text-body)]',
           ALIGN[column.align] || ALIGN.left,
         ].join(' ')}
       >

@@ -4,9 +4,9 @@ import { forwardRef } from 'react';
    agree. They previously ran 28/32/36 against Button's 32/40/48, which is
    why every search-box-plus-button row sat a few pixels out of true. */
 const SIZES = {
-  sm: 'h-8 text-[var(--ui-t-body)]',
-  md: 'h-[38px] text-[var(--ui-t-body)]',
-  lg: 'h-11 text-[var(--ui-t-body)]',
+  sm: 'h-[var(--ui-ctl-h)] text-[length:var(--ui-t-control)] rounded-[var(--ui-radius-sm)]',
+  md: 'h-[var(--ui-ctl-h-lg)] text-[length:var(--ui-t-body)] rounded-[var(--ui-radius-btn)]',
+  lg: 'h-11 text-[length:var(--ui-t-body)] rounded-[var(--ui-radius-btn)]',
 };
 
 /**
@@ -43,7 +43,7 @@ export const Input = forwardRef(function Input(
     >
       {leadingIcon && (
         <span
-          className="absolute left-3 grid place-items-center pointer-events-none text-[var(--ui-text-tertiary)]"
+          className={`absolute ${size === 'sm' ? 'left-2.5' : 'left-3'} grid place-items-center pointer-events-none text-[var(--ui-neutral-400)]`}
           aria-hidden="true"
         >
           {leadingIcon}
@@ -56,7 +56,7 @@ export const Input = forwardRef(function Input(
         className={[
           'w-full bg-[var(--ui-surface-card)] text-[var(--ui-text-primary)]',
           'placeholder:text-[var(--ui-text-quaternary)]',
-          'border rounded-[var(--ui-radius-md)]',
+          'border', // radius comes with the size step, same as Button
           /* An input that takes a URL, an id or a figure is reporting a
              reading, not prose, and reads far better in the mono face. */
           mono ? 'font-[family-name:var(--ui-font-mono)]' : '',
@@ -66,10 +66,10 @@ export const Input = forwardRef(function Input(
           'focus:outline-none focus:border-[var(--ui-accent)]',
           invalid
             ? 'focus:shadow-[0_0_0_3px_var(--ui-danger-tint)]'
-            : 'focus:shadow-[0_0_0_3px_var(--ui-accent-tint)]',
+            : 'focus:shadow-[var(--ui-focus-ring)]',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[var(--ui-surface-sunken)]',
           SIZES[size] ?? SIZES.md,
-          leadingIcon ? 'pl-9' : 'pl-3',
+          leadingIcon ? (size === 'sm' ? 'pl-[30px]' : 'pl-9') : 'pl-3',
           trailingSlot ? 'pr-9' : 'pr-3',
         ]
           .filter(Boolean)

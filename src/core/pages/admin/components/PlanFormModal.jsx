@@ -129,7 +129,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between p-[var(--ui-pad-lg)] border-b border-[var(--ui-border-hairline)]">
-          <h2 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)]">
+          <h2 className="text-[length:var(--ui-t-section)] font-medium text-[var(--ui-text-primary)]">
             {isEdit ? 'Edit Plan' : 'Create New Plan'}
           </h2>
           <button
@@ -143,7 +143,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-[var(--ui-pad-lg)] space-y-4">
           <div>
-            <label className="block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">
+            <label className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">
               Internal name (key)
             </label>
             <input
@@ -154,7 +154,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
               className="input"
               disabled={loading || isEdit}
             />
-            <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-1">
+            <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-1">
               {isEdit
                 ? 'The internal key cannot be changed after creation.'
                 : 'Lowercase key used internally (e.g. free, solopreneur, agency).'}
@@ -162,7 +162,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label className="block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">Display name</label>
+            <label className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">Display name</label>
             <input
               type="text"
               value={displayName}
@@ -176,7 +176,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
           {/* Limits */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">Captures / day</label>
+              <label className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">Captures / day</label>
               <input
                 type="number"
                 min="0"
@@ -188,7 +188,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
               />
             </div>
             <div>
-              <label className="block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">
+              <label className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">
                 Connections / day
               </label>
               <input
@@ -202,7 +202,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
               />
             </div>
             <div>
-              <label className="block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">Messages / day</label>
+              <label className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">Messages / day</label>
               <input
                 type="number"
                 min="0"
@@ -218,7 +218,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
           {/* Tier + entitlements */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">Tier</label>
+              <label className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">Tier</label>
               <input
                 type="number"
                 min="0"
@@ -228,16 +228,16 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
                 className="input"
                 disabled={loading}
               />
-              <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-1">
+              <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-1">
                 Higher is a superset of lower. A plan may not carry a smaller limit, or
                 fewer features, than any plan beneath it.
               </p>
             </div>
             <div>
-              <label className="block text-[var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">
+              <label className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">
                 Includes
               </label>
-              <label className="flex items-center gap-2 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] cursor-pointer h-[34px]">
+              <label className="flex items-center gap-2 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] cursor-pointer h-[34px]">
                 <input
                   type="checkbox"
                   checked={hub}
@@ -247,7 +247,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
                 />
                 Outreach hub
               </label>
-              <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-1">
+              <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-1">
                 Lets these users link a LinkedIn account — about €5/month each, billed on
                 the peak connected in any 30 days.
               </p>
@@ -255,7 +255,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
           </div>
 
           {/* Active toggle */}
-          <label className="flex items-center gap-2 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] cursor-pointer">
+          <label className="flex items-center gap-2 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] cursor-pointer">
             <input
               type="checkbox"
               checked={isActive}
@@ -267,7 +267,7 @@ export default function PlanFormModal({ plan, onClose, onSuccess }) {
           </label>
 
           {error && (
-            <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[var(--ui-t-label)]">
+            <div className="p-3 bg-[var(--ui-danger-tint)] border border-[var(--ui-danger-tint)] rounded-[var(--ui-radius-md)] text-[var(--ui-danger-fg)] text-[length:var(--ui-t-label)]">
               {error}
             </div>
           )}

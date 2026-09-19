@@ -57,7 +57,7 @@ export function Tabs({
             onClick={() => onTabChange(tab.id)}
             onKeyDown={(e) => handleKeyDown(e, i)}
             className={[
-              'relative inline-flex items-center gap-1.5 h-full px-2.5 text-[var(--ui-t-body)] whitespace-nowrap',
+              'relative inline-flex items-center gap-1.5 h-full px-2.5 text-[length:var(--ui-t-body)] whitespace-nowrap',
               'transition-colors duration-[var(--ui-dur-fast)] focus:outline-none',
               'focus-visible:shadow-[var(--ui-focus-ring)] rounded-[var(--ui-radius-sm)]',
               /* The underline previews in grey on hover, then lands in accent
@@ -82,7 +82,7 @@ export function Tabs({
             {tab.label}
             {tab.count !== undefined && (
               <span
-                className={`tabular-nums text-[var(--ui-t-meta)] ${
+                className={`tabular-nums text-[length:var(--ui-t-meta)] ${
                   active ? 'text-[var(--ui-text-secondary)]' : 'text-[var(--ui-text-tertiary)]'
                 }`}
               >

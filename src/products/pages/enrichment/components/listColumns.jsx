@@ -1,58 +1,97 @@
-import { Trash2 } from 'lucide-react';
 import { IconButton } from 'src/core/primitives';
-import { ActionsCell, DateCell, NumberCell } from 'src/core/DataTable';
-import { CountPills } from './CountPills.jsx';
+import { TrashIcon } from 'src/core/icons';
+import { ActionsCell, MeterCell } from 'src/core/DataTable';
+import { relativeTime, absoluteTime } from 'src/shared/utils/outreach';
 import { ENRICHMENT_STATUS_VIEW as STATUS_VIEW } from './statusView.js';
 import { ListStatusCell } from '../../components/ListStatusCell.jsx';
 
-/** Columns for the enrichment campaigns list — same shape as campaigns'
- *  own listColumns.jsx, trimmed to the one row action this feature has. */
+/**
+ * Columns for the enrichment batches list (v3 — no mockup of its own; drawn
+ * in the Leads v2 / Campaigns register): the batch name over a mono "when",
+ * people, progress as the one meter (enriched / total — a real ceiling),
+ * failures in red only when there are any, and the minimal status reading.
+ */
 export function enrichmentListColumns({ onDelete, busy }) {
   return [
     {
       key: 'name',
-      label: 'Campaign',
-      width: 260,
+      label: 'Batch',
+      width: 280,
       sortable: true,
       title: (row) => row.name,
-      render: (value) => (
-        <span className="font-medium text-[var(--ui-text-primary)]">{value || 'Untitled campaign'}</span>
+      render: (value, row) => (
+        <span className="flex flex-col min-w-0">
+          <span className="truncate text-[length:var(--ui-t-nav)] font-medium text-[var(--ui-text-primary)] leading-[1.3]">
+            {value || 'Untitled batch'}
+          </span>
+          <span
+            className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)] leading-[1.35]"
+            title={absoluteTime(row.createdAt)}
+          >
+            created {relativeTime(row.createdAt)} ago
+          </span>
+        </span>
       ),
     },
     {
       key: 'leadIds',
       label: 'People',
-      width: 90,
+      width: 96,
       align: 'right',
       sortable: true,
-      render: (value) => <NumberCell value={value?.length ?? 0} />,
+      render: (value, row) => (
+        <span className="ui-num !font-normal text-[length:var(--ui-t-meta)] text-[var(--ui-text-body)]">
+          {(row.counts?.total ?? value?.length ?? 0).toLocaleString()}
+        </span>
+      ),
     },
     {
       key: 'counts',
       label: 'Progress',
-      width: 280,
-      render: (value) => <CountPills counts={value} />,
+      width: 220,
+      render: (value) => (
+        <MeterCell value={value?.enriched ?? 0} max={value?.total ?? 0} label="enriched" tone="success" width={170} />
+      ),
+    },
+    {
+      key: 'inFlight',
+      label: 'In progress',
+      width: 120,
+      render: (_v, row) => {
+        const n = (row.counts?.queued ?? 0) + (row.counts?.enriching ?? 0);
+        return (
+          <span className={`ui-num !font-normal text-[length:var(--ui-t-meta)] ${n ? 'text-[var(--ui-accent-fg)]' : 'text-[var(--ui-text-disabled)]'}`}>
+            {n ? n.toLocaleString() : '—'}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'failed',
+      label: 'Failed',
+      width: 96,
+      render: (_v, row) => {
+        const n = row.counts?.failed ?? 0;
+        return (
+          <span className={`ui-num !font-normal text-[length:var(--ui-t-meta)] ${n ? 'text-[var(--ui-danger-fg)]' : 'text-[var(--ui-text-disabled)]'}`}>
+            {n ? n.toLocaleString() : '—'}
+          </span>
+        );
+      },
     },
     {
       key: 'status',
       label: 'Status',
-      width: 150,
+      width: 140,
       sortable: true,
       render: (value) => (
         <ListStatusCell view={STATUS_VIEW[value] ?? STATUS_VIEW.done} running={value === 'running'} />
       ),
     },
     {
-      key: 'createdAt',
-      label: 'Created',
-      width: 120,
-      sortable: true,
-      render: (value) => <DateCell value={value} />,
-    },
-    {
       key: 'actions',
       label: '',
-      width: 60,
+      width: 64,
       align: 'right',
       locked: true,
       render: (_value, row) => (
@@ -60,11 +99,11 @@ export function enrichmentListColumns({ onDelete, busy }) {
           <IconButton
             size="sm"
             variant="ghost"
-            label="Remove this campaign"
-            icon={<Trash2 size={14} />}
+            label="Remove this batch"
+            icon={<TrashIcon size={14} />}
             disabled={busy}
             onClick={() => onDelete(row)}
-            className="hover:text-[var(--ui-danger-fg)] hover:bg-[var(--ui-danger-tint)]"
+            className="hover:!text-[var(--ui-danger-fg)] hover:!bg-[var(--ui-danger-tint)]"
           />
         </ActionsCell>
       ),

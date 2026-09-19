@@ -24,10 +24,10 @@ export function ServerSendingCard() {
           <Linkedin size={19} />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
+          <div className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
             {t.serverSending.title}
           </div>
-          <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5">
+          <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5">
             {t.serverSending.body}
           </p>
         </div>

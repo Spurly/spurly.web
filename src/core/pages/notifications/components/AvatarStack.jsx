@@ -34,7 +34,7 @@ export function AvatarStack({ people = [], size = 20 }) {
       ))}
       {overflow > 0 && (
         <span
-          className="grid place-items-center rounded-full text-[var(--ui-t-micro)] font-medium shrink-0"
+          className="grid place-items-center rounded-full text-[length:var(--ui-t-micro)] font-medium shrink-0"
           style={{
             width: size,
             height: size,

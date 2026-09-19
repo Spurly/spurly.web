@@ -19,6 +19,18 @@ const SOLID = {
 };
 SOLID.primary = SOLID.accent; SOLID.default = SOLID.neutral; SOLID.error = SOLID.danger;
 
+/* A minimal reading takes its tone's text colour, not a grey: the word IS the
+   signal ("FAILED" in red, "QUEUED" in amber). */
+const MINIMAL_FG = {
+  neutral: 'text-[var(--ui-text-quaternary)]',
+  accent:  'text-[var(--ui-accent-fg)]',
+  success: 'text-[var(--ui-success-fg)]',
+  warning: 'text-[var(--ui-warning-fg)]',
+  danger:  'text-[var(--ui-danger-fg)]',
+  info:    'text-[var(--ui-info-fg)]',
+};
+MINIMAL_FG.primary = MINIMAL_FG.accent; MINIMAL_FG.default = MINIMAL_FG.neutral; MINIMAL_FG.error = MINIMAL_FG.danger;
+
 const DOT = {
   neutral: 'bg-[var(--ui-text-quaternary)]',
   accent:  'bg-[var(--ui-accent-dot)]',
@@ -29,12 +41,18 @@ const DOT = {
 };
 DOT.primary = DOT.accent; DOT.default = DOT.neutral; DOT.error = DOT.danger;
 
+/* v3: two registers (spurlyDESIGN.md, "Badge vs Tag" + Leads v2):
+     tint    — a status PILL in the sans ("Connected", "Sending", "Paused"):
+               22px, 6px radius, 11.5px medium, a 5px dot.
+     minimal — a machine READING in mono caps ("ENRICHED", "DONE"): no fill,
+               just the dot and the word, so a column of them stays quiet and
+               the exceptions are found by colour. */
 const SIZES = {
-  sm: 'h-5 gap-1.5 text-[var(--ui-t-micro)]',
-  md: 'h-6 gap-1.5 text-[var(--ui-t-meta)]',
+  sm: 'h-5 gap-1.5 text-[length:var(--ui-t-micro)]',
+  md: 'h-[22px] gap-1.5 text-[length:var(--ui-t-meta)]',
 };
 
-const PAD = { sm: 'px-2', md: 'px-2.5' };
+const PAD = { sm: 'px-2', md: 'px-[9px]' };
 
 /**
  * A MACHINE state. Queued, importing, imported, failed, active, sending.
@@ -75,7 +93,7 @@ export function Badge({
 
   const palette =
     variant === 'solid' ? SOLID[hue] ?? SOLID.neutral
-      : minimal ? 'text-[var(--ui-text-secondary)]'
+      : minimal ? MINIMAL_FG[hue] ?? MINIMAL_FG.neutral
       : TINT[hue] ?? TINT.neutral;
 
   return (
@@ -83,7 +101,9 @@ export function Badge({
       title={title}
       className={[
         'inline-flex items-center font-medium whitespace-nowrap max-w-full',
-        'font-[family-name:var(--ui-font-mono)] uppercase tracking-[var(--ui-track-meta)]',
+        minimal
+          ? 'font-[family-name:var(--ui-font-mono)] uppercase tracking-[0.04em]'
+          : '',
         SIZES[size] ?? SIZES.md,
         minimal ? '' : PAD[size] ?? PAD.md,
         minimal ? '' : pill ? 'rounded-[var(--ui-radius-pill)]' : 'rounded-[var(--ui-radius-xs)]',
@@ -99,8 +119,8 @@ export function Badge({
            animation is dropped under prefers-reduced-motion by Tailwind's
            own motion-safe variant. */
         <span
-          className={`w-1.5 h-1.5 rounded-full shrink-0 ${DOT[hue] ?? DOT.neutral} ${
-            pulse ? 'motion-safe:animate-pulse' : ''
+          className={`w-[5px] h-[5px] rounded-full shrink-0 ${DOT[hue] ?? DOT.neutral} ${
+            pulse ? 'sp-pulse' : ''
           }`}
           aria-hidden="true"
         />

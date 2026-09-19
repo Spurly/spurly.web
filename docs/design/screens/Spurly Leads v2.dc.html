@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#f7f9fc; -webkit-font-smoothing:antialiased; }
+  * { box-sizing:border-box; }
+  a { color:#0544a5; text-decoration:none; }
+  a:hover { color:#3c83f6; text-decoration:underline; }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb { background:#dfe3ea; border-radius:99px; border:3px solid transparent; background-clip:content-box; }
+  ::-webkit-scrollbar-thumb:hover { background:#c6ccd8; background-clip:content-box; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  @keyframes sp-pulse { 0%,100% { opacity:1; transform:scale(1);} 50% { opacity:.3; transform:scale(.75);} }
+  @keyframes sp-drawer { from { transform:translateX(24px); opacity:0; } to { transform:none; opacity:1; } }
+  @keyframes sp-scrim { from { opacity:0; } to { opacity:1; } }
+  @keyframes sp-pop { from { transform:translateY(-6px) scale(.98); opacity:0; } to { transform:none; opacity:1; } }
+  @keyframes sp-modal { from { transform:translateY(14px) scale(.985); opacity:0; } to { transform:none; opacity:1; } }
+  @keyframes sp-rise { from { transform:translateY(8px); opacity:0; } to { transform:none; opacity:1; } }
+  @keyframes sp-sweep { 0% { transform:translateX(-100%);} 100% { transform:translateX(320%);} }
+  @keyframes sp-scan { 0% { left:-32%; } 100% { left:100%; } }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+</style>
+</helmet>
+
+<div style="display:flex;height:100vh;min-height:600px;width:100%;overflow:hidden;background:#f7f9fc;font-family:Geist,'Helvetica Neue',Arial,sans-serif;color:#18181b;font-size:14px;letter-spacing:-0.006em;">
+
+  <aside style="width:244px;flex-shrink:0;display:flex;flex-direction:column;background:#f2f5fa;border-right:1px solid #e4e4e7;">
+    <div style="display:flex;align-items:center;gap:9px;height:56px;flex-shrink:0;padding:0 16px;">
+      <img src="assets/spurly-icon.png" alt="" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;" />
+      <span style="font-size:15px;font-weight:600;letter-spacing:-0.024em;color:#18181b;">Spurly</span>
+      <div style="flex:1;"></div>
+      <button type="button" aria-label="Collapse sidebar" style="display:grid;place-items:center;width:24px;height:24px;border:0;background:transparent;border-radius:6px;color:#777a88;cursor:pointer;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#e4eaf4;color:#18181b;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9 3v18"></path></svg>
+      </button>
+    </div>
+
+    <div style="padding:0 12px 12px;">
+      <button type="button" onClick="{{ openPalette }}" style="display:flex;align-items:center;gap:8px;width:100%;height:34px;padding:0 10px;border:1px solid #dfe3ea;background:#ffffff;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;color:#5e616e;text-align:left;transition:border-color 160ms ease,box-shadow 160ms ease,color 160ms ease;" style-hover="border-color:#b9d4ff;color:#18181b;box-shadow:0 0 0 3px rgba(60,131,246,.10);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3c83f6" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path></svg>
+        <span style="flex:1;">Ask Spurly</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#afb3c4;border:1px solid #e9eaee;border-radius:4px;padding:1px 4px;">⌘K</span>
+      </button>
+    </div>
+
+    <nav style="flex:1;overflow-y:auto;padding:0 12px;display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <p style="margin:0 0 4px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Prospect</p>
+        <a href="#" style="position:relative;display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:500;color:#0544a5;background:#e6efff;text-decoration:none;transition:background-color 160ms ease;">
+          <span style="position:absolute;left:0;top:8px;bottom:8px;width:2px;border-radius:0 99px 99px 0;background:#3c83f6;"></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="2"></circle><path d="M12 5a7 7 0 0 1 7 7"></path><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
+          <span style="flex:1;">Leads</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#5b87c8;">1.2K</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:400;color:#5e616e;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path><path d="M18.5 15.5l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z"></path></svg>
+          <span style="flex:1;">Enrichment</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#a45309;">
+            <span style="width:5px;height:5px;border-radius:99px;background:#f59e0b;animation:sp-pulse 1.6s ease-in-out infinite;"></span>14
+          </span>
+        </a>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <p style="margin:0 0 4px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Engage</p>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:400;color:#5e616e;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M21 3L3 10.5l7 2.5 2.5 7z"></path><path d="M21 3l-11 10"></path></svg>
+          <span style="flex:1;">Campaigns</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#9aa0b0;">3</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:400;color:#5e616e;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="6" height="6" rx="1.5"></rect><rect x="15" y="15" width="6" height="6" rx="1.5"></rect><path d="M6 9v4a2 2 0 0 0 2 2h7"></path></svg>
+          <span style="flex:1;">Sequences</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:400;color:#5e616e;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 13h4l1.5 3h5L16 13h4"></path><path d="M4 13l2.5-8h11L20 13v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"></path></svg>
+          <span style="flex:1;">Inbox</span>
+          <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:#3c83f6;color:#ffffff;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;">7</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:400;color:#5e616e;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7z"></path><path d="M14 3v4h4"></path></svg>
+          <span style="flex:1;">Templates</span>
+        </a>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <p style="margin:0 0 4px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Manage</p>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:400;color:#5e616e;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"></path></svg>
+          <span style="flex:1;">Settings</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:400;color:#5e616e;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M7.5 10.5v6"></path><path d="M7.5 7.6v.1"></path><path d="M11.5 16.5v-6"></path><path d="M11.5 13.2a2.7 2.7 0 0 1 5 1.2v2.1"></path></svg>
+          <span style="flex:1;">LinkedIn</span>
+          <span style="width:6px;height:6px;border-radius:99px;background:#12b981;"></span>
+        </a>
+      </div>
+    </nav>
+
+    <div style="flex-shrink:0;padding:10px 12px 12px;border-top:1px solid #e4e4e7;display:flex;flex-direction:column;gap:2px;">
+      <div style="padding:4px 10px 8px;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Daily cap</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:11px;color:#5e616e;">18/25</span>
+        </div>
+        <div style="height:3px;border-radius:99px;background:#e0e5ee;overflow:hidden;margin-top:6px;">
+          <div style="height:100%;width:72%;border-radius:99px;background:#3c83f6;transition:width 320ms cubic-bezier(.2,0,.1,1);"></div>
+        </div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:12px;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Credits</span>
+          <a href="#" style="font-size:12px;font-weight:500;color:#0544a5;">Top up</a>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:17px;font-weight:500;letter-spacing:-0.02em;color:#18181b;margin-top:2px;">1,284</div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:9px;height:44px;padding:0 8px;border-radius:8px;cursor:pointer;transition:background-color 160ms ease;" style-hover="background:#e7ecf5;">
+        <div style="width:26px;height:26px;border-radius:99px;background:#dbe7fb;color:#0544a5;display:grid;place-items:center;font-size:11px;font-weight:600;flex-shrink:0;">MK</div>
+        <div style="min-width:0;flex:1;">
+          <p style="margin:0;font-size:12.5px;font-weight:500;color:#18181b;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marcus Kellner</p>
+          <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#9aa0b0;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">marcus@spurly.io</p>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa0b0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M8 9l4-4 4 4"></path><path d="M16 15l-4 4-4-4"></path></svg>
+      </div>
+    </div>
+  </aside>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;">
+
+    <header style="flex-shrink:0;display:flex;align-items:flex-start;gap:16px;padding:20px 24px 0;">
+      <div style="min-width:0;flex:1;">
+        <h1 style="margin:0;font-size:26px;font-weight:600;letter-spacing:-0.03em;line-height:1.15;color:#18181b;">Leads</h1>
+        <p style="margin:5px 0 0;font-size:13.5px;color:#5e616e;line-height:1.45;max-width:62ch;">Everyone Spurly has sourced for you, scored against your ICP. Imports keep running in the background — the list fills in as pages come back.</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;padding-top:4px;">
+        <button type="button" aria-label="Notifications" style="position:relative;display:grid;place-items:center;width:32px;height:32px;border:1px solid #e4e4e7;background:#ffffff;border-radius:9px;color:#5e616e;cursor:pointer;transition:border-color 160ms ease,color 160ms ease,box-shadow 160ms ease;" style-hover="border-color:#b9d4ff;color:#18181b;box-shadow:0 0 0 3px rgba(60,131,246,.10);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 14 6 10z"></path><path d="M10.5 19a1.8 1.8 0 0 0 3 0"></path></svg>
+          <span style="position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:99px;background:#3c83f6;box-shadow:0 0 0 2px #ffffff;"></span>
+        </button>
+        <button type="button" onClick="{{ openImport }}" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 14px;border:0;background:#3c83f6;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#ffffff;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff;transition:background-color 160ms ease,box-shadow 160ms ease,transform 160ms ease;" style-hover="background:#1e6fe8;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff, 0 5px 16px rgba(60,131,246,.34);" style-active="transform:translateY(1px);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+          New audience
+        </button>
+      </div>
+    </header>
+
+    <div style="flex-shrink:0;padding:16px 24px 0;">
+      <div style="position:relative;display:flex;align-items:center;gap:4px;border-bottom:1px solid #e4e4e7;">
+        <button type="button" onClick="{{ showAll }}" style="width:104px;height:36px;border:0;background:transparent;font-family:inherit;font-size:13.5px;font-weight:500;cursor:pointer;transition:color 160ms ease;color:{{ tabAllColor }}">All leads</button>
+        <button type="button" onClick="{{ showEnrich }}" style="width:172px;height:36px;border:0;background:transparent;font-family:inherit;font-size:13.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:color 160ms ease;color:{{ tabEnrichColor }}">
+          Needs enrichment
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;padding:1px 5px;border-radius:5px;background:#edeef2;color:#5e616e;">14</span>
+        </button>
+        <div style="position:absolute;bottom:-1px;left:0;height:2px;border-radius:99px;background:#3c83f6;width:{{ tabW }}px;transform:translateX({{ tabX }}px);transition:transform 280ms cubic-bezier(.32,.72,0,1),width 280ms cubic-bezier(.32,.72,0,1);"></div>
+      </div>
+    </div>
+
+    <main style="flex:1;min-height:0;display:flex;flex-direction:column;padding:16px 24px 20px;overflow:hidden;">
+      <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+
+        <div style="flex-shrink:0;display:flex;align-items:center;gap:8px;min-height:52px;padding:0 14px;border-bottom:1px solid #edeef2;background:#ffffff;overflow:hidden;">
+          <div style="position:relative;display:flex;align-items:center;width:240px;min-width:150px;flex-shrink:1;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa0b0" stroke-width="2" stroke-linecap="round" style="position:absolute;left:10px;pointer-events:none;"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.2-3.2"></path></svg>
+            <input type="text" placeholder="Search or describe who you want" style="width:100%;height:30px;padding:0 10px 0 30px;border:1px solid #e4e4e7;border-radius:8px;background:#ffffff;font-family:inherit;font-size:13px;color:#18181b;outline:none;transition:border-color 160ms ease,box-shadow 160ms ease;" style-focus="border-color:#3c83f6;box-shadow:0 0 0 3px rgba(60,131,246,.14);" />
+          </div>
+
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap;flex:1;min-width:0;overflow-x:auto;padding:11px 0;">
+            <div style="position:relative;flex-shrink:0;">
+              <button type="button" onClick="{{ toggleStatusFilter }}" style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border:1px dashed #d7dbe3;background:#ffffff;border-radius:8px;font-family:inherit;font-size:12.5px;color:#5e616e;cursor:pointer;white-space:nowrap;transition:border-color 160ms ease,color 160ms ease,background-color 160ms ease;" style-hover="border-color:#b9d4ff;color:#18181b;background:#f7faff;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+                Filter
+              </button>
+              <sc-if value="{{ statusFilterOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:36px;left:0;z-index:40;width:224px;padding:6px;background:#ffffff;border:1px solid #e4e4e7;border-radius:12px;box-shadow:0 14px 38px rgba(24,24,27,.14),0 2px 6px rgba(24,24,27,.05);animation:sp-pop 180ms cubic-bezier(.32,.72,0,1) both;">
+                  <p style="margin:4px 8px 6px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Lead status</p>
+                  <sc-for list="{{ statusOptions }}" as="opt" hint-placeholder-count="5">
+                    <button type="button" onClick="{{ opt.toggle }}" style="display:flex;align-items:center;gap:9px;width:100%;height:32px;padding:0 8px;border:0;background:transparent;border-radius:7px;font-family:inherit;font-size:13px;color:#2e3038;cursor:pointer;text-align:left;transition:background-color 140ms ease;" style-hover="background:#f3f6fb;">
+                      <span style="width:15px;height:15px;border-radius:4px;display:grid;place-items:center;flex-shrink:0;transition:background-color 140ms ease,border-color 140ms ease;border:1.5px solid {{ opt.border }};background:{{ opt.bg }}">
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ opt.tick }}"><path d="M4 12.5l5.2 5.2L20 6.8"></path></svg>
+                      </span>
+                      <span style="flex:1;">{{ opt.label }}</span>
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#9aa0b0;">{{ opt.count }}</span>
+                    </button>
+                  </sc-for>
+                  <div style="height:1px;background:#f0f2f6;margin:6px 4px;"></div>
+                  <p style="margin:4px 8px 6px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Fit score</p>
+                  <div style="padding:2px 8px 8px;">
+                    <div style="display:flex;align-items:baseline;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5e616e;margin-bottom:7px;"><span>70 and above</span><span style="color:#0544a5;">42%</span></div>
+                    <div style="height:3px;border-radius:99px;background:#e0e5ee;overflow:hidden;"><div style="height:100%;width:42%;background:#3c83f6;border-radius:99px;"></div></div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+
+            <div style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 6px 0 10px;border:1px solid #b9d4ff;background:#eaf2ff;border-radius:8px;font-size:12.5px;color:#0544a5;white-space:nowrap;flex-shrink:0;">
+              <span style="color:#3f6ba8;">Degree</span>
+              <span style="font-weight:500;">2nd</span>
+              <button type="button" aria-label="Remove filter" style="display:grid;place-items:center;width:17px;height:17px;border:0;background:transparent;border-radius:5px;color:#5b87c8;cursor:pointer;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#d6e6ff;color:#0544a5;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>
+              </button>
+            </div>
+
+            <div style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 6px 0 10px;border:1px solid #b9d4ff;background:#eaf2ff;border-radius:8px;font-size:12.5px;color:#0544a5;white-space:nowrap;flex-shrink:0;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3c83f6" stroke-width="2" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path></svg>
+              <span style="font-weight:500;">Fit ≥ 70</span>
+              <button type="button" aria-label="Remove filter" style="display:grid;place-items:center;width:17px;height:17px;border:0;background:transparent;border-radius:5px;color:#5b87c8;cursor:pointer;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#d6e6ff;color:#0544a5;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="button" style="display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 10px;border:1px solid #e4e4e7;background:#ffffff;border-radius:8px;font-family:inherit;font-size:12.5px;color:#2e3038;cursor:pointer;flex-shrink:0;white-space:nowrap;transition:border-color 160ms ease,box-shadow 160ms ease;" style-hover="border-color:#b9d4ff;box-shadow:0 0 0 3px rgba(60,131,246,.10);">
+            <span style="color:#777a88;">List</span>
+            EU logistics
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9aa0b0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+          </button>
+        </div>
+
+        <sc-if value="{{ importRunning }}" hint-placeholder-val="{{ false }}">
+          <div style="flex-shrink:0;position:relative;display:flex;align-items:center;gap:10px;height:40px;padding:0 14px;background:#f3f8ff;border-bottom:1px solid #dbe7fb;overflow:hidden;animation:sp-rise 200ms cubic-bezier(.32,.72,0,1) both;">
+            <span style="position:absolute;top:0;bottom:0;width:32%;background:linear-gradient(90deg,transparent,rgba(60,131,246,.10),transparent);animation:sp-scan 2.2s linear infinite;"></span>
+            <span style="position:relative;width:6px;height:6px;border-radius:99px;background:#3c83f6;animation:sp-pulse 1.4s ease-in-out infinite;flex-shrink:0;"></span>
+            <span style="position:relative;font-size:12.5px;color:#0544a5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><strong style="font-weight:500;">{{ workVerb }}…</strong> <span style="color:#3f6ba8;">EU logistics — VP+ · imports run in the background, you can leave the page</span></span>
+            <span style="position:relative;margin-left:auto;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:11.5px;color:#0544a5;flex-shrink:0;">{{ workCount }} so far</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hasSelection }}" hint-placeholder-val="{{ false }}">
+          <div style="flex-shrink:0;display:flex;align-items:center;gap:8px;height:48px;padding:0 14px;background:#f3f8ff;border-bottom:1px solid #dbe7fb;box-shadow:inset 2px 0 0 #3c83f6;overflow-x:auto;animation:sp-rise 200ms cubic-bezier(.32,.72,0,1) both;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:12px;font-weight:500;color:#0544a5;flex-shrink:0;white-space:nowrap;">{{ selectedCount }} selected</span>
+            <button type="button" onClick="{{ clearSelection }}" style="height:26px;padding:0 8px;border:0;background:transparent;font-family:inherit;font-size:12.5px;color:#3f6ba8;cursor:pointer;border-radius:6px;flex-shrink:0;white-space:nowrap;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#dbe7fb;color:#0544a5;">Clear</button>
+            <div style="width:1px;height:18px;background:#cfe0fa;flex-shrink:0;"></div>
+            <button type="button" style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:0;background:#3c83f6;border-radius:8px;font-family:inherit;font-size:12.5px;font-weight:500;color:#ffffff;cursor:pointer;flex-shrink:0;white-space:nowrap;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff;transition:background-color 160ms ease,box-shadow 160ms ease;" style-hover="background:#1e6fe8;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff, 0 4px 14px rgba(60,131,246,.3);">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M21 3L3 10.5l7 2.5 2.5 7z"></path></svg>
+              Send requests
+            </button>
+            <button type="button" style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid #cfe0fa;background:#ffffff;border-radius:8px;font-family:inherit;font-size:12.5px;font-weight:500;color:#0544a5;cursor:pointer;flex-shrink:0;white-space:nowrap;transition:background-color 160ms ease,border-color 160ms ease;" style-hover="background:#eaf2ff;border-color:#b9d4ff;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path></svg>
+              Draft openers
+            </button>
+            <button type="button" style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid #e4e4e7;background:#ffffff;border-radius:8px;font-family:inherit;font-size:12.5px;font-weight:500;color:#2e3038;cursor:pointer;flex-shrink:0;white-space:nowrap;transition:border-color 160ms ease,box-shadow 160ms ease;" style-hover="border-color:#b9d4ff;box-shadow:0 0 0 3px rgba(60,131,246,.10);">Enrich</button>
+            <div style="flex:1;min-width:4px;"></div>
+            <button type="button" aria-label="More actions" style="display:grid;place-items:center;width:30px;height:30px;border:1px solid #e4e4e7;background:#ffffff;border-radius:8px;color:#5e616e;cursor:pointer;flex-shrink:0;transition:border-color 160ms ease,color 160ms ease;" style-hover="border-color:#b9d4ff;color:#18181b;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle></svg>
+            </button>
+          </div>
+        </sc-if>
+
+        <div style="flex:1;min-height:0;overflow:auto;">
+          <table style="width:100%;min-width:1560px;table-layout:fixed;border-collapse:separate;border-spacing:0;">
+            <colgroup>
+              <col style="width:44px;" />
+              <col style="width:250px;" />
+              <col style="width:176px;" />
+              <col style="width:158px;" />
+              <col style="width:140px;" />
+              <col style="width:60px;" />
+              <col style="width:118px;" />
+              <col style="width:214px;" />
+              <col style="width:122px;" />
+              <col style="width:140px;" />
+              <col style="width:138px;" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th style="position:sticky;top:0;z-index:2;height:44px;padding:0 0 0 14px;text-align:left;background:#fbfcfe;border-bottom:1px solid #e4e4e7;">
+                  <span onClick="{{ toggleAll }}" style="display:grid;place-items:center;width:15px;height:15px;border-radius:4px;cursor:pointer;transition:background-color 140ms ease,border-color 140ms ease;border:1.5px solid {{ allBorder }};background:{{ allBg }}">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" style="opacity:{{ allTick }}"><path d="M5 12h14"></path></svg>
+                  </span>
+                </th>
+                <th style="position:sticky;top:0;z-index:2;height:44px;padding:0 14px;text-align:left;background:#fbfcfe;border-bottom:1px solid #e4e4e7;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:0.11em;text-transform:uppercase;color:#777a88;white-space:nowrap;">Name</th>
+                <th style="position:sticky;top:0;z-index:2;height:44px;padding:0 14px;text-align:left;background:#fbfcfe;border-bottom:1px solid #e4e4e7;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:0.11em;text-transform:uppercase;color:#777a88;white-space:nowrap;">Title</th>
+                <th style="position:sticky;top:0;z-index:2;height:44px;padding:0 14px;text-align:left;background:#fbfcfe;border-bottom:1px solid #e4e4e7;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:0.11em;text-transform:uppercase;color:#777a88;white-space:nowrap;">Company</th>
+                <th style="position:sticky;top:0;z-index:2;height:44px;padding:0 14px;text-align:left;background:#fbfcfe;border-bottom:1px solid #e4e4e7;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:0.11em;text-transform:uppercase;color:#777a88;white-space:nowrap;">Location</th>
+                <th style="position:sticky;top:0;z-index:2;height:44px;padding:0 10px;text-align:center;background:#fbfcfe;border-bottom:1px solid #e4e4e7;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:0.11em;text-transform:uppercase;color:#777a88;white-space:nowrap;">Deg</th>
+                <th style="position:sticky;top:0;z-index:2;height:44px;padding:0 14px;text-align:left;background:#fbfcfe;border-bottom:1px solid #e4e4e7;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:0.11em;text-transform:uppercase;color:#0544a5;white-space:nowrap;">
+                  <span style="display:inline-flex;align-items:center;gap:5px;">Fit
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#3c83f6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"></path></svg>
+                  </span>
+                </th>
+                <th style="position:sticky;top:0;z-index:2;height:44px;padding:0 14px;text-align:left;background:#fbfcfe;border-bottom:1px solid #e4e4e7;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:0.11em;text-transform:uppercase;color:#777a88;white-space:nowrap;">Signal</th>
+                <th style="position:sticky;top:0;z-index:2;height:44px;padding:0 14px;text-align:left;background:#fbfcfe;border-bottom:1px solid #e4e4e7;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:0.11em;text-transform:uppercase;color:#777a88;white-space:nowrap;">Status</th>
+                <th style="position:sticky;top:0;z-index:2;height:44px;padding:0 14px;text-align:left;background:#fbfcfe;border-bottom:1px solid #e4e4e7;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:0.11em;text-transform:uppercase;color:#777a88;white-space:nowrap;">Enrichment</th>
+                <th style="position:sticky;top:0;z-index:2;height:44px;padding:0 14px;text-align:left;background:#fbfcfe;border-bottom:1px solid #e4e4e7;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:0.11em;text-transform:uppercase;color:#777a88;white-space:nowrap;">Last activity</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <sc-for list="{{ rows }}" as="row" hint-placeholder-count="10">
+                <tr onClick="{{ row.open }}" style="height:58px;cursor:pointer;transition:background-color 140ms ease,box-shadow 140ms ease;background:{{ row.bg }};box-shadow:{{ row.spine }}" style-hover="background:#f4f8ff;box-shadow:inset 2px 0 0 #3c83f6;">
+                  <td style="padding:0 0 0 14px;border-bottom:1px solid #f1f2f5;">
+                    <span onClick="{{ row.toggle }}" style="display:grid;place-items:center;width:15px;height:15px;border-radius:4px;cursor:pointer;transition:background-color 140ms ease,border-color 140ms ease;border:1.5px solid {{ row.checkBorder }};background:{{ row.checkBg }}">
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ row.tick }}"><path d="M4 12.5l5.2 5.2L20 6.8"></path></svg>
+                    </span>
+                  </td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;">
+                    <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                      <div style="width:30px;height:30px;border-radius:99px;display:grid;place-items:center;font-size:11.5px;font-weight:600;flex-shrink:0;color:{{ row.avFg }};background:{{ row.avBg }}">{{ row.initials }}</div>
+                      <div style="min-width:0;">
+                        <div style="font-size:13.5px;font-weight:500;color:#18181b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">{{ row.name }}</div>
+                        <div style="font-size:11.5px;color:#777a88;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35;">{{ row.headline }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;font-size:13px;color:#2e3038;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.title }}</td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;font-size:13px;color:#2e3038;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.company }}</td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;font-size:13px;color:#5e616e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.location }}</td>
+                  <td style="padding:0 10px;border-bottom:1px solid #f1f2f5;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#5e616e;">{{ row.degree }}</td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;">
+                    <div style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500;line-height:1.2;color:{{ row.fitFg }}">{{ row.fit }}</div>
+                    <div style="height:3px;border-radius:99px;background:#eceff4;overflow:hidden;margin-top:5px;width:72px;">
+                      <div style="height:100%;border-radius:99px;transition:width 320ms cubic-bezier(.2,0,.1,1);width:{{ row.fitW }};background:{{ row.fitBar }}"></div>
+                    </div>
+                  </td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;">
+                    <span style="display:inline-flex;align-items:center;gap:7px;max-width:100%;min-width:0;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="{{ row.signalFg }}" stroke-width="1.9" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path></svg>
+                      <span style="font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ row.signalFg }}">{{ row.signal }}</span>
+                    </span>
+                  </td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;">
+                    <span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 9px;border-radius:6px;font-size:11.5px;font-weight:500;white-space:nowrap;color:{{ row.statusFg }};background:{{ row.statusBg }}">
+                      <span style="width:5px;height:5px;border-radius:99px;flex-shrink:0;background:{{ row.statusDot }}"></span>
+                      {{ row.status }}
+                    </span>
+                  </td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;">
+                    <span style="display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.04em;white-space:nowrap;color:{{ row.enrichFg }}">
+                      <span style="width:5px;height:5px;border-radius:99px;flex-shrink:0;background:{{ row.enrichDot }};animation:{{ row.enrichAnim }}"></span>
+                      {{ row.enrich }}
+                    </span>
+                  </td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;">
+                    <div style="font-size:12.5px;color:#2e3038;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">{{ row.activity }}</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#9aa0b0;line-height:1.35;">{{ row.activityAt }}</div>
+                  </td>
+                </tr>
+              </sc-for>
+
+              <sc-for list="{{ skeletons }}" as="sk" hint-placeholder-count="0">
+                <tr style="height:58px;">
+                  <td style="padding:0 0 0 14px;border-bottom:1px solid #f1f2f5;"><div style="width:15px;height:15px;border-radius:4px;background:#eef0f4;"></div></td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:30px;height:30px;border-radius:99px;background:#eef0f4;overflow:hidden;position:relative;"><div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);animation:sp-sweep 1.5s ease-in-out infinite;animation-delay:{{ sk.delay }}"></div></div>
+                      <div style="flex:1;min-width:0;">
+                        <div style="height:9px;border-radius:4px;background:#eef0f4;width:{{ sk.w1 }};margin-bottom:6px;"></div>
+                        <div style="height:7px;border-radius:4px;background:#f2f4f7;width:{{ sk.w2 }};"></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;"><div style="height:9px;border-radius:4px;background:#eef0f4;width:76%;"></div></td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;"><div style="height:9px;border-radius:4px;background:#eef0f4;width:64%;"></div></td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;"><div style="height:9px;border-radius:4px;background:#eef0f4;width:70%;"></div></td>
+                  <td style="padding:0 10px;border-bottom:1px solid #f1f2f5;"><div style="height:9px;border-radius:4px;background:#eef0f4;width:60%;margin:0 auto;"></div></td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;"><div style="height:9px;border-radius:4px;background:#eef0f4;width:44%;margin-bottom:6px;"></div><div style="height:3px;border-radius:99px;background:#f2f4f7;width:72px;"></div></td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;"><div style="height:9px;border-radius:4px;background:#eef0f4;width:84%;"></div></td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;"><div style="height:22px;border-radius:6px;background:#f2f4f7;width:78%;"></div></td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;"><div style="height:9px;border-radius:4px;background:#eef0f4;width:80%;"></div></td>
+                  <td style="padding:0 14px;border-bottom:1px solid #f1f2f5;"><div style="height:9px;border-radius:4px;background:#eef0f4;width:72%;"></div></td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+
+          <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px 68px;text-align:center;animation:sp-rise 260ms cubic-bezier(.32,.72,0,1) both;">
+              <div style="width:52px;height:52px;border-radius:14px;background:#f3f8ff;border:1px solid #dbe7fb;display:grid;place-items:center;margin-bottom:14px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3c83f6" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="2"></circle><path d="M12 5a7 7 0 0 1 7 7"></path><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
+              </div>
+              <p style="margin:0;font-size:15px;font-weight:500;color:#18181b;">No leads yet</p>
+              <p style="margin:6px 0 0;font-size:13px;color:#5e616e;max-width:46ch;line-height:1.55;">Describe who you sell to and Spurly will build the audience, or paste a LinkedIn search you already trust. Imports run in the background — this fills in as pages come back.</p>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:18px;">
+                <button type="button" onClick="{{ openImport }}" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 14px;border:0;background:#3c83f6;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#ffffff;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff;transition:background-color 160ms ease,box-shadow 160ms ease;" style-hover="background:#1e6fe8;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff, 0 5px 16px rgba(60,131,246,.34);">New audience</button>
+                <button type="button" onClick="{{ openPalette }}" style="height:32px;padding:0 13px;border:1px solid #e4e4e7;background:#ffffff;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#2e3038;cursor:pointer;white-space:nowrap;transition:border-color 160ms ease,box-shadow 160ms ease;" style-hover="border-color:#b9d4ff;box-shadow:0 0 0 3px rgba(60,131,246,.10);">Ask Spurly</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;height:48px;padding:0 14px;border-top:1px solid #edeef2;background:#ffffff;">
+          <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:11.5px;color:#777a88;white-space:nowrap;">{{ rangeLabel }}</p>
+          <div style="display:flex;align-items:center;gap:2px;">
+            <button type="button" aria-label="Previous page" style="display:grid;place-items:center;width:28px;height:28px;border:0;background:transparent;border-radius:7px;color:#c3c7d1;cursor:not-allowed;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"></path></svg>
+            </button>
+            <button type="button" style="min-width:28px;height:28px;padding:0 7px;border:0;background:#eaf2ff;border-radius:7px;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:12px;font-weight:500;color:#0544a5;cursor:pointer;">1</button>
+            <button type="button" style="min-width:28px;height:28px;padding:0 7px;border:0;background:transparent;border-radius:7px;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:12px;color:#5e616e;cursor:pointer;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#f0f3f8;color:#18181b;">2</button>
+            <button type="button" style="min-width:28px;height:28px;padding:0 7px;border:0;background:transparent;border-radius:7px;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:12px;color:#5e616e;cursor:pointer;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#f0f3f8;color:#18181b;">3</button>
+            <span style="padding:0 4px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#c3c7d1;">…</span>
+            <button type="button" style="min-width:28px;height:28px;padding:0 7px;border:0;background:transparent;border-radius:7px;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:12px;color:#5e616e;cursor:pointer;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#f0f3f8;color:#18181b;">49</button>
+            <button type="button" aria-label="Next page" style="display:grid;place-items:center;width:28px;height:28px;border:0;background:transparent;border-radius:7px;color:#5e616e;cursor:pointer;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#f0f3f8;color:#18181b;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6l6 6-6 6"></path></svg>
+            </button>
+          </div>
+          <label style="display:flex;align-items:center;gap:7px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.11em;text-transform:uppercase;color:#5e616e;">Rows</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 9px;border:1px solid #e4e4e7;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#2e3038;cursor:pointer;transition:border-color 160ms ease;" style-hover="border-color:#b9d4ff;">25
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#9aa0b0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+            </span>
+          </label>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <sc-if value="{{ drawer }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:60;display:flex;justify-content:flex-end;">
+      <div onClick="{{ closeDrawer }}" style="position:absolute;inset:0;background:rgba(10,18,32,.28);animation:sp-scrim 200ms ease both;"></div>
+      <div style="position:relative;width:404px;max-width:92vw;height:100%;background:#ffffff;border-left:1px solid #e4e4e7;box-shadow:-24px 0 60px rgba(10,18,32,.14);display:flex;flex-direction:column;animation:sp-drawer 280ms cubic-bezier(.32,.72,0,1) both;overflow:hidden;">
+        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:10px;height:52px;padding:0 16px;border-bottom:1px solid #edeef2;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Lead</span>
+          <button type="button" onClick="{{ closeDrawer }}" aria-label="Close" style="display:grid;place-items:center;width:28px;height:28px;border:0;background:transparent;border-radius:7px;color:#777a88;cursor:pointer;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#f0f2f6;color:#18181b;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>
+          </button>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow-y:auto;padding:20px 20px 24px;">
+          <div style="display:flex;align-items:center;gap:13px;">
+            <div style="width:48px;height:48px;border-radius:99px;display:grid;place-items:center;font-size:16px;font-weight:600;flex-shrink:0;color:{{ drawer.avFg }};background:{{ drawer.avBg }}">{{ drawer.initials }}</div>
+            <div style="min-width:0;flex:1;">
+              <h2 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.024em;color:#18181b;line-height:1.2;">{{ drawer.name }}</h2>
+              <p style="margin:4px 0 0;font-size:13px;color:#5e616e;line-height:1.4;">{{ drawer.headline }}</p>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:20px;font-weight:500;letter-spacing:-0.02em;line-height:1;color:{{ drawer.fitFg }}">{{ drawer.fit }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;margin-top:4px;">Fit</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:7px;margin-top:16px;">
+            <button type="button" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;height:32px;border:0;background:#3c83f6;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#ffffff;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff;transition:background-color 160ms ease,box-shadow 160ms ease;" style-hover="background:#1e6fe8;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff, 0 4px 14px rgba(60,131,246,.3);">Send request</button>
+            <button type="button" style="height:32px;padding:0 13px;border:1px solid #e4e4e7;background:#ffffff;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#2e3038;cursor:pointer;white-space:nowrap;transition:border-color 160ms ease,box-shadow 160ms ease;" style-hover="border-color:#b9d4ff;box-shadow:0 0 0 3px rgba(60,131,246,.10);">View profile</button>
+          </div>
+
+          <div style="margin-top:20px;padding:14px 14px 14px 16px;background:#f3f8ff;border:1px solid #dbe7fb;border-radius:12px;box-shadow:inset 2px 0 0 #3c83f6;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0544a5" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path></svg>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#0544a5;">Why this lead</span>
+            </div>
+            <p style="margin:0;font-size:13px;color:#2e3038;line-height:1.6;">{{ drawer.summary }}</p>
+          </div>
+
+          <div style="margin-top:12px;border:1px solid #edeef2;border-radius:12px;overflow:hidden;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 13px;border-bottom:1px solid #f4f5f8;background:#fbfcfe;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Suggested opener</span>
+              <button type="button" style="display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border:1px solid #cfe0fa;background:#ffffff;border-radius:7px;font-family:inherit;font-size:11.5px;font-weight:500;color:#0544a5;cursor:pointer;transition:background-color 140ms ease;" style-hover="background:#eaf2ff;">Regenerate</button>
+            </div>
+            <p style="margin:0;padding:13px;font-size:13px;color:#2e3038;line-height:1.6;">{{ drawer.opener }}</p>
+          </div>
+
+          <p style="margin:22px 0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Profile</p>
+          <div style="border:1px solid #edeef2;border-radius:12px;overflow:hidden;">
+            <sc-for list="{{ drawer.fields }}" as="f" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 13px;border-bottom:1px solid #f4f5f8;">
+                <span style="width:104px;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.09em;text-transform:uppercase;color:#5e616e;">{{ f.k }}</span>
+                <span style="flex:1;min-width:0;font-size:13px;color:#18181b;text-align:right;">{{ f.v }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <p style="margin:22px 0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Activity</p>
+          <div style="display:flex;flex-direction:column;gap:14px;padding-left:4px;">
+            <sc-for list="{{ drawer.timeline }}" as="ev" hint-placeholder-count="3">
+              <div style="display:flex;gap:11px;">
+                <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;">
+                  <span style="width:7px;height:7px;border-radius:99px;background:{{ ev.dot }};"></span>
+                  <span style="flex:1;width:1px;background:#e9eaee;margin-top:4px;"></span>
+                </div>
+                <div style="min-width:0;padding-bottom:2px;">
+                  <p style="margin:0;font-size:13px;color:#18181b;line-height:1.4;">{{ ev.label }}</p>
+                  <p style="margin:2px 0 0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#9aa0b0;">{{ ev.at }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ importOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:24px;">
+      <div onClick="{{ closeImport }}" style="position:absolute;inset:0;background:rgba(10,18,32,.34);animation:sp-scrim 180ms ease both;"></div>
+      <div style="position:relative;width:660px;max-width:100%;max-height:100%;display:flex;flex-direction:column;background:#ffffff;border:1px solid #e4e4e7;border-radius:18px;box-shadow:0 32px 80px rgba(10,18,32,.26);overflow:hidden;animation:sp-modal 240ms cubic-bezier(.32,.72,0,1) both;">
+        <div style="flex-shrink:0;padding:18px 20px 0;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="min-width:0;flex:1;">
+              <h2 style="margin:0;font-size:17px;font-weight:600;letter-spacing:-0.024em;color:#18181b;">New audience</h2>
+              <p style="margin:4px 0 0;font-size:13px;color:#5e616e;line-height:1.45;">{{ stepHint }}</p>
+            </div>
+            <button type="button" onClick="{{ closeImport }}" aria-label="Close" style="display:grid;place-items:center;width:28px;height:28px;border:0;background:transparent;border-radius:7px;color:#777a88;cursor:pointer;flex-shrink:0;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#f0f2f6;color:#18181b;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>
+            </button>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:8px;margin:16px 0 0;">
+            <sc-for list="{{ steps }}" as="st" hint-placeholder-count="3">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;transition:color 180ms ease;color:{{ st.fg }}">{{ st.label }}</span>
+                </div>
+                <div style="height:3px;border-radius:99px;background:#eceff4;overflow:hidden;">
+                  <div style="height:100%;border-radius:99px;transition:width 320ms cubic-bezier(.32,.72,0,1);width:{{ st.w }};background:#3c83f6;"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow-y:auto;padding:20px;">
+          <sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
+            <div style="animation:sp-rise 220ms cubic-bezier(.32,.72,0,1) both;">
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <sc-for list="{{ sources }}" as="src" hint-placeholder-count="3">
+                  <button type="button" onClick="{{ src.pick }}" style="display:flex;align-items:flex-start;gap:12px;width:100%;padding:13px 14px;border-radius:12px;font-family:inherit;text-align:left;cursor:pointer;transition:border-color 160ms ease,background-color 160ms ease,box-shadow 160ms ease;border:1px solid {{ src.border }};background:{{ src.bg }};box-shadow:{{ src.ring }}">
+                    <span style="display:grid;place-items:center;width:30px;height:30px;border-radius:9px;flex-shrink:0;transition:background-color 160ms ease;background:{{ src.iconBg }};color:{{ src.iconFg }}">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:{{ src.showSparkle }}"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path></svg>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:{{ src.showLink }}"><path d="M10 13a4 4 0 0 0 6 .5l2.5-2.5a4 4 0 0 0-5.7-5.7L11.5 6.6"></path><path d="M14 11a4 4 0 0 0-6-.5L5.5 13a4 4 0 0 0 5.7 5.7l1.3-1.3"></path></svg>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:{{ src.showUpload }}"><path d="M12 16V5"></path><path d="M8 9l4-4 4 4"></path><path d="M4 17v2h16v-2"></path></svg>
+                    </span>
+                    <span style="min-width:0;flex:1;">
+                      <span style="display:block;font-size:13.5px;font-weight:500;color:#18181b;">{{ src.title }}</span>
+                      <span style="display:block;font-size:12.5px;color:#5e616e;line-height:1.5;margin-top:2px;">{{ src.body }}</span>
+                    </span>
+                    <span style="display:grid;place-items:center;width:16px;height:16px;border-radius:99px;flex-shrink:0;margin-top:2px;transition:background-color 160ms ease,border-color 160ms ease;border:1.5px solid {{ src.dotBorder }};background:{{ src.dotBg }}">
+                      <span style="width:5px;height:5px;border-radius:99px;background:#ffffff;opacity:{{ src.dotOn }};"></span>
+                    </span>
+                  </button>
+                </sc-for>
+              </div>
+
+              <div style="margin-top:14px;">
+                <p style="margin:0 0 7px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">{{ inputLabel }}</p>
+                <textarea rows="3" placeholder="{{ inputPlaceholder }}" style="width:100%;padding:11px 12px;border:1px solid #e4e4e7;border-radius:10px;background:#ffffff;font-family:inherit;font-size:13px;line-height:1.55;color:#18181b;resize:none;outline:none;transition:border-color 160ms ease,box-shadow 160ms ease;" style-focus="border-color:#3c83f6;box-shadow:0 0 0 3px rgba(60,131,246,.14);"></textarea>
+                <p style="margin:8px 0 0;font-size:12px;color:#777a88;line-height:1.5;">{{ inputHint }}</p>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+            <div style="animation:sp-rise 220ms cubic-bezier(.32,.72,0,1) both;">
+              <div style="position:relative;display:flex;align-items:center;gap:9px;padding:11px 13px;border:1px solid #dbe7fb;background:#f3f8ff;border-radius:11px;overflow:hidden;">
+                <span style="position:absolute;top:0;bottom:0;width:30%;background:linear-gradient(90deg,transparent,rgba(60,131,246,.12),transparent);animation:sp-scan 2s linear infinite;"></span>
+                <span style="position:relative;width:6px;height:6px;border-radius:99px;background:#3c83f6;animation:sp-pulse 1.4s ease-in-out infinite;flex-shrink:0;"></span>
+                <span style="position:relative;font-size:12.5px;color:#0544a5;">Spurly read your brief and proposed these filters. Edit anything before it runs.</span>
+              </div>
+
+              <p style="margin:18px 0 9px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Proposed filters</p>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                <sc-for list="{{ proposed }}" as="p" hint-placeholder-count="6">
+                  <span style="display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 6px 0 11px;border:1px solid #b9d4ff;background:#eaf2ff;border-radius:8px;font-size:12.5px;color:#0544a5;white-space:nowrap;">
+                    <span style="color:#3f6ba8;">{{ p.k }}</span>
+                    <span style="font-weight:500;">{{ p.v }}</span>
+                    <button type="button" aria-label="Remove" style="display:grid;place-items:center;width:17px;height:17px;border:0;background:transparent;border-radius:5px;color:#5b87c8;cursor:pointer;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#d6e6ff;color:#0544a5;">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>
+                    </button>
+                  </span>
+                </sc-for>
+                <button type="button" style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border:1px dashed #d7dbe3;background:#ffffff;border-radius:8px;font-family:inherit;font-size:12.5px;color:#5e616e;cursor:pointer;white-space:nowrap;transition:border-color 160ms ease,color 160ms ease;" style-hover="border-color:#b9d4ff;color:#18181b;">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+                  Add filter
+                </button>
+              </div>
+
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:20px;">
+                <div style="padding:13px;border:1px solid #edeef2;border-radius:12px;">
+                  <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Estimated matches</p>
+                  <p style="margin:6px 0 0;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:22px;font-weight:500;letter-spacing:-0.02em;color:#18181b;">1,240</p>
+                  <div style="height:3px;border-radius:99px;background:#eceff4;overflow:hidden;margin-top:9px;"><div style="height:100%;width:78%;background:#3c83f6;border-radius:99px;"></div></div>
+                </div>
+                <div style="padding:13px;border:1px solid #edeef2;border-radius:12px;">
+                  <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Predicted fit ≥ 70</p>
+                  <p style="margin:6px 0 0;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:22px;font-weight:500;letter-spacing:-0.02em;color:#18181b;">42%</p>
+                  <div style="height:3px;border-radius:99px;background:#eceff4;overflow:hidden;margin-top:9px;"><div style="height:100%;width:42%;background:#12b981;border-radius:99px;"></div></div>
+                </div>
+                <div style="padding:13px;border:1px solid #edeef2;border-radius:12px;">
+                  <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Credits</p>
+                  <p style="margin:6px 0 0;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:22px;font-weight:500;letter-spacing:-0.02em;color:#18181b;">124</p>
+                  <p style="margin:9px 0 0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#9aa0b0;">1,284 available</p>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+            <div style="animation:sp-rise 220ms cubic-bezier(.32,.72,0,1) both;">
+              <div style="display:flex;align-items:center;gap:11px;padding:14px;border:1px solid #dbe7fb;background:#f3f8ff;border-radius:12px;box-shadow:inset 2px 0 0 #3c83f6;">
+                <span style="width:7px;height:7px;border-radius:99px;background:#3c83f6;animation:sp-pulse 1.4s ease-in-out infinite;flex-shrink:0;"></span>
+                <div style="min-width:0;">
+                  <p style="margin:0;font-size:13.5px;font-weight:500;color:#18181b;">Ready to run</p>
+                  <p style="margin:3px 0 0;font-size:12.5px;color:#5e616e;line-height:1.5;">LinkedIn returns ten results per call, so this imports in the background over a few minutes. You can leave the page — the count on Leads ticks up as pages come back.</p>
+                </div>
+              </div>
+
+              <p style="margin:18px 0 9px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Summary</p>
+              <div style="border:1px solid #edeef2;border-radius:12px;overflow:hidden;">
+                <sc-for list="{{ summaryRows }}" as="s" hint-placeholder-count="5">
+                  <div style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-bottom:1px solid #f4f5f8;">
+                    <span style="width:132px;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.09em;text-transform:uppercase;color:#5e616e;">{{ s.k }}</span>
+                    <span style="flex:1;min-width:0;font-size:13px;color:#18181b;text-align:right;">{{ s.v }}</span>
+                  </div>
+                </sc-for>
+              </div>
+
+              <label style="display:flex;align-items:flex-start;gap:10px;margin-top:14px;cursor:pointer;">
+                <span style="display:grid;place-items:center;width:15px;height:15px;border-radius:4px;border:1.5px solid #3c83f6;background:#3c83f6;flex-shrink:0;margin-top:2px;">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 6.8"></path></svg>
+                </span>
+                <span style="font-size:12.5px;color:#2e3038;line-height:1.5;">Enrich and score every lead as it arrives, so the table is sorted by fit before you open it.</span>
+              </label>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="flex-shrink:0;display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid #edeef2;background:#fbfcfe;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#9aa0b0;white-space:nowrap;">{{ stepCounter }}</span>
+          <div style="flex:1;"></div>
+          <button type="button" onClick="{{ back }}" style="height:32px;padding:0 13px;border:1px solid #e4e4e7;background:#ffffff;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:border-color 160ms ease,box-shadow 160ms ease;color:{{ backFg }}" style-hover="border-color:#b9d4ff;box-shadow:0 0 0 3px rgba(60,131,246,.10);">Back</button>
+          <button type="button" onClick="{{ next }}" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 15px;border:0;background:#3c83f6;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#ffffff;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff;transition:background-color 160ms ease,box-shadow 160ms ease,transform 160ms ease;" style-hover="background:#1e6fe8;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff, 0 5px 16px rgba(60,131,246,.34);" style-active="transform:translateY(1px);">
+            {{ nextLabel }}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"></path><path d="M13 6l6 6-6 6"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ paletteOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:80;display:flex;align-items:flex-start;justify-content:center;padding:14vh 24px 24px;">
+      <div onClick="{{ closePalette }}" style="position:absolute;inset:0;background:rgba(10,18,32,.34);animation:sp-scrim 160ms ease both;"></div>
+      <div style="position:relative;width:560px;max-width:100%;background:#ffffff;border:1px solid #e4e4e7;border-radius:16px;box-shadow:0 32px 80px rgba(10,18,32,.26);overflow:hidden;animation:sp-modal 200ms cubic-bezier(.32,.72,0,1) both;">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 14px;height:52px;border-bottom:1px solid #f0f2f6;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3c83f6" stroke-width="1.9" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path></svg>
+          <input type="text" placeholder="Ask Spurly to find, filter or draft something…" style="flex:1;min-width:0;height:100%;border:0;outline:none;background:transparent;font-family:inherit;font-size:14.5px;color:#18181b;" />
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#afb3c4;border:1px solid #e9eaee;border-radius:4px;padding:2px 5px;flex-shrink:0;">ESC</span>
+        </div>
+        <div style="padding:8px;">
+          <p style="margin:6px 8px 4px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Suggested</p>
+          <sc-for list="{{ paletteItems }}" as="p" hint-placeholder-count="4">
+            <button type="button" onClick="{{ closePalette }}" style="display:flex;align-items:center;gap:11px;width:100%;padding:10px;border:0;background:transparent;border-radius:9px;font-family:inherit;text-align:left;cursor:pointer;transition:background-color 140ms ease;" style-hover="background:#f3f6fb;">
+              <span style="display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#eaf2ff;color:#0544a5;flex-shrink:0;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"></path><path d="M13 6l6 6-6 6"></path></svg>
+              </span>
+              <span style="min-width:0;flex:1;">
+                <span style="display:block;font-size:13.5px;color:#18181b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.label }}</span>
+                <span style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#9aa0b0;margin-top:2px;">{{ p.kind }}</span>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="position:fixed;left:16px;bottom:16px;z-index:50;display:flex;align-items:center;gap:3px;padding:4px;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border:1px solid #e4e4e7;border-radius:99px;box-shadow:0 8px 28px rgba(10,18,32,.12);">
+    <span style="padding:0 8px 0 10px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;white-space:nowrap;">State</span>
+    <sc-for list="{{ stateTabs }}" as="s" hint-placeholder-count="3">
+      <button type="button" onClick="{{ s.pick }}" style="height:26px;padding:0 12px;border:0;border-radius:99px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background-color 160ms ease,color 160ms ease;color:{{ s.fg }};background:{{ s.bg }}">{{ s.label }}</button>
+    </sc-for>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+const AV = [
+  ['#dbe7fb', '#0544a5'], ['#e3e0fb', '#4436b8'], ['#d5f0e6', '#07784f'],
+  ['#fde8ea', '#9f1239'], ['#ffeedd', '#9a3412'], ['#d6f1f4', '#115e59'],
+];
+
+const STATUS = {
+  New:       ['#f0f2f6', '#2e3038', '#9aa0b0'],
+  Queued:    ['#fef6e7', '#a45309', '#f59e0b'],
+  Contacted: ['#eaf2ff', '#0544a5', '#3c83f6'],
+  Connected: ['#e8faf2', '#07784f', '#12b981'],
+  Replied:   ['#e8faf2', '#07784f', '#12b981'],
+};
+
+const ENRICH = {
+  'ENRICHED':     ['#07784f', '#12b981', 'none'],
+  'ENRICHING':    ['#0544a5', '#3c83f6', 'sp-pulse 1.4s ease-in-out infinite'],
+  'QUEUED':       ['#a45309', '#f59e0b', 'none'],
+  'NOT ENRICHED': ['#9aa0b0', '#c3c7d1', 'none'],
+  'FAILED':       ['#b31b1b', '#ef4444', 'none'],
+};
+
+const LEADS = [
+  { id: 'l1', name: 'Amara Osei', headline: 'VP Revenue Operations · scaling GTM systems', title: 'VP Revenue Operations', company: 'Northwind Logistics', location: 'London, UK', degree: '2nd', fit: 94, signal: 'Posted about tool consolidation', status: 'Contacted', enrich: 'ENRICHED', activity: 'Viewed your profile', activityAt: '2h ago' },
+  { id: 'l2', name: 'Daniel Reyes', headline: 'Head of Sales at Energy One Ltd', title: 'Head of Sales', company: 'Energy One Ltd', location: 'Madrid, Spain', degree: '1st', fit: 88, signal: 'Remit widened to national', status: 'Connected', enrich: 'ENRICHED', activity: 'Accepted invite', activityAt: '1d ago' },
+  { id: 'l3', name: 'Priya Raghunathan', headline: 'Director of Demand Generation', title: 'Director, Demand Gen', company: 'Halcyon Software', location: 'Bengaluru, India', degree: '3rd', fit: 76, signal: 'Hiring 2 SDRs', status: 'Queued', enrich: 'QUEUED', activity: 'Imported', activityAt: '2d ago' },
+  { id: 'l4', name: 'Jonas Lindqvist', headline: 'Chief Revenue Officer · ex-Maersk', title: 'Chief Revenue Officer', company: 'Nordvik Marine', location: 'Stockholm, Sweden', degree: '2nd', fit: 91, signal: 'Posts weekly on digitisation', status: 'New', enrich: 'ENRICHING', activity: 'Enriching profile', activityAt: 'now' },
+  { id: 'l5', name: 'Mei-Ling Chen', headline: 'Growth Lead, APAC', title: 'Growth Lead', company: 'Parallax Labs', location: 'Singapore', degree: '2nd', fit: 58, signal: 'Awaiting enrichment', status: 'New', enrich: 'NOT ENRICHED', activity: 'Imported', activityAt: '3d ago' },
+  { id: 'l6', name: 'Tobias Werner', headline: 'Partner · B2B SaaS, seed to Series B', title: 'Partner', company: 'Kessler Ventures', location: 'Berlin, Germany', degree: '3rd', fit: 34, signal: 'Investor, not a buyer', status: 'New', enrich: 'FAILED', activity: 'Enrichment failed', activityAt: '5h ago' },
+  { id: 'l7', name: 'Sofia Marchetti', headline: 'Head of Partnerships · Verdana Group', title: 'Head of Partnerships', company: 'Verdana Group', location: 'Milan, Italy', degree: '1st', fit: 89, signal: 'Replied 4h ago', status: 'Replied', enrich: 'ENRICHED', activity: 'Replied to message', activityAt: '4h ago' },
+  { id: 'l8', name: 'Owen Callaghan', headline: 'Sales Director, Northern Europe', title: 'Sales Director', company: 'Brightline Health', location: 'Dublin, Ireland', degree: '2nd', fit: 81, signal: 'Follow-up fires in 9 days', status: 'Contacted', enrich: 'ENRICHED', activity: 'Invite sent', activityAt: '1d ago' },
+  { id: 'l9', name: 'Fatima Al-Mansouri', headline: 'VP Marketing · data & analytics', title: 'VP Marketing', company: 'Dune Analytics Co', location: 'Dubai, UAE', degree: '2nd', fit: 72, signal: 'Two mutual connections', status: 'Queued', enrich: 'QUEUED', activity: 'Imported', activityAt: '4d ago' },
+  { id: 'l10', name: 'Lucas Ferreira', headline: 'Founder · field service software', title: 'Founder', company: 'Atlas Fieldwork', location: 'São Paulo, Brazil', degree: '3rd', fit: 41, signal: 'Below ICP headcount', status: 'New', enrich: 'NOT ENRICHED', activity: 'Imported', activityAt: '6d ago' },
+];
+
+const SUMMARY = {
+  l1: 'Posted twice this month about consolidating a five-tool RevOps stack after a headcount freeze. Owns the budget line you sell into, and the second-degree path runs through two mutual connections at Northwind.',
+  l2: 'Already a first-degree connection and has opened the last two campaigns without replying. Recently moved from regional to national sales ownership — the remit change is the opening.',
+  l3: 'Runs demand gen for a 400-person software business and is hiring two SDRs, which usually precedes a tooling decision. No mutuals, so an invite has to carry its own context.',
+  l4: 'Twenty-one thousand followers and posts weekly about maritime logistics digitisation. High-visibility target: a reply here is seen by his network, not just by him.',
+  l5: 'Growth lead for APAC at a 60-person analytics startup. Profile is thin until enrichment runs — headline and location are all the search returned, so the score is provisional.',
+  l6: 'Investor rather than buyer. Worth a connection for referral flow into portfolio companies, not for a direct campaign — which is why the fit score is low despite the audience size.',
+  l7: 'Replied four hours ago. This is a conversation, not a prospect — move it to the inbox and answer before the thread goes cold.',
+  l8: 'Invite sent yesterday, no response yet. Nine days until the follow-up step in the sequence fires automatically.',
+  l9: 'VP Marketing at a data business in Dubai with a second-degree path through two mutuals. Queued for enrichment — company size and tech stack arrive with the next worker pass.',
+  l10: 'Solo founder, small audience, third degree. Lowest-priority row in this audience unless the ICP widens to sub-20-person companies.',
+};
+
+const OPENER = {
+  l1: 'Amara — your post on cutting the RevOps stack back to two tools landed at the right time for us. We are seeing the same consolidation at Northwind-sized logistics teams. Worth comparing notes?',
+  l2: 'Daniel — congratulations on taking sales national. Happy to share what the other Iberian teams changed first when their territory doubled.',
+  l3: 'Priya — saw you are hiring two SDRs. Most teams hit a routing problem around that second hire; we built for exactly that stage.',
+  l4: 'Jonas — your thread on port data standards was the clearest thing I have read on it this year. Would like to send you one thing we are testing with maritime operators.',
+  l5: 'Mei-Ling — running APAC growth solo is a specific kind of hard. Happy to share the playbook two Singapore teams used to cut outbound admin.',
+  l6: 'Tobias — not a pitch. We work with three of your portfolio companies on outbound and I would value your read on where that market is going.',
+  l7: 'Sofia — thanks for the reply. Sending over the partnership one-pager now; the numbers on page two are the part worth your time.',
+  l8: 'Owen — following up on last week. If the timing is wrong, say so and I will close the loop rather than keep nudging.',
+  l9: 'Fatima — we share two connections at Dune. They mentioned you are rebuilding the demand engine; that is the part we are usually useful for.',
+  l10: 'Lucas — field service is one of the few verticals where outbound still beats inbound. Happy to send the two sequences that work there.',
+};
+
+function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
+function initials(n) { return n.split(/[\s-]+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase(); }
+function fitTone(f) {
+  if (f >= 80) return ['#07784f', '#12b981'];
+  if (f >= 60) return ['#18181b', '#3c83f6'];
+  return ['#777a88', '#c3c7d1'];
+}
+
+class Component extends DCLogic {
+  state = {
+    tab: 'all', view: 'default', selected: new Set(['l2', 'l7']), drawer: null,
+    statusFilterOpen: false, statuses: new Set(['Contacted', 'Replied']),
+    importStep: 0, source: 'describe', paletteOpen: false, verb: 0, count: 412,
+  };
+
+  componentDidMount() {
+    this._verb = setInterval(() => this.setState((s) => ({ verb: s.verb + 1, count: s.count + 3 + Math.floor(Math.random() * 6) })), 2600);
+    this._key = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); this.setState({ paletteOpen: true }); }
+      if (e.key === 'Escape') this.setState({ paletteOpen: false, importStep: 0, drawer: null, statusFilterOpen: false });
+    };
+    window.addEventListener('keydown', this._key);
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this._key); clearInterval(this._verb); }
+
+  decorate(l) {
+    const [avBg, avFg] = AV[hash(l.name) % AV.length];
+    const [sBg, sFg, sDot] = STATUS[l.status];
+    const [eFg, eDot, eAnim] = ENRICH[l.enrich];
+    const [fitFg, fitBar] = fitTone(l.fit);
+    return {
+      ...l, avBg, avFg, initials: initials(l.name),
+      statusBg: sBg, statusFg: sFg, statusDot: sDot,
+      enrichFg: eFg, enrichDot: eDot, enrichAnim: eAnim,
+      fitFg, fitBar, fitW: `${l.fit}%`,
+      signalFg: l.fit >= 70 ? '#0544a5' : '#9aa0b0',
+    };
+  }
+
+  toggle(id) {
+    this.setState((s) => {
+      const next = new Set(s.selected);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return { selected: next };
+    });
+  }
+
+  renderVals() {
+    const { tab, view, selected, drawer, statusFilterOpen, importStep, source, paletteOpen } = this.state;
+    const base = tab === 'enrich' ? LEADS.filter((l) => l.enrich !== 'ENRICHED') : LEADS;
+    const loading = view === 'loading';
+    const empty = view === 'empty';
+
+    const rows = (loading || empty) ? [] : base.map((l) => {
+      const d = this.decorate(l);
+      const sel = selected.has(l.id);
+      return {
+        ...d,
+        bg: sel ? '#eaf2ff' : '#ffffff',
+        spine: sel ? 'inset 2px 0 0 #3c83f6' : 'none',
+        checkBg: sel ? '#3c83f6' : '#ffffff',
+        checkBorder: sel ? '#3c83f6' : '#cfd3dd',
+        tick: sel ? 1 : 0,
+        toggle: (e) => { e.stopPropagation(); this.toggle(l.id); },
+        open: () => this.setState({ drawer: l.id }),
+      };
+    });
+
+    const allOn = rows.length > 0 && rows.every((r) => selected.has(r.id));
+    const dl = drawer ? this.decorate(LEADS.find((l) => l.id === drawer)) : null;
+
+    const SRC = [
+      { id: 'describe', title: 'Describe who you want', body: 'Plain English. Spurly turns it into LinkedIn filters and shows you them before anything runs.' },
+      { id: 'url', title: 'Paste a LinkedIn search', body: 'Already have a search you trust? Paste the URL and Spurly pages it in the background.' },
+      { id: 'csv', title: 'Upload a CSV', body: 'Profile URLs or names plus companies. Spurly matches, enriches and scores each row.' },
+    ];
+    const INPUT = {
+      describe: ['Your brief', 'VP or Head of Revenue Ops at logistics companies in Europe, 200–2000 employees, who have posted about tooling in the last 90 days', 'Spurly proposes filters on the next step — nothing runs until you confirm.'],
+      url: ['LinkedIn search URL', 'https://www.linkedin.com/search/results/people/?keywords=…', 'Classic search returns no total, so progress is reported as a count, not a bar.'],
+      csv: ['Paste rows or drop a file', 'name, company, linkedin_url', 'Unmatched rows are reported back rather than silently dropped.'],
+    };
+    const [inputLabel, inputPlaceholder, inputHint] = INPUT[source];
+
+    const stepHints = [
+      'Tell Spurly who you are looking for. Three ways in — pick the one you already have.',
+      'Spurly read your brief and drafted the filters. Nothing has run yet.',
+      'One last look before the worker starts paging LinkedIn.',
+    ];
+
+    return {
+      rows,
+      skeletons: loading ? [0, 1, 2, 3, 4, 5, 6, 7].map((i) => ({ delay: `${i * 90}ms`, w1: `${58 + ((i * 13) % 30)}%`, w2: `${40 + ((i * 17) % 34)}%` })) : [],
+      isEmpty: empty,
+      importRunning: !loading && !empty && tab === 'all',
+      workVerb: ['Sourcing', 'Paging', 'Reading', 'Scoring', 'Spurling', 'Reconciling', 'Enriching'][this.state.verb % 7],
+      workCount: this.state.count.toLocaleString(),
+      hasSelection: !loading && !empty && selected.size > 0,
+      selectedCount: selected.size,
+      clearSelection: () => this.setState({ selected: new Set() }),
+      toggleAll: () => this.setState({ selected: allOn ? new Set() : new Set(base.map((l) => l.id)) }),
+      allBg: allOn ? '#3c83f6' : '#ffffff',
+      allBorder: allOn ? '#3c83f6' : '#cfd3dd',
+      allTick: allOn || selected.size > 0 ? 1 : 0,
+
+      showAll: () => this.setState({ tab: 'all' }),
+      showEnrich: () => this.setState({ tab: 'enrich' }),
+      tabW: tab === 'all' ? 104 : 172,
+      tabX: tab === 'all' ? 0 : 108,
+      tabAllColor: tab === 'all' ? '#18181b' : '#777a88',
+      tabEnrichColor: tab === 'enrich' ? '#18181b' : '#777a88',
+
+      statusFilterOpen,
+      toggleStatusFilter: () => this.setState((s) => ({ statusFilterOpen: !s.statusFilterOpen })),
+      statusOptions: ['New', 'Contacted', 'Connected', 'Replied', 'Queued'].map((label) => {
+        const on = this.state.statuses.has(label);
+        return {
+          label, count: LEADS.filter((l) => l.status === label).length,
+          bg: on ? '#3c83f6' : '#ffffff', border: on ? '#3c83f6' : '#cfd3dd', tick: on ? 1 : 0,
+          toggle: () => this.setState((s) => {
+            const n = new Set(s.statuses);
+            if (n.has(label)) n.delete(label); else n.add(label);
+            return { statuses: n };
+          }),
+        };
+      }),
+
+      rangeLabel: empty ? '0 of 0' : loading ? 'Loading…' : `1–${rows.length} of 1,214`,
+
+      drawer: dl && {
+        ...dl,
+        summary: SUMMARY[dl.id],
+        opener: OPENER[dl.id],
+        fields: [
+          { k: 'Company', v: dl.company },
+          { k: 'Title', v: dl.title },
+          { k: 'Location', v: dl.location },
+          { k: 'Degree', v: dl.degree },
+          { k: 'Signal', v: dl.signal },
+          { k: 'Enrichment', v: dl.enrich.toLowerCase() },
+        ],
+        timeline: [
+          { label: dl.activity, at: dl.activityAt, dot: '#3c83f6' },
+          { label: 'Scored 94 against ICP “EU logistics — VP+”', at: '7 Sep 2026', dot: '#c3c7d1' },
+          { label: 'Imported from LinkedIn search', at: '6 Sep 2026', dot: '#c3c7d1' },
+        ],
+      },
+      closeDrawer: () => this.setState({ drawer: null }),
+
+      importOpen: importStep > 0,
+      openImport: () => this.setState({ importStep: 1 }),
+      closeImport: () => this.setState({ importStep: 0 }),
+      isStep1: importStep === 1,
+      isStep2: importStep === 2,
+      isStep3: importStep === 3,
+      stepHint: stepHints[Math.max(0, importStep - 1)],
+      stepCounter: `Step ${Math.max(1, importStep)} of 3`,
+      steps: ['Source', 'Review', 'Run'].map((label, i) => ({
+        label,
+        fg: importStep > i ? '#0544a5' : '#c3c7d1',
+        w: importStep > i ? '100%' : '0%',
+      })),
+      back: () => this.setState((s) => ({ importStep: s.importStep <= 1 ? 0 : s.importStep - 1 })),
+      backFg: importStep <= 1 ? '#9aa0b0' : '#2e3038',
+      next: () => this.setState((s) => ({ importStep: s.importStep >= 3 ? 0 : s.importStep + 1 })),
+      nextLabel: importStep === 3 ? 'Start import' : importStep === 2 ? 'Looks right' : 'Read my brief',
+
+      sources: SRC.map((s) => {
+        const on = s.id === source;
+        return {
+          ...s,
+          pick: () => this.setState({ source: s.id }),
+          border: on ? '#b9d4ff' : '#e9eaee',
+          bg: on ? '#f7faff' : '#ffffff',
+          ring: on ? '0 0 0 3px rgba(60,131,246,.12)' : 'none',
+          iconBg: on ? '#e6efff' : '#f2f4f7',
+          iconFg: on ? '#0544a5' : '#777a88',
+          dotBorder: on ? '#3c83f6' : '#cfd3dd',
+          dotBg: on ? '#3c83f6' : '#ffffff',
+          dotOn: on ? 1 : 0,
+          showSparkle: s.id === 'describe' ? 'block' : 'none',
+          showLink: s.id === 'url' ? 'block' : 'none',
+          showUpload: s.id === 'csv' ? 'block' : 'none',
+        };
+      }),
+      inputLabel, inputPlaceholder, inputHint,
+
+      proposed: [
+        { k: 'Title', v: 'VP / Head of RevOps' },
+        { k: 'Industry', v: 'Logistics' },
+        { k: 'Headcount', v: '200–2000' },
+        { k: 'Region', v: 'Europe' },
+        { k: 'Degree', v: '2nd + 3rd' },
+        { k: 'Posted', v: 'last 90 days' },
+      ],
+      summaryRows: [
+        { k: 'Audience name', v: 'EU logistics — VP+' },
+        { k: 'Source', v: source === 'describe' ? 'Natural-language brief' : source === 'url' ? 'LinkedIn search URL' : 'CSV upload' },
+        { k: 'Filters', v: '6 applied' },
+        { k: 'Estimated matches', v: '1,240' },
+        { k: 'Credits', v: '124 of 1,284' },
+      ],
+
+      paletteOpen,
+      openPalette: () => this.setState({ paletteOpen: true }),
+      closePalette: () => this.setState({ paletteOpen: false }),
+      paletteItems: [
+        { label: 'Find VPs of Sales in Germany with a 2nd-degree path', kind: 'Build audience' },
+        { label: 'Enrich everyone in EU logistics scoring above 70', kind: 'Bulk action' },
+        { label: 'Draft openers for the 12 leads who replied this week', kind: 'AI generation' },
+        { label: 'Why did 14 enrichments fail yesterday?', kind: 'Explain' },
+      ],
+
+      stateTabs: [
+        ['default', 'Populated'], ['loading', 'Loading'], ['empty', 'Empty'],
+      ].map(([id, label]) => ({
+        label,
+        fg: view === id ? '#ffffff' : '#5e616e',
+        bg: view === id ? '#3c83f6' : 'transparent',
+        pick: () => this.setState({ view: id }),
+      })),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

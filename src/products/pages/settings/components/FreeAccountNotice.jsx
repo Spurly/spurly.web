@@ -11,10 +11,10 @@ import { linkedInSettingsStrings as t } from '../strings.js';
 export function FreeAccountNotice() {
   return (
     <SectionCard title={t.freeAccountNotice.title}>
-      <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
+      <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
         {t.freeAccountNotice.paragraph1}
       </p>
-      <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-2">
+      <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-2">
         {t.freeAccountNotice.paragraph2}
       </p>
     </SectionCard>

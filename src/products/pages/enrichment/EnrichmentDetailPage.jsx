@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Loader2, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { DataTable } from 'src/core/DataTable';
-import { Button, Badge } from 'src/core/primitives';
+import { Button, Badge, FilterPills, StatTile, WorkingLine } from 'src/core/primitives';
 import { useEnrichmentCampaignDetail } from 'src/products/enrichment/hooks/useEnrichmentCampaignDetail.js';
 import {
   DetailPageSkeleton,
@@ -46,11 +46,11 @@ export function EnrichmentDetailPage() {
         title={t.loadingPageTitle}
         subtitle={<DetailSubtitleSkeleton />}
         actions={<DetailActionsSkeleton />}
+        backTo="/hub/enrichment"
+        backLabel={t.allCampaigns}
+        layout="page"
       >
         <DetailPageSkeleton
-          backTo="/hub/enrichment"
-          backLabel={t.allCampaigns}
-          sectionTitle={t.sectionTitle}
           columns={hubLeadEnrichColumns}
           label={t.loading}
         />
@@ -60,8 +60,8 @@ export function EnrichmentDetailPage() {
 
   if (!campaign) {
     return (
-      <DashboardLayout title={t.loadingPageTitle}>
-        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
+      <DashboardLayout title={t.loadingPageTitle} backTo="/hub/enrichment" backLabel={t.allCampaigns} layout="page">
+        <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
           {t.notFound} <Link to="/hub/enrichment" className="underline">{t.backToList}</Link>
         </p>
       </DashboardLayout>
@@ -69,67 +69,80 @@ export function EnrichmentDetailPage() {
   }
 
   const view = STATUS_VIEW[status] ?? STATUS_VIEW.done;
+  const total = counts.total ?? 0;
+  const pct = (n) => (total ? Math.round(((n ?? 0) / total) * 100) : 0);
 
   return (
     <DashboardLayout
       title={campaign.name}
-      subtitle={`${counts.total ?? 0} people · ${counts.enriched ?? 0} enriched · ${counts.queued ?? 0} queued`}
+      backTo="/hub/enrichment"
+      backLabel={t.allCampaigns}
+      badge={
+        <Badge tone={view.tone} dot pulse={running}>
+          {view.label}
+        </Badge>
+      }
+      subtitle={
+        <span className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-meta)] text-[var(--ui-text-quaternary)]">
+          {total.toLocaleString()} people · {(counts.enriched ?? 0).toLocaleString()} enriched · {(counts.queued ?? 0).toLocaleString()} queued
+        </span>
+      }
+      layout="page"
       actions={
-        <div className="flex items-center gap-2">
-          <Badge tone={view.tone}>
-            <span className="inline-flex items-center gap-1">
-              {running && <Loader2 size={11} className="animate-spin" aria-hidden="true" />}
-              {view.label}
-            </span>
-          </Badge>
-          {counts.failed > 0 && (
-            <Button
-              size="sm"
-              variant="ghost"
-              leadingIcon={<RotateCcw size={13} />}
-              disabled={busy}
-              onClick={retryFailed}
-            >
-              {t.retryFailed}
-            </Button>
-          )}
-        </div>
+        counts.failed > 0 ? (
+          <Button variant="primary" leadingIcon={<RotateCcw size={13} />} disabled={busy} onClick={retryFailed}>
+            {t.retryFailed}
+          </Button>
+        ) : null
       }
     >
       <div className="flex flex-col gap-4">
-        <Link to="/hub/enrichment" className="inline-flex items-center gap-1 text-[var(--ui-t-label)] text-[var(--ui-text-secondary)] hover:underline">
-          <ArrowLeft size={13} aria-hidden="true" /> {t.allCampaigns}
-        </Link>
+        {running && (
+          <WorkingLine verbs={['Enriching', 'Reading', 'Resolving']} trailing={`${((counts.queued ?? 0) + (counts.enriching ?? 0)).toLocaleString()} in flight`}>
+            profiles resolve in the background · this page updates as each one lands
+          </WorkingLine>
+        )}
 
-        <DataTable
-          columns={hubLeadEnrichColumns}
-          data={leads}
-          loading={loading}
-          emptyMessage={statusFilter ? 'Nobody in this state' : 'Nobody in this campaign'}
-          emptyHint={statusFilter ? 'Try another filter.' : undefined}
-          toolbar={{
-            filters: (
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                aria-label="Filter by status"
-                className="text-[var(--ui-t-label)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-2 py-1 text-[var(--ui-text-secondary)]"
-              >
-                <option value="">Everyone ({counts.total ?? 0})</option>
-                <option value="queued">Queued ({counts.queued ?? 0})</option>
-                <option value="enriching">Enriching ({counts.enriching ?? 0})</option>
-                <option value="enriched">Enriched ({counts.enriched ?? 0})</option>
-                <option value="failed">Failed ({counts.failed ?? 0})</option>
-              </select>
-            ),
-          }}
-          pagination={{
-            page: pagination.page,
-            pageSize: pagination.limit,
-            total: pagination.total,
-            onPageChange: goToPage,
-          }}
-        />
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+          <StatTile label="People" value={total.toLocaleString()} caption="In this batch" />
+          <StatTile label="Enriched" value={(counts.enriched ?? 0).toLocaleString()} fill={pct(counts.enriched)} tone="success" caption={`${pct(counts.enriched)}% complete`} />
+          <StatTile label="In flight" value={((counts.queued ?? 0) + (counts.enriching ?? 0)).toLocaleString()} fill={pct((counts.queued ?? 0) + (counts.enriching ?? 0))} caption="Queued or resolving" />
+          <StatTile label="Failed" value={(counts.failed ?? 0).toLocaleString()} fill={pct(counts.failed)} tone="danger" caption={counts.failed ? 'Retry puts them back in the queue' : 'No failures'} />
+        </div>
+
+        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-sm)] overflow-hidden">
+          <DataTable
+            columns={hubLeadEnrichColumns}
+            data={leads}
+            loading={loading}
+            stickyHeader={false}
+            emptyMessage={statusFilter ? 'Nobody in this state' : 'Nobody in this batch'}
+            emptyHint={statusFilter ? 'Try another filter.' : undefined}
+            toolbar={{
+              chips: (
+                <FilterPills
+                  size="sm"
+                  ariaLabel="Filter by status"
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                  options={[
+                    { id: '', label: 'Everyone', count: counts.total ?? 0 },
+                    { id: 'queued', label: 'Queued', count: counts.queued ?? 0 },
+                    { id: 'enriching', label: 'Enriching', count: counts.enriching ?? 0 },
+                    { id: 'enriched', label: 'Enriched', count: counts.enriched ?? 0 },
+                    { id: 'failed', label: 'Failed', count: counts.failed ?? 0 },
+                  ]}
+                />
+              ),
+            }}
+            pagination={{
+              page: pagination.page,
+              pageSize: pagination.limit,
+              total: pagination.total,
+              onPageChange: goToPage,
+            }}
+          />
+        </div>
       </div>
     </DashboardLayout>
   );

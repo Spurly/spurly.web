@@ -28,7 +28,7 @@ import { settingsStrings as t } from '../strings.js';
 
 const FIELD_CLASS =
   'w-full px-4 py-3 bg-[var(--ui-surface-sunken)] border border-[var(--ui-border)] rounded-[var(--ui-radius-lg)] ' +
-  'text-[var(--ui-t-body)] leading-relaxed text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] ' +
+  'text-[length:var(--ui-t-body)] leading-relaxed text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-tertiary)] ' +
   'focus:outline-none focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] ' +
   'transition-colors resize-none disabled:opacity-50';
 
@@ -38,7 +38,7 @@ export function AiContextTab() {
   if (loading) {
     return (
       <SectionCard title={t.aiContext.sectionTitle}>
-        <p className="text-[var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{t.aiContext.loading}</p>
+        <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{t.aiContext.loading}</p>
       </SectionCard>
     );
   }
@@ -47,17 +47,17 @@ export function AiContextTab() {
     <form onSubmit={handleSave} className="flex flex-col gap-5">
       <SectionCard title={t.aiContext.sectionTitle}>
         <div className="flex flex-col gap-5">
-          <p className="text-[var(--ui-t-body)] leading-relaxed text-[var(--ui-text-secondary)]">
+          <p className="text-[length:var(--ui-t-body)] leading-relaxed text-[var(--ui-text-secondary)]">
             {t.aiContext.intro}
           </p>
 
           {CONTEXT_FIELDS.map((field) => (
             <div key={field.key} className="flex flex-col gap-1.5">
               <div className="flex items-baseline justify-between gap-3">
-                <label className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tracking-[-0.006em]">
+                <label className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tracking-[-0.006em]">
                   {field.label}
                 </label>
-                <span className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums">
+                <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums">
                   {form[field.key].length}/{field.max}
                 </span>
               </div>
@@ -73,12 +73,12 @@ export function AiContextTab() {
                 className={FIELD_CLASS}
               />
 
-              <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">{field.help}</p>
+              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">{field.help}</p>
             </div>
           ))}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tracking-[-0.006em]">
+            <label className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] tracking-[-0.006em]">
               {t.aiContext.defaultToneLabel}
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -88,7 +88,7 @@ export function AiContextTab() {
                   type="button"
                   onClick={() => setForm((f) => ({ ...f, defaultTone: tone.value }))}
                   disabled={saving}
-                  className="px-3 h-8 rounded-[var(--ui-radius-md)] text-[var(--ui-t-label)] font-medium transition-colors disabled:opacity-50"
+                  className="px-3 h-8 rounded-[var(--ui-radius-md)] text-[length:var(--ui-t-label)] font-medium transition-colors disabled:opacity-50"
                   style={
                     form.defaultTone === tone.value
                       ? { background: 'var(--ui-accent-tint-strong)', color: 'var(--ui-accent)' }
@@ -99,14 +99,14 @@ export function AiContextTab() {
                 </button>
               ))}
             </div>
-            <p className="text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
+            <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
               {t.aiContext.defaultToneHint}
             </p>
           </div>
 
           {error && (
             <p
-              className="flex items-start gap-2 text-[var(--ui-t-body)] font-medium px-3 py-2.5 rounded-[var(--ui-radius-lg)]"
+              className="flex items-start gap-2 text-[length:var(--ui-t-body)] font-medium px-3 py-2.5 rounded-[var(--ui-radius-lg)]"
               style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)' }}
             >
               <AlertTriangle size={14} className="shrink-0 mt-px" />
@@ -127,7 +127,7 @@ export function AiContextTab() {
       <SectionCard title={t.aiContext.previewTitle}>
         {preview ? (
           <pre
-            className="px-4 py-3 rounded-[var(--ui-radius-lg)] text-[var(--ui-t-label)] leading-relaxed whitespace-pre-wrap font-sans"
+            className="px-4 py-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-label)] leading-relaxed whitespace-pre-wrap font-sans"
             style={{
               background: 'var(--ui-surface-sunken)',
               border: '1px dashed var(--ui-border)',
@@ -137,7 +137,7 @@ export function AiContextTab() {
             {preview}
           </pre>
         ) : (
-          <p className="inline-flex items-start gap-2 text-[var(--ui-t-body)] text-[var(--ui-text-secondary)]">
+          <p className="inline-flex items-start gap-2 text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
             <Sparkles size={14} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-accent)' }} />
             {t.aiContext.previewEmpty}
           </p>

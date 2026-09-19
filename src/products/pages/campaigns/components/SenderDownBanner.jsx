@@ -14,17 +14,16 @@ export function SenderDownBanner({ sender }) {
 
   return (
     <div
-      className="flex items-start gap-2 px-[var(--ui-pad-lg)] py-3 border-b border-[var(--ui-border-hairline)]"
-      style={{ background: 'var(--ui-warning-tint)' }}
+      className="flex items-start gap-2.5 px-[var(--ui-card-x)] py-2.5 border-b border-[var(--ui-warning-border)] bg-[var(--ui-warning-tint)] shadow-[inset_2px_0_0_var(--ui-warning-dot)]"
     >
       <AlertTriangle size={14} className="mt-0.5 shrink-0" style={{ color: 'var(--ui-warning-fg)' }} aria-hidden="true" />
       <div className="min-w-0">
-        <p className="text-[var(--ui-t-label)]" style={{ color: 'var(--ui-warning-fg)' }}>
+        <p className="text-[length:var(--ui-t-label)]" style={{ color: 'var(--ui-warning-fg)' }}>
           This campaign says it is running, but nothing has picked it up
           {sender.lastRunAt ? ` since ${sinceLabel(sender.lastRunAt)}` : ' yet'}.
           No invitations are going out.
         </p>
-        <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-0.5">
+        <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-0.5">
           The scheduled sender checks in every minute. If this persists, it is not running.
         </p>
       </div>

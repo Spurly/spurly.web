@@ -53,15 +53,15 @@ function ConfigFields({ step, onConfigChange, disabled }) {
           onChange={(e) => onConfigChange({ note: e.target.value })}
           placeholder="Optional note to send with the invitation…"
           aria-label="Connection note"
-          className="w-full text-[var(--ui-t-label)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-2.5 py-1.5 text-[var(--ui-text-primary)] disabled:opacity-60"
+          className="w-full text-[length:var(--ui-t-label)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-2.5 py-1.5 text-[var(--ui-text-primary)] disabled:opacity-60"
         />
-        <span className="text-[var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">{(config.note || '').length}/300</span>
+        <span className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">{(config.note || '').length}/300</span>
       </div>
     );
   }
 
   if (type === 'like_post') {
-    return <p className="text-[var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">Reacts to the lead's most recent post. No configuration needed.</p>;
+    return <p className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">Reacts to the lead's most recent post. No configuration needed.</p>;
   }
 
   if (type === 'comment_post' || type === 'message') {
@@ -76,9 +76,9 @@ function ConfigFields({ step, onConfigChange, disabled }) {
           onChange={(e) => onConfigChange({ text: e.target.value })}
           placeholder={type === 'message' ? 'Hey {{firstName}}, …' : `Write the ${label.toLowerCase()}…`}
           aria-label={label}
-          className="w-full text-[var(--ui-t-label)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-2.5 py-1.5 text-[var(--ui-text-primary)] disabled:opacity-60"
+          className="w-full text-[length:var(--ui-t-label)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-2.5 py-1.5 text-[var(--ui-text-primary)] disabled:opacity-60"
         />
-        <span className="text-[var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">
+        <span className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">
           {type === 'message' ? 'Use {{firstName}} to personalize.' : `${(config.text || '').length}/1250`}
         </span>
       </div>
@@ -94,12 +94,12 @@ function ConfigFields({ step, onConfigChange, disabled }) {
           disabled={disabled}
           onChange={(e) => onConfigChange({ mode: e.target.value })}
           aria-label="Wait mode"
-          className="text-[var(--ui-t-micro)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-1.5 py-1 text-[var(--ui-text-primary)]"
+          className="text-[length:var(--ui-t-micro)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-1.5 py-1 text-[var(--ui-text-primary)]"
         >
           {WAIT_MODES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
         </select>
         {mode === 'fixed' ? (
-          <label className="flex items-center gap-1.5 text-[var(--ui-t-micro)] text-[var(--ui-text-secondary)]">
+          <label className="flex items-center gap-1.5 text-[length:var(--ui-t-micro)] text-[var(--ui-text-secondary)]">
             Wait
             <input
               type="number"
@@ -107,12 +107,12 @@ function ConfigFields({ step, onConfigChange, disabled }) {
               value={config.days ?? 2}
               disabled={disabled}
               onChange={(e) => onConfigChange({ days: Number(e.target.value) })}
-              className="w-12 h-6 text-[var(--ui-t-micro)] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
+              className="w-12 h-6 text-[length:var(--ui-t-micro)] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
             />
             days, then continue
           </label>
         ) : (
-          <label className="flex items-center gap-1.5 text-[var(--ui-t-micro)] text-[var(--ui-text-secondary)]">
+          <label className="flex items-center gap-1.5 text-[length:var(--ui-t-micro)] text-[var(--ui-text-secondary)]">
             Stop if not accepted within
             <input
               type="number"
@@ -120,7 +120,7 @@ function ConfigFields({ step, onConfigChange, disabled }) {
               value={config.maxDays ?? 7}
               disabled={disabled}
               onChange={(e) => onConfigChange({ maxDays: Number(e.target.value) })}
-              className="w-12 h-6 text-[var(--ui-t-micro)] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
+              className="w-12 h-6 text-[length:var(--ui-t-micro)] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
             />
             days
           </label>
@@ -289,7 +289,7 @@ function MenuItem({ icon: Icon, tone = 'default', disabled, onSelect, children }
           onSelect();
         }
       }}
-      className={`flex items-center gap-2 px-2.5 py-1.5 rounded-[var(--ui-radius-sm)] text-left text-[var(--ui-t-label)] cursor-pointer ${
+      className={`flex items-center gap-2 px-2.5 py-1.5 rounded-[var(--ui-radius-sm)] text-left text-[length:var(--ui-t-label)] cursor-pointer ${
         disabled
           ? 'opacity-40 cursor-not-allowed'
           : tone === 'danger'
@@ -305,7 +305,7 @@ function MenuItem({ icon: Icon, tone = 'default', disabled, onSelect, children }
 
 function NodeCard({
   step, index, isFirst, isLast, readOnly,
-  expanded, onToggleExpand,
+  expanded, onToggleExpand, selected = false, onSelect,
   onChange, onRemove, onMove,
   isDragSource, onDragStartHandle, onDragEndHandle,
 }) {
@@ -334,13 +334,26 @@ function NodeCard({
   const setDelayDays = (v) => onChange(index, { ...step, delayDays: Math.max(0, Number(v) || 0) });
   const setConfig = (patch) => onChange(index, { ...step, config: { ...step.config, ...patch } });
 
+  const tile =
+    step.type === 'wait'
+      ? 'bg-[var(--ui-surface-sunken)] text-[var(--ui-text-secondary)]'
+      : 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)]';
+
   return (
     <div
-      className={`group relative w-72 rounded-[var(--ui-radius-lg)] border bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-sm)] transition-all ${isDragSource ? 'opacity-40' : 'hover:shadow-[var(--ui-shadow-md)]'} ${error ? 'border-[var(--ui-danger)]' : 'border-[var(--ui-border)] hover:border-[var(--ui-border-strong)]'}`}
+      className={[
+        'group relative w-full max-w-[560px] rounded-[var(--ui-radius-lg)] border bg-[var(--ui-surface-card)] transition-[border-color,box-shadow,opacity] duration-[var(--ui-dur-fast)]',
+        isDragSource ? 'opacity-40' : '',
+        error
+          ? 'border-[var(--ui-danger)]'
+          : selected
+            ? 'border-[var(--ui-accent-border)] shadow-[0_0_0_3px_rgba(60,131,246,0.12),inset_2px_0_0_var(--ui-accent)]'
+            : 'border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)] hover:border-[var(--ui-accent-border)]',
+      ].join(' ')}
     >
       <div
-        className={`flex items-center gap-2 px-3 py-2.5 ${!readOnly ? 'cursor-pointer' : ''}`}
-        onClick={readOnly ? undefined : onToggleExpand}
+        className={`flex items-start gap-3 px-3.5 py-3.5 ${!readOnly || onSelect ? 'cursor-pointer' : ''}`}
+        onClick={readOnly ? (onSelect ? () => onSelect(index) : undefined) : () => { onToggleExpand(); onSelect?.(index); }}
       >
         {!readOnly && (
           <span
@@ -353,18 +366,22 @@ function NodeCard({
             }}
             onDragEnd={(e) => { e.stopPropagation(); onDragEndHandle(); }}
             onClick={(e) => e.stopPropagation()}
-            className="shrink-0 grid place-items-center w-4 h-4 -ml-1 text-[var(--ui-text-tertiary)] cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute -left-5 top-4 grid place-items-center w-4 h-4 text-[var(--ui-text-quaternary)] cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
             aria-hidden="true"
           >
             <GripVertical size={13} />
           </span>
         )}
-        <span className="shrink-0 grid place-items-center w-6 h-6 rounded-[var(--ui-radius-sm)] bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)]">
-          {Icon && <Icon size={13} aria-hidden="true" />}
+        <span className={`shrink-0 grid place-items-center w-8 h-8 rounded-[var(--ui-radius-btn)] ${tile}`}>
+          {Icon && <Icon size={15} aria-hidden="true" />}
         </span>
         <div className="flex-1 min-w-0">
-          <p className="text-[var(--ui-t-label)] font-medium text-[var(--ui-text-primary)] truncate">{def?.label ?? step.type}</p>
-          <p className={`text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)] ${readOnly ? '' : 'truncate'}`}>{summary}</p>
+          <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] font-medium uppercase tracking-[var(--ui-track-meta)] text-[var(--ui-accent-fg)]">
+            Step {index + 1}
+            {(step.delayDays ?? 0) > 0 && <span className="text-[var(--ui-text-quaternary)]"> · after {step.delayDays}d</span>}
+          </p>
+          <p className="mt-0.5 text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] truncate">{def?.label ?? step.type}</p>
+          <p className={`mt-0.5 text-[length:var(--ui-t-control)] text-[var(--ui-text-secondary)] leading-[1.45] ${readOnly ? 'line-clamp-2' : 'truncate'}`}>{summary}</p>
         </div>
         {error && (
           <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-[var(--ui-danger)]" aria-hidden="true" title={error} />
@@ -400,8 +417,8 @@ function NodeCard({
         )}
       </div>
       {expanded && !readOnly && (
-        <div className="px-3 pb-3 pt-1 border-t border-[var(--ui-border-hairline)] flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
-          <label className="flex items-center gap-1.5 text-[var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">
+        <div className="px-3.5 pb-3.5 pt-3 border-t border-[var(--ui-border-hairline)] flex flex-col gap-2.5" onClick={(e) => e.stopPropagation()}>
+          <label className="flex items-center gap-1.5 text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">
             Wait
             <input
               type="number"
@@ -409,12 +426,12 @@ function NodeCard({
               value={step.delayDays ?? 0}
               onChange={(e) => setDelayDays(e.target.value)}
               aria-label="Days before this step"
-              className="w-10 h-5 text-[var(--ui-t-micro)] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
+              className="w-10 h-5 text-[length:var(--ui-t-micro)] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
             />
             day(s) before this step
           </label>
           <ConfigFields step={step} onConfigChange={setConfig} disabled={false} />
-          {error && <p className="text-[var(--ui-t-micro)] text-[var(--ui-danger-fg)]">{error}</p>}
+          {error && <p className="text-[length:var(--ui-t-micro)] text-[var(--ui-danger-fg)]">{error}</p>}
         </div>
       )}
     </div>
@@ -451,20 +468,19 @@ function Gap({ nextStep, readOnly, isDragActive, isOver, onDragOver, onDrop, onA
   return (
     <div
       className="relative flex flex-col items-center justify-center"
-      style={{ minHeight: readOnly ? (waitDays > 0 ? 32 : 16) : 36 }}
+      style={{ minHeight: readOnly ? (waitDays > 0 ? 40 : 24) : 48 }}
       onDragOver={readOnly ? undefined : (e) => { e.preventDefault(); onDragOver(); }}
       onDrop={readOnly ? undefined : (e) => { e.preventDefault(); onDrop(); }}
     >
       <span
-        className={`absolute top-0 bottom-0 left-1/2 -translate-x-1/2 ${highlight ? 'w-0.5' : 'w-px'}`}
-        style={{ background: highlight ? 'var(--ui-accent)' : 'var(--ui-border-strong)' }}
+        className={`absolute top-0 bottom-0 left-1/2 -translate-x-1/2 ${highlight ? 'w-0.5 bg-[var(--ui-accent)]' : 'w-0 border-l border-dashed border-[var(--ui-border-strong)]'}`}
         aria-hidden="true"
       />
       <div className="relative flex flex-col items-center gap-1 py-1">
         {waitDays > 0 && (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--ui-radius-pill)] bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] text-[var(--ui-t-micro)]">
+          <span className="inline-flex items-center gap-1 h-5 px-2 rounded-[var(--ui-radius-pill)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] text-[var(--ui-text-secondary)] text-[length:var(--ui-t-micro)]">
             <Clock size={10} aria-hidden="true" />
-            <span className="font-[var(--ui-font-mono)] tabular-nums">{waitDays}d</span>
+            <span className="font-[family-name:var(--ui-font-mono)] tabular-nums">{waitDays}d</span>
           </span>
         )}
         {!readOnly && (
@@ -478,6 +494,7 @@ function Gap({ nextStep, readOnly, isDragActive, isOver, onDragOver, onDrop, onA
                 onClick={toggleMenu}
                 aria-expanded={menuOpen}
                 aria-haspopup="menu"
+                className="!w-[22px] !h-[22px] !rounded-full !text-[var(--ui-text-quaternary)] hover:!text-[var(--ui-accent-fg)]"
               />
             </span>
             <FloatingMenuList open={menuOpen} pos={menuPos} menuRef={menuListRef} widthPx={200}>
@@ -517,7 +534,7 @@ function Gap({ nextStep, readOnly, isDragActive, isOver, onDragOver, onDrop, onA
 export function SequenceStepsStrip({ steps }) {
   if (!steps.length) {
     return (
-      <p className="px-[var(--ui-pad-lg)] py-4 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">No steps.</p>
+      <p className="px-[var(--ui-pad-lg)] py-4 text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">No steps.</p>
     );
   }
 
@@ -535,7 +552,7 @@ export function SequenceStepsStrip({ steps }) {
                 <div className="w-11 shrink-0 flex flex-col items-center justify-center relative">
                   <span className="absolute left-0 right-0 top-1/2 h-px bg-[var(--ui-border-strong)]" aria-hidden="true" />
                   {waitDays > 0 && (
-                    <span className="relative inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--ui-radius-pill)] bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] ui-num text-[var(--ui-t-micro)]">
+                    <span className="relative inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--ui-radius-pill)] bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] ui-num text-[length:var(--ui-t-micro)]">
                       {waitDays}d
                     </span>
                   )}
@@ -546,14 +563,14 @@ export function SequenceStepsStrip({ steps }) {
                   <span className="shrink-0 grid place-items-center w-[26px] h-[26px] rounded-[var(--ui-radius-sm)] bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)]">
                     {Icon && <Icon size={14} aria-hidden="true" />}
                   </span>
-                  <span className="flex-1 min-w-0 text-[var(--ui-t-label)] font-semibold truncate text-[var(--ui-text-primary)]">
+                  <span className="flex-1 min-w-0 text-[length:var(--ui-t-label)] font-semibold truncate text-[var(--ui-text-primary)]">
                     {def?.label ?? step.type}
                   </span>
-                  <span className="ui-num text-[var(--ui-t-micro)] text-[var(--ui-text-quaternary)]">
+                  <span className="ui-num text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)]">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>
-                <p className="text-[var(--ui-t-meta)] leading-snug text-[var(--ui-text-tertiary)] h-[35px] overflow-hidden">
+                <p className="text-[length:var(--ui-t-meta)] leading-snug text-[var(--ui-text-tertiary)] h-[35px] overflow-hidden">
                   {stepSummary(step)}
                 </p>
               </div>
@@ -568,7 +585,7 @@ export function SequenceStepsStrip({ steps }) {
 export function SequenceStepsReadOnly({ steps }) {
   if (!steps.length) {
     return (
-      <p className="px-[var(--ui-pad-lg)] py-4 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">No steps.</p>
+      <p className="px-[var(--ui-pad-lg)] py-4 text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">No steps.</p>
     );
   }
 
@@ -591,10 +608,10 @@ export function SequenceStepsReadOnly({ steps }) {
             </div>
             <div className={`flex-1 min-w-0 ${isLast ? '' : 'pb-4'}`}>
               {waitDays > 0 && (
-                <p className="text-[var(--ui-t-micro)] text-[var(--ui-text-tertiary)] mb-1">Waits {waitDays} day(s) first</p>
+                <p className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)] mb-1">Waits {waitDays} day(s) first</p>
               )}
-              <p className="text-[var(--ui-t-label)] font-medium text-[var(--ui-text-primary)]">{def?.label ?? step.type}</p>
-              <p className="text-[var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">{stepSummary(step)}</p>
+              <p className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-primary)]">{def?.label ?? step.type}</p>
+              <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">{stepSummary(step)}</p>
             </div>
           </div>
         );
@@ -603,7 +620,7 @@ export function SequenceStepsReadOnly({ steps }) {
   );
 }
 
-export function SequenceFlowBuilder({ steps, onChange, readOnly = false }) {
+export function SequenceFlowBuilder({ steps, onChange, readOnly = false, selectedIndex = null, onSelect }) {
   const [dragIndex, setDragIndex] = useState(null);
   const [overGap, setOverGap] = useState(null);
   const [expandedIndex, setExpandedIndex] = useState(null);
@@ -659,16 +676,9 @@ export function SequenceFlowBuilder({ steps, onChange, readOnly = false }) {
   };
 
   return (
-    <div
-      className="flex flex-col items-center py-8 px-4 min-h-full"
-      style={{
-        background: 'var(--ui-surface-sunken)',
-        backgroundImage: 'radial-gradient(var(--ui-border) 1px, transparent 1px)',
-        backgroundSize: '18px 18px',
-      }}
-    >
+    <div className="flex flex-col items-center py-2 px-6 min-h-full">
       {steps.length === 0 && (
-        <p className="mb-1 text-[var(--ui-t-label)] text-[var(--ui-text-tertiary)]">No steps yet.</p>
+        <p className="mb-1 text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">No steps yet.</p>
       )}
 
       <Gap
@@ -691,6 +701,8 @@ export function SequenceFlowBuilder({ steps, onChange, readOnly = false }) {
             readOnly={readOnly}
             expanded={expandedIndex === index}
             onToggleExpand={() => setExpandedIndex((cur) => (cur === index ? null : index))}
+            selected={selectedIndex === index}
+            onSelect={onSelect}
             onChange={setStep}
             onRemove={removeStep}
             onMove={moveStep}

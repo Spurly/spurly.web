@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#f7f9fc; -webkit-font-smoothing:antialiased; }
+  * { box-sizing:border-box; }
+  a { color:#0544a5; text-decoration:none; }
+  a:hover { color:#3c83f6; text-decoration:underline; }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb { background:#dfe3ea; border-radius:99px; border:3px solid transparent; background-clip:content-box; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  @keyframes sp-pulse { 0%,100% { opacity:1; transform:scale(1);} 50% { opacity:.3; transform:scale(.75);} }
+  @keyframes sp-rise { from { transform:translateY(8px); opacity:0; } to { transform:none; opacity:1; } }
+  @keyframes sp-scan { 0% { left:-32%; } 100% { left:100%; } }
+  @keyframes sp-scrim { from { opacity:0; } to { opacity:1; } }
+  @keyframes sp-modal { from { transform:translateY(14px) scale(.985); opacity:0; } to { transform:none; opacity:1; } }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+</style>
+</helmet>
+
+<div style="display:flex;height:100vh;min-height:600px;width:100%;overflow:hidden;background:#f7f9fc;font-family:Geist,'Helvetica Neue',Arial,sans-serif;color:#18181b;font-size:14px;letter-spacing:-0.006em;">
+
+  <aside style="width:244px;flex-shrink:0;display:flex;flex-direction:column;background:#f2f5fa;border-right:1px solid #e4e4e7;">
+    <div style="display:flex;align-items:center;gap:9px;height:56px;flex-shrink:0;padding:0 16px;">
+      <img src="assets/spurly-icon.png" alt="" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;" />
+      <span style="font-size:15px;font-weight:600;letter-spacing:-0.024em;">Spurly</span>
+    </div>
+    <div style="padding:0 12px 12px;">
+      <button type="button" style="display:flex;align-items:center;gap:8px;width:100%;height:34px;padding:0 10px;border:1px solid #dfe3ea;background:#ffffff;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;color:#5e616e;text-align:left;transition:border-color 160ms ease,box-shadow 160ms ease,color 160ms ease;" style-hover="border-color:#b9d4ff;color:#18181b;box-shadow:0 0 0 3px rgba(60,131,246,.10);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3c83f6" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path></svg>
+        <span style="flex:1;">Ask Spurly</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;border:1px solid #e9eaee;border-radius:4px;padding:1px 4px;">⌘K</span>
+      </button>
+    </div>
+    <nav style="flex:1;overflow-y:auto;padding:0 12px;display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <p style="margin:0 0 4px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Prospect</p>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M3 11l9-7 9 7v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Home</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="2"></circle><path d="M12 5a7 7 0 0 1 7 7"></path><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Leads</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;flex-shrink:0;">1.2K</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8z"></path><path d="M18.5 15.5l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Enrichment</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#a45309;flex-shrink:0;"><span style="width:5px;height:5px;border-radius:99px;background:#f59e0b;animation:sp-pulse 1.6s ease-in-out infinite;"></span>14</span>
+        </a>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <p style="margin:0 0 4px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Engage</p>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M21 3L3 10.5l7 2.5 2.5 7z"></path><path d="M21 3l-11 10"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Campaigns</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;flex-shrink:0;">3</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="3" width="6" height="6" rx="1.5"></rect><rect x="15" y="15" width="6" height="6" rx="1.5"></rect><path d="M6 9v4a2 2 0 0 0 2 2h7"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Sequences</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M4 13h4l1.5 3h5L16 13h4"></path><path d="M4 13l2.5-8h11L20 13v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Inbox</span>
+          <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:#3c83f6;color:#ffffff;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;flex-shrink:0;">7</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7z"></path><path d="M14 3v4h4"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Templates</span>
+        </a>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <p style="margin:0 0 4px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Manage</p>
+        <a href="#" style="position:relative;display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:500;color:#0544a5;background:#e6efff;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <span style="position:absolute;left:0;top:8px;bottom:8px;width:2px;border-radius:0 99px 99px 0;background:#3c83f6;"></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Settings</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13.5px;text-decoration:none;transition:background-color 160ms ease,color 160ms ease;font-weight:400;color:#5e616e;" style-hover="background:#e7ecf5;color:#18181b;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M7.5 10.5v6"></path><path d="M7.5 7.6v.1"></path><path d="M11.5 16.5v-6"></path><path d="M11.5 13.2a2.7 2.7 0 0 1 5 1.2v2.1"></path></svg>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">LinkedIn</span>
+          <span style="width:6px;height:6px;border-radius:99px;background:#12b981;flex-shrink:0;"></span>
+        </a>
+      </div>
+    </nav>
+    <div style="flex-shrink:0;padding:10px 12px 12px;border-top:1px solid #e4e4e7;">
+      <div style="display:flex;align-items:center;gap:9px;height:44px;padding:0 8px;border-radius:8px;cursor:pointer;transition:background-color 160ms ease;" style-hover="background:#e7ecf5;">
+        <div style="width:26px;height:26px;border-radius:99px;background:#dbe7fb;color:#0544a5;display:grid;place-items:center;font-size:11px;font-weight:600;flex-shrink:0;">MK</div>
+        <div style="min-width:0;flex:1;">
+          <p style="margin:0;font-size:12.5px;font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marcus Kellner</p>
+          <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#777a88;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">marcus@spurly.io</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;">
+    <header style="flex-shrink:0;padding:20px 24px 0;">
+      <h1 style="margin:0;font-size:26px;font-weight:600;letter-spacing:-0.03em;line-height:1.15;">Settings</h1>
+      <p style="margin:5px 0 0;font-size:13.5px;color:#5e616e;line-height:1.45;max-width:62ch;">Spurly runs unattended, so the limits and the connection matter more than anything else here.</p>
+      <div style="position:relative;display:flex;align-items:center;gap:4px;border-bottom:1px solid #e4e4e7;margin-top:16px;overflow-x:auto;">
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+          <button type="button" onClick="{{ t.pick }}" style="height:36px;padding:0;border:0;background:transparent;width:{{ t.w }}px;font-family:inherit;font-size:13.5px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:color 160ms ease;color:{{ t.fg }}">{{ t.label }}</button>
+        </sc-for>
+        <div style="position:absolute;bottom:-1px;left:0;height:2px;border-radius:99px;background:#3c83f6;width:{{ tabW }}px;transform:translateX({{ tabX }}px);transition:transform 280ms cubic-bezier(.32,.72,0,1),width 280ms cubic-bezier(.32,.72,0,1);"></div>
+      </div>
+    </header>
+
+    <main style="flex:1;min-height:0;overflow-y:auto;padding:20px 24px 28px;">
+      <div style="max-width:720px;">
+
+        <sc-if value="{{ isAccount }}" hint-placeholder-val="{{ true }}">
+          <div style="animation:sp-rise 220ms cubic-bezier(.32,.72,0,1) both;">
+            <div style="background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+              <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Profile</p>
+              <div style="display:flex;align-items:center;gap:14px;margin-top:14px;">
+                <div style="width:52px;height:52px;border-radius:99px;background:#dbe7fb;color:#0544a5;display:grid;place-items:center;font-size:17px;font-weight:600;flex-shrink:0;">MK</div>
+                <div style="min-width:0;flex:1;">
+                  <p style="margin:0;font-size:15px;font-weight:600;letter-spacing:-0.02em;">Marcus Kellner</p>
+                  <p style="margin:3px 0 0;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#5e616e;">marcus@spurly.io · owner</p>
+                </div>
+                <button type="button" style="height:32px;padding:0 13px;border:1px solid #e4e4e7;background:#ffffff;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#2e3038;cursor:pointer;flex-shrink:0;white-space:nowrap;transition:border-color 160ms ease,box-shadow 160ms ease;" style-hover="border-color:#b9d4ff;box-shadow:0 0 0 3px rgba(60,131,246,.10);">Change photo</button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:18px;">
+                <sc-for list="{{ accountFields }}" as="f" hint-placeholder-count="4">
+                  <div>
+                    <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;margin-bottom:7px;">{{ f.label }}</label>
+                    <input type="text" defaultValue="{{ f.value }}" style="width:100%;height:38px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;background:#ffffff;font-family:inherit;font-size:13.5px;color:#18181b;outline:none;transition:border-color 160ms ease,box-shadow 160ms ease;" style-focus="border-color:#3c83f6;box-shadow:0 0 0 3px rgba(60,131,246,.14);" />
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;padding:20px;margin-top:12px;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+              <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Notifications</p>
+              <div style="display:flex;flex-direction:column;gap:9px;margin-top:14px;">
+                <sc-for list="{{ notifications }}" as="n" hint-placeholder-count="3">
+                  <button type="button" onClick="{{ n.toggle }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:12px 13px;border:1px solid #edeef2;border-radius:11px;background:#ffffff;font-family:inherit;text-align:left;cursor:pointer;transition:border-color 160ms ease;" style-hover="border-color:#b9d4ff;">
+                    <span style="min-width:0;flex:1;">
+                      <span style="display:block;font-size:13.5px;font-weight:500;">{{ n.label }}</span>
+                      <span style="display:block;font-size:12.5px;color:#5e616e;line-height:1.5;margin-top:2px;">{{ n.desc }}</span>
+                    </span>
+                    <span style="position:relative;width:34px;height:20px;border-radius:99px;flex-shrink:0;transition:background-color 180ms ease;background:{{ n.trackBg }}">
+                      <span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:99px;background:#ffffff;box-shadow:0 1px 3px rgba(10,18,32,.28);transition:transform 220ms cubic-bezier(.32,.72,0,1);transform:translateX({{ n.knobX }});"></span>
+                    </span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isLinkedIn }}" hint-placeholder-val="{{ false }}">
+          <div style="animation:sp-rise 220ms cubic-bezier(.32,.72,0,1) both;">
+            <div style="position:relative;background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;padding:20px;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+              <span style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#12b981;"></span>
+              <div style="display:flex;align-items:flex-start;gap:13px;">
+                <span style="display:grid;place-items:center;width:40px;height:40px;border-radius:11px;background:#e6efff;color:#0a66c2;flex-shrink:0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M7.5 10.5v6"></path><path d="M7.5 7.6v.1"></path><path d="M11.5 16.5v-6"></path><path d="M11.5 13.2a2.7 2.7 0 0 1 5 1.2v2.1"></path></svg>
+                </span>
+                <div style="min-width:0;flex:1;">
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <p style="margin:0;font-size:15px;font-weight:600;letter-spacing:-0.02em;">Marcus Kellner</p>
+                    <span style="display:inline-flex;align-items:center;gap:6px;height:21px;padding:0 8px;border-radius:6px;background:#e8faf2;font-size:11px;font-weight:500;color:#07784f;white-space:nowrap;">
+                      <span style="width:5px;height:5px;border-radius:99px;background:#12b981;"></span>Connected
+                    </span>
+                  </div>
+                  <p style="margin:4px 0 0;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#5e616e;">linkedin.com/in/marcuskellner · session refreshed 14m ago</p>
+                </div>
+                <button type="button" style="height:32px;padding:0 13px;border:1px solid #e4e4e7;background:#ffffff;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#b31b1b;cursor:pointer;flex-shrink:0;white-space:nowrap;transition:border-color 160ms ease,background-color 160ms ease;" style-hover="border-color:#f3c6c9;background:#fdeff0;">Disconnect</button>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:9px;margin-top:18px;">
+                <sc-for list="{{ health }}" as="h" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid #edeef2;border-radius:11px;">
+                    <span style="width:7px;height:7px;border-radius:99px;flex-shrink:0;background:{{ h.dot }};animation:{{ h.anim }}"></span>
+                    <span style="flex:1;min-width:0;font-size:13px;">{{ h.label }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.09em;text-transform:uppercase;flex-shrink:0;color:{{ h.fg }}">{{ h.state }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isLimits }}" hint-placeholder-val="{{ false }}">
+          <div style="animation:sp-rise 220ms cubic-bezier(.32,.72,0,1) both;">
+            <div style="background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;">
+                <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Daily invite cap</p>
+                <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:15px;font-weight:500;">{{ cap }} / day</span>
+              </div>
+              <div style="height:3px;border-radius:99px;background:#eceff4;overflow:hidden;margin-top:12px;"><div style="height:100%;border-radius:99px;background:#3c83f6;transition:width 300ms cubic-bezier(.2,0,.1,1);width:{{ capW }};"></div></div>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;">
+                <sc-for list="{{ capOptions }}" as="c" hint-placeholder-count="4">
+                  <button type="button" onClick="{{ c.pick }}" style="height:32px;padding:0 14px;border-radius:99px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;cursor:pointer;white-space:nowrap;transition:background-color 160ms ease,border-color 160ms ease,color 160ms ease;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }}">{{ c.label }}</button>
+                </sc-for>
+              </div>
+              <p style="margin:13px 0 0;font-size:12.5px;color:#5e616e;line-height:1.55;">{{ capNote }}</p>
+            </div>
+
+            <div style="background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;padding:20px;margin-top:12px;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+              <p style="margin:0 0 12px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Sending window</p>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                <sc-for list="{{ windows }}" as="w" hint-placeholder-count="3">
+                  <button type="button" onClick="{{ w.pick }}" style="height:32px;padding:0 14px;border-radius:99px;font-family:inherit;font-size:13px;cursor:pointer;white-space:nowrap;transition:background-color 160ms ease,border-color 160ms ease,color 160ms ease;border:1px solid {{ w.border }};background:{{ w.bg }};color:{{ w.fg }}">{{ w.label }}</button>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:9px;margin-top:18px;">
+                <sc-for list="{{ guards }}" as="g" hint-placeholder-count="3">
+                  <button type="button" onClick="{{ g.toggle }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:12px 13px;border:1px solid #edeef2;border-radius:11px;background:#ffffff;font-family:inherit;text-align:left;cursor:pointer;transition:border-color 160ms ease;" style-hover="border-color:#b9d4ff;">
+                    <span style="min-width:0;flex:1;">
+                      <span style="display:block;font-size:13.5px;font-weight:500;">{{ g.label }}</span>
+                      <span style="display:block;font-size:12.5px;color:#5e616e;line-height:1.5;margin-top:2px;">{{ g.desc }}</span>
+                    </span>
+                    <span style="position:relative;width:34px;height:20px;border-radius:99px;flex-shrink:0;transition:background-color 180ms ease;background:{{ g.trackBg }}">
+                      <span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:99px;background:#ffffff;box-shadow:0 1px 3px rgba(10,18,32,.28);transition:transform 220ms cubic-bezier(.32,.72,0,1);transform:translateX({{ g.knobX }});"></span>
+                    </span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isTeam }}" hint-placeholder-val="{{ false }}">
+          <div style="animation:sp-rise 220ms cubic-bezier(.32,.72,0,1) both;background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+            <div style="display:flex;align-items:center;gap:10px;padding:0 16px;height:52px;border-bottom:1px solid #edeef2;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Workspace · 4 seats</span>
+              <div style="flex:1;"></div>
+              <button type="button" style="display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border:0;background:#3c83f6;border-radius:8px;font-family:inherit;font-size:12.5px;font-weight:500;color:#ffffff;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff;transition:background-color 160ms ease,box-shadow 160ms ease;" style-hover="background:#1e6fe8;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff, 0 4px 14px rgba(60,131,246,.3);">Invite</button>
+            </div>
+            <sc-for list="{{ team }}" as="m" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:11px;padding:13px 16px;border-bottom:1px solid #f4f5f8;transition:background-color 140ms ease;" style-hover="background:#f7faff;">
+                <div style="width:30px;height:30px;border-radius:99px;display:grid;place-items:center;font-size:11px;font-weight:600;flex-shrink:0;color:{{ m.avFg }};background:{{ m.avBg }}">{{ m.initials }}</div>
+                <div style="min-width:0;flex:1;">
+                  <p style="margin:0;font-size:13.5px;font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.name }}</p>
+                  <p style="margin:1px 0 0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#5e616e;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.email }}</p>
+                </div>
+                <span style="display:inline-flex;align-items:center;height:21px;padding:0 8px;border-radius:6px;font-size:11px;font-weight:500;flex-shrink:0;white-space:nowrap;color:{{ m.roleFg }};background:{{ m.roleBg }}">{{ m.role }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#5e616e;flex-shrink:0;white-space:nowrap;">{{ m.seen }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isBilling }}" hint-placeholder-val="{{ false }}">
+          <div style="animation:sp-rise 220ms cubic-bezier(.32,.72,0,1) both;">
+            <div style="position:relative;background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;padding:20px;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+              <span style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#3c83f6;"></span>
+              <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+                <div style="min-width:0;flex:1;">
+                  <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#0544a5;">Current plan</p>
+                  <p style="margin:8px 0 0;font-size:21px;font-weight:600;letter-spacing:-0.026em;">Growth · $149 / month</p>
+                  <p style="margin:5px 0 0;font-size:13px;color:#5e616e;line-height:1.55;">Renews 3 October 2026. 3 of 4 seats in use.</p>
+                </div>
+                <button type="button" onClick="{{ openUpgrade }}" style="height:34px;padding:0 15px;border:0;background:#3c83f6;border-radius:9px;font-family:inherit;font-size:13.5px;font-weight:500;color:#ffffff;cursor:pointer;flex-shrink:0;white-space:nowrap;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff;transition:background-color 160ms ease,box-shadow 160ms ease,transform 160ms ease;" style-hover="background:#1e6fe8;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff, 0 5px 16px rgba(60,131,246,.34);" style-active="transform:translateY(1px);">Upgrade</button>
+              </div>
+
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:18px;">
+                <sc-for list="{{ usage }}" as="u" hint-placeholder-count="3">
+                  <div style="padding:13px;border:1px solid #edeef2;border-radius:12px;">
+                    <p style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">{{ u.k }}</p>
+                    <p style="margin:6px 0 0;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:21px;font-weight:500;letter-spacing:-0.02em;">{{ u.v }}</p>
+                    <div style="height:3px;border-radius:99px;background:#eceff4;overflow:hidden;margin-top:10px;"><div style="height:100%;border-radius:99px;width:{{ u.w }};background:{{ u.bar }}"></div></div>
+                    <p style="margin:8px 0 0;font-size:12px;color:#5e616e;line-height:1.45;">{{ u.note }}</p>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;overflow:hidden;margin-top:12px;box-shadow:0 1px 2px rgba(24,24,27,.03);">
+              <div style="display:flex;align-items:center;gap:10px;padding:0 16px;height:48px;border-bottom:1px solid #edeef2;">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;">Invoices</span>
+                <div style="flex:1;"></div>
+                <a href="#" style="font-size:12.5px;">Download all</a>
+              </div>
+              <sc-for list="{{ invoices }}" as="iv" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #f4f5f8;transition:background-color 140ms ease;" style-hover="background:#f7faff;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#5e616e;flex-shrink:0;width:104px;">{{ iv.date }}</span>
+                  <span style="flex:1;min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ iv.label }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:12.5px;flex-shrink:0;">{{ iv.amount }}</span>
+                  <span style="display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:6px;background:#e8faf2;font-size:11px;font-weight:500;color:#07784f;flex-shrink:0;">Paid</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+    </main>
+  </div>
+
+  <sc-if value="{{ upgradeOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:24px;">
+      <div onClick="{{ closeUpgrade }}" style="position:absolute;inset:0;background:rgba(10,18,32,.34);animation:sp-scrim 180ms ease both;"></div>
+      <div style="position:relative;width:620px;max-width:100%;max-height:100%;display:flex;flex-direction:column;background:#ffffff;border:1px solid #e4e4e7;border-radius:18px;box-shadow:0 32px 80px rgba(10,18,32,.26);overflow:hidden;animation:sp-modal 240ms cubic-bezier(.32,.72,0,1) both;">
+        <div style="flex-shrink:0;padding:18px 20px 0;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="min-width:0;flex:1;">
+              <h2 style="margin:0;font-size:17px;font-weight:600;letter-spacing:-0.024em;">Upgrade your plan</h2>
+              <p style="margin:4px 0 0;font-size:13px;color:#5e616e;line-height:1.45;">{{ upgradeHint }}</p>
+            </div>
+            <button type="button" onClick="{{ closeUpgrade }}" aria-label="Close" style="display:grid;place-items:center;width:28px;height:28px;border:0;background:transparent;border-radius:7px;color:#777a88;cursor:pointer;flex-shrink:0;transition:background-color 140ms ease,color 140ms ease;" style-hover="background:#f0f2f6;color:#18181b;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>
+            </button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:16px;">
+            <sc-for list="{{ upgradeSteps }}" as="st" hint-placeholder-count="3">
+              <div style="flex:1;min-width:0;">
+                <p style="margin:0 0 7px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;transition:color 180ms ease;color:{{ st.fg }}">{{ st.label }}</p>
+                <div style="height:3px;border-radius:99px;background:#eceff4;overflow:hidden;"><div style="height:100%;border-radius:99px;background:#3c83f6;transition:width 320ms cubic-bezier(.32,.72,0,1);width:{{ st.w }};"></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow-y:auto;padding:20px;">
+          <sc-if value="{{ upStep1 }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:9px;animation:sp-rise 200ms cubic-bezier(.32,.72,0,1) both;">
+              <sc-for list="{{ plans }}" as="p" hint-placeholder-count="3">
+                <button type="button" onClick="{{ p.pick }}" style="display:flex;align-items:flex-start;gap:12px;width:100%;padding:14px;border-radius:12px;font-family:inherit;text-align:left;cursor:pointer;transition:border-color 160ms ease,background-color 160ms ease,box-shadow 160ms ease;border:1px solid {{ p.border }};background:{{ p.bg }};box-shadow:{{ p.ring }}">
+                  <span style="min-width:0;flex:1;">
+                    <span style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;">
+                      <span style="font-size:14.5px;font-weight:600;letter-spacing:-0.02em;">{{ p.name }}</span>
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#0544a5;">{{ p.price }}</span>
+                      <span style="font-size:11px;font-weight:500;color:#07784f;">{{ p.badge }}</span>
+                    </span>
+                    <span style="display:block;font-size:12.5px;color:#5e616e;line-height:1.55;margin-top:4px;">{{ p.desc }}</span>
+                  </span>
+                  <span style="display:grid;place-items:center;width:16px;height:16px;border-radius:99px;flex-shrink:0;margin-top:3px;transition:background-color 160ms ease,border-color 160ms ease;border:1.5px solid {{ p.dotBorder }};background:{{ p.dotBg }}">
+                    <span style="width:5px;height:5px;border-radius:99px;background:#ffffff;opacity:{{ p.dotOn }};"></span>
+                  </span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ upStep2 }}" hint-placeholder-val="{{ false }}">
+            <div style="animation:sp-rise 200ms cubic-bezier(.32,.72,0,1) both;">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;">
+                <div>
+                  <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;margin-bottom:7px;">Card number</label>
+                  <input type="text" placeholder="4242 4242 4242 4242" style="width:100%;height:40px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;background:#ffffff;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#18181b;outline:none;transition:border-color 160ms ease,box-shadow 160ms ease;" style-focus="border-color:#3c83f6;box-shadow:0 0 0 3px rgba(60,131,246,.14);" />
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div>
+                    <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;margin-bottom:7px;">Expiry</label>
+                    <input type="text" placeholder="09 / 29" style="width:100%;height:40px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;background:#ffffff;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#18181b;outline:none;transition:border-color 160ms ease,box-shadow 160ms ease;" style-focus="border-color:#3c83f6;box-shadow:0 0 0 3px rgba(60,131,246,.14);" />
+                  </div>
+                  <div>
+                    <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#5e616e;margin-bottom:7px;">CVC</label>
+                    <input type="text" placeholder="123" style="width:100%;height:40px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;background:#ffffff;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#18181b;outline:none;transition:border-color 160ms ease,box-shadow 160ms ease;" style-focus="border-color:#3c83f6;box-shadow:0 0 0 3px rgba(60,131,246,.14);" />
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:9px;margin-top:16px;padding:11px 13px;border:1px solid #edeef2;border-radius:11px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5e616e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+                <span style="font-size:12.5px;color:#5e616e;line-height:1.5;">Card details go straight to the payment processor. Spurly never stores them.</span>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ upStep3 }}" hint-placeholder-val="{{ false }}">
+            <div style="animation:sp-rise 200ms cubic-bezier(.32,.72,0,1) both;">
+              <div style="border:1px solid #edeef2;border-radius:12px;overflow:hidden;">
+                <sc-for list="{{ summary }}" as="s" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #f4f5f8;">
+                    <span style="width:150px;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.09em;text-transform:uppercase;color:#5e616e;">{{ s.k }}</span>
+                    <span style="flex:1;min-width:0;font-size:13px;text-align:right;font-weight:{{ s.weight }};">{{ s.v }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;align-items:center;gap:11px;margin-top:14px;padding:13px;border:1px solid #dbe7fb;background:#f3f8ff;border-radius:12px;box-shadow:inset 2px 0 0 #3c83f6;">
+                <span style="width:7px;height:7px;border-radius:99px;background:#3c83f6;animation:sp-pulse 1.4s ease-in-out infinite;flex-shrink:0;"></span>
+                <span style="font-size:12.5px;color:#0544a5;line-height:1.55;">The new cap and credits apply the moment this goes through. Campaigns already running pick it up on the next send.</span>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="flex-shrink:0;display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid #edeef2;background:#fbfcfe;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#5e616e;white-space:nowrap;">{{ upCounter }}</span>
+          <div style="flex:1;"></div>
+          <button type="button" onClick="{{ upBack }}" style="height:32px;padding:0 13px;border:1px solid #e4e4e7;background:#ffffff;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:border-color 160ms ease,box-shadow 160ms ease;color:{{ upBackFg }}" style-hover="border-color:#b9d4ff;box-shadow:0 0 0 3px rgba(60,131,246,.10);">Back</button>
+          <button type="button" onClick="{{ upNext }}" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 15px;border:0;background:#3c83f6;border-radius:9px;font-family:inherit;font-size:13px;font-weight:500;color:#ffffff;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff;transition:background-color 160ms ease,box-shadow 160ms ease,transform 160ms ease;" style-hover="background:#1e6fe8;box-shadow:0 0 0 .5px #0544a5, inset 0 -1px 0 0 #022c70, inset 0 .5px 0 0 #81b6ff, 0 5px 16px rgba(60,131,246,.34);" style-active="transform:translateY(1px);">
+            {{ upCta }}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"></path><path d="M13 6l6 6-6 6"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+const AV = [['#dbe7fb', '#0544a5'], ['#e3e0fb', '#4436b8'], ['#d5f0e6', '#07784f'], ['#fde8ea', '#9f1239'], ['#ffeedd', '#9a3412']];
+function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
+function initials(n) { return n.split(/[\s-]+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase(); }
+
+const TABS = [
+  { key: 'account', label: 'Account', w: 88 },
+  { key: 'linkedin', label: 'LinkedIn', w: 92 },
+  { key: 'limits', label: 'Sending limits', w: 128 },
+  { key: 'team', label: 'Team', w: 70 },
+  { key: 'billing', label: 'Billing', w: 80 },
+];
+
+const CAP_NOTES = {
+  10: 'Conservative. Right for an account under 500 connections or one that has been restricted before.',
+  25: 'The default. LinkedIn throttles most accounts above roughly 30 a day, so Spurly stops before that, not after.',
+  40: 'Aggressive. Only sensible on an established account with Sales Navigator and a long sending history.',
+  60: 'Above what LinkedIn tolerates for almost every account. Spurly will warn you daily while this is set.',
+};
+
+const PLANS = [
+  { id: 'starter', name: 'Starter', price: '$49 / mo', badge: '', desc: '1 seat · 500 credits · 15 invites a day' },
+  { id: 'growth', name: 'Growth', price: '$149 / mo', badge: 'Current', desc: '4 seats · 2,000 credits · 25 invites a day' },
+  { id: 'scale', name: 'Scale', price: '$399 / mo', badge: 'Most picked', desc: '12 seats · 8,000 credits · 40 invites a day · priority enrichment' },
+];
+
+const TEAM = [
+  { name: 'Marcus Kellner', email: 'marcus@spurly.io', role: 'Owner', seen: 'now' },
+  { name: 'Priya Raghunathan', email: 'priya@northwind.io', role: 'Admin', seen: '2h ago' },
+  { name: 'Owen Callaghan', email: 'owen@northwind.io', role: 'Member', seen: 'yesterday' },
+  { name: 'Lena Fischer', email: 'lena@northwind.io', role: 'Invited', seen: 'pending' },
+];
+
+const ROLE = {
+  Owner: ['#eaf2ff', '#0544a5'],
+  Admin: ['#e3e0fb', '#4436b8'],
+  Member: ['#f0f2f6', '#2e3038'],
+  Invited: ['#fef6e7', '#a45309'],
+};
+
+class Component extends DCLogic {
+  state = {
+    tab: 'billing', cap: 25, window: 'Working hours',
+    notifications: new Set(['n1', 'n3']), guards: new Set(['g1', 'g2']),
+    upgrade: 0, plan: 'scale',
+  };
+
+  pill(on) {
+    return on ? { border: '#b9d4ff', bg: '#eaf2ff', fg: '#0544a5' } : { border: '#e4e4e7', bg: '#ffffff', fg: '#2e3038' };
+  }
+
+  sw(on) {
+    return { trackBg: on ? '#3c83f6' : '#d7dbe3', knobX: on ? '14px' : '0px' };
+  }
+
+  toggleIn(key, id) {
+    this.setState((s) => {
+      const n = new Set(s[key]);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return { [key]: n };
+    });
+  }
+
+  renderVals() {
+    const { tab, cap, upgrade, plan } = this.state;
+    const idx = TABS.findIndex((t) => t.key === tab);
+    const tabX = TABS.slice(0, idx).reduce((a, t) => a + t.w + 4, 0);
+
+    return {
+      tabs: TABS.map((t) => ({ label: t.label, w: t.w, fg: t.key === tab ? '#18181b' : '#5e616e', pick: () => this.setState({ tab: t.key }) })),
+      tabW: TABS[idx].w,
+      tabX,
+
+      isAccount: tab === 'account',
+      isLinkedIn: tab === 'linkedin',
+      isLimits: tab === 'limits',
+      isTeam: tab === 'team',
+      isBilling: tab === 'billing',
+
+      accountFields: [
+        { label: 'Full name', value: 'Marcus Kellner' },
+        { label: 'Work email', value: 'marcus@spurly.io' },
+        { label: 'Company', value: 'Northwind Logistics' },
+        { label: 'Time zone', value: 'Europe/London' },
+      ],
+
+      notifications: [
+        { id: 'n1', label: 'Reply alerts', desc: 'A push the moment someone answers, because a warm thread cools fast.' },
+        { id: 'n2', label: 'Daily send summary', desc: 'What went out, what came back, and what the cap stopped.' },
+        { id: 'n3', label: 'Failure alerts', desc: 'Enrichment failures and connection problems, as they happen.' },
+      ].map((n) => ({ ...n, ...this.sw(this.state.notifications.has(n.id)), toggle: () => this.toggleIn('notifications', n.id) })),
+
+      health: [
+        { label: 'Account session', state: 'active', dot: '#12b981', fg: '#07784f', anim: 'none' },
+        { label: 'Chrome extension v2.4', state: 'running', dot: '#12b981', fg: '#07784f', anim: 'none' },
+        { label: 'Search quota', state: '62% used', dot: '#3c83f6', fg: '#0544a5', anim: 'sp-pulse 1.6s ease-in-out infinite' },
+        { label: 'Restriction warnings', state: 'none', dot: '#cfd3dd', fg: '#5e616e', anim: 'none' },
+      ],
+
+      cap,
+      capW: `${Math.min(100, (cap / 60) * 100)}%`,
+      capNote: CAP_NOTES[cap],
+      capOptions: [10, 25, 40, 60].map((v) => ({ label: `${v} / day`, ...this.pill(cap === v), pick: () => this.setState({ cap: v }) })),
+
+      windows: ['Working hours', 'Mornings only', 'Around the clock'].map((label) => ({
+        label, ...this.pill(this.state.window === label), pick: () => this.setState({ window: label }),
+      })),
+
+      guards: [
+        { id: 'g1', label: 'Stop a person the moment they reply', desc: 'A reply removes them from every remaining step in every sequence.' },
+        { id: 'g2', label: 'Skip anyone contacted in the last 30 days', desc: 'Applies across campaigns, so two sequences never double up on one person.' },
+        { id: 'g3', label: 'Pause everything if LinkedIn warns', desc: 'Spurly stops the account entirely rather than risking a restriction.' },
+      ].map((g) => ({ ...g, ...this.sw(this.state.guards.has(g.id)), toggle: () => this.toggleIn('guards', g.id) })),
+
+      team: TEAM.map((m) => {
+        const [avBg, avFg] = AV[hash(m.name) % AV.length];
+        const [roleBg, roleFg] = ROLE[m.role];
+        return { ...m, avBg, avFg, roleBg, roleFg, initials: initials(m.name) };
+      }),
+
+      usage: [
+        { k: 'Credits', v: '1,284', w: '64%', bar: '#3c83f6', note: '716 of 2,000 used this cycle' },
+        { k: 'Seats', v: '3 / 4', w: '75%', bar: '#3c83f6', note: 'One invite still pending' },
+        { k: 'Invites today', v: '18 / 25', w: '72%', bar: '#f59e0b', note: 'Cap resets at midnight London' },
+      ],
+
+      invoices: [
+        { date: '3 Sep 2026', label: 'Growth · monthly', amount: '$149.00' },
+        { date: '3 Aug 2026', label: 'Growth · monthly', amount: '$149.00' },
+        { date: '18 Jul 2026', label: 'Credit top-up · 1,000', amount: '$60.00' },
+        { date: '3 Jul 2026', label: 'Growth · monthly', amount: '$149.00' },
+      ],
+
+      upgradeOpen: upgrade > 0,
+      openUpgrade: () => this.setState({ upgrade: 1 }),
+      closeUpgrade: () => this.setState({ upgrade: 0 }),
+      upStep1: upgrade === 1,
+      upStep2: upgrade === 2,
+      upStep3: upgrade === 3,
+      upgradeHint: ['Pick the plan. Nothing is charged until the last step.', 'Payment details. Still nothing charged.', 'Confirm what changes and when.'][Math.max(0, upgrade - 1)],
+      upgradeSteps: ['Plan', 'Payment', 'Confirm'].map((label, i) => ({ label, fg: upgrade > i ? '#0544a5' : '#5e616e', w: upgrade > i ? '100%' : '0%' })),
+      upCounter: `Step ${Math.max(1, upgrade)} of 3`,
+      upBack: () => this.setState((s) => ({ upgrade: s.upgrade <= 1 ? 0 : s.upgrade - 1 })),
+      upBackFg: upgrade <= 1 ? '#777a88' : '#2e3038',
+      upNext: () => this.setState((s) => ({ upgrade: s.upgrade >= 3 ? 0 : s.upgrade + 1 })),
+      upCta: upgrade === 3 ? 'Confirm and pay' : upgrade === 2 ? 'Review' : 'Continue',
+
+      plans: PLANS.map((p) => {
+        const on = p.id === plan;
+        return {
+          ...p,
+          pick: () => this.setState({ plan: p.id }),
+          border: on ? '#b9d4ff' : '#e9eaee',
+          bg: on ? '#f7faff' : '#ffffff',
+          ring: on ? '0 0 0 3px rgba(60,131,246,.12)' : 'none',
+          dotBorder: on ? '#3c83f6' : '#cfd3dd',
+          dotBg: on ? '#3c83f6' : '#ffffff',
+          dotOn: on ? 1 : 0,
+        };
+      }),
+
+      summary: (() => {
+        const p = PLANS.find((x) => x.id === plan);
+        return [
+          { k: 'New plan', v: p.name, weight: 600 },
+          { k: 'Billed monthly', v: p.price, weight: 400 },
+          { k: 'Prorated today', v: plan === 'scale' ? '$208.33' : '$0.00', weight: 400 },
+          { k: 'Next charge', v: '3 October 2026', weight: 400 },
+        ];
+      })(),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -6,11 +6,11 @@ export function Card({
   className = '',
   ...props
 }) {
-  const pads = { none: '', sm: 'p-4', md: 'p-[var(--ui-pad-lg)]', lg: 'p-8' };
+  const pads = { none: '', sm: 'p-4', md: 'p-5', lg: 'p-8' };
 
   const variants = {
     solid:
-      'bg-[var(--ui-surface-card)] border border-[var(--ui-border-hairline)] shadow-[var(--ui-shadow-sm)]',
+      'bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)]',
     /* `glass` now resolves to `solid`. Backdrop-blur panels belong to the
        marketing surface, not to a data tool. */
     glass:
@@ -37,8 +37,8 @@ export function CardHeader({ children, title, subtitle, action, className = '' }
     return (
       <div className={`flex items-start justify-between gap-4 mb-5 ${className}`}>
         <div className="min-w-0">
-          <h3 className="text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em] truncate">{title}</h3>
-          {subtitle && <p className="text-[var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5">{subtitle}</p>}
+          <h3 className="text-[length:var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em] truncate">{title}</h3>
+          {subtitle && <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-0.5">{subtitle}</p>}
         </div>
         {action && <div className="shrink-0">{action}</div>}
       </div>
@@ -49,7 +49,7 @@ export function CardHeader({ children, title, subtitle, action, className = '' }
 
 export function CardTitle({ children, className = '' }) {
   return (
-    <h3 className={`text-[var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em] ${className}`}>
+    <h3 className={`text-[length:var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em] ${className}`}>
       {children}
     </h3>
   );

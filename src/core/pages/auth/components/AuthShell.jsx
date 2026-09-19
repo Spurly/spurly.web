@@ -19,18 +19,21 @@ import "../auth.css";
 export function AuthShell({ aside, topRight, children, bodyTop = false }) {
   return (
     <div className="sp-auth">
-      <aside className="sp-auth__aside">
-        <span className="sp-auth__aside-dots" aria-hidden="true" />
-        {aside}
-      </aside>
       <div className="sp-auth__main">
-        <div className="sp-auth__topbar">{topRight}</div>
+        <div className="sp-auth__topbar">
+          <Brand />
+          <span className="sp-auth__topbar-right">{topRight}</span>
+        </div>
         <div
           className={"sp-auth__body" + (bodyTop ? " sp-auth__body--top" : "")}
         >
           {children}
         </div>
       </div>
+      <aside className="sp-auth__aside">
+        <span className="sp-auth__aside-glow" aria-hidden="true" />
+        {aside}
+      </aside>
     </div>
   );
 }
@@ -67,71 +70,59 @@ const FEATURES = [
   },
 ];
 
-const TESTIMONIAL = {
-  text: "“Spurly completely transformed our LinkedIn outreach. Spurly has helped us book 3x more meetings in a month!”",
-  name: "Richard Samuel",
-  role: "Founder, DexKor",
-  avatar: "/assets/richardlinkedIN.png",
-};
+/* Illustrative rows for the panel's product vignette — clearly an example
+   (labelled so), fictional people, no fit numbers claimed. */
+const EXAMPLE_ROWS = [
+  ['AO', 'Amara Osei', 'VP RevOps'],
+  ['JL', 'Jonas Lindqvist', 'CRO'],
+  ['SM', 'Sofia Marchetti', 'Partnerships'],
+];
 
-function Testimonial() {
+/**
+ * The blue half of the signed-out screens (Auth mockup): what Spurly is, in
+ * one line, three facts about how it runs, and a small picture of the
+ * working line doing its job. Every figure here is a property of the
+ * product, not a customer metric we can't back.
+ */
+export function FeaturesAside() {
   return (
-    <div className="sp-quote">
-      <div className="sp-quote__stars" aria-label="5 out of 5 stars">
-        ★★★★★
-      </div>
-      <p className="sp-quote__text">{TESTIMONIAL.text}</p>
-      <div className="sp-quote__who">
-        <img
-          className="sp-quote__avatar"
-          src={TESTIMONIAL.avatar}
-          alt={TESTIMONIAL.name}
-        />
+    <div className="sp-panel">
+      <h1 className="sp-panel__lead">Spurly runs the top of your pipeline while you sleep.</h1>
+      <p className="sp-panel__sub">
+        It sources the audience, fills in what the search left out, and hands you a list you can act on — sending
+        connection requests and messages inside a daily cap that keeps your account safe.
+      </p>
+      <div className="sp-panel__stats">
         <div>
-          <div className="sp-quote__name">{TESTIMONIAL.name}</div>
-          <div className="sp-quote__role">{TESTIMONIAL.role}</div>
+          <div className="sp-panel__stat">10 / call</div>
+          <div className="sp-panel__stat-l">LinkedIn paging</div>
         </div>
+        <div>
+          <div className="sp-panel__stat">1 cap</div>
+          <div className="sp-panel__stat-l">Shared by every send</div>
+        </div>
+        <div>
+          <div className="sp-panel__stat">0</div>
+          <div className="sp-panel__stat-l">Passwords stored</div>
+        </div>
+      </div>
+      <div className="sp-panel__card" aria-hidden="true">
+        <div className="sp-panel__card-head">
+          <span><i className="sp-panel__dot" />Paging…</span>
+          <span>Example</span>
+        </div>
+        <div className="sp-panel__bar"><i /></div>
+        {EXAMPLE_ROWS.map(([ini, name, role]) => (
+          <div className="sp-panel__row" key={name}>
+            <span className="sp-panel__av">{ini}</span>
+            <span className="sp-panel__name">{name} · {role}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-/** Left panel for the Create Account / Login pages. */
-export function FeaturesAside() {
-  return (
-    <>
-      <Brand />
-      <h1 className="sp-aside__lead">
-        Create your
-        <br />
-        <span className="acc">Spurly</span> account
-      </h1>
-      <p className="sp-aside__sub">
-        Start capturing leads, automating outreach and growing your pipeline on
-        LinkedIn.
-      </p>
-      <div className="sp-feats">
-        {FEATURES.map(({ Icon, t, d }) => (
-          <div className="sp-feat" key={t}>
-            <span className="sp-feat__ic">
-              <Icon s={20} />
-            </span>
-            <div>
-              <div className="sp-feat__t">{t}</div>
-              <div className="sp-feat__d">{d}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-      <Testimonial />
-    </>
-  );
-}
-
-/**
- * Left panel for the onboarding steps (survey / install). Shows a welcome
- * message, a rewards/progress card, condensed feature list and testimonial.
- */
 export function WelcomeAside({
   step = 2,
   total = 3,
@@ -140,11 +131,10 @@ export function WelcomeAside({
 }) {
   const pct = Math.round((step / total) * 100);
   return (
-    <>
-      <Brand />
+    <div className="sp-panel">
       {allSet ? (
         <>
-          <h1 className="sp-aside__hello">🎉 You’re all set!</h1>
+          <h1 className="sp-aside__hello">You’re all set.</h1>
           <p className="sp-aside__hello-sub">
             Your account is ready and you’ve unlocked <b>{credits} credits</b>{" "}
             to get started.
@@ -188,7 +178,7 @@ export function WelcomeAside({
         </>
       ) : (
         <>
-          <h1 className="sp-aside__hello">👋 Welcome to Spurly!</h1>
+          <h1 className="sp-aside__hello">Welcome to Spurly.</h1>
           <p className="sp-aside__hello-sub">
             Let’s personalize your experience so you can get the most out of
             Spurly.
@@ -236,8 +226,7 @@ export function WelcomeAside({
           </div>
         ))}
       </div>
-      <Testimonial />
-    </>
+    </div>
   );
 }
 
@@ -248,25 +237,17 @@ const STEP_LABELS = [
 ];
 
 /** Top progress stepper used on the onboarding pages. `current` is 1-based. */
+/** Progress as segment bars that fill left to right, never numbered circles (spurlyDESIGN.md). */
 export function Stepper({ current }) {
   return (
-    <div className="sp-steps" role="list" aria-label="Onboarding progress">
+    <div className="sp-segs" role="list" aria-label="Onboarding progress">
       {STEP_LABELS.map((label, i) => {
         const n = i + 1;
-        const state =
-          n < current ? "is-done" : n === current ? "is-active" : "";
+        const state = n < current ? "is-done" : n === current ? "is-active" : "";
         return (
-          <div key={label} style={{ display: "contents" }}>
-            <div className={"sp-step " + state} role="listitem">
-              <span className="sp-step__dot">{n < current ? "✓" : n}</span>
-              <span className="sp-step__label">{label}</span>
-            </div>
-            {n < STEP_LABELS.length && (
-              <span
-                className={"sp-step__bar" + (n < current ? " is-done" : "")}
-                aria-hidden="true"
-              />
-            )}
+          <div key={label} className={"sp-seg " + state} role="listitem" aria-current={n === current ? "step" : undefined}>
+            <span className="sp-seg__label">{label}</span>
+            <span className="sp-seg__track"><i /></span>
           </div>
         );
       })}

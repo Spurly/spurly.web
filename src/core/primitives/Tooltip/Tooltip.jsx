@@ -73,7 +73,7 @@ export function Tooltip({
               opacity: position.ready ? 1 : 0,
               maxWidth: 260,
             }}
-            className="pointer-events-none px-2 py-1 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-inverse)] text-[var(--ui-text-inverse)] text-[var(--ui-t-label)] leading-snug shadow-[var(--ui-shadow-md)] whitespace-pre-line"
+            className="pointer-events-none px-2 py-1 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-inverse)] text-[var(--ui-text-inverse)] text-[length:var(--ui-t-label)] leading-snug shadow-[var(--ui-shadow-md)] whitespace-pre-line"
           >
             {content}
           </div>,
