@@ -211,7 +211,9 @@ export function PhoneField({
           className={"sp-input has-left" + (error ? " is-error" : "")}
           value={number}
           onChange={(e) => onNumberChange(digitsOnly(e.target.value))}
-          placeholder={selected ? `${selected.dial} phone number` : "Phone number"}
+          placeholder={
+            selected ? `${selected.dial} phone number` : "Phone number"
+          }
           required
         />
       </div>
@@ -255,11 +257,11 @@ export function PasswordRules({ value }) {
 /** Trust badges row under the signup form. */
 export function TrustBadges() {
   const items = [
-    {
-      Icon: ShieldIcon,
-      t: "Use Spurly for free",
-      d: "No credit card required",
-    },
+    // {
+    //   Icon: ShieldIcon,
+    //   t: "Use Spurly for free",
+    //   d: "No credit card required",
+    // },
     { Icon: LockIcon, t: "GDPR Compliant", d: "Your data is safe" },
     // { Icon: CheckCircleIcon, t: "Cancel anytime", d: "No hidden charges" },
   ];
