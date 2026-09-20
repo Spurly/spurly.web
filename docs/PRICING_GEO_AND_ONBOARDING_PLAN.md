@@ -65,9 +65,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done · `[!]` blocked
 - [ ] **C3** `INTL_CHECKOUT_ENABLED` flag; graceful "not yet available" path when off
 - [ ] **C4** Build + verify the Cashfree IPG adapter against **sandbox** (prod flip waits on approval — see §3)
 
-### Phase D — Onboarding: LinkedIn connect step — 1/5
+### Phase D — Onboarding: LinkedIn connect step — 2/5
 - [x] **D1** `onboardingStage` on User (null-safe, **no backfill** — see §7.5)
-- [ ] **D2** `returnTo` allow-list on `POST /hub/account/link`
+- [x] **D2** `returnTo` allow-list on `POST /hub/account/link`
 - [ ] **D3** `/onboarding/linkedin` page + route + stepper
 - [ ] **D4** Return handling uses `refresh()` (vendor pull) with 2×5s retry — **not** `load()`
 - [ ] **D5** Visible "I'll do this later" skip
@@ -546,4 +546,11 @@ Append one line per completed item. Newest last.
             advance it explicitly. authenticateUser's login response now includes
             onboardingStage (LoginPage routes off the login response directly,
             no refetch in between). Lint clean, 613/613 tests pass.
+2026-09-20  D2 SHIPPED (spurly.backend, feat/onboarding-linkedin-audience):
+            createLinkForUser(userId, { returnTo }) allow-lists returnTo against
+            ['/dashboard/settings/linkedin','/onboarding/linkedin'] in linkUrls(),
+            defaulting to the settings path; the URL is always built server-side
+            from FRONTEND_URL, never interpolated from the client. POST
+            /hub/account/link now forwards req.body.returnTo. Lint clean,
+            613/613 tests pass.
 ```
