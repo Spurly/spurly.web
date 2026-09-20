@@ -72,9 +72,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **D4** Return handling uses `refresh()` (vendor pull) with 2×5s retry — **not** `load()`
 - [x] **D5** Visible "I'll do this later" skip
 
-### Phase E — Onboarding: first audience step — 1/4
+### Phase E — Onboarding: first audience step — 2/4
 - [x] **E1** `/onboarding/audience` page reusing `AudienceFilterForm` + `FilterTagPicker`
-- [ ] **E2** Prefill from survey answers where they map
+- [x] **E2** Prefill from survey answers where they map
 - [ ] **E3** Submit → `POST /hub/searches` with `filters`; handle "no linked account"
 - [ ] **E4** Completion copy sets the right expectation (cron-paced, not instant)
 
@@ -614,4 +614,17 @@ Append one line per completed item. Newest last.
             (0 new errors); vitest 81/93 (same 12 pre-existing failures,
             unchanged); vite build succeeds, OnboardingAudiencePage in its own
             chunk.
+2026-09-20  E2 SHIPPED (spurly.web, feat/onboarding-linkedin-audience):
+            AudienceForm.jsx gained an optional initialName prop (default '',
+            so /hub/leads' existing call site is untouched); OnboardingAudiencePage
+            prefills only the audience *name* field from a GOAL_NAME_PREFILL map
+            keyed on user.primaryGoal ("generate_leads" -> "My first leads
+            audience", etc). Deliberately does NOT prefill any filter
+            (location/industry/company/title): the survey captures what the
+            user is here to do, not who to search for, and guessing a filter
+            id from it would mean sending LinkedIn's structured search an id
+            FilterTagPicker never resolved -- silently wrong or silently
+            empty. Lint clean (0 new errors -- 2 pre-existing warnings in
+            AudienceForm.jsx unrelated to this change); vitest 81/93 (same 12
+            pre-existing failures, unchanged); vite build succeeds.
 ```

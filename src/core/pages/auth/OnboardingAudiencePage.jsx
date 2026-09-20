@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "src/core/auth/hooks/useAuth";
 import { useToast } from "src/core/primitives";
 import { getToastError } from "src/shared/utils/apiError";
 import EventEmitter from "src/shared/utils/EventEmitter.js";
@@ -7,6 +8,25 @@ import leadController from "src/products/leads/controller/lead.js";
 import { LEAD_EVENTS } from "src/products/leads/constants/constants.js";
 import { AudienceForm } from "src/products/pages/leads/components/AudienceForm.jsx";
 import { AuthShell, WelcomeAside, Stepper } from "./components/AuthShell.jsx";
+
+/**
+ * Prefill the audience *name* field only -- never a filter value.
+ *
+ * The survey's primaryGoal ("generate_leads", "recruit_candidates", ...)
+ * says what the user is here to do, not who to search for: it carries no
+ * location, industry, company or title. Guessing a filter from it would
+ * mean sending LinkedIn's structured search an id we invented rather than
+ * one FilterTagPicker resolved (see the file header) -- silently wrong, or
+ * silently empty. A name is free text with no such failure mode, so it is
+ * the only field this maps.
+ */
+const GOAL_NAME_PREFILL = {
+  generate_leads: "My first leads audience",
+  linkedin_outreach: "My first outreach audience",
+  recruit_candidates: "My first candidate search",
+  personal_branding: "My first audience",
+  agency_prospecting: "My first client audience",
+};
 
 /**
  * Step 4 of 5 -- build the first audience LinkedIn will search. Protected
@@ -28,7 +48,12 @@ import { AuthShell, WelcomeAside, Stepper } from "./components/AuthShell.jsx";
 export default function OnboardingAudiencePage() {
   const navigate = useNavigate();
   const toast = useToast();
+  const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const initialName = useMemo(
+    () => GOAL_NAME_PREFILL[user?.primaryGoal] ?? "",
+    [user?.primaryGoal],
+  );
 
   function handleSubmit(payload) {
     if (submitting) return;
@@ -64,7 +89,11 @@ export default function OnboardingAudiencePage() {
           </p>
         </div>
 
-        <AudienceForm onSubmit={handleSubmit} submitting={submitting} />
+        <AudienceForm
+          initialName={initialName}
+          onSubmit={handleSubmit}
+          submitting={submitting}
+        />
       </div>
     </AuthShell>
   );
