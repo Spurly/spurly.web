@@ -72,8 +72,8 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **D4** Return handling uses `refresh()` (vendor pull) with 2×5s retry — **not** `load()`
 - [x] **D5** Visible "I'll do this later" skip
 
-### Phase E — Onboarding: first audience step — 0/4
-- [ ] **E1** `/onboarding/audience` page reusing `AudienceFilterForm` + `FilterTagPicker`
+### Phase E — Onboarding: first audience step — 1/4
+- [x] **E1** `/onboarding/audience` page reusing `AudienceFilterForm` + `FilterTagPicker`
 - [ ] **E2** Prefill from survey answers where they map
 - [ ] **E3** Submit → `POST /hub/searches` with `filters`; handle "no linked account"
 - [ ] **E4** Completion copy sets the right expectation (cron-paced, not instant)
@@ -596,4 +596,22 @@ Append one line per completed item. Newest last.
             user who just doesn't want to connect yet is never trapped on
             this page (PLAN §5 / D5). Lint clean (0 new errors); vitest 81/93
             (same 12 pre-existing failures); vite build succeeds.
+2026-09-20  E1 SHIPPED (spurly.web, feat/onboarding-linkedin-audience):
+            new OnboardingAudiencePage.jsx at /onboarding/audience (ProtectedRoute
+            + SubscribeGate, step 4/5), reusing AudienceForm.jsx and
+            FilterTagPicker.jsx verbatim -- the same components /hub/leads uses
+            for "New audience" -- rather than a simpler substitute, since
+            LinkedIn's structured search only accepts its own internal ids for
+            location/industry/company/school (never typed text), and
+            FilterTagPicker is what turns a keystroke into a real id via
+            GET /hub/audience/params. Submits through the same
+            leadController.createSearch the /hub/leads page uses -- one
+            POST /hub/searches, one success/failure event pair, no second copy
+            of this logic. No "no linked account" gating yet and no stage
+            advance on success -- both land in E3; success currently shows a
+            toast and navigates straight to /onboarding/install as a
+            placeholder, to be replaced by E4's completion copy. Lint clean
+            (0 new errors); vitest 81/93 (same 12 pre-existing failures,
+            unchanged); vite build succeeds, OnboardingAudiencePage in its own
+            chunk.
 ```

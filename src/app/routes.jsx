@@ -48,6 +48,7 @@ const SubscribeCallbackPage = lazy(() => import('src/core/pages/auth/SubscribeCa
 const OnboardingSurveyPage = lazy(() => import('src/core/pages/auth/OnboardingSurveyPage.jsx'));
 const InstallExtensionPage = lazy(() => import('src/core/pages/auth/InstallExtensionPage.jsx'));
 const OnboardingLinkedInPage = lazy(() => import('src/core/pages/auth/OnboardingLinkedInPage.jsx'));
+const OnboardingAudiencePage = lazy(() => import('src/core/pages/auth/OnboardingAudiencePage.jsx'));
 
 // products/leadgen — the signed-in dashboard
 const TemplatesPage = lazy(() => import('src/products/pages/templates').then((m) => ({ default: m.TemplatesPage })));
@@ -109,6 +110,7 @@ export function AppRoutes() {
 
       <Route path="/onboarding" element={<ProtectedRoute><SubscribeGate><OnboardingSurveyPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/onboarding/linkedin" element={<ProtectedRoute><SubscribeGate><OnboardingLinkedInPage /></SubscribeGate></ProtectedRoute>} />
+      <Route path="/onboarding/audience" element={<ProtectedRoute><SubscribeGate><OnboardingAudiencePage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/onboarding/install" element={<ProtectedRoute><SubscribeGate><InstallExtensionPage /></SubscribeGate></ProtectedRoute>} />
 
       {/* Dashboard (protected + requires an active subscription).
