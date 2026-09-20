@@ -72,10 +72,10 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **D4** Return handling uses `refresh()` (vendor pull) with 2×5s retry — **not** `load()`
 - [x] **D5** Visible "I'll do this later" skip
 
-### Phase E — Onboarding: first audience step — 2/4
+### Phase E — Onboarding: first audience step — 3/4
 - [x] **E1** `/onboarding/audience` page reusing `AudienceFilterForm` + `FilterTagPicker`
 - [x] **E2** Prefill from survey answers where they map
-- [ ] **E3** Submit → `POST /hub/searches` with `filters`; handle "no linked account"
+- [x] **E3** Submit → `POST /hub/searches` with `filters`; handle "no linked account"
 - [ ] **E4** Completion copy sets the right expectation (cron-paced, not instant)
 
 ### Phase F — Verification — 0/6
@@ -627,4 +627,21 @@ Append one line per completed item. Newest last.
             empty. Lint clean (0 new errors -- 2 pre-existing warnings in
             AudienceForm.jsx unrelated to this change); vitest 81/93 (same 12
             pre-existing failures, unchanged); vite build succeeds.
+2026-09-20  E3 SHIPPED (spurly.web, feat/onboarding-linkedin-audience):
+            OnboardingAudiencePage now checks LinkedIn connection status
+            (accountController.get) on mount, before rendering AudienceForm at
+            all -- D5's "I'll do this later" skip advances onboardingStage to
+            'audience' without ever connecting, so a user can land here with
+            no account. Not connected -> a "Connect LinkedIn" gate linking to
+            /onboarding/linkedin, no form rendered. Also keeps a reactive
+            NO_LINKEDIN_ACCOUNT / LINKEDIN_ACCOUNT_NOT_READY check on submit
+            failure (mirrors useLeadsPage.js's createAudience), falling back
+            to the same gate if the connection drops between the mount check
+            and the submit reaching the vendor. On submit success, now calls
+            setOnboardingStage('install') before navigating -- previously the
+            stage was never advanced past 'audience' by this page. Lint clean
+            (0 new errors; 1 pre-existing-pattern warning for a raw <button>,
+            same as OnboardingLinkedInPage's own sp-btn elements); vitest
+            81/93 (same 12 pre-existing failures, unchanged); vite build
+            succeeds.
 ```
