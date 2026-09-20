@@ -10,7 +10,7 @@ import accountController from "src/products/settings/controller/account.js";
 import { ACCOUNT_EVENTS } from "src/products/settings/constants/constants.js";
 import { AudienceForm } from "src/products/pages/leads/components/AudienceForm.jsx";
 import { AuthShell, WelcomeAside, Stepper } from "./components/AuthShell.jsx";
-import { LinkedInIcon, ArrowRightIcon } from "./components/icons.jsx";
+import { LinkedInIcon, ArrowRightIcon, CheckCircleIcon } from "./components/icons.jsx";
 
 /**
  * The one refusal worth a distinct state rather than a toast: no usable
@@ -63,6 +63,7 @@ export default function OnboardingAudiencePage() {
   const [submitting, setSubmitting] = useState(false);
   const [checkingAccount, setCheckingAccount] = useState(true);
   const [accountConnected, setAccountConnected] = useState(false);
+  const [queued, setQueued] = useState(false);
   const initialName = useMemo(
     () => GOAL_NAME_PREFILL[user?.primaryGoal] ?? "",
     [user?.primaryGoal],
@@ -95,8 +96,12 @@ export default function OnboardingAudiencePage() {
     emitter.once(LEAD_EVENTS.CREATE_SEARCH_SUCCESS, () => {
       setSubmitting(false);
       setOnboardingStage("install");
-      toast.success("Queued. Importing starts within a minute.");
-      navigate("/onboarding/install");
+      // Stay on this page long enough to set the right expectation --
+      // LinkedIn is paged and cron-driven, not instant (E4 / PLAN §5). The
+      // old behaviour (toast + immediate navigate) let a fast reader miss
+      // it entirely and land on the install page assuming leads were
+      // already there.
+      setQueued(true);
     });
     emitter.once(LEAD_EVENTS.CREATE_SEARCH_FAILURE, (err) => {
       setSubmitting(false);
@@ -131,7 +136,28 @@ export default function OnboardingAudiencePage() {
           </p>
         </div>
 
-        {checkingAccount ? (
+        {queued ? (
+          <>
+            <div className="sp-ext-installed">
+              <CheckCircleIcon s={22} />
+              <span>Audience queued</span>
+            </div>
+            <p className="sp-ext-hint">
+              LinkedIn returns results a page at a time, so this runs in the
+              background over the next few minutes -- not instantly. Feel
+              free to move on; your first leads will be waiting when you
+              check back.
+            </p>
+            <button
+              type="button"
+              className="sp-btn sp-btn--primary"
+              style={{ marginTop: 20 }}
+              onClick={() => navigate("/onboarding/install")}
+            >
+              Continue <ArrowRightIcon s={16} />
+            </button>
+          </>
+        ) : checkingAccount ? (
           <div className="sp-store">
             <span className="sp-spin" />
             <div>

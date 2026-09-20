@@ -72,11 +72,11 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **D4** Return handling uses `refresh()` (vendor pull) with 2×5s retry — **not** `load()`
 - [x] **D5** Visible "I'll do this later" skip
 
-### Phase E — Onboarding: first audience step — 3/4
+### Phase E — Onboarding: first audience step — 4/4
 - [x] **E1** `/onboarding/audience` page reusing `AudienceFilterForm` + `FilterTagPicker`
 - [x] **E2** Prefill from survey answers where they map
 - [x] **E3** Submit → `POST /hub/searches` with `filters`; handle "no linked account"
-- [ ] **E4** Completion copy sets the right expectation (cron-paced, not instant)
+- [x] **E4** Completion copy sets the right expectation (cron-paced, not instant)
 
 ### Phase F — Verification — 0/6
 - [ ] **F1** Backend unit tests: pricing per region, promo per currency, no cross-currency leak
@@ -644,4 +644,21 @@ Append one line per completed item. Newest last.
             same as OnboardingLinkedInPage's own sp-btn elements); vitest
             81/93 (same 12 pre-existing failures, unchanged); vite build
             succeeds.
+2026-09-20  E4 SHIPPED (spurly.web, feat/onboarding-linkedin-audience) --
+            PHASE E COMPLETE (4/4): replaced the placeholder
+            toast+immediate-navigate on submit success with an in-page
+            completion state ("Audience queued") plus explanatory copy --
+            "LinkedIn returns results a page at a time, so this runs in the
+            background over the next few minutes -- not instantly" (mirrors
+            NewAudienceModal's own "Ready to run" copy) -- and an explicit
+            Continue button to /onboarding/install, so a fast reader can no
+            longer miss the expectation-setting by being auto-navigated away
+            before it renders. Lint clean (0 new errors; 2 warnings, same
+            established raw-<button> pattern as OnboardingLinkedInPage);
+            vitest 81/93 (same 12 pre-existing failures, unchanged); vite
+            build succeeds.
+
+            PHASE D + E BOTH COMPLETE. Remaining work in this doc (Phase
+            A/B/C geo + USD pricing, Phase F verification) is explicitly out
+            of scope for this session per Sarthak's instruction and untouched.
 ```
