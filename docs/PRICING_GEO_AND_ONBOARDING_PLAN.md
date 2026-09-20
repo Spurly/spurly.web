@@ -65,12 +65,12 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done · `[!]` blocked
 - [ ] **C3** `INTL_CHECKOUT_ENABLED` flag; graceful "not yet available" path when off
 - [ ] **C4** Build + verify the Cashfree IPG adapter against **sandbox** (prod flip waits on approval — see §3)
 
-### Phase D — Onboarding: LinkedIn connect step — 4/5
+### Phase D — Onboarding: LinkedIn connect step — 5/5
 - [x] **D1** `onboardingStage` on User (null-safe, **no backfill** — see §7.5)
 - [x] **D2** `returnTo` allow-list on `POST /hub/account/link`
 - [x] **D3** `/onboarding/linkedin` page + route + stepper
 - [x] **D4** Return handling uses `refresh()` (vendor pull) with 2×5s retry — **not** `load()`
-- [ ] **D5** Visible "I'll do this later" skip
+- [x] **D5** Visible "I'll do this later" skip
 
 ### Phase E — Onboarding: first audience step — 0/4
 - [ ] **E1** `/onboarding/audience` page reusing `AudienceFilterForm` + `FilterTagPicker`
@@ -588,4 +588,12 @@ Append one line per completed item. Newest last.
             callback is still missing after the retries. Lint clean (0 new
             errors); vitest 81/93 (same 12 pre-existing failures, unchanged);
             vite build succeeds.
+2026-09-20  D5 SHIPPED (spurly.web, feat/onboarding-linkedin-audience) --
+            PHASE D COMPLETE (5/5): OnboardingLinkedInPage now has a visible,
+            non-apologetic "I'll connect LinkedIn later" control. It advances
+            onboardingStage to 'audience' (same as a successful connect) and
+            navigates to /onboarding/audience, so a hosted-auth failure or a
+            user who just doesn't want to connect yet is never trapped on
+            this page (PLAN §5 / D5). Lint clean (0 new errors); vitest 81/93
+            (same 12 pre-existing failures); vite build succeeds.
 ```

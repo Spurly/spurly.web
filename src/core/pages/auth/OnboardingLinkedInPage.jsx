@@ -194,6 +194,18 @@ export default function OnboardingLinkedInPage() {
     accountController.createLink(emitter, RETURN_TO);
   }
 
+  /**
+   * A visible, non-apologetic way out. Hosted auth redirects off-site, and a
+   * failure there -- or simply not wanting to connect right now -- must
+   * never trap a customer who has already paid (D5 / PLAN §5). Advances the
+   * same as a successful connect so the stage never reads 'linkedin' forever
+   * for an account that chose to move on.
+   */
+  function handleSkip() {
+    setOnboardingStage("audience");
+    navigate("/onboarding/audience");
+  }
+
   function handleCheckAgain() {
     if (checkingAgain) return;
     setCheckingAgain(true);
@@ -302,6 +314,17 @@ export default function OnboardingLinkedInPage() {
             style={{ marginTop: 2 }}
           >
             {checkingAgain ? "Checking…" : "Already connected? Check again"}
+          </button>
+        )}
+
+        {!connected && (
+          <button
+            type="button"
+            className="sp-btn sp-btn--ghost"
+            onClick={handleSkip}
+            style={{ marginTop: 2 }}
+          >
+            I'll connect LinkedIn later
           </button>
         )}
       </div>
