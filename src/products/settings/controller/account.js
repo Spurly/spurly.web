@@ -18,9 +18,9 @@ async function get(eventEmitter) {
   }
 }
 
-async function createLink(eventEmitter) {
+async function createLink(eventEmitter, returnTo) {
   try {
-    const data = await hubAccountGateway.createLink();
+    const data = await hubAccountGateway.createLink(returnTo);
     eventEmitter.emit(ACCOUNT_EVENTS.CREATE_LINK_SUCCESS, data);
   } catch (error) {
     eventEmitter.emit(ACCOUNT_EVENTS.CREATE_LINK_FAILURE, error);

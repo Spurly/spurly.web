@@ -65,10 +65,10 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done · `[!]` blocked
 - [ ] **C3** `INTL_CHECKOUT_ENABLED` flag; graceful "not yet available" path when off
 - [ ] **C4** Build + verify the Cashfree IPG adapter against **sandbox** (prod flip waits on approval — see §3)
 
-### Phase D — Onboarding: LinkedIn connect step — 2/5
+### Phase D — Onboarding: LinkedIn connect step — 3/5
 - [x] **D1** `onboardingStage` on User (null-safe, **no backfill** — see §7.5)
 - [x] **D2** `returnTo` allow-list on `POST /hub/account/link`
-- [ ] **D3** `/onboarding/linkedin` page + route + stepper
+- [x] **D3** `/onboarding/linkedin` page + route + stepper
 - [ ] **D4** Return handling uses `refresh()` (vendor pull) with 2×5s retry — **not** `load()`
 - [ ] **D5** Visible "I'll do this later" skip
 
@@ -553,4 +553,23 @@ Append one line per completed item. Newest last.
             from FRONTEND_URL, never interpolated from the client. POST
             /hub/account/link now forwards req.body.returnTo. Lint clean,
             613/613 tests pass.
+2026-09-20  D3 SHIPPED (spurly.web, feat/onboarding-linkedin-audience):
+            new OnboardingLinkedInPage.jsx at /onboarding/linkedin (ProtectedRoute
+            + SubscribeGate, same as every other onboarding page); reads status
+            with a plain GET (accountController.get), Connect button opens hosted
+            auth via POST /hub/account/link with returnTo='/onboarding/linkedin'
+            (gateway/controller extended to take an optional returnTo). Stepper
+            (AuthShell.jsx) now has 5 labels; OnboardingSurveyPage and
+            InstallExtensionPage updated to steps 2/5 and 5/5. postAuthDestination
+            is now onboardingStage-aware (falls through to the legacy rule when
+            null, per §7.5); entities/User.js carries onboardingStage; new
+            auth gateway/controller/context setOnboardingStage() wired end to end
+            for the pages that advance it (D4/D5/E3). OnboardingSurveyPage's
+            post-submit and already-onboarded-redirect paths now route through
+            postAuthDestination instead of a hardcoded /onboarding/install.
+            Lint clean (0 errors); vitest 81/93 passing -- the 12 failures
+            (hub.leads/campaigns/inbox/linkedinSettings) are PRE-EXISTING and
+            reproduce identically with this branch's routes.jsx/AuthContext.jsx
+            changes reverted; not caused by this work and out of D/E scope.
+            vite build succeeds, OnboardingLinkedInPage in its own chunk.
 ```
