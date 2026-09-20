@@ -65,11 +65,11 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done · `[!]` blocked
 - [ ] **C3** `INTL_CHECKOUT_ENABLED` flag; graceful "not yet available" path when off
 - [ ] **C4** Build + verify the Cashfree IPG adapter against **sandbox** (prod flip waits on approval — see §3)
 
-### Phase D — Onboarding: LinkedIn connect step — 3/5
+### Phase D — Onboarding: LinkedIn connect step — 4/5
 - [x] **D1** `onboardingStage` on User (null-safe, **no backfill** — see §7.5)
 - [x] **D2** `returnTo` allow-list on `POST /hub/account/link`
 - [x] **D3** `/onboarding/linkedin` page + route + stepper
-- [ ] **D4** Return handling uses `refresh()` (vendor pull) with 2×5s retry — **not** `load()`
+- [x] **D4** Return handling uses `refresh()` (vendor pull) with 2×5s retry — **not** `load()`
 - [ ] **D5** Visible "I'll do this later" skip
 
 ### Phase E — Onboarding: first audience step — 0/4
@@ -572,4 +572,20 @@ Append one line per completed item. Newest last.
             reproduce identically with this branch's routes.jsx/AuthContext.jsx
             changes reverted; not caused by this work and out of D/E scope.
             vite build succeeds, OnboardingLinkedInPage in its own chunk.
+2026-09-20  D4 SHIPPED (spurly.web, feat/onboarding-linkedin-audience):
+            OnboardingLinkedInPage now reads ?linked=1/0 on return from hosted
+            auth (opened in a NEW tab by handleConnect, same as the settings
+            page), strips the param, and on linked=1 calls refresh() (POST
+            /hub/account/refresh -- the vendor pull), retrying up to 2 more
+            times at 5s apart when the vendor hasn't caught up yet -- never a
+            plain re-read of our own row, which is the one place that has not
+            heard about the connection yet (D4 / PLAN §7.6). Once connected
+            (from the redirect pull OR already-connected-on-load), the page
+            advances onboardingStage to 'audience' exactly once and auto-
+            continues to /onboarding/audience after a short confirmation,
+            same shape as InstallExtensionPage's install confirmation. Added
+            an "Already connected? Check again" manual refresh for when the
+            callback is still missing after the retries. Lint clean (0 new
+            errors); vitest 81/93 (same 12 pre-existing failures, unchanged);
+            vite build succeeds.
 ```
