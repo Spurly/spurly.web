@@ -213,6 +213,23 @@ export function AuthProvider({ children }) {
     return callEmitter;
   }, []);
 
+  /**
+   * Advance the onboarding stage. Deliberately does not touch `error` on
+   * failure the way most actions here do -- the LinkedIn/audience pages
+   * that call this are mid-flow, so a failed stage bump should not overlay
+   * a global auth error banner over an otherwise-successful action (a
+   * LinkedIn connection, a queued search); each caller toasts its own
+   * failure instead.
+   */
+  const setOnboardingStage = useCallback((stage) => {
+    const callEmitter = new EventEmitter();
+    callEmitter.once(AUTH_EVENTS.SET_ONBOARDING_STAGE_SUCCESS, (updatedUser) => {
+      if (updatedUser) setUser(updatedUser);
+    });
+    authController.setOnboardingStage(callEmitter, stage);
+    return callEmitter;
+  }, []);
+
   const logout = useCallback(() => {
     setLoading(true);
     const callEmitter = new EventEmitter();
@@ -296,6 +313,7 @@ export function AuthProvider({ children }) {
         forgotPassword,
         resetPassword,
         completeOnboarding,
+        setOnboardingStage,
         getGoogleAuthUrl,
         logout,
         updateProfile,

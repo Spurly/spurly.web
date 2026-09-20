@@ -50,7 +50,7 @@ export function urlProblem(raw) {
   return null;
 }
 
-export function AudienceForm({ initialCompany = null, onSubmit, submitting = false }) {
+export function AudienceForm({ initialCompany = null, initialName = '', onSubmit, submitting = false }) {
   const [url, setUrl] = useState('');
   const [location, setLocation] = useState([]);
   const [industry, setIndustry] = useState([]);
@@ -60,7 +60,7 @@ export function AudienceForm({ initialCompany = null, onSubmit, submitting = fal
   const [keywords, setKeywords] = useState('');
   const [title, setTitle] = useState('');
   const [networkDistance, setNetworkDistance] = useState([]);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(initialName);
 
   const usingUrl = url.trim().length > 0;
   const urlError = usingUrl ? urlProblem(url) : null;

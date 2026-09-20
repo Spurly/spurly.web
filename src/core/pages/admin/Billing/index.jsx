@@ -679,9 +679,9 @@ export function AdminBillingPage() {
           ) : !exemptions.length ? (
             <Empty>No comped accounts.</Empty>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="max-h-[420px] overflow-y-auto overflow-x-auto">
               <table className="w-full text-[length:var(--ui-t-body)]">
-                <thead>
+                <thead className="sticky top-0 z-10 bg-[var(--ui-surface-card)]">
                   <tr className="border-b border-[var(--ui-border-hairline)]">
                     <th className={th}>Account</th>
                     <th className={th}>Reason</th>

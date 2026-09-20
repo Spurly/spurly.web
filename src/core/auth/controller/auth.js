@@ -279,6 +279,25 @@ async function completeOnboarding(eventEmitter, data) {
 }
 
 /**
+ * Advance the onboarding stage and persist the updated user.
+ * @param {EventEmitter} eventEmitter
+ * @param {string} stage
+ */
+async function setOnboardingStage(eventEmitter, stage) {
+  try {
+    const user = await authGateway.setOnboardingStage(stage);
+
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user.toJSON()));
+    }
+
+    eventEmitter.emit(AUTH_EVENTS.SET_ONBOARDING_STAGE_SUCCESS, user);
+  } catch (error) {
+    eventEmitter.emit(AUTH_EVENTS.SET_ONBOARDING_STAGE_FAILURE, error);
+  }
+}
+
+/**
  * Save the user's column order for one table.
  * @param {EventEmitter} eventEmitter
  * @param {string}   tableId
@@ -400,6 +419,7 @@ const authController = {
   fetchCurrentUser,
   updateProfile,
   completeOnboarding,
+  setOnboardingStage,
   saveTableColumnOrder,
   resetTableColumnOrder,
   getLinkedInAuthUrl,

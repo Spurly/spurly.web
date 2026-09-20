@@ -5,6 +5,7 @@ import { useToast } from "src/core/primitives";
 import { getToastError } from "src/shared/utils/apiError";
 import { AUTH_EVENTS } from "src/core/auth/constants/constants.js";
 import { AuthShell, WelcomeAside, Stepper } from "./components/AuthShell.jsx";
+import { postAuthDestination } from "./postAuthDestination.js";
 import { Dropdown } from "src/core/primitives/Dropdown";
 import {
   BriefcaseIcon,
@@ -96,10 +97,13 @@ export default function OnboardingSurveyPage() {
   });
   const [loading, setLoading] = useState(false);
 
-  // Already onboarded? Skip ahead. Otherwise prefill anything we know.
+  // Already onboarded? Skip ahead -- to wherever this user's own onboarding
+  // stage says is next (D3), not always straight to install: a paying user
+  // who left mid-LinkedIn-connect and comes back to /onboarding must not be
+  // sent past that unfinished step. Otherwise prefill anything we know.
   useEffect(() => {
     if (user?.onboardingComplete) {
-      navigate("/onboarding/install", { replace: true });
+      navigate(postAuthDestination(user), { replace: true });
       return;
     }
     if (user) {
@@ -140,10 +144,13 @@ export default function OnboardingSurveyPage() {
       companyName: form.companyName.trim(),
       companyWebsite: form.companyWebsite.trim() || undefined,
     });
-    emitter.once(AUTH_EVENTS.COMPLETE_ONBOARDING_SUCCESS, () => {
+    emitter.once(AUTH_EVENTS.COMPLETE_ONBOARDING_SUCCESS, (updatedUser) => {
       setLoading(false);
       toast.success("Details saved");
-      navigate("/onboarding/install", { replace: true });
+      // completeOnboarding always advances onboardingStage to 'linkedin'
+      // (see profile.js), so postAuthDestination sends a new user to
+      // /onboarding/linkedin here -- not the old hardcoded /onboarding/install.
+      navigate(postAuthDestination(updatedUser), { replace: true });
     });
     emitter.once(AUTH_EVENTS.COMPLETE_ONBOARDING_FAILURE, (err) => {
       setLoading(false);
@@ -153,7 +160,7 @@ export default function OnboardingSurveyPage() {
 
   return (
     <AuthShell
-      aside={<WelcomeAside step={2} total={3} credits={100} />}
+      aside={<WelcomeAside step={2} total={5} credits={100} />}
       bodyTop
     >
       <div className="sp-card sp-card--wide">

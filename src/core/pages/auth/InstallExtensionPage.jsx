@@ -173,11 +173,11 @@ export default function InstallExtensionPage() {
 
   return (
     <AuthShell
-      aside={<WelcomeAside step={3} total={3} credits={100} allSet />}
+      aside={<WelcomeAside step={5} total={5} credits={100} allSet />}
       bodyTop
     >
       <div className="sp-card sp-card--wide">
-        <Stepper current={3} />
+        <Stepper current={5} />
 
         <div className="sp-card__head">
           <h2 className="sp-card__title">

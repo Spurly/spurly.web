@@ -26,6 +26,10 @@ function createUser(data) {
        first render of a table - no second request, no visible reshuffle. */
     tablePreferences: data.tablePreferences || {},
     onboardingComplete: data.onboardingComplete ?? false,
+    // null = "never resolved" -- see postAuthDestination.js. Never defaulted to
+    // a non-null value here, or a legacy already-onboarded user would read as
+    // mid-onboarding purely from a frontend normalisation bug.
+    onboardingStage: data.onboardingStage ?? null,
     isAdmin: data.isAdmin ?? false,
     tier: data.tier || 'free',
     creditBalance: data.creditBalance ?? 0,
@@ -52,6 +56,7 @@ function createUser(data) {
     companyWebsite: user.companyWebsite,
     tablePreferences: user.tablePreferences,
     onboardingComplete: user.onboardingComplete,
+    onboardingStage: user.onboardingStage,
     isAdmin: user.isAdmin,
     tier: user.tier,
     creditBalance: user.creditBalance,

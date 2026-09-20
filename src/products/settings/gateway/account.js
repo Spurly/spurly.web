@@ -27,9 +27,14 @@ async function get() {
  * Returns { url, mode } where mode is 'create' or 'reconnect'; the server
  * decides which, because reconnecting an existing account and creating a
  * second one are billed differently.
+ *
+ * `returnTo` is optional and server-allow-listed (see D2) — omit it for the
+ * settings page's own default; the onboarding LinkedIn-connect page passes
+ * '/onboarding/linkedin' so hosted auth brings the user back to itself
+ * instead of the dashboard settings page.
  */
-async function createLink() {
-  const res = await apiGateway.post('/hub/account/link');
+async function createLink(returnTo) {
+  const res = await apiGateway.post('/hub/account/link', returnTo ? { returnTo } : {});
   return res.data?.data ?? {};
 }
 

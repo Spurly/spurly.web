@@ -233,6 +233,8 @@ export function WelcomeAside({
 const STEP_LABELS = [
   "Create Account",
   "Tell us about you",
+  "Connect LinkedIn",
+  "Build Audience",
   "Install Extension",
 ];
 

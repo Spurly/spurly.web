@@ -151,6 +151,27 @@ async function completeOnboarding(data) {
 }
 
 /**
+ * Advance the onboarding stage (D1/D3-E) -- called by the LinkedIn-connect
+ * and audience-builder onboarding pages after their own action succeeds or
+ * is explicitly skipped, never on page load.
+ * POST /auth/onboarding/stage
+ * @param {string} stage - one of 'survey' | 'linkedin' | 'audience' | 'install' | 'done'
+ * @returns {Promise<User>} The updated user
+ */
+async function setOnboardingStage(stage) {
+  try {
+    const response = await apiGateway.post('/auth/onboarding/stage', { stage });
+    const userData = response.data?.data;
+    if (!userData) {
+      throw new Error(response.data?.message || 'Could not update onboarding progress');
+    }
+    return User.fromResponse(userData);
+  } catch (error) {
+    throw handleError(error);
+  }
+}
+
+/**
  * Logout user
  * POST /auth/logout
  * @returns {Promise<AuthResponse>}
@@ -337,6 +358,7 @@ const authGateway = {
   forgotPassword,
   resetPassword,
   completeOnboarding,
+  setOnboardingStage,
   logout,
   getCurrentUser,
   updateProfile,
