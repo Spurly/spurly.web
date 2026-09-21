@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, Fragment } from 'react';
 import { createPortal } from 'react-dom';
-import { GripVertical, ChevronUp, ChevronDown, Trash2, Plus, Clock, MoreVertical } from 'lucide-react';
-import { Field, Checkbox, IconButton } from 'src/core/primitives';
+import { GripVertical, ChevronUp, ChevronDown, Trash2, Plus, Clock, MoreVertical, FileText } from 'lucide-react';
+import { Field, Checkbox, IconButton, Button } from 'src/core/primitives';
 import { STEP_TYPES, STEP_TYPE_MAP, WAIT_MODES, makeStep, stepError } from 'src/products/sequences/stepTypes.js';
+import { TemplatePickerModal } from 'src/products/pages/templates/components/TemplatePickerModal.jsx';
 
 /**
  * The step builder, as a node canvas.
@@ -30,6 +31,7 @@ import { STEP_TYPES, STEP_TYPE_MAP, WAIT_MODES, makeStep, stepError } from 'src/
 
 function ConfigFields({ step, onConfigChange, disabled }) {
   const { type, config } = step;
+  const [pickingTemplate, setPickingTemplate] = useState(false);
 
   if (type === 'profile_visit') {
     return (
@@ -55,7 +57,30 @@ function ConfigFields({ step, onConfigChange, disabled }) {
           aria-label="Connection note"
           className="w-full text-[length:var(--ui-t-label)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-2.5 py-1.5 text-[var(--ui-text-primary)] disabled:opacity-60"
         />
-        <span className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">{(config.note || '').length}/300</span>
+        <div className="flex items-center justify-between">
+          <span className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">{(config.note || '').length}/300</span>
+          {!disabled && (
+            <Button
+              size="sm"
+              variant="ghost"
+              leadingIcon={<FileText size={12} />}
+              onClick={() => setPickingTemplate(true)}
+            >
+              Use template
+            </Button>
+          )}
+        </div>
+        {pickingTemplate && (
+          <TemplatePickerModal
+            action="connection"
+            maxLength={300}
+            onClose={() => setPickingTemplate(false)}
+            onPick={(template) => {
+              onConfigChange({ note: (template.content || '').slice(0, 300) });
+              setPickingTemplate(false);
+            }}
+          />
+        )}
       </div>
     );
   }
@@ -78,9 +103,31 @@ function ConfigFields({ step, onConfigChange, disabled }) {
           aria-label={label}
           className="w-full text-[length:var(--ui-t-label)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-2.5 py-1.5 text-[var(--ui-text-primary)] disabled:opacity-60"
         />
-        <span className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">
-          {type === 'message' ? 'Use {{firstName}} to personalize.' : `${(config.text || '').length}/1250`}
-        </span>
+        <div className="flex items-center justify-between">
+          <span className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">
+            {type === 'message' ? 'Use {{firstName}} to personalize.' : `${(config.text || '').length}/1250`}
+          </span>
+          {type === 'message' && !disabled && (
+            <Button
+              size="sm"
+              variant="ghost"
+              leadingIcon={<FileText size={12} />}
+              onClick={() => setPickingTemplate(true)}
+            >
+              Use template
+            </Button>
+          )}
+        </div>
+        {type === 'message' && pickingTemplate && (
+          <TemplatePickerModal
+            action="message"
+            onClose={() => setPickingTemplate(false)}
+            onPick={(template) => {
+              onConfigChange({ text: template.content || '' });
+              setPickingTemplate(false);
+            }}
+          />
+        )}
       </div>
     );
   }

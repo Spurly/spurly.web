@@ -415,8 +415,10 @@ function AccountRow({ user, expanded, onLogout }) {
  *   "page"           — no card; the whole column scrolls. Dashboards,
  *                      settings, card grids — screens made of several
  *                      regions, each of which brings its own card.
- *   "plain"          — padded, fixed height, no card: detail consoles
- *                      whose regions scroll independently.
+ *   "plain"          — padded, no card, the whole column scrolls: detail
+ *                      consoles (campaign/sequence detail) whose rail can
+ *                      run taller than the viewport (e.g. a long message
+ *                      draft) without clipping it internally.
  *   "bare"           — full-bleed under the header, no padding. Split
  *                      views (the inbox) that draw their own frames.
  */
@@ -639,7 +641,7 @@ export function DashboardLayout({
       </aside>
 
       <div
-        className={`flex-1 flex flex-col min-w-0 ${layout === "page" ? "overflow-y-auto" : "overflow-hidden"}`}
+        className={`flex-1 flex flex-col min-w-0 ${layout === "page" || layout === "plain" ? "overflow-y-auto" : "overflow-hidden"}`}
       >
         {hasHeader && (
           <header className="shrink-0 flex items-start gap-4 px-[var(--ui-shell-x)] pt-5">
@@ -684,7 +686,7 @@ export function DashboardLayout({
             {children}
           </main>
         ) : layout === "plain" ? (
-          <main className="flex-1 min-h-0 flex flex-col overflow-hidden px-[var(--ui-shell-x)] pt-4 pb-5">{children}</main>
+          <main className="flex-1 flex flex-col px-[var(--ui-shell-x)] pt-4 pb-5">{children}</main>
         ) : layout === "page" ? (
           <main className="flex-1 px-[var(--ui-shell-x)] pt-4 pb-6">{children}</main>
         ) : (

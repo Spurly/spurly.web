@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import { Button } from 'src/core/primitives';
 import { AiWriteButton } from 'src/products/personalization/AiWriteButton.jsx';
+import { TemplatePickerModal } from 'src/products/pages/templates/components/TemplatePickerModal.jsx';
 
 /**
  * The message a `type: 'message'` campaign sends, mirroring NoteEditor's
@@ -24,6 +25,7 @@ const CAP = 2000;
 export function MessageEditor({ campaign, onSave, saving }) {
   const [value, setValue] = useState(campaign.messageTemplate || '');
   const [expanded, setExpanded] = useState(!campaign.messageTemplate);
+  const [pickingTemplate, setPickingTemplate] = useState(false);
 
   const running = campaign.status === 'running';
   const dirty = value !== (campaign.messageTemplate || '');
@@ -48,27 +50,38 @@ export function MessageEditor({ campaign, onSave, saving }) {
   }
 
   return (
-    <div className="px-[var(--ui-pad-lg)] py-4 flex flex-col gap-2">
+    <div className="px-[var(--ui-pad-lg)] py-4 flex-1 min-h-0 flex flex-col gap-2.5">
       <textarea
         value={value}
         maxLength={CAP}
-        rows={4}
+        rows={8}
         disabled={running}
         onChange={(e) => setValue(e.target.value)}
         aria-label="Campaign message"
         placeholder="Hi {{firstName}}, …"
-        className="w-full text-[length:var(--ui-t-body)] rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-text-primary)] disabled:opacity-60"
+        className="w-full flex-1 min-h-[180px] resize-y text-[length:var(--ui-t-body)] rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-3 py-2 text-[var(--ui-text-primary)] disabled:opacity-60"
       />
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 shrink-0">
         <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
           {running
             ? 'Pause the campaign to change the message — the people already messaged were sent the old one.'
             : `Use {{firstName}} to personalize · ${value.length}/${CAP} characters`}
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center flex-wrap gap-2">
           {campaign.messageTemplate && (
             <Button size="sm" variant="ghost" disabled={saving} trailingIcon={<ChevronUp size={13} />} onClick={() => { setValue(campaign.messageTemplate || ''); setExpanded(false); }}>
               Collapse
+            </Button>
+          )}
+          {!running && (
+            <Button
+              size="sm"
+              variant="ghost"
+              leadingIcon={<FileText size={13} />}
+              disabled={saving}
+              onClick={() => setPickingTemplate(true)}
+            >
+              Use template
             </Button>
           )}
           {!running && (
@@ -80,11 +93,22 @@ export function MessageEditor({ campaign, onSave, saving }) {
               onApply={setValue}
             />
           )}
-          <Button size="sm" disabled={running || !dirty || saving || !value.trim()} onClick={() => onSave(value)}>
+          <Button size="sm" className="ml-auto" disabled={running || !dirty || saving || !value.trim()} onClick={() => onSave(value)}>
             {saving ? 'Saving…' : 'Save message'}
           </Button>
         </div>
       </div>
+      {pickingTemplate && (
+        <TemplatePickerModal
+          action="message"
+          maxLength={CAP}
+          onClose={() => setPickingTemplate(false)}
+          onPick={(template) => {
+            setValue((template.content || '').slice(0, CAP));
+            setPickingTemplate(false);
+          }}
+        />
+      )}
     </div>
   );
 }

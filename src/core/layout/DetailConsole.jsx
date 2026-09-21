@@ -16,13 +16,23 @@ import { Meter, Stat } from 'src/core/primitives/Meter';
  * DashboardLayout's card wrapper (which ships with none): every other page
  * under DashboardLayout keeps managing its own gutter, so this only changes
  * spacing for the pages that opt into it.
+ *
+ * No internal height clamp: earlier this was pinned to the viewport with
+ * `h-full`/`overflow-hidden` on every level (main column AND rail each
+ * scrolling independently, "console" style). That meant a rail card whose
+ * content genuinely needs room — the message/note editor, once it grows
+ * past a couple of lines — was squeezed into whatever the fixed-height rail
+ * had left over and had to scroll internally, inside its own little box.
+ * Now the console just lays out at its natural height and DashboardLayout's
+ * `"plain"` main column is the one thing that scrolls, so a tall message
+ * scrolls the whole page like anything else, never a nested scrollbar.
  */
 export function DetailConsole({ main, rail, className = '' }) {
   return (
-    <div className={`h-full min-h-0 flex flex-col overflow-hidden ${className}`}>
-      <div className="flex-1 min-h-0 flex items-stretch gap-4 overflow-hidden">
-        <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-4 overflow-hidden">{main}</div>
-        <div className="w-[376px] shrink-0 min-h-0 flex flex-col gap-3 overflow-y-auto pb-1">{rail}</div>
+    <div className={`flex flex-col ${className}`}>
+      <div className="flex items-start gap-4">
+        <div className="flex-1 min-w-0 flex flex-col gap-4">{main}</div>
+        <div className="w-[376px] shrink-0 flex flex-col gap-3 pb-1">{rail}</div>
       </div>
     </div>
   );
@@ -70,7 +80,7 @@ export function RailCard({ title, children, grow = false, tone = 'default', clas
     <div
       className={[
         'rounded-[var(--ui-radius-lg)] border bg-[var(--ui-surface-card)] overflow-hidden flex flex-col',
-        grow ? 'flex-1 min-h-0' : 'shrink-0',
+        grow ? 'flex-1' : 'shrink-0',
         toneBorder,
         className,
       ].filter(Boolean).join(' ')}
@@ -80,7 +90,7 @@ export function RailCard({ title, children, grow = false, tone = 'default', clas
           <h2 className={`ui-micro ${tone === 'accent' ? '!text-[var(--ui-accent-fg)]' : '!text-[var(--ui-text-secondary)]'}`}>{title}</h2>
         </div>
       )}
-      <div className={grow ? 'flex-1 min-h-0 flex flex-col overflow-y-auto' : ''}>{children}</div>
+      <div className={grow ? 'flex-1 flex flex-col' : ''}>{children}</div>
     </div>
   );
 }
