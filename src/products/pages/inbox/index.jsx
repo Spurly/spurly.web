@@ -63,7 +63,7 @@ function ChatRow({ chat, active }) {
           </span>
         </span>
 
-        <span className="block mt-0.5 text-[length:var(--ui-t-control)] leading-[1.45] text-[var(--ui-text-body)] line-clamp-2">
+        <span className="block mt-0.5 truncate text-[length:var(--ui-t-control)] leading-[1.45] text-[var(--ui-text-body)]">
           {/* "you:" is the only thing that tells a glance whether the ball is
               in their court or ours — the single most useful bit in a row. */}
           {chat.lastMessageIsSender && <span className="text-[var(--ui-text-quaternary)]">You: </span>}
