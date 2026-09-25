@@ -6,33 +6,21 @@
 
 /** GET /subscriptions/pricing */
 function createPricingInfo(data) {
-  const pricing = {
+  return {
     region: data?.region || 'IN',
     currency: data?.currency || 'INR',
-    baseAmount: data?.baseAmount ?? 0,
-    firstCycleAmount: data?.firstCycleAmount ?? (data?.baseAmount ?? 0),
-    appliedPromoCode: data?.appliedPromoCode || null,
-    promoDescription: data?.promoDescription || null,
-    // Set when a code was supplied but couldn't be used — the page can
-    // explain why while still rendering a valid full price.
-    promoRejectedReason: data?.promoRejectedReason || null,
-    isFirstTime: !!data?.isFirstTime,
+    // Monthly price in major units (2499 / 24.99).
+    amount: data?.amount ?? null,
+    trialDays: data?.trialDays ?? 0,
+    trialEligible: !!data?.trialEligible,
+    // Set when resubscribing inside already-paid time: billing starts then.
+    firstChargeAt: data?.firstChargeAt || null,
+    // false for USD while international checkout is switched off server-side.
+    checkoutAvailable: data?.checkoutAvailable !== false,
     // Comped account (internal, founder, special client). Nothing to pay.
     exempt: !!data?.exempt,
     exemptUntil: data?.exemptUntil || null,
   };
-
-  /** Whether the price actually differs from the sticker price. */
-  pricing.hasDiscount = () => {
-    return !!pricing.appliedPromoCode && pricing.firstCycleAmount < pricing.baseAmount;
-  };
-
-  /** What this saves, in whole currency units. */
-  pricing.savings = () => {
-    return Math.max(0, pricing.baseAmount - pricing.firstCycleAmount);
-  };
-
-  return pricing;
 }
 
 export const PricingInfo = {
@@ -41,33 +29,21 @@ export const PricingInfo = {
   },
 };
 
-/** POST /subscriptions/promo/validate */
-function createPromoValidation(data) {
-  return {
-    code: data?.code || null,
-    description: data?.description || null,
-    currency: data?.currency || 'INR',
-    baseAmount: data?.baseAmount ?? 0,
-    firstCycleAmount: data?.firstCycleAmount ?? (data?.baseAmount ?? 0),
-    savings: data?.savings ?? 0,
-  };
-}
-
-export const PromoValidation = {
-  fromResponse(data) {
-    return createPromoValidation(data || {});
-  },
-};
-
-/** POST /subscriptions */
+/** POST /subscriptions — everything Razorpay Checkout needs to open. */
 function createSubscriptionCreateResult(data) {
   return {
+    keyId: data?.keyId || null,
     subscriptionId: data?.subscriptionId || null,
-    cashfreeSubscriptionId: data?.cashfreeSubscriptionId || null,
-    subscriptionSessionId: data?.subscriptionSessionId || null,
-    firstCycleAmount: data?.firstCycleAmount ?? null,
-    baseAmount: data?.baseAmount ?? null,
-    appliedPromoCode: data?.appliedPromoCode || null,
+    currency: data?.currency || 'INR',
+    amount: data?.amount ?? null,
+    trial: !!data?.trial,
+    trialDays: data?.trialDays ?? 0,
+    firstChargeAt: data?.firstChargeAt || null,
+    prefill: {
+      name: data?.prefill?.name || '',
+      email: data?.prefill?.email || '',
+      contact: data?.prefill?.contact || '',
+    },
   };
 }
 
@@ -88,8 +64,19 @@ function createSubscriptionSummary(data) {
     region: data?.region || null,
     currency: data?.currency || null,
     baseAmount: data?.baseAmount ?? null,
+    amount: data?.amount ?? data?.baseAmount ?? null,
     currentCycleEnd: data?.currentCycleEnd || null,
     lastChargeStatus: data?.lastChargeStatus || null,
+    // Razorpay subscription detail (absent for comped / never-subscribed).
+    razorpayStatus: data?.razorpayStatus || null,
+    trialing: !!data?.trialing,
+    trialEndsAt: data?.trialEndsAt || null,
+    nextChargeAt: data?.nextChargeAt || null,
+    cancelled: !!data?.cancelled,
+    accessUntil: data?.accessUntil || null,
+    // Renewal failing while Razorpay retries — still has access.
+    paymentIssue: !!data?.paymentIssue,
+    canResubscribe: data?.canResubscribe !== false,
     // Comped accounts report status 'active' with no payment behind it.
     exempt: !!data?.exempt,
     exemptReason: data?.exemptReason || null,
@@ -112,6 +99,8 @@ function createSubscriptionSummary(data) {
   summary.isPendingAuthorization = () => summary.status === 'pending_authorization';
   /** Access granted without payment — worth showing differently in settings. */
   summary.isComped = () => summary.exempt === true;
+  /** Has a live (non-cancelled) Razorpay subscription that can be cancelled. */
+  summary.canCancel = () => summary.status === 'active' && !summary.exempt && !summary.cancelled && !!summary.razorpayStatus;
 
   return summary;
 }

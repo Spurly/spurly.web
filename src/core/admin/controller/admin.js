@@ -181,47 +181,6 @@ function assignUserPlan(eventEmitter, userId, planId) {
   );
 }
 
-// ── Promo codes ────────────────────────────────────────────────────────
-function getPromoCodes(eventEmitter) {
-  return call(
-    eventEmitter,
-    () => adminGateway.getPromoCodes(),
-    ADMIN_EVENTS.GET_PROMO_CODES_SUCCESS,
-    ADMIN_EVENTS.GET_PROMO_CODES_FAILURE,
-    'Failed to load promo codes',
-  );
-}
-
-function createPromoCode(eventEmitter, promo) {
-  return call(
-    eventEmitter,
-    () => adminGateway.createPromoCode(promo),
-    ADMIN_EVENTS.CREATE_PROMO_CODE_SUCCESS,
-    ADMIN_EVENTS.CREATE_PROMO_CODE_FAILURE,
-    "Couldn't create the promo code",
-  );
-}
-
-function updatePromoCode(eventEmitter, promoId, updates) {
-  return call(
-    eventEmitter,
-    () => adminGateway.updatePromoCode(promoId, updates),
-    ADMIN_EVENTS.UPDATE_PROMO_CODE_SUCCESS,
-    ADMIN_EVENTS.UPDATE_PROMO_CODE_FAILURE,
-    "Couldn't update the promo code",
-  );
-}
-
-function deletePromoCode(eventEmitter, promoId) {
-  return call(
-    eventEmitter,
-    () => adminGateway.deletePromoCode(promoId),
-    ADMIN_EVENTS.DELETE_PROMO_CODE_SUCCESS,
-    ADMIN_EVENTS.DELETE_PROMO_CODE_FAILURE,
-    "Couldn't delete the promo code",
-  );
-}
-
 // ── Billing exemptions ────────────────────────────────────────────────
 function getBillingExemptions(eventEmitter) {
   return call(
@@ -341,10 +300,6 @@ const adminController = {
   createPlan,
   updatePlan,
   assignUserPlan,
-  getPromoCodes,
-  createPromoCode,
-  updatePromoCode,
-  deletePromoCode,
   getBillingExemptions,
   grantBillingExemption,
   revokeBillingExemption,

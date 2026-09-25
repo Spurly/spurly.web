@@ -2,15 +2,14 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
 import {
   SubscriptionsApiResponse,
   PricingInfo,
-  PromoValidation,
   SubscriptionCreateResult,
   SubscriptionSummary,
 } from '../entities/Subscription.js';
 
 /**
  * Subscriptions Gateway
- * Handles all /subscriptions/* calls (the mandatory paywall and one-time
- * payment flow). Layer between the controller and the gateway — mirrors
+ * Handles all /subscriptions/* calls (the mandatory paywall and the
+ * Razorpay autopay subscription). Layer between the controller and the gateway — mirrors
  * authApi.js's shape and error handling exactly.
  */
 
@@ -41,65 +40,71 @@ function handleError(error) {
   };
 }
 
+async function unwrap(request) {
+  const response = await request;
+  const wrapped = SubscriptionsApiResponse.fromResponse(response.data);
+  if (!wrapped.success) {
+    throw new Error(wrapped.message);
+  }
+  return wrapped.data;
+}
+
 /**
- * What the logged-in user would pay right now.
+ * Monthly price for this user's region + trial eligibility.
  * GET /subscriptions/pricing
- * @param {string} [code] - preview a typed promo code. An unusable code
- *   comes back as promoRejectedReason rather than throwing, so the page
- *   still renders a price.
  * @returns {Promise<PricingInfo>}
  */
-async function getPricing(code) {
+async function getPricing() {
   try {
-    const response = await apiGateway.get('/subscriptions/pricing', {
-      params: code ? { code } : undefined,
-    });
-    const wrapped = SubscriptionsApiResponse.fromResponse(response.data);
-    if (!wrapped.success) {
-      throw new Error(wrapped.message);
-    }
-    return PricingInfo.fromResponse(wrapped.data);
+    return PricingInfo.fromResponse(await unwrap(apiGateway.get('/subscriptions/pricing')));
   } catch (error) {
     throw handleError(error);
   }
 }
 
 /**
- * Check a code the customer just typed. Unlike getPricing, an unusable
- * code throws with a specific reason — they're waiting on an answer.
- * POST /subscriptions/promo/validate
- * @returns {Promise<PromoValidation>}
- */
-async function validatePromo(code) {
-  try {
-    const response = await apiGateway.post('/subscriptions/promo/validate', { code });
-    const wrapped = SubscriptionsApiResponse.fromResponse(response.data);
-    if (!wrapped.success) {
-      throw new Error(wrapped.message);
-    }
-    return PromoValidation.fromResponse(wrapped.data);
-  } catch (error) {
-    throw handleError(error);
-  }
-}
-
-/**
- * Create the payment order. Returns the Cashfree session id to hand to
- * the SDK.
+ * Start a Razorpay subscription. Price, region and trial are decided
+ * server-side; the result is what Razorpay Checkout needs to open.
  * POST /subscriptions
- * @param {string} [code] - promo code to apply. Revalidated server-side;
- *   an invalid one fails the request rather than silently charging full
- *   price, which would be a nasty surprise on the bank statement.
  * @returns {Promise<SubscriptionCreateResult>}
  */
-async function createSubscription(code) {
+async function createSubscription() {
   try {
-    const response = await apiGateway.post('/subscriptions', code ? { code } : {});
-    const wrapped = SubscriptionsApiResponse.fromResponse(response.data);
-    if (!wrapped.success) {
-      throw new Error(wrapped.message);
-    }
-    return SubscriptionCreateResult.fromResponse(wrapped.data);
+    return SubscriptionCreateResult.fromResponse(await unwrap(apiGateway.post('/subscriptions', {})));
+  } catch (error) {
+    throw handleError(error);
+  }
+}
+
+/**
+ * Hand the checkout handler's three fields to the backend for signature
+ * verification. Returns the fresh status summary.
+ * POST /subscriptions/verify
+ * @returns {Promise<SubscriptionSummary>}
+ */
+async function verifyPayment({ razorpay_payment_id, razorpay_subscription_id, razorpay_signature }) {
+  try {
+    const data = await unwrap(
+      apiGateway.post('/subscriptions/verify', {
+        razorpay_payment_id,
+        razorpay_subscription_id,
+        razorpay_signature,
+      })
+    );
+    return SubscriptionSummary.fromResponse(data);
+  } catch (error) {
+    throw handleError(error);
+  }
+}
+
+/**
+ * Stop autopay. Access continues to the end of the paid period.
+ * POST /subscriptions/cancel
+ * @returns {Promise<SubscriptionSummary>}
+ */
+async function cancelSubscription() {
+  try {
+    return SubscriptionSummary.fromResponse(await unwrap(apiGateway.post('/subscriptions/cancel', {})));
   } catch (error) {
     throw handleError(error);
   }
@@ -107,7 +112,7 @@ async function createSubscription(code) {
 
 /**
  * Current subscription status — polled to decide whether to show the
- * paywall (initial gate, and again after returning from Cashfree checkout).
+ * paywall (initial gate, and again after Razorpay checkout).
  * GET /subscriptions/me
  * @returns {Promise<SubscriptionSummary>}
  */
@@ -126,8 +131,9 @@ async function getMySubscription() {
 
 const subscriptionsGateway = {
   getPricing,
-  validatePromo,
   createSubscription,
+  verifyPayment,
+  cancelSubscription,
   getMySubscription,
 };
 

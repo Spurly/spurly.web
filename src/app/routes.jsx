@@ -44,7 +44,6 @@ const LoginPage = lazy(() => import('src/core/pages/auth/LoginPage.jsx'));
 const ForgotPasswordPage = lazy(() => import('src/core/pages/auth/ForgotPasswordPage.jsx'));
 const ResetPasswordPage = lazy(() => import('src/core/pages/auth/ResetPasswordPage.jsx'));
 const SubscribePage = lazy(() => import('src/core/pages/auth/SubscribePage.jsx'));
-const SubscribeCallbackPage = lazy(() => import('src/core/pages/auth/SubscribeCallbackPage.jsx'));
 const OnboardingSurveyPage = lazy(() => import('src/core/pages/auth/OnboardingSurveyPage.jsx'));
 const InstallExtensionPage = lazy(() => import('src/core/pages/auth/InstallExtensionPage.jsx'));
 const OnboardingLinkedInPage = lazy(() => import('src/core/pages/auth/OnboardingLinkedInPage.jsx'));
@@ -106,7 +105,6 @@ export function AppRoutes() {
           back here from onboarding/install/dashboard. Protected by auth
           only — NOT wrapped in SubscribeGate, since that would loop. */}
       <Route path="/subscribe" element={<ProtectedRoute><SubscribePage /></ProtectedRoute>} />
-      <Route path="/subscribe/callback" element={<ProtectedRoute><SubscribeCallbackPage /></ProtectedRoute>} />
 
       <Route path="/onboarding" element={<ProtectedRoute><SubscribeGate><OnboardingSurveyPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/onboarding/linkedin" element={<ProtectedRoute><SubscribeGate><OnboardingLinkedInPage /></SubscribeGate></ProtectedRoute>} />

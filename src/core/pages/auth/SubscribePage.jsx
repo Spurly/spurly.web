@@ -4,11 +4,10 @@ import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { useSubscription } from 'src/core/billing/hooks/useSubscription';
 import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
-import { AUTH_EVENTS } from 'src/core/auth/constants/constants.js';
+import { formatMoney } from 'src/shared/utils/money.js';
 import { SUBSCRIPTION_EVENTS } from 'src/core/billing/constants/constants.js';
 import { AuthShell, WelcomeAside } from './components/AuthShell.jsx';
-import { TrustBadges, PhoneField, phoneIsValid, buildE164 } from './components/widgets.jsx';
-import { DEFAULT_COUNTRY } from './countryCodes.js';
+import { TrustBadges } from './components/widgets.jsx';
 import { StarIcon } from './components/icons.jsx';
 import subscriptionsController from 'src/core/billing/controller/subscriptions.js';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
@@ -20,203 +19,150 @@ const FEATURES = [
   'Priority support',
 ];
 
+const CONFIRM_POLL_MS = 2000;
+const CONFIRM_POLLS = 10;
+
+const longDate = (d) =>
+  d ? new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+
 /**
- * Mandatory paywall. Every account lands here immediately after signup —
- * SubscribeGate also routes here from anywhere under /onboarding or
- * /dashboard whenever access isn't 'active'. Nothing past this page is
- * reachable without paying. There's no autopay: every payment, renewals
- * included, is a deliberate action taken here.
+ * Mandatory paywall. Every account lands here after signup, and SubscribeGate
+ * routes here from anywhere under /onboarding or /dashboard whenever access
+ * isn't 'active'.
  *
- * Gates run in order before the pay button appears:
+ * Razorpay autopay: ₹2499 or $24.99 a month by region, with a 7-day free trial
+ * once per account. Checkout is Razorpay's modal on this page — no redirect —
+ * and the backend verifies the result before access flips.
  *
- *   1. Comped accounts never see a price at all — they already have access
- *      and the gate should have let them through. Handled defensively.
- *   2. Phone gate. Cashfree's Create Order API requires customer_phone.
- *      Accounts created before signup collected it had no way to add one.
- *   3. Pricing must have actually loaded. This page never invents a price:
- *      a failed pricing call shows an error and a retry rather than a
- *      plausible-looking amount beside a live pay button.
+ * Never renders a price or a pay button without pricing from the server.
  */
 export default function SubscribePage() {
   const navigate = useNavigate();
-  const { user, updateProfile } = useAuth();
+  const { user } = useAuth();
   const { status, loading: statusLoading, refetch } = useSubscription();
   const toast = useToast();
 
   const [pricing, setPricing] = useState(null);
   const [pricingLoading, setPricingLoading] = useState(true);
   const [pricingError, setPricingError] = useState('');
-  const [subscribing, setSubscribing] = useState(false);
+  // idle → checkout (modal open) → confirming (verified, waiting for /me) → idle
+  const [phase, setPhase] = useState('idle');
   const [error, setError] = useState('');
 
-  const needsPhone = !user?.phone;
-  const [phoneCountry, setPhoneCountry] = useState(DEFAULT_COUNTRY);
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [savingPhone, setSavingPhone] = useState(false);
-  const [phoneError, setPhoneError] = useState('');
-
-  // Promo code the customer typed. `appliedCode` is the one the server has
-  // confirmed — kept separate from the input so an in-progress edit can't be
-  // mistaken for an applied discount.
-  const [showPromo, setShowPromo] = useState(false);
-  const [promoInput, setPromoInput] = useState('');
-  const [appliedCode, setAppliedCode] = useState(null);
-  const [promoChecking, setPromoChecking] = useState(false);
-  const [promoError, setPromoError] = useState('');
-
-  // Already active (e.g. paid in another tab, or comped)? Nothing to do here.
-  // Onboarding only for an account that hasn't done it — sending a returning
-  // subscriber to /onboarding forwards them to /onboarding/install, which has
-  // no way back to the app.
+  // Already active (paid in another tab, trialing, comped)? Nothing to do here.
   useEffect(() => {
     if (status?.isActive()) {
       navigate(postAuthDestination(user), { replace: true });
     }
   }, [status, user, navigate]);
 
-  const loadPricing = useCallback((code) => {
+  const loadPricing = useCallback(() => {
     setPricingLoading(true);
     setPricingError('');
     const emitter = new EventEmitter();
-    subscriptionsController.getPricing(emitter, code);
+    subscriptionsController.getPricing(emitter);
     emitter.once(SUBSCRIPTION_EVENTS.GET_PRICING_SUCCESS, (p) => {
       setPricing(p);
       setPricingLoading(false);
     });
     emitter.once(SUBSCRIPTION_EVENTS.GET_PRICING_FAILURE, (err) => {
-      // Leave `pricing` null — the render path refuses to show a price or a
-      // pay button without one. A 401 never reaches here: apiGateway's
-      // interceptor redirects to /login first, since a dead session isn't
-      // something this page can fix.
       setPricing(null);
       setPricingError(getToastError(err, "Couldn't load pricing"));
       setPricingLoading(false);
     });
-    return emitter;
   }, []);
 
   useEffect(() => {
-    // Wrapped in its own function — calling loadPricing() directly at the
-    // top level of an effect body trips react-hooks/set-state-in-effect
-    // since loadPricing synchronously calls setState before dispatching;
-    // the indirection is enough to satisfy it.
-    function runLoadPricing() {
+    // Indirection keeps react-hooks/set-state-in-effect quiet.
+    function run() {
       loadPricing();
     }
-    runLoadPricing();
+    run();
   }, [loadPricing]);
 
-  function onSavePhone(e) {
-    e.preventDefault();
-    setPhoneError('');
-    if (!phoneIsValid(phoneCountry, phoneNumber)) {
-      setPhoneError('Please enter a valid phone number.');
-      return;
-    }
-    setSavingPhone(true);
-    const emitter = updateProfile({ phone: buildE164(phoneCountry, phoneNumber) });
-    emitter.once(AUTH_EVENTS.UPDATE_PROFILE_SUCCESS, () => {
-      setSavingPhone(false);
-      toast.success('Phone number saved');
+  /**
+   * After a verified checkout the backend already reports 'active' in the
+   * verify response, but SubscriptionContext is the app-wide source the gates
+   * read — refresh it (a few tries, in case Razorpay's read side lags).
+   */
+  function confirmAccess(attempt = 0) {
+    const emitter = refetch();
+    emitter.once(SUBSCRIPTION_EVENTS.GET_MY_SUBSCRIPTION_SUCCESS, (summary) => {
+      if (summary?.isActive()) return; // the effect above navigates
+      if (attempt + 1 >= CONFIRM_POLLS) {
+        setPhase('idle');
+        setError("Your payment went through but we're still confirming it. Refresh in a minute — you won't be charged twice.");
+        return;
+      }
+      setTimeout(() => confirmAccess(attempt + 1), CONFIRM_POLL_MS);
     });
-    emitter.once(AUTH_EVENTS.UPDATE_PROFILE_FAILURE, (err) => {
-      setSavingPhone(false);
-      setPhoneError(getToastError(err, "Couldn't save your phone number"));
+    emitter.once(SUBSCRIPTION_EVENTS.GET_MY_SUBSCRIPTION_FAILURE, () => {
+      setTimeout(() => confirmAccess(attempt + 1), CONFIRM_POLL_MS);
     });
-  }
-
-  function onApplyPromo(e) {
-    e.preventDefault();
-    const code = promoInput.trim().toUpperCase();
-    if (!code) return;
-
-    setPromoChecking(true);
-    setPromoError('');
-    const emitter = new EventEmitter();
-    subscriptionsController.validatePromo(emitter, code);
-    emitter.once(SUBSCRIPTION_EVENTS.VALIDATE_PROMO_SUCCESS, (result) => {
-      setAppliedCode(result.code);
-      // Re-fetch pricing with the code so the displayed price comes from the
-      // same source the charge will, rather than being patched together
-      // client-side from the validation response.
-      const pricingEmitter = loadPricing(result.code);
-      pricingEmitter.once(SUBSCRIPTION_EVENTS.GET_PRICING_SUCCESS, () => {
-        setPromoChecking(false);
-        toast.success(`${result.code} applied`);
-      });
-      pricingEmitter.once(SUBSCRIPTION_EVENTS.GET_PRICING_FAILURE, () => {
-        setPromoChecking(false);
-      });
-    });
-    emitter.once(SUBSCRIPTION_EVENTS.VALIDATE_PROMO_FAILURE, (err) => {
-      setAppliedCode(null);
-      setPromoError(getToastError(err, "Couldn't apply that code"));
-      setPromoChecking(false);
-    });
-  }
-
-  function onRemovePromo() {
-    setAppliedCode(null);
-    setPromoInput('');
-    setPromoError('');
-    setShowPromo(false);
-    loadPricing();
   }
 
   function onSubscribe() {
-    // Defensive: the button isn't rendered without pricing, but never let a
-    // pay action run against an unknown amount.
     if (!pricing) {
       setError('Pricing is still loading. Please try again in a moment.');
       return;
     }
-    setSubscribing(true);
+    setPhase('checkout');
     setError('');
     const emitter = new EventEmitter();
-    subscriptionsController.startCheckout(emitter, appliedCode || undefined);
-    // No SUCCESS handler needed — a successful checkout navigates the
-    // browser away via Cashfree before this ever fires.
-    emitter.once(SUBSCRIPTION_EVENTS.CREATE_SUBSCRIPTION_FAILURE, (err) => {
+    subscriptionsController.startCheckout(emitter, {
+      description: pricing.trialEligible
+        ? `${pricing.trialDays}-day free trial, then ${formatMoney(pricing.amount, pricing.currency)}/month`
+        : `${formatMoney(pricing.amount, pricing.currency)}/month`,
+    });
+    emitter.on(SUBSCRIPTION_EVENTS.CHECKOUT_SUCCESS, () => {
+      setPhase('confirming');
+      confirmAccess();
+    });
+    emitter.on(SUBSCRIPTION_EVENTS.CHECKOUT_DISMISSED, () => {
+      setPhase((p) => (p === 'confirming' ? p : 'idle'));
+    });
+    emitter.on(SUBSCRIPTION_EVENTS.CHECKOUT_FAILURE, (err) => {
       const msg = getToastError(err, "Couldn't start checkout");
       setError(msg);
-      toast.error(msg);
-      setSubscribing(false);
-    });
-  }
-
-  function onRefreshStatus() {
-    setError('');
-    const emitter = refetch();
-    emitter.once(SUBSCRIPTION_EVENTS.GET_MY_SUBSCRIPTION_SUCCESS, (summary) => {
-      if (summary?.isActive()) {
-        navigate(postAuthDestination(user), { replace: true });
-      } else {
-        toast.info("Still not active — if you just paid, give it a few seconds and try again.");
+      // A failed attempt inside the modal leaves it open for a retry.
+      if (!err?.recoverable) {
+        setPhase('idle');
+        toast.error(msg);
       }
-    });
-    emitter.once(SUBSCRIPTION_EVENTS.GET_MY_SUBSCRIPTION_FAILURE, () => {
-      toast.info("Still not active — if you just paid, give it a few seconds and try again.");
     });
   }
 
   const isPastDue = status?.isPastDue();
   const loading = statusLoading || pricingLoading;
+  const price = pricing ? formatMoney(pricing.amount, pricing.currency) : '';
 
   function headline() {
-    if (needsPhone) return 'One more thing before you subscribe';
-    if (isPastDue) return 'Your access has ended — pay to continue';
+    if (isPastDue) return 'Your payment failed — update it to continue';
+    if (pricing?.trialEligible) return `Start your ${pricing.trialDays}-day free trial`;
     return 'Subscribe to Spurly';
   }
 
   function subhead() {
-    if (needsPhone) {
-      return "We need a phone number on file to process payment — this doesn't affect how you sign in.";
-    }
     if (isPastDue) {
-      return "Your last payment either didn't go through or your 30-day access window has ended, so your account is on hold until you pay again.";
+      return "We couldn't charge your last renewal, so your account is on hold. Subscribe again with a working card or UPI to continue.";
+    }
+    if (pricing?.trialEligible) {
+      return `Nothing is charged today. Set up autopay now and you'll be billed ${price}/month after ${pricing.trialDays} days — cancel any time before that and you pay nothing.`;
     }
     return 'Activate your account to start capturing leads and automating outreach.';
   }
+
+  function legal() {
+    if (pricing.firstChargeAt) {
+      return `You still have access until ${longDate(pricing.firstChargeAt)}. Autopay resumes then at ${price}/month. Cancel any time from Settings → Billing.`;
+    }
+    if (pricing.trialEligible) {
+      return `Free for ${pricing.trialDays} days, then ${price} every month, charged automatically. Cancel any time from Settings → Billing — you keep access until the end of what you've paid for.`;
+    }
+    return `${price} every month, charged automatically. Cancel any time from Settings → Billing — you keep access until the end of the month you've paid for.`;
+  }
+
+  const busy = phase !== 'idle';
 
   return (
     <AuthShell aside={<WelcomeAside step={1} total={3} credits={100} />} bodyTop>
@@ -232,80 +178,28 @@ export default function SubscribePage() {
           </div>
         )}
 
-        {needsPhone ? (
-          <form className="sp-form" onSubmit={onSavePhone}>
-            {phoneError && (
-              <div className="sp-notice sp-notice--error" role="alert">
-                {phoneError}
-              </div>
-            )}
-
-            <div className="sp-field">
-              <label className="sp-label" htmlFor="sub-phone">Phone Number</label>
-              <PhoneField
-                id="sub-phone"
-                country={phoneCountry}
-                number={phoneNumber}
-                onCountryChange={setPhoneCountry}
-                onNumberChange={setPhoneNumber}
-                error={!!phoneError}
-              />
-            </div>
-
-            <button type="submit" className="sp-btn sp-btn--primary" disabled={savingPhone}>
-              {savingPhone ? (
-                <>
-                  <span className="sp-spin" /> Saving…
-                </>
-              ) : (
-                'Save and continue'
-              )}
-            </button>
-          </form>
-        ) : loading ? (
-          <div
-            className="sp-form"
-            style={{ alignItems: 'center', justifyItems: 'center', padding: '24px 0' }}
-          >
-            <span
-              className="sp-spinner"
-              style={{ borderTopColor: 'var(--sp-primary)', borderColor: 'var(--sp-line)' }}
-            />
+        {loading ? (
+          <div className="sp-form" style={{ alignItems: 'center', justifyItems: 'center', padding: '24px 0' }}>
+            <span className="sp-spinner" style={{ borderTopColor: 'var(--sp-primary)', borderColor: 'var(--sp-line)' }} />
           </div>
         ) : !pricing ? (
-          /* Pricing failed to load — show why and offer a retry. Deliberately
-             no price and no pay button: a checkout screen showing an amount we
-             couldn't confirm is worse than an honest error. */
           <>
             <div className="sp-notice sp-notice--error" role="alert" style={{ marginBottom: 16 }}>
               {pricingError || "Couldn't load pricing."}
             </div>
-            <button type="button" className="sp-btn sp-btn--primary" onClick={() => loadPricing()}>
+            <button type="button" className="sp-btn sp-btn--primary" onClick={loadPricing}>
               Try again
             </button>
           </>
         ) : (
           <>
             <div className="sp-price">
-              {pricing.hasDiscount() ? (
-                <>
-                  <div className="sp-price__row">
-                    <span className="sp-price__was">₹{pricing.baseAmount}</span>
-                    <span className="sp-price__amount">₹{pricing.firstCycleAmount}</span>
-                    <span className="sp-price__period">
-                      {pricing.isFirstTime ? 'first month' : '/ 30 days'}
-                    </span>
-                  </div>
-                  <div className="sp-price__then">
-                    {pricing.appliedPromoCode} applied — you save ₹{pricing.savings()}
-                    {pricing.isFirstTime ? `, then ₹${pricing.baseAmount} for each 30-day period after` : ''}
-                  </div>
-                </>
-              ) : (
-                <div className="sp-price__row">
-                  <span className="sp-price__amount">₹{pricing.baseAmount}</span>
-                  <span className="sp-price__period">/ 30 days</span>
-                </div>
+              <div className="sp-price__row">
+                <span className="sp-price__amount">{price}</span>
+                <span className="sp-price__period">/ month</span>
+              </div>
+              {pricing.trialEligible && (
+                <div className="sp-price__then">First {pricing.trialDays} days free</div>
               )}
             </div>
 
@@ -317,83 +211,31 @@ export default function SubscribePage() {
               ))}
             </ul>
 
-            {/* Promo entry. Collapsed by default: most people arrive without a
-                code, and an empty box invites hunting for one that doesn't
-                exist. The auto-applied intro price needs no input at all. */}
-            <div className="sp-promo">
-              {appliedCode ? (
-                <div className="sp-promo__applied">
-                  <span className="sp-promo__tag">{appliedCode}</span>
-                  <button type="button" className="sp-promo__remove" onClick={onRemovePromo}>
-                    Remove
-                  </button>
-                </div>
-              ) : showPromo ? (
-                <form className="sp-promo__form" onSubmit={onApplyPromo}>
-                  <input
-                    type="text"
-                    className="sp-input sp-promo__input"
-                    value={promoInput}
-                    onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-                    placeholder="Enter code"
-                    autoComplete="off"
-                    autoFocus
-                    aria-label="Promo code"
-                  />
-                  <button
-                    type="submit"
-                    className="sp-btn sp-btn--ghost sp-promo__apply"
-                    disabled={promoChecking || !promoInput.trim()}
-                  >
-                    {promoChecking ? 'Checking…' : 'Apply'}
-                  </button>
-                </form>
-              ) : (
-                <button
-                  type="button"
-                  className="sp-promo__toggle"
-                  onClick={() => setShowPromo(true)}
-                >
-                  Have a promo code?
-                </button>
-              )}
-
-              {promoError && (
-                <p className="sp-promo__error" role="alert">
-                  {promoError}
-                </p>
-              )}
-            </div>
-
-            <button
-              type="button"
-              className="sp-btn sp-btn--primary"
-              onClick={onSubscribe}
-              disabled={subscribing}
-            >
-              {subscribing ? (
-                <>
-                  <span className="sp-spin" /> Redirecting to payment…
-                </>
-              ) : isPastDue ? (
-                'Pay now'
-              ) : (
-                'Subscribe & continue'
-              )}
-            </button>
-
-            <button
-              type="button"
-              className="sp-btn sp-btn--ghost"
-              onClick={onRefreshStatus}
-              style={{ marginTop: 2 }}
-            >
-              Already paid? Refresh status
-            </button>
+            {!pricing.checkoutAvailable ? (
+              <div className="sp-notice sp-notice--info" role="status">
+                International checkout opens soon. We'll email you as soon as you can subscribe.
+              </div>
+            ) : (
+              <button type="button" className="sp-btn sp-btn--primary" onClick={onSubscribe} disabled={busy}>
+                {phase === 'confirming' ? (
+                  <>
+                    <span className="sp-spin" /> Confirming…
+                  </>
+                ) : phase === 'checkout' ? (
+                  <>
+                    <span className="sp-spin" /> Opening secure checkout…
+                  </>
+                ) : pricing.trialEligible ? (
+                  'Start free trial'
+                ) : (
+                  `Subscribe · ${price}/month`
+                )}
+              </button>
+            )}
 
             <p className="sp-legal" style={{ marginTop: 16 }}>
-              Gives you 30 days of access from the moment payment completes.
-              There's no autopay — we'll ask you to pay again when it ends.
+              {legal()}
+              {pricing.currency === 'USD' ? ' Pay by card.' : ' Pay by UPI AutoPay, card or bank mandate.'}
             </p>
 
             <TrustBadges />

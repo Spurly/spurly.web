@@ -9,15 +9,19 @@ import { Dropdown } from 'src/core/primitives/Dropdown';
 import { useToast } from 'src/core/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 import { paymentColumns } from './paymentColumns.jsx';
+import { formatMoney } from 'src/shared/utils/money.js';
 
 const STATUS_OPTIONS = [
-  ['', 'All statuses'],
-  ['paid', 'Paid'],
-  ['created', 'Pending'],
+  ['', 'All charges'],
+  ['captured', 'Paid'],
   ['failed', 'Failed'],
 ];
 
-const money = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
+/** { INR: 4998, USD: 24.99 } → "₹4,998 · $24.99" (never summed across currencies). */
+function revenueText(revenue) {
+  const parts = Object.entries(revenue || {}).map(([cur, amt]) => formatMoney(amt, cur));
+  return parts.length ? parts.join(' · ') : formatMoney(0, 'INR');
+}
 
 /**
  * A summary number. Deliberately not a chart: these are five unrelated
@@ -105,43 +109,41 @@ export function AdminPaymentsPage() {
   const currentPage = Math.floor(pagination.skip / pagination.limit) + 1;
 
   return (
-    <AdminLayout title="Payments" subtitle="Every payment attempt, and who can use the product">
+    <AdminLayout title="Payments" subtitle="Every Razorpay charge, and who can use the product">
       <div className="flex flex-col gap-4 p-[var(--ui-pad-lg)]">
 
         {summary && (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            <Stat
-              label="Revenue"
-              value={money(summary.revenue)}
-              hint={`${money(summary.discountGiven)} given as discount`}
-            />
+            <Stat label="Revenue" value={revenueText(summary.revenue)} hint={`${summary.paidCount} successful charges`} />
             <Stat
               label="Can use Spurly"
-              value={summary.activePaying + summary.compedActive}
-              hint={`${summary.activePaying} paying · ${summary.compedActive} comped`}
+              value={summary.active + summary.trialing + summary.paymentIssue + summary.cancelledWithAccess + summary.compedActive}
+              hint={`${summary.active} paying · ${summary.trialing} trial · ${summary.compedActive} comped`}
             />
-            <Stat label="Paid" value={summary.paidCount} hint="successful payments" />
-            <Stat label="Failed" value={summary.failedCount} hint="declined or dropped" />
             <Stat
-              label="Pending"
-              value={summary.pendingCount}
-              hint={summary.stuck ? `${summary.stuck} over an hour old` : 'awaiting confirmation'}
-              warn={summary.stuck > 0}
+              label="Payment issues"
+              value={summary.paymentIssue}
+              hint={`${summary.halted} halted (locked)`}
+              warn={summary.paymentIssue > 0}
+            />
+            <Stat label="Failed charges" value={summary.failedCount} hint="declined renewals" />
+            <Stat
+              label="Cancelled, still on"
+              value={summary.cancelledWithAccess}
+              hint={summary.stuck ? `${summary.stuck} abandoned checkouts` : 'access until period end'}
             />
           </div>
         )}
 
-        {/* A rising stuck count is the earliest signal that webhooks aren't
-            arriving — worth saying out loud rather than leaving as a number to
-            interpret. */}
-        {summary?.stuck > 0 && (
+        {/* Customers inside Razorpay's retry window — their card/UPI mandate
+            failed; they keep access until Razorpay halts the subscription. */}
+        {summary?.paymentIssue > 0 && (
           <div className="flex items-start gap-2.5 rounded-[var(--ui-radius-md)] border border-[var(--ui-warning-border)] bg-[var(--ui-warning-tint)] px-4 py-3">
             <AlertTriangle size={16} className="mt-0.5 shrink-0 text-[var(--ui-warning-fg)]" />
             <p className="text-[length:var(--ui-t-body)] leading-relaxed text-[var(--ui-text-primary)]">
-              {summary.stuck} payment{summary.stuck === 1 ? '' : 's'} created over an hour ago and
-              still unconfirmed. Usually this means Cashfree webhooks aren't reaching the server —
-              check the webhook endpoint is publicly reachable. Reconciliation will still settle
-              these on the customer's next page load, so access isn't blocked.
+              {summary.paymentIssue} subscription{summary.paymentIssue === 1 ? ' has' : 's have'} a failing
+              renewal. Razorpay is retrying; access continues until it halts them. If this number keeps
+              rising, check the Razorpay dashboard and that webhooks reach /api/subscriptions/webhook.
             </p>
           </div>
         )}
@@ -167,7 +169,7 @@ export function AdminPaymentsPage() {
                 className="h-8 w-[260px] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] pl-8 pr-3 text-[length:var(--ui-t-body)]"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search email or order id"
+                placeholder="Search email, pay_… or sub_… id"
                 aria-label="Search payments"
               />
             </div>
@@ -193,7 +195,7 @@ export function AdminPaymentsPage() {
           loading={loading}
           error={error}
           emptyMessage="No payments yet"
-          emptyHint="Payments appear here as soon as someone subscribes."
+          emptyHint="Charges appear here when Razorpay bills a subscription (after the free trial)."
           pagination={{
             page: currentPage,
             pageSize: pagination.limit,

@@ -60,6 +60,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done · `[!]` blocked
 - [ ] **B5** *(optional)* Admin promo form exposes `firstCycleAmountUSD`
 
 ### Phase C — USD checkout rail (provider-agnostic) — 0/4
+> **2026-09-25: SUPERSEDED.** Cashfree is being removed; the USD rail is Razorpay — see `spurly.backend/docs/RAZORPAY_MIGRATION_PLAN.md`. Do not build C1–C4. Pricing there is now ₹2499 / $24.99 monthly autopay with a 7-day trial — the ₹99/$1 first-month and $29.99 figures in this doc are obsolete.
 - [ ] **C1** `subscriptions/providers/` interface (`createOrder`, `verifyWebhook`, `fetchOrder`)
 - [ ] **C2** Move Cashfree behind it; `INR → cashfree` routing
 - [ ] **C3** `INTL_CHECKOUT_ENABLED` flag; graceful "not yet available" path when off
