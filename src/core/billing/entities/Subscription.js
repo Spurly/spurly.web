@@ -76,6 +76,8 @@ function createSubscriptionSummary(data) {
     accessUntil: data?.accessUntil || null,
     // Renewal failing while Razorpay retries — still has access.
     paymentIssue: !!data?.paymentIssue,
+    // Trial ended, first invoice issued, money not moved yet.
+    firstPaymentPending: !!data?.firstPaymentPending,
     canResubscribe: data?.canResubscribe !== false,
     // Comped accounts report status 'active' with no payment behind it.
     exempt: !!data?.exempt,

@@ -19,6 +19,7 @@ function planLine(sub, tier) {
   if (sub?.exempt) return 'Complimentary account — nothing to pay.';
   if (sub?.cancelled) return `Cancelled — you have access until ${longDate(sub.accessUntil)}. You won't be charged again.`;
   if (sub?.trialing) return `Free trial — first charge on ${longDate(sub.trialEndsAt)}. Cancel before then and you pay nothing.`;
+  if (sub?.firstPaymentPending) return 'Your trial has ended — your first payment is being processed. UPI AutoPay and card mandates can take a few hours to debit; you keep full access meanwhile.';
   if (sub?.nextChargeAt) return `Renews automatically on ${longDate(sub.nextChargeAt)}.`;
   return tier === 'free' ? t.billing.planFreeDescription : t.billing.planPaidDescription;
 }
