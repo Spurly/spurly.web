@@ -4,6 +4,7 @@ import {
   PricingInfo,
   SubscriptionCreateResult,
   SubscriptionSummary,
+  Invoice,
 } from '../entities/Subscription.js';
 
 /**
@@ -111,6 +112,19 @@ async function cancelSubscription() {
 }
 
 /**
+ * The customer's invoices (paid + processing), newest first.
+ * GET /subscriptions/invoices
+ * @returns {Promise<Invoice[]>}
+ */
+async function getInvoices() {
+  try {
+    return Invoice.listFromResponse(await unwrap(apiGateway.get('/subscriptions/invoices')));
+  } catch (error) {
+    throw handleError(error);
+  }
+}
+
+/**
  * Current subscription status — polled to decide whether to show the
  * paywall (initial gate, and again after Razorpay checkout).
  * GET /subscriptions/me
@@ -135,6 +149,7 @@ const subscriptionsGateway = {
   verifyPayment,
   cancelSubscription,
   getMySubscription,
+  getInvoices,
 };
 
 export default subscriptionsGateway;

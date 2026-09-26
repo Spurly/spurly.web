@@ -87,6 +87,15 @@ async function cancelSubscription(eventEmitter) {
   }
 }
 
+async function getInvoices(eventEmitter) {
+  try {
+    const invoices = await subscriptionsGateway.getInvoices();
+    eventEmitter.emit(SUBSCRIPTION_EVENTS.GET_INVOICES_SUCCESS, invoices);
+  } catch (error) {
+    eventEmitter.emit(SUBSCRIPTION_EVENTS.GET_INVOICES_FAILURE, error);
+  }
+}
+
 async function getMySubscription(eventEmitter) {
   try {
     const summary = await subscriptionsGateway.getMySubscription();
@@ -101,6 +110,7 @@ const subscriptionsController = {
   startCheckout,
   cancelSubscription,
   getMySubscription,
+  getInvoices,
 };
 
 export default subscriptionsController;

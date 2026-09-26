@@ -1,5 +1,5 @@
-import { useContext, useState } from 'react';
-import { Button, EmptyState, SoonTag, StatTile, useConfirm, useToast } from 'src/core/primitives';
+import { useContext, useEffect, useState } from 'react';
+import { Badge, Button, EmptyState, SoonTag, StatTile, useConfirm, useToast } from 'src/core/primitives';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { SubscriptionContext } from 'src/core/billing/hooks/SubscriptionContext.jsx';
@@ -13,6 +13,92 @@ import { settingsStrings as t } from '../strings.js';
 
 const longDate = (d) =>
   d ? new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }) : null;
+
+const shortDate = (d) =>
+  d ? new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+
+/**
+ * Invoices — one row per monthly charge, read from Razorpay. "View" opens
+ * Razorpay's hosted invoice page, which has the PDF download.
+ */
+function InvoicesCard({ reloadKey }) {
+  const [invoices, setInvoices] = useState(null); // null = loading
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const emitter = new EventEmitter();
+    emitter.once(SUBSCRIPTION_EVENTS.GET_INVOICES_SUCCESS, (list) => {
+      setFailed(false);
+      setInvoices(list);
+    });
+    emitter.once(SUBSCRIPTION_EVENTS.GET_INVOICES_FAILURE, () => {
+      setFailed(true);
+      setInvoices([]);
+    });
+    subscriptionsController.getInvoices(emitter);
+  }, [reloadKey]);
+
+  const th = 'px-4 py-2 text-left text-[length:var(--ui-t-meta)] font-medium uppercase tracking-wider text-[var(--ui-text-secondary)]';
+  const td = 'px-4 py-3 text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] tabular-nums';
+
+  return (
+    <SectionCard title={t.billing.invoicesTitle} noPadding>
+      {invoices === null ? (
+        <p className="px-4 py-6 text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">Loading invoices…</p>
+      ) : failed ? (
+        <EmptyState compact title={t.billing.invoicesErrorTitle} hint={t.billing.invoicesErrorHint} />
+      ) : !invoices.length ? (
+        <EmptyState compact title={t.billing.invoicesEmptyTitle} hint={t.billing.invoicesEmptyHint} />
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-[var(--ui-border-hairline)]">
+                <th className={th}>Date</th>
+                <th className={th}>Period</th>
+                <th className={`${th} text-right`}>Amount</th>
+                <th className={th}>Status</th>
+                <th className={th} aria-label="Invoice link" />
+              </tr>
+            </thead>
+            <tbody>
+              {invoices.map((inv) => (
+                <tr key={inv.id} className="border-b border-[var(--ui-border-hairline)] last:border-0">
+                  <td className={td}>{shortDate(inv.date)}</td>
+                  <td className={td}>
+                    {inv.periodStart && inv.periodEnd ? `${shortDate(inv.periodStart)} – ${shortDate(inv.periodEnd)}` : '—'}
+                  </td>
+                  <td className={`${td} text-right font-medium text-[var(--ui-text-primary)]`}>
+                    {formatMoney(inv.amount, inv.currency)}
+                  </td>
+                  <td className={td}>
+                    {inv.status === 'paid' ? (
+                      <Badge size="sm" tone="success">Paid</Badge>
+                    ) : (
+                      <Badge size="sm" tone="info">Processing</Badge>
+                    )}
+                  </td>
+                  <td className={`${td} text-right`}>
+                    {inv.invoiceUrl ? (
+                      <a
+                        href={inv.invoiceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-[var(--ui-accent)] hover:underline"
+                      >
+                        View invoice
+                      </a>
+                    ) : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </SectionCard>
+  );
+}
 
 /** One line under the plan name: what happens next with this subscription. */
 function planLine(sub, tier) {
@@ -121,9 +207,7 @@ export function BillingTab() {
         </div>
       </SectionCard>
 
-      <SectionCard title={t.billing.invoicesTitle} action={<SoonTag />} noPadding>
-        <EmptyState compact title={t.billing.invoicesSoonTitle} hint={t.billing.invoicesSoonHint} />
-      </SectionCard>
+      {!sub?.exempt && <InvoicesCard reloadKey={`${sub?.razorpayStatus}:${sub?.cancelled}:${sub?.nextChargeAt}`} />}
     </>
   );
 }

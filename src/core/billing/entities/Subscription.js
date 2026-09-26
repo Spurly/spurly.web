@@ -113,6 +113,31 @@ export const SubscriptionSummary = {
   },
 };
 
+/** GET /subscriptions/invoices — one row per monthly charge. */
+function createInvoice(data) {
+  return {
+    id: data?.id || null,
+    // 'paid' | 'processing' (invoice raised, mandate debit still pending)
+    status: data?.status === 'paid' ? 'paid' : 'processing',
+    amount: data?.amount ?? null,
+    currency: data?.currency || 'INR',
+    date: data?.date || null,
+    periodStart: data?.periodStart || null,
+    periodEnd: data?.periodEnd || null,
+    // Razorpay's hosted invoice page (view + download PDF).
+    invoiceUrl: data?.invoiceUrl || null,
+  };
+}
+
+export const Invoice = {
+  fromResponse(data) {
+    return createInvoice(data || {});
+  },
+  listFromResponse(list) {
+    return Array.isArray(list) ? list.map(createInvoice) : [];
+  },
+};
+
 /** Generic { success, message, data, status } envelope, same shape as AuthResponse. */
 function createSubscriptionsApiResponse(data) {
   return {
