@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { X, Loader } from 'lucide-react';
+import { formatMoney } from 'src/shared/utils/money.js';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import adminController from 'src/core/admin/controller/admin.js';
 import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
@@ -117,26 +118,30 @@ function renderValue(key, value) {
   return <span>{formatScalar(key, value)}</span>;
 }
 
-const rupees = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
-
 const shortDate = (d) =>
   d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' }) : '—';
 
-/**
- * This account's payment history, surfaced above the raw field dump because
- * it's the usual reason for opening a user record — "have they paid, and can
- * they use the product right now?" is faster to answer here than by scanning
- * fields.
- *
- * Read-only, like every other payment view: money that moved is a record of
- * fact, not something an admin screen should be able to rewrite.
- */
-function BillingHistory({ payments, loading }) {
-  // Frozen for the life of the modal rather than read during every render:
-  // `Date.now()` in the render body is impure, and a subscription flipping
-  // from live to expired mid-modal is not worth an inconsistent render.
-  const [now] = useState(() => Date.now());
+const SUB_LABEL = {
+  created: 'Checkout opened, not authorized',
+  authenticated: 'Trial / authorized, not yet charged',
+  active: 'Active',
+  pending: 'Renewal failing — Razorpay retrying',
+  halted: 'Halted — locked',
+  cancelled: 'Cancelled',
+  completed: 'Completed',
+  expired: 'Expired',
+  paused: 'Paused',
+};
 
+/**
+ * This account's subscription and charges, surfaced above the raw field dump
+ * because "have they paid, and can they use the product right now?" is the
+ * usual reason for opening a user record.
+ *
+ * Read-only, like every other payment view.
+ */
+function BillingHistory({ payments, subscriptions, loading }) {
+  const latest = subscriptions[0] || null;
   return (
     <div className="mb-5">
       <h3 className="mb-2 text-[length:var(--ui-t-label)] font-medium uppercase tracking-wider text-[var(--ui-text-secondary)]">
@@ -148,46 +153,47 @@ function BillingHistory({ payments, loading }) {
           <Loader size={14} className="animate-spin" />
           Loading payments…
         </div>
-      ) : !payments.length ? (
-        <p className="rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] px-3 py-2.5 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
-          No payments. If this account has access, it's either comped or has never subscribed.
-        </p>
       ) : (
-        <div className="divide-y divide-[var(--ui-border-hairline)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)]">
-          {payments.map((p) => {
-            const live = p.status === 'paid' && p.periodEnd && new Date(p.periodEnd).getTime() > now;
-            return (
-              <div key={p._id} className="flex items-center justify-between gap-3 px-3 py-2.5">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+        <>
+          {latest && (
+            <p className="mb-2 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+              Subscription: <span className="font-medium text-[var(--ui-text-primary)]">{SUB_LABEL[latest.status] || latest.status}</span>
+              {' · '}
+              {formatMoney(latest.amount, latest.currency)}/month
+              {latest.cancelledAt ? ` · cancelled, access until ${shortDate(latest.accessUntil)}` : ''}
+              {latest.status === 'authenticated' && latest.startAt ? ` · first charge ${shortDate(latest.startAt)}` : ''}
+            </p>
+          )}
+          {!payments.length ? (
+            <p className="rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-sunken)] px-3 py-2.5 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+              No charges yet. If this account has access, it's comped or still in its free trial.
+            </p>
+          ) : (
+            <div className="divide-y divide-[var(--ui-border-hairline)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)]">
+              {payments.map((p) => (
+                <div key={p._id} className="flex items-center justify-between gap-3 px-3 py-2.5">
+                  <div className="min-w-0">
                     <span className="text-[length:var(--ui-t-body)] font-medium tabular-nums text-[var(--ui-text-primary)]">
-                      {rupees(p.amount)}
+                      {formatMoney(p.amount, p.currency)}
                     </span>
-                    {p.appliedPromoCode && (
-                      <code className="rounded-[var(--ui-radius-xs)] bg-[var(--ui-surface-sunken)] px-1.5 py-0.5 font-mono text-[length:var(--ui-t-micro)] text-[var(--ui-text-secondary)]">
-                        {p.appliedPromoCode}
-                      </code>
+                    <div className="mt-0.5 truncate text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)]">
+                      {shortDate(p.paidAt || p.createdAt)}
+                      {p.method ? ` · ${p.method}` : ''}
+                      {p.failureReason ? ` · ${p.failureReason}` : ''}
+                    </div>
+                  </div>
+                  <div className="shrink-0">
+                    {p.status === 'captured' ? (
+                      <Badge size="sm" tone="success">Paid</Badge>
+                    ) : (
+                      <Badge size="sm" tone="danger">Failed</Badge>
                     )}
                   </div>
-                  <div className="mt-0.5 truncate text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)]">
-                    {shortDate(p.createdAt)}
-                    {p.status === 'paid' && p.periodEnd ? ` · access until ${shortDate(p.periodEnd)}` : ''}
-                    {p.failureReason ? ` · ${p.failureReason}` : ''}
-                  </div>
                 </div>
-                <div className="shrink-0">
-                  {p.status === 'paid' ? (
-                    live ? <Badge size="sm" tone="success">Active</Badge> : <Badge size="sm">Expired</Badge>
-                  ) : p.status === 'failed' ? (
-                    <Badge size="sm" tone="danger">Failed</Badge>
-                  ) : (
-                    <Badge size="sm" tone="info">Pending</Badge>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -199,6 +205,7 @@ export default function UserDetailsModal({ user, onClose }) {
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [payments, setPayments] = useState([]);
+  const [subscriptions, setSubscriptions] = useState([]);
   const [paymentsLoading, setPaymentsLoading] = useState(true);
   /* Kept inline as well: this modal has nothing else in it, so a dismissed
      toast would leave a blank dialog. */
@@ -243,6 +250,7 @@ export default function UserDetailsModal({ user, onClose }) {
     paymentsEmitter.once(ADMIN_EVENTS.GET_USER_PAYMENTS_SUCCESS, (data) => {
       if (!active) return;
       setPayments(data?.payments || []);
+      setSubscriptions(data?.subscriptions || []);
       setPaymentsLoading(false);
     });
     paymentsEmitter.once(ADMIN_EVENTS.GET_USER_PAYMENTS_FAILURE, (err) => {
@@ -301,7 +309,7 @@ export default function UserDetailsModal({ user, onClose }) {
           )}
 
           {!loading && !error && (
-            <BillingHistory payments={payments} loading={paymentsLoading} />
+            <BillingHistory payments={payments} subscriptions={subscriptions} loading={paymentsLoading} />
           )}
 
           {!loading && !error && details && (

@@ -9,6 +9,16 @@ export default defineConfig({
       src: path.resolve(__dirname, 'src'),
     },
   },
+  build: {
+    // scripts/prerender.mjs reads the manifest to link the website's CSS and
+    // JS chunks into each prerendered page (and deletes it afterwards).
+    manifest: true,
+  },
+  ssr: {
+    // CommonJS package whose named exports Node's ESM loader can't see —
+    // bundle it into dist-ssr instead of importing it at prerender time.
+    noExternal: ['react-helmet-async'],
+  },
   server: {
     port: 3000,
     open: true

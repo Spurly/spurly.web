@@ -1,7 +1,7 @@
 /* ============================================================
    Spurly auth + onboarding pages (routed, full-page).
    Self-contained, scoped under .sp-auth so it never collides
-   with marketing.css or the dashboard styles. Plain CSS (no
+   with website.css or the dashboard styles. Plain CSS (no
    Tailwind dependency) so the look is pixel-controlled.
    ============================================================ */
 
@@ -11,7 +11,7 @@
  * This surface is a full-page `position: fixed` overlay that paints its own
  * white ground and its own dark ink, so it is internally consistent whatever
  * the app theme is doing behind it — it does not break in dark mode, it just
- * stays light, exactly like src/marketing.
+ * stays light, exactly like the public website (src/products/pages/website).
  *
  * That is a decision, not an oversight. Signed-out pages are the product's
  * shop window; they share a register with the marketing site rather than with
@@ -668,76 +668,6 @@
   font-weight: 600;
   color: var(--sp-muted);
   text-decoration: line-through;
-}
-
-/* Sits between the feature list and the pay button — needs air on both
-   sides so it reads as its own step rather than part of the button. */
-.sp-promo { margin: 16px 0 18px; display: grid; gap: 8px; }
-
-/* Collapsed by default — most people arrive without a code, and an empty
-   input invites hunting for one that doesn't exist. */
-.sp-promo__toggle {
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  font-size: 13.5px;
-  color: var(--sp-primary);
-  font-weight: 600;
-  cursor: pointer;
-  justify-self: center;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.sp-promo__toggle:hover { opacity: 0.82; }
-
-.sp-promo__form { display: flex; gap: 8px; align-items: stretch; }
-.sp-promo__input { flex: 1; text-transform: uppercase; letter-spacing: 0.06em; }
-.sp-promo__apply {
-  width: auto;
-  flex-shrink: 0;
-  padding-inline: 20px;
-  border: 1px solid var(--sp-line);
-  white-space: nowrap;
-}
-
-.sp-promo__applied {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-.sp-promo__tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: color-mix(in srgb, var(--sp-primary) 10%, transparent);
-  color: var(--sp-primary);
-  border: 1px solid color-mix(in srgb, var(--sp-primary) 28%, transparent);
-  border-radius: 999px;
-  padding: 4px 12px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-}
-.sp-promo__remove {
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  font-size: 13px;
-  color: var(--sp-muted);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.sp-promo__remove:hover { color: var(--sp-ink); }
-
-.sp-promo__error {
-  margin: 0;
-  font-size: 13px;
-  color: var(--sp-danger, #b42318);
-  text-align: center;
 }
 
 /* ============================================================

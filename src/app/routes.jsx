@@ -27,15 +27,15 @@ import { RouteFallback } from 'src/app/RouteFallback';
  */
 
 // Marketing
-const MarketingLayout = lazy(() => import('src/marketing/MarketingLayout').then((m) => ({ default: m.MarketingLayout })));
-const MarketingHome = lazy(() => import('src/marketing/MarketingHome.jsx'));
-const Privacy = lazy(() => import('src/marketing/pages/Privacy.jsx'));
-const Terms = lazy(() => import('src/marketing/pages/Terms.jsx'));
-const Support = lazy(() => import('src/marketing/pages/Support.jsx'));
-const BlogIndex = lazy(() => import('src/marketing/pages/BlogIndex.jsx'));
-const PersonalizePost = lazy(() => import('src/marketing/pages/blog/PersonalizePost.jsx'));
-const FoundersPost = lazy(() => import('src/marketing/pages/blog/FoundersPost.jsx'));
-const RecruitersPost = lazy(() => import('src/marketing/pages/blog/RecruitersPost.jsx'));
+const WebsiteLayout = lazy(() => import('src/products/pages/website/WebsiteLayout.jsx').then((m) => ({ default: m.WebsiteLayout })));
+const HomePage = lazy(() => import('src/products/pages/website/HomePage.jsx'));
+const Privacy = lazy(() => import('src/products/pages/website/pages/Privacy.jsx'));
+const Terms = lazy(() => import('src/products/pages/website/pages/Terms.jsx'));
+const Support = lazy(() => import('src/products/pages/website/pages/Support.jsx'));
+const BlogIndex = lazy(() => import('src/products/pages/website/pages/BlogIndex.jsx'));
+const PersonalizePost = lazy(() => import('src/products/pages/website/pages/blog/PersonalizePost.jsx'));
+const FoundersPost = lazy(() => import('src/products/pages/website/pages/blog/FoundersPost.jsx'));
+const RecruitersPost = lazy(() => import('src/products/pages/website/pages/blog/RecruitersPost.jsx'));
 
 // Auth + onboarding
 const SignupPage = lazy(() => import('src/core/pages/auth/SignupPage.jsx'));
@@ -44,7 +44,6 @@ const LoginPage = lazy(() => import('src/core/pages/auth/LoginPage.jsx'));
 const ForgotPasswordPage = lazy(() => import('src/core/pages/auth/ForgotPasswordPage.jsx'));
 const ResetPasswordPage = lazy(() => import('src/core/pages/auth/ResetPasswordPage.jsx'));
 const SubscribePage = lazy(() => import('src/core/pages/auth/SubscribePage.jsx'));
-const SubscribeCallbackPage = lazy(() => import('src/core/pages/auth/SubscribeCallbackPage.jsx'));
 const OnboardingSurveyPage = lazy(() => import('src/core/pages/auth/OnboardingSurveyPage.jsx'));
 const InstallExtensionPage = lazy(() => import('src/core/pages/auth/InstallExtensionPage.jsx'));
 const OnboardingLinkedInPage = lazy(() => import('src/core/pages/auth/OnboardingLinkedInPage.jsx'));
@@ -82,8 +81,8 @@ export function AppRoutes() {
     <Suspense fallback={<RouteFallback />}>
       <Routes>
       {/* Public marketing site */}
-      <Route element={<MarketingLayout />}>
-        <Route path="/" element={<MarketingHome />} />
+      <Route element={<WebsiteLayout />}>
+        <Route path="/" element={<HomePage />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/support" element={<Support />} />
@@ -106,7 +105,6 @@ export function AppRoutes() {
           back here from onboarding/install/dashboard. Protected by auth
           only — NOT wrapped in SubscribeGate, since that would loop. */}
       <Route path="/subscribe" element={<ProtectedRoute><SubscribePage /></ProtectedRoute>} />
-      <Route path="/subscribe/callback" element={<ProtectedRoute><SubscribeCallbackPage /></ProtectedRoute>} />
 
       <Route path="/onboarding" element={<ProtectedRoute><SubscribeGate><OnboardingSurveyPage /></SubscribeGate></ProtectedRoute>} />
       <Route path="/onboarding/linkedin" element={<ProtectedRoute><SubscribeGate><OnboardingLinkedInPage /></SubscribeGate></ProtectedRoute>} />

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthShell, WelcomeAside, Stepper } from "./components/AuthShell.jsx";
-import { CHROME_URL } from "src/marketing/components/Button.jsx";
+import { CHROME_URL } from "src/shared/extension/constants.js";
 import {
   ChromeIcon,
   TargetIcon,

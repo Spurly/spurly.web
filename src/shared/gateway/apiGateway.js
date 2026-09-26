@@ -185,6 +185,9 @@ class ApiGateway {
    * Get current token
    */
   getToken() {
+    // No storage while prerendering public pages at build time (Node) — that
+    // render is always signed-out.
+    if (typeof localStorage === 'undefined') return null;
     return localStorage.getItem('authToken');
   }
 

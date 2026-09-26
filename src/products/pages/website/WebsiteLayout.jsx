@@ -1,18 +1,17 @@
 import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { AuthModalProvider } from 'src/marketing/auth/AuthModalContext.jsx';
-import './marketing.css';
+import './website.css';
 
 /**
  * Wraps every public marketing route. Adds the `mkt` class to <body> so the
- * scoped marketing.css (all selectors prefixed `body.mkt`) activates, and sets
+ * scoped website.css (all selectors prefixed `body.mkt`) activates, and sets
  * the default palette the live site shipped with. The class + data attributes
  * are removed on unmount so dashboard routes are never affected.
  *
  * Body-level (not a wrapper div) because several marketing components read CSS
  * variables and data-* attributes directly from document.body at runtime.
  */
-export function MarketingLayout() {
+export function WebsiteLayout() {
   const { pathname } = useLocation();
 
   // Activate scoping synchronously during render so child components (Globe,
@@ -46,8 +45,6 @@ export function MarketingLayout() {
   }, [pathname]);
 
   return (
-    <AuthModalProvider>
-      <Outlet />
-    </AuthModalProvider>
+    <Outlet />
   );
 }

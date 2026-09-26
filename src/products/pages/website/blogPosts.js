@@ -1,5 +1,5 @@
 /* Blog post metadata — used by the blog index and for cross-linking
-   between posts. Each post's full body lives in app/blog/<slug>/page.jsx. */
+   between posts. Each post body lives in pages/blog/<Name>Post.jsx. */
 
 export const POSTS = [
   {

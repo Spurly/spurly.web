@@ -1,4 +1,11 @@
 User-agent: *
 Allow: /
+# The signed-in app. dist/app.html also carries <meta name="robots" content="noindex">.
+Disallow: /dashboard
+Disallow: /hub
+Disallow: /admin
+Disallow: /onboarding
+Disallow: /subscribe
+Disallow: /dev
 
 Sitemap: https://www.getspurly.com/sitemap.xml

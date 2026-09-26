@@ -140,39 +140,6 @@ export async function assignUserPlan(userId, planId) {
 }
 
 /**
- * Promo Codes
- *
- * Eligibility and price computation deliberately live server-side in
- * features/subscriptions — these endpoints only manage the code definitions.
- * `redemptions` and `totalDiscountGiven` come back on the list so a
- * campaign's real cost is visible without a second query.
- */
-export async function getPromoCodes() {
-  const res = await apiGateway.get('/admin/promo-codes');
-  return res.data;
-}
-
-export async function createPromoCode(promo) {
-  const res = await apiGateway.post('/admin/promo-codes', promo);
-  return res.data;
-}
-
-export async function updatePromoCode(promoId, updates) {
-  const res = await apiGateway.put(`/admin/promo-codes/${promoId}`, updates);
-  return res.data;
-}
-
-/**
- * Delete a promo code. The server refuses (409) for any code that has been
- * redeemed — deleting one would orphan the redemption ledger and destroy the
- * record of discounts already given. Redeemed codes are disabled instead.
- */
-export async function deletePromoCode(promoId) {
-  const res = await apiGateway.delete(`/admin/promo-codes/${promoId}`);
-  return res.data;
-}
-
-/**
  * Billing Exemptions — comped accounts (internal, founders, special clients).
  *
  * A comp is a flag on the account, never a fabricated payment, so these never
@@ -236,7 +203,7 @@ export async function bindHubAccount({ email, userId, unipileAccountId }) {
  *
  * There is deliberately no create/update/delete here — a payment records
  * money that moved, and an admin screen able to rewrite one is a screen able
- * to quietly falsify revenue. Refunds happen in Cashfree; free access is
+ * to quietly falsify revenue. Refunds happen in the Razorpay dashboard; free access is
  * granted through billing exemptions.
  *
  * Returns { payments, pagination, summary }.

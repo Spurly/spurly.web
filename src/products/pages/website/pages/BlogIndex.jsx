@@ -1,19 +1,18 @@
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import Seo from "../components/Seo.jsx";
+import { breadcrumbLd } from "../seo.js";
 import ContentShell from "../components/ContentShell.jsx";
 import { POSTS, formatDate } from "../blogPosts.js";
 
 export default function BlogIndex() {
   return (
     <ContentShell>
-      <Helmet>
-        <title>Blog — LinkedIn outreach &amp; prospecting guides | Spurly</title>
-        <meta
-          name="description"
-          content="Practical guides on LinkedIn outreach, Sales Navigator prospecting, and building a pipeline — from the team behind Spurly."
-        />
-        <link rel="canonical" href="https://www.getspurly.com/blog" />
-      </Helmet>
+      <Seo
+        title="Blog — LinkedIn outreach & prospecting guides | Spurly"
+        description="Practical guides on LinkedIn outreach, Sales Navigator prospecting, and building a pipeline — from the team behind Spurly."
+        path="/blog"
+        jsonLd={[breadcrumbLd([["Home", "/"], ["Blog", "/blog"]])]}
+      />
 
       <div className="prose wrap">
         <p className="eyebrow">Blog</p>

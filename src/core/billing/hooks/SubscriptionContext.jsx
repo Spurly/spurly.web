@@ -16,9 +16,9 @@ function idOf(user) {
  * (status/loading/error + a refetch) so SubscribeGate and the /subscribe
  * pages all read from one place instead of each polling independently.
  *
- * Deliberately separate from AuthContext: this tracks the Cashfree paywall
- * (autopay mandate status), not the admin-managed Plan/credit-tier system —
- * the two are unrelated by design.
+ * Deliberately separate from AuthContext: this tracks the Razorpay paywall
+ * (autopay subscription status), not the admin-managed Plan/credit-tier
+ * system — the two are unrelated by design.
  *
  * `ready` is the flag gates must wait on, and it exists because `loading`
  * alone was not safe to gate on. `loading` starts true but is set FALSE by

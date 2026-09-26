@@ -1,18 +1,15 @@
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import Seo from "../components/Seo.jsx";
 import ContentShell from "../components/ContentShell.jsx";
 
 export default function Terms() {
   return (
     <ContentShell>
-      <Helmet>
-        <title>Terms of Service — Spurly</title>
-        <meta
-          name="description"
-          content="The terms governing your use of Spurly, the LinkedIn & Sales Navigator prospecting Chrome extension. Acceptable use, accounts, credits, and liability."
-        />
-        <link rel="canonical" href="https://www.getspurly.com/terms" />
-      </Helmet>
+      <Seo
+        title="Terms of Service — Spurly"
+        description="The terms governing your use of Spurly, the LinkedIn & Sales Navigator prospecting Chrome extension. Acceptable use, accounts, credits, and liability."
+        path="/terms"
+      />
 
       <article className="prose wrap">
         <p className="eyebrow">Legal</p>

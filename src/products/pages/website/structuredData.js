@@ -1,5 +1,5 @@
-/* Homepage JSON-LD (SoftwareApplication + FAQ + HowTo). Rendered via Helmet
-   in App so it only appears on "/", not on every SPA route. */
+/* Homepage JSON-LD (SoftwareApplication + FAQ + HowTo). Rendered by <Seo> on
+   HomePage only, and baked into the prerendered "/" at build time. */
 
 export const HOME_LD = [
   {

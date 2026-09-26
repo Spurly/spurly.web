@@ -74,7 +74,7 @@ export default [
    * site from inventing a value. Every rule below is scoped to application
    * code — the design-system corner of src/core/ (primitives, tokens, theme,
    * icons, and the ui-flavoured layout atoms) is where new values are allowed
-   * to be defined, and src/marketing/ is a deliberately different visual
+   * to be defined, and src/products/pages/website/ is a deliberately different visual
    * register. The rest of src/core/ (auth, billing, admin, DataTable, ...)
    * still has to consume tokens like every product does.
    *
@@ -90,7 +90,7 @@ export default [
       'src/core/icons/**',
       'src/core/layout/Card/**',
       'src/core/layout/Toolbar/**',
-      'src/marketing/**',
+      'src/products/pages/website/**',
       'src/_trash/**',
     ],
     rules: {
@@ -181,7 +181,7 @@ export default [
           selector:
             'Literal[value=/(glass-(thin|thick|chrome|dark|sheen|regular)|backdrop-filter|backdrop-blur)/]',
           message:
-            'Glass materials belong to src/marketing. The app is flat surfaces and hairlines.',
+            'Glass materials belong to the public website (src/products/pages/website). The app is flat surfaces and hairlines.',
         },
       ],
     },
