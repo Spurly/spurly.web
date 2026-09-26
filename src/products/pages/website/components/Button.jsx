@@ -4,8 +4,9 @@
    class combinations: variant (primary|ghost) + size (sm|lg).
    ============================================================ */
 
-export const CHROME_URL =
-  "https://chromewebstore.google.com/detail/dcohpfeaohfiiinjjiinojlbnnfmihoh?utm_source=item-share-cb";
+import { CHROME_URL } from "src/shared/extension/constants.js";
+
+export { CHROME_URL };
 
 export default function Button({
   as = "a",

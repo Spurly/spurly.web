@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
+import Seo from "./components/Seo.jsx";
+import { ORGANIZATION_LD, WEBSITE_LD } from "./seo.js";
 import Nav from "./components/Nav.jsx";
 import MobileMenu from "./components/MobileMenu.jsx";
 import Hero from "./components/Hero.jsx";
@@ -18,7 +19,7 @@ import useScrollReveal from "./hooks/useScrollReveal.js";
 import useMagnetic from "./hooks/useMagnetic.js";
 import { HOME_LD } from "./structuredData.js";
 
-export default function App() {
+export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useScrollReveal();
@@ -31,14 +32,12 @@ export default function App() {
 
   return (
     <>
-      <Helmet>
-        <link rel="canonical" href="https://www.getspurly.com/" />
-        {HOME_LD.map((ld, i) => (
-          <script key={i} type="application/ld+json">
-            {JSON.stringify(ld)}
-          </script>
-        ))}
-      </Helmet>
+      <Seo
+        title="Spurly — LinkedIn Lead Capture & Outreach Chrome Extension"
+        description="Spurly captures leads from LinkedIn & Sales Navigator, enriches profiles and sends personalized outreach at scale. Built for recruiters, founders and job-seekers. Start free."
+        path="/"
+        jsonLd={[ORGANIZATION_LD, WEBSITE_LD, ...HOME_LD]}
+      />
       <Nav menuOpen={menuOpen} onToggleMenu={() => setMenu(!menuOpen)} />
       <MobileMenu open={menuOpen} onClose={() => setMenu(false)} />
 

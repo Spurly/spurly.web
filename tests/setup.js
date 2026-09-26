@@ -4,7 +4,8 @@ import { afterEach, vi } from 'vitest';
 
 afterEach(() => {
   cleanup();
-  localStorage.clear();
+  // Absent in the few `@vitest-environment node` files (the prerender test).
+  globalThis.localStorage?.clear();
 });
 
 // jsdom implements neither of these, and the app's overlays/tables use both.
@@ -26,7 +27,7 @@ globalThis.scrollTo ??= () => {};
  * a `typeof x === 'function'` check in a component is a test detail leaking
  * into product code.
  */
-globalThis.Element.prototype.scrollIntoView ??= () => {};
+if (globalThis.Element) globalThis.Element.prototype.scrollIntoView ??= () => {};
 
 // Fail a test that fires a real network call instead of letting it hang.
 globalThis.fetch ??= vi.fn(() => Promise.reject(new Error('unmocked fetch')));

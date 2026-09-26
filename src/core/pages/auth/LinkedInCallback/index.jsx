@@ -24,7 +24,7 @@ export function LinkedInCallbackPage() {
     const fail = (detail) => {
       setError(detail);
       toast.error("Couldn't finish signing you in with LinkedIn");
-      setTimeout(() => navigate('/?auth=signin'), 3000);
+      setTimeout(() => navigate('/login'), 3000);
     };
 
     const handleCallback = () => {

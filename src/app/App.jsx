@@ -6,9 +6,14 @@ import { ToastProvider, ConfirmProvider } from 'src/core/primitives';
 import { ThemeProvider } from 'src/core/theme';
 import { AppRoutes } from 'src/app/routes';
 
-function App() {
+// Exported so src/entry-server.jsx can prerender the public pages with the
+// SAME tree the browser hydrates — only the router differs (StaticRouter on
+// the server, BrowserRouter here). Hydration needs the two to match exactly.
+const ROUTER_FUTURE = { v7_startTransition: true, v7_relativeSplatPath: true };
+
+export function AppTree({ Router = BrowserRouter, routerProps = {}, helmetContext }) {
   return (
-    <HelmetProvider>
+    <HelmetProvider context={helmetContext}>
       {/*
         * Outermost of the providers, and deliberately outside the router:
         * the theme is a property of the document, not of a route, and it
@@ -32,7 +37,7 @@ function App() {
         * links resolved inside a splat route, and the one splat route here
         * ("*") renders <Navigate to="/"> , an absolute path.
         */}
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <Router future={ROUTER_FUTURE} {...routerProps}>
         <AuthProvider>
           {/* Inside AuthProvider so it can read the signed-in user; wraps
               everything below so any page can check subscription status
@@ -49,10 +54,14 @@ function App() {
             </ToastProvider>
           </SubscriptionProvider>
         </AuthProvider>
-      </BrowserRouter>
+      </Router>
       </ThemeProvider>
     </HelmetProvider>
   );
+}
+
+function App() {
+  return <AppTree />;
 }
 
 export default App;

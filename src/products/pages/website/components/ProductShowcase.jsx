@@ -14,17 +14,17 @@ const LABELS = {
 const SHOTS = [
   {
     key: "explore",
-    src: "/assets/shot-explore.png",
+    src: "/assets/shot-explore.webp",
     alt: "Spurly Explore — captured people from a LinkedIn search collected into a Session table",
   },
   {
     key: "connect",
-    src: "/assets/shot-connect.png",
+    src: "/assets/shot-connect.webp",
     alt: "Spurly Connect — sending personalized connection requests to captured people",
   },
   {
     key: "reachout",
-    src: "/assets/shot-reachout.png",
+    src: "/assets/shot-reachout.webp",
     alt: "Spurly Reach Out — composing a personalized message with a live preview for a real recipient",
   },
 ];
@@ -140,7 +140,10 @@ export default function ProductShowcase() {
                     className={"shot-img" + (active === s.key ? " is-on" : "")}
                     src={s.src}
                     alt={s.alt}
+                    width="1400"
+                    height="1215"
                     loading="lazy"
+                    decoding="async"
                   />
                 ))}
               </div>

@@ -41,7 +41,7 @@ export function AuthShell({ aside, topRight, children, bodyTop = false }) {
 export function Brand() {
   return (
     <Link to="/" className="sp-brand" aria-label="Spurly home">
-      <img src="/Spurly Icon Square.png" alt="" />
+      <img src="/spurly-icon-128.png" alt="" />
       <span>Spurly</span>
     </Link>
   );

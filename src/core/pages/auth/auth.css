@@ -1,7 +1,7 @@
 /* ============================================================
    Spurly auth + onboarding pages (routed, full-page).
    Self-contained, scoped under .sp-auth so it never collides
-   with marketing.css or the dashboard styles. Plain CSS (no
+   with website.css or the dashboard styles. Plain CSS (no
    Tailwind dependency) so the look is pixel-controlled.
    ============================================================ */
 
@@ -11,7 +11,7 @@
  * This surface is a full-page `position: fixed` overlay that paints its own
  * white ground and its own dark ink, so it is internally consistent whatever
  * the app theme is doing behind it — it does not break in dark mode, it just
- * stays light, exactly like src/marketing.
+ * stays light, exactly like the public website (src/products/pages/website).
  *
  * That is a decision, not an oversight. Signed-out pages are the product's
  * shop window; they share a register with the marketing site rather than with

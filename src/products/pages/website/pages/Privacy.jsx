@@ -1,18 +1,15 @@
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import Seo from "../components/Seo.jsx";
 import ContentShell from "../components/ContentShell.jsx";
 
 export default function Privacy() {
   return (
     <ContentShell>
-      <Helmet>
-        <title>Privacy Policy — Spurly</title>
-        <meta
-          name="description"
-          content="How Spurly handles your data. We don't collect, sell, or share personal data beyond what's needed to run the extension. Data stays local and syncs securely for session management only."
-        />
-        <link rel="canonical" href="https://www.getspurly.com/privacy" />
-      </Helmet>
+      <Seo
+        title="Privacy Policy — Spurly"
+        description="How Spurly handles your data. We don't collect, sell, or share personal data beyond what's needed to run the extension. Data stays local and syncs securely for session management only."
+        path="/privacy"
+      />
 
       <article className="prose wrap">
         <p className="eyebrow">Legal</p>

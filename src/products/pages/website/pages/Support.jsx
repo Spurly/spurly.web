@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import Seo from "../components/Seo.jsx";
+import { breadcrumbLd } from "../seo.js";
 import ContentShell from "../components/ContentShell.jsx";
 
 const FAQS = [
@@ -42,15 +43,12 @@ const faqLd = {
 export default function Support() {
   return (
     <ContentShell>
-      <Helmet>
-        <title>Support &amp; FAQ — Spurly</title>
-        <meta
-          name="description"
-          content="Get help with Spurly. Answers to common questions about capturing leads, enrichment, pricing, privacy, and Sales Navigator — plus how to reach our team."
-        />
-        <link rel="canonical" href="https://www.getspurly.com/support" />
-        <script type="application/ld+json">{JSON.stringify(faqLd)}</script>
-      </Helmet>
+      <Seo
+        title="Support & FAQ — Spurly"
+        description="Get help with Spurly. Answers to common questions about capturing leads, enrichment, pricing, privacy, and Sales Navigator — plus how to reach our team."
+        path="/support"
+        jsonLd={[faqLd, breadcrumbLd([["Home", "/"], ["Support", "/support"]])]}
+      />
 
       <article className="prose wrap">
         <p className="eyebrow">Support</p>

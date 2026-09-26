@@ -22,10 +22,10 @@
         Do not give any of these names a literal value again. Alias it
         or delete it.
 
-     2. THE MARKETING SURFACE. The landing site (src/marketing) is a
+     2. THE MARKETING SURFACE. The landing site (src/products/pages/website) is a
         different register to the app on purpose — softer radii, glass
         panels, gradient accents. Those tokens and utilities are kept
-        below and are used ONLY by src/marketing. The app must not
+        below and are used ONLY by src/products/pages/website. The app must not
         reach for them.
 
    New app work reads --ui-* directly. Nothing new should be added to
@@ -150,7 +150,7 @@
      component next to it. In a data tool anything over ~200ms reads as
      lag rather than polish. Use --ui-dur-fast / --ui-dur-base.
 
-     The easing curves stay: marketing.css uses them and a landing page
+     The easing curves stay: website.css uses them and a landing page
      is allowed a springier curve than a table. */
   --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -163,7 +163,7 @@
 /* ============================================================
    LIQUID GLASS MATERIALS — MARKETING SURFACE ONLY
 
-   These are used by src/marketing (ProductShowcase, Audiences,
+   These are used by src/products/pages/website (ProductShowcase, Audiences,
    Pricing, LiveDemo) where a glass panel over a gradient is the right
    register for a landing page.
 

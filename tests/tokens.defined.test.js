@@ -24,7 +24,7 @@ const SHEETS = [
   join(SRC, 'core/tokens/tokens.css'),
   join(SRC, 'index.css'),
   // Marketing is a deliberately separate visual register with its own scale.
-  join(SRC, 'marketing/marketing.css'),
+  join(SRC, 'products/pages/website/website.css'),
 ];
 
 function walk(dir, out = []) {

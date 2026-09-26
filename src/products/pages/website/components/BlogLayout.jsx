@@ -1,17 +1,18 @@
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import Seo from "./Seo.jsx";
+import { absoluteUrl, breadcrumbLd } from "../seo.js";
 import ContentShell from "./ContentShell.jsx";
 import { ChromeLink } from "./Button.jsx";
 import { getPost, otherPosts, formatDate } from "../blogPosts.js";
 
-const BASE = "https://www.getspurly.com";
 
 /* Wraps a blog post body with the shell, per-post SEO meta + Article JSON-LD,
    post header, a CTA, and links to the other posts (internal linking). */
 export default function BlogLayout({ slug, children }) {
   const post = getPost(slug);
   const related = otherPosts(slug);
-  const url = BASE + "/blog/" + slug;
+  const path = "/blog/" + slug;
+  const url = absoluteUrl(path);
 
   const articleLd = {
     "@context": "https://schema.org",
@@ -19,14 +20,14 @@ export default function BlogLayout({ slug, children }) {
     headline: post.title,
     description: post.description,
     datePublished: post.date,
-    dateModified: post.date,
+    dateModified: post.updated || post.date,
     author: { "@type": "Organization", name: "Spurly" },
     publisher: {
       "@type": "Organization",
       name: "Spurly",
       logo: {
         "@type": "ImageObject",
-        url: BASE + "/assets/spurly-icon.png",
+        url: absoluteUrl("/assets/spurly-icon-lg.png"),
       },
     },
     mainEntityOfPage: url,
@@ -34,16 +35,18 @@ export default function BlogLayout({ slug, children }) {
 
   return (
     <ContentShell>
-      <Helmet>
-        <title>{post.title + " | Spurly"}</title>
-        <meta name="description" content={post.description} />
-        <link rel="canonical" href={url} />
-        <meta property="og:type" content="article" />
-        <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={post.description} />
-        <meta property="og:url" content={url} />
-        <script type="application/ld+json">{JSON.stringify(articleLd)}</script>
-      </Helmet>
+      <Seo
+        title={post.title + " | Spurly"}
+        description={post.description}
+        path={path}
+        type="article"
+        publishedTime={post.date}
+        modifiedTime={post.updated || post.date}
+        jsonLd={[
+          articleLd,
+          breadcrumbLd([["Home", "/"], ["Blog", "/blog"], [post.shortTitle, path]]),
+        ]}
+      />
 
       <article className="prose wrap">
         <p className="prose-meta">
