@@ -25,6 +25,7 @@ vi.setConfig({ testTimeout: 20000 });
 let searches = [];
 let leadRows = [];
 let createResponses = [];
+let leftToday = 800;
 const posts = [];
 
 vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
@@ -39,7 +40,7 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
       usage: {
         limits: { perFetch: 100, perDay: 1000, perMonth: 10000 },
         usedToday: 200, usedThisMonth: 400,
-        remainingToday: 800, remainingThisMonth: 9600, remaining: 800,
+        remainingToday: leftToday, remainingThisMonth: 9600, remaining: leftToday,
         resetsAt: '2030-01-01T00:00:00.000Z',
       },
     },
@@ -107,6 +108,7 @@ beforeEach(() => {
   searches = [];
   leadRows = [ASHA, RAVI];
   createResponses = [];
+  leftToday = 800;
   posts.length = 0;
 });
 
@@ -122,8 +124,14 @@ describe('profiles to fetch', () => {
     await openModalWithUrl();
     const field = await screen.findByLabelText(/profiles to fetch/i);
     expect(field).toHaveValue(30);
-    // Today's budget is spelled out next to the field.
-    expect(screen.getByText(/800 of 1,000 left today/i)).toBeInTheDocument();
+    // Today's and this month's budget sit under the field as readings.
+    expect(screen.getByRole('progressbar', { name: /today: 800 of 1000 left/i })).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: /^month: 9600 of 10000 left/i })).toBeInTheDocument();
+
+    // A quick pick fills the number; the number is still what gets sent.
+    await userEvent.click(screen.getByRole('button', { name: '50' }));
+    expect(field).toHaveValue(50);
+    expect(screen.getByRole('button', { name: '50' })).toHaveAttribute('aria-pressed', 'true');
 
     await userEvent.clear(field);
     await userEvent.type(field, '65');
@@ -134,6 +142,21 @@ describe('profiles to fetch', () => {
     const body = posts.find((p) => p.url === '/hub/searches').body;
     expect(body).toMatchObject({ searchUrl: SEARCH_URL, count: 65 });
     expect(body.onDuplicate).toBeUndefined();
+  });
+
+  it('warns, without refusing, when the count is more than is left today', async () => {
+    leftToday = 20;
+    await openModalWithUrl();
+    const field = await screen.findByLabelText(/profiles to fetch/i);
+    // The default 30 is already more than the 20 left.
+    expect(screen.getByText(/only 20 left today/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: '10' }));
+    expect(field).toHaveValue(10);
+    expect(screen.queryByText(/only 20 left today/i)).not.toBeInTheDocument();
+    await userEvent.clear(field);
+    await userEvent.type(field, '50');
+    expect(screen.getByText(/only 20 left today — the rest continues automatically/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /continue/i })).not.toBeDisabled();
   });
 
   it('refuses more than the per-fetch limit before anything is sent', async () => {
