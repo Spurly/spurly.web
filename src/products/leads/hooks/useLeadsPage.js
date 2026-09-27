@@ -52,6 +52,19 @@ export function useLeadsPage() {
   const [sequences, setSequences] = useState([]);
   const [enrolling, setEnrolling] = useState(false);
 
+  // ---- Sourcing: fetch counts, same-search choice, custom lists ----
+  // `usage` is the server's budget (per-fetch max, today/month remaining);
+  // null until loaded, and the UI falls back to sensible defaults.
+  const [usage, setUsage] = useState(null);
+  // Set when creating an audience hit 409 DUPLICATE_SEARCH: the payload the
+  // user submitted and the existing audience, so the page can ask
+  // "add to that one, or start a new one with the next people?".
+  const [duplicate, setDuplicate] = useState(null);
+  // The audience whose "Fetch more" dialog is open.
+  const [fetchMoreTarget, setFetchMoreTarget] = useState(null);
+  const [fetchingMore, setFetchingMore] = useState(false);
+  const [savingList, setSavingList] = useState(false);
+
   // ---- Enrich tab (HUB_CAPTURE_RESTRUCTURE_PLAN.md §11) ----
   // Its own list/pagination/loading, separate from the "All leads" state
   // above: this tab always shows every not-yet-enriched lead, server-side
@@ -137,6 +150,20 @@ export function useLeadsPage() {
   useEffect(() => {
     loadSearches();
   }, [loadSearches]);
+
+  const loadUsage = useCallback(() => {
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.SOURCING_USAGE_SUCCESS, (next) => {
+      if (mountedRef.current) setUsage(next);
+    });
+    // Silent on failure: limits still apply server-side; the UI only loses
+    // its "N left today" line.
+    leadController.getSourcingUsage(callEmitter);
+  }, []);
+
+  useEffect(() => {
+    loadUsage();
+  }, [loadUsage]);
 
   // Comma-separated allow-list the server's enrichmentStatus filter accepts —
   // everything short of 'enriched'. 'none' is the (rare, pre-backfill) state
@@ -240,12 +267,13 @@ export function useLeadsPage() {
      */
     pollRef.current = setInterval(() => {
       loadSearches();
+      loadUsage();
       loadLeads({ page: pagination.page });
       loadEnrichLeads({ page: enrichPagination.page });
     }, POLL_MS);
 
     return () => clearInterval(pollRef.current);
-  }, [anyBusy, loadSearches, loadLeads, pagination.page, loadEnrichLeads, enrichPagination.page]);
+  }, [anyBusy, loadSearches, loadUsage, loadLeads, pagination.page, loadEnrichLeads, enrichPagination.page]);
 
   /**
    * One path in, whichever way the audience was described.
@@ -262,41 +290,151 @@ export function useLeadsPage() {
     setSubmitting(true);
     setNeedsAccount(false);
     const callEmitter = new EventEmitter();
-    callEmitter.once(LEAD_EVENTS.CREATE_SEARCH_SUCCESS, () => {
-      toast.success('Queued. Importing starts within a minute.');
-      if (mountedRef.current) setSubmitting(false);
+    callEmitter.once(LEAD_EVENTS.CREATE_SEARCH_SUCCESS, ({ audience, appended } = {}) => {
+      toast.success(
+        appended
+          ? `Fetching ${payload.count ? `${payload.count} more profiles` : 'more profiles'} into "${audience?.name || 'your audience'}".`
+          : 'Queued. Importing starts within a minute.',
+      );
+      if (mountedRef.current) {
+        setSubmitting(false);
+        setDuplicate(null);
+        if (appended && audience?._id) setActiveSearchId(audience._id);
+      }
       loadSearches();
+      loadUsage();
     });
     callEmitter.once(LEAD_EVENTS.CREATE_SEARCH_FAILURE, (error) => {
-      // The one refusal worth handling rather than toasting: no usable
-      // LinkedIn connection. A toast would vanish, and the fix is a different
-      // page.
-      const code = error?.response?.data?.code;
+      // The interceptor rejects with the response BODY, so the code sits on
+      // the error itself; `response.data` is kept for anything that did not
+      // go through the interceptor.
+      const code = error?.code ?? error?.response?.data?.code;
+      const data = error?.data ?? error?.response?.data?.data;
+      // Refusals worth handling rather than toasting: no usable LinkedIn
+      // connection (the fix is a different page), and the same search already
+      // having an audience (a question for the user, not an error).
       if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
-      else toast.error(getToastError(error, 'Could not queue that search'));
+      else if (code === 'DUPLICATE_SEARCH' && data?.audience) {
+        if (mountedRef.current) setDuplicate({ payload, audience: data.audience });
+      } else if (code === 'FETCH_LIMIT_MONTH' || code === 'SEARCH_EXHAUSTED' || code === 'FETCH_COUNT_TOO_LARGE') {
+        toast.error(error?.message || 'Could not queue that search');
+      } else toast.error(getToastError(error, 'Could not queue that search'));
       if (mountedRef.current) setSubmitting(false);
     });
     leadController.createSearch(callEmitter, payload);
-  }, [submitting, toast, loadSearches]);
+  }, [submitting, toast, loadSearches, loadUsage]);
 
-  const runSearch = useCallback((search) => {
+  /** Answer the "you already have an audience for this search" question. */
+  const resolveDuplicate = useCallback((choice) => {
+    if (!duplicate) return;
+    if (choice !== 'append' && choice !== 'new') {
+      setDuplicate(null);
+      return;
+    }
+    createAudience({ ...duplicate.payload, onDuplicate: choice });
+  }, [duplicate, createAudience]);
+
+  /**
+   * "Fetch more" — N more NEW profiles into an existing audience. The server
+   * continues from the audience's cursor, so this never refetches people it
+   * already has.
+   */
+  const runSearch = useCallback((search, count) => {
+    setFetchingMore(true);
     const callEmitter = new EventEmitter();
     callEmitter.once(LEAD_EVENTS.RUN_SEARCH_SUCCESS, () => {
-      toast.success(search.status === 'done' ? 'Checking for new people.' : 'Resuming where it stopped.');
+      toast.success(search.exhausted ? 'Checking the search again from the top for new people.' : `Fetching ${count} more.`);
+      if (mountedRef.current) {
+        setFetchingMore(false);
+        setFetchMoreTarget(null);
+      }
       loadSearches();
+      loadUsage();
     });
     callEmitter.once(LEAD_EVENTS.RUN_SEARCH_FAILURE, (error) => {
-      toast.error(getToastError(error, 'Could not start that import'));
+      const code = error?.code ?? error?.response?.data?.code;
+      if (code === 'FETCH_LIMIT_MONTH' || code === 'FETCH_COUNT_TOO_LARGE' || code === 'NOT_A_SEARCH') {
+        toast.error(error?.message || 'Could not fetch more');
+      } else toast.error(getToastError(error, 'Could not fetch more'));
+      if (mountedRef.current) setFetchingMore(false);
     });
-    leadController.runSearch(callEmitter, search._id);
-  }, [toast, loadSearches]);
+    leadController.runSearch(callEmitter, search._id, { count });
+  }, [toast, loadSearches, loadUsage]);
+
+  /** Selected rows → a new custom list. */
+  const createList = useCallback((name) => {
+    if (selected.size === 0 || savingList) return;
+    setSavingList(true);
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.CREATE_LIST_SUCCESS, ({ audience, added }) => {
+      toast.success(`List "${audience?.name ?? ''}" created with ${added} lead${added === 1 ? '' : 's'}.`);
+      if (mountedRef.current) {
+        setSavingList(false);
+        setSelected(new Set());
+      }
+      loadSearches();
+    });
+    callEmitter.once(LEAD_EVENTS.CREATE_LIST_FAILURE, (error) => {
+      toast.error(getToastError(error, 'Could not create that list'));
+      if (mountedRef.current) setSavingList(false);
+    });
+    leadController.createList(callEmitter, { name, leadIds: [...selected] });
+  }, [selected, savingList, toast, loadSearches]);
+
+  /** Selected rows → an existing audience or list. */
+  const addToAudience = useCallback((searchId) => {
+    if (!searchId || selected.size === 0 || savingList) return;
+    const target = searches.find((s) => s._id === searchId);
+    setSavingList(true);
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.ADD_TO_AUDIENCE_SUCCESS, ({ added }) => {
+      toast.success(
+        added > 0
+          ? `Added ${added} lead${added === 1 ? '' : 's'} to "${target?.name || 'the list'}".`
+          : 'Everyone selected is already in that list.',
+      );
+      if (mountedRef.current) {
+        setSavingList(false);
+        setSelected(new Set());
+      }
+      loadSearches();
+    });
+    callEmitter.once(LEAD_EVENTS.ADD_TO_AUDIENCE_FAILURE, (error) => {
+      toast.error(getToastError(error, 'Could not add those leads'));
+      if (mountedRef.current) setSavingList(false);
+    });
+    leadController.addLeadsToAudience(callEmitter, searchId, { leadIds: [...selected] });
+  }, [selected, savingList, searches, toast, loadSearches]);
+
+  /** Selected rows out of the list currently being viewed. Leads are kept. */
+  const removeFromActiveAudience = useCallback(() => {
+    if (!activeSearchId || selected.size === 0 || savingList) return;
+    setSavingList(true);
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.REMOVE_FROM_AUDIENCE_SUCCESS, ({ removed }) => {
+      toast.success(`Removed ${removed} lead${removed === 1 ? '' : 's'} from this list. They are still in All leads.`);
+      if (mountedRef.current) {
+        setSavingList(false);
+        setSelected(new Set());
+      }
+      loadSearches();
+      loadLeads({ page: 1 });
+    });
+    callEmitter.once(LEAD_EVENTS.REMOVE_FROM_AUDIENCE_FAILURE, (error) => {
+      toast.error(getToastError(error, 'Could not remove those leads'));
+      if (mountedRef.current) setSavingList(false);
+    });
+    leadController.removeLeadsFromAudience(callEmitter, activeSearchId, { leadIds: [...selected] });
+  }, [activeSearchId, selected, savingList, toast, loadSearches, loadLeads]);
 
   const deleteSearch = useCallback((search) => {
     confirm({
       title: 'Remove this audience?',
       // Says exactly what survives. "Are you sure?" would leave the user
       // guessing whether their leads go with it — they do not.
-      body: `The ${search.importedCount?.toLocaleString() ?? 0} leads it imported stay in your list. Only the saved search is removed.`,
+      body: search.mode === 'list'
+        ? `The ${(search.leadCount ?? 0).toLocaleString()} leads in it stay in All leads. Only the list is removed.`
+        : `The ${(search.leadCount ?? search.importedCount ?? 0).toLocaleString()} leads it imported stay in your list. Only the saved search is removed.`,
       confirmLabel: 'Remove',
     }).then((ok) => {
       if (!ok) return;
@@ -555,6 +693,16 @@ export function useLeadsPage() {
     loadLeads,
     createAudience,
     runSearch,
+    usage,
+    duplicate,
+    resolveDuplicate,
+    fetchMoreTarget,
+    setFetchMoreTarget,
+    fetchingMore,
+    savingList,
+    createList,
+    addToAudience,
+    removeFromActiveAudience,
     deleteSearch,
     createCampaign,
     createMessageCampaign,

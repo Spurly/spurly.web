@@ -4,6 +4,9 @@ import { Button, Checkbox, Dialog, Input, SoonTag, StatTile } from 'src/core/pri
 import { ArrowRightIcon, ImportIcon, LinkIcon, SlidersIcon, SparkIcon } from 'src/core/icons';
 import { FilterTagPicker } from './FilterTagPicker.jsx';
 import { urlProblem } from './AudienceForm.jsx';
+import { FetchCountField } from './SourcingDialogs.jsx';
+import { fetchCountProblem, perFetchMax } from 'src/products/leads/hooks/fetchCount.js';
+import { DEFAULT_FETCH_COUNT } from 'src/products/leads/constants/constants.js';
 
 /**
  * "New audience" — the handoff's three-step modal (Leads v2):
@@ -119,7 +122,7 @@ function SourceOption({ source, active, onPick }) {
   );
 }
 
-export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, creditBalance = 0 }) {
+export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, creditBalance = 0, usage = null }) {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [source, setSource] = useState('url');
@@ -133,6 +136,8 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
   const [keywords, setKeywords] = useState('');
   const [title, setTitle] = useState('');
   const [networkDistance, setNetworkDistance] = useState([]);
+  const [fetchCount, setFetchCount] = useState(String(DEFAULT_FETCH_COUNT));
+  const countError = fetchCountProblem(fetchCount, perFetchMax(usage));
 
   /* Close once a submit finishes (success toasts, failure toasts — either
      way the page has the answer, and a failure keeps its reason visible). */
@@ -165,10 +170,10 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
     step === 0
       ? source === 'csv' || (source === 'url' ? url.trim() && !urlError : source === 'filters')
       : step === 1
-        ? source === 'url'
+        ? !countError && (source === 'url'
           ? url.trim() && !urlError
-          : filterCount > 0
-        : true;
+          : filterCount > 0)
+        : !countError;
 
   const next = () => {
     if (!stepValid || submitting) return;
@@ -181,7 +186,12 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
       setStep(step + 1);
       return;
     }
-    onSubmit(source === 'url' ? { searchUrl: url.trim(), name: name.trim() } : { filters, name: name.trim() });
+    const count = Number(fetchCount);
+    onSubmit(
+      source === 'url'
+        ? { searchUrl: url.trim(), name: name.trim(), count }
+        : { filters, name: name.trim(), count },
+    );
   };
 
   const toggleDistance = (d) =>
@@ -193,6 +203,7 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
     source === 'url'
       ? ['Search', url.trim()]
       : ['Filters', `${filterCount} ${filterCount === 1 ? 'filter' : 'filters'} selected`],
+    ['Profiles to fetch', `${Number(fetchCount) || 0} new people`],
     ['Pace', 'Ten results per call, in the background'],
     ['Credits', `${creditBalance.toLocaleString()} available`],
   ];
@@ -335,6 +346,8 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
             <MicroLabel htmlFor="audience-name">Audience name</MicroLabel>
             <Input id="audience-name" size="sm" fullWidth value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. EU logistics — VP+ (optional)" />
           </div>
+
+          <FetchCountField id="audience-count" value={fetchCount} onChange={setFetchCount} usage={usage} disabled={submitting} />
 
           <div className="grid grid-cols-3 gap-2.5">
             <StatTile size="sm" label="Estimated matches" soon />
