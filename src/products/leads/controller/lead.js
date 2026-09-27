@@ -37,9 +37,9 @@ async function getSearch(eventEmitter, id) {
   }
 }
 
-async function runSearch(eventEmitter, id) {
+async function runSearch(eventEmitter, id, options) {
   try {
-    const data = await hubSourcingGateway.runSearch(id);
+    const data = await hubSourcingGateway.runSearch(id, options);
     eventEmitter.emit(LEAD_EVENTS.RUN_SEARCH_SUCCESS, data);
   } catch (error) {
     eventEmitter.emit(LEAD_EVENTS.RUN_SEARCH_FAILURE, error);
@@ -82,6 +82,42 @@ async function withdrawInvitation(eventEmitter, id) {
   }
 }
 
+async function createList(eventEmitter, payload) {
+  try {
+    const data = await hubSourcingGateway.createList(payload);
+    eventEmitter.emit(LEAD_EVENTS.CREATE_LIST_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(LEAD_EVENTS.CREATE_LIST_FAILURE, error);
+  }
+}
+
+async function addLeadsToAudience(eventEmitter, id, payload) {
+  try {
+    const data = await hubSourcingGateway.addLeadsToAudience(id, payload);
+    eventEmitter.emit(LEAD_EVENTS.ADD_TO_AUDIENCE_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(LEAD_EVENTS.ADD_TO_AUDIENCE_FAILURE, error);
+  }
+}
+
+async function removeLeadsFromAudience(eventEmitter, id, payload) {
+  try {
+    const data = await hubSourcingGateway.removeLeadsFromAudience(id, payload);
+    eventEmitter.emit(LEAD_EVENTS.REMOVE_FROM_AUDIENCE_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(LEAD_EVENTS.REMOVE_FROM_AUDIENCE_FAILURE, error);
+  }
+}
+
+async function getSourcingUsage(eventEmitter) {
+  try {
+    const data = await hubSourcingGateway.getSourcingUsage();
+    eventEmitter.emit(LEAD_EVENTS.SOURCING_USAGE_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(LEAD_EVENTS.SOURCING_USAGE_FAILURE, error);
+  }
+}
+
 const leadController = {
   createSearch,
   searchAudienceParams,
@@ -92,6 +128,10 @@ const leadController = {
   listLeads,
   resolveProfile,
   withdrawInvitation,
+  createList,
+  addLeadsToAudience,
+  removeLeadsFromAudience,
+  getSourcingUsage,
 };
 
 export default leadController;

@@ -23,9 +23,18 @@ import { Lead } from '../entities/lead.js';
  * be set — the server 400s on both or neither, this just forwards whichever
  * the caller built.
  */
-async function createSearch({ searchUrl, filters, name }) {
-  const res = await apiGateway.post('/hub/searches', { searchUrl, filters, name });
-  return Audience.fromResponse(res.data?.data?.search ?? null);
+/**
+ * `count` — how many NEW profiles to fetch this time (plan max, usually 100).
+ * `onDuplicate` — only after the server answered 409 DUPLICATE_SEARCH:
+ * 'append' fetches into that existing audience, 'new' makes a new audience
+ * that continues from where the existing one stopped.
+ */
+async function createSearch({ searchUrl, filters, name, count, onDuplicate }) {
+  const res = await apiGateway.post('/hub/searches', { searchUrl, filters, name, count, onDuplicate });
+  return {
+    audience: Audience.fromResponse(res.data?.data?.search ?? null),
+    appended: Boolean(res.data?.data?.appended),
+  };
 }
 
 /**
@@ -77,9 +86,34 @@ async function getSearch(id) {
  * cursor, and a finished one starts a fresh pass to pick up people who have
  * appeared since. Leads dedupe either way, so this never doubles anyone.
  */
-async function runSearch(id) {
-  const res = await apiGateway.post(`/hub/searches/${id}/run`);
+async function runSearch(id, { count } = {}) {
+  const res = await apiGateway.post(`/hub/searches/${id}/run`, { count });
   return Audience.fromResponse(res.data?.data?.search ?? null);
+}
+
+/** POST /hub/lists — a custom list from selected leads. */
+async function createList({ name, leadIds }) {
+  const res = await apiGateway.post('/hub/lists', { name, leadIds });
+  const data = res.data?.data ?? {};
+  return { audience: Audience.fromResponse(data.audience ?? null), added: data.added ?? 0 };
+}
+
+/** POST /hub/searches/:id/leads — add selected leads to an audience or list. */
+async function addLeadsToAudience(id, { leadIds }) {
+  const res = await apiGateway.post(`/hub/searches/${id}/leads`, { leadIds });
+  return res.data?.data ?? { added: 0 };
+}
+
+/** POST /hub/searches/:id/leads/remove — take leads out (they stay in Leads). */
+async function removeLeadsFromAudience(id, { leadIds }) {
+  const res = await apiGateway.post(`/hub/searches/${id}/leads/remove`, { leadIds });
+  return res.data?.data ?? { removed: 0 };
+}
+
+/** GET /hub/sourcing/usage — per-fetch max and today's/this month's budget. */
+async function getSourcingUsage() {
+  const res = await apiGateway.get('/hub/sourcing/usage');
+  return res.data?.data?.usage ?? null;
 }
 
 /**
@@ -155,5 +189,9 @@ const hubSourcingGateway = {
   listLeads,
   resolveProfile,
   withdrawInvitation,
+  createList,
+  addLeadsToAudience,
+  removeLeadsFromAudience,
+  getSourcingUsage,
 };
 export default hubSourcingGateway;

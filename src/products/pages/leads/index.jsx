@@ -20,9 +20,12 @@ import { LeadDrawer } from "./components/LeadDrawer.jsx";
 import { NewAudienceModal } from "./components/NewAudienceModal.jsx";
 import { AudiencePicker } from "./components/AudiencePicker.jsx";
 import { DegreeFilter } from "./components/DegreeFilter.jsx";
+import { DuplicateSearchDialog, FetchMoreDialog, NewListDialog } from "./components/SourcingDialogs.jsx";
 import { leadsStrings as t } from "./strings.js";
 
 const WORKING_VERBS = ["Sourcing", "Paging", "Reading", "Reconciling"];
+/** Sentinel option in the "Add to list" dropdown — never a real audience id. */
+const NEW_LIST = "__new_list__";
 /**
  * Hub leads — paste a LinkedIn search, get an audience.
  *
@@ -61,6 +64,17 @@ export function HubLeadsPage() {
     loadLeads,
     createAudience,
     runSearch,
+    usage,
+    duplicate,
+    resolveDuplicate,
+    fetchMoreTarget,
+    setFetchMoreTarget,
+    fetchingMore,
+    savingList,
+    createList,
+    addToAudience,
+    removeFromActiveAudience,
+    activeSearch,
     deleteSearch,
     createCampaign,
     createMessageCampaign,
@@ -86,6 +100,13 @@ export function HubLeadsPage() {
   const { user } = useAuth();
   const location = useLocation();
   const [audienceOpen, setAudienceOpen] = useState(false);
+  const [newListOpen, setNewListOpen] = useState(false);
+  // Bumped per open so the dialog's own name field starts empty every time.
+  const [newListKey, setNewListKey] = useState(0);
+  const openNewList = useCallback(() => {
+    setNewListKey((k) => k + 1);
+    setNewListOpen(true);
+  }, []);
 
   /* Arriving from Enrichment's "Enrich leads" lands on the Needs enrichment
      tab. Read once, on arrival. */
@@ -103,7 +124,9 @@ export function HubLeadsPage() {
   ];
 
   const running = searches.filter(isBusy);
-  const importedSoFar = running.reduce((sum, s) => sum + (s.importedCount ?? 0), 0);
+  // A fetch with a target reports NEW people found against what was asked
+  // for; a legacy row (no target) still reports results read.
+  const importedSoFar = running.reduce((sum, s) => sum + (s.fetchTarget ? s.fetchNew ?? 0 : s.importedCount ?? 0), 0);
   const workingLine =
     activeTab === "all" && running.length > 0 ? (
       <WorkingLine variant="band" verbs={WORKING_VERBS} trailing={`${importedSoFar.toLocaleString()} so far`}>
@@ -149,7 +172,7 @@ export function HubLeadsPage() {
         searches={searches}
         activeSearchId={activeSearchId}
         onChange={setActiveSearchId}
-        onRun={runSearch}
+        onRun={setFetchMoreTarget}
         onDelete={deleteSearch}
         label={t.table.listFilterLabel}
       />
@@ -249,6 +272,34 @@ export function HubLeadsPage() {
                   {t.table.createEnrichmentCampaign}
                 </Button>
                 <div className="flex-1 min-w-1" />
+                {activeSearch && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={removeFromActiveAudience}
+                    loading={savingList}
+                    disabled={savingList || selected.size === 0}
+                    title={`Take the selection out of “${activeSearch.name || t.untitledAudience}”. They stay in All leads.`}
+                  >
+                    {t.table.removeFromList}
+                  </Button>
+                )}
+                <Dropdown
+                  variant="dashboard"
+                  size="sm"
+                  value=""
+                  onChange={(val) => (val === NEW_LIST ? openNewList() : addToAudience(val))}
+                  disabled={savingList || selected.size === 0}
+                  ariaLabel="Add selection to a list"
+                  title="Add the selection to a new or existing list"
+                  placeholder={savingList ? t.table.addingToList : t.table.addToList}
+                  options={[
+                    [NEW_LIST, t.table.newList],
+                    ...searches
+                      .filter((s) => s._id !== activeSearchId)
+                      .map((s) => [s._id, s.name || t.untitledAudience]),
+                  ]}
+                />
                 <Dropdown
                   variant="dashboard"
                   size="sm"
@@ -320,6 +371,30 @@ export function HubLeadsPage() {
         onSubmit={createAudience}
         submitting={submitting}
         creditBalance={user?.creditBalance ?? 0}
+        usage={usage}
+      />
+
+      <DuplicateSearchDialog duplicate={duplicate} onChoose={resolveDuplicate} submitting={submitting} />
+
+      <FetchMoreDialog
+        key={fetchMoreTarget?._id ?? "none"}
+        audience={fetchMoreTarget}
+        usage={usage}
+        onSubmit={runSearch}
+        onClose={() => setFetchMoreTarget(null)}
+        submitting={fetchingMore}
+      />
+
+      <NewListDialog
+        key={newListKey}
+        open={newListOpen}
+        count={selected.size}
+        submitting={savingList}
+        onClose={() => setNewListOpen(false)}
+        onSubmit={(name) => {
+          createList(name);
+          setNewListOpen(false);
+        }}
       />
 
       {selectedLead && (

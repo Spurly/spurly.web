@@ -8,8 +8,15 @@
  * the leads hook and AudienceList.jsx both ask "is this one still working?".
  */
 
-/** Queued and running are both "the worker has not finished with this". */
-export const isBusy = (s) => s?.status === 'queued' || s?.status === 'running';
+/**
+ * Queued and running are both "the worker has not finished with this" —
+ * except a row paused on the daily sourcing budget, which will not move until
+ * the reset hours from now; polling every few seconds for that would be a
+ * cost with no reader.
+ */
+export const isWaitingForReset = (s) =>
+  s?.status === 'queued' && Boolean(s?.waitUntil) && new Date(s.waitUntil).getTime() > Date.now();
+export const isBusy = (s) => (s?.status === 'queued' || s?.status === 'running') && !isWaitingForReset(s);
 
 /**
  * A one-line summary of what an audience actually searched for.
@@ -20,6 +27,7 @@ export const isBusy = (s) => s?.status === 'queued' || s?.status === 'running';
  * re-render the whole filter form.
  */
 export function describeSearch(search) {
+  if (search.mode === 'list') return 'Custom list';
   if (search.mode === 'manual') {
     const n = search.manualQueue?.length ?? 0;
     return `${n} imported profile${n === 1 ? '' : 's'}`;

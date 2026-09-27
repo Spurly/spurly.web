@@ -144,7 +144,8 @@ function AudienceRow({ search, onRun, onDelete, busy }) {
  * "imported 240" without this would be a number the user plans around.
  */
 export function StoppedShortNotice({ search }) {
-  if (!search?.error) return null;
+  const text = search?.error || search?.notice;
+  if (!text) return null;
   return (
     <div className="flex items-start gap-2.5 px-[var(--ui-pad-lg)] py-3 bg-[var(--ui-warning-tint)] shadow-[inset_var(--ui-spine)_0_0_var(--ui-warning-dot)]">
       <AlertTriangle
@@ -153,7 +154,8 @@ export function StoppedShortNotice({ search }) {
         aria-hidden="true"
       />
       <p className="text-[length:var(--ui-t-label)] text-[var(--ui-warning-fg)] leading-relaxed">
-        {search.error}
+        {search.name ? <span className="font-medium">{search.name}: </span> : null}
+        {text}
       </p>
     </div>
   );

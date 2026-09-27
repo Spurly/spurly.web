@@ -12,6 +12,16 @@ const STATUS_VIEW = {
   failed: { label: 'Failed', tone: 'danger' },
 };
 
+/** A queued row waiting on the daily budget reads differently from one about to start. */
+function statusView(s) {
+  if (s.mode === 'list') return { label: 'List', tone: 'neutral' };
+  if (s.status === 'queued' && s.waitUntil && new Date(s.waitUntil) > new Date()) return { label: 'Paused', tone: 'warning' };
+  return STATUS_VIEW[s.status] ?? STATUS_VIEW.queued;
+}
+
+/** Search audiences can fetch more; manual imports and custom lists cannot. */
+const canFetchMore = (s) => s.canFetchMore ?? (s.mode === 'url' || s.mode === 'structured' || !s.mode);
+
 /**
  * The table's list picker — the handoff's "List  EU logistics ▾" control.
  *
@@ -41,7 +51,7 @@ export function AudiencePicker({ searches, activeSearchId, onChange, onRun, onDe
     onChange(id);
     setOpen(false);
   };
-  const failed = searches.find((s) => s.error) ?? null;
+  const failed = searches.find((s) => s.error || s.notice) ?? null;
 
   const row =
     'group w-full flex items-center gap-2.5 min-h-[40px] px-2 py-1.5 rounded-[var(--ui-radius-xs)] text-left transition-colors duration-[140ms] hover:bg-[var(--ui-surface-hover)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]';
@@ -73,7 +83,7 @@ export function AudiencePicker({ searches, activeSearchId, onChange, onRun, onDe
           </button>
 
           {searches.length > 0 && (
-            <p className="ui-micro !text-[var(--ui-text-secondary)] mx-2 mt-2 mb-1">Saved audiences</p>
+            <p className="ui-micro !text-[var(--ui-text-secondary)] mx-2 mt-2 mb-1">Audiences &amp; lists</p>
           )}
           {failed && (
             <div className="mx-0.5 mb-1 rounded-[var(--ui-radius-xs)] overflow-hidden">
@@ -81,7 +91,7 @@ export function AudiencePicker({ searches, activeSearchId, onChange, onRun, onDe
             </div>
           )}
           {searches.map((s) => {
-            const view = STATUS_VIEW[s.status] ?? STATUS_VIEW.queued;
+            const view = statusView(s);
             const selected = s._id === activeSearchId;
             return (
               <div key={s._id} className={`${row} !p-0 pr-1`}>
@@ -98,7 +108,7 @@ export function AudiencePicker({ searches, activeSearchId, onChange, onRun, onDe
                       {s.name || 'Untitled audience'}
                     </span>
                     <span className="block truncate font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)]">
-                      {(s.importedCount ?? 0).toLocaleString()} leads · {describeSearch(s)}
+                      {(s.leadCount ?? s.importedCount ?? 0).toLocaleString()} leads · {describeSearch(s)}
                     </span>
                   </span>
                   <Badge tone={view.tone} dot pulse={isBusy(s)} size="sm">
@@ -106,19 +116,24 @@ export function AudiencePicker({ searches, activeSearchId, onChange, onRun, onDe
                   </Badge>
                   {selected && <CheckIcon size={14} strokeWidth={2.4} className="text-[var(--ui-accent)] shrink-0" />}
                 </button>
+                {canFetchMore(s) && (
+                  <IconButton
+                    size="sm"
+                    variant="ghost"
+                    label="Fetch more profiles"
+                    icon={<RotateCw size={13} />}
+                    disabled={s.status === 'running'}
+                    onClick={() => {
+                      setOpen(false);
+                      onRun(s);
+                    }}
+                    className="!w-7 !h-7 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                  />
+                )}
                 <IconButton
                   size="sm"
                   variant="ghost"
-                  label={s.status === 'done' ? 'Check for new people' : 'Resume this import'}
-                  icon={<RotateCw size={13} />}
-                  disabled={isBusy(s)}
-                  onClick={() => onRun(s)}
-                  className="!w-7 !h-7 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-                />
-                <IconButton
-                  size="sm"
-                  variant="ghost"
-                  label="Remove this audience"
+                  label={s.mode === 'list' ? 'Remove this list' : 'Remove this audience'}
                   icon={<TrashIcon size={13} />}
                   onClick={() => onDelete(s)}
                   className="!w-7 !h-7 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:!text-[var(--ui-danger-fg)] hover:!bg-[var(--ui-danger-tint)]"

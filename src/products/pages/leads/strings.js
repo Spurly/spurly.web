@@ -50,6 +50,10 @@ export const leadsStrings = {
     // panel first. Defaults to everyone.
     listFilterLabel: 'Filter by list',
     listFilterAll: 'All people',
+    addToList: 'Add to list…',
+    addingToList: 'Saving…',
+    newList: '+ New list',
+    removeFromList: 'Remove from list',
   },
   dock: {
     label: 'Audiences',
