@@ -36,6 +36,12 @@ export function useLeadsPage() {
   const [pagination, setPagination] = useState({ page: 1, limit: PAGE_SIZE, total: 0 });
   const [activeSearchId, setActiveSearchId] = useState(null);
   const [query, setQuery] = useState('');
+  // Degree-of-connection filter (the table's Degree control) — an array
+  // of numbers (1/2/3), sent to the server as a comma-separated list.
+  // Server-side like every other filter here: the table is paginated, so
+  // filtering only the page already in memory would silently hide matches
+  // sitting on other pages.
+  const [connectionDegree, setConnectionDegree] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [needsAccount, setNeedsAccount] = useState(false);
@@ -119,8 +125,14 @@ export function useLeadsPage() {
       toast.error(getToastError(error, 'Could not load leads'));
       setLoading(false);
     });
-    leadController.listLeads(callEmitter, { searchId: activeSearchId, q: query, page, limit: PAGE_SIZE });
-  }, [activeSearchId, query, toast]);
+    leadController.listLeads(callEmitter, {
+      searchId: activeSearchId,
+      q: query,
+      connectionDegree: connectionDegree.length > 0 ? connectionDegree.join(',') : undefined,
+      page,
+      limit: PAGE_SIZE,
+    });
+  }, [activeSearchId, query, connectionDegree, toast]);
 
   useEffect(() => {
     loadSearches();
@@ -185,6 +197,10 @@ export function useLeadsPage() {
 
   useEffect(() => {
     // Debounced so typing in the search box is not one request per keystroke.
+    // `loadLeads` itself changes identity when `connectionDegree` changes (it's
+    // in that callback's own dep array), so toggling a degree chip reruns this
+    // effect too — no separate effect needed, and no debounce for it either
+    // since a chip click isn't typing.
     const t = setTimeout(() => loadLeads({ page: 1 }), query ? 300 : 0);
     return () => clearTimeout(t);
   }, [loadLeads, query]);
@@ -522,6 +538,8 @@ export function useLeadsPage() {
     activeSearch,
     query,
     setQuery,
+    connectionDegree,
+    setConnectionDegree,
     loading,
     submitting,
     needsAccount,

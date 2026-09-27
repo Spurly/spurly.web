@@ -19,6 +19,7 @@ import { hubLeadColumns, hubLeadEnrichColumns } from "./components/columns.jsx";
 import { LeadDrawer } from "./components/LeadDrawer.jsx";
 import { NewAudienceModal } from "./components/NewAudienceModal.jsx";
 import { AudiencePicker } from "./components/AudiencePicker.jsx";
+import { DegreeFilter } from "./components/DegreeFilter.jsx";
 import { leadsStrings as t } from "./strings.js";
 
 const WORKING_VERBS = ["Sourcing", "Paging", "Reading", "Reconciling"];
@@ -43,6 +44,8 @@ export function HubLeadsPage() {
     setActiveSearchId,
     query,
     setQuery,
+    connectionDegree,
+    setConnectionDegree,
     loading,
     submitting,
     needsAccount,
@@ -140,14 +143,17 @@ export function HubLeadsPage() {
   );
 
   const picker = (
-    <AudiencePicker
-      searches={searches}
-      activeSearchId={activeSearchId}
-      onChange={setActiveSearchId}
-      onRun={runSearch}
-      onDelete={deleteSearch}
-      label={t.table.listFilterLabel}
-    />
+    <>
+      <DegreeFilter value={connectionDegree} onChange={setConnectionDegree} />
+      <AudiencePicker
+        searches={searches}
+        activeSearchId={activeSearchId}
+        onChange={setActiveSearchId}
+        onRun={runSearch}
+        onDelete={deleteSearch}
+        label={t.table.listFilterLabel}
+      />
+    </>
   );
 
   return (
