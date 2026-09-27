@@ -15,11 +15,10 @@ export function AppTree({ Router = BrowserRouter, routerProps = {}, helmetContex
   return (
     <HelmetProvider context={helmetContext}>
       {/*
-        * Outermost of the providers, and deliberately outside the router:
-        * the theme is a property of the document, not of a route, and it
-        * must not remount on navigation. index.html has already stamped
-        * data-theme before first paint -- this provider takes over that
-        * attribute and owns it from here.
+        * Light is the only supported theme, so this provider has nothing to
+        * stamp on the document -- it exists only so `useTheme()` keeps
+        * resolving for any code that still reads it. Kept outside the
+        * router since it's a property of the document, not of a route.
         */}
       <ThemeProvider>
       {/*

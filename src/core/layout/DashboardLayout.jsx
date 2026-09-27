@@ -21,7 +21,6 @@ import {
 import { useAuth } from "src/core/auth/hooks/useAuth.js";
 import { useExtension } from "src/core/extension/hooks/useExtension";
 import { Avatar, Tooltip } from "src/core/primitives";
-import { useTheme } from "src/core/theme";
 import { NotificationBell } from "src/core/pages/notifications/components/NotificationBell.jsx";
 import { SidebarBrand } from "./SidebarBrand";
 import { AskSpurly } from "./AskSpurly";
@@ -298,14 +297,11 @@ function Readings({ expanded, dayUsed, dailyCap, balance, onTopUp }) {
 
 /**
  * The account row. Name over a mono email, and a menu (opens upward) holding
- * what used to be permanent sidebar rows: the theme choice and sign-out.
- * Theme is a per-device display preference, so it lives with the person, not
- * in Settings.
+ * what used to be a permanent sidebar row: sign-out.
  */
 function AccountRow({ user, expanded, onLogout }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
-  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (!open) return undefined;
@@ -333,27 +329,6 @@ function AccountRow({ user, expanded, onLogout }) {
             expanded ? "left-0 right-0" : "left-0 w-[220px]"
           }`}
         >
-          <p className="ui-micro !text-[var(--ui-text-secondary)] mx-2 mt-1 mb-1.5">Theme</p>
-          <div className="grid grid-cols-3 gap-1 px-1 pb-1.5">
-            {["light", "dark", "system"].map((opt) => (
-              <button
-                key={opt}
-                type="button"
-                role="menuitemradio"
-                aria-checked={theme === opt}
-                onClick={() => setTheme(opt)}
-                className={[
-                  "h-7 rounded-[var(--ui-radius-xs)] text-[length:var(--ui-t-label)] capitalize transition-colors duration-[140ms]",
-                  theme === opt
-                    ? "bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-medium"
-                    : "text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)]",
-                ].join(" ")}
-              >
-                {opt}
-              </button>
-            ))}
-          </div>
-          <div className="h-px bg-[var(--ui-border-hairline)] mx-1 my-1" />
           {/* Quiet by default, red only on hover — signing out is not a
               primary action. */}
           <button
