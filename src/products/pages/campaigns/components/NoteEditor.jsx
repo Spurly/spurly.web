@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Lock, Info, ChevronDown, ChevronUp, FileText } from 'lucide-react';
-import { Button } from 'src/core/primitives';
+import { Button, Badge } from 'src/core/primitives';
 import { AiWriteButton } from 'src/products/personalization/AiWriteButton.jsx';
 import { TemplatePickerModal } from 'src/products/pages/templates/components/TemplatePickerModal.jsx';
 
@@ -17,6 +17,12 @@ import { TemplatePickerModal } from 'src/products/pages/templates/components/Tem
  * paragraph (or an open textarea) every time someone just wants to check
  * status reads as clutter. "Why?" reveals the Premium explanation without
  * making it permanent weight on the page; "Edit note" opens the textarea.
+ *
+ * Layout v2: same fix as MessageEditor — "Use template" and "Write with AI"
+ * are a toolbar above the textarea (pick a starting point before you write,
+ * instead of scrolling past what you wrote to find it), and the bottom row
+ * is Collapse + Save only so it can't wrap and hide Save. The "Unsaved"
+ * badge next to the toolbar replaces guessing whether a click landed.
  */
 export function NoteEditor({ campaign, account, onSave, saving }) {
   /**
@@ -88,6 +94,31 @@ export function NoteEditor({ campaign, account, onSave, saving }) {
 
   return (
     <div className="px-[var(--ui-pad-lg)] py-4 flex-1 min-h-0 flex flex-col gap-2.5">
+      {!running && (
+        <div className="flex items-center flex-wrap gap-2 shrink-0">
+          <Button
+            size="sm"
+            variant="ghost"
+            leadingIcon={<FileText size={13} />}
+            disabled={saving}
+            onClick={() => setPickingTemplate(true)}
+          >
+            Use template
+          </Button>
+          <AiWriteButton
+            content={value}
+            type="CONNECTION_REQUEST"
+            maxLength={cap}
+            disabled={saving}
+            onApply={setValue}
+          />
+          {dirty && (
+            <Badge tone="warning" size="sm" dot className="ml-auto">
+              Unsaved
+            </Badge>
+          )}
+        </div>
+      )}
       <textarea
         value={value}
         maxLength={cap}
@@ -104,30 +135,10 @@ export function NoteEditor({ campaign, account, onSave, saving }) {
             ? 'Pause the campaign to change the note — the people already invited were sent the old one.'
             : `${value.length}/${cap} characters`}
         </span>
-        <div className="flex items-center flex-wrap gap-2">
+        <div className="flex items-center gap-2">
           <Button size="sm" variant="ghost" disabled={saving} trailingIcon={<ChevronUp size={13} />} onClick={() => { setValue(campaign.note || ''); setExpanded(false); }}>
             Collapse
           </Button>
-          {!running && (
-            <Button
-              size="sm"
-              variant="ghost"
-              leadingIcon={<FileText size={13} />}
-              disabled={saving}
-              onClick={() => setPickingTemplate(true)}
-            >
-              Use template
-            </Button>
-          )}
-          {!running && (
-            <AiWriteButton
-              content={value}
-              type="CONNECTION_REQUEST"
-              maxLength={cap}
-              disabled={saving}
-              onApply={setValue}
-            />
-          )}
           <Button size="sm" className="ml-auto" disabled={running || !dirty || saving} onClick={() => onSave(value)}>
             {saving ? 'Saving…' : 'Save note'}
           </Button>

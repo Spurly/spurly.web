@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, FileText } from 'lucide-react';
-import { Button } from 'src/core/primitives';
+import { Button, Badge } from 'src/core/primitives';
 import { AiWriteButton } from 'src/products/personalization/AiWriteButton.jsx';
 import { TemplatePickerModal } from 'src/products/pages/templates/components/TemplatePickerModal.jsx';
 
@@ -19,6 +19,15 @@ import { TemplatePickerModal } from 'src/products/pages/templates/components/Tem
  * when the campaign starts — an empty connection note is still a real send,
  * an empty message is not, so this starts expanded when there's nothing
  * written yet rather than hiding a required field behind an extra click.
+ *
+ * Layout v2 (Sarthak's feedback: "didn't see where to put the message,
+ * template picker was buried, had to scroll before saving"): "Use template"
+ * and "Write with AI" now sit in a toolbar ABOVE the textarea — you pick a
+ * starting point before you write, not after scrolling past what you wrote.
+ * The bottom row is Collapse + Save only, so it can never wrap onto a
+ * second line and push Save out of view. A visible "Unsaved" badge next to
+ * the toolbar means you never have to guess whether Save still needs a
+ * click.
  */
 const CAP = 2000;
 
@@ -51,6 +60,31 @@ export function MessageEditor({ campaign, onSave, saving }) {
 
   return (
     <div className="px-[var(--ui-pad-lg)] py-4 flex-1 min-h-0 flex flex-col gap-2.5">
+      {!running && (
+        <div className="flex items-center flex-wrap gap-2 shrink-0">
+          <Button
+            size="sm"
+            variant="ghost"
+            leadingIcon={<FileText size={13} />}
+            disabled={saving}
+            onClick={() => setPickingTemplate(true)}
+          >
+            Use template
+          </Button>
+          <AiWriteButton
+            content={value}
+            type="DIRECT_MESSAGE"
+            maxLength={CAP}
+            disabled={saving}
+            onApply={setValue}
+          />
+          {dirty && (
+            <Badge tone="warning" size="sm" dot className="ml-auto">
+              Unsaved
+            </Badge>
+          )}
+        </div>
+      )}
       <textarea
         value={value}
         maxLength={CAP}
@@ -67,31 +101,11 @@ export function MessageEditor({ campaign, onSave, saving }) {
             ? 'Pause the campaign to change the message — the people already messaged were sent the old one.'
             : `Use {{firstName}} to personalize · ${value.length}/${CAP} characters`}
         </span>
-        <div className="flex items-center flex-wrap gap-2">
+        <div className="flex items-center gap-2">
           {campaign.messageTemplate && (
             <Button size="sm" variant="ghost" disabled={saving} trailingIcon={<ChevronUp size={13} />} onClick={() => { setValue(campaign.messageTemplate || ''); setExpanded(false); }}>
               Collapse
             </Button>
-          )}
-          {!running && (
-            <Button
-              size="sm"
-              variant="ghost"
-              leadingIcon={<FileText size={13} />}
-              disabled={saving}
-              onClick={() => setPickingTemplate(true)}
-            >
-              Use template
-            </Button>
-          )}
-          {!running && (
-            <AiWriteButton
-              content={value}
-              type="DIRECT_MESSAGE"
-              maxLength={CAP}
-              disabled={saving}
-              onApply={setValue}
-            />
           )}
           <Button size="sm" className="ml-auto" disabled={running || !dirty || saving || !value.trim()} onClick={() => onSave(value)}>
             {saving ? 'Saving…' : 'Save message'}

@@ -242,6 +242,31 @@ export function CampaignDetailPage() {
         }
         rail={
           <>
+            {/* First in the rail, not last: on a draft campaign this is the
+                one thing that actually needs attention, while Delivery and
+                pacing below are read-only status the person checks, not
+                acts on. See MessageEditor/NoteEditor for the rest of the
+                composer-layout fix (toolbar above the textarea, Save never
+                pushed out of view by a wrapping button row). */}
+            <RailCard title={isMessage ? 'Message' : 'Connection note'} grow tone={campaign.status === 'draft' ? 'accent' : 'default'}>
+              {isMessage ? (
+                <MessageEditor
+                  key={campaign.messageTemplate || 'no-message'}
+                  campaign={campaign}
+                  onSave={saveMessageTemplate}
+                  saving={saving}
+                />
+              ) : (
+                <NoteEditor
+                  key={campaign.note || 'no-note'}
+                  campaign={campaign}
+                  account={data.account}
+                  onSave={saveNote}
+                  saving={saving}
+                />
+              )}
+            </RailCard>
+
             <RailCard title="Delivery">
               <div className="p-[var(--ui-pad-lg)] flex flex-col gap-3.5">
                 <div className="flex gap-2 items-start">
@@ -276,25 +301,6 @@ export function CampaignDetailPage() {
                 </div>
               </RailCard>
             )}
-
-            <RailCard title={isMessage ? 'Message' : 'Connection note'} grow tone={campaign.status === 'draft' ? 'accent' : 'default'}>
-              {isMessage ? (
-                <MessageEditor
-                  key={campaign.messageTemplate || 'no-message'}
-                  campaign={campaign}
-                  onSave={saveMessageTemplate}
-                  saving={saving}
-                />
-              ) : (
-                <NoteEditor
-                  key={campaign.note || 'no-note'}
-                  campaign={campaign}
-                  account={data.account}
-                  onSave={saveNote}
-                  saving={saving}
-                />
-              )}
-            </RailCard>
           </>
         }
       />
