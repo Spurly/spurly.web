@@ -5,6 +5,7 @@ import { SubscriptionProvider } from 'src/core/billing/hooks/SubscriptionContext
 import { ToastProvider, ConfirmProvider } from 'src/core/primitives';
 import { ThemeProvider } from 'src/core/theme';
 import { AppRoutes } from 'src/app/routes';
+import { PageViewTracker } from 'src/app/PageViewTracker';
 
 // Exported so src/entry-server.jsx can prerender the public pages with the
 // SAME tree the browser hydrates — only the router differs (StaticRouter on
@@ -37,6 +38,7 @@ export function AppTree({ Router = BrowserRouter, routerProps = {}, helmetContex
         * ("*") renders <Navigate to="/"> , an absolute path.
         */}
       <Router future={ROUTER_FUTURE} {...routerProps}>
+        <PageViewTracker />
         <AuthProvider>
           {/* Inside AuthProvider so it can read the signed-in user; wraps
               everything below so any page can check subscription status
