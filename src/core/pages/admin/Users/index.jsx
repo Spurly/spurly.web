@@ -118,7 +118,7 @@ export function AdminUsersPage() {
 
   return (
     <AdminLayout title="Users" subtitle="Manage user plans & credit balances">
-      <div className="space-y-6">
+      <div className="flex-1 min-h-0 flex flex-col gap-6">
         {error && (
           <div
             className="p-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] font-medium"
@@ -132,7 +132,7 @@ export function AdminUsersPage() {
           </div>
         )}
 
-        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border-hairline)] overflow-hidden shadow-sm">
+        <div className="flex-1 min-h-0 flex flex-col rounded-[var(--ui-radius-lg)] border border-[var(--ui-border-hairline)] overflow-hidden shadow-sm">
           <DataTable
             columns={columns}
             data={filteredUsers}

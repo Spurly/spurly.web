@@ -22,6 +22,7 @@ export function useSequenceDetail() {
   const [enrollments, setEnrollments] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0 });
   const [statusFilter, setStatusFilter] = useState('');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -43,8 +44,8 @@ export function useSequenceDetail() {
   }, [eventEmitter, id]);
 
   const loadEnrollments = useCallback((page = 1) => {
-    sequenceController.listEnrollments(eventEmitter, id, { status: statusFilter || undefined, page });
-  }, [eventEmitter, id, statusFilter]);
+    sequenceController.listEnrollments(eventEmitter, id, { status: statusFilter || undefined, q: search || undefined, page });
+  }, [eventEmitter, id, statusFilter, search]);
 
   const start = useCallback(() => {
     setBusy(true);
@@ -193,6 +194,8 @@ export function useSequenceDetail() {
     pagination,
     statusFilter,
     setStatusFilter,
+    search,
+    setSearch,
     loading,
     busy,
     saving,

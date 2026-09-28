@@ -9,12 +9,17 @@ import {
   CheckCircle,
   PauseCircle,
   BatteryLow,
+  Sparkles,
+  UserPlus,
+  Send,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { Button, EmptyState, Skeleton } from 'src/core/primitives';
 import { relativeTime } from 'src/shared/utils/outreach';
 import { useNotifications } from 'src/core/notifications/hooks/useNotifications.js';
 import { AvatarStack } from './components/AvatarStack.jsx';
+import { goToTarget, leadTarget, resolveNotificationTarget } from './notificationTargets.js';
 
 /**
  * /dashboard/notifications — the full history behind the bell's 8-item
@@ -30,6 +35,9 @@ const ICONS = {
   'check-circle': CheckCircle,
   'pause-circle': PauseCircle,
   'battery-low': BatteryLow,
+  'sparkles': Sparkles, // hub.leads_enrichment_completed — was missing, fell back to the generic Bell
+  'user-plus': UserPlus, // hub.connections_sent
+  'send': Send, // hub.messages_sent
 };
 
 /** relativeTime() returns bare units ('3h'); this adds the suffix, without
@@ -39,18 +47,36 @@ function ago(value) {
   return t === 'just now' ? t : `${t} ago`;
 }
 
-function Row({ notification, onOpen }) {
+// Same "which types point at one specific person" set NotificationBell's
+// FeedRow uses — kept in sync there rather than shared, since it's a
+// one-line literal, not logic.
+const PERSON_LINKABLE_TYPES = new Set(['hub.connection_accepted', 'hub.leads_enrichment_completed']);
+
+function Row({ notification, onOpen, onOpenLead }) {
   const Icon = ICONS[notification.icon] || Bell;
   const unread = !notification.readAt;
+  const showAvatars = notification.type === 'hub.connections_sent'
+    || notification.type === 'hub.messages_sent'
+    || PERSON_LINKABLE_TYPES.has(notification.type);
+  const personLinkable = PERSON_LINKABLE_TYPES.has(notification.type);
 
   return (
-    // Not a Button: a compound feed row, same exemption as NotificationBell's
-    // FeedRow.
-    // eslint-disable-next-line no-restricted-syntax
-    <button
-      type="button"
+    // Not a Button: a compound feed row (icon, two lines of text, unread dot,
+    // and for person-linkable/rollup types its own per-avatar buttons) — a
+    // real <button> can't nest another <button>, so this is a div with the
+    // same role/keyboard handling, same exemption NotificationBell's FeedRow
+    // takes.
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => onOpen(notification)}
-      className={`w-full flex items-start gap-3 px-4 py-3.5 text-left border-b border-[var(--ui-border-hairline)] last:border-b-0 transition-colors hover:bg-[var(--ui-surface-hover)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)] ${unread ? 'shadow-[inset_2px_0_0_var(--ui-accent)]' : ''}`}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onOpen(notification);
+        }
+      }}
+      className={`w-full flex items-start gap-3 px-4 py-3.5 text-left border-b border-[var(--ui-border-hairline)] last:border-b-0 transition-colors cursor-pointer hover:bg-[var(--ui-surface-hover)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)] ${unread ? 'shadow-[inset_2px_0_0_var(--ui-accent)]' : ''}`}
     >
       <span
         className="mt-0.5 grid place-items-center w-[30px] h-[30px] rounded-[var(--ui-radius-btn)] shrink-0"
@@ -70,8 +96,12 @@ function Row({ notification, onOpen }) {
         <span className="block font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-neutral-400)] mt-1">
           {ago(notification.createdAt)}
         </span>
-        {notification.type === 'hub.connections_sent' && (
-          <AvatarStack people={notification.payload?.people} size={22} />
+        {showAvatars && (
+          <AvatarStack
+            people={notification.payload?.people}
+            size={22}
+            onSelect={personLinkable ? (person) => onOpenLead(notification, person) : undefined}
+          />
         )}
       </span>
       {unread && (
@@ -81,12 +111,23 @@ function Row({ notification, onOpen }) {
           aria-hidden="true"
         />
       )}
-    </button>
+    </div>
   );
 }
 
 export default function NotificationsPage() {
+  const navigate = useNavigate();
   const { items, unreadCount, loading, markRead, markAllRead } = useNotifications({ limit: 100 });
+
+  const handleOpen = (notification) => {
+    if (!notification.readAt) markRead(notification._id);
+    goToTarget(navigate, resolveNotificationTarget(notification));
+  };
+
+  const handleOpenLead = (notification, person) => {
+    if (!notification.readAt) markRead(notification._id);
+    goToTarget(navigate, leadTarget(person));
+  };
 
   return (
     <DashboardLayout
@@ -128,7 +169,7 @@ export default function NotificationsPage() {
       ) : (
         <div className="flex flex-col overflow-y-auto">
           {items.map((n) => (
-            <Row key={n._id} notification={n} onOpen={(notif) => !notif.readAt && markRead(notif._id)} />
+            <Row key={n._id} notification={n} onOpen={handleOpen} onOpenLead={handleOpenLead} />
           ))}
         </div>
       )}

@@ -181,7 +181,7 @@ export function AdminPricingPage() {
   const isDirty = (c) => String(drafts[c.feature]) !== String(c.cost);
 
   return (
-    <AdminLayout title="Pricing" subtitle="Plans & credit cost per action">
+    <AdminLayout title="Pricing" subtitle="Plans & credit cost per action" layout="page">
       {/* ============================ PLANS ============================ */}
       <div className="mb-12">
         <div className="flex items-start justify-between gap-4 mb-5">

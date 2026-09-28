@@ -23,6 +23,7 @@ export function useEnrichmentCampaignDetail() {
   const [leads, setLeads] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0 });
   const [statusFilter, setStatusFilter] = useState('');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
@@ -38,8 +39,8 @@ export function useEnrichmentCampaignDetail() {
   }, [eventEmitter, id]);
 
   const loadLeads = useCallback((page = 1) => {
-    enrichmentCampaignController.listLeads(eventEmitter, id, { status: statusFilter || undefined, page });
-  }, [eventEmitter, id, statusFilter]);
+    enrichmentCampaignController.listLeads(eventEmitter, id, { status: statusFilter || undefined, q: search || undefined, page });
+  }, [eventEmitter, id, statusFilter, search]);
 
   const campaign = data?.campaign ?? null;
   const running = data?.status === 'running';
@@ -115,6 +116,8 @@ export function useEnrichmentCampaignDetail() {
     pagination,
     statusFilter,
     setStatusFilter,
+    search,
+    setSearch,
     loading,
     busy,
     running,

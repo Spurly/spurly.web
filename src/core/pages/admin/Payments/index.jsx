@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Search, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import adminController from 'src/core/admin/controller/admin.js';
 import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
@@ -57,7 +57,6 @@ export function AdminPaymentsPage() {
   const [pagination, setPagination] = useState({ total: 0, limit: 50, skip: 0, pages: 0 });
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
-  const [searchInput, setSearchInput] = useState('');
 
   // Declared above the effect that calls it, same reasoning as before: a
   // `const` referenced before its declaration is a temporal-dead-zone
@@ -100,16 +99,15 @@ export function AdminPaymentsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.skip, status, search]);
 
-  function submitSearch(e) {
-    e.preventDefault();
+  const handleSearch = useCallback((value) => {
     setPagination((prev) => ({ ...prev, skip: 0 }));
-    setSearch(searchInput.trim());
-  }
+    setSearch(value);
+  }, []);
 
   const currentPage = Math.floor(pagination.skip / pagination.limit) + 1;
 
   return (
-    <AdminLayout title="Payments" subtitle="Every Razorpay charge, and who can use the product">
+    <AdminLayout title="Payments" subtitle="Every Razorpay charge, and who can use the product" layout="page">
       <div className="flex flex-col gap-4 p-[var(--ui-pad-lg)]">
 
         {summary && (
@@ -148,54 +146,32 @@ export function AdminPaymentsPage() {
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Dropdown
-            id="pay-status-filter"
-            variant="dashboard"
-            value={status}
-            onChange={(value) => {
-              setPagination((prev) => ({ ...prev, skip: 0 }));
-              setStatus(value);
-            }}
-            options={STATUS_OPTIONS}
-          />
-          <form onSubmit={submitSearch} className="flex items-center gap-2">
-            <div className="relative">
-              <Search
-                size={14}
-                className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--ui-text-tertiary)]"
-              />
-              <input
-                className="h-8 w-[260px] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border-hairline)] pl-8 pr-3 text-[length:var(--ui-t-body)]"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search email, pay_… or sub_… id"
-                aria-label="Search payments"
-              />
-            </div>
-          </form>
-          {search && (
-            <button
-              type="button"
-              className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] underline underline-offset-2"
-              onClick={() => {
-                setSearchInput('');
-                setSearch('');
-                setPagination((prev) => ({ ...prev, skip: 0 }));
-              }}
-            >
-              Clear
-            </button>
-          )}
-        </div>
-
         <DataTable
           columns={paymentColumns}
           data={payments}
           loading={loading}
           error={error}
-          emptyMessage="No payments yet"
+          emptyMessage={search || status ? 'No payments match your filters' : 'No payments yet'}
           emptyHint="Charges appear here when Razorpay bills a subscription (after the free trial)."
+          toolbar={{
+            searchValue: search,
+            onSearch: handleSearch,
+            searchPlaceholder: 'Search email, pay_\u2026 or sub_\u2026 id',
+            filters: (
+              <div className="w-44">
+                <Dropdown
+                  id="pay-status-filter"
+                  variant="dashboard"
+                  value={status}
+                  onChange={(value) => {
+                    setPagination((prev) => ({ ...prev, skip: 0 }));
+                    setStatus(value);
+                  }}
+                  options={STATUS_OPTIONS}
+                />
+              </div>
+            ),
+          }}
           pagination={{
             page: currentPage,
             pageSize: pagination.limit,

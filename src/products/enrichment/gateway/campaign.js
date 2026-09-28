@@ -36,9 +36,10 @@ async function getEnrichmentCampaign(id) {
 }
 
 /** GET /hub/enrichment/:id/leads — the per-lead status table. */
-async function listLeads(id, { status, page = 1, limit = 50 } = {}) {
+async function listLeads(id, { status, q, page = 1, limit = 50 } = {}) {
   const params = { page, limit };
   if (status) params.status = status;
+  if (q) params.q = q;
   const res = await apiGateway.get(`/hub/enrichment/${id}/leads`, { params });
   return res.data?.data ?? { leads: [], pagination: { page: 1, limit, total: 0 } };
 }

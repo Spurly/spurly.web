@@ -50,6 +50,8 @@ export function CampaignDetailPage() {
     pagination,
     statusFilter,
     setStatusFilter,
+    search,
+    setSearch,
     loading,
     busy,
     saving,
@@ -215,6 +217,9 @@ export function CampaignDetailPage() {
                 emptyMessage={statusFilter ? 'Nobody in this state' : 'Nobody in this campaign'}
                 emptyHint={statusFilter ? 'Try another filter.' : 'Add leads from the leads page.'}
                 toolbar={{
+                  searchValue: search,
+                  onSearch: setSearch,
+                  searchPlaceholder: 'Search by name or headline',
                   chips: (
                     <FilterPills
                       size="sm"

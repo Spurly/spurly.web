@@ -45,6 +45,8 @@ export function SequenceDetailPage() {
     pagination,
     statusFilter,
     setStatusFilter,
+    search,
+    setSearch,
     loading,
     busy,
     saving,
@@ -216,6 +218,9 @@ export function SequenceDetailPage() {
                   emptyMessage={statusFilter ? t.table.emptyMessageFiltered : t.table.emptyMessageAll}
                   emptyHint={statusFilter ? t.table.emptyHintFiltered : t.table.emptyHintAll}
                   toolbar={{
+                    searchValue: search,
+                    onSearch: setSearch,
+                    searchPlaceholder: 'Search by name or headline',
                     chips: (
                       <FilterPills size="sm" options={filterTabs} value={statusFilter} onChange={setStatusFilter} ariaLabel="Filter by status" />
                     ),

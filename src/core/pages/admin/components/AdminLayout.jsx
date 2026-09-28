@@ -18,16 +18,39 @@ const tabs = [
  * same product, and adds a sub-tab bar (Users / Transactions / Pricing) plus a
  * link back to the normal user dashboard. All admin content is wrapped in
  * `.admin-scope` so the ported styles stay contained.
+ *
+ * `layout` mirrors DashboardLayout's own prop and is passed straight
+ * through:
+ *   "card" (default) — one table filling the remaining height, same as the
+ *                       Leads/Campaigns/Sequences tables: the table scrolls
+ *                       internally and its own toolbar/pagination stay put.
+ *                       Use this for a page that IS a table (Users,
+ *                       Transactions).
+ *   "page"           — the whole column scrolls. Use this for a page that
+ *                       stacks other sections (stat cards, plan cards, a
+ *                       filter row) above its table — forcing those into a
+ *                       fixed-height card clips whatever doesn't fit rather
+ *                       than showing it, which is what silently made these
+ *                       pages "not scrolling" (Pricing, Payments, Insights).
+ *
+ * For "card", the wrapper below has to carry the flex-column/min-h-0 chain
+ * all the way down to the table's own container — otherwise the table's
+ * `h-full` has nothing to resolve against and the ancestor's `overflow-
+ * hidden` just clips the extra rows instead of making them scrollable.
  */
-export function AdminLayout({ children, title, subtitle }) {
+export function AdminLayout({ children, title, subtitle, layout = 'card' }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const isCard = layout === 'card';
 
   return (
-    <DashboardLayout title={title || 'Admin Console'} subtitle={subtitle}>
-      <div className="admin-scope" style={{ minHeight: '100%', background: 'var(--ui-surface-page)' }}>
+    <DashboardLayout title={title || 'Admin Console'} subtitle={subtitle} layout={layout}>
+      <div
+        className={`admin-scope ${isCard ? 'flex-1 min-h-0 flex flex-col' : ''}`}
+        style={{ background: 'var(--ui-surface-page)', ...(isCard ? {} : { minHeight: '100%' }) }}
+      >
         {/* Sub-tab bar */}
-        <div className="flex items-center gap-1 border-b border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-[var(--ui-pad-lg)] pt-3">
+        <div className="shrink-0 flex items-center gap-1 border-b border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] px-[var(--ui-pad-lg)] pt-3">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = location.pathname === tab.href;
@@ -57,7 +80,9 @@ export function AdminLayout({ children, title, subtitle }) {
         </div>
 
         {/* Page content */}
-        <div className="p-[var(--ui-pad-lg)]">{children}</div>
+        <div className={isCard ? 'flex-1 min-h-0 flex flex-col p-[var(--ui-pad-lg)]' : 'p-[var(--ui-pad-lg)]'}>
+          {children}
+        </div>
       </div>
     </DashboardLayout>
   );

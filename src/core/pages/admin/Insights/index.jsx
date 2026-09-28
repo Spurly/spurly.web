@@ -397,7 +397,7 @@ export function AdminInsightsPage() {
   const currentPage = Math.floor(pagination.skip / pagination.limit) + 1;
 
   return (
-    <AdminLayout title="Insights" subtitle="How users are using the extension">
+    <AdminLayout title="Insights" subtitle="How users are using the extension" layout="page">
       <div className="space-y-6">
         {/* KPI cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

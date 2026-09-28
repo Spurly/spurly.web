@@ -47,9 +47,10 @@ async function getCampaign(id) {
 }
 
 /** GET /hub/campaigns/:id/members — the members table. */
-async function listMembers(id, { status, page = 1, limit = 50 } = {}) {
+async function listMembers(id, { status, q, page = 1, limit = 50 } = {}) {
   const params = { page, limit };
   if (status) params.status = status;
+  if (q) params.q = q;
   const res = await apiGateway.get(`/hub/campaigns/${id}/members`, { params });
   return res.data?.data ?? { members: [], pagination: { page: 1, limit, total: 0 } };
 }

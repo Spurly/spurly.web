@@ -45,7 +45,9 @@ export const hubMemberColumns = [
     label: 'Name',
     width: 300,
     title: (row) => [row.name, row.headline].filter(Boolean).join(' — '),
-    render: (value, row) => <PersonCell name={value} profileUrl={row.profileUrl} subtitle={row.headline} />,
+    render: (value, row) => (
+      <PersonCell name={value} avatar={row.profilePictureUrl} profileUrl={row.profileUrl} subtitle={row.headline} />
+    ),
   },
   {
     key: 'status',

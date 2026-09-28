@@ -25,6 +25,7 @@ export function useCampaignDetail() {
   const [members, setMembers] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0 });
   const [statusFilter, setStatusFilter] = useState('');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -66,8 +67,8 @@ export function useCampaignDetail() {
   }, [eventEmitter, id]);
 
   const loadMembers = useCallback((page = 1) => {
-    campaignController.listMembers(eventEmitter, id, { status: statusFilter || undefined, page });
-  }, [eventEmitter, id, statusFilter]);
+    campaignController.listMembers(eventEmitter, id, { status: statusFilter || undefined, q: search || undefined, page });
+  }, [eventEmitter, id, statusFilter, search]);
 
   const campaign = data?.campaign ?? null;
   const running = campaign?.status === 'running';
@@ -237,6 +238,8 @@ export function useCampaignDetail() {
   }, [eventEmitter, load, loadMembers, toast, pagination.page]);
 
   useEffect(() => { load(); }, [load]);
+  // Reset to page 1 on every reload — a new search term or status filter
+  // means the previous page number almost certainly no longer applies.
   useEffect(() => { loadMembers(1); }, [loadMembers]);
 
   useEffect(() => {
@@ -252,6 +255,8 @@ export function useCampaignDetail() {
     pagination,
     statusFilter,
     setStatusFilter,
+    search,
+    setSearch,
     loading,
     busy,
     saving,

@@ -13,6 +13,8 @@ import {
   PauseCircle,
   BatteryLow,
   Sparkles,
+  UserPlus,
+  Send,
 } from 'lucide-react';
 import { BellIcon } from 'src/core/icons';
 import { usePopperPosition } from 'src/core/primitives/Popper';
@@ -20,6 +22,7 @@ import { Button, IconButton } from 'src/core/primitives';
 import { relativeTime } from 'src/shared/utils/outreach';
 import { useNotifications } from 'src/core/notifications/hooks/useNotifications.js';
 import { AvatarStack } from './AvatarStack.jsx';
+import { goToTarget, leadTarget, resolveNotificationTarget } from '../notificationTargets.js';
 
 /**
  * The bell icon in the top nav + its feed dropdown.
@@ -45,21 +48,43 @@ const ICONS = {
   'pause-circle': PauseCircle,
   'battery-low': BatteryLow,
   'sparkles': Sparkles, // hub.leads_enrichment_completed
+  'user-plus': UserPlus, // hub.connections_sent — was missing, fell back to the generic Bell
+  'send': Send, // hub.messages_sent
 };
 
-function FeedRow({ notification, onOpen }) {
+// Event types whose payload.people are individual leads a face should
+// route STRAIGHT TO (the lead drawer) rather than to a rollup's own place
+// (a campaign has no per-send drawer, so connections_sent/messages_sent
+// avatars stay decorative — see AvatarStack's own comment).
+const PERSON_LINKABLE_TYPES = new Set(['hub.connection_accepted', 'hub.leads_enrichment_completed']);
+
+function FeedRow({ notification, onOpen, onOpenLead }) {
   const Icon = ICONS[notification.icon] || Bell;
   const unread = !notification.readAt;
+  const showAvatars = notification.type === 'hub.connections_sent'
+    || notification.type === 'hub.messages_sent'
+    || PERSON_LINKABLE_TYPES.has(notification.type);
+  const personLinkable = PERSON_LINKABLE_TYPES.has(notification.type);
 
   return (
-    // Not a Button: a compound feed row (icon, two lines of text, unread dot),
-    // the same exemption the nav rows in DashboardLayout and the
-    // ProductSwitcher trigger take.
-    // eslint-disable-next-line no-restricted-syntax
-    <button
-      type="button"
+    // Not a Button: a compound feed row (icon, two lines of text, unread dot,
+    // and — for connection_accepted/leads_enrichment_completed/rollup types —
+    // its own per-avatar buttons), the same exemption the nav rows in
+    // DashboardLayout and the ProductSwitcher trigger take. A real <button>
+    // can't contain another <button>, so this is a div with the same
+    // role/keyboard handling instead of the plain <button> every other
+    // (avatar-free) row still gets away with.
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => onOpen(notification)}
-      className="w-full flex items-start gap-2.5 px-3 py-2.5 text-left rounded-[var(--ui-radius-sm)] hover:bg-[var(--ui-surface-rail-hover)] transition-colors focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onOpen(notification);
+        }
+      }}
+      className="w-full flex items-start gap-2.5 px-3 py-2.5 text-left rounded-[var(--ui-radius-sm)] hover:bg-[var(--ui-surface-rail-hover)] transition-colors cursor-pointer focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
     >
       <span
         className="mt-0.5 grid place-items-center w-6 h-6 rounded-full shrink-0"
@@ -79,8 +104,12 @@ function FeedRow({ notification, onOpen }) {
         <span className="block text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-0.5">
           {relativeTime(notification.createdAt)}
         </span>
-        {notification.type === 'hub.connections_sent' && (
-          <AvatarStack people={notification.payload?.people} size={18} />
+        {showAvatars && (
+          <AvatarStack
+            people={notification.payload?.people}
+            size={18}
+            onSelect={personLinkable ? (person) => onOpenLead(notification, person) : undefined}
+          />
         )}
       </span>
       {unread && (
@@ -90,7 +119,7 @@ function FeedRow({ notification, onOpen }) {
           aria-hidden="true"
         />
       )}
-    </button>
+    </div>
   );
 }
 
@@ -132,7 +161,17 @@ export function NotificationBell() {
   const handleOpen = (notification) => {
     if (!notification.readAt) markRead(notification._id);
     setOpen(false);
-    navigate('/dashboard/notifications');
+    goToTarget(navigate, resolveNotificationTarget(notification));
+  };
+
+  // A click on ONE avatar in a connection_accepted / leads_enrichment_completed
+  // row goes straight to that person, bypassing whatever the row's own click
+  // would resolve to (which, for a >1-count row, has no single person to
+  // land on) — see FeedRow's PERSON_LINKABLE_TYPES.
+  const handleOpenLead = (notification, person) => {
+    if (!notification.readAt) markRead(notification._id);
+    setOpen(false);
+    goToTarget(navigate, leadTarget(person));
   };
 
   return (
@@ -189,7 +228,7 @@ export function NotificationBell() {
                   You're all caught up.
                 </div>
               ) : (
-                items.map((n) => <FeedRow key={n._id} notification={n} onOpen={handleOpen} />)
+                items.map((n) => <FeedRow key={n._id} notification={n} onOpen={handleOpen} onOpenLead={handleOpenLead} />)
               )}
             </div>
 

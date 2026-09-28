@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { DashboardLayout } from "src/core/layout/DashboardLayout";
 import { DataTable } from "src/core/DataTable";
 import { Button, Dropdown, PageTabs, SoonTag, WorkingLine } from "src/core/primitives";
@@ -99,6 +99,7 @@ export function HubLeadsPage() {
 
   const { user } = useAuth();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [audienceOpen, setAudienceOpen] = useState(false);
   const [newListOpen, setNewListOpen] = useState(false);
   // Bumped per open so the dialog's own name field starts empty every time.
@@ -117,6 +118,31 @@ export function HubLeadsPage() {
     if (arrivalNewAudience) setAudienceOpen(true); // eslint-disable-line react-hooks/set-state-in-effect
   }, [arrivalTab, arrivalNewAudience, setActiveTab]);
   const closeAudience = useCallback(() => setAudienceOpen(false), []);
+
+  /* Arriving from a notification's "?lead=<id>" deep link (connection
+     accepted, enrichment finished) — open that lead's drawer straight away.
+     A minimal stub ({ _id } only) is enough: LeadDrawer always resolves the
+     full profile on open regardless of what it's handed (see its own
+     comment on "ALWAYS fetches on open now"), so there's no extra fetch to
+     do here before showing it. The param is stripped right after so a
+     refresh, or picking a different row, doesn't reopen it. */
+  useEffect(() => {
+    const leadId = searchParams.get("lead");
+    if (!leadId) return;
+    setSelectedLead({ _id: leadId });
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("lead");
+        return next;
+      },
+      { replace: true },
+    );
+    // Deliberately only depends on the param's presence, not on
+    // setSelectedLead/setSearchParams identity — this should fire once per
+    // distinct ?lead= value landed on, not on every re-render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get("lead")]);
 
   const tabs = [
     { id: "all", label: t.tabs.all },

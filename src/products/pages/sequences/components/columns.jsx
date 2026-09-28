@@ -44,7 +44,7 @@ export function hubEnrollmentColumns(steps = []) {
       label: 'Name',
       width: 200,
       title: (row) => row.name,
-      render: (value, row) => <PersonCell name={value} profileUrl={row.profileUrl} />,
+      render: (value, row) => <PersonCell name={value} avatar={row.profilePictureUrl} profileUrl={row.profileUrl} />,
     },
     {
       key: 'headline',

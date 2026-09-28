@@ -31,6 +31,8 @@ export function EnrichmentDetailPage() {
     pagination,
     statusFilter,
     setStatusFilter,
+    search,
+    setSearch,
     loading,
     busy,
     running,
@@ -119,6 +121,9 @@ export function EnrichmentDetailPage() {
             emptyMessage={statusFilter ? 'Nobody in this state' : 'Nobody in this batch'}
             emptyHint={statusFilter ? 'Try another filter.' : undefined}
             toolbar={{
+              searchValue: search,
+              onSearch: setSearch,
+              searchPlaceholder: 'Search by name or headline',
               chips: (
                 <FilterPills
                   size="sm"

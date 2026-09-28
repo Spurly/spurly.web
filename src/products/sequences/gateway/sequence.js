@@ -50,9 +50,10 @@ async function updateSequence(id, { name, steps } = {}) {
 }
 
 /** GET /hub/sequences/:id/enrollments — the enrollments table. */
-async function listEnrollments(id, { status, page = 1, limit = 50 } = {}) {
+async function listEnrollments(id, { status, q, page = 1, limit = 50 } = {}) {
   const params = { page, limit };
   if (status) params.status = status;
+  if (q) params.q = q;
   const res = await apiGateway.get(`/hub/sequences/${id}/enrollments`, { params });
   return res.data?.data ?? { enrollments: [], total: 0, page: 1, limit };
 }
