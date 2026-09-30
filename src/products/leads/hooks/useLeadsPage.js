@@ -56,6 +56,8 @@ export function useLeadsPage() {
   // `usage` is the server's budget (per-fetch max, today/month remaining);
   // null until loaded, and the UI falls back to sensible defaults.
   const [usage, setUsage] = useState(null);
+  // Company pages the account administers, for the "Import followers" picker.
+  const [companyPages, setCompanyPages] = useState([]);
   // Set when creating an audience hit 409 DUPLICATE_SEARCH: the payload the
   // user submitted and the existing audience, so the page can ask
   // "add to that one, or start a new one with the next people?".
@@ -164,6 +166,16 @@ export function useLeadsPage() {
   useEffect(() => {
     loadUsage();
   }, [loadUsage]);
+
+  // Once, on mount. Silent on failure: the picker then offers "My followers"
+  // alone, and the server re-checks page ownership on submit anyway.
+  useEffect(() => {
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.FOLLOWER_SOURCES_SUCCESS, (pages) => {
+      if (mountedRef.current) setCompanyPages(Array.isArray(pages) ? pages : []);
+    });
+    leadController.getFollowerSources(callEmitter);
+  }, []);
 
   // Comma-separated allow-list the server's enrichmentStatus filter accepts —
   // everything short of 'enriched'. 'none' is the (rare, pre-backfill) state
@@ -316,6 +328,8 @@ export function useLeadsPage() {
       if (code === 'NO_LINKEDIN_ACCOUNT' || code === 'LINKEDIN_ACCOUNT_NOT_READY') setNeedsAccount(true);
       else if (code === 'DUPLICATE_SEARCH' && data?.audience) {
         if (mountedRef.current) setDuplicate({ payload, audience: data.audience });
+      } else if (code === 'NOT_PAGE_ADMIN') {
+        toast.error('Your LinkedIn account is not an admin of that page, so LinkedIn will not share its followers.');
       } else if (code === 'FETCH_LIMIT_MONTH' || code === 'SEARCH_EXHAUSTED' || code === 'FETCH_COUNT_TOO_LARGE') {
         toast.error(error?.message || 'Could not queue that search');
       } else toast.error(getToastError(error, 'Could not queue that search'));
@@ -694,6 +708,7 @@ export function useLeadsPage() {
     createAudience,
     runSearch,
     usage,
+    companyPages,
     duplicate,
     resolveDuplicate,
     fetchMoreTarget,

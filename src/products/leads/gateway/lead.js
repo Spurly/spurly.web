@@ -29,8 +29,8 @@ import { Lead } from '../entities/lead.js';
  * 'append' fetches into that existing audience, 'new' makes a new audience
  * that continues from where the existing one stopped.
  */
-async function createSearch({ searchUrl, filters, name, count, onDuplicate }) {
-  const res = await apiGateway.post('/hub/searches', { searchUrl, filters, name, count, onDuplicate });
+async function createSearch({ searchUrl, filters, followers, name, count, onDuplicate }) {
+  const res = await apiGateway.post('/hub/searches', { searchUrl, filters, followers, name, count, onDuplicate });
   return {
     audience: Audience.fromResponse(res.data?.data?.search ?? null),
     appended: Boolean(res.data?.data?.appended),
@@ -117,6 +117,22 @@ async function getSourcingUsage() {
 }
 
 /**
+ * The company pages the connected account administers — the choices for
+ * "Import followers" besides the user's own. Read from the stored account
+ * health (GET /hub/account/health never waits on LinkedIn). Empty when the
+ * account was never checked, has no pages, or the plan cannot see them: the
+ * picker then simply offers "My followers" alone.
+ */
+async function getFollowerSources() {
+  const res = await apiGateway.get('/hub/account/health');
+  const pages = res.data?.data?.health?.capabilities?.companyPages;
+  if (!Array.isArray(pages)) return [];
+  return pages
+    .filter((p) => p && p.id)
+    .map((p) => ({ id: String(p.id), name: p.name || 'Company page' }));
+}
+
+/**
  * DELETE /hub/searches/:id — remove the audience.
  *
  * Leads survive by default and keep working: a lead can be in a campaign, and
@@ -193,5 +209,6 @@ const hubSourcingGateway = {
   addLeadsToAudience,
   removeLeadsFromAudience,
   getSourcingUsage,
+  getFollowerSources,
 };
 export default hubSourcingGateway;

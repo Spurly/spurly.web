@@ -118,6 +118,15 @@ async function getSourcingUsage(eventEmitter) {
   }
 }
 
+async function getFollowerSources(eventEmitter) {
+  try {
+    const data = await hubSourcingGateway.getFollowerSources();
+    eventEmitter.emit(LEAD_EVENTS.FOLLOWER_SOURCES_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(LEAD_EVENTS.FOLLOWER_SOURCES_FAILURE, error);
+  }
+}
+
 const leadController = {
   createSearch,
   searchAudienceParams,
@@ -132,6 +141,7 @@ const leadController = {
   addLeadsToAudience,
   removeLeadsFromAudience,
   getSourcingUsage,
+  getFollowerSources,
 };
 
 export default leadController;

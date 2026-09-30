@@ -128,6 +128,9 @@ const HubCampaignDetailPage = lazyWithProgress(() =>
     default: m.HubCampaignDetailPage,
   })),
 );
+const HubNetworkPage = lazyWithProgress(() =>
+  import("src/products/pages/network").then((m) => ({ default: m.HubNetworkPage })),
+);
 const HubEnrichmentPage = lazyWithProgress(() =>
   import("src/products/pages/enrichment").then((m) => ({
     default: m.HubEnrichmentPage,
@@ -383,6 +386,16 @@ export function AppRoutes() {
               <ProtectedRoute>
                 <SubscribeGate>
                   <HubLeadsPage />
+                </SubscribeGate>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hub/network"
+            element={
+              <ProtectedRoute>
+                <SubscribeGate>
+                  <HubNetworkPage />
                 </SubscribeGate>
               </ProtectedRoute>
             }

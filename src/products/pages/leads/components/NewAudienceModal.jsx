@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Checkbox, Dialog, Input, SoonTag, StatTile } from 'src/core/primitives';
-import { ArrowRightIcon, ImportIcon, LinkIcon, SlidersIcon, SparkIcon } from 'src/core/icons';
+import { ArrowRightIcon, ImportIcon, LeadsIcon, LinkIcon, SlidersIcon, SparkIcon } from 'src/core/icons';
 import { FilterTagPicker } from './FilterTagPicker.jsx';
 import { urlProblem } from './AudienceForm.jsx';
 import { FetchCountField } from './SourcingDialogs.jsx';
 import { fetchCountProblem, perFetchMax } from 'src/products/leads/hooks/fetchCount.js';
-import { DEFAULT_FETCH_COUNT } from 'src/products/leads/constants/constants.js';
+import { DEFAULT_FETCH_COUNT, DEFAULT_FOLLOWERS_COUNT } from 'src/products/leads/constants/constants.js';
 
 /**
  * "New audience" — the handoff's three-step modal (Leads v2):
@@ -22,6 +22,8 @@ import { DEFAULT_FETCH_COUNT } from 'src/products/leads/constants/constants.js';
  *   url      — paste a LinkedIn search (real).
  *   filters  — build the search from LinkedIn's own filter ids (real — the
  *              old dock form's pickers, moved here).
+ *   followers — import the people who follow the connected account, or a
+ *              company page it administers: `{ followers: { source, pageId? } }`.
  *   csv      — upload a file: the Import page owns that flow, so picking it
  *              goes there rather than duplicating a file uploader.
  */
@@ -46,12 +48,20 @@ const SOURCES = [
     body: 'Location, industry, company, school, degree and title — LinkedIn’s own filters, picked here.',
   },
   {
+    id: 'followers',
+    icon: LeadsIcon,
+    title: 'Import my followers',
+    body: 'The people who follow you on LinkedIn, or a company page you administer.',
+  },
+  {
     id: 'csv',
     icon: ImportIcon,
     title: 'Upload a CSV',
     body: 'Profile URLs or names plus companies. Opens the import page, which matches and enriches each row.',
   },
 ];
+
+const OWN_FOLLOWERS = 'me';
 
 const STEPS = ['Source', 'Review', 'Run'];
 const STEP_HINTS = [
@@ -122,7 +132,7 @@ function SourceOption({ source, active, onPick }) {
   );
 }
 
-export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, creditBalance = 0, usage = null }) {
+export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, creditBalance = 0, usage = null, companyPages = [] }) {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [source, setSource] = useState('url');
@@ -137,6 +147,7 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
   const [title, setTitle] = useState('');
   const [networkDistance, setNetworkDistance] = useState([]);
   const [fetchCount, setFetchCount] = useState(String(DEFAULT_FETCH_COUNT));
+  const [followerSource, setFollowerSource] = useState(OWN_FOLLOWERS);
   const countError = fetchCountProblem(fetchCount, perFetchMax(usage));
 
   /* Close once a submit finishes (success toasts, failure toasts — either
@@ -146,6 +157,23 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
     if (wasSubmitting.current && !submitting) onClose();
     wasSubmitting.current = submitting;
   }, [submitting, onClose]);
+
+  const followerPage = companyPages.find((p) => p.id === followerSource) || null;
+  // A page that disappeared from the list (health refreshed) falls back to the user's own.
+  const followersPayload = followerPage
+    ? { source: 'page', pageId: followerPage.id }
+    : { source: 'own' };
+
+  const pickSource = (id) => {
+    setSource(id);
+    // Followers lists are cheap to page, so their default is larger than a search's.
+    // Only swap the default while the user has not typed their own number.
+    setFetchCount((prev) => {
+      const untouched = prev === String(DEFAULT_FETCH_COUNT) || prev === String(DEFAULT_FOLLOWERS_COUNT);
+      if (!untouched) return prev;
+      return String(id === 'followers' ? Math.min(DEFAULT_FOLLOWERS_COUNT, perFetchMax(usage)) : DEFAULT_FETCH_COUNT);
+    });
+  };
 
   const urlError = source === 'url' ? urlProblem(url) : null;
 
@@ -168,11 +196,13 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
 
   const stepValid =
     step === 0
-      ? source === 'csv' || (source === 'url' ? url.trim() && !urlError : source === 'filters')
+      ? source === 'csv' || source === 'followers' || (source === 'url' ? url.trim() && !urlError : source === 'filters')
       : step === 1
-        ? !countError && (source === 'url'
-          ? url.trim() && !urlError
-          : filterCount > 0)
+        ? !countError && (source === 'followers'
+          ? true
+          : source === 'url'
+            ? url.trim() && !urlError
+            : filterCount > 0)
         : !countError;
 
   const next = () => {
@@ -187,24 +217,25 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
       return;
     }
     const count = Number(fetchCount);
-    onSubmit(
-      source === 'url'
-        ? { searchUrl: url.trim(), name: name.trim(), count }
-        : { filters, name: name.trim(), count },
-    );
+    const base = { name: name.trim(), count };
+    if (source === 'followers') onSubmit({ followers: followersPayload, ...base });
+    else if (source === 'url') onSubmit({ searchUrl: url.trim(), ...base });
+    else onSubmit({ filters, ...base });
   };
 
   const toggleDistance = (d) =>
     setNetworkDistance((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]));
 
   const summary = [
-    ['Source', source === 'url' ? 'LinkedIn search URL' : 'LinkedIn filters'],
-    ['Audience name', name.trim() || 'Named for you after the search'],
-    source === 'url'
-      ? ['Search', url.trim()]
-      : ['Filters', `${filterCount} ${filterCount === 1 ? 'filter' : 'filters'} selected`],
-    ['Profiles to fetch', `${Number(fetchCount) || 0} new people`],
-    ['Pace', 'Ten results per call, in the background'],
+    ['Source', source === 'followers' ? 'LinkedIn followers' : source === 'url' ? 'LinkedIn search URL' : 'LinkedIn filters'],
+    ['Audience name', name.trim() || (source === 'followers' ? 'Named for you after the import' : 'Named for you after the search')],
+    source === 'followers'
+      ? ['Followers of', followerPage ? followerPage.name : 'Your LinkedIn account']
+      : source === 'url'
+        ? ['Search', url.trim()]
+        : ['Filters', `${filterCount} ${filterCount === 1 ? 'filter' : 'filters'} selected`],
+    [source === 'followers' ? 'Followers to fetch' : 'Profiles to fetch', `${Number(fetchCount) || 0} new people`],
+    ['Pace', source === 'followers' ? 'In pages, in the background' : 'Ten results per call, in the background'],
     ['Credits', `${creditBalance.toLocaleString()} available`],
   ];
 
@@ -262,9 +293,34 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
         <div className="sp-rise">
           <div role="radiogroup" aria-label="Source" className="flex flex-col gap-2">
             {SOURCES.map((s) => (
-              <SourceOption key={s.id} source={s} active={source === s.id} onPick={setSource} />
+              <SourceOption key={s.id} source={s} active={source === s.id} onPick={pickSource} />
             ))}
           </div>
+
+          {source === 'followers' && (
+            <div className="mt-3.5">
+              {companyPages.length > 0 && (
+                <>
+                  <MicroLabel htmlFor="followers-source">Whose followers</MicroLabel>
+                  <select
+                    id="followers-source"
+                    value={followerPage ? followerPage.id : OWN_FOLLOWERS}
+                    onChange={(e) => setFollowerSource(e.target.value)}
+                    className="w-full h-[34px] px-3 rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] text-[length:var(--ui-t-control)] text-[var(--ui-text-primary)] outline-none transition-[border-color,box-shadow] duration-[var(--ui-dur-fast)] focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)]"
+                  >
+                    <option value={OWN_FOLLOWERS}>My followers</option>
+                    {companyPages.map((p) => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </>
+              )}
+              <p className="mt-2 text-[length:var(--ui-t-label)] leading-[1.5] text-[var(--ui-text-quaternary)]">
+                Followers arrive without a title or company until they are enriched. Company pages page in
+                blocks of 50, so an import can bring in up to 49 more people than you ask for.
+              </p>
+            </div>
+          )}
 
           {source === 'url' && (
             <div className="mt-3.5">
@@ -294,7 +350,14 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
 
       {step === 1 && (
         <div className="sp-rise flex flex-col gap-5">
-          {source === 'url' ? (
+          {source === 'followers' ? (
+            <div className="flex items-start gap-2.5 px-[13px] py-[11px] rounded-[var(--ui-radius-md)] border border-[var(--ui-accent-tint-strong)] bg-[var(--ui-accent-wash)]">
+              <LeadsIcon size={14} className="mt-0.5 shrink-0 text-[var(--ui-accent)]" />
+              <p className="min-w-0 text-[length:var(--ui-t-label)] text-[var(--ui-accent-fg)] leading-[1.5]">
+                Followers of {followerPage ? followerPage.name : 'your LinkedIn account'}
+              </p>
+            </div>
+          ) : source === 'url' ? (
             <div className="flex items-start gap-2.5 px-[13px] py-[11px] rounded-[var(--ui-radius-md)] border border-[var(--ui-accent-tint-strong)] bg-[var(--ui-accent-wash)]">
               <LinkIcon size={14} className="mt-0.5 shrink-0 text-[var(--ui-accent)]" />
               <p className="min-w-0 break-all font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-label)] text-[var(--ui-accent-fg)] leading-[1.5]">
@@ -364,7 +427,7 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
             <div className="min-w-0">
               <p className="text-[length:var(--ui-t-nav)] font-medium text-[var(--ui-text-primary)]">Ready to run</p>
               <p className="mt-[3px] text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-[1.5]">
-                LinkedIn returns ten results per call, so this imports in the background over a few minutes. You can
+                {source === 'followers' ? 'LinkedIn returns followers in pages, so this imports in the background over a few minutes.' : 'LinkedIn returns ten results per call, so this imports in the background over a few minutes.'} You can
                 leave the page — the count on Leads ticks up as pages come back.
               </p>
             </div>

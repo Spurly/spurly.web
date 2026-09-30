@@ -28,7 +28,12 @@ export const LEAD_EVENTS = {
   REMOVE_FROM_AUDIENCE_FAILURE: 'LEAD_REMOVE_FROM_AUDIENCE_FAILURE',
   SOURCING_USAGE_SUCCESS: 'LEAD_SOURCING_USAGE_SUCCESS',
   SOURCING_USAGE_FAILURE: 'LEAD_SOURCING_USAGE_FAILURE',
+  FOLLOWER_SOURCES_SUCCESS: 'LEAD_FOLLOWER_SOURCES_SUCCESS',
+  FOLLOWER_SOURCES_FAILURE: 'LEAD_FOLLOWER_SOURCES_FAILURE',
 };
 
 /** Default "profiles to fetch" — the old fixed import size. */
 export const DEFAULT_FETCH_COUNT = 30;
+
+/** Default "followers to import" — bigger than a search's: a follower list is cheap to page and the audience is usually the point. */
+export const DEFAULT_FOLLOWERS_COUNT = 100;
