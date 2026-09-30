@@ -15,12 +15,13 @@ const STATUS_VIEW = {
 /** A queued row waiting on the daily budget reads differently from one about to start. */
 function statusView(s) {
   if (s.mode === 'list') return { label: 'List', tone: 'neutral' };
+  if (s.mode === 'network' && s.status === 'done') return { label: 'Synced', tone: 'success' };
   if (s.status === 'queued' && s.waitUntil && new Date(s.waitUntil) > new Date()) return { label: 'Paused', tone: 'warning' };
   return STATUS_VIEW[s.status] ?? STATUS_VIEW.queued;
 }
 
 /** Search audiences can fetch more; manual imports and custom lists cannot. */
-const canFetchMore = (s) => s.canFetchMore ?? (s.mode === 'url' || s.mode === 'structured' || !s.mode);
+const canFetchMore = (s) => s.canFetchMore ?? (s.mode === 'url' || s.mode === 'structured' || s.mode === 'followers' || !s.mode);
 
 /**
  * The table's list picker — the handoff's "List  EU logistics ▾" control.

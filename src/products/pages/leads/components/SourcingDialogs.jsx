@@ -153,12 +153,13 @@ export function DuplicateSearchDialog({ duplicate, onChoose, submitting = false 
   const name = existing?.name || 'Untitled audience';
   const count = duplicate?.payload?.count;
   const exhausted = Boolean(existing?.exhausted);
+  const followers = Boolean(duplicate?.payload?.followers) || existing?.mode === 'followers';
   return (
     <Dialog
       open={Boolean(duplicate)}
       onClose={() => !submitting && onChoose(null)}
       title="You already have this search"
-      description={`"${name}" was built from the same LinkedIn search.`}
+      description={`"${name}" was built from ${followers ? 'the same followers list' : 'the same LinkedIn search'}.`}
       size="md"
       closeOnBackdrop={!submitting}
       footer={
@@ -183,14 +184,14 @@ export function DuplicateSearchDialog({ duplicate, onChoose, submitting = false 
         </p>
         {exhausted ? (
           <p className="text-[var(--ui-text-secondary)]">
-            LinkedIn has already returned everything for this search, so a new audience would find nobody new.
-            Adding checks the search again from the top for people who have appeared since. To reach more
-            people, narrow the search (location, title, company…) instead.
+            {followers
+              ? 'LinkedIn has already returned every follower, so a new audience would find nobody new. Adding checks the list again from the top for people who have followed since.'
+              : 'LinkedIn has already returned everything for this search, so a new audience would find nobody new. Adding checks the search again from the top for people who have appeared since. To reach more people, narrow the search (location, title, company…) instead.'}
           </p>
         ) : (
           <p>
             <span className="font-medium text-[var(--ui-text-primary)]">Create a new audience</span> — a separate
-            audience with the next{count ? ` ${count}` : ''} people from the same search. Nobody already in
+            audience with the next{count ? ` ${count}` : ''} people from the same {followers ? 'followers list' : 'search'}. Nobody already in
             “{name}” is fetched again.
           </p>
         )}
@@ -237,7 +238,7 @@ export function FetchMoreDialog({ audience, usage, onSubmit, onClose, submitting
         <FetchCountField id="fetch-more-count" value={value} onChange={setValue} usage={usage} disabled={submitting} />
         <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-[1.5]">
           {exhausted
-            ? 'LinkedIn already returned everything for this search. This checks it again from the top and only adds people who are new.'
+            ? `LinkedIn already returned ${audience?.mode === 'followers' ? 'every follower' : 'everything for this search'}. This checks it again from the top and only adds people who are new.`
             : 'Continues from where this audience stopped, so nobody already fetched is fetched again.'}
         </p>
       </form>

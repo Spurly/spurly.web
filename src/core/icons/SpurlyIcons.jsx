@@ -243,3 +243,13 @@ export const LogOutIcon = makeIcon('LogOutIcon', (
     <path d="M19 12H9" />
   </>
 ));
+export const NetworkIcon = makeIcon('NetworkIcon', (
+  <>
+    <circle cx="12" cy="6" r="2.5" />
+    <circle cx="5.5" cy="17" r="2.5" />
+    <circle cx="18.5" cy="17" r="2.5" />
+    <path d="M10.6 8.2L6.9 14.8" />
+    <path d="M13.4 8.2l3.7 6.6" />
+    <path d="M8 17h8" />
+  </>
+));

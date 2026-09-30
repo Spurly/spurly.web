@@ -26,6 +26,7 @@ let searches = [];
 let leadRows = [];
 let createResponses = [];
 let leftToday = 800;
+let companyPages = [];
 const posts = [];
 
 vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
@@ -33,6 +34,10 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
   'GET /hub/leads': () => ({
     success: true,
     data: { leads: leadRows, pagination: { page: 1, limit: 50, total: leadRows.length } },
+  }),
+  'GET /hub/account/health': () => ({
+    success: true,
+    data: { health: { capabilities: { companyPages } } },
   }),
   'GET /hub/sourcing/usage': () => ({
     success: true,
@@ -109,6 +114,7 @@ beforeEach(() => {
   leadRows = [ASHA, RAVI];
   createResponses = [];
   leftToday = 800;
+  companyPages = [];
   posts.length = 0;
 });
 
@@ -288,6 +294,53 @@ describe('custom lists', () => {
 
     await waitFor(() => expect(posts.some((p) => p.url === '/hub/searches/aud-1/leads')).toBe(true));
     expect(posts.find((p) => p.url === '/hub/searches/aud-1/leads').body).toEqual({ leadIds: ['lead-1'] });
+  });
+});
+
+describe('importing followers', () => {
+  async function openFollowers() {
+    renderAt('/hub/leads');
+    await userEvent.click(await screen.findByRole('button', { name: /new audience/i }));
+    await userEvent.click(await screen.findByRole('radio', { name: /import my followers/i }));
+  }
+
+  it('needs no URL or filters, defaults to 100, and sends { followers: { source: "own" } }', async () => {
+    await openFollowers();
+    // No page picker when the account administers no pages.
+    expect(screen.queryByLabelText(/whose followers/i)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /continue/i }));
+    expect(await screen.findByLabelText(/followers to fetch|profiles to fetch/i)).toHaveValue(100);
+    await userEvent.click(screen.getByRole('button', { name: /continue/i }));
+    await userEvent.click(screen.getByRole('button', { name: /run import/i }));
+
+    await waitFor(() => expect(posts.some((p) => p.url === '/hub/searches')).toBe(true));
+    const body = posts.find((p) => p.url === '/hub/searches').body;
+    expect(body).toMatchObject({ followers: { source: 'own' }, count: 100 });
+    expect(body.searchUrl).toBeUndefined();
+    expect(body.filters).toBeUndefined();
+  });
+
+  it('offers a company page and sends its id', async () => {
+    companyPages = [{ id: 'p-77', name: 'Acme Labs' }];
+    await openFollowers();
+    const pick = await screen.findByLabelText(/whose followers/i);
+    await waitFor(() => expect(within(pick).getByRole('option', { name: 'Acme Labs' })).toBeInTheDocument());
+    await userEvent.selectOptions(pick, 'p-77');
+    await userEvent.click(screen.getByRole('button', { name: /continue/i }));
+    await userEvent.click(screen.getByRole('button', { name: /continue/i }));
+    expect(screen.getByText('Acme Labs')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /run import/i }));
+
+    await waitFor(() => expect(posts.some((p) => p.url === '/hub/searches')).toBe(true));
+    expect(posts.find((p) => p.url === '/hub/searches').body).toMatchObject({
+      followers: { source: 'page', pageId: 'p-77' },
+      count: 100,
+    });
+  });
+
+  it('describes a followers audience', () => {
+    expect(describeSearch({ mode: 'followers', followersSource: 'own' })).toBe('Followers · your account');
+    expect(describeSearch({ mode: 'followers', followersSource: 'page', followersPageName: 'Acme Labs' })).toBe('Followers · Acme Labs');
   });
 });
 

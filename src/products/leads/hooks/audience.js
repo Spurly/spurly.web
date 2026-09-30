@@ -27,10 +27,16 @@ export const isBusy = (s) => (s?.status === 'queued' || s?.status === 'running')
  * re-render the whole filter form.
  */
 export function describeSearch(search) {
+  if (search.mode === 'network') return 'Your LinkedIn connections';
   if (search.mode === 'list') return 'Custom list';
   if (search.mode === 'manual') {
     const n = search.manualQueue?.length ?? 0;
     return `${n} imported profile${n === 1 ? '' : 's'}`;
+  }
+  if (search.mode === 'followers') {
+    return search.followersSource === 'page'
+      ? `Followers · ${search.followersPageName || 'company page'}`
+      : 'Followers · your account';
   }
   if (search.mode !== 'structured') return search.searchUrl;
   const f = search.filters || {};

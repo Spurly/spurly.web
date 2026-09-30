@@ -65,6 +65,7 @@ export function HubLeadsPage() {
     createAudience,
     runSearch,
     usage,
+    companyPages,
     duplicate,
     resolveDuplicate,
     fetchMoreTarget,
@@ -398,6 +399,7 @@ export function HubLeadsPage() {
         submitting={submitting}
         creditBalance={user?.creditBalance ?? 0}
         usage={usage}
+        companyPages={companyPages}
       />
 
       <DuplicateSearchDialog duplicate={duplicate} onChoose={resolveDuplicate} submitting={submitting} />

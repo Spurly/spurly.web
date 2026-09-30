@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   HomeIcon,
   LeadsIcon,
+  NetworkIcon,
   EnrichIcon,
   ImportIcon,
   CampaignIcon,
@@ -45,6 +46,7 @@ const NAV_SECTIONS = [
     items: [
       { label: "Home", icon: HomeIcon, href: "/hub/dashboard" },
       { label: "Leads", icon: LeadsIcon, href: "/hub/leads" },
+      { label: "Network", icon: NetworkIcon, href: "/hub/network" },
       { label: "Enrichment", icon: EnrichIcon, href: "/hub/enrichment" },
       { label: "Import", icon: ImportIcon, href: "/dashboard/import" },
     ],

@@ -2,7 +2,9 @@ import { SettingsFrame } from '../accountSettings/components/SettingsFrame.jsx';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { Skeleton } from 'src/core/primitives';
 import { useLinkedInSettings } from 'src/products/settings/hooks/useLinkedInSettings.js';
+import { useAccountHealth } from 'src/products/settings/hooks/useAccountHealth.js';
 import { ConnectionCard } from './components/ConnectionCard.jsx';
+import { AccountHealthCard } from './components/AccountHealthCard.jsx';
 import { FreeAccountNotice } from './components/FreeAccountNotice.jsx';
 import { linkedInSettingsStrings as t } from './strings.js';
 
@@ -19,6 +21,8 @@ import { linkedInSettingsStrings as t } from './strings.js';
  */
 export function LinkedInSettingsPage() {
   const { account, loading, busy, handleConnect, handleRefresh, handleDisconnect } = useLinkedInSettings();
+  // Only once something is linked and alive; a dead row reads as not connected.
+  const health = useAccountHealth(Boolean(account?.connected));
 
   return (
     <SettingsFrame activeTab="linkedin">
@@ -38,6 +42,15 @@ export function LinkedInSettingsPage() {
               onRefresh={handleRefresh}
               onDisconnect={handleDisconnect}
             />
+            {account?.connected && (
+              <AccountHealthCard
+                health={health.health}
+                loading={health.loading}
+                refreshing={health.refreshing}
+                gaveUp={health.gaveUp}
+                onRefresh={health.handleRefresh}
+              />
+            )}
             {account?.connected && !account?.isPremium && <FreeAccountNotice />}
           </>
         )}
