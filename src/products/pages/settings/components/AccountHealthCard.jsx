@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { RefreshCw } from 'lucide-react';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { Avatar, Badge, Button, Skeleton, Tag } from 'src/core/primitives';
@@ -107,7 +108,11 @@ export function AccountHealthCard({ health, loading, refreshing, gaveUp, onRefre
             <Row label={t.recruiter}><FlagBadge value={caps.recruiter} /></Row>
             <Row label={t.companyPages}>
               {caps.companyPages?.length
-                ? caps.companyPages.map((page) => <Tag key={page.id}>{page.name}</Tag>)
+                ? caps.companyPages.map((page) => (
+                  <Link key={page.id} to={`/hub/company/${page.id}`} aria-label={`Open ${page.name}`}>
+                    <Tag>{page.name}</Tag>
+                  </Link>
+                ))
                 : <span className="text-[length:var(--ui-t-body)] text-[var(--ui-text-tertiary)]">{t.noCompanyPages}</span>}
             </Row>
             <Row label={t.inmail}><InmailCredits credits={caps.inmailCredits} /></Row>
