@@ -4,6 +4,7 @@ import { Avatar, Badge, Button, Drawer, Skeleton, SoonTag } from 'src/core/primi
 import { LinkedInIcon, SparkIcon } from 'src/core/icons';
 import { absoluteTime } from 'src/shared/utils/outreach';
 import { leadStatus, formatFollowers } from './columns.jsx';
+import { NetworkActions } from './NetworkActions.jsx';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import leadController from 'src/products/leads/controller/lead.js';
 import { LEAD_EVENTS } from 'src/products/leads/constants/constants.js';
@@ -413,6 +414,8 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
         withdrawing={withdrawing}
         withdrawError={withdrawError}
       />
+
+      {!resolving && resolved?.providerId && <NetworkActions lead={lead} />}
 
       {!resolving && !error && <ResolvedProfilePanel lead={resolved} />}
 

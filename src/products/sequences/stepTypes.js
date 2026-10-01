@@ -1,4 +1,4 @@
-import { Eye, UserPlus, ThumbsUp, MessageSquare, Send, Clock, Award } from 'lucide-react';
+import { Eye, UserPlus, ThumbsUp, MessageSquare, Send, Clock, Award, UserCheck } from 'lucide-react';
 
 /**
  * Frontend mirror of the backend's step type catalogue
@@ -68,6 +68,13 @@ export const STEP_TYPES = [
     icon: Award,
     description: 'Only works on 1st-degree connections — skipped otherwise, never failed.',
     defaultConfig: { skillName: '' },
+  },
+  {
+    value: 'follow',
+    label: 'Follow',
+    icon: UserCheck,
+    description: 'Follows the lead on LinkedIn. Limited to 25 a day to keep the account safe.',
+    defaultConfig: {},
   },
 ];
 
