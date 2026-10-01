@@ -58,7 +58,7 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
 
 const { renderWithProviders } = await import('./helpers.jsx');
 const { HubDiscoverPage } = await import('src/products/pages/discover/index.jsx');
-const { groupJobsByCompany, snippet, companyPath, findPeopleState, discoverFailureKind } = await import('src/products/discover/format.js');
+const { groupJobsByCompany, snippet, companyPath, findPeopleState, discoverFailureKind, compactFilters } = await import('src/products/discover/format.js');
 
 let lastLocation = null;
 function LocationSpy() {
@@ -70,7 +70,7 @@ const renderPage = () => renderWithProviders(<><LocationSpy /><HubDiscoverPage /
 const apiError = (status, code, message) => Object.assign(new Error(message), { code, response: { status, data: { code, message } } });
 
 async function search(text, button = 'Search') {
-  const input = await screen.findByRole('textbox');
+  const input = await screen.findByRole('textbox', { name: /keywords|search url/i });
   fireEvent.change(input, { target: { value: text } });
   fireEvent.click(screen.getByRole('button', { name: button }));
 }
@@ -181,6 +181,67 @@ describe('Discover page', () => {
     expect(screen.queryByRole('checkbox', { name: 'Select Fixture Page' })).not.toBeInTheDocument();
   });
 
+  it('posts: sort and format filters are sent next to the date; "any" sends nothing', async () => {
+    state.responses.posts = page('posts', [post(1)]);
+    renderPage();
+    fireEvent.click(await screen.findByRole('radio', { name: 'Posts' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Newest first' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Videos' }));
+    await search('hiring');
+    await screen.findByText('Synthetic hiring post 1');
+    expect(state.calls[0].body.filters).toEqual({ sortBy: 'date', contentType: 'videos' });
+
+    // back to "All posts": that filter leaves the request again
+    fireEvent.click(screen.getByRole('radio', { name: 'All posts' }));
+    await search('hiring');
+    await waitFor(() => expect(state.calls).toHaveLength(2));
+    expect(state.calls[1].body.filters).toEqual({ sortBy: 'date' });
+  });
+
+  it('posts: posted-by is sent as an option id; "Anyone" sends nothing', async () => {
+    state.responses.posts = page('posts', [post(1)]);
+    renderPage();
+    fireEvent.click(await screen.findByRole('radio', { name: 'Posts' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'My 1st connections' }));
+    await search('hiring');
+    await screen.findByText('Synthetic hiring post 1');
+    expect(state.calls[0].body.filters).toEqual({ postedBy: 'first_connections' });
+    fireEvent.click(screen.getByRole('radio', { name: 'Anyone' }));
+    await search('hiring');
+    await waitFor(() => expect(state.calls).toHaveLength(2));
+    expect(state.calls[1].body.filters).toBeUndefined();
+  });
+
+  it('companies: size buckets and "hiring only" are sent; a pasted URL sends no filters', async () => {
+    renderPage();
+    await screen.findByRole('radio', { name: 'Companies' });
+    fireEvent.click(screen.getByRole('button', { name: '11-50' }));
+    fireEvent.click(screen.getByRole('button', { name: '10,001+' }));
+    fireEvent.click(screen.getByRole('switch', { name: 'Only companies hiring on LinkedIn' }));
+    await search('saas');
+    await waitFor(() => expect(state.calls).toHaveLength(1));
+    expect(state.calls[0].body.filters).toEqual({ headcount: ['11-50', '10001+'], hasJobOffers: true });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Paste a LinkedIn search URL instead' }));
+    fireEvent.change(screen.getByLabelText('LinkedIn search URL'), { target: { value: 'https://www.linkedin.com/search/results/companies/?keywords=saas' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+    await waitFor(() => expect(state.calls).toHaveLength(2));
+    expect(state.calls[1].body.filters).toBeUndefined();
+    expect(state.calls[1].body.url).toContain('/search/results/companies/');
+  });
+
+  it('jobs: work type, job type, sort and easy apply are sent', async () => {
+    renderPage();
+    fireEvent.click(await screen.findByRole('radio', { name: 'Jobs' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Remote' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Contract' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Newest first' }));
+    fireEvent.click(screen.getByRole('switch', { name: 'Easy Apply only' }));
+    await search('react');
+    await waitFor(() => expect(state.calls).toHaveLength(1));
+    expect(state.calls[0].body.filters).toEqual({ presence: ['remote'], jobType: ['contract'], sortBy: 'date', easyApply: true });
+  });
+
   it('posts: select authors, import them once, and report the result', async () => {
     state.responses.posts = page('posts', [post(1), post(2), post(3, { author: { ...post(1).author } })]);
     renderPage();
@@ -237,7 +298,7 @@ describe('Discover page', () => {
     state.usage = usage(100);
     renderPage();
     await waitFor(() => expect(screen.getByText(/100 of 100 searches used today/)).toBeInTheDocument());
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'saas' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /keywords/i }), { target: { value: 'saas' } });
     expect(screen.getByRole('button', { name: 'Search' })).toBeDisabled();
   });
 
@@ -270,6 +331,19 @@ describe('Discover page', () => {
 });
 
 describe('format helpers', () => {
+  it('compactFilters keeps only set filters and turns picker objects into ids', () => {
+    expect(compactFilters(undefined)).toBeUndefined();
+    expect(compactFilters({ sortBy: 'any', location: [], hasJobOffers: false })).toBeUndefined();
+    expect(compactFilters({
+      location: [{ id: '102713980', title: 'India' }],
+      headcount: ['11-50'],
+      region: { id: '1', title: 'x' },
+      sortBy: 'date',
+      easyApply: true,
+    })).toEqual({ location: ['102713980'], headcount: ['11-50'], region: '1', sortBy: 'date', easyApply: true });
+  });
+
+
   it('groups jobs by company id, most roles first; a job without a company stands alone', () => {
     const groups = groupJobsByCompany([job(1), job(2), job(3, { company: { companyId: '9100002', name: 'B' } }), job(4, { company: null })]);
     expect(groups.map((g) => g.jobs.length)).toEqual([2, 1, 1]);
