@@ -210,6 +210,8 @@ export function stepSummary(step) {
       return config.notify === false ? 'Silent visit' : 'Visits and notifies';
     case 'like_post':
       return "Reacts to the lead's most recent post";
+    case 'follow':
+      return 'Follows the lead';
     default:
       return '';
   }
