@@ -89,6 +89,35 @@ function ConfigFields({ step, onConfigChange, disabled }) {
     return <p className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">Reacts to the lead's most recent post. No configuration needed.</p>;
   }
 
+  if (type === 'inmail') {
+    return (
+      <div className="flex flex-col gap-1.5">
+        <input
+          value={config.subject || ''}
+          maxLength={200}
+          disabled={disabled}
+          onChange={(e) => onConfigChange({ subject: e.target.value })}
+          placeholder="Subject (optional)"
+          aria-label="InMail subject"
+          className="w-full h-8 text-[length:var(--ui-t-label)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-2.5 text-[var(--ui-text-primary)] disabled:opacity-60"
+        />
+        <textarea
+          value={config.text || ''}
+          maxLength={1900}
+          rows={4}
+          disabled={disabled}
+          onChange={(e) => onConfigChange({ text: e.target.value })}
+          placeholder="Hi {{firstName}}, …"
+          aria-label="InMail"
+          className="w-full text-[length:var(--ui-t-label)] rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-2.5 py-1.5 text-[var(--ui-text-primary)] disabled:opacity-60"
+        />
+        <span className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-tertiary)]">
+          {(config.text || '').length}/1900 · uses an InMail credit; skipped if you are already connected.
+        </span>
+      </div>
+    );
+  }
+
   if (type === 'comment_post' || type === 'message') {
     const label = type === 'message' ? 'Message' : 'Comment';
     return (
@@ -199,6 +228,7 @@ export function stepSummary(step) {
       return config.note ? `“${config.note}”` : 'No note';
     case 'comment_post':
     case 'message':
+    case 'inmail':
       return config.text ? `“${config.text}”` : 'Not written yet';
     case 'wait':
       return config.mode === 'until-accepted'

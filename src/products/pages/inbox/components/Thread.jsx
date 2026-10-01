@@ -6,6 +6,7 @@ import { absoluteTime } from 'src/shared/utils/outreach';
 import { useThread } from 'src/products/inbox/hooks/useThread.js';
 import { AiWriteButton } from 'src/products/personalization/AiWriteButton.jsx';
 import { ThreadSkeleton } from './ThreadSkeleton.jsx';
+import { Attachments, Reactions, SeenTick, ReactionPicker, AttachMenu } from './MessageExtras.jsx';
 import { inboxStrings as t } from '../strings.js';
 
 /**
@@ -31,7 +32,7 @@ function dayKey(value) {
   return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString(undefined, DAY);
 }
 
-function Bubble({ message }) {
+function Bubble({ message, onReact, onOpenAttachment }) {
   const mine = Boolean(message.isSender);
 
   /**
@@ -48,7 +49,7 @@ function Bubble({ message }) {
   }
 
   return (
-    <li className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
+    <li className={`group flex ${mine ? 'justify-end' : 'justify-start'}`}>
       <div className="max-w-[min(68ch,78%)]">
         <div
           className={[
@@ -58,10 +59,13 @@ function Bubble({ message }) {
               : 'bg-[var(--ui-surface-card)] border border-[var(--ui-border)] text-[var(--ui-text-primary)]',
           ].join(' ')}
         >
-          {message.text || <span className="text-[var(--ui-text-tertiary)]">(no text)</span>}
+          {message.text || (message.attachments?.length ? null : <span className="text-[var(--ui-text-tertiary)]">(no text)</span>)}
+          <Attachments message={message} onOpen={onOpenAttachment} />
         </div>
+        <Reactions message={message} />
         <div className={`mt-1.5 font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)] tabular-nums ${mine ? 'text-right' : ''}`}>
-          {mine ? 'You' : message.senderName || ''}{mine || message.senderName ? ' · ' : ''}{absoluteTime(message.timestamp)}
+          {mine ? 'You' : message.senderName || ''}{mine || message.senderName ? ' · ' : ''}{absoluteTime(message.timestamp)}<SeenTick message={message} />
+          {!mine && <ReactionPicker message={message} onReact={onReact} />}
         </div>
       </div>
     </li>
@@ -69,7 +73,7 @@ function Bubble({ message }) {
 }
 
 export function Thread({ chatId, onChanged }) {
-  const { data, loading, draft, setDraft, sending, chat, messages, readOnly, send } = useThread({ chatId, onChanged });
+  const { data, loading, draft, setDraft, sending, uploading, chat, messages, readOnly, send, react, attach, openAttachment } = useThread({ chatId, onChanged });
   const bottomRef = useRef(null);
 
   // Jump to the newest message — the bottom of a conversation is where a
@@ -147,7 +151,7 @@ export function Thread({ chatId, onChanged }) {
                       <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums">{day}</span>
                     </li>
                   )}
-                  <Bubble message={message} />
+                  <Bubble message={message} onReact={react} onOpenAttachment={openAttachment} />
                 </div>
               );
             })}
@@ -195,8 +199,9 @@ export function Thread({ chatId, onChanged }) {
                 className="block w-full resize-none bg-transparent px-3.5 py-3 text-[length:var(--ui-t-control)] leading-[1.6] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-quaternary)] focus:outline-none"
               />
               <div className="flex items-center gap-2 px-3 py-2 border-t border-[var(--ui-border-hairline)] bg-[var(--ui-surface-header)]">
+                <AttachMenu onPick={attach} disabled={sending || uploading} />
                 <span className="flex-1 min-w-0 truncate font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)]">
-                  ⌘↵ to send · edit freely
+                  {uploading ? 'Uploading…' : '⌘↵ to send · edit freely'}
                 </span>
                 {/* A reply is always a DIRECT_MESSAGE to one already-open
                     thread, to one known person — recipientName tells the

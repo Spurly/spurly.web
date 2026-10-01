@@ -70,5 +70,42 @@ async function sendReply(eventEmitter, id, text) {
   }
 }
 
-const inboxController = { loadInboxPage, getThread, markRead, sync, sendReply };
+async function reactToMessage(eventEmitter, messageId, emoji) {
+  try {
+    const data = await hubInboxGateway.reactToMessage(messageId, emoji);
+    eventEmitter.emit(INBOX_EVENTS.REACT_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(INBOX_EVENTS.REACT_FAILURE, { code: error?.code, error });
+  }
+}
+
+/** SEND_UNCONFIRMED is passed through as `code`, as for sendReply: never offer a plain retry for it. */
+async function sendMedia(eventEmitter, chatId, payload) {
+  try {
+    await hubInboxGateway.sendMedia(chatId, payload);
+    eventEmitter.emit(INBOX_EVENTS.MEDIA_SUCCESS);
+  } catch (error) {
+    eventEmitter.emit(INBOX_EVENTS.MEDIA_FAILURE, { code: error?.code, error });
+  }
+}
+
+async function openAttachment(eventEmitter, { messageId, attachment }) {
+  try {
+    const blob = await hubInboxGateway.fetchAttachment(messageId, attachment.id);
+    eventEmitter.emit(INBOX_EVENTS.ATTACHMENT_SUCCESS, { blob, attachment });
+  } catch (error) {
+    eventEmitter.emit(INBOX_EVENTS.ATTACHMENT_FAILURE, error);
+  }
+}
+
+async function sendInmail(eventEmitter, leadId, payload) {
+  try {
+    const data = await hubInboxGateway.sendInmail(leadId, payload);
+    eventEmitter.emit(INBOX_EVENTS.INMAIL_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(INBOX_EVENTS.INMAIL_FAILURE, { code: error?.code, error });
+  }
+}
+
+const inboxController = { sendInmail, loadInboxPage, getThread, markRead, sync, sendReply, reactToMessage, sendMedia, openAttachment };
 export default inboxController;

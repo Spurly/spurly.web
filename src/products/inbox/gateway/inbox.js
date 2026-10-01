@@ -89,5 +89,39 @@ async function sendReply(id, text) {
   return res.data?.data ?? null;
 }
 
-const hubInboxGateway = { getSummary, listChats, getThread, markRead, sync, sendReply };
+/** POST /hub/inbox/messages/:id/reaction. Counts against the account's daily action budget. */
+async function reactToMessage(messageId, emoji) {
+  const res = await apiGateway.post(`/hub/inbox/messages/${messageId}/reaction`, { emoji });
+  return res.data?.data ?? null;
+}
+
+/**
+ * POST /hub/inbox/chats/:id/media. The request body IS the file (not multipart):
+ * the server validates type and size from the headers before reading a byte.
+ * A long timeout, because this is an upload and not an API call.
+ */
+async function sendMedia(chatId, { kind, file, text = '' }) {
+  const params = { kind, filename: file.name };
+  if (text) params.text = text;
+  const res = await apiGateway.post(`/hub/inbox/chats/${chatId}/media`, file, {
+    params,
+    headers: { 'Content-Type': file.type || 'application/octet-stream' },
+    timeout: 180000,
+  });
+  return res.data?.data ?? null;
+}
+
+/** GET a received attachment as a Blob (the route is authenticated, so an <a href> cannot be used). */
+async function fetchAttachment(messageId, attachmentId) {
+  const res = await apiGateway.get(`/hub/inbox/messages/${messageId}/attachments/${encodeURIComponent(attachmentId)}`, { responseType: 'blob', timeout: 60000 });
+  return res.data;
+}
+
+/** POST /hub/leads/:id/inmail: costs an InMail credit; only for people you are not connected to. */
+async function sendInmail(leadId, { subject, text }) {
+  const res = await apiGateway.post(`/hub/leads/${leadId}/inmail`, { subject, text }, { timeout: 60000 });
+  return res.data?.data ?? null;
+}
+
+const hubInboxGateway = { sendInmail, getSummary, listChats, getThread, markRead, sync, sendReply, reactToMessage, sendMedia, fetchAttachment };
 export default hubInboxGateway;

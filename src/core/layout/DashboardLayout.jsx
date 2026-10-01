@@ -63,6 +63,7 @@ const NAV_SECTIONS = [
       { label: "Campaigns", icon: CampaignIcon, href: "/hub/campaigns" },
       { label: "Sequences", icon: SequenceIcon, href: "/hub/sequences" },
       { label: "Inbox", icon: InboxIcon, href: "/hub/inbox" },
+      { label: "Posts", icon: TemplateIcon, href: "/hub/posts" },
       { label: "Templates", icon: TemplateIcon, href: "/dashboard/templates" },
     ],
   },

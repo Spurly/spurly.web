@@ -1,4 +1,4 @@
-import { Eye, UserPlus, ThumbsUp, MessageSquare, Send, Clock, Award, UserCheck } from 'lucide-react';
+import { Eye, UserPlus, ThumbsUp, MessageSquare, Send, Clock, Award, UserCheck, Mail } from 'lucide-react';
 
 /**
  * Frontend mirror of the backend's step type catalogue
@@ -76,6 +76,13 @@ export const STEP_TYPES = [
     description: 'Follows the lead on LinkedIn. Limited to 25 a day to keep the account safe.',
     defaultConfig: {},
   },
+  {
+    value: 'inmail',
+    label: 'Send an InMail',
+    icon: Mail,
+    description: 'Messages someone you are not connected to. Uses an InMail credit; skipped for 1st-degree leads.',
+    defaultConfig: { subject: '', text: '' },
+  },
 ];
 
 export const STEP_TYPE_MAP = Object.fromEntries(STEP_TYPES.map((t) => [t.value, t]));
@@ -106,6 +113,11 @@ export function stepError(step) {
       return null;
     case 'message':
       if (!config.text?.trim()) return 'Message text is required';
+      return null;
+    case 'inmail':
+      if (!config.text?.trim()) return 'InMail text is required';
+      if (config.text.length > 1900) return 'InMail cannot exceed 1900 characters';
+      if (config.subject && config.subject.length > 200) return 'Subject cannot exceed 200 characters';
       return null;
     case 'connect':
       if (config.note && config.note.length > 300) return 'Note cannot exceed 300 characters';
