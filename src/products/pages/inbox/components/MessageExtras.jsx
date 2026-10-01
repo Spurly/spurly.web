@@ -112,7 +112,7 @@ export function AttachMenu({ onPick, disabled }) {
         <Paperclip size={14} />
       </button>
       {open && (
-        <span className="absolute z-10 bottom-9 left-0 flex flex-col w-44 p-1 rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-btn-shadow)]">
+        <span className="absolute z-20 bottom-9 left-0 flex flex-col w-44 p-1 rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-btn-shadow)]">
           {MEDIA_KINDS.map((k) => (
             <button
               key={k.kind}
