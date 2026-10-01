@@ -132,7 +132,7 @@ function SourceOption({ source, active, onPick }) {
   );
 }
 
-export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, creditBalance = 0, usage = null, companyPages = [] }) {
+export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, creditBalance = 0, usage = null, companyPages = [], prefill = null }) {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [source, setSource] = useState('url');
@@ -149,6 +149,18 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
   const [fetchCount, setFetchCount] = useState(String(DEFAULT_FETCH_COUNT));
   const [followerSource, setFollowerSource] = useState(OWN_FOLLOWERS);
   const countError = fetchCountProblem(fetchCount, perFetchMax(usage));
+
+  /* Arriving from Discover ("Find people here"): start on the filters source,
+     already on the review step, with that company chosen. Applied once per
+     prefilled company, never over something the person has since changed. */
+  const prefillId = prefill?.company?.id;
+  const prefillTitle = prefill?.company?.title;
+  useEffect(() => {
+    if (!open || !prefillId) return;
+    setSource('filters'); // eslint-disable-line react-hooks/set-state-in-effect
+    setCompany([{ id: prefillId, title: prefillTitle || 'Company' }]);
+    setStep(1);
+  }, [open, prefillId, prefillTitle]);
 
   /* Close once a submit finishes (success toasts, failure toasts — either
      way the page has the answer, and a failure keeps its reason visible). */

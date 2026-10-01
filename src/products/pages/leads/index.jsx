@@ -114,11 +114,23 @@ export function HubLeadsPage() {
      tab. Read once, on arrival. */
   const arrivalTab = location.state?.tab;
   const arrivalNewAudience = Boolean(location.state?.newAudience);
+  /* Arriving from Discover's "Find people here": the dialog opens on the
+     filters source with that company already chosen. Cleared on close so a
+     later manual open starts clean. */
+  const arrivalCompanyId = location.state?.newAudienceCompany?.id;
+  const arrivalCompanyName = location.state?.newAudienceCompany?.name;
+  const [audiencePrefill, setAudiencePrefill] = useState(null);
   useEffect(() => {
     if (arrivalTab === "enrich") setActiveTab("enrich"); // eslint-disable-line react-hooks/set-state-in-effect
     if (arrivalNewAudience) setAudienceOpen(true); // eslint-disable-line react-hooks/set-state-in-effect
-  }, [arrivalTab, arrivalNewAudience, setActiveTab]);
-  const closeAudience = useCallback(() => setAudienceOpen(false), []);
+    if (arrivalNewAudience && arrivalCompanyId) {
+      setAudiencePrefill({ company: { id: String(arrivalCompanyId), title: arrivalCompanyName || "Company" } });
+    }
+  }, [arrivalTab, arrivalNewAudience, arrivalCompanyId, arrivalCompanyName, setActiveTab]);
+  const closeAudience = useCallback(() => {
+    setAudienceOpen(false);
+    setAudiencePrefill(null);
+  }, []);
 
   /* Arriving from a notification's "?lead=<id>" deep link (connection
      accepted, enrichment finished) — open that lead's drawer straight away.
@@ -400,6 +412,7 @@ export function HubLeadsPage() {
         creditBalance={user?.creditBalance ?? 0}
         usage={usage}
         companyPages={companyPages}
+        prefill={audiencePrefill}
       />
 
       <DuplicateSearchDialog duplicate={duplicate} onChoose={resolveDuplicate} submitting={submitting} />

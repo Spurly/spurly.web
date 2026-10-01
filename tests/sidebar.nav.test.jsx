@@ -42,6 +42,7 @@ describe('DashboardLayout — sidebar', () => {
     expect(within(nav).getByText('Manage')).toBeTruthy();
     expect(within(nav).getByText('Import')).toBeTruthy();
     expect(within(nav).getByText('Leads')).toBeTruthy();
+    expect(within(nav).getByText('Discover')).toBeTruthy();
     expect(within(nav).getByText('Sequences')).toBeTruthy();
     expect(within(nav).getByText('Inbox')).toBeTruthy();
   });
