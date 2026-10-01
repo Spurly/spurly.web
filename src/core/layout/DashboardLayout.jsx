@@ -28,6 +28,7 @@ import { Avatar, Tooltip } from "src/core/primitives";
 import { NotificationBell } from "src/core/pages/notifications/components/NotificationBell.jsx";
 import { SidebarBrand } from "./SidebarBrand";
 import { AskSpurly } from "./AskSpurly";
+import { AccountStatusBanner } from "./AccountStatusBanner";
 import { useSidebarSummary } from "src/core/sidebarSummary/hooks/useSidebarSummary.js";
 import { formatCompactNumber } from "src/shared/utils/formatCompactNumber.js";
 
@@ -81,6 +82,8 @@ const NAV_SECTIONS = [
 ];
 
 const ADMIN_ITEM = { label: "Admin", icon: ShieldIcon, href: "/admin/users" };
+
+const LINKEDIN_SETTINGS_HREF = "/dashboard/settings/linkedin";
 
 const SIDEBAR_OPEN_KEY = "spurly.sidebarOpen";
 const WIDTH_EXPANDED = 244;
@@ -424,6 +427,10 @@ export function DashboardLayout({
   const [paletteOpen, setPaletteOpen] = useState(false);
   const summary = useSidebarSummary();
   const extension = useExtensionState();
+  // The settings page carries its own, fuller reconnect card, so the banner
+  // would only repeat it there.
+  const accountAttention = summary.account.attention;
+  const onLinkedInSettings = location.pathname.startsWith(LINKEDIN_SETTINGS_HREF);
 
   /* Cmd+K on mac, Ctrl+K elsewhere — available anywhere the shell is
      mounted, not just while focus sits in the sidebar. */
@@ -495,7 +502,12 @@ export function DashboardLayout({
      from useSidebarSummary (GET /hub/summary) — nothing fabricated. */
   const navBadgeFor = useCallback(
     (href) => {
-      if (href === "/dashboard/settings/linkedin") {
+      if (href === LINKEDIN_SETTINGS_HREF) {
+        // A connection that needs the user outranks the extension's state: it
+        // is the one thing that stops every send.
+        if (accountAttention) {
+          return <NavBadge tone="warning" title="LinkedIn needs you to reconnect" />;
+        }
         return extension.tone ? (
           <NavBadge tone={extension.tone === "danger" ? "danger" : extension.tone} title={extension.label} />
         ) : null;
@@ -514,7 +526,7 @@ export function DashboardLayout({
       }
       return null;
     },
-    [extension.tone, extension.label, summary.leadsTotal, summary.leadsNeedingEnrichment, summary.campaignsRunning, summary.inboxUnread],
+    [accountAttention, extension.tone, extension.label, summary.leadsTotal, summary.leadsNeedingEnrichment, summary.campaignsRunning, summary.inboxUnread],
   );
 
   const handleLogout = () => {
@@ -627,6 +639,13 @@ export function DashboardLayout({
       <div
         className={`flex-1 flex flex-col min-w-0 ${layout === "page" || layout === "plain" ? "overflow-y-auto" : "overflow-hidden"}`}
       >
+        {!onLinkedInSettings && (
+          <AccountStatusBanner
+            attention={accountAttention}
+            onReconnect={() => navigate(LINKEDIN_SETTINGS_HREF)}
+          />
+        )}
+
         {hasHeader && (
           <header className="shrink-0 flex items-start gap-4 px-[var(--ui-shell-x)] pt-5">
             {backTo && (
