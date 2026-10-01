@@ -17,6 +17,9 @@ const EMPTY = {
   campaignsRunning: null,
   inboxUnread: null,
   pacing: { dayUsed: null, dailyCap: null },
+  // Plan M7 row 2. `attention` is null unless the LinkedIn connection needs the
+  // user (the server decides; see AccountStatusBanner).
+  account: { status: null, attention: null },
 };
 
 /**
@@ -34,6 +37,7 @@ function normalize(data) {
     ...EMPTY,
     ...data,
     pacing: { ...EMPTY.pacing, ...data?.pacing },
+    account: { ...EMPTY.account, ...data?.account },
   };
 }
 
