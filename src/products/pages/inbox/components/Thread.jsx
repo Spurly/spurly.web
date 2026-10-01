@@ -186,7 +186,7 @@ export function Thread({ chatId, onChanged }) {
               ))}
               <SoonTag />
             </div>
-            <div className="rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] focus-within:border-[var(--ui-accent)] focus-within:shadow-[var(--ui-focus-ring)] transition-[border-color,box-shadow] duration-[var(--ui-dur-fast)] overflow-hidden">
+            <div className="rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] focus-within:border-[var(--ui-accent)] focus-within:shadow-[var(--ui-focus-ring)] transition-[border-color,box-shadow] duration-[var(--ui-dur-fast)]">
               <textarea
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
@@ -198,7 +198,7 @@ export function Thread({ chatId, onChanged }) {
                 aria-label={t.thread.composerAriaLabel}
                 className="block w-full resize-none bg-transparent px-3.5 py-3 text-[length:var(--ui-t-control)] leading-[1.6] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-quaternary)] focus:outline-none"
               />
-              <div className="flex items-center gap-2 px-3 py-2 border-t border-[var(--ui-border-hairline)] bg-[var(--ui-surface-header)]">
+              <div className="flex items-center gap-2 px-3 py-2 border-t border-[var(--ui-border-hairline)] bg-[var(--ui-surface-header)] rounded-b-[var(--ui-radius-md)]">
                 <AttachMenu onPick={attach} disabled={sending || uploading} />
                 <span className="flex-1 min-w-0 truncate font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)]">
                   {uploading ? 'Uploading…' : '⌘↵ to send · edit freely'}
