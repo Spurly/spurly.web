@@ -4,6 +4,7 @@ import {
   HomeIcon,
   LeadsIcon,
   NetworkIcon,
+  SearchIcon,
   EyeIcon,
   EnrichIcon,
   ImportIcon,
@@ -46,6 +47,7 @@ const NAV_SECTIONS = [
     label: "Prospect",
     items: [
       { label: "Home", icon: HomeIcon, href: "/hub/dashboard" },
+      { label: "Discover", icon: SearchIcon, href: "/hub/discover" },
       { label: "Leads", icon: LeadsIcon, href: "/hub/leads" },
       { label: "Network", icon: NetworkIcon, href: "/hub/network" },
       { label: "Profile viewers", icon: EyeIcon, href: "/hub/viewers" },
