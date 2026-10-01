@@ -9,6 +9,8 @@ import { REACTION_CHOICES, MEDIA_KINDS } from 'src/products/inbox/constants/cons
  * menu. Presentational only: every action is a callback from useThread.
  */
 
+const KIND_LABEL = { voice: 'Voice note', video: 'Video', image: 'Image', audio: 'Audio' };
+
 const sizeLabel = (bytes) => {
   if (!Number.isFinite(bytes) || bytes <= 0) return '';
   return bytes >= 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
@@ -29,7 +31,7 @@ export function Attachments({ message, onOpen }) {
             title={a.downloadable ? 'Download' : 'Not available to download'}
             leadingIcon={<Download size={12} aria-hidden="true" />}
           >
-            {a.name || (a.kind === 'voice' ? 'Voice note' : 'Attachment')}{sizeLabel(a.size) ? ` · ${sizeLabel(a.size)}` : ''}
+            {a.name || KIND_LABEL[a.kind] || 'Attachment'}{sizeLabel(a.size) ? ` · ${sizeLabel(a.size)}` : ''}
           </Button>
         </li>
       ))}
