@@ -253,3 +253,9 @@ export const NetworkIcon = makeIcon('NetworkIcon', (
     <path d="M8 17h8" />
   </>
 ));
+export const EyeIcon = makeIcon('EyeIcon', (
+  <>
+    <path d="M2.5 12s3.6-6.5 9.5-6.5S21.5 12 21.5 12s-3.6 6.5-9.5 6.5S2.5 12 2.5 12z" />
+    <circle cx="12" cy="12" r="3" />
+  </>
+));
