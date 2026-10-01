@@ -61,3 +61,24 @@ export function findPeopleState(company) {
 export function authorsFromPosts(posts) {
   return (posts ?? []).map((p) => p.author).filter(Boolean);
 }
+
+/**
+ * The filters a search sends: only the ones that are set, as the backend takes
+ * them (ids, not picker objects). Pure. Returns undefined when nothing is set
+ * so the request carries no empty `filters`.
+ */
+export function compactFilters(filters) {
+  const out = {};
+  for (const [key, value] of Object.entries(filters ?? {})) {
+    if (value === undefined || value === null || value === '' || value === 'any' || value === false) continue;
+    if (Array.isArray(value)) {
+      if (!value.length) continue;
+      out[key] = value.map((v) => (v && typeof v === 'object' ? v.id : v));
+    } else if (typeof value === 'object') {
+      if (value.id) out[key] = value.id;
+    } else {
+      out[key] = value;
+    }
+  }
+  return Object.keys(out).length ? out : undefined;
+}

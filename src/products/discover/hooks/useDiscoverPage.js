@@ -3,8 +3,8 @@ import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import hubDiscoverController from '../controller/discover.js';
-import { DISCOVER_EVENTS, DISCOVER_TABS, DATE_POSTED_OPTIONS } from '../constants/constants.js';
-import { discoverFailureKind, serverMessage } from '../format.js';
+import { DISCOVER_EVENTS, DISCOVER_TABS } from '../constants/constants.js';
+import { discoverFailureKind, serverMessage, compactFilters } from '../format.js';
 
 const emptyTab = () => ({
   items: [],
@@ -90,15 +90,15 @@ export function useDiscoverPage() {
 
   useEffect(() => { hubDiscoverController.getUsage(eventEmitter); }, [eventEmitter]);
 
-  /** A fresh search on one tab. `query` is { keywords?, url?, datePostedId? }. */
+  /** A fresh search on one tab. `query` is { keywords?, url?, filters? } (filters as the panel holds them). */
   const search = useCallback((category, query) => {
     const seq = (seqRef.current[category] ?? 0) + 1;
     seqRef.current[category] = seq;
-    const datePosted = DATE_POSTED_OPTIONS.find((o) => o.id === query.datePostedId)?.value;
     const clean = {
       keywords: query.url ? undefined : (query.keywords ?? '').trim() || undefined,
       url: (query.url ?? '').trim() || undefined,
-      filters: category === 'posts' && datePosted ? { datePosted } : undefined,
+      // A pasted URL carries its own filters, so none are sent next to it.
+      filters: query.url ? undefined : compactFilters(query.filters),
     };
     patchTab(category, { loading: true, items: [], cursor: null, total: null, error: null, query: clean });
     hubDiscoverController.search(eventEmitter, { category, ...clean }, { seq, append: false });
