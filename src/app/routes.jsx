@@ -140,6 +140,9 @@ const HubDiscoverPage = lazyWithProgress(() =>
 const HubProfileViewersPage = lazyWithProgress(() =>
   import("src/products/pages/profileViewers").then((m) => ({ default: m.HubProfileViewersPage })),
 );
+const HubPostsPage = lazyWithProgress(() =>
+  import("src/products/pages/posts").then((m) => ({ default: m.HubPostsPage })),
+);
 const HubInvitationsPage = lazyWithProgress(() =>
   import("src/products/pages/invitations").then((m) => ({ default: m.HubInvitationsPage })),
 );
@@ -438,6 +441,16 @@ export function AppRoutes() {
               <ProtectedRoute>
                 <SubscribeGate>
                   <HubProfileViewersPage />
+                </SubscribeGate>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hub/posts"
+            element={
+              <ProtectedRoute>
+                <SubscribeGate>
+                  <HubPostsPage />
                 </SubscribeGate>
               </ProtectedRoute>
             }

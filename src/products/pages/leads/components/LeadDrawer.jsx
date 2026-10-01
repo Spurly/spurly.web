@@ -5,6 +5,8 @@ import { LinkedInIcon, SparkIcon } from 'src/core/icons';
 import { absoluteTime } from 'src/shared/utils/outreach';
 import { leadStatus, formatFollowers } from './columns.jsx';
 import { NetworkActions } from './NetworkActions.jsx';
+import { LeadInmail } from './LeadInmail.jsx';
+import { LeadPosts } from './LeadPosts.jsx';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import leadController from 'src/products/leads/controller/lead.js';
 import { LEAD_EVENTS } from 'src/products/leads/constants/constants.js';
@@ -416,6 +418,8 @@ export function LeadDrawer({ lead, onClose, onResolved }) {
       />
 
       {!resolving && resolved?.providerId && <NetworkActions lead={lead} />}
+      {!resolving && resolved?.providerId && <LeadInmail lead={{ ...lead, connectionDegree: resolved.connectionDegree ?? lead.connectionDegree }} />}
+      {!resolving && resolved?.providerId && <LeadPosts lead={lead} />}
 
       {!resolving && !error && <ResolvedProfilePanel lead={resolved} />}
 

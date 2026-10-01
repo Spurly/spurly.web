@@ -3,7 +3,7 @@ import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import inboxController from '../controller/inbox.js';
-import { INBOX_EVENTS } from '../constants/constants.js';
+import { INBOX_EVENTS, MEDIA_KINDS } from '../constants/constants.js';
 
 /**
  * State for one open conversation: loading its messages, marking it read,
@@ -22,6 +22,7 @@ export function useThread({ chatId, onChanged }) {
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const toast = useToast();
 
@@ -102,6 +103,42 @@ export function useThread({ chatId, onChanged }) {
       }
     };
 
+    const onReactSuccess = () => { load(); };
+    const onReactFailure = ({ error }) => { toast.error(getToastError(error, 'Could not react to that message')); };
+    const onMediaSuccess = () => {
+      if (mountedRef.current) { setUploading(false); setDraft(''); }
+      load();
+      onChangedRef.current?.();
+    };
+    // Same rule as a text reply: an unconfirmed upload may have gone out.
+    const onMediaFailure = ({ code, error }) => {
+      if (mountedRef.current) setUploading(false);
+      if (code === 'SEND_UNCONFIRMED') {
+        toast.error('LinkedIn did not confirm that file. Check the conversation there before sending it again — it may have gone out.');
+      } else {
+        toast.error(getToastError(error, 'Could not send that file'));
+      }
+    };
+    // The route is authenticated, so the file arrives as a Blob and is opened from an object URL.
+    const onAttachmentSuccess = ({ blob, attachment }) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = attachment.name || 'attachment';
+      link.rel = 'noopener';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    };
+    const onAttachmentFailure = (error) => { toast.error(getToastError(error, 'Could not open that attachment')); };
+
+    eventEmitter.on(INBOX_EVENTS.REACT_SUCCESS, onReactSuccess);
+    eventEmitter.on(INBOX_EVENTS.REACT_FAILURE, onReactFailure);
+    eventEmitter.on(INBOX_EVENTS.MEDIA_SUCCESS, onMediaSuccess);
+    eventEmitter.on(INBOX_EVENTS.MEDIA_FAILURE, onMediaFailure);
+    eventEmitter.on(INBOX_EVENTS.ATTACHMENT_SUCCESS, onAttachmentSuccess);
+    eventEmitter.on(INBOX_EVENTS.ATTACHMENT_FAILURE, onAttachmentFailure);
     eventEmitter.on(INBOX_EVENTS.THREAD_LOAD_SUCCESS, onThreadLoadSuccess);
     eventEmitter.on(INBOX_EVENTS.THREAD_LOAD_FAILURE, onThreadLoadFailure);
     eventEmitter.on(INBOX_EVENTS.MARK_READ_SUCCESS, onMarkReadSuccess);
@@ -109,6 +146,12 @@ export function useThread({ chatId, onChanged }) {
     eventEmitter.on(INBOX_EVENTS.SEND_SUCCESS, onSendSuccess);
     eventEmitter.on(INBOX_EVENTS.SEND_FAILURE, onSendFailure);
     return () => {
+      eventEmitter.off(INBOX_EVENTS.REACT_SUCCESS, onReactSuccess);
+      eventEmitter.off(INBOX_EVENTS.REACT_FAILURE, onReactFailure);
+      eventEmitter.off(INBOX_EVENTS.MEDIA_SUCCESS, onMediaSuccess);
+      eventEmitter.off(INBOX_EVENTS.MEDIA_FAILURE, onMediaFailure);
+      eventEmitter.off(INBOX_EVENTS.ATTACHMENT_SUCCESS, onAttachmentSuccess);
+      eventEmitter.off(INBOX_EVENTS.ATTACHMENT_FAILURE, onAttachmentFailure);
       eventEmitter.off(INBOX_EVENTS.THREAD_LOAD_SUCCESS, onThreadLoadSuccess);
       eventEmitter.off(INBOX_EVENTS.THREAD_LOAD_FAILURE, onThreadLoadFailure);
       eventEmitter.off(INBOX_EVENTS.MARK_READ_SUCCESS, onMarkReadSuccess);
@@ -143,5 +186,21 @@ export function useThread({ chatId, onChanged }) {
     inboxController.sendReply(eventEmitter, chatId, text);
   };
 
-  return { data, loading, draft, setDraft, sending, chat, messages, readOnly, send };
+  const react = (messageId, emoji) => { inboxController.reactToMessage(eventEmitter, messageId, emoji); };
+
+  /** Validates size client-side for a fast answer; the server re-checks type and size from the headers. */
+  const attach = (kind, file) => {
+    if (!file || uploading) return;
+    const limit = MEDIA_KINDS.find((k) => k.kind === kind);
+    if (limit && file.size > limit.maxMb * 1024 * 1024) {
+      toast.error(`That file is over ${limit.maxMb} MB.`);
+      return;
+    }
+    setUploading(true);
+    inboxController.sendMedia(eventEmitter, chatId, { kind, file, text: draft.trim() });
+  };
+
+  const openAttachment = (messageId, attachment) => { inboxController.openAttachment(eventEmitter, { messageId, attachment }); };
+
+  return { data, loading, draft, setDraft, sending, uploading, chat, messages, readOnly, send, react, attach, openAttachment };
 }
