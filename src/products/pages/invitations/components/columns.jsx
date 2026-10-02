@@ -21,6 +21,7 @@ export function sentColumns({ busy, onWithdraw, staleAfterDays }) {
       render: (value, row) => (
         <PersonCell
           name={value || 'LinkedIn member'}
+          avatar={row.invitedPictureUrl || null}
           profileUrl={row.invitedPublicId ? `https://www.linkedin.com/in/${row.invitedPublicId}` : undefined}
           subtitle={row.invitedHeadline}
         />
