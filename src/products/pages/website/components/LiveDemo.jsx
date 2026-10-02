@@ -25,10 +25,10 @@ export default function LiveDemo() {
     var tmplBody = "Hi {{name}},\n\nNoticed your work as {{title}} at {{company}}. We've been helping similar teams cut their pipeline-to-meeting time roughly in half.\n\nWorth a 15-min look next week?\n\n— Sarthak";
 
     var people = [
-      { name: "Vasant", full: "Vasant Pardhi", title: "Founder", company: "Nexux Inc.", role: "Founder · Nexux Inc.", c: "linear-gradient(135deg,#a3a625,#6b7a1a)", in: "VP" },
-      { name: "Krishna", full: "Krishna Chaturvedi", title: "Founder", company: "RECRIVIO", role: "Founder · RECRIVIO", c: "linear-gradient(135deg,#3b82f6,#1e5fd1)", in: "KC" },
-      { name: "Kapil", full: "Kapil K. K.", title: "Co-Founder & CTO", company: "60db.ai", role: "Co-Founder · 60db.ai", c: "linear-gradient(135deg,#10b981,#0c8f66)", in: "KK" },
-      { name: "Surya", full: "Surya Chandra", title: "BD Executive", company: "MetaLogic", role: "BD Executive · MetaLogic", c: "linear-gradient(135deg,#8b5cf6,#6d28d9)", in: "SC" }
+      { name: "Vasant", full: "Vasant Pardhi", title: "Founder", company: "Nexux Inc.", role: "Founder · Nexux Inc.", c: "linear-gradient(135deg,#e0a273,#b86b3a)", in: "VP" },
+      { name: "Krishna", full: "Krishna Chaturvedi", title: "Founder", company: "RECRIVIO", role: "Founder · RECRIVIO", c: "linear-gradient(135deg,#0d9bb5,#0a6f82)", in: "KC" },
+      { name: "Kapil", full: "Kapil K. K.", title: "Co-Founder & CTO", company: "60db.ai", role: "Co-Founder · 60db.ai", c: "linear-gradient(135deg,#7a9a7e,#4a6a50)", in: "KK" },
+      { name: "Surya", full: "Surya Chandra", title: "BD Executive", company: "MetaLogic", role: "BD Executive · MetaLogic", c: "linear-gradient(135deg,#9a7fae,#6a5280)", in: "SC" }
     ];
 
     people.forEach(function (p, i) {
@@ -129,7 +129,7 @@ export default function LiveDemo() {
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="eyebrow">Personalization, on autopilot</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Write it once. Spurly makes it personal for everyone.</h2>
+          <h2 className="h2" style={{ marginTop: 14 }}>Write it once. <em>Spurly makes it personal for everyone.</em></h2>
           <p className="lead">Use variables for the parts that change. Spurly fills in every recipient's real name, title and company — and shows you a live preview before a single message sends.</p>
         </div>
 
@@ -137,7 +137,7 @@ export default function LiveDemo() {
           <div className="demo-pane glass reveal d1">
             <div className="ph">
               <span className="ttl">Compose message</span>
-              <span className="chip" style={{ padding: "5px 12px" }}><span className="dot" style={{ background: "var(--purple)" }} />Template</span>
+              <span className="chip" style={{ padding: "5px 12px" }}><span className="dot" style={{ background: "var(--teal-bright)" }} />Template</span>
             </div>
             <div className="demo-body">
               <div className="insert-row">

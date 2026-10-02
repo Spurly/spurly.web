@@ -103,7 +103,7 @@ export default function ProductShowcase() {
         <div className="sec-head center reveal">
           <span className="eyebrow">The product</span>
           <h2 className="h2" style={{ marginTop: 14 }}>
-            Personalized outreach, sent without leaving the tab.
+            Personalized outreach, <em>sent without leaving the tab.</em>
           </h2>
           <p className="lead">
             Spurly lives in a side panel on LinkedIn. Capture a search, then

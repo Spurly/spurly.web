@@ -1,7 +1,5 @@
 import { SendIcon } from "../icons.jsx";
 
-const codeStyle = { fontFamily: "ui-monospace,monospace", fontSize: ".9em", color: "var(--purple-700)" };
-
 const STEPS = [
   {
     cls: "d1",
@@ -24,7 +22,7 @@ const STEPS = [
     icon: <SendIcon />,
     title: "Reach out",
     body: (
-      <>Drop in <code style={codeStyle}>{"{{name}}"}</code> &amp; <code style={codeStyle}>{"{{company}}"}</code> variables once. Spurly writes a unique message for everyone and sends — with a live preview before it goes.</>
+      <>Drop in <code>{"{{name}}"}</code> &amp; <code>{"{{company}}"}</code> variables once. Spurly writes a unique message for everyone and sends — with a live preview before it goes.</>
     ),
   },
 ];
@@ -35,7 +33,7 @@ export default function HowItWorks() {
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="eyebrow">How it works</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>From a search page to a sent message — without leaving the tab.</h2>
+          <h2 className="h2" style={{ marginTop: 14 }}>From a search page to a sent message — <em>without leaving the tab.</em></h2>
           <p className="lead">Three moves. Spurly handles the busywork in between so you stay in flow.</p>
         </div>
         <div className="steps">

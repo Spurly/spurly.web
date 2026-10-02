@@ -186,7 +186,7 @@ export function StagingPanel({ store, onGoToUpload }) {
       {actionError && (
         <div
           className="relative flex gap-3 px-4 py-3 rounded-[var(--ui-radius-lg)]"
-          style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
+          style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(200,65,47,0.22)' }}
         >
           <AlertCircle size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
           <p className="flex-1 text-[length:var(--ui-t-body)] pr-6" style={{ color: 'var(--ui-text-secondary)' }}>

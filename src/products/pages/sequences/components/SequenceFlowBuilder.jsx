@@ -426,7 +426,7 @@ function NodeCard({
         error
           ? 'border-[var(--ui-danger)]'
           : selected
-            ? 'border-[var(--ui-accent-border)] shadow-[0_0_0_3px_rgba(60,131,246,0.12),inset_2px_0_0_var(--ui-accent)]'
+            ? 'border-[var(--ui-accent-border)] shadow-[0_0_0_3px_rgba(10,111,130,0.14),inset_2px_0_0_var(--ui-accent)]'
             : 'border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)] hover:border-[var(--ui-accent-border)]',
       ].join(' ')}
     >

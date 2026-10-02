@@ -1,0 +1,7 @@
+/* Self-hosted type for the whole app (latin subset, files in /public/fonts).
+   Fraunces for display, Instrument Sans for text, IBM Plex Mono for readings. */
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:100 900;font-display:swap;src:url("/fonts/fraunces-opsz.woff2") format("woff2")}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:100 900;font-display:swap;src:url("/fonts/fraunces-italic.woff2") format("woff2")}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:swap;src:url("/fonts/instrument-sans.woff2") format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:400;font-display:swap;src:url("/fonts/plex-mono-400.woff2") format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:500;font-display:swap;src:url("/fonts/plex-mono-500.woff2") format("woff2")}

@@ -7,6 +7,13 @@
    or size, add a token here — never a literal in a component.
 
    ------------------------------------------------------------
+   v4 (Oct 2026): WARM EDITORIAL. The public website's look now runs the
+   whole product. The neutral ramp is paper and ink (not blue-biased
+   grey), the one accent is teal (#0a6f82 fill and text; #0d9bb5 for dots
+   and glows), page titles use Fraunces, text is Instrument Sans, readings
+   stay IBM Plex Mono. Token NAMES are unchanged, so no component changed.
+   Below, the v3 notes that mention "blue" mean "the accent".
+
    THE DIRECTION (v3, Sep 2026): "Blue identity".
 
    Spurly is a machine that runs while you sleep. Imports queue,
@@ -73,18 +80,18 @@
      docs stay legible against each other): 0=chalk 50=canvas
      100=rail 150=vapor 200=bone 300=ash 400=mist 500=fog 600=steel
      700=slate 800=carbon 900=ink. */
-  --ui-neutral-0:   #ffffff;  /* chalk */
-  --ui-neutral-50:  #f7f9fc;  /* canvas */
-  --ui-neutral-100: #f2f5fa;  /* rail */
-  --ui-neutral-150: #edeef2;  /* vapor */
-  --ui-neutral-200: #e4e4e7;  /* bone */
-  --ui-neutral-300: #cfd3dd;  /* ash */
-  --ui-neutral-400: #9aa0b0;  /* mist — NON-TEXT ONLY, see Contrast note below */
-  --ui-neutral-500: #777a88;  /* fog */
-  --ui-neutral-600: #5e616e;  /* steel */
-  --ui-neutral-700: #2e3038;  /* slate */
-  --ui-neutral-800: #18181b;  /* carbon */
-  --ui-neutral-900: #0d0d10;  /* ink */
+  --ui-neutral-0:   #fffdf8;  /* chalk */
+  --ui-neutral-50:  #f3ede3;  /* canvas */
+  --ui-neutral-100: #ece4d6;  /* rail */
+  --ui-neutral-150: #e6dccb;  /* vapor */
+  --ui-neutral-200: #ddd3c1;  /* bone */
+  --ui-neutral-300: #c9bdaa;  /* ash */
+  --ui-neutral-400: #9a8f81;  /* mist — NON-TEXT ONLY, see Contrast note below */
+  --ui-neutral-500: #6f665c;  /* fog */
+  --ui-neutral-600: #5a5148;  /* steel */
+  --ui-neutral-700: #3a342d;  /* slate */
+  --ui-neutral-800: #1e1a16;  /* carbon */
+  --ui-neutral-900: #14110e;  /* ink */
 
   /* ---- Text -----------------------------------------------
      Four steps. Tertiary carries real information (column headers,
@@ -109,7 +116,7 @@
   --ui-surface-page:    var(--ui-neutral-50);
   --ui-surface-card:    var(--ui-neutral-0);
   --ui-surface-sunken:  var(--ui-neutral-100);
-  --ui-surface-hover:   #f4f8ff;
+  --ui-surface-hover:   #f8f2e6;
   --ui-surface-active:  var(--ui-accent-tint);
   --ui-surface-inverse: var(--ui-neutral-900);
   --ui-surface-raised:  var(--ui-neutral-0);
@@ -119,12 +126,12 @@
      it would be invisible, so the rail gets its own hover one step
      further down the ramp. Any surface that itself sits on sunken
      needs this. */
-  --ui-surface-rail-hover:  #e7ecf5;
-  --ui-surface-rail-active: #e4eaf4;
+  --ui-surface-rail-hover:  #e3dac8;
+  --ui-surface-rail-active: #dcd2be;
 
   /* The table header band — one step off the card so the mono
      column labels sit on their own plane without a heavy fill. */
-  --ui-surface-header: #fbfcfe;
+  --ui-surface-header: #faf5ea;
 
   /* Body text inside cells and cards: one step softer than primary,
      so a name (primary, 500) leads the row and its facts follow. */
@@ -132,10 +139,10 @@
 
   /* The meter's empty track. Grey, not accent-tinted: a tinted track
      reads as half-filled before any value is drawn on it. */
-  --ui-meter-track: #e6eaf1;
+  --ui-meter-track: #e4dccb;
 
   /* ---- Borders --------------------------------------------- */
-  --ui-border-hairline: #f1f2f5;
+  --ui-border-hairline: #ece4d6;
   --ui-border:          var(--ui-neutral-200);
   --ui-border-strong:   var(--ui-neutral-300);
 
@@ -160,24 +167,24 @@
                          surfaces (the working-line strip, the "why
                          this lead" panel) — same family, different
                          job from selection. */
-  --ui-accent:             #3c83f6;
-  --ui-accent-hover:       #1e6fe8;
+  --ui-accent:             #0a6f82;
+  --ui-accent-hover:       #085a69;
   --ui-accent-on:          #ffffff;
-  --ui-accent-fg:          #0544a5;
-  --ui-accent-dot:         #3c83f6;
-  --ui-accent-tint:        #eaf2ff;
-  --ui-accent-tint-strong: #dbe7fb;
-  --ui-accent-border:      #b9d4ff;
-  --ui-accent-wash:        #f3f8ff;
+  --ui-accent-fg:          #0a6f82;
+  --ui-accent-dot:         #0d9bb5;
+  --ui-accent-tint:        #d9edf0;
+  --ui-accent-tint-strong: #c4e3e8;
+  --ui-accent-border:      #9fd0d9;
+  --ui-accent-wash:        #e8f4f4;
   /* Secondary text ON an accent surface (the working line's trailing
      clause, a filter chip's key): the accent, one step quieter. */
-  --ui-accent-fg-soft:     #3f6ba8;
-  --ui-accent-muted:       #5b87c8;
+  --ui-accent-fg-soft:     #3b7f8c;
+  --ui-accent-muted:       #5a95a1;
   /* Button-shadow ingredients: a hairline of deep blue, a dark
      bottom lip, a light top highlight. Not meant to be used raw —
      see --ui-btn-shadow below. */
-  --ui-accent-dusk: #022c70;
-  --ui-accent-glow: #81b6ff;
+  --ui-accent-dusk: #064654;
+  --ui-accent-glow: #6fd0e2;
   /* Kept so existing call sites keep resolving. */
   --ui-accent-text: var(--ui-accent-fg);
 
@@ -187,7 +194,7 @@
      that needs a second heavy action without a second blue one. */
   --ui-ink:       var(--ui-neutral-900);
   --ui-ink-hover: var(--ui-neutral-800);
-  --ui-ink-halo:  rgba(13, 13, 16, 0.10);
+  --ui-ink-halo:  rgba(30, 26, 22, 0.10);
 
   /* ---- Semantic --------------------------------------------
      Tints are OPAQUE, not rgba. A translucent tint over a white
@@ -204,21 +211,21 @@
      with a blue accent, a separate near-blue info state is a fight
      nobody wins. The distinction from a primary action is carried
      by the spine and the dot, not by a second colour. */
-  --ui-success:      #0d9668;
-  --ui-success-fg:   #07784f;
-  --ui-success-dot:  #12b981;
-  --ui-success-tint: #e8faf2;
+  --ui-success:      #2f8f57;
+  --ui-success-fg:   #1f6e3f;
+  --ui-success-dot:  #3aa56a;
+  --ui-success-tint: #e4f1e6;
 
-  --ui-warning:      #d97706;
-  --ui-warning-fg:   #a45309;
-  --ui-warning-dot:  #f59e0b;
-  --ui-warning-tint: #fef6e7;
-  --ui-warning-border: #e8d5b0;
+  --ui-warning:      #d9822b;
+  --ui-warning-fg:   #9a5518;
+  --ui-warning-dot:  #e8993e;
+  --ui-warning-tint: #fbeedc;
+  --ui-warning-border: #e8d0a8;
 
-  --ui-danger:       #dc2626;
-  --ui-danger-fg:    #b31b1b;
-  --ui-danger-dot:   #ef4444;
-  --ui-danger-tint:  #fdeff0;
+  --ui-danger:       #c8412f;
+  --ui-danger-fg:    #a3301f;
+  --ui-danger-dot:   #d9503c;
+  --ui-danger-tint:  #fbe8e3;
 
   --ui-info:         var(--ui-accent);
   --ui-info-fg:      var(--ui-accent-fg);
@@ -232,14 +239,14 @@
      not decorative — which is why this is the one place colour is
      allowed to be plentiful. Slot 1 is the brand blue, so the most
      common hash lands on-brand. */
-  --ui-av-1-bg: #dbe7fb; --ui-av-1-fg: #0544a5;
-  --ui-av-2-bg: #e3e0fb; --ui-av-2-fg: #4436b8;
-  --ui-av-3-bg: #d5f0e6; --ui-av-3-fg: #07784f;
-  --ui-av-4-bg: #fde8ea; --ui-av-4-fg: #9f1239;
-  --ui-av-5-bg: #ffeedd; --ui-av-5-fg: #9a3412;
-  --ui-av-6-bg: #d6f1f4; --ui-av-6-fg: #115e59;
-  --ui-av-7-bg: #fdf0cd; --ui-av-7-fg: #854d0e;
-  --ui-av-8-bg: #dee6ff; --ui-av-8-fg: #2c3fa8;
+  --ui-av-1-bg: #cfe7ea; --ui-av-1-fg: #0a5a6a;
+  --ui-av-2-bg: #e6dcee; --ui-av-2-fg: #5b3f7a;
+  --ui-av-3-bg: #dbe9d6; --ui-av-3-fg: #2f6a3a;
+  --ui-av-4-bg: #f6dcd8; --ui-av-4-fg: #9a2f22;
+  --ui-av-5-bg: #f8e3cf; --ui-av-5-fg: #8a4a1d;
+  --ui-av-6-bg: #d3e6ee; --ui-av-6-fg: #1f5a73;
+  --ui-av-7-bg: #f1e6c4; --ui-av-7-fg: #7a5a12;
+  --ui-av-8-bg: #dcdff0; --ui-av-8-fg: #3a4488;
 
   /* ---- Typefaces -------------------------------------------
      Two families, split by JOB not by size.
@@ -257,8 +264,9 @@
      stays as a real fallback: nothing in the layout depends on
      either face arriving. Self-hosting is a later optimisation,
      not a correctness issue. */
-  --ui-font-sans: "Geist", -apple-system, BlinkMacSystemFont, system-ui,
+  --ui-font-sans: "Instrument Sans", -apple-system, BlinkMacSystemFont, system-ui,
                   "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --ui-font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --ui-font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", SFMono-Regular,
                   Menlo, Consolas, monospace;
 
@@ -387,14 +395,14 @@
      ring (a card-coloured gap + a tint-strong halo): this reads the
      same but is one declaration instead of two, and matches the
      hover-ring family below it. */
-  --ui-focus-ring: 0 0 0 3px rgba(60, 131, 246, 0.14);
-  --ui-hover-ring: 0 0 0 3px rgba(60, 131, 246, 0.10);   /* NEW in v3 */
+  --ui-focus-ring: 0 0 0 3px rgba(10, 111, 130, 0.18);
+  --ui-hover-ring: 0 0 0 3px rgba(10, 111, 130, 0.10);   /* NEW in v3 */
   --ui-ring-inset: inset 0 0 0 1px var(--ui-border);
 
   /* The wash behind a modal/drawer. Darker in dark mode, not
      lighter: a scrim has to read against the surface it covers, and
      32% black over a near-black canvas is invisible. */
-  --ui-scrim: rgba(10, 18, 32, 0.32);
+  --ui-scrim: rgba(30, 26, 22, 0.34);
 
   /* ---- Elevation ---------------------------------------------
      Ordered by distance from the page, not by importance. `sm` /
@@ -402,13 +410,13 @@
      read; `popover` / `modal` / `drawer` are new, more precise
      names for v3 call sites that want them. Add new call sites
      against the new names — the old ones stay for compatibility. */
-  --ui-shadow-sm:      0 1px 2px rgba(24, 24, 27, 0.03);
-  --ui-shadow-md:      0 4px 16px rgba(60, 131, 246, 0.09);
-  --ui-shadow-lg:      0 14px 38px rgba(24, 24, 27, 0.14), 0 2px 6px rgba(24, 24, 27, 0.05);
-  --ui-shadow-dock:    0 20px 56px rgba(10, 18, 32, 0.18), 0 2px 10px rgba(10, 18, 32, 0.08);
+  --ui-shadow-sm:      0 1px 2px rgba(60, 40, 20, 0.05);
+  --ui-shadow-md:      0 4px 16px rgba(60, 40, 20, 0.09);
+  --ui-shadow-lg:      0 14px 38px rgba(60, 40, 20, 0.16), 0 2px 6px rgba(60, 40, 20, 0.06);
+  --ui-shadow-dock:    0 20px 56px rgba(30, 20, 10, 0.2), 0 2px 10px rgba(30, 20, 10, 0.08);
   --ui-shadow-popover: var(--ui-shadow-lg);
-  --ui-shadow-modal:   0 32px 80px rgba(10, 18, 32, 0.26);
-  --ui-shadow-drawer:  -24px 0 60px rgba(10, 18, 32, 0.14);
+  --ui-shadow-modal:   0 32px 80px rgba(30, 20, 10, 0.28);
+  --ui-shadow-drawer:  -24px 0 60px rgba(30, 20, 10, 0.16);
 
   /* Composite primary-button shadow. Not a flat fill: three stacked
      inner shadows give it a physical edge — a hairline of deep blue
@@ -424,7 +432,7 @@
     0 0 0 0.5px var(--ui-accent-fg),
     inset 0 -1px 0 0 var(--ui-accent-dusk),
     inset 0 0.5px 0 0 var(--ui-accent-glow),
-    0 5px 16px rgba(60, 131, 246, 0.34);
+    0 5px 16px rgba(10, 111, 130, 0.34);
 
   /* ---- Motion ----------------------------------------------
      Two curves, three durations, one rule: things that react to a

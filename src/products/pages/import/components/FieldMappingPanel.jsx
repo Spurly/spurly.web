@@ -108,7 +108,7 @@ export function FieldMappingPanel({
         style={
           ok
             ? { background: 'var(--ui-success-tint)', border: '1px solid rgba(52,199,89,0.22)' }
-            : { background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }
+            : { background: 'var(--ui-danger-tint)', border: '1px solid rgba(200,65,47,0.22)' }
         }
       >
         {ok ? (

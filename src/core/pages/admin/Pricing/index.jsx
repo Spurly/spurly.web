@@ -209,7 +209,7 @@ export function AdminPricingPage() {
 
         {plansError && (
           <div className="mb-4 flex items-center gap-2 p-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] font-medium"
-            style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)', border: '1px solid rgba(255,69,58,0.2)' }}>
+            style={{ background: 'var(--ui-danger-tint)', color: 'var(--ui-danger)', border: '1px solid rgba(200,65,47,0.2)' }}>
             <AlertCircle size={18} />
             <span>{plansError}</span>
           </div>

@@ -253,7 +253,7 @@ export function UploadPanel({ onStaged }) {
       {error && (
         <div
           className="relative flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
-          style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
+          style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(200,65,47,0.22)' }}
         >
           <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
           <div className="flex-1 min-w-0 pr-6">
@@ -417,7 +417,7 @@ export function UploadPanel({ onStaged }) {
           {overLimit && (
             <div
               className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
-              style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
+              style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(200,65,47,0.22)' }}
             >
               <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
               <div className="text-[length:var(--ui-t-body)]" style={{ color: 'var(--ui-text-secondary)' }}>
@@ -436,7 +436,7 @@ export function UploadPanel({ onStaged }) {
           {profileCount === 0 && (
             <div
               className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
-              style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
+              style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(200,65,47,0.22)' }}
             >
               <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
               <div className="text-[length:var(--ui-t-body)]" style={{ color: 'var(--ui-text-secondary)' }}>

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import SoundToggle from "./SoundToggle.jsx";
 import { MenuIcon } from "../icons.jsx";
 import { useAuth } from "src/core/auth/hooks/useAuth";
 
@@ -27,8 +26,8 @@ export default function Nav({ menuOpen, onToggleMenu }) {
   return (
     <header className={"nav" + (scrolled ? " scrolled" : "")} role="banner">
       <nav className="nav-inner" aria-label="Primary">
-        <a id="brand-logo" className="brand" href="#top" aria-label="Spurly home">
-          <img src="/spurly-icon-128.png" alt="" width="38" height="38" />
+        <a className="brand" href="#top" aria-label="Spurly home">
+          <img src="/spurly-icon-128.png" alt="" width="34" height="34" />
           <span>Spurly</span>
         </a>
         <div className="nav-links">
@@ -37,7 +36,6 @@ export default function Nav({ menuOpen, onToggleMenu }) {
           ))}
         </div>
         <div className="nav-cta">
-          <SoundToggle />
           {!loading && (user ? (
             <Link to="/dashboard" className="nav-signin">Dashboard</Link>
           ) : (

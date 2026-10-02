@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./core/tokens/fonts.css";
 @import "./core/tokens/tokens.css";
 @import "./core/tokens/cursor.css";
 @config "../tailwind.config.js";
@@ -64,7 +65,7 @@
      migrated to --accent / --text-accent. */
   --brand-purple:     var(--brand-teal);
 
-  --brand-gradient-vivid: linear-gradient(135deg, #12aecb 0%, #4aa9f5 100%);
+  --brand-gradient-vivid: linear-gradient(135deg, #0a6f82 0%, #0d9bb5 100%);
 
   /* ---- Semantic -------------------------------------------
      Aliased to the --ui-* semantic stops. Two things this fixes:
@@ -137,8 +138,8 @@
   --shadow-xs:    var(--ui-shadow-sm);
   --shadow-sm:    var(--ui-shadow-sm);
   --shadow-lg:    var(--ui-shadow-lg);
-  --shadow-glass: 0 10px 34px rgba(31,34,54,0.14), var(--glass-inner-glow);
-  --shadow-accent: 0 6px 18px rgba(13,155,181,0.26);
+  --shadow-glass: 0 10px 34px rgba(60,40,20,0.14), var(--glass-inner-glow);
+  --shadow-accent: 0 6px 18px rgba(10,111,130,0.26);
 
   /* Focus — marketing only. The app uses --ui-focus-ring. */
   --ring-width: 3px;
@@ -239,6 +240,7 @@ table { font-variant-numeric: tabular-nums; }
     letter-spacing: var(--ui-track-base);
     color: var(--text-primary);
     background: var(--surface-canvas);
+    /* The ribbon layer (AppBackdrop) is fixed behind everything. */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -341,4 +343,30 @@ table { font-variant-numeric: tabular-nums; }
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ============================================================
+   AppBackdrop — the paper-ribbon layer behind every route.
+   Fixed, non-interactive, sits under all content. Surfaces that should
+   let it show (the dashboard canvas, auth) are transparent; cards stay
+   opaque.
+   ============================================================ */
+.site-fx {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  display: block;
+  opacity: 0;
+  transition: opacity 1s;
+}
+.site-fx.on { opacity: 1; }
+
+/* Page titles, the one place the display face appears in app chrome. */
+.ui-display {
+  font-family: var(--ui-font-display);
+  font-optical-sizing: auto;
+  font-weight: 420;
 }
