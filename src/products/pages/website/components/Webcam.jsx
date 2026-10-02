@@ -47,10 +47,10 @@ export default function Webcam() {
       var data;
       try { data = sctx.getImageData(0, 0, COLS, rows).data; } catch (e) { return; }
 
-      colA = hexRgb(cssVar("--purple", "#0d9bb5"));
-      colB = hexRgb(cssVar("--blue", "#38bdf8"));
+      colA = hexRgb(cssVar("--teal-bright", "#0d9bb5"));
+      colB = hexRgb(cssVar("--apricot", "#f2b98f"));
       ctx.clearRect(0, 0, r.width, r.height);
-      ctx.fillStyle = "#0c1018"; ctx.fillRect(0, 0, r.width, r.height);
+      ctx.fillStyle = "#1e1a16"; ctx.fillRect(0, 0, r.width, r.height);
       var cw = r.width / COLS, chh = r.height / rows, cell = Math.min(cw, chh);
       var offx = (r.width - cell * COLS) / 2, offy = (r.height - cell * rows) / 2;
 
@@ -131,7 +131,7 @@ export default function Webcam() {
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="eyebrow">See yourself in the network</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Every pixel is a connection waiting to happen.</h2>
+          <h2 className="h2" style={{ marginTop: 14 }}>Every pixel is <em>a connection waiting to happen.</em></h2>
           <p className="lead">A little fun — turn on your camera and watch yourself render in Spurly's signature dot grid. Runs entirely on your device; nothing is uploaded, ever. Just like your leads.</p>
         </div>
         <div id="webcam" className="reveal d1" ref={rootRef}>
@@ -139,7 +139,7 @@ export default function Webcam() {
             <canvas />
             <div className="webcam-badge"><span className="rec" />Live · on-device only</div>
             <div className="webcam-overlay">
-              <div className="a-ico" style={{ background: "var(--grad)", width: 58, height: 58, borderRadius: 17, display: "grid", placeItems: "center", color: "#fff" }}>
+              <div className="a-ico" style={{ background: "var(--teal)", width: 58, height: 58, borderRadius: 17, display: "grid", placeItems: "center", color: "#fff" }}>
                 <VideoIcon width="28" height="28" />
               </div>
               <h3 className="h3">Try the pixel grid</h3>

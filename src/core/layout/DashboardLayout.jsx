@@ -538,7 +538,7 @@ export function DashboardLayout({
 
   return (
     <div
-      className="flex h-screen overflow-hidden bg-[var(--ui-surface-page)] text-[var(--ui-text-primary)]"
+      className="flex h-screen overflow-hidden text-[var(--ui-text-primary)]"
       style={{ minHeight: 600 }}
     >
       <aside
@@ -663,7 +663,7 @@ export function DashboardLayout({
             <div className="min-w-0 flex-1">
               {title && (
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <h1 className="m-0 text-[length:var(--ui-t-display)] font-semibold tracking-[var(--ui-track-display)] leading-[1.15] text-[var(--ui-text-primary)] truncate">
+                  <h1 className="ui-display m-0 text-[length:var(--ui-t-display)] tracking-[var(--ui-track-display)] leading-[1.15] text-[var(--ui-text-primary)] truncate">
                     {title}
                   </h1>
                   {badge && <span className="shrink-0">{badge}</span>}

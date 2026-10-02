@@ -71,7 +71,7 @@ export default function Pricing() {
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="eyebrow">Pricing</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Start free. Scale when it's working.</h2>
+          <h2 className="h2" style={{ marginTop: 14 }}>Start free. <em>Scale when it's working.</em></h2>
           <p className="lead">Every plan includes prospecting, connections, and messaging. Credits are spent only when Spurly does work for you.</p>
         </div>
         <div className="currency-toggle reveal" role="group" aria-label="Currency">

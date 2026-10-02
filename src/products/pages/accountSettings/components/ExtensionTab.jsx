@@ -51,7 +51,7 @@ export function ExtensionTab() {
         {!checking && !installed && (
           <div
             className="rounded-[var(--ui-radius-lg)] p-4"
-            style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(255,69,58,0.22)' }}
+            style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(200,65,47,0.22)' }}
           >
             <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-primary)] leading-relaxed">
               {t.extension.notInstalledBody}

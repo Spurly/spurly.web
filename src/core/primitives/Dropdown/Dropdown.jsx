@@ -157,7 +157,7 @@ export function Dropdown({
             ? 'rounded-[var(--ui-radius-sm)] text-[length:var(--ui-t-label)]'
             : 'rounded-[var(--ui-radius-btn)] text-[length:var(--ui-t-body)]',
           error
-            ? 'border-[var(--ui-danger)] focus:shadow-[0_0_0_3px_rgba(255,69,58,0.18)]'
+            ? 'border-[var(--ui-danger)] focus:shadow-[0_0_0_3px_rgba(200,65,47,0.18)]'
             : open
               ? 'border-[var(--ui-accent)] shadow-[var(--ui-focus-ring)]'
               : 'border-[var(--ui-border)] hover:border-[var(--ui-accent-border)] hover:shadow-[var(--ui-hover-ring)]',

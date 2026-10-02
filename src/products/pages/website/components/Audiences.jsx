@@ -9,7 +9,6 @@ const CARDS = [
   {
     cls: "d1",
     tag: "Recruiting agencies",
-    iconStyle: { background: "var(--grad)" },
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
     ),
@@ -20,7 +19,6 @@ const CARDS = [
   {
     cls: "d2",
     tag: "Students & job-seekers",
-    iconStyle: { background: "var(--grad)", filter: "hue-rotate(8deg)" },
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" /></svg>
     ),
@@ -31,7 +29,6 @@ const CARDS = [
   {
     cls: "d3",
     tag: "Founders & sellers",
-    iconStyle: { background: "var(--grad)", filter: "hue-rotate(-8deg)" },
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" /></svg>
     ),
@@ -47,7 +44,7 @@ export default function Audiences() {
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="eyebrow">Who it's for</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>One tool. Three ways to win.</h2>
+          <h2 className="h2" style={{ marginTop: 14 }}>One tool. <em>Three ways to win.</em></h2>
           <p className="lead">Whatever you're reaching out for, Spurly turns the LinkedIn grind into a repeatable system.</p>
         </div>
 
@@ -64,7 +61,7 @@ export default function Audiences() {
           {CARDS.map((c) => (
             <article key={c.tag} className={"aud glass reveal " + c.cls}>
               <span className="tag">{c.tag}</span>
-              <div className="a-ico" style={c.iconStyle}>{c.icon}</div>
+              <div className="a-ico">{c.icon}</div>
               <h3 className="h3">{c.title}</h3>
               <p>{c.body}</p>
               <ul>

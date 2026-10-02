@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import Seo from "./components/Seo.jsx";
 import { ORGANIZATION_LD, WEBSITE_LD } from "./seo.js";
 import Nav from "./components/Nav.jsx";
@@ -13,8 +14,6 @@ import LiveDemo from "./components/LiveDemo.jsx";
 import Pricing from "./components/Pricing.jsx";
 import FinalCTA from "./components/FinalCTA.jsx";
 import Footer from "./components/Footer.jsx";
-import TweaksPanel from "./components/TweaksPanel.jsx";
-import SoundOnboarding from "./components/SoundOnboarding.jsx";
 import useScrollReveal from "./hooks/useScrollReveal.js";
 import useMagnetic from "./hooks/useMagnetic.js";
 import { HOME_LD } from "./structuredData.js";
@@ -38,6 +37,10 @@ export default function HomePage() {
         path="/"
         jsonLd={[ORGANIZATION_LD, WEBSITE_LD, ...HOME_LD]}
       />
+      <Helmet>
+        <link rel="preload" href="/fonts/fraunces-opsz.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/instrument-sans.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      </Helmet>
       <Nav menuOpen={menuOpen} onToggleMenu={() => setMenu(!menuOpen)} />
       <MobileMenu open={menuOpen} onClose={() => setMenu(false)} />
 
@@ -54,8 +57,6 @@ export default function HomePage() {
       </main>
 
       <Footer />
-      <TweaksPanel />
-      <SoundOnboarding />
     </>
   );
 }

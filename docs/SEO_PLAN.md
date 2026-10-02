@@ -126,3 +126,5 @@ npm run build
   Tests: 10 new prerender tests pass. The 12 pre-existing hub test failures and 7 pre-existing `lint:arch`
   errors (onboarding pages importing products) are unchanged and not caused by this work.
 - **Next:** Sarthak deploys → Phase 4 checklist → start Phase 5 content.
+
+- 2026-10-02: Added `SEO_GROWTH_PLAN.md` (site map, UI redesign approach, content/GEO/off-site plan, roadmap).

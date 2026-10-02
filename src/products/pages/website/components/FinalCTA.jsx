@@ -7,11 +7,11 @@ export default function FinalCTA() {
       <div className="wrap">
         <div className="cta-panel reveal">
           <span className="eyebrow">Get started</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Your next 100 leads are one click away.</h2>
+          <h2 className="h2" style={{ marginTop: 14 }}>Your next 100 leads are <em>one click away.</em></h2>
           <p className="lead">Add Spurly to Chrome, open LinkedIn, and capture your first Session in under a minute. Free to start — no credit card.</p>
           <div className="hero-actions">
             <ChromeLink variant="primary" size="lg" magnetic>
-              <TargetIcon className="cta-wobble" />
+              <TargetIcon />
               Add to Chrome — Start free
             </ChromeLink>
           </div>

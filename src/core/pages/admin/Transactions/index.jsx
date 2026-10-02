@@ -77,7 +77,7 @@ export function AdminTransactionsPage() {
             style={{
               background: 'var(--ui-danger-tint)',
               color: 'var(--ui-danger)',
-              border: '1px solid rgba(255,69,58,0.2)',
+              border: '1px solid rgba(200,65,47,0.2)',
             }}
           >
             {error}
