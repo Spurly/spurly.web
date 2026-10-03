@@ -12,3 +12,7 @@ export const PRICES = {
 export function priceFor(region) {
   return region === "IN" ? PRICES.IN : PRICES.INTL;
 }
+
+/** The exact trial copy (SEO_CONTENT_PLAN section 5). Use it verbatim wherever the trial is mentioned. */
+export const TRIAL_NOTE =
+  "Add a card (or UPI in India) to start your 7-day free trial. You won't be charged until day 8. Cancel anytime before then and you pay nothing.";

@@ -1,9 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { buildContent, CONTENT_DIR } from './scripts/buildContent.mjs'
+
+// Rebuild the generated content modules when a content .md changes in dev.
+const contentWatcher = () => ({
+  name: 'spurly-content-watcher',
+  configureServer(server) {
+    server.watcher.add(CONTENT_DIR)
+    server.watcher.on('all', (_event, file) => {
+      if (!file.startsWith(CONTENT_DIR) || !file.endsWith('.md')) return
+      try { buildContent({ quiet: true }); server.ws.send({ type: 'full-reload' }) } catch (err) { server.config.logger.error(String(err.message || err)) }
+    })
+  },
+})
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), contentWatcher()],
   resolve: {
     alias: {
       src: path.resolve(__dirname, 'src'),

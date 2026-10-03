@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "src/app/ProtectedRoute";
 import { AdminRoute } from "src/app/AdminRoute";
 import { SubscribeGate } from "src/app/SubscribeGate";
+import { CONTENT_META } from "src/products/pages/website/content/content.meta.generated.js";
 import { DashboardHomeRedirect } from "src/app/DashboardHomeRedirect";
 import { RouteFallback } from "src/app/RouteFallback";
 import { lazyWithProgress } from "src/app/lazyWithProgress";
@@ -52,14 +53,8 @@ const NotFound = lazyWithProgress(
 const BlogIndex = lazyWithProgress(
   () => import("src/products/pages/website/pages/BlogIndex.jsx"),
 );
-const PersonalizePost = lazyWithProgress(
-  () => import("src/products/pages/website/pages/blog/PersonalizePost.jsx"),
-);
-const FoundersPost = lazyWithProgress(
-  () => import("src/products/pages/website/pages/blog/FoundersPost.jsx"),
-);
-const RecruitersPost = lazyWithProgress(
-  () => import("src/products/pages/website/pages/blog/RecruitersPost.jsx"),
+const ContentPage = lazyWithProgress(
+  () => import("src/products/pages/website/pages/ContentPage.jsx"),
 );
 
 // Auth + onboarding
@@ -230,18 +225,10 @@ export function AppRoutes() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/support" element={<Support />} />
             <Route path="/blog" element={<BlogIndex />} />
-            <Route
-              path="/blog/personalize-linkedin-connection-requests"
-              element={<PersonalizePost />}
-            />
-            <Route
-              path="/blog/free-linkedin-outreach-pipeline-founders"
-              element={<FoundersPost />}
-            />
-            <Route
-              path="/blog/sales-navigator-candidate-pipelines-recruiters"
-              element={<RecruitersPost />}
-            />
+            {/* Pages built from content files (blog posts, product pages, ...). */}
+            {CONTENT_META.map((p) => (
+              <Route key={p.path} path={p.path} element={<ContentPage />} />
+            ))}
           </Route>
 
           {/* Auth + onboarding (full-page, outside the marketing chrome) */}

@@ -70,27 +70,22 @@ export default function Hero() {
 
       <div className="wrap hero-grid">
         <div className="hero-copy">
-          <span className="chip"><span className="dot" />Now live on the Chrome Web Store</span>
+          <span className="chip"><span className="dot" />AI-powered LinkedIn outreach</span>
           <h1 className="display">
-            <span className="ln">Reach anyone.</span>
-            <span className="ln"><em>Anywhere</em> they</span>
-            <span className="ln">work.</span>
+            <span className="ln">AI writes your</span>{" "}
+            <span className="ln"><em>LinkedIn outreach.</em></span>{" "}
+            <span className="ln">Spurly sends it.</span>
           </h1>
           <p className="sr-only">Spurly is built for recruiters, founders, sellers, students and agencies.</p>
-          <p className="lead">Spurly turns LinkedIn &amp; Sales Navigator into your pipeline — find the right people, connect, follow up and reply from one inbox, from the cloud and at a safe daily pace.</p>
+          <p className="lead">Spurly's AI drafts personal connection notes and follow-ups, then runs your campaigns from the cloud at a safe daily pace. Find the right people, reach them and reply from one inbox. You approve every message.</p>
           <div className="hero-actions">
             <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>
               <TargetIcon />
               Start 7-day free trial
             </Link>
-            <Button variant="ghost" size="lg" href="#product">See it in action</Button>
+            <Button variant="ghost" size="lg" href="#how">See how it works</Button>
           </div>
           <p className="hero-micro">7-day free trial, then {price.label}/month. Add a card (or UPI in India) to start. You won't be charged until day 8. Cancel anytime before then and you pay nothing.</p>
-          <div className="hero-stats">
-            <div><b className="tnum">190+</b>countries reachable</div>
-            <div><b className="tnum">1-click</b>capture, anywhere</div>
-            <div><b className="tnum">24/7</b>campaigns run in the cloud</div>
-          </div>
         </div>
 
         <div

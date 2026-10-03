@@ -18,7 +18,7 @@ export default function ContentShell({ children }) {
             <a href="/#product">Product</a>
             <a href="/#how">How it works</a>
             <a href="/#who">Who it's for</a>
-            <a href="/#pricing">Pricing</a>
+            <Link to="/pricing">Pricing</Link>
             <Link to="/blog">Blog</Link>
           </div>
           <div className="nav-cta">

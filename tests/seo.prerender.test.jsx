@@ -10,12 +10,16 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { render, PUBLIC_ROUTES, SITE_URL } from 'src/entry-server.jsx';
+import { CONTENT_META } from 'src/products/pages/website/content/content.meta.generated.js';
 
 const ROUTES_SRC = readFileSync(join(__dirname, '..', 'src', 'app', 'routes.jsx'), 'utf8');
 
 describe('public website prerender', () => {
   it('lists only paths that routes.jsx actually serves', () => {
+    const fromContent = new Set(CONTENT_META.map((p) => p.path));
+    expect(ROUTES_SRC).toContain('CONTENT_META.map'); // content pages are routed from their files
     for (const { path } of PUBLIC_ROUTES) {
+      if (fromContent.has(path)) continue;
       expect(ROUTES_SRC, `routes.jsx has no <Route path="${path}">`).toContain(`path="${path}"`);
     }
   });

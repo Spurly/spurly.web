@@ -8,9 +8,9 @@ import { describe, it, expect } from 'vitest';
 import { render, PUBLIC_ROUTES, ogSlug } from 'src/entry-server.jsx';
 
 const BANNED = [/local-only/i, /never leaves your/i, /100% local/i, /no credit card/i, /Start free\b/, /\bSessions?\b/];
-// Privacy and Terms are legal text awaiting the v2 rewrite (they still carry
-// the old wording); only the trial claim is checked there.
-const LEGAL = new Set(['/privacy', '/terms']);
+// Terms is legal text still awaiting its rewrite (it carries the old wording);
+// only the trial claim is checked there.
+const LEGAL = new Set(['/terms']);
 
 describe('public pages: no outdated claims', () => {
   it.each(PUBLIC_ROUTES.map((r) => [r.path]))('%s', async (path) => {

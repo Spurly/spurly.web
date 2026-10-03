@@ -35,6 +35,8 @@ This **replaces** the earlier recommendation of "lead capture & outreach" as the
 4. **Find people from signals, not only searches** — people who view your profile, follow your page, post about a topic, or work at companies that are hiring.
 5. **Capture from anywhere** — Chrome extension for one-click capture on LinkedIn / Sales Navigator pages, plus CSV import.
 
+> **Update 2026-10-03 (found while writing the /compare pages): "runs in the cloud" is no longer a differentiator against the three P0 competitors.** Waalaxy's help centre says it "no longer relies on a browser extension" since 1 July 2026 (everything runs in app.waalaxy.com); Dripify says campaigns "run on our servers"; Expandi is cloud-based. Only extension/desktop tools (e.g. Linked Helper) are still browser-bound. The /compare pages therefore say "both run in the cloud" and win on verified specifics instead: one flat price ($24.99 vs Expandi $99, Dripify $59-99, Waalaxy €19-69), everything included, reply-stops-sequence, per-action limits, and the lead sources (viewers, followers, posts, jobs). They also say plainly where each rival is better (Expandi: conditional branching, dedicated IP, agency seats; Dripify: no-card trial, A/B testing, HubSpot; Waalaxy: lowest entry price, 14-day trial, email sequences). The home page "cloud vs browser-extension tools" table (section 5b item 10) needs rethinking for the same reason: decision for Sarthak.
+
 **Tone:** confident, specific, warm-editorial (matches the redesign). Numbers and screenshots over adjectives.
 
 ## 3. Feature inventory for marketing
