@@ -14,7 +14,7 @@ const CARDS = [
     ),
     title: "Fill roles faster",
     body: "Source a whole shortlist of candidates in minutes, then reach every one with a personal note instead of a copy-paste blast.",
-    items: ["Build candidate pipelines per role as Sessions", "Enrich contact details for follow-up", "Personalized outreach that gets replies"],
+    items: ["Build a candidate pipeline for each role", "Enrich contact details for follow-up", "Personalized outreach that gets replies"],
   },
   {
     cls: "d2",
@@ -34,7 +34,7 @@ const CARDS = [
     ),
     title: "Book more demos",
     body: "Build a list of your exact ICP, automate first touches, and keep your pipeline full — without hiring an SDR or paying for bloated CRMs.",
-    items: ["Target by title, company & seniority", "Run outreach at scale, on autopilot", "Cut pipeline-to-meeting time in half"],
+    items: ["Target by title, company & seniority", "Run outreach at scale, on autopilot", "Follow up automatically until they reply"],
   },
 ];
 

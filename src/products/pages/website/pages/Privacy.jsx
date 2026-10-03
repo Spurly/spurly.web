@@ -7,7 +7,7 @@ export default function Privacy() {
     <ContentShell>
       <Seo
         title="Privacy Policy — Spurly"
-        description="How Spurly handles your data. We don't collect, sell, or share personal data beyond what's needed to run the extension. Data stays local and syncs securely for session management only."
+        description="How Spurly handles your data. We don't collect, sell, or share personal data beyond what's needed to run the extension. Captured data is stored securely on our servers so your contacts, campaigns and inbox work across devices."
         path="/privacy"
       />
 
@@ -26,17 +26,17 @@ export default function Privacy() {
         <p>
           Spurly only processes the data you actively capture while using the
           extension — the public profile information (names, titles, companies,
-          locations) you choose to add to a Session, plus your account details
+          locations) you choose to capture, plus your account details
           for sign-in and billing. We do not run trackers that follow you around
           the web.
         </p>
 
         <h2>How your data is stored</h2>
         <p>
-          All captured data is stored locally on your device and synced securely
-          to our backend (<code>api.getspurly.com</code>) for session management
-          and profile organization only. Your data never leaves your device for
-          any purpose other than letting you use the product across sessions.
+          Captured data is stored securely on our backend (
+          <code>api.getspurly.com</code>) so your contacts, campaigns and inbox
+          are available wherever you sign in. We use it only to run the product
+          for you.
         </p>
 
         <h2>What we never do</h2>
@@ -59,7 +59,7 @@ export default function Privacy() {
 
         <h2>Your control</h2>
         <p>
-          You can delete your Sessions and captured data at any time from within
+          You can delete your contacts and captured data at any time from within
           the extension. To request deletion of your account and all associated
           data, contact us at{" "}
           <a href="mailto:founders@getspurly.com">founders@getspurly.com</a>.

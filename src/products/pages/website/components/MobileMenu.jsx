@@ -22,7 +22,7 @@ export default function MobileMenu({ open, onClose }) {
       ))}
       {!loading && !user && (
         <Link to="/signup" className="btn btn-primary btn-lg" onClick={onClose}>
-          Start free — 100 credits
+          Start 7-day free trial
         </Link>
       )}
     </div>

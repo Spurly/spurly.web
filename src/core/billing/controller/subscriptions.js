@@ -1,6 +1,7 @@
 import subscriptionsGateway from '../gateway/subscriptions.js';
 import { loadRazorpaySdk } from '../gateway/razorpaySdk.js';
 import { SUBSCRIPTION_EVENTS } from '../constants/constants.js';
+import { setUserRegion, track } from 'src/shared/analytics/analytics.js';
 
 /**
  * Subscriptions Controller
@@ -9,9 +10,21 @@ import { SUBSCRIPTION_EVENTS } from '../constants/constants.js';
  * pages subscribe to the events below.
  */
 
+/** Logged-out visitor's region for the public pricing display. */
+async function getPublicRegion(eventEmitter) {
+  try {
+    const region = await subscriptionsGateway.getPublicRegion();
+    setUserRegion(region);
+    eventEmitter.emit(SUBSCRIPTION_EVENTS.GET_PUBLIC_REGION_SUCCESS, region);
+  } catch (error) {
+    eventEmitter.emit(SUBSCRIPTION_EVENTS.GET_PUBLIC_REGION_FAILURE, error);
+  }
+}
+
 async function getPricing(eventEmitter) {
   try {
     const pricing = await subscriptionsGateway.getPricing();
+    setUserRegion(pricing.region);
     eventEmitter.emit(SUBSCRIPTION_EVENTS.GET_PRICING_SUCCESS, pricing);
   } catch (error) {
     eventEmitter.emit(SUBSCRIPTION_EVENTS.GET_PRICING_FAILURE, error);
@@ -40,6 +53,9 @@ async function startCheckout(eventEmitter, opts = {}) {
     if (!created.keyId || !created.subscriptionId) {
       throw new Error('Payment could not be started. Please try again.');
     }
+    setUserRegion(created.currency === 'INR' ? 'IN' : 'INTL');
+    const checkoutItem = { currency: created.currency, value: created.amount, trial: created.trial };
+    track('begin_checkout', checkoutItem);
     const Razorpay = await loadRazorpaySdk();
     // Razorpay wants a literal colour; read the app's accent token so the
     // modal matches light and dark themes without a hardcoded value.
@@ -55,6 +71,12 @@ async function startCheckout(eventEmitter, opts = {}) {
       handler: async (response) => {
         try {
           const summary = await subscriptionsGateway.verifyPayment(response);
+          // A trial start is reported as a purchase worth 0 until the day-8 charge.
+          track('purchase', {
+            ...checkoutItem,
+            value: created.trial ? 0 : created.amount,
+            transaction_id: response.razorpay_subscription_id || created.subscriptionId,
+          });
           eventEmitter.emit(SUBSCRIPTION_EVENTS.CHECKOUT_SUCCESS, summary);
         } catch (error) {
           eventEmitter.emit(SUBSCRIPTION_EVENTS.CHECKOUT_FAILURE, error);
@@ -106,6 +128,7 @@ async function getMySubscription(eventEmitter) {
 }
 
 const subscriptionsController = {
+  getPublicRegion,
   getPricing,
   startCheckout,
   cancelSubscription,

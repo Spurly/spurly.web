@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthShell, WelcomeAside, Stepper } from "./components/AuthShell.jsx";
-import { CHROME_URL } from "src/shared/extension/constants.js";
+import { chromeStoreUrl, track } from "src/shared/analytics/analytics.js";
 import {
   ChromeIcon,
   TargetIcon,
@@ -167,7 +167,8 @@ export default function InstallExtensionPage() {
   const isTimeout = status === "timeout";
 
   function handleCTAClick() {
-    window.open(CHROME_URL, "_blank", "noopener,noreferrer");
+    track("add_to_chrome_click", { link_location: "onboarding" });
+    window.open(chromeStoreUrl("onboarding"), "_blank", "noopener,noreferrer");
     startDetection();
   }
 

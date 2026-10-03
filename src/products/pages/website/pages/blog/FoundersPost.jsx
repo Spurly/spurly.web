@@ -25,7 +25,7 @@ export default function FoundersPost() {
         Run a LinkedIn or Sales Navigator search that matches your ICP. This is
         your raw pipeline. Instead of copying names into a spreadsheet by hand,
         capture the whole search at once — <Link to="/">Spurly</Link> pulls every
-        profile (name, title, company, location) into a Session in one click, so
+        profile (name, title, company, location) into your Spurly contacts in one click, so
         you skip the tedious part entirely.
       </p>
 
@@ -43,17 +43,15 @@ export default function FoundersPost() {
       <h2>Step 4 — Follow up and track</h2>
       <p>
         Most replies come from the follow-up, not the first touch. Keep your
-        Sessions organized by campaign so you always know who's been contacted,
+        Contacts organized by campaign so you always know who's been contacted,
         who replied, and who needs a nudge. That organization <em>is</em> your CRM
         at this stage.
       </p>
 
       <h2>What it costs</h2>
       <p>
-        You can run this entire loop on Spurly's free plan (100 credits/month) to
-        validate your messaging. Once it's working and you want more volume,
-        enrichment and higher daily limits are a fraction of the cost of an SDR —
-        see the <a href="/#pricing">pricing</a>.
+        Spurly has one plan: $24.99/month (₹2,499/month in India), with a 7-day
+        free trial. That's a fraction of the cost of an SDR. See the <a href="/#pricing">pricing</a>.
       </p>
 
       <p>

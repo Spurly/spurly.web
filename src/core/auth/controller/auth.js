@@ -1,6 +1,7 @@
 import authGateway from '../gateway/auth.js';
 import apiGateway from 'src/shared/gateway/apiGateway.js';
 import { AUTH_EVENTS } from '../constants/constants.js';
+import { track } from 'src/shared/analytics/analytics.js';
 
 /**
  * Auth Controller
@@ -72,6 +73,7 @@ async function register(eventEmitter, name, email, password, confirmPassword) {
     apiGateway.setToken(token);
     localStorage.setItem('user', JSON.stringify(user.toJSON()));
 
+    track('sign_up', { method: 'email' });
     eventEmitter.emit(AUTH_EVENTS.REGISTER_SUCCESS, { user, token });
   } catch (error) {
     eventEmitter.emit(AUTH_EVENTS.REGISTER_FAILURE, error);
@@ -127,6 +129,7 @@ async function verifySignupOtp(eventEmitter, { email, code }) {
     apiGateway.setToken(token);
     localStorage.setItem('user', JSON.stringify(user.toJSON()));
 
+    track('sign_up', { method: 'email' });
     eventEmitter.emit(AUTH_EVENTS.VERIFY_SIGNUP_OTP_SUCCESS, { user, token });
   } catch (error) {
     eventEmitter.emit(AUTH_EVENTS.VERIFY_SIGNUP_OTP_FAILURE, error);

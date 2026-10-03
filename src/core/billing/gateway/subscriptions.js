@@ -51,6 +51,20 @@ async function unwrap(request) {
 }
 
 /**
+ * Region guess for a logged-out visitor ('IN' | 'INTL'). No auth.
+ * GET /public/region
+ * @returns {Promise<string>}
+ */
+async function getPublicRegion() {
+  try {
+    const data = await unwrap(apiGateway.get('/public/region'));
+    return data?.region === 'IN' ? 'IN' : 'INTL';
+  } catch (error) {
+    throw handleError(error);
+  }
+}
+
+/**
  * Monthly price for this user's region + trial eligibility.
  * GET /subscriptions/pricing
  * @returns {Promise<PricingInfo>}
@@ -144,6 +158,7 @@ async function getMySubscription() {
 }
 
 const subscriptionsGateway = {
+  getPublicRegion,
   getPricing,
   createSubscription,
   verifyPayment,

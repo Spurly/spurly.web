@@ -42,7 +42,7 @@ export default function Nav({ menuOpen, onToggleMenu }) {
             <Link to="/login" className="nav-signin">Sign in</Link>
           ))}
           {!loading && !user && (
-            <Link to="/signup" className="btn btn-primary btn-sm" data-magnetic>Start free</Link>
+            <Link to="/signup" className="btn btn-primary btn-sm" data-magnetic>Start 7-day free trial</Link>
           )}
           <button className="nav-toggle" aria-label="Open menu" aria-expanded={menuOpen ? "true" : "false"} onClick={onToggleMenu}>
             <MenuIcon />

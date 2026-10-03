@@ -46,6 +46,9 @@ const Terms = lazyWithProgress(
 const Support = lazyWithProgress(
   () => import("src/products/pages/website/pages/Support.jsx"),
 );
+const NotFound = lazyWithProgress(
+  () => import("src/products/pages/website/pages/NotFound.jsx"),
+);
 const BlogIndex = lazyWithProgress(
   () => import("src/products/pages/website/pages/BlogIndex.jsx"),
 );
@@ -638,7 +641,11 @@ export function AppRoutes() {
             <Route path="/dev/ui" element={<UiPreview />} />
           )}
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Anything else is a 404 page inside the marketing chrome (noindex).
+              Vercel serves the prerendered copy with a real 404 status. */}
+          <Route element={<WebsiteLayout />}>
+            <Route path="*" element={<NotFound />} />
+          </Route>
         </Routes>
       </Suspense>
     </>

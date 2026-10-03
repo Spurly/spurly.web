@@ -1,98 +1,49 @@
-import { useState } from "react";
-import { ChromeLink } from "./Button.jsx";
+import { Link } from "react-router-dom";
 import { CheckItem } from "../icons.jsx";
+import { usePrice } from "../hooks/usePrice.js";
 
-const PLANS = [
-  {
-    cls: "glass-thin reveal d1",
-    name: "Free",
-    amt: "$0",
-    amtInr: "₹0",
-    per: "forever",
-    desc: "Everything you need to run your first outreach campaign.",
-    cta: { label: "Add to Chrome", variant: "ghost" },
-    feats: [
-      { t: "100 credits / month" },
-      { t: "Prospect from LinkedIn & Sales Navigator" },
-      { t: "50 profiles sourced per day" },
-      { t: "25 connection requests per day" },
-      { t: "25 messages per day" },
-      { t: "Message templates & variables" },
-      { t: "CSV export" },
-      { t: "Email & phone enrichment", off: true },
-    ],
-  },
-  {
-    cls: "glass reveal d2 feat",
-    badge: "Most popular",
-    name: "Pro",
-    amt: "$29",
-    amtInr: "₹2,399",
-    per: "/ month",
-    desc: "For job-seekers and founders running steady, daily outreach.",
-    cta: { label: "Start free trial", variant: "primary", magnetic: true },
-    feats: [
-      { t: "2,000 credits / month" },
-      { t: "Prospect from LinkedIn & Sales Navigator" },
-      { t: "200 profiles sourced per day" },
-      { t: "100 connection requests per day" },
-      { t: "100 messages per day" },
-      { t: "Email & phone enrichment" },
-      { t: "Message templates & variables" },
-      { t: "CSV export" },
-    ],
-  },
-  {
-    cls: "glass-thin reveal d3",
-    name: "Agency",
-    amt: "$99",
-    amtInr: "₹8,199",
-    per: "/ month",
-    desc: "For recruiting teams and agencies running high-volume pipelines.",
-    cta: { label: "Talk to us", variant: "ghost" },
-    feats: [
-      { t: "10,000 credits / month" },
-      { t: "Prospect from LinkedIn & Sales Navigator" },
-      { t: "500 profiles sourced per day" },
-      { t: "300 connection requests per day" },
-      { t: "300 messages per day" },
-      { t: "Everything in Pro" },
-      { t: "Priority enrichment & support" },
-      { t: "Seats for your whole team" },
-    ],
-  },
+/* One plan, monthly (SEO_CONTENT_PLAN §5). Prerendered in USD; after
+   hydration the price switches to INR for visitors in India (usePrice). Every feature below is marked "Market now" in
+   SEO_CONTENT_PLAN §3. */
+
+const FEATURES = [
+  "Campaigns and multi-step sequences, sent at a safe daily pace",
+  "Pause automatically when someone replies",
+  "One inbox for all your LinkedIn conversations",
+  "Audience builder: LinkedIn people search with filters",
+  "Find leads from companies, posts and pasted LinkedIn URLs",
+  "Your network synced, plus profile viewers and followers as leads",
+  "Email and phone enrichment",
+  "Schedule posts and see likes and comments",
+  "Chrome extension capture and CSV import",
+  "Message templates with variables and a live preview",
 ];
 
 export default function Pricing() {
-  const [currency, setCurrency] = useState("usd");
-
+  const price = usePrice();
   return (
     <section id="pricing" className="section-pad">
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="eyebrow">Pricing</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Start free. <em>Scale when it's working.</em></h2>
-          <p className="lead">Every plan includes prospecting, connections, and messaging. Credits are spent only when Spurly does work for you.</p>
+          <h2 className="h2" style={{ marginTop: 14 }}>One plan. <em>Everything included.</em></h2>
+          <p className="lead">7-day free trial, then {price.label}/month. No tiers to compare.</p>
         </div>
-        <div className="currency-toggle reveal" role="group" aria-label="Currency">
-          <button type="button" className={currency === "usd" ? "on" : ""} onClick={() => setCurrency("usd")}>USD</button>
-          <button type="button" className={currency === "inr" ? "on" : ""} onClick={() => setCurrency("inr")}>INR</button>
+        <div className="price-grid single">
+          <article className="price glass feat reveal d1">
+            <span className="badge">7-day free trial</span>
+            <div className="pname">Spurly</div>
+            <div className="pamt"><b className="tnum">{price.label}</b><span>/ month</span></div>
+            <p className="pdesc">{price.region === "IN" ? "Prices shown in INR for India." : "Billed in USD."}</p>
+            <Link to="/signup" className="btn btn-primary" data-magnetic>Start 7-day free trial</Link>
+            <ul>
+              {FEATURES.map((f) => <CheckItem key={f}>{f}</CheckItem>)}
+            </ul>
+          </article>
         </div>
-        <div className="price-grid">
-          {PLANS.map((p) => (
-            <article key={p.name} className={"price " + p.cls}>
-              {p.badge && <span className="badge">{p.badge}</span>}
-              <div className="pname">{p.name}</div>
-              <div className="pamt"><b className="tnum">{currency === "usd" ? p.amt : p.amtInr}</b><span>{p.per}</span></div>
-              <p className="pdesc">{p.desc}</p>
-              <ChromeLink variant={p.cta.variant} magnetic={p.cta.magnetic}>{p.cta.label}</ChromeLink>
-              <ul>
-                {p.feats.map((f) => <CheckItem key={f.t} off={f.off}>{f.t}</CheckItem>)}
-              </ul>
-            </article>
-          ))}
-        </div>
-        <p className="center" style={{ marginTop: 24, color: "var(--text-3)", fontSize: 13.5 }}>Credits are spent only when Spurly does work for you. No hidden fees.</p>
+        <p className="center" style={{ marginTop: 24, color: "var(--text-3)", fontSize: 13.5 }}>
+          Add a card (or UPI in India) to start your 7-day free trial. You won't be charged until day 8. Cancel anytime before then and you pay nothing. Cancel in Settings → Billing; access runs to the end of the period you've paid for.
+        </p>
       </div>
     </section>
   );

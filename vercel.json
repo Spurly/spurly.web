@@ -3,6 +3,9 @@
   "trailingSlash": false,
   "buildCommand": "npm run build",
   "rewrites": [
-    { "source": "/((?!assets|.*\\.).*)", "destination": "/app" }
+    {
+      "source": "/(dashboard|hub|admin|onboarding|subscribe|signup|login|forgot-password|reset-password|dev)(/.*)?",
+      "destination": "/app"
+    }
   ]
 }
