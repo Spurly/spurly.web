@@ -51,7 +51,7 @@ Choose Spurly if you are one person, such as a founder, consultant or recruiter,
 
 ## Safety
 
-Both run in the cloud and apply limits. HeyReach says it uses a dedicated residential proxy per account and freezes accounts that approach LinkedIn's daily thresholds. Spurly applies per-action daily and hourly caps, an overall daily ceiling and a pause after repeated failures; see the [safety page](/product/safety). No tool can guarantee LinkedIn will never restrict an account. Read [is LinkedIn automation safe?](/blog/is-linkedin-automation-safe).
+Both run in the cloud and apply limits. HeyReach says it uses a dedicated residential proxy per account and freezes accounts that approach LinkedIn's daily thresholds. Spurly applies daily and hourly connection-request caps and a pause after repeated failures; see the [safety page](/product/safety). No tool can guarantee LinkedIn will never restrict an account. Read [is LinkedIn automation safe?](/blog/is-linkedin-automation-safe).
 
 ## Sources
 

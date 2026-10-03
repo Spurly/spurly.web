@@ -67,4 +67,4 @@ Spurly checks your connections automatically and marks people as connected when 
 
 ## Built to stay within LinkedIn's limits
 
-Every automated action passes through caps and pacing rules before it is sent, and the details are on the [safety page](/product/safety). The honest version: LinkedIn's User Agreement restricts automation, and no tool can promise an account will never be restricted. Spurly is designed to keep your activity well inside the limits LinkedIn applies to normal use.
+Connection requests pass through daily and hourly caps and pacing rules before they are sent, and the details are on the [safety page](/product/safety). The honest version: LinkedIn's User Agreement restricts automation, and no tool can promise an account will never be restricted. Spurly is designed to keep your activity well inside the limits LinkedIn applies to normal use.

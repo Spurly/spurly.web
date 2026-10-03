@@ -60,7 +60,7 @@ Waalaxy and others describe tricks that save invitations, such as finding email 
 
 Spurly counts every connection request it sends over a rolling seven days and shares that count between the app and the Chrome extension, because LinkedIn counts them together. When the weekly budget is spent, [campaigns](/product/campaigns) stop sending connection requests and resume as the window moves on. You are notified when you are running low.
 
-Within a day, connection requests are limited to 40 a day and 8 an hour by default, with at least two minutes between them. See [daily limits per action](/blog/linkedin-automation-limits-per-day). The per-day cap exists so a week's budget is spread out, not spent in one burst.
+Within a day, connection requests are limited to 80 a day and 40 an hour by default, with about 90 seconds between them, varied at random. See [daily limits](/blog/linkedin-automation-limits-per-day). The per-day cap exists so a week's budget is spread out, not spent in one burst.
 
 ## How to plan your week
 

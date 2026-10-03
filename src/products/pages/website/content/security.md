@@ -37,7 +37,7 @@ You connect your LinkedIn account once through a secure hosted login that Spurly
 
 - **Your account:** your name, your email address and a bcrypt hash of your password, never the password itself.
 - **Your work in Spurly:** the leads, audiences, campaigns, sequences, templates, notes and conversations you build or sync.
-- **Activity records:** a log of every automated action Spurly takes, which is how it enforces its limits and never repeats a send.
+- **Activity records:** a log of sends and outreach events, which is how Spurly paces sends and never repeats one.
 - **Billing records:** your plan and payment history. Payments are handled by our payment provider.
 - **Product analytics:** which pages and features are used, to improve the product.
 

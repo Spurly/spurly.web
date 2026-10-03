@@ -15,7 +15,7 @@ faq:
   - q: Can I schedule posts with images or video?
     a: No. A post with an image or video is published straight away and cannot be scheduled.
   - q: How many posts can Spurly publish a day?
-    a: Spurly allows 2 posts a day with at least 4 hours between them. That is deliberately conservative and protects your account.
+    a: Spurly does not publish a fixed daily post limit. Posts go out only when you schedule them or publish them yourself, so the pace is yours to set.
   - q: Where do the posts go?
     a: To your own LinkedIn profile, from your own connected account.
 todo:
@@ -33,7 +33,7 @@ You can attach one image or one video. Posts with media are published right away
 
 ## A sensible posting pace
 
-Posting is one of the actions Spurly limits. By default it allows 2 posts a day with at least 4 hours between them. For most people that is more than enough, and it keeps your account looking like a person. The other limits are on the [safety page](/product/safety).
+Posts go out only when you schedule them or publish them yourself, so the pace is yours to set. How Spurly paces other actions is on the [safety page](/product/safety).
 
 ## Why posts help outreach
 

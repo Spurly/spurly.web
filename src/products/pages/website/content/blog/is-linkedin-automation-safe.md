@@ -27,7 +27,6 @@ faq:
 todo:
   - Add one first-hand paragraph from your own experience with limits or restrictions (nothing invented)
   - Skim LinkedIn's help page a1341387 and User Agreement s.8.2 once; the copy paraphrases them
-  - Re-check the limits table and 150-action ceiling against prod env (HUB_CAP_*) before publishing; same open item as /product/safety
   - Decision taken: the weekly budget number (code default 200) is not published; publish it only if you want to
 ---
 **Short answer:** no LinkedIn automation tool is risk-free. LinkedIn's User Agreement prohibits bots and other automated methods, and LinkedIn can restrict or close an account whenever it decides to. What you control is how likely that is: modest volume, irregular timing, targeted lists that people accept and a tool that stops when something goes wrong all lower the risk. None of them removes it.
@@ -65,25 +64,21 @@ We expand on these in [what gets LinkedIn accounts restricted](/blog/what-gets-l
 
 LinkedIn publishes no fixed number for connection requests per week or day. Expandi's page on invitation limits (checked 3 October 2026) says exactly that, and recommends staying within about 100 invitations a week, as a planning figure and not a LinkedIn entitlement. Waalaxy's page says LinkedIn reduced invitations to about 200 a week for all users. Zeliq's 2026 guide suggests 20 to 40 connection requests a day. These are vendor figures, they differ, and they come with the same caveat: staying under a number does not make automation compliant.
 
-Spurly's default limits per account are below. They are conservative on purpose and are tuned as LinkedIn's behaviour changes.
+Spurly's current limits for connection requests, per connected account, are below. They are higher than the 20 to 40 a day that some vendors suggest for a typical account, so treat them as ceilings and start lower.
 
-| Action | Daily limit | Hourly limit | Minimum gap |
-|---|---|---|---|
-| Connection requests | 40 | 8 | 2 minutes |
-| Messages | 80 | 15 | 1 minute |
-| Profile visits | 80 | 20 | 30 seconds |
-| Follows | 25 | 6 | 2 minutes |
-| Post likes | 40 | 10 | 1 minute |
-| Post comments | 10 | 3 | 10 minutes |
-| Skill endorsements | 20 | 5 | 2 minutes |
+| Limit | Default |
+|---|---|
+| Connection requests per day | 80 |
+| Connection requests per hour | 40 |
+| Minimum gap between requests | about 90 seconds, varied by up to 40% either way |
 
-Limits are counted over a rolling 24 hours and 60 minutes, not a calendar day. On top of the per-action limits there is a ceiling of 150 automated actions across these types in any 24 hours. Connection requests also count against a weekly invitation budget that Spurly tracks across the app and the Chrome extension together, so using both does not double your allowance. More detail is in [daily limits per action](/blog/linkedin-automation-limits-per-day) and on the [safety page](/product/safety).
+Connection requests also count against a weekly invitation budget that Spurly tracks across the app and the Chrome extension together, so using both does not double your allowance. More detail is in [daily limits](/blog/linkedin-automation-limits-per-day) and on the [safety page](/product/safety).
 
 ## How a well-built tool lowers the risk
 
 These are the controls that matter, whichever tool you pick. Ask any vendor whether it has them.
 
-1. **Per-action limits that cannot be exceeded**, not suggestions. The tool should refuse the send, not warn you.
+1. **Limits that cannot be exceeded**, not suggestions. The tool should refuse the send, not warn you.
 2. **Random spacing** between actions. Spurly varies the minimum gap by about 40% either way instead of using a fixed delay.
 3. **A weekly budget** for invitations, shared across every channel you use.
 4. **Stop on reply.** A sequence should stop for a person who answers rather than send scripted follow-ups into a live conversation. Spurly does this.
@@ -100,7 +95,7 @@ Every vendor describes safeguards, and they differ. This is what each says publi
 | Expandi | Dedicated IP per account matched to the account's country, warm-up from 5 to 21 actions a day over two weeks, random delays and working-hours windows. States that no tool is zero-risk | Expandi, 28 Sep 2026 |
 | HeyReach | A dedicated static residential IP per account; accounts approaching LinkedIn's daily threshold are frozen before they cross it | HeyReach, March 2026 |
 | Waalaxy | No HTML injected into the page, delays between messages managed automatically, automatic daily quotas based on LinkedIn's implicit rules | Waalaxy, updated 25 Jun 2026 |
-| Spurly | Fixed per-action hourly and daily limits, random gaps, a shared weekly invitation budget, stop on reply, pause on repeated failures. No dedicated IP, no automatic ramp-up | This page |
+| Spurly | Fixed hourly and daily limits on connection requests, random gaps, a shared weekly invitation budget, stop on reply, pause on repeated failures. No dedicated IP, no automatic ramp-up | This page |
 
 The most useful question is not "is it safe?" but "what will it refuse to do?" A tool that enforces limits and stops by itself is doing more than one that only lets you set them.
 

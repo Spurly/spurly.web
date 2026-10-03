@@ -19,7 +19,8 @@
     "test": "vitest run",
     "pretest:watch": "node scripts/buildContent.mjs",
     "test:watch": "vitest",
-    "content": "node scripts/buildContent.mjs"
+    "content": "node scripts/buildContent.mjs",
+    "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
     "axios": "^1.7.7",

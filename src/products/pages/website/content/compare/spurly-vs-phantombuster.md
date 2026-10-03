@@ -8,12 +8,10 @@ template: comparison
 date: 2026-10-03
 priority: 0.8
 target_query: phantombuster alternative
-checked: 2026-10-03
+checked: 2026-10-04
 sources:
   - name: PhantomBuster pricing
     url: https://phantombuster.com/pricing
-  - name: "La Growth Machine: PhantomBuster pricing summary (third party, June 2026)"
-    url: https://lagrowthmachine.com/phantombuster-pricing/
 related: [/compare/spurly-vs-expandi, /compare/spurly-vs-heyreach, /pricing, /product/campaigns]
 faq:
   - q: Is PhantomBuster a LinkedIn outreach tool?
@@ -21,9 +19,8 @@ faq:
   - q: Which is easier to use?
     a: Spurly, if your goal is outreach, because campaigns, sequences and the inbox are ready to use. PhantomBuster gives more flexibility but needs more setup.
   - q: What does PhantomBuster cost?
-    a: A third-party summary from June 2026 lists plans from about $69 per month on monthly billing, based on execution hours. We could not load PhantomBuster's own pricing page, so check it directly. Spurly is $24.99 per month (₹2,499 in India).
+    a: PhantomBuster's own pricing page (checked 4 October 2026) lists the Start plan at $69 per month on monthly billing, or $56 per month billed annually, with 20 hours of execution time a month; Grow is $159 and Scale is $439 monthly. Spurly is $24.99 per month (₹2,499 in India).
 todo:
-  - Re-check PhantomBuster pricing on its own page; the figures here come from a third-party summary
   - Add one first-hand line from your own use
 ---
 **Short answer:** PhantomBuster is a toolbox for automating web tasks, including scraping data from LinkedIn. Spurly is a finished product for LinkedIn outreach. If you want to build custom data workflows, PhantomBuster fits. If you want to send connection requests and follow-ups and read replies, Spurly is simpler.
@@ -31,12 +28,12 @@ todo:
 | | Spurly | PhantomBuster |
 |---|---|---|
 | Purpose | LinkedIn outreach campaigns | General automation and data extraction, including LinkedIn |
-| Price | $24.99/month (₹2,499 in India) | Plans priced by execution hours; one third-party summary lists $69/month at the entry level (not confirmed by PhantomBuster's page) |
+| Price | $24.99/month (₹2,499 in India) | Plans priced by execution hours; Start is $69/month ($56/month billed annually), Grow $159, Scale $439 |
 | Free trial | 7 days; card or UPI required | A trial is offered; check the page for the length |
 | Setup | Connect your account and start a campaign | Pick and configure individual automations, then chain them |
 | Inbox | Unified inbox | Not its focus |
 | Sequences | Built in; stop when someone replies | Built by combining automations |
-| Safety limits | Per-action caps, a daily ceiling, pacing and failure pauses | You set the pacing |
+| Safety limits | Daily and hourly connection-request caps, pacing and failure pauses | You set the pacing |
 
 ## What each is for
 
@@ -50,4 +47,4 @@ Because PhantomBuster leaves pacing to you, how safe it is depends on how carefu
 
 ## Sources
 
-Checked on 3 October 2026. PhantomBuster's pricing is not confirmed from its own page; the figure above comes from a competitor's summary dated June 2026, so confirm before relying on it.
+Checked on 4 October 2026 against PhantomBuster's own pricing page (monthly billing toggle). Re-check monthly.

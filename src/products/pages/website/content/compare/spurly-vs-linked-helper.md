@@ -33,7 +33,7 @@ todo:
 | Where it runs | Spurly's cloud | Your own computer or a server you set up |
 | Laptop must stay on | No | Yes, unless you run it on a server |
 | Accounts per licence | One per user | One LinkedIn account per licence |
-| Daily action caps | Per-action limits and a daily ceiling set by Spurly | Standard plan: 20 actions per day; Pro: no daily caps |
+| Daily action caps | Daily and hourly connection-request limits set by Spurly | Standard plan: 20 actions per day; Pro: no daily caps |
 | Setup | Connect your account | Install, configure and keep running |
 
 ## Where it runs
@@ -42,7 +42,7 @@ Linked Helper is software you install. It runs on your own computer or on a virt
 
 ## Limits
 
-Linked Helper's Standard plan caps actions at 20 per day, while its Pro plan removes the daily caps and leaves the pacing to you. Spurly applies per-action daily and hourly limits plus an overall ceiling by default; see the [safety page](/product/safety). Removing caps is not the same as being safe: LinkedIn's own limits still apply.
+Linked Helper's Standard plan caps actions at 20 per day, while its Pro plan removes the daily caps and leaves the pacing to you. Spurly applies daily and hourly connection-request limits by default; see the [safety page](/product/safety). Removing caps is not the same as being safe: LinkedIn's own limits still apply.
 
 ## Who should choose which
 

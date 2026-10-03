@@ -30,7 +30,7 @@ const PILLARS = [
     cls: "d4",
     tag: "Safe",
     title: "Safety built in",
-    body: "Every action has its own limits and random gaps. No tool can promise zero risk, and we say so.",
+    body: "Connection requests have daily and hourly limits and random gaps. No tool can promise zero risk, and we say so.",
     items: ["Hourly and daily limits per action", "Random gaps, never a fixed timer", "An honest risk statement"],
     to: "/product/safety",
   },

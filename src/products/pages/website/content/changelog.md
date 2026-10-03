@@ -9,8 +9,6 @@ date: 2026-10-03
 priority: 0.6
 target_query: spurly changelog
 related: [/product/campaigns, /product/safety, /product/inbox]
-todo:
-  - Check each entry's date against the release history before publishing and add new entries as things ship
 ---
 A short, honest list of what has shipped, newest first. Dates are the month a feature became available to everyone.
 
@@ -19,6 +17,8 @@ A short, honest list of what has shipped, newest first. Dates are the month a fe
 - **Free connection request generator.** A free tool that writes a short note under LinkedIn's 300-character limit, no login needed. [Try it](/tools/linkedin-connection-request-generator).
 - **Templates and glossary.** Copy-and-edit [message templates](/templates) and a plain-English [glossary](/glossary).
 - **Comparison pages.** Side-by-side pages against HeyReach, Linked Helper, PhantomBuster and Lemlist, with sources and the date checked.
+- **Posts.** Write a post, schedule text posts up to 60 days ahead or publish an image or video now. See [posts](/product/posts).
+- **Network and invitations.** Sync your connections, review pending invitations and optionally withdraw stale ones. See [network](/product/network).
 
 ## September 2026
 
@@ -27,7 +27,5 @@ A short, honest list of what has shipped, newest first. Dates are the month a fe
 - **Multi-step sequences.** Combine profile visits, connection requests, messages, follows, likes, comments, endorsements and waits. Sequences stop when someone replies.
 - **Unified inbox.** Read and answer LinkedIn conversations in one place. See the [inbox](/product/inbox).
 - **Audience builder and lead finder.** Build lists from filtered search, companies, posts, jobs, pasted URLs, profile viewers, followers and CSV imports. See the [lead finder](/product/lead-finder).
-- **Safety layer.** Per-action daily and hourly limits, an overall daily ceiling, randomised gaps between actions and a pause after repeated failures. See [safety](/product/safety).
-- **Network and invitations.** Sync your connections, review pending invitations and optionally withdraw stale ones. See [network](/product/network).
-- **Posts.** Write a post, schedule text posts up to 60 days ahead or publish an image or video now. See [posts](/product/posts).
+- **Safety layer.** Daily and hourly limits on connection requests, randomised gaps between sends and a pause after repeated failures. See [safety](/product/safety).
 - **Lead enrichment.** Fill in title, company and history for the leads you pick, in the background. See [enrichment](/product/enrichment).
