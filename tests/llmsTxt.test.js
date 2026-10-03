@@ -8,7 +8,7 @@ describe('llms.txt', () => {
   const txt = buildLlmsTxt(SITE_URL, pages);
 
   it('starts with the site name and a one-paragraph summary', () => {
-    expect(txt.startsWith('# Spurly\n\n> Spurly runs your LinkedIn outreach')).toBe(true);
+    expect(txt.startsWith('# Spurly\n\n> Spurly is AI-powered LinkedIn outreach')).toBe(true);
     expect(txt).toContain('$24.99/month (₹2,499/month in India)');
     expect(txt).not.toMatch(/no credit card|local-only|free plan/i);
   });

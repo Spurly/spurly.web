@@ -6,16 +6,25 @@ import Nav from "./components/Nav.jsx";
 import MobileMenu from "./components/MobileMenu.jsx";
 import Hero from "./components/Hero.jsx";
 import LogoCloud from "./components/LogoCloud.jsx";
-import ProductShowcase from "./components/ProductShowcase.jsx";
-import HowItWorks from "./components/HowItWorks.jsx";
-import Audiences from "./components/Audiences.jsx";
-import LiveDemo from "./components/LiveDemo.jsx";
+import Problem from "./components/home/Problem.jsx";
+import Pillars from "./components/home/Pillars.jsx";
+import HowItWorks from "./components/home/HowItWorks.jsx";
+import AiSection from "./components/home/AiSection.jsx";
+import HomeVideo from "./components/home/HomeVideo.jsx";
+import FeatureTour from "./components/home/FeatureTour.jsx";
+import Signals from "./components/home/Signals.jsx";
+import SafetySection from "./components/home/SafetySection.jsx";
+import ByHand from "./components/home/ByHand.jsx";
+import ExtensionBlock from "./components/home/ExtensionBlock.jsx";
+import Solutions from "./components/home/Solutions.jsx";
+import HomeFaq from "./components/home/HomeFaq.jsx";
 import Pricing from "./components/Pricing.jsx";
 import FinalCTA from "./components/FinalCTA.jsx";
 import Footer from "./components/Footer.jsx";
 import useScrollReveal from "./hooks/useScrollReveal.js";
 import useMagnetic from "./hooks/useMagnetic.js";
 import { HOME_LD } from "./structuredData.js";
+import { videoLd } from "./components/home/video.js";
 
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -31,10 +40,10 @@ export default function HomePage() {
   return (
     <>
       <Seo
-        title="Spurly — LinkedIn Lead Capture & Outreach Chrome Extension"
-        description="Spurly captures leads from LinkedIn & Sales Navigator, enriches profiles and sends personalized outreach at scale. Built for recruiters, founders and job-seekers. 7-day free trial."
+        title="Spurly: AI LinkedIn Outreach Automation in the Cloud"
+        description="Spurly is AI-powered LinkedIn outreach: AI writes your messages, then campaigns find, connect and follow up from the cloud. 7-day free trial."
         path="/"
-        jsonLd={[ORGANIZATION_LD, WEBSITE_LD, ...HOME_LD]}
+        jsonLd={[ORGANIZATION_LD, WEBSITE_LD, ...HOME_LD, videoLd()].filter(Boolean)}
       />
       <Helmet>
         <link rel="preload" href="/fonts/fraunces-opsz.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
@@ -46,11 +55,19 @@ export default function HomePage() {
       <main id="top">
         <Hero />
         <LogoCloud />
-        <ProductShowcase />
+        <Problem />
+        <Pillars />
+        <AiSection />
         <HowItWorks />
-        <Audiences />
-        <LiveDemo />
+        <HomeVideo />
+        <FeatureTour />
+        <Signals />
+        <SafetySection />
+        <ByHand />
+        <ExtensionBlock />
+        <Solutions />
         <Pricing />
+        <HomeFaq />
         <FinalCTA />
       </main>
 

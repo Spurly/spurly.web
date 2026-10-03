@@ -8,7 +8,7 @@
  */
 
 const SUMMARY =
-  'Spurly runs your LinkedIn outreach for you. Connect your LinkedIn account once, then find the right people, ' +
+  'Spurly is AI-powered LinkedIn outreach that runs in the cloud: its AI drafts your connection notes and messages (you approve them), and it runs your LinkedIn outreach for you. Connect your LinkedIn account once, then find the right people, ' +
   'send connection requests and multi-step follow-ups at a safe daily pace, and reply from one unified inbox, ' +
   'from the cloud, so campaigns keep going with your laptop closed. A Chrome extension captures profiles from ' +
   'LinkedIn and Sales Navigator pages. One plan: $24.99/month (₹2,499/month in India) with a 7-day free trial; ' +

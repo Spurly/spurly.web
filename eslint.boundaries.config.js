@@ -16,7 +16,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
  * Run: npm run lint:arch
  */
 export default [
-  { ignores: ['dist/**', 'node_modules/**', 'src/dev/**'] },
+  { ignores: ['dist/**', 'node_modules/**', 'src/dev/**', '**/*.generated.js'] },
   {
     files: ['src/**/*.{js,jsx}'],
     // The source carries react-hooks disable comments this config doesn't

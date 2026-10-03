@@ -6,11 +6,13 @@
    decide which URLs to prerender and to write sitemap.xml, so the
    route list, the prerendered pages and the sitemap cannot drift.
 
-   Adding a public page = add a route in src/app/routes.jsx AND an
-   entry in PUBLIC_ROUTES below. tests/seo.routes.test.jsx fails if
-   the two disagree.
+   Pages written as content files (the .md files under content/) are added here and
+   routed automatically: a new .md = a new prerendered page + sitemap entry.
+   Hand-built pages need a route in src/app/routes.jsx AND an entry below;
+   tests/seo.prerender.test.jsx fails if the two disagree.
    ============================================================ */
 import { POSTS } from "./blogPosts.js";
+import { CONTENT_META } from "./content/content.meta.generated.js";
 import { PAGE_UPDATED } from "./pageDates.js";
 
 export const SITE_URL = "https://www.getspurly.com";
@@ -37,11 +39,11 @@ export function absoluteUrl(path = "/") {
 export const PUBLIC_ROUTES = [
   { path: "/", changefreq: "weekly", priority: 1.0, lastmod: PAGE_UPDATED["/"] },
   { path: "/blog", changefreq: "weekly", priority: 0.8, lastmod: latestPostDate() },
-  ...POSTS.map((p) => ({
-    path: "/blog/" + p.slug,
-    changefreq: "monthly",
-    priority: 0.7,
-    lastmod: p.updated || p.date,
+  ...CONTENT_META.map((p) => ({
+    path: p.path,
+    changefreq: p.changefreq || "monthly",
+    priority: p.priority ?? (p.path.startsWith("/blog/") ? 0.7 : 0.8),
+    lastmod: p.updated,
   })),
   { path: "/support", changefreq: "monthly", priority: 0.5, lastmod: PAGE_UPDATED["/support"] },
   { path: "/privacy", changefreq: "yearly", priority: 0.3, lastmod: PAGE_UPDATED["/privacy"] },

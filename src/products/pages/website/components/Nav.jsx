@@ -7,7 +7,8 @@ const LINKS = [
   { href: "#product", label: "Product" },
   { href: "#how", label: "How it works" },
   { href: "#who", label: "Who it's for" },
-  { href: "#pricing", label: "Pricing" },
+  { to: "/pricing", label: "Pricing" },
+  { to: "/blog", label: "Blog" },
 ];
 
 export default function Nav({ menuOpen, onToggleMenu }) {
@@ -32,7 +33,7 @@ export default function Nav({ menuOpen, onToggleMenu }) {
         </a>
         <div className="nav-links">
           {LINKS.map((l) => (
-            <a key={l.href} href={l.href}>{l.label}</a>
+            l.to ? <Link key={l.to} to={l.to}>{l.label}</Link> : <a key={l.href} href={l.href}>{l.label}</a>
           ))}
         </div>
         <div className="nav-cta">

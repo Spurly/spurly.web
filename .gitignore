@@ -30,3 +30,6 @@ dist-ssr
 .claude-sync/
 .vercel
 .env*
+
+# Built from content/**/*.md by scripts/buildContent.mjs
+src/products/pages/website/content/*.generated.js

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PUBLIC_ROUTES } from 'src/products/pages/website/seo.js';
 import { PAGE_UPDATED } from 'src/products/pages/website/pageDates.js';
-import { POSTS } from 'src/products/pages/website/blogPosts.js';
+import { CONTENT_META } from 'src/products/pages/website/content/content.meta.generated.js';
 
 describe('sitemap lastmod comes from content dates, never the build date', () => {
   it('every route has a real, non-future YYYY-MM-DD date', () => {
@@ -18,8 +18,8 @@ describe('sitemap lastmod comes from content dates, never the build date', () =>
 
   it('each lastmod equals the page\'s declared content date', () => {
     for (const r of PUBLIC_ROUTES) {
-      const post = POSTS.find((p) => '/blog/' + p.slug === r.path);
-      if (post) expect(r.lastmod).toBe(post.updated || post.date);
+      const page = CONTENT_META.find((p) => p.path === r.path);
+      if (page) expect(r.lastmod).toBe(page.updated);
       else if (r.path !== '/blog') expect(r.lastmod).toBe(PAGE_UPDATED[r.path]);
     }
   });
