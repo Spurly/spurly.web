@@ -46,7 +46,6 @@ export default function HomePage() {
         jsonLd={[ORGANIZATION_LD, WEBSITE_LD, ...HOME_LD, videoLd()].filter(Boolean)}
       />
       <Helmet>
-        <link rel="preload" href="/fonts/fraunces-opsz.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/instrument-sans.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </Helmet>
       <Nav menuOpen={menuOpen} onToggleMenu={() => setMenu(!menuOpen)} />

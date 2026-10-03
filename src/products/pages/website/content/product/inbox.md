@@ -24,7 +24,7 @@ todo:
 Spurly's inbox puts every LinkedIn conversation in one place, so replies to your campaigns never get lost between tabs. You read, reply, react and send files from the same screen where you run your outreach.
 
 
-![The Spurly inbox with conversations, a thread and a reply box. Names and messages are blurred.](/assets/app-inbox.webp)
+![The Spurly inbox with a conversation list, an open thread and a reply box. The message text is blurred.](/assets/app-inbox.webp)
 
 ## All your conversations in one list
 

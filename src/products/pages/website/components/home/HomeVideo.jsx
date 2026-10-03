@@ -22,7 +22,7 @@ export default function HomeVideo() {
             />
           ) : (
             <>
-              <img src={V.poster} alt="Spurly campaigns page" width="1700" height="946" loading="lazy" decoding="async" />
+              <img src={V.poster} alt="Spurly campaigns page" width="1700" height="943" loading="lazy" decoding="async" />
               {V.youtubeId ? (
                 <button type="button" className="vp-play" onClick={() => setPlaying(true)} aria-label={"Play: " + V.name}>
                   <span aria-hidden="true">▶</span>

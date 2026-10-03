@@ -65,7 +65,7 @@
      migrated to --accent / --text-accent. */
   --brand-purple:     var(--brand-teal);
 
-  --brand-gradient-vivid: linear-gradient(135deg, #0a6f82 0%, #0d9bb5 100%);
+  --brand-gradient-vivid: linear-gradient(135deg, #3b5bdb 0%, #5b7cfa 100%);
 
   /* ---- Semantic -------------------------------------------
      Aliased to the --ui-* semantic stops. Two things this fixes:
@@ -92,7 +92,7 @@
   /* Canvas. Marketing only — the app canvas is --ui-surface-page. */
   --canvas: var(--ui-surface-page);
   --canvas-mesh:
-    radial-gradient(900px 600px at 12% -8%,  rgba(13,155,181,0.055), transparent 60%),
+    radial-gradient(900px 600px at 12% -8%,  rgba(91,124,250,0.055), transparent 60%),
     radial-gradient(800px 600px at 100% 0%,  rgba(56,189,248,0.05),  transparent 55%),
     #f7f8fa;
 
@@ -138,8 +138,8 @@
   --shadow-xs:    var(--ui-shadow-sm);
   --shadow-sm:    var(--ui-shadow-sm);
   --shadow-lg:    var(--ui-shadow-lg);
-  --shadow-glass: 0 10px 34px rgba(60,40,20,0.14), var(--glass-inner-glow);
-  --shadow-accent: 0 6px 18px rgba(10,111,130,0.26);
+  --shadow-glass: 0 10px 34px rgba(25,35,95,0.14), var(--glass-inner-glow);
+  --shadow-accent: 0 6px 18px rgba(59,91,219,0.26);
 
   /* Focus — marketing only. The app uses --ui-focus-ring. */
   --ring-width: 3px;
@@ -240,7 +240,6 @@ table { font-variant-numeric: tabular-nums; }
     letter-spacing: var(--ui-track-base);
     color: var(--text-primary);
     background: var(--surface-canvas);
-    /* The ribbon layer (AppBackdrop) is fixed behind everything. */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -345,28 +344,29 @@ table { font-variant-numeric: tabular-nums; }
   }
 }
 
-/* ============================================================
-   AppBackdrop — the paper-ribbon layer behind every route.
-   Fixed, non-interactive, sits under all content. Surfaces that should
-   let it show (the dashboard canvas, auth) are transparent; cards stay
-   opaque.
-   ============================================================ */
-.site-fx {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  pointer-events: none;
-  display: block;
-  opacity: 0;
-  transition: opacity 1s;
-}
-.site-fx.on { opacity: 1; }
-
 /* Page titles, the one place the display face appears in app chrome. */
 .ui-display {
   font-family: var(--ui-font-display);
-  font-optical-sizing: auto;
-  font-weight: 420;
+  font-weight: 650;
+}
+
+/* Chat wallpaper: a quiet tile of outline doodles (bubble, plane, star, ring,
+   plus) on a pale blue ground, so a thread has its own surface the way a
+   messaging app does. Pure CSS data URI, no request, no script. */
+.ui-chat-wallpaper {
+  background-color: #e9eefb;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180' fill='none' stroke='%233b5bdb' stroke-opacity='.11' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M18 22h30a4 4 0 0 1 4 4v15a4 4 0 0 1-4 4H34l-9 8v-8h-7a4 4 0 0 1-4-4V26a4 4 0 0 1 4-4z'/><path d='M112 20l34 11-34 11 7-11z'/><path d='M119 31h21'/><circle cx='128' cy='108' r='10'/><path d='M46 112l6 11 12 2-9 8 2 12-11-6-11 6 2-12-9-8 12-2z'/><path d='M150 150h16M158 142v16'/><path d='M96 150c5-8 15-8 20 0'/><circle cx='84' cy='74' r='3'/></svg>");
+  background-size: 180px 180px;
+}
+
+/* Paper ribbons behind every route: one static image (about 19 KB), fixed to
+   the viewport. It replaces the live shader, so there is no WebGL, no frame
+   loop and no main-thread cost. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url("/assets/ribbons.webp") center / cover no-repeat;
 }

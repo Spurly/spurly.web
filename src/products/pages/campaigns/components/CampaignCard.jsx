@@ -6,10 +6,10 @@ import { CAMPAIGN_STATUS_VIEW as STATUS_VIEW } from './statusView.js';
 const SPINE = {
   running: 'var(--ui-accent)',
   paused: 'var(--ui-warning-dot)',
-  done: 'var(--ui-success-dot)',
+  done: 'var(--ui-accent-border)',
   draft: 'var(--ui-border-strong)',
 };
-const METER_TONE = { running: 'accent', paused: 'warning', done: 'success', draft: 'accent' };
+const METER_TONE = { running: 'accent', paused: 'warning', done: 'accent', draft: 'accent' };
 
 const PAUSED_REASON = {
   manual: 'Paused by you',
@@ -147,7 +147,7 @@ export function CampaignCard({ campaign, onOpen, onStart, onPause, onDelete, bus
         {campaign.type === 'message' ? (
           <Reading label="Failed" value={(c.failed ?? 0).toLocaleString()} />
         ) : (
-          <Reading label="Accept rate" value={acceptRate == null ? '—' : `${acceptRate.toFixed(1)}%`} tone="success" />
+          <Reading label="Accept rate" value={acceptRate == null ? '—' : `${acceptRate.toFixed(1)}%`} tone="primary" />
         )}
         <Reading label="Replied" soon />
       </div>

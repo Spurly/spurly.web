@@ -55,7 +55,7 @@ function Bubble({ message, onReact, onOpenAttachment }) {
           className={[
             'rounded-[var(--ui-radius-lg)] px-3.5 py-2.5 text-[length:var(--ui-t-control)] leading-[1.6] whitespace-pre-wrap break-words',
             mine
-              ? 'bg-[var(--ui-accent)] text-[var(--ui-accent-on)] shadow-[var(--ui-btn-shadow)]'
+              ? 'bg-[var(--ui-accent-tint-strong)] border border-[var(--ui-accent-border)] text-[var(--ui-text-primary)]'
               : 'bg-[var(--ui-surface-card)] border border-[var(--ui-border)] text-[var(--ui-text-primary)]',
           ].join(' ')}
         >
@@ -123,7 +123,7 @@ export function Thread({ chatId, onChanged }) {
         )}
       </header>
 
-      <div className="flex-1 min-h-0 overflow-auto bg-[var(--ui-surface-page)]">
+      <div className="flex-1 min-h-0 overflow-auto ui-chat-wallpaper">
         <div className="max-w-[680px] mx-auto px-5 py-6">
         {data?.historyPending && (
           // An un-swept conversation and a conversation with nothing in it look

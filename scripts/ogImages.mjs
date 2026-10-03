@@ -6,7 +6,7 @@
  * src/products/pages/website/seo.js (the same function <Seo> uses to build each
  * page's og:image URL, so the two cannot drift).
  *
- * satori lays the card out (it reads Fraunces / Instrument Sans from
+ * satori lays the card out (it reads Instrument Sans from
  * @fontsource, which ships .woff files) and @resvg/resvg-js rasterises the SVG.
  * Neither needs a browser or system fonts, so it works the same on Vercel.
  */
@@ -19,11 +19,11 @@ import { Resvg } from '@resvg/resvg-js';
 const require = createRequire(import.meta.url);
 const font = (pkg, file) => fs.readFile(path.join(path.dirname(require.resolve(`${pkg}/package.json`)), 'files', file));
 
-const PAPER = '#f3ede3';
-const INK = '#1e1a16';
-const INK_3 = '#6f665c';
-const TEAL = '#0a6f82';
-const APRICOT = '#f2b98f';
+const PAPER = '#f5f7fc';
+const INK = '#1a1d3f';
+const INK_3 = '#666d8a';
+const TEAL = '#3b5bdb';
+const APRICOT = '#c9d4ff';
 
 /** "Blog — LinkedIn outreach guides | Spurly" -> "Blog — LinkedIn outreach guides";
  *  "Spurly — LinkedIn Lead Capture ..." -> "LinkedIn Lead Capture ..." */
@@ -57,14 +57,14 @@ function card(title, iconSrc) {
             style: { display: 'flex', alignItems: 'center' },
             children: [
               { type: 'img', props: { src: iconSrc, width: 56, height: 56, style: { borderRadius: 14 } } },
-              { type: 'div', props: { style: { marginLeft: 18, fontFamily: 'Fraunces', fontWeight: 600, fontSize: 40 }, children: 'Spurly' } },
+              { type: 'div', props: { style: { marginLeft: 18, fontFamily: 'Instrument Sans', fontWeight: 700, fontSize: 40 }, children: 'Spurly' } },
             ],
           },
         },
         {
           type: 'div',
           props: {
-            style: { display: 'flex', maxWidth: 820, fontFamily: 'Fraunces', fontWeight: 500, fontSize: fontSizeFor(text), lineHeight: 1.08, letterSpacing: -1.5, lineClamp: 3 },
+            style: { display: 'flex', maxWidth: 820, fontFamily: 'Instrument Sans', fontWeight: 700, fontSize: fontSizeFor(text), lineHeight: 1.08, letterSpacing: -2, lineClamp: 3 },
             children: text,
           },
         },
@@ -88,16 +88,14 @@ function card(title, iconSrc) {
  * @param {{ outDir: string, iconPath: string }} opts
  */
 export async function generateOgImages(pages, { outDir, iconPath }) {
-  const [fraunces500, fraunces600, sans500, sans400, icon] = await Promise.all([
-    font('@fontsource/fraunces', 'fraunces-latin-500-normal.woff'),
-    font('@fontsource/fraunces', 'fraunces-latin-600-normal.woff'),
+  const [sans700, sans500, sans400, icon] = await Promise.all([
+    font('@fontsource/instrument-sans', 'instrument-sans-latin-700-normal.woff'),
     font('@fontsource/instrument-sans', 'instrument-sans-latin-500-normal.woff'),
     font('@fontsource/instrument-sans', 'instrument-sans-latin-400-normal.woff'),
     fs.readFile(iconPath),
   ]);
   const fonts = [
-    { name: 'Fraunces', data: fraunces500, weight: 500, style: 'normal' },
-    { name: 'Fraunces', data: fraunces600, weight: 600, style: 'normal' },
+    { name: 'Instrument Sans', data: sans700, weight: 700, style: 'normal' },
     { name: 'Instrument Sans', data: sans400, weight: 400, style: 'normal' },
     { name: 'Instrument Sans', data: sans500, weight: 500, style: 'normal' },
   ];

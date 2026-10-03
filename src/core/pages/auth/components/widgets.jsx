@@ -70,7 +70,7 @@ export function GoogleButton({ label = "Continue with Google", onError }) {
           className="sp-spin"
           style={{
             borderTopColor: "var(--sp-primary)",
-            borderColor: "rgba(10,111,130,0.3)",
+            borderColor: "rgba(59,91,219,0.3)",
           }}
         />
       ) : (

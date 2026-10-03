@@ -25,7 +25,7 @@ todo:
 Spurly's lead finder builds LinkedIn audiences from searches, companies, posts and the people who already look at your profile. You end up with a list of the right people in Spurly, ready for a campaign, instead of a spreadsheet you assembled by hand.
 
 
-![The Spurly leads table with degree, status and enrichment columns. Names and profile details are blurred.](/assets/app-leads.webp)
+![The Spurly leads table with a bulk-action bar and degree, status and enrichment columns.](/assets/app-leads.webp)
 
 ## Audience builder: filtered LinkedIn people search
 
