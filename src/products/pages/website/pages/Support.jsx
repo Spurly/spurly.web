@@ -6,11 +6,11 @@ import ContentShell from "../components/ContentShell.jsx";
 const FAQS = [
   {
     q: "What is Spurly?",
-    a: "Spurly is a Chrome extension that turns LinkedIn and Sales Navigator into a prospecting pipeline. It captures leads, enriches profiles with emails and details, and sends personalized outreach — all in one click, without leaving your browser.",
+    a: "Spurly runs your LinkedIn outreach for you. You connect your LinkedIn account once, then find the right people, send connection requests and follow-ups at a safe daily pace, and reply from one inbox — from the cloud, so campaigns keep going with your laptop closed. A Chrome extension lets you capture profiles as you browse.",
   },
   {
-    q: "Is Spurly free to use?",
-    a: "Yes. Spurly has a free plan with 100 credits per month — enough to run your first outreach campaign. Paid plans start at $29/month for 2,000 credits with full enrichment and messaging features.",
+    q: "How much does Spurly cost, and is there a free trial?",
+    a: "Spurly has one plan: $24.99/month (₹2,499/month in India) with a 7-day free trial. Add a card (or UPI in India) to start your 7-day free trial. You won't be charged until day 8. Cancel anytime before then and you pay nothing.",
   },
   {
     q: "Does Spurly work with Sales Navigator?",
@@ -18,7 +18,7 @@ const FAQS = [
   },
   {
     q: "Is my LinkedIn data safe with Spurly?",
-    a: "Yes. Spurly is 100% local-only — all captured data stays on your device and never leaves your browser without your permission. See our Privacy Policy for full details.",
+    a: "Spurly processes your leads, messages and connection data on our servers, and connects to LinkedIn securely through our partner. We don't sell your data. See our Privacy Policy for full details. Spurly is designed to stay within LinkedIn's limits, but no tool can guarantee LinkedIn won't restrict an account, and LinkedIn's User Agreement restricts automation.",
   },
   {
     q: "How does Spurly send personalized messages?",

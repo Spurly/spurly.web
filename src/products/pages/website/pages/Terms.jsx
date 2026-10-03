@@ -60,9 +60,9 @@ export default function Terms() {
 
         <h2>4. Credits and billing</h2>
         <p>
-          Spurly offers a free plan and paid plans. Credits are consumed only
-          when Spurly performs work for you. Paid plans renew on a recurring
-          basis until cancelled. See current pricing on our{" "}
+          Spurly offers a single paid monthly plan with a 7-day free trial. Credits are consumed only
+          when Spurly performs work for you. The plan renews monthly
+          until cancelled. See current pricing on our{" "}
           <a href="/#pricing">pricing section</a>.
         </p>
 

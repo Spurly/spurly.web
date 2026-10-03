@@ -1,14 +1,15 @@
 import { Link } from "react-router-dom";
+import { usePrice } from "../hooks/usePrice.js";
 import Seo from "./Seo.jsx";
 import { absoluteUrl, breadcrumbLd } from "../seo.js";
 import ContentShell from "./ContentShell.jsx";
-import { ChromeLink } from "./Button.jsx";
 import { getPost, otherPosts, formatDate } from "../blogPosts.js";
 
 
 /* Wraps a blog post body with the shell, per-post SEO meta + Article JSON-LD,
    post header, a CTA, and links to the other posts (internal linking). */
 export default function BlogLayout({ slug, children }) {
+  const price = usePrice();
   const post = getPost(slug);
   const related = otherPosts(slug);
   const path = "/blog/" + slug;
@@ -60,13 +61,13 @@ export default function BlogLayout({ slug, children }) {
         <div className="blog-cta">
           <h2>Try it yourself</h2>
           <p>
-            Spurly captures leads from LinkedIn &amp; Sales Navigator, enriches
-            them, and sends personalized outreach — in one click. Start free with
-            100 credits.
+            Spurly runs your LinkedIn outreach for you — find the right people,
+            connect, follow up and reply from one inbox. 7-day free trial, then
+            {price.label}/month.
           </p>
-          <ChromeLink variant="primary" size="lg">
-            Add to Chrome — Start free
-          </ChromeLink>
+          <Link to="/signup" className="btn btn-primary btn-lg">
+            Start 7-day free trial
+          </Link>
         </div>
 
         <div className="blog-related">

@@ -1,5 +1,7 @@
 # Spurly SEO Plan
 
+> **Start at `docs/SEO_MASTER_PLAN.md`** (strategy, task backlog, review loop). This file = how the prerender pipeline works.
+
 > Living doc: update the status boxes as work lands. Owner: Sarthak.
 > Started 2026-09-23.
 

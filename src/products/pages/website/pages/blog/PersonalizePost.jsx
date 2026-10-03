@@ -52,7 +52,7 @@ export default function PersonalizePost() {
       </p>
       <p>
         With a tool like <Link to="/">Spurly</Link>, you capture a whole LinkedIn
-        or Sales Navigator search into a Session, drop in your template with{" "}
+        or Sales Navigator search into your contacts, drop in your template with{" "}
         <code>{"{{name}}"}</code>, <code>{"{{company}}"}</code> and{" "}
         <code>{"{{title}}"}</code> variables, and it writes a unique message for
         every person — with a live preview before anything sends. You get the

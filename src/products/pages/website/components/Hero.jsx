@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
-import Button, { ChromeLink } from "./Button.jsx";
+import { Link } from "react-router-dom";
+import Button from "./Button.jsx";
 import { TargetIcon } from "../icons.jsx";
+import { usePrice } from "../hooks/usePrice.js";
 
 /* Hero: paper background with contour ribbons, a live globe and three sample
    cards. Everything animated mounts after hydration from the lazy
@@ -17,6 +19,7 @@ function scheduleIdle(fn) {
 }
 
 export default function Hero() {
+  const price = usePrice();
   const heroRef = useRef(null);
   const stageRef = useRef(null);
   const bgRef = useRef(null);
@@ -74,18 +77,19 @@ export default function Hero() {
             <span className="ln">work.</span>
           </h1>
           <p className="sr-only">Spurly is built for recruiters, founders, sellers, students and agencies.</p>
-          <p className="lead">Spurly turns LinkedIn &amp; Sales Navigator into your pipeline — capture leads, enrich every profile, and send outreach that sounds like you, to the right people in any timezone. One click, right inside your browser.</p>
+          <p className="lead">Spurly turns LinkedIn &amp; Sales Navigator into your pipeline — find the right people, connect, follow up and reply from one inbox, from the cloud and at a safe daily pace.</p>
           <div className="hero-actions">
-            <ChromeLink variant="primary" size="lg" magnetic>
+            <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>
               <TargetIcon />
-              Add to Chrome — Start free
-            </ChromeLink>
+              Start 7-day free trial
+            </Link>
             <Button variant="ghost" size="lg" href="#product">See it in action</Button>
           </div>
+          <p className="hero-micro">7-day free trial, then {price.label}/month. Add a card (or UPI in India) to start. You won't be charged until day 8. Cancel anytime before then and you pay nothing.</p>
           <div className="hero-stats">
             <div><b className="tnum">190+</b>countries reachable</div>
             <div><b className="tnum">1-click</b>capture, anywhere</div>
-            <div><b className="tnum">100%</b>local-only &amp; private</div>
+            <div><b className="tnum">24/7</b>campaigns run in the cloud</div>
           </div>
         </div>
 

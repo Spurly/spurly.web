@@ -23,7 +23,7 @@ export default function RecruitersPost() {
       <h2>Build a shortlist per role</h2>
       <p>
         Treat each open role as its own pipeline. Run the search, then capture the
-        matching profiles into a dedicated Session. With <Link to="/">Spurly</Link>
+        matching profiles into a dedicated list. With <Link to="/">Spurly</Link>
         , that's one click — names, titles, companies and locations land in a tidy
         list instead of you tabbing through profiles and pasting into a sheet.
       </p>
@@ -49,7 +49,7 @@ export default function RecruitersPost() {
 
       <h2>Keep it organized</h2>
       <p>
-        Sessions per role keep your candidate pipelines clean: who's been
+        A separate list per role keeps your candidate pipelines clean: who's been
         contacted, who responded, who's worth a second look. That structure makes
         you faster on the next role too, because your searches and templates are
         already built.

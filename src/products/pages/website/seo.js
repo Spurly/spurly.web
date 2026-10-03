@@ -11,10 +11,22 @@
    the two disagree.
    ============================================================ */
 import { POSTS } from "./blogPosts.js";
+import { PAGE_UPDATED } from "./pageDates.js";
 
 export const SITE_URL = "https://www.getspurly.com";
 export const SITE_NAME = "Spurly";
 export const DEFAULT_OG_IMAGE = SITE_URL + "/assets/shot-reachout.png";
+
+/** File name (no extension) of a page's OG card: "/" -> "home", "/blog/x" -> "blog-x".
+ *  scripts/ogImages.mjs writes dist/og/<slug>.png with this same name. */
+export function ogSlug(path = "/") {
+  return path === "/" ? "home" : path.replace(/^\/|\/$/g, "").replace(/\//g, "-");
+}
+
+/** Absolute URL of a page's own 1200x630 card (generated at build time). */
+export function ogImageFor(path = "/") {
+  return `${SITE_URL}/og/${ogSlug(path)}.png`;
+}
 
 /** Absolute URL for a site path ("/blog" -> "https://www.getspurly.com/blog"). */
 export function absoluteUrl(path = "/") {
@@ -23,7 +35,7 @@ export function absoluteUrl(path = "/") {
 
 /** Every public, indexable URL. `lastmod` is YYYY-MM-DD. */
 export const PUBLIC_ROUTES = [
-  { path: "/", changefreq: "weekly", priority: 1.0, lastmod: "2026-09-23" },
+  { path: "/", changefreq: "weekly", priority: 1.0, lastmod: PAGE_UPDATED["/"] },
   { path: "/blog", changefreq: "weekly", priority: 0.8, lastmod: latestPostDate() },
   ...POSTS.map((p) => ({
     path: "/blog/" + p.slug,
@@ -31,9 +43,9 @@ export const PUBLIC_ROUTES = [
     priority: 0.7,
     lastmod: p.updated || p.date,
   })),
-  { path: "/support", changefreq: "monthly", priority: 0.5, lastmod: "2026-06-21" },
-  { path: "/privacy", changefreq: "yearly", priority: 0.3, lastmod: "2026-06-21" },
-  { path: "/terms", changefreq: "yearly", priority: 0.3, lastmod: "2026-06-21" },
+  { path: "/support", changefreq: "monthly", priority: 0.5, lastmod: PAGE_UPDATED["/support"] },
+  { path: "/privacy", changefreq: "yearly", priority: 0.3, lastmod: PAGE_UPDATED["/privacy"] },
+  { path: "/terms", changefreq: "yearly", priority: 0.3, lastmod: PAGE_UPDATED["/terms"] },
 ];
 
 function latestPostDate() {
@@ -41,12 +53,24 @@ function latestPostDate() {
 }
 
 /** Organization + WebSite — who publishes the site. Rendered on the home page. */
+/** Profiles that tell Google which "Spurly" this is. Only real, live URLs
+ *  (no X account exists). TODO: add Product Hunt once the listing is live. */
+export const SAME_AS = [
+  "https://www.linkedin.com/company/spurly/",
+  "https://chromewebstore.google.com/detail/dcohpfeaohfiiinjjiinojlbnnfmihoh",
+];
+
 export const ORGANIZATION_LD = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: SITE_NAME,
+  legalName: "ArkTech Catalyst",
   url: SITE_URL + "/",
   logo: SITE_URL + "/assets/spurly-icon-lg.png",
+  description:
+    "Spurly runs LinkedIn outreach for you: find the right people, connect, follow up and reply from one inbox, from the cloud and at a safe daily pace.",
+  sameAs: SAME_AS,
+  foundingDate: "2026",
 };
 
 export const WEBSITE_LD = {

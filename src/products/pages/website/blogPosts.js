@@ -10,20 +10,22 @@ export const POSTS = [
     description:
       "Personalized LinkedIn connection requests get accepted far more often than generic ones. Here's how to personalize them at scale without spending hours per message.",
     date: "2026-06-10",
+    updated: "2026-10-03",
     readTime: "6 min read",
     excerpt:
       "Generic connection requests get ignored. Learn a repeatable system for sending personal, relevant requests to hundreds of people — without copy-pasting.",
   },
   {
     slug: "free-linkedin-outreach-pipeline-founders",
-    title: "How Founders Can Build a Free LinkedIn Outreach Pipeline in 2026",
-    shortTitle: "Build a free outreach pipeline",
+    title: "How Founders Can Build a LinkedIn Outreach Pipeline Without an SDR in 2026",
+    shortTitle: "Build an outreach pipeline",
     description:
-      "You don't need an SDR or an expensive CRM to fill your pipeline. Here's how founders can build a repeatable, mostly-free LinkedIn outreach system in 2026.",
+      "You don't need an SDR or an expensive CRM to fill your pipeline. Here's how founders can build a repeatable LinkedIn outreach system in 2026.",
     date: "2026-06-14",
+    updated: "2026-10-03",
     readTime: "7 min read",
     excerpt:
-      "No SDR, no bloated CRM. A step-by-step playbook for founders to build a repeatable LinkedIn outreach pipeline — starting free.",
+      "No SDR, no bloated CRM. A step-by-step playbook for founders to build a repeatable LinkedIn outreach pipeline on a small budget.",
   },
   {
     slug: "sales-navigator-candidate-pipelines-recruiters",
@@ -33,6 +35,7 @@ export const POSTS = [
     description:
       "Sales Navigator isn't just for sales. Recruiters can use its search and filters to build candidate shortlists in minutes. Here's the workflow.",
     date: "2026-06-18",
+    updated: "2026-10-03",
     readTime: "6 min read",
     excerpt:
       "Sales Navigator's filters are a recruiter's secret weapon. Here's how to turn a search into a personalized candidate pipeline in minutes.",

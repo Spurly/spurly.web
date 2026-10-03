@@ -14,7 +14,7 @@ import { prerenderToNodeStream } from 'react-dom/static';
 import { StaticRouter } from 'react-router-dom/server';
 import { AppTree } from 'src/app/App.jsx';
 
-export { PUBLIC_ROUTES, SITE_URL } from 'src/products/pages/website/seo.js';
+export { PUBLIC_ROUTES, SITE_URL, ogSlug } from 'src/products/pages/website/seo.js';
 
 function streamToString(stream) {
   return new Promise((resolve, reject) => {

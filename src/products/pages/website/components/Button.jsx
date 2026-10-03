@@ -4,7 +4,9 @@
    class combinations: variant (primary|ghost) + size (sm|lg).
    ============================================================ */
 
+import { useLocation } from "react-router-dom";
 import { CHROME_URL } from "src/shared/extension/constants.js";
+import { campaignFor, chromeStoreUrl, track } from "src/shared/analytics/analytics.js";
 
 export { CHROME_URL };
 
@@ -43,8 +45,25 @@ export default function Button({
 }
 
 /* Convenience: the recurring external CTA to the Chrome Web Store. */
+function useChromeCta() {
+  const campaign = campaignFor(useLocation().pathname);
+  return {
+    href: chromeStoreUrl(campaign),
+    onClick: () => track("add_to_chrome_click", { link_location: campaign }),
+  };
+}
+
 export function ChromeLink(props) {
   return (
-    <Button href={CHROME_URL} target="_blank" rel="noopener" {...props} />
+    <Button {...useChromeCta()} target="_blank" rel="noopener" {...props} />
+  );
+}
+
+/* Same tracked Chrome Web Store link, as a plain text link (footer etc.). */
+export function ChromeStoreLink({ children, ...rest }) {
+  return (
+    <a {...useChromeCta()} target="_blank" rel="noopener" {...rest}>
+      {children}
+    </a>
   );
 }

@@ -8,7 +8,8 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-LJP9HM0XT1');
+  // Page views are sent by PageViewTracker (with a content_group), not here.
+  gtag('config', 'G-LJP9HM0XT1', { send_page_view: false });
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -17,7 +18,7 @@
      replaces everything between these markers with each public page's own
      tags (from its <Seo>), and adds noindex to dist/app.html. -->
 <title>Spurly — LinkedIn Lead Capture & Outreach Chrome Extension</title>
-<meta name="description" content="Spurly captures leads from LinkedIn & Sales Navigator, enriches profiles and sends personalized outreach at scale. Built for recruiters, founders and job-seekers. Start free." />
+<meta name="description" content="Spurly captures leads from LinkedIn & Sales Navigator, enriches profiles and sends personalized outreach at scale. Built for recruiters, founders and job-seekers. 7-day free trial." />
 <!--seo:end-->
 <link rel="icon" type="image/svg+xml" href="/spurlyLogo.svg" />
 

@@ -1,28 +1,24 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { appPageTitle, trackPageView } from 'src/shared/analytics/analytics.js';
 
-// The Google tag's own `gtag('config', ...)` call in index.html already fires
-// the pageview for whatever URL the document loaded with, so the first render
-// here is skipped -- sending it again would double-count that view. Every
-// route change after that is a client-side navigation the tag never sees on
-// its own, so it's reported manually.
+// index.html loads the Google tag with `send_page_view: false`, so this is the
+// only place page views are sent -- the first load and every client-side
+// navigation -- each tagged with a website/app content_group. App routes get
+// their own document.title here ("Contacts · Spurly"); public pages set theirs
+// through <Seo>, so the short delay lets that title land before we read it.
 export function PageViewTracker() {
-  const location = useLocation();
-  const isFirstRender = useRef(true);
+  const { pathname, search } = useLocation();
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    if (typeof window.gtag === 'function') {
-      window.gtag('event', 'page_view', {
-        page_path: location.pathname + location.search,
-        page_location: window.location.href,
-        page_title: document.title,
-      });
-    }
-  }, [location]);
+    const appTitle = appPageTitle(pathname);
+    if (appTitle) document.title = appTitle;
+
+    const timer = setTimeout(() => {
+      trackPageView({ path: pathname + search, title: document.title });
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [pathname, search]);
 
   return null;
 }

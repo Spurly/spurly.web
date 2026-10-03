@@ -9,7 +9,6 @@ import LogoCloud from "./components/LogoCloud.jsx";
 import ProductShowcase from "./components/ProductShowcase.jsx";
 import HowItWorks from "./components/HowItWorks.jsx";
 import Audiences from "./components/Audiences.jsx";
-import Webcam from "./components/Webcam.jsx";
 import LiveDemo from "./components/LiveDemo.jsx";
 import Pricing from "./components/Pricing.jsx";
 import FinalCTA from "./components/FinalCTA.jsx";
@@ -33,7 +32,7 @@ export default function HomePage() {
     <>
       <Seo
         title="Spurly — LinkedIn Lead Capture & Outreach Chrome Extension"
-        description="Spurly captures leads from LinkedIn & Sales Navigator, enriches profiles and sends personalized outreach at scale. Built for recruiters, founders and job-seekers. Start free."
+        description="Spurly captures leads from LinkedIn & Sales Navigator, enriches profiles and sends personalized outreach at scale. Built for recruiters, founders and job-seekers. 7-day free trial."
         path="/"
         jsonLd={[ORGANIZATION_LD, WEBSITE_LD, ...HOME_LD]}
       />
@@ -50,7 +49,6 @@ export default function HomePage() {
         <ProductShowcase />
         <HowItWorks />
         <Audiences />
-        <Webcam />
         <LiveDemo />
         <Pricing />
         <FinalCTA />

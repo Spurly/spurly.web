@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-import { CHROME_URL } from "./Button.jsx";
-import { ShieldIcon } from "../icons.jsx";
+import { ChromeStoreLink } from "./Button.jsx";
 
 export default function Footer() {
   return (
@@ -9,7 +8,7 @@ export default function Footer() {
         <div className="foot-grid">
           <div className="foot-brand">
             <Link className="brand" to="/" aria-label="Spurly home"><img src="/spurly-icon-128.png" alt="" width="34" height="34" /><span>Spurly</span></Link>
-            <p>The LinkedIn prospecting &amp; outreach tool that lives in your browser. Capture, connect, reach out — at scale.</p>
+            <p>LinkedIn outreach that runs itself. Find the right people, connect, follow up and reply from one inbox — from the cloud, at a safe pace.</p>
             <p className="legal-name">Spurly is a product of ArkTech Catalyst.</p>
           </div>
           <div className="foot-cols">
@@ -23,9 +22,9 @@ export default function Footer() {
             </div>
             <div className="foot-col">
               <h4>Get Spurly</h4>
-              <a href={CHROME_URL} target="_blank" rel="noopener">Chrome Web Store</a>
-              <a href={CHROME_URL} target="_blank" rel="noopener">Start free</a>
-              <a href={CHROME_URL} target="_blank" rel="noopener">Sign in</a>
+              <ChromeStoreLink>Chrome Web Store</ChromeStoreLink>
+              <Link to="/signup">Start 7-day free trial</Link>
+              <Link to="/login">Sign in</Link>
             </div>
             <div className="foot-col">
               <h4>Company</h4>
@@ -37,7 +36,6 @@ export default function Footer() {
         </div>
         <div className="foot-bottom">
           <span>© <span id="yr">{new Date().getFullYear()}</span> ArkTech Catalyst. All rights reserved.</span>
-          <span className="priv"><ShieldIcon />Local-only · your data never leaves your device without you</span>
         </div>
       </div>
     </footer>

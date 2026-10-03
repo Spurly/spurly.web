@@ -1,0 +1,31 @@
+query,tier,target_url,position,impressions,clicks,date,notes
+spurly,1,/,,,,,
+getspurly,1,/,,,,,
+spurly linkedin,1,/,,,,,
+spurly chrome extension,1,/product/chrome-extension,,,,,page not built yet (v2)
+spurly pricing,1,/pricing,,,,,page not built yet (v2)
+dripify alternative,2,/compare/spurly-vs-dripify,,,,,page not built yet (v2)
+waalaxy alternative,2,/compare/spurly-vs-waalaxy,,,,,page not built yet (v2)
+expandi alternative,2,/compare/spurly-vs-expandi,,,,,page not built yet (v2)
+spurly vs waalaxy,2,/compare/spurly-vs-waalaxy,,,,,page not built yet (v2)
+linkedin automation tool,2,/product/campaigns,,,,,page not built yet (v2)
+linkedin outreach automation,2,/,,,,,home rewrite is v2
+cloud linkedin automation,2,/product/campaigns,,,,,page not built yet (v2)
+linkedin lead generation tool,2,/product/lead-finder,,,,,page not built yet (v2)
+linkedin lead capture chrome extension,2,/product/chrome-extension,,,,,page not built yet (v2)
+linkedin outreach tool for founders,2,/solutions/founders,,,,,page not built yet (v2)
+linkedin outreach tool for recruiters,2,/solutions/recruiters,,,,,page not built yet (v2)
+linkedin drip campaign tool,2,/product/campaigns,,,,,page not built yet (v2)
+is linkedin automation safe,3,/product/safety,,,,,page not built yet (v2)
+linkedin weekly invite limit,3,,,,,,gap: needs a post (safety cluster)
+linkedin connection request message examples,3,/blog/personalize-linkedin-connection-requests,,,,,"existing post, update for v3 cluster"
+how to personalize linkedin connection requests,3,/blog/personalize-linkedin-connection-requests,,,,,existing post
+linkedin outreach pipeline for founders,3,/blog/free-linkedin-outreach-pipeline-founders,,,,,"existing post; title says free, see review note"
+sales navigator candidate pipeline recruiters,3,/blog/sales-navigator-candidate-pipelines-recruiters,,,,,existing post
+how to export sales navigator leads,3,,,,,,gap: needs a post (lead-gen cluster)
+linkedin follow up message examples,3,,,,,,gap: templates library (v3)
+how to see who viewed my linkedin profile and contact them,3,/product/network,,,,,page not built yet (P1)
+linkedin inbox management tool,3,/product/inbox,,,,,page not built yet (v2)
+find leads on linkedin,3,/product/lead-finder,,,,,page not built yet (v2)
+linkedin email finder,3,/product/enrichment,,,,,page not built yet (P1)
+schedule linkedin posts,3,/product/posts,,,,,page not built yet (P1)

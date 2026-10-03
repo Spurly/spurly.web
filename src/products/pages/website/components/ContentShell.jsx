@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { ChromeLink } from "./Button.jsx";
 import Footer from "./Footer.jsx";
 
 /* Shell for static content pages (legal, support, blog). Reuses the site's
@@ -23,7 +22,7 @@ export default function ContentShell({ children }) {
             <Link to="/blog">Blog</Link>
           </div>
           <div className="nav-cta">
-            <ChromeLink variant="primary" size="sm">Start free</ChromeLink>
+            <Link to="/signup" className="btn btn-primary btn-sm">Start 7-day free trial</Link>
           </div>
         </nav>
       </header>

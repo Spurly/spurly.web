@@ -23,6 +23,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { generateOgImages } from './ogImages.mjs';
+import { buildLlmsTxt, decodeHtml } from './llmsTxt.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'dist');
@@ -92,12 +94,20 @@ const appShell = template.replace(SEO_BLOCK, (block) =>
 await fs.writeFile(path.join(DIST, 'app.html'), appShell);
 
 // 2. One static HTML file per public route.
-const { render, PUBLIC_ROUTES, SITE_URL } = await import(pathToFileURL(SSR_ENTRY).href);
+const { render, PUBLIC_ROUTES, SITE_URL, ogSlug } = await import(pathToFileURL(SSR_ENTRY).href);
+const ogPages = [];
+const llmsPages = [];
 
 for (const route of PUBLIC_ROUTES) {
   const { html, head } = await render(route.path);
   if (!head.includes('<title')) fail(`${route.path} rendered no <title> — does the page render <Seo>?`);
   if (!html.includes('<h1')) fail(`${route.path} rendered no <h1> — prerender produced the fallback, not the page`);
+
+  // The card shows this page's own <title>.
+  const title = head.match(/<title[^>]*>([^<]+)<\/title>/)?.[1];
+  const description = head.match(/name="description" content="([^"]*)"/)?.[1] ?? '';
+  llmsPages.push({ path: route.path, title: decodeHtml(title), description: decodeHtml(description) });
+  ogPages.push({ slug: ogSlug(route.path), title: title.replace(/&amp;/g, '&').replace(/&#x27;/g, "'") });
 
   const page = template
     .replace(SEO_BLOCK, `${head}\n${cssLinks}`)
@@ -112,7 +122,35 @@ for (const route of PUBLIC_ROUTES) {
   console.log(`[prerender] ${route.path.padEnd(58)} -> ${path.relative(ROOT, file)}`);
 }
 
-// 3. Sitemap from the same list.
+// 3a. The 404 page. Vercel serves dist/404.html, with a real 404 status, for any
+//     URL that is neither a static file nor one of the app paths rewritten to
+//     /app in vercel.json. Not in PUBLIC_ROUTES, so not in the sitemap.
+{
+  const { html, head } = await render('/not-found');
+  if (!html.includes('<h1')) fail('/not-found rendered no <h1> — the 404 page did not render');
+  if (!head.includes('noindex')) fail('the 404 page must carry <meta name="robots" content="noindex">');
+  await fs.writeFile(
+    path.join(DIST, '404.html'),
+    template
+      .replace(SEO_BLOCK, `${head}\n${cssLinks}`)
+      .replace(ROOT_DIV, `<div id="root">${html}</div>`)
+      .replace('<body>', '<body class="mkt" data-palette="violet">'),
+  );
+  console.log('[prerender] 404 page -> dist/404.html');
+}
+
+// 3. One 1200x630 Open Graph card per page (dist/og/<slug>.png), referenced by <Seo>.
+await generateOgImages(ogPages, {
+  outDir: path.join(DIST, 'og'),
+  iconPath: path.join(ROOT, 'public', 'spurly-icon-128.png'),
+});
+console.log(`[prerender] og images (${ogPages.length})`);
+
+// 4. /llms.txt from the same list.
+await fs.writeFile(path.join(DIST, 'llms.txt'), buildLlmsTxt(SITE_URL, llmsPages));
+console.log('[prerender] llms.txt');
+
+// 5. Sitemap from the same list.
 await fs.writeFile(path.join(DIST, 'sitemap.xml'), sitemap(SITE_URL, PUBLIC_ROUTES));
 console.log(`[prerender] sitemap.xml (${PUBLIC_ROUTES.length} urls)`);
 

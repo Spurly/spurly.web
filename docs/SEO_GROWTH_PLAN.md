@@ -1,5 +1,7 @@
 # Spurly Growth Plan: Site Map, UI Redesign, SEO + GEO
 
+> **Start at `docs/SEO_MASTER_PLAN.md`** (strategy, task backlog, review loop). This file = the full page inventory and content clusters. Note: FAQ schema no longer produces rich results (see master plan N7). The week-based roadmap (§1, §7) is superseded by the v1–v4 versions in the master plan §7.
+
 > Living doc. Companion to `SEO_PLAN.md` (which covers the technical prerender work, already built).
 > This file answers: **what pages do we need, in what order, and how do we rank.**
 > Owner: Sarthak. Written 2026-10-02.

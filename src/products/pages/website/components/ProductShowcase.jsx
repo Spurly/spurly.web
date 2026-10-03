@@ -15,7 +15,7 @@ const SHOTS = [
   {
     key: "explore",
     src: "/assets/shot-explore.webp",
-    alt: "Spurly Explore — captured people from a LinkedIn search collected into a Session table",
+    alt: "Spurly Explore — captured people from a LinkedIn search collected into a table",
   },
   {
     key: "connect",
@@ -103,11 +103,11 @@ export default function ProductShowcase() {
         <div className="sec-head center reveal">
           <span className="eyebrow">The product</span>
           <h2 className="h2" style={{ marginTop: 14 }}>
-            Personalized outreach, <em>sent without leaving the tab.</em>
+            Personalized outreach, <em>previewed before it goes out.</em>
           </h2>
           <p className="lead">
-            Spurly lives in a side panel on LinkedIn. Capture a search, then
-            compose once — it writes a unique message for every lead and shows
+            Capture a search from the Spurly side panel on LinkedIn, then compose
+            once — Spurly fills in a unique message for every lead and shows
             you a live preview before anything sends.
           </p>
         </div>

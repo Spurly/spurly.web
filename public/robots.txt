@@ -1,6 +1,76 @@
+# Public marketing pages are open to everyone, including search and AI crawlers.
+# The signed-in app is blocked for all of them (dist/app.html also carries
+# <meta name="robots" content="noindex">).
+#
+# A crawler that has its own group below ignores the "*" group, so the app
+# Disallow list is repeated in every group. Keep them identical
+# (tests/robots.test.js checks this).
+
+User-agent: GPTBot
+Allow: /
+Disallow: /dashboard
+Disallow: /hub
+Disallow: /admin
+Disallow: /onboarding
+Disallow: /subscribe
+Disallow: /dev
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /dashboard
+Disallow: /hub
+Disallow: /admin
+Disallow: /onboarding
+Disallow: /subscribe
+Disallow: /dev
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /dashboard
+Disallow: /hub
+Disallow: /admin
+Disallow: /onboarding
+Disallow: /subscribe
+Disallow: /dev
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /dashboard
+Disallow: /hub
+Disallow: /admin
+Disallow: /onboarding
+Disallow: /subscribe
+Disallow: /dev
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /dashboard
+Disallow: /hub
+Disallow: /admin
+Disallow: /onboarding
+Disallow: /subscribe
+Disallow: /dev
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /dashboard
+Disallow: /hub
+Disallow: /admin
+Disallow: /onboarding
+Disallow: /subscribe
+Disallow: /dev
+
+User-agent: Bingbot
+Allow: /
+Disallow: /dashboard
+Disallow: /hub
+Disallow: /admin
+Disallow: /onboarding
+Disallow: /subscribe
+Disallow: /dev
+
 User-agent: *
 Allow: /
-# The signed-in app. dist/app.html also carries <meta name="robots" content="noindex">.
 Disallow: /dashboard
 Disallow: /hub
 Disallow: /admin
