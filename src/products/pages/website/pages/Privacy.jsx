@@ -67,9 +67,8 @@ export default function Privacy() {
 
         <h2>How your LinkedIn account is connected</h2>
         <p>
-          You connect LinkedIn through a secure hosted login run by our
-          connection partner, Unipile. Spurly acts on your account through that
-          connection. You can disconnect it at any time.
+          You connect LinkedIn through a secure hosted login that Spurly
+          provides. Spurly acts on your account through that connection. You can disconnect it at any time.
         </p>
 
         <h2>AI features</h2>

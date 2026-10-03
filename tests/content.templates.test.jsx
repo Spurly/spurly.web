@@ -102,7 +102,7 @@ describe.each(CASES)('%s template', (name, Template, path, extra, eyebrow) => {
 
   it('puts a CTA after each main section except the last', () => {
     const inline = (out.match(/class="inline-cta"/g) || []).length;
-    expect(inline).toBe(name === 'page' || name === 'pricing' ? 0 : 2);
+    expect(inline).toBe(name === 'page' || name === 'pricing' || name === 'tool' ? 0 : 2);
   });
 });
 
