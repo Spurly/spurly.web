@@ -3,7 +3,7 @@ const ROWS = [
   ["Names copied into a spreadsheet", "Audiences built from searches, companies, posts, URLs or CSV"],
   ["Follow-ups when you remember", "Each step sent on schedule, stopped when someone replies"],
   ["Replies scattered across tabs", "One inbox for every conversation"],
-  ["Pace decided by guesswork", "Limits per action and your own working hours"],
+  ["Pace decided by guesswork", "Limits per action and random gaps"],
 ];
 
 export default function ByHand() {

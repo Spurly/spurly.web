@@ -2,7 +2,7 @@
 title: How Spurly keeps your LinkedIn account safe
 seoTitle: Is LinkedIn Automation Safe? How Spurly Paces It
 shortTitle: Safety
-description: How Spurly paces LinkedIn automation: per-action limits, working hours, reply-pause and an honest account of the risk that no tool can remove.
+description: How Spurly paces LinkedIn automation: per-action limits, random gaps, reply-pause and an honest account of the risk that no tool can remove.
 path: /product/safety
 template: product
 date: 2026-10-03
@@ -13,7 +13,7 @@ faq:
   - q: Is LinkedIn automation safe?
     a: No tool can promise that. LinkedIn's User Agreement restricts automation, and LinkedIn can restrict an account at its discretion. Spurly is designed to stay within the limits LinkedIn applies to normal use, and it paces every action to look like a person, but the risk is never zero.
   - q: Will Spurly get my account banned?
-    a: Spurly cannot promise that it will not. It limits every automated action, only sends during your working hours and stops when someone replies, which lowers the risk without removing it.
+    a: Spurly cannot promise that it will not. It limits every automated action, spaces sends out with random gaps and stops when someone replies, which lowers the risk without removing it.
   - q: Can I change the limits?
     a: The limits are set by Spurly and are deliberately conservative. They are adjusted as LinkedIn's behaviour changes.
   - q: What if LinkedIn disconnects my account?
@@ -21,7 +21,6 @@ faq:
 todo:
   - Confirm the published default limits against actionTypes.js (caps were approved 2026-09-30 and are meant to be tuned after two weeks of live data); update the table whenever they change
   - Check the live limits: the app screenshots show 40/hour and an 80-a-day cap for connection requests, but the published defaults are 8/hour and 40/day (campaign pacing defaults, env-overridable). Make prod env match the table or update the table
-  - Working hours and days come from env (HUB_SEND_WINDOW_*, HUB_SEND_DAYS, default every day); the screenshots show 0:00-24:00. Keep the copy at 'your working hours' or set real defaults
 ---
 Spurly is designed to stay within LinkedIn's limits, and it paces every automated action like a person would. But LinkedIn's User Agreement restricts automation, and no tool can promise an account will never be restricted. This page explains what Spurly does to lower the risk and what it cannot remove.
 
@@ -48,9 +47,9 @@ Spurly records every automated action against a limit for that kind of action. T
 
 On top of those, there is a ceiling across all of these actions combined in any 24 hours. If Spurly has done a lot on your account, it pauses automated actions to keep the account safe. Connection requests also count against LinkedIn's weekly invitation allowance, which Spurly tracks across Spurly and the Chrome extension together.
 
-## Working hours and random gaps
+## Random gaps between actions
 
-Automated actions only run during your working hours, in your own time zone. Between actions Spurly leaves a gap that varies from one send to the next instead of a fixed interval, so activity does not look like a timer. A person clicking a button themselves is never held to working hours, since that is you, not automation.
+Automated actions are spread out rather than sent in bursts. Between actions Spurly leaves a gap that varies from one send to the next instead of a fixed interval, so activity does not look like a timer. A person clicking a button themselves is not paced like this, since that is you, not automation.
 
 ## It stops when someone replies
 

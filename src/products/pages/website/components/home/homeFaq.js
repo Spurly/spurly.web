@@ -12,7 +12,7 @@ export const HOME_FAQ = [
   },
   {
     q: "Is LinkedIn automation safe?",
-    a: "No tool can promise that. LinkedIn's User Agreement restricts automation, and LinkedIn can restrict an account at its discretion. Spurly is designed to stay within the limits LinkedIn applies to normal use: it limits every type of action, only acts during your working hours, leaves variable gaps and stops when someone replies. The risk is lowered, never zero.",
+    a: "No tool can promise that. LinkedIn's User Agreement restricts automation, and LinkedIn can restrict an account at its discretion. Spurly is designed to stay within the limits LinkedIn applies to normal use: it limits every type of action, leaves variable gaps and stops when someone replies. The risk is lowered, never zero.",
   },
   {
     q: "Does it work with a free LinkedIn account?",

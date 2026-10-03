@@ -38,7 +38,7 @@ todo:
 | Sequences | Linear steps: visit, connect, message, follow, like, comment, endorse, wait | Combine 10 actions and 10 conditions |
 | Pauses when someone replies | Yes | Not stated on its pricing page |
 | Inbox | Unified inbox with reactions and file sharing | "Global Smart Inbox" with labels, tags and notes |
-| Account safety approach | Per-action hourly and daily limits, working hours, minimum gaps | Dedicated country-based IP per account, automatic warm-up, daily limit ranges |
+| Account safety approach | Per-action hourly and daily limits, minimum gaps | Dedicated country-based IP per account, automatic warm-up, daily limit ranges |
 | Finding leads | Filtered search, companies, posts, jobs, pasted URLs, profile viewers, followers, CSV | Audience scraping and filters; Sales Navigator optional |
 | Agencies | Single-user plan | Custom pricing for 10+ seats, white-label option |
 
@@ -56,7 +56,7 @@ Both tools give you one place to manage replies. Spurly's inbox supports reactio
 
 ## Account safety
 
-Neither tool can promise that LinkedIn will never restrict an account. Expandi describes a dedicated country-based IP per account, automatic warm-up and daily limit ranges. Spurly applies limits per type of action, only acts during your working hours and leaves variable gaps between actions; the details are on the [safety page](/product/safety). Spurly does not run an automatic warm-up.
+Neither tool can promise that LinkedIn will never restrict an account. Expandi describes a dedicated country-based IP per account, automatic warm-up and daily limit ranges. Spurly applies limits per type of action, leaves variable gaps between actions; the details are on the [safety page](/product/safety). Spurly does not run an automatic warm-up.
 
 ## Who should pick which
 

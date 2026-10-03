@@ -52,7 +52,7 @@ Spurly does not have tiers: campaigns, sequences, the inbox and the lead finder 
 
 ## Account safety
 
-Both tools run campaigns from the cloud and describe measures to protect your account. No tool can promise that LinkedIn will not restrict an account. Spurly's approach is on the [safety page](/product/safety): limits per action, working hours, variable gaps, and a stop when someone replies.
+Both tools run campaigns from the cloud and describe measures to protect your account. No tool can promise that LinkedIn will not restrict an account. Spurly's approach is on the [safety page](/product/safety): limits per action, variable gaps, and a stop when someone replies.
 
 ## Who should pick which
 

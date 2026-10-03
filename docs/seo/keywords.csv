@@ -2,21 +2,21 @@ query,tier,target_url,position,impressions,clicks,date,notes
 spurly,1,/,,,,,
 getspurly,1,/,,,,,
 spurly linkedin,1,/,,,,,
-spurly chrome extension,1,/product/chrome-extension,,,,,page not built yet (v2)
-spurly pricing,1,/pricing,,,,,page not built yet (v2)
-dripify alternative,2,/compare/spurly-vs-dripify,,,,,page not built yet (v2)
-waalaxy alternative,2,/compare/spurly-vs-waalaxy,,,,,page not built yet (v2)
-expandi alternative,2,/compare/spurly-vs-expandi,,,,,page not built yet (v2)
-spurly vs waalaxy,2,/compare/spurly-vs-waalaxy,,,,,page not built yet (v2)
-linkedin automation tool,2,/product/campaigns,,,,,page not built yet (v2)
+spurly chrome extension,1,/product/chrome-extension,,,,,page live (v2), no data yet
+spurly pricing,1,/pricing,,,,,page live (v2), no data yet
+dripify alternative,2,/compare/spurly-vs-dripify,,,,,page live (v2), no data yet
+waalaxy alternative,2,/compare/spurly-vs-waalaxy,,,,,page live (v2), no data yet
+expandi alternative,2,/compare/spurly-vs-expandi,,,,,page live (v2), no data yet
+spurly vs waalaxy,2,/compare/spurly-vs-waalaxy,,,,,page live (v2), no data yet
+linkedin automation tool,2,/product/campaigns,,,,,page live (v2), no data yet
 linkedin outreach automation,2,/,,,,,home rewrite is v2
-cloud linkedin automation,2,/product/campaigns,,,,,page not built yet (v2)
-linkedin lead generation tool,2,/product/lead-finder,,,,,page not built yet (v2)
-linkedin lead capture chrome extension,2,/product/chrome-extension,,,,,page not built yet (v2)
-linkedin outreach tool for founders,2,/solutions/founders,,,,,page not built yet (v2)
-linkedin outreach tool for recruiters,2,/solutions/recruiters,,,,,page not built yet (v2)
-linkedin drip campaign tool,2,/product/campaigns,,,,,page not built yet (v2)
-is linkedin automation safe,3,/product/safety,,,,,page not built yet (v2)
+cloud linkedin automation,2,/product/campaigns,,,,,page live (v2), no data yet
+linkedin lead generation tool,2,/product/lead-finder,,,,,page live (v2), no data yet
+linkedin lead capture chrome extension,2,/product/chrome-extension,,,,,page live (v2), no data yet
+linkedin outreach tool for founders,2,/solutions/founders,,,,,page live (v2), no data yet
+linkedin outreach tool for recruiters,2,/solutions/recruiters,,,,,page live (v2), no data yet
+linkedin drip campaign tool,2,/product/campaigns,,,,,page live (v2), no data yet
+is linkedin automation safe,3,/blog/is-linkedin-automation-safe,,,,,pillar live (v3); /product/safety is the supporting page
 linkedin weekly invite limit,3,,,,,,gap: needs a post (safety cluster)
 linkedin connection request message examples,3,/blog/personalize-linkedin-connection-requests,,,,,"existing post, update for v3 cluster"
 how to personalize linkedin connection requests,3,/blog/personalize-linkedin-connection-requests,,,,,existing post
@@ -24,8 +24,23 @@ linkedin outreach pipeline for founders,3,/blog/free-linkedin-outreach-pipeline-
 sales navigator candidate pipeline recruiters,3,/blog/sales-navigator-candidate-pipelines-recruiters,,,,,existing post
 how to export sales navigator leads,3,,,,,,gap: needs a post (lead-gen cluster)
 linkedin follow up message examples,3,,,,,,gap: templates library (v3)
-how to see who viewed my linkedin profile and contact them,3,/product/network,,,,,page not built yet (P1)
-linkedin inbox management tool,3,/product/inbox,,,,,page not built yet (v2)
-find leads on linkedin,3,/product/lead-finder,,,,,page not built yet (v2)
-linkedin email finder,3,/product/enrichment,,,,,page not built yet (P1)
-schedule linkedin posts,3,/product/posts,,,,,page not built yet (P1)
+how to see who viewed my linkedin profile and contact them,3,/product/network,,,,,page live (v3), no data yet
+linkedin inbox management tool,3,/product/inbox,,,,,page live (v2), no data yet
+find leads on linkedin,3,/product/lead-finder,,,,,page live (v2), no data yet
+linkedin email finder,3,/product/enrichment,,,,,page live (v3); Spurly does not find email addresses, so this query may be a poor fit: judge after data
+schedule linkedin posts,3,/product/posts,,,,,page live (v3), no data yet
+linkedin outreach guide,3,/blog/linkedin-outreach-guide,,,,,pillar live (v3)
+linkedin connection request message generator,3,/tools/linkedin-connection-request-generator,,,,,free tool live (v3)
+linkedin connection request message templates,3,/templates/linkedin-connection-request-messages,,,,,live (v3)
+linkedin follow up message templates,3,/templates/linkedin-follow-up-messages,,,,,live (v3)
+linkedin cold message templates,3,/templates/linkedin-cold-outreach-messages,,,,,live (v3)
+linkedin weekly invitation limit,3,/blog/linkedin-weekly-invitation-limit,,,,,live (v3)
+linkedin account restricted,3,/blog/linkedin-account-restricted-what-to-do,,,,,live (v3)
+heyreach alternative,2,/compare/spurly-vs-heyreach,,,,,live (v3)
+linked helper alternative,2,/compare/spurly-vs-linked-helper,,,,,live (v3)
+phantombuster alternative,2,/compare/spurly-vs-phantombuster,,,,,live (v3)
+lemlist alternative,2,/compare/spurly-vs-lemlist,,,,,live (v3)
+dripify alternatives,2,/alternatives/dripify-alternatives,,,,,live (v3)
+waalaxy alternatives,2,/alternatives/waalaxy-alternatives,,,,,live (v3)
+best linkedin automation tools,2,/best/linkedin-automation-tools,,,,,live (v3)
+what is connection acceptance rate,3,/glossary/connection-acceptance-rate,,,,,live (v3)

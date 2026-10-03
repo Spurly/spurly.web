@@ -31,7 +31,7 @@ Spurly campaigns send LinkedIn connection requests and follow-ups for you, from 
 
 ## What a campaign does
 
-Pick an audience, write your connection note and start the campaign. Spurly sends one request at a time, spread across your working hours in your own time zone, instead of firing a burst that looks nothing like a person.
+Pick an audience, write your connection note and start the campaign. Spurly sends one request at a time, spread out over the day with random gaps, instead of firing a burst that looks nothing like a person.
 
 Each person is contacted once. Spurly skips anyone you have already invited, whether that invitation came from Spurly or from the [Chrome extension](/product/chrome-extension). If LinkedIn disconnects your account, the campaign pauses rather than working through your list with a dead connection.
 

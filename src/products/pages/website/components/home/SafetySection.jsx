@@ -3,8 +3,8 @@ import { CheckItem } from "../../icons.jsx";
 
 const POINTS = [
   "Hourly and daily limits for every type of action",
-  "Actions only during your working hours, in your time zone",
-  "Variable gaps between actions, never a fixed timer",
+  "Random gaps between actions, never a fixed timer",
+  "Actions are spread out, never sent in bursts",
   "Sequences stop the moment someone replies",
   "Anyone you already invited is skipped, never invited twice",
   "Campaigns pause if LinkedIn disconnects your account",
