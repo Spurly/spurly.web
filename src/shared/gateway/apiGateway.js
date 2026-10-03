@@ -42,6 +42,12 @@ const PUBLIC_PATH_PREFIXES = [
   '/product',
   '/solutions',
   '/compare',
+  '/tools',
+  '/templates',
+  '/changelog',
+  '/glossary',
+  '/alternatives',
+  '/best',
 ];
 
 export function isPublicPath(path) {

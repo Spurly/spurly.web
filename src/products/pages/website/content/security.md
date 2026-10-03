@@ -13,7 +13,7 @@ faq:
   - q: Does Spurly sell my data?
     a: No. We do not sell or rent your data and we do not use it for advertising.
   - q: How does Spurly connect to my LinkedIn account?
-    a: Through a secure hosted login run by our connection partner, Unipile. You connect once and can disconnect at any time.
+    a: Through a secure hosted login that Spurly provides. You connect once and can disconnect at any time.
   - q: Does Spurly use AI on my data?
     a: Yes, for drafting. When you ask for a draft, your brief and the details needed for the draft are sent to an AI model provider. AI drafts are never sent or posted without your approval.
   - q: Can I delete my data?
@@ -31,7 +31,7 @@ This page describes what Spurly stores, how it connects to LinkedIn, where AI is
 
 ## How Spurly connects to LinkedIn
 
-You connect your LinkedIn account once through a secure hosted login run by our connection partner, Unipile. Spurly then runs your campaigns, reads your conversations and finds people through that connection. You can disconnect LinkedIn from Spurly at any time, and Spurly pauses campaigns if LinkedIn disconnects the account.
+You connect your LinkedIn account once through a secure hosted login that Spurly provides. Spurly then runs your campaigns, reads your conversations and finds people through that connection. You can disconnect LinkedIn from Spurly at any time, and Spurly pauses campaigns if LinkedIn disconnects the account.
 
 ## What Spurly stores
 
