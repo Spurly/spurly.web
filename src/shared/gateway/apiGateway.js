@@ -33,9 +33,18 @@ const PUBLIC_PATH_PREFIXES = [
   '/terms',
   '/support',
   '/blog',
+  // Marketing pages added in the SEO v2 site. Keep in step with PUBLIC_ROUTES
+  // (tests/gateway.publicPaths.test.js fails when one is missing): a 401 on a
+  // public page used to bounce visitors and Googlebot to /login (noindex).
+  '/pricing',
+  '/about',
+  '/security',
+  '/product',
+  '/solutions',
+  '/compare',
 ];
 
-function isPublicPath(path) {
+export function isPublicPath(path) {
   // Exact "/" is the marketing home — public. Every other path starts with
   // "/" too, so this must be an equality check, not a prefix check.
   if (path === '/') return true;
