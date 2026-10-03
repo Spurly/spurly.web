@@ -7,6 +7,6 @@
 export const PAGE_UPDATED = {
   "/": "2026-10-03", // pricing, claims and CTAs rewritten (T0.1)
   "/support": "2026-10-03", // FAQ rewritten (T0.1)
-  "/privacy": "2026-06-21",
-  "/terms": "2026-06-21",
+  "/privacy": "2026-10-03", // data-storage wording corrected
+  "/terms": "2026-10-03", // plan wording corrected (single plan, 7-day trial)
 };
