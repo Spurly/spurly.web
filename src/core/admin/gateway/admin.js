@@ -221,3 +221,23 @@ export async function getUserPayments(userId) {
   const res = await apiGateway.get(`/admin/users/${userId}/payments`);
   return res.data;
 }
+
+/**
+ * Sending limits. GET returns { registry, overrides, accountCeiling, quietDefaults }.
+ * An override is { scope: 'global' | 'user', userId?, action, hour?, day?, week?, minGapMs?, note? };
+ * values above a registry max are clamped by the backend.
+ */
+export async function getLimits() {
+  const res = await apiGateway.get('/admin/limits');
+  return res.data;
+}
+
+export async function setLimitOverride(override) {
+  const res = await apiGateway.put('/admin/limits/overrides', override);
+  return res.data;
+}
+
+export async function clearLimitOverride(id) {
+  const res = await apiGateway.delete(`/admin/limits/overrides/${id}`);
+  return res.data;
+}

@@ -263,6 +263,37 @@ function bindHubAccount(eventEmitter, payload) {
   );
 }
 
+// ── Sending limits ─────────────────────────────────────────────────────
+function getLimits(eventEmitter) {
+  return call(
+    eventEmitter,
+    () => adminGateway.getLimits(),
+    ADMIN_EVENTS.GET_LIMITS_SUCCESS,
+    ADMIN_EVENTS.GET_LIMITS_FAILURE,
+    'Failed to load limits',
+  );
+}
+
+function setLimitOverride(eventEmitter, override) {
+  return call(
+    eventEmitter,
+    () => adminGateway.setLimitOverride(override),
+    ADMIN_EVENTS.SET_LIMIT_OVERRIDE_SUCCESS,
+    ADMIN_EVENTS.SET_LIMIT_OVERRIDE_FAILURE,
+    'Failed to save limit',
+  );
+}
+
+function clearLimitOverride(eventEmitter, id) {
+  return call(
+    eventEmitter,
+    () => adminGateway.clearLimitOverride(id),
+    ADMIN_EVENTS.CLEAR_LIMIT_OVERRIDE_SUCCESS,
+    ADMIN_EVENTS.CLEAR_LIMIT_OVERRIDE_FAILURE,
+    'Failed to remove override',
+  );
+}
+
 // ── Payments (read-only) ───────────────────────────────────────────────
 function getPayments(eventEmitter, params) {
   return call(
@@ -310,6 +341,9 @@ const adminController = {
   bindHubAccount,
   getPayments,
   getUserPayments,
+  getLimits,
+  setLimitOverride,
+  clearLimitOverride,
 };
 
 export default adminController;
