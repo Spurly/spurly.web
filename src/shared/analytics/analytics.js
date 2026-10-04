@@ -13,7 +13,7 @@ import { CHROME_URL } from 'src/shared/extension/constants.js';
 
 // Public marketing paths. Must match PUBLIC_ROUTES in
 // src/products/pages/website/seo.js (tests/analytics.test.js checks they agree).
-const WEBSITE_EXACT = ['/', '/blog', '/support', '/privacy', '/terms', '/pricing', '/about', '/security', '/changelog', '/glossary', '/templates'];
+const WEBSITE_EXACT = ['/', '/blog', '/support', '/book-demo', '/privacy', '/terms', '/pricing', '/about', '/security', '/changelog', '/glossary', '/templates'];
 const WEBSITE_PREFIXES = ['/blog/', '/product/', '/solutions/', '/compare/', '/alternatives/', '/best/', '/glossary/', '/templates/', '/tools/'];
 
 export function contentGroupFor(pathname) {

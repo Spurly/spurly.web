@@ -47,6 +47,9 @@ const Terms = lazyWithProgress(
 const Support = lazyWithProgress(
   () => import("src/products/pages/website/pages/Support.jsx"),
 );
+const BookDemo = lazyWithProgress(
+  () => import("src/products/pages/website/pages/BookDemo.jsx"),
+);
 const NotFound = lazyWithProgress(
   () => import("src/products/pages/website/pages/NotFound.jsx"),
 );
@@ -224,6 +227,7 @@ export function AppRoutes() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/book-demo" element={<BookDemo />} />
             <Route path="/blog" element={<BlogIndex />} />
             {/* Pages built from content files (blog posts, product pages, ...). */}
             {CONTENT_META.map((p) => (

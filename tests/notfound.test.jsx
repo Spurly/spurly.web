@@ -21,7 +21,7 @@ describe('404 page', () => {
   it('vercel.json rewrites exactly the app paths to /app (everything else can 404)', () => {
     const rule = vercel.rewrites.find((r) => r.destination === '/app');
     const prefixes = rule.source.match(/^\/\(([^)]+)\)/)[1].split('|');
-    const PUBLIC = new Set(['', 'blog', 'privacy', 'terms', 'support']);
+    const PUBLIC = new Set(['', 'blog', 'privacy', 'terms', 'support', 'book-demo']);
     const first = new Set(
       [...routesSrc.matchAll(/path="\/([^"/:*]*)/g)].map((m) => m[1]),
     );

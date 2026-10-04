@@ -42,7 +42,7 @@ Profile viewers and followers of your page are people who already noticed you. P
 
 ## Teams and organizations
 
-Each rep connects their own LinkedIn account and runs their own campaigns. If you are rolling Spurly out to a team or an organization, we arrange the plan with you directly. [Book a meeting](mailto:founders@getspurly.com?subject=Spurly%20team%20plan) and tell us how many people you have and what you need.
+Each rep connects their own LinkedIn account and runs their own campaigns. If you are rolling Spurly out to a team or an organization, we arrange the plan with you directly. [Book a meeting](/book-demo) and tell us how many people you have and what you need.
 
 ## Pricing
 

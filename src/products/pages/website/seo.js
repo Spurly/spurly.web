@@ -45,6 +45,7 @@ export const PUBLIC_ROUTES = [
     priority: p.priority ?? (p.path.startsWith("/blog/") ? 0.7 : 0.8),
     lastmod: p.updated,
   })),
+  { path: "/book-demo", changefreq: "monthly", priority: 0.5, lastmod: PAGE_UPDATED["/book-demo"] },
   { path: "/support", changefreq: "monthly", priority: 0.5, lastmod: PAGE_UPDATED["/support"] },
   { path: "/privacy", changefreq: "yearly", priority: 0.3, lastmod: PAGE_UPDATED["/privacy"] },
   { path: "/terms", changefreq: "yearly", priority: 0.3, lastmod: PAGE_UPDATED["/terms"] },

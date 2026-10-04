@@ -35,6 +35,7 @@ export default function Footer() {
               <Link to="/about">About</Link>
               <Link to="/security">Security</Link>
               <Link to="/blog">Blog</Link>
+              <Link to="/book-demo">Book a demo</Link>
               <Link to="/support">Support</Link>
               <Link to="/privacy">Privacy</Link>
               <Link to="/terms">Terms</Link>

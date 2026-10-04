@@ -32,6 +32,7 @@ const PUBLIC_PATH_PREFIXES = [
   '/privacy',
   '/terms',
   '/support',
+  '/book-demo',
   '/blog',
   // Marketing pages added in the SEO v2 site. Keep in step with PUBLIC_ROUTES
   // (tests/gateway.publicPaths.test.js fails when one is missing): a 401 on a

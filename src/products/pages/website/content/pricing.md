@@ -64,7 +64,7 @@ Spurly is priced in rupees for visitors in India (₹2,499 per month) and in US 
 
 ## Teams and organizations
 
-The plan above is per account. If you need Spurly for a team or an organization, the plan is arranged with us directly. [Book a meeting](mailto:founders@getspurly.com?subject=Spurly%20team%20plan) and tell us how many people you have and what you need.
+The plan above is per account. If you need Spurly for a team or an organization, the plan is arranged with us directly. [Book a meeting](/book-demo) and tell us how many people you have and what you need.
 
 ## How to cancel
 
