@@ -35,7 +35,9 @@ export function PacingBanner({ campaign, pacing, sender }) {
           {sending ? 'Sending now, a few at a time.' : pacing.message}
         </p>
         <p className="relative text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-0.5">
-          {pacing.window.startHour}:00–{pacing.window.endHour}:00 {pacing.timezone.replace('_', ' ')} ·
+          {pacing.quiet?.enabled
+            ? `Slower ${pacing.quiet.startHour}:00–${pacing.quiet.endHour}:00 ${pacing.timezone.replace('_', ' ')}`
+            : 'Around the clock'} ·
           {' '}up to {pacing.hourlyCap}/hour ·
           {' '}{pacing.weekUsed} of {pacing.weeklyLimit} invitations used this week
           {/* Said explicitly because the number will not match this campaign's

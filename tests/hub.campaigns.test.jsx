@@ -115,7 +115,7 @@ const aDetail = (over = {}) => ({
     reason: 'outside-hours',
     message: 'Outside your sending hours — this picks up again in the next window.',
     timezone: 'Asia/Kolkata',
-    window: { startHour: 9, endHour: 18, days: [1, 2, 3, 4, 5] },
+    quiet: { enabled: true, startHour: 22, endHour: 7 },
     hourlyCap: 6,
     dailyCap: 25,
     sentLastHour: 0,

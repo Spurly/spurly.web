@@ -132,7 +132,12 @@ export function CampaignDetailPage() {
 
   const pacingFacts = data.pacing
     ? [
-        { label: 'Sending window', value: `${data.pacing.window.startHour}:00–${data.pacing.window.endHour}:00` },
+        {
+          label: 'Sending hours',
+          value: data.pacing.quiet?.enabled
+            ? `24/7, slower ${data.pacing.quiet.startHour}:00–${data.pacing.quiet.endHour}:00`
+            : '24/7',
+        },
         { label: 'Timezone', value: data.pacing.timezone.replace('_', ' ') },
         { label: 'Hourly cap', value: `${data.pacing.hourlyCap} / hour` },
         {
