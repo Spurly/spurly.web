@@ -200,6 +200,11 @@ const AdminPricingPage = lazyWithProgress(() =>
     default: m.AdminPricingPage,
   })),
 );
+const AdminLimitsPage = lazyWithProgress(() =>
+  import("src/core/pages/admin/Limits").then((m) => ({
+    default: m.AdminLimitsPage,
+  })),
+);
 const AdminPaymentsPage = lazyWithProgress(() =>
   import("src/core/pages/admin/Payments").then((m) => ({
     default: m.AdminPaymentsPage,
@@ -605,6 +610,14 @@ export function AppRoutes() {
             element={
               <AdminRoute>
                 <AdminPricingPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/limits"
+            element={
+              <AdminRoute>
+                <AdminLimitsPage />
               </AdminRoute>
             }
           />
