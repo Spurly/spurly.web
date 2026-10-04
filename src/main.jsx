@@ -2,6 +2,10 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from 'src/app/App.jsx'
 import './index.css'
+// Auth pages' stylesheet is imported here (not only in AuthShell) so its position
+// in the cascade is fixed. Loaded lazily with the login chunk, it landed after
+// whatever CSS was already on the page and lost to it, e.g. right after logout.
+import 'src/core/pages/auth/auth.css'
 
 const container = document.getElementById('root');
 const app = (

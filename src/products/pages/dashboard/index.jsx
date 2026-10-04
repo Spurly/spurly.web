@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { SectionCard } from 'src/core/primitives/SectionCard';
-import { Avatar, Button, Meter, Skeleton, SoonTag, StatTile, WorkingLine } from 'src/core/primitives';
+import { Avatar, Button, DepthProvider, FilterPills, Meter, Skeleton, SoonTag, StatTile, WorkingLine } from 'src/core/primitives';
+import { useDashboardAnalytics } from 'src/core/dashboardAnalytics/hooks/useDashboardAnalytics.js';
+import { ANALYTICS_RANGES, DEFAULT_ANALYTICS_RANGE } from 'src/core/dashboardAnalytics/constants/constants.js';
 import { PlusIcon, SparkIcon } from 'src/core/icons';
 import { useAuth } from 'src/core/auth/hooks/useAuth.js';
 import { useDashboardSummary } from 'src/core/sidebarSummary/hooks/useDashboardSummary.js';
@@ -14,6 +16,18 @@ import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import { relativeTime, absoluteTime } from 'src/shared/utils/outreach';
 import { CAMPAIGN_STATUS_VIEW as STATUS_VIEW } from 'src/products/pages/campaigns/components/statusView.js';
 import { dashboardStrings as t } from './strings.js';
+import { analyticsStrings as at } from './analytics/strings.js';
+import { HeroCard } from './analytics/HeroCard.jsx';
+import { TrendTile } from './analytics/TrendTile.jsx';
+import {
+  ActivityCard,
+  AnalyticsError,
+  AudienceCard,
+  FunnelCard,
+  HealthCard,
+  HeatCard,
+  LeaderboardCard,
+} from './analytics/AnalyticsCards.jsx';
 
 function greeting() {
   const h = new Date().getHours();
@@ -80,6 +94,8 @@ export function HubDashboardPage() {
 
   const { leadsTotal, leadsNeedingEnrichment, pacing, connectRate, inboxUnread, enrichmentFailedRecent, loading } =
     useDashboardSummary();
+  const [days, setDays] = useState(DEFAULT_ANALYTICS_RANGE);
+  const { data: analytics, loading: analyticsLoading, error: analyticsError, reload: reloadAnalytics } = useDashboardAnalytics(days);
   const { campaigns, loading: campaignsLoading, start } = useCampaigns();
   const { leads: newest, loading: newestLoading } = useNewestLeads(4);
   const { items: activity, loading: activityLoading } = useNotifications({ limit: 5 });
@@ -132,6 +148,7 @@ export function HubDashboardPage() {
         </Button>
       }
     >
+      <DepthProvider value="tilt">
       <div className="flex flex-col gap-4">
         {(running.length > 0 || (leadsNeedingEnrichment ?? 0) > 0) && (
           <WorkingLine
@@ -146,6 +163,82 @@ export function HubDashboardPage() {
               .join(' · ')}
           </WorkingLine>
         )}
+
+        {analyticsError && !analytics && <AnalyticsError message={analyticsError} onRetry={reloadAnalytics} />}
+
+        <HeroCard data={analytics} loading={analyticsLoading && !analytics} days={days} />
+
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <p className="ui-micro !text-[length:var(--ui-t-micro)] !text-[var(--ui-text-secondary)]">{at.range(days)}</p>
+          <FilterPills size="sm" ariaLabel="Analytics range" value={days} onChange={setDays} options={ANALYTICS_RANGES} />
+        </div>
+
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+          <TrendTile
+            label={at.tiles.invites}
+            value={analytics?.period.invites.value ?? 0}
+            prev={analytics?.period.invites.prev ?? 0}
+            delta={analytics?.period.invites.delta ?? null}
+            series={analytics?.series.invites}
+            color="var(--ui-chart-1)"
+            days={days}
+            loading={analyticsLoading}
+          />
+          <TrendTile
+            label={at.tiles.newConnections}
+            value={analytics?.period.newConnections.value ?? 0}
+            prev={analytics?.period.newConnections.prev ?? 0}
+            delta={analytics?.period.newConnections.delta ?? null}
+            series={analytics?.series.newConnections}
+            color="var(--ui-chart-2)"
+            days={days}
+            loading={analyticsLoading}
+          />
+          <TrendTile
+            label={at.tiles.messages}
+            value={analytics?.period.messages.value ?? 0}
+            prev={analytics?.period.messages.prev ?? 0}
+            delta={analytics?.period.messages.delta ?? null}
+            series={analytics?.series.messages}
+            color="var(--ui-chart-1)"
+            days={days}
+            loading={analyticsLoading}
+          />
+          <TrendTile
+            label={at.tiles.replies}
+            value={analytics?.period.replies.value ?? 0}
+            prev={analytics?.period.replies.prev ?? 0}
+            delta={analytics?.period.replies.delta ?? null}
+            series={analytics?.series.replies}
+            color="var(--ui-chart-3)"
+            days={days}
+            loading={analyticsLoading}
+          />
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2 min-w-0"><ActivityCard data={analytics} loading={analyticsLoading} /></div>
+          <div className="min-w-0"><HealthCard data={analytics} loading={analyticsLoading} /></div>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="min-w-0"><FunnelCard data={analytics} loading={analyticsLoading} /></div>
+          <div className="min-w-0">
+            <HeatCard data={analytics} loading={analyticsLoading} timezone={analytics?.range?.timezone} />
+          </div>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="min-w-0">
+            <LeaderboardCard
+              data={analytics}
+              loading={analyticsLoading}
+              onOpen={(id) => navigate(`/hub/campaigns/${id}`)}
+              onViewAll={() => navigate('/hub/campaigns')}
+            />
+          </div>
+          <div className="min-w-0"><AudienceCard data={analytics} loading={analyticsLoading} /></div>
+        </div>
 
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
           {loading ? (
@@ -321,6 +414,7 @@ export function HubDashboardPage() {
           </SectionCard>
         </div>
       </div>
+      </DepthProvider>
     </DashboardLayout>
   );
 }

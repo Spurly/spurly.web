@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronDownIcon, ChevronRightIcon } from 'src/core/icons';
+import { Surface } from '../Surface';
 
 /**
  * A titled card region — the handoff's panel: a 48px header carrying a
@@ -26,15 +27,17 @@ export function SectionCard({
   collapsible = false,
   defaultCollapsed = true,
   collapsedSummary,
+  depth,
 }) {
   const [collapsed, setCollapsed] = useState(collapsible && defaultCollapsed);
   const isCollapsed = collapsible && collapsed;
   const accent = tone === 'accent';
 
   return (
-    <div
+    <Surface
+      depth={depth}
       className={[
-        'rounded-[var(--ui-radius-lg)] bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)] overflow-hidden',
+        'overflow-hidden',
         spine ? 'shadow-[inset_2px_0_0_var(--ui-accent),var(--ui-shadow-sm)]' : '',
         className,
       ].join(' ')}
@@ -83,6 +86,6 @@ export function SectionCard({
         </div>
       )}
       {!isCollapsed && <div className={`${noPadding ? '' : 'p-4'} ${bodyClassName}`}>{children}</div>}
-    </div>
+    </Surface>
   );
 }

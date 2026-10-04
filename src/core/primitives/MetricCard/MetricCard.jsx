@@ -1,15 +1,16 @@
-export function MetricCard({ label, value, change, delta, changeType, icon, variant = 'solid', hint, hintColor }) {
+import { Surface } from '../Surface';
+
+export function MetricCard({ label, value, change, delta, changeType, icon, variant = 'solid', hint, hintColor, depth }) {
   /* delta (number) is the design-system prop; change (string/number) + changeType is the legacy form */
   const deltaValue = delta !== undefined ? delta : (change !== undefined ? parseFloat(change) : undefined);
   const isPositive = changeType ? changeType === 'positive' : (deltaValue !== undefined ? deltaValue >= 0 : true);
 
-  const cardBase =
-    variant === 'glass'
-      ? 'bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)]'
-      : 'bg-[var(--ui-surface-card)] border border-[var(--ui-border-hairline)] shadow-[var(--ui-shadow-sm)]';
-
   return (
-    <div className={`relative rounded-[var(--ui-radius-lg)] p-[var(--ui-pad-lg)] overflow-hidden ${cardBase}`}>
+    <Surface
+      variant={variant === 'glass' ? 'solid' : 'hairline'}
+      depth={depth}
+      className="relative p-[var(--ui-pad-lg)] overflow-hidden"
+    >
       {/* icon background accent */}
       {icon && (
         <div
@@ -45,6 +46,6 @@ export function MetricCard({ label, value, change, delta, changeType, icon, vari
           {hint}
         </p>
       )}
-    </div>
+    </Surface>
   );
 }

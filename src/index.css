@@ -370,3 +370,192 @@ body::before {
   pointer-events: none;
   background: url("/assets/ribbons.webp") center / cover no-repeat;
 }
+
+/* Surface depth (core/primitives/Surface). Everything here is opt-in: a card
+   with depth="flat" carries none of these classes. Tilt vars (--rx/--ry in
+   degrees, --gx/--gy in %) are written by useTilt. */
+.ui-surface--lift {
+  transition: transform var(--ui-dur-fast, 150ms) ease, box-shadow var(--ui-dur-fast, 150ms) ease;
+}
+.ui-surface--lift:hover,
+.ui-surface--lift:focus-within {
+  transform: translateY(-2px);
+  box-shadow: var(--ui-shadow-lg);
+}
+
+.ui-surface--tilt {
+  position: relative;
+  transform: perspective(900px) rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg))
+    scale(var(--s, 1));
+  transform-style: preserve-3d;
+  transition: transform 520ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 320ms ease;
+  /* Resting depth: a layered, accent-tinted shadow so the card already reads as
+     raised before anyone hovers. A filter (not box-shadow) so it stacks with a
+     SectionCard's inset spine instead of replacing it. */
+  filter: drop-shadow(0 1px 1px rgba(25, 35, 95, 0.06))
+    drop-shadow(0 10px 18px color-mix(in srgb, var(--ui-accent) 10%, transparent));
+  animation: ui-surface-in 560ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+@keyframes ui-surface-in {
+  from { opacity: 0; translate: 0 16px; }
+  to { opacity: 1; translate: 0 0; }
+}
+.ui-surface--tilt[data-tilting] {
+  --s: 1.012;
+  will-change: transform;
+  transition: transform 90ms linear, filter 200ms ease;
+  filter: drop-shadow(0 1px 1px rgba(25, 35, 95, 0.06))
+    drop-shadow(calc(var(--ry, 0) * -2px) calc(var(--rx, 0) * 2px + 16px) 20px
+      color-mix(in srgb, var(--ui-accent) 26%, transparent));
+}
+
+.ui-surface__glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 240ms ease;
+  background: radial-gradient(
+    380px circle at var(--gx, 50%) var(--gy, 50%),
+    color-mix(in srgb, var(--ui-accent) 11%, transparent),
+    transparent 62%
+  );
+}
+.ui-surface--tilt[data-tilting] .ui-surface__glare {
+  opacity: 1;
+}
+
+.ui-surface__layer {
+  transform-style: preserve-3d;
+}
+.ui-surface--tilt .ui-surface__layer {
+  transform: translateZ(var(--z, 0px));
+}
+
+/* Idle bob uses the standalone `translate` property so it composes with the
+   tilt `transform` instead of fighting it. */
+.ui-surface--float {
+  animation: ui-surface-in 560ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards, ui-surface-bob 7s ease-in-out 560ms infinite;
+}
+.ui-surface--float[data-tilting] {
+  animation-play-state: paused;
+}
+@keyframes ui-surface-bob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -4px; }
+}
+
+/* Chart palette (core/charts). Blue, violet and orange pass the colour-blind
+   separation checks as a trio; the orange is below 3:1 against white, so every
+   chart that uses it also carries a legend and a text summary. */
+:root {
+  --ui-chart-1: #3b5bdb;
+  --ui-chart-2: #7a3fb5;
+  --ui-chart-3: #d9822b;
+  --ui-chart-grid: #e8ecf7;
+  /* funnel slabs, light to deep blue */
+  --ui-funnel-1: #c9d4fb;
+  --ui-funnel-2: #a9b9f6;
+  --ui-funnel-3: #869cf0;
+  --ui-funnel-4: #657fe8;
+  --ui-funnel-5: #4a67e0;
+  --ui-funnel-6: #3b5bdb;
+}
+
+/* Chart kit (core/charts) motion + the CSS-3D funnel. */
+.ui-spark-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: ui-spark-draw 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 120ms forwards;
+}
+.ui-spark-fill {
+  opacity: 0;
+  animation: ui-fade-in 700ms ease 400ms forwards;
+}
+@keyframes ui-spark-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes ui-fade-in {
+  to { opacity: 1; }
+}
+
+.ui-gauge-sweep {
+  stroke-dashoffset: 100;
+  animation: ui-gauge-sweep 1100ms cubic-bezier(0.2, 0.8, 0.2, 1) 150ms forwards;
+}
+@keyframes ui-gauge-sweep {
+  to { stroke-dashoffset: var(--gauge-offset, 0); }
+}
+
+.ui-bar-grow {
+  transform-origin: left center;
+  animation: ui-bar-grow 700ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+@keyframes ui-bar-grow {
+  from { transform: scaleX(0); }
+}
+
+.ui-funnel {
+  perspective: 900px;
+  perspective-origin: 50% 0%;
+}
+.ui-funnel__stage {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transform: rotateX(14deg);
+  transform-style: preserve-3d;
+}
+.ui-funnel__row {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 10px;
+  animation: ui-funnel-rise 560ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+.ui-funnel__label {
+  font-size: var(--ui-t-label);
+  color: var(--ui-text-body);
+}
+.ui-funnel__track {
+  display: flex;
+  justify-content: center;
+}
+.ui-funnel__slab {
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* the slab's thickness: a darker edge directly under it, then a soft shadow */
+  box-shadow: 0 6px 0 -1px var(--slab-edge), 0 14px 18px -8px rgba(25, 35, 95, 0.35);
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui-funnel__row:hover .ui-funnel__slab {
+  transform: translateY(-4px) translateZ(12px);
+}
+.ui-funnel__value {
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-t-control);
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(15, 20, 60, 0.35);
+}
+.ui-funnel__conv {
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-t-meta);
+  color: var(--ui-text-secondary);
+  text-align: right;
+}
+@keyframes ui-funnel-rise {
+  from { opacity: 0; transform: translateY(14px); }
+}
+@media (max-width: 520px) {
+  .ui-funnel__row { grid-template-columns: 76px minmax(0, 1fr) 38px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-funnel__stage { transform: none; }
+  .ui-funnel__row:hover .ui-funnel__slab { transform: none; }
+}

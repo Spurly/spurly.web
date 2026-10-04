@@ -1,26 +1,25 @@
+import { Surface } from '../Surface';
+
 export function Card({
   children,
   variant = 'solid',
   padding = 'md',
   interactive = false,
+  depth,
   className = '',
   ...props
 }) {
   const pads = { none: '', sm: 'p-4', md: 'p-5', lg: 'p-8' };
 
-  const variants = {
-    solid:
-      'bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)]',
-    /* `glass` now resolves to `solid`. Backdrop-blur panels belong to the
-       marketing surface, not to a data tool. */
-    glass:
-      'bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)]',
-    sunken: 'bg-[var(--ui-surface-sunken)] border border-transparent',
-  };
+  /* `glass` resolves to `solid`: backdrop-blur panels belong to the marketing
+     surface, not to a data tool. */
+  const surfaceVariant = variant === 'sunken' ? 'sunken' : 'solid';
 
   return (
-    <div
-      className={`rounded-[var(--ui-radius-lg)] ${pads[padding]} ${variants[variant]} ${
+    <Surface
+      variant={surfaceVariant}
+      depth={depth}
+      className={`${pads[padding]} ${
         interactive
           ? 'transition-colors duration-[var(--ui-dur-fast)] hover:bg-[var(--ui-surface-hover)] cursor-pointer'
           : ''
@@ -28,7 +27,7 @@ export function Card({
       {...props}
     >
       {children}
-    </div>
+    </Surface>
   );
 }
 

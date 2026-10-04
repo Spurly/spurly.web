@@ -1,4 +1,5 @@
 import { Meter } from './Meter';
+import { Surface } from '../Surface';
 
 /**
  * The handoff's stat tile (Dashboard, Campaigns, Settings → Billing):
@@ -24,6 +25,7 @@ export function StatTile({
   caption = null,
   soon = false,
   size = 'lg',
+  depth,
   className = '',
 }) {
   const hasMeter = !soon && (max != null || fill != null);
@@ -31,10 +33,9 @@ export function StatTile({
   const meterMax = fill != null ? 100 : max;
 
   return (
-    <div
-      className={`min-w-0 rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-sm)] ${
-        size === 'sm' ? 'px-3.5 py-3' : 'px-4 pt-4 pb-3.5'
-      } ${className}`}
+    <Surface
+      depth={depth}
+      className={`min-w-0 ${size === 'sm' ? 'px-3.5 py-3' : 'px-4 pt-4 pb-3.5'} ${className}`}
     >
       <div className="flex items-center gap-2 min-w-0">
         <span className="ui-micro !text-[length:var(--ui-t-micro)] !text-[var(--ui-text-secondary)] truncate">{label}</span>
@@ -58,7 +59,7 @@ export function StatTile({
           {caption}
         </p>
       )}
-    </div>
+    </Surface>
   );
 }
 

@@ -31,6 +31,7 @@ import { AskSpurly } from "./AskSpurly";
 import { AccountStatusBanner } from "./AccountStatusBanner";
 import { useSidebarSummary } from "src/core/sidebarSummary/hooks/useSidebarSummary.js";
 import { formatCompactNumber } from "src/shared/utils/formatCompactNumber.js";
+import { AUTH_EVENTS } from "src/core/auth/constants/constants.js";
 
 /**
  * One sidebar, one product now.
@@ -530,8 +531,11 @@ export function DashboardLayout({
   );
 
   const handleLogout = () => {
-    logout();
-    navigate("/");
+    // One navigation, after the session is actually cleared. AuthContext's own
+    // LOGOUT_SUCCESS listener (registered first) has already run setUser(null).
+    logout().once(AUTH_EVENTS.LOGOUT_SUCCESS, () => {
+      navigate("/login", { replace: true });
+    });
   };
 
   const hasHeader = header && (title || subtitle || actions);
