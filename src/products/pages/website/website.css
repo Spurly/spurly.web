@@ -337,6 +337,11 @@ body.mkt .price li svg{width:17px;height:17px;color:var(--teal);flex:none;margin
 body.mkt .price li.off{color:var(--ink-3)}
 body.mkt .price li.off svg{color:rgba(26,29,63,.3)}
 body.mkt .price.feat{background:#fff;border:2px solid var(--teal);box-shadow:0 30px 70px -32px rgba(59,91,219,.5)}
+/* Plan card inside .prose (content pages): keep prose typography from leaking in */
+body.mkt .prose .price .pdesc{font-size:15px;line-height:inherit;min-height:46px;margin:0 0 22px}
+body.mkt .prose .price ul{padding:0;margin:26px 0 0}
+body.mkt .prose .price li{font-size:14.5px;line-height:inherit;margin:0;color:inherit}
+body.mkt .prose .price li.off{color:var(--ink-3)}
 
 /* ---------- Final CTA ---------- */
 body.mkt .cta-panel{
@@ -426,8 +431,9 @@ body.mkt .prose h3{font-size:20px;letter-spacing:-.015em;color:var(--ink);margin
 body.mkt .prose ul{margin:0 0 18px;padding-left:22px}
 body.mkt .prose li{color:var(--ink-2);font-size:17px;line-height:1.72;margin:0 0 8px}
 body.mkt .prose li::marker{color:var(--teal-bright)}
-body.mkt .prose a{color:var(--teal);font-weight:500;text-decoration:underline;text-decoration-color:rgba(59,91,219,.35);text-underline-offset:3px}
-body.mkt .prose a:hover{text-decoration-color:var(--teal)}
+body.mkt .prose a:not(.btn){color:var(--teal);font-weight:500;text-decoration:underline;text-decoration-color:rgba(59,91,219,.35);text-underline-offset:3px}
+body.mkt .prose a:not(.btn):hover{text-decoration-color:var(--teal)}
+body.mkt .prose .btn{text-decoration:none}
 body.mkt .prose em{font-style:italic}
 body.mkt .prose code{font:500 .86em var(--mono);background:var(--accent-tint);padding:2px 7px;border-radius:6px;color:var(--teal)}
 body.mkt .prose .eyebrow{margin-bottom:6px}
