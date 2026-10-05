@@ -18,17 +18,17 @@ function untilLabel(iso, now = Date.now()) {
   return `in ${Math.round(h / 24)} d`;
 }
 
-function WindowMeter({ label, win }) {
+function WindowMeter({ label, win, unlimited = false }) {
   return (
     <div className="flex flex-col gap-1.5 min-w-0">
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">{label}</span>
         <span className="ui-num !font-normal text-[length:var(--ui-t-meta)] text-[var(--ui-text-body)]">
-          {win.used}/{win.limit}
+          {unlimited ? `${win.used} sent` : `${win.used}/${win.limit}`}
         </span>
       </div>
-      <Meter value={win.used} max={win.limit || 1} label={label} tone={win.remaining === 0 ? 'warning' : 'accent'} />
-      {win.nextSlotAt && (
+      <Meter value={unlimited ? 0 : win.used} max={win.limit || 1} label={label} tone={!unlimited && win.remaining === 0 ? 'warning' : 'accent'} />
+      {!unlimited && win.nextSlotAt && (
         <span className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)]">
           Next slot {untilLabel(win.nextSlotAt)}
         </span>
@@ -37,7 +37,7 @@ function WindowMeter({ label, win }) {
   );
 }
 
-function ActionRow({ action }) {
+function ActionRow({ action, unlimited = false }) {
   const status = action.status;
   const limiting = !status.ok;
   return (
@@ -45,13 +45,15 @@ function ActionRow({ action }) {
       <div className="flex items-center justify-between gap-3">
         <span className="text-[length:var(--ui-t-control)] font-medium text-[var(--ui-text-primary)]">{action.label}</span>
         <span className="ui-num !font-normal text-[length:var(--ui-t-meta)] text-[var(--ui-text-body)]">
-          {action.day.remaining} left today · {action.week.remaining} left this week
+          {unlimited
+            ? `No limit · ${action.day.used} today · ${action.week.used} this week`
+            : `${action.day.remaining} left today · ${action.week.remaining} left this week`}
         </span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <WindowMeter label="This hour" win={{ ...action.hour, nextSlotAt: null }} />
-        <WindowMeter label="Last 24 hours" win={action.day} />
-        <WindowMeter label="Last 7 days" win={action.week} />
+        <WindowMeter label="This hour" win={{ ...action.hour, nextSlotAt: null }} unlimited={unlimited} />
+        <WindowMeter label="Last 24 hours" win={action.day} unlimited={unlimited} />
+        <WindowMeter label="Last 7 days" win={action.week} unlimited={unlimited} />
       </div>
       {limiting && status.message && (
         <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-[1.5]">
@@ -89,6 +91,7 @@ export function SendingLimitsTab() {
   }
 
   const { quiet, ceiling, actions } = snapshot;
+  const limitsOff = snapshot.enforced === false;
 
   return (
     <>
@@ -96,7 +99,7 @@ export function SendingLimitsTab() {
         title={t.limits.overviewTitle}
         action={
           <span className="ui-num !font-normal text-[length:var(--ui-t-title)] text-[var(--ui-text-primary)]">
-            {ceiling.used} / {ceiling.limit}
+            {limitsOff ? `${ceiling.used} · no limit` : `${ceiling.used} / ${ceiling.limit}`}
           </span>
         }
       >
@@ -105,7 +108,13 @@ export function SendingLimitsTab() {
             <span className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">{t.limits.ceilingLabel}</span>
             <Meter value={ceiling.used} max={ceiling.limit} label={t.limits.ceilingLabel} />
           </div>
-          <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-[1.5]">{t.limits.overviewHint}</p>
+          {limitsOff ? (
+            <p className="text-[length:var(--ui-t-label)] text-[var(--ui-warning-fg)] leading-[1.5]">
+              <strong>{t.limits.limitsOffTitle}.</strong> {t.limits.limitsOffHint}
+            </p>
+          ) : (
+            <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-[1.5]">{t.limits.overviewHint}</p>
+          )}
           {!snapshot.connected && (
             <p className="text-[length:var(--ui-t-label)] text-[var(--ui-warning-fg)] leading-[1.5]">{t.limits.notConnected}</p>
           )}
@@ -120,7 +129,7 @@ export function SendingLimitsTab() {
           <SectionCard key={group.key} title={group.label}>
             <div className="flex flex-col">
               {rows.map((a) => (
-                <ActionRow key={a.action} action={a} />
+                <ActionRow key={a.action} action={a} unlimited={limitsOff} />
               ))}
             </div>
           </SectionCard>

@@ -294,6 +294,16 @@ function setLimitOverride(eventEmitter, override) {
   );
 }
 
+function setLimitEnforcement(eventEmitter, enforced) {
+  return call(
+    eventEmitter,
+    () => adminGateway.setLimitEnforcement(enforced),
+    ADMIN_EVENTS.SET_LIMIT_ENFORCEMENT_SUCCESS,
+    ADMIN_EVENTS.SET_LIMIT_ENFORCEMENT_FAILURE,
+    'Failed to change the limits switch',
+  );
+}
+
 function clearLimitOverride(eventEmitter, id) {
   return call(
     eventEmitter,
@@ -355,6 +365,7 @@ const adminController = {
   getLimits,
   setLimitOverride,
   clearLimitOverride,
+  setLimitEnforcement,
 };
 
 export default adminController;

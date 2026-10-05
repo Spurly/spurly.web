@@ -249,6 +249,12 @@ export async function setLimitOverride(override) {
   return res.data;
 }
 
+/** Master switch. PUT { enforced: boolean }; false turns every limit off for every user. */
+export async function setLimitEnforcement(enforced) {
+  const res = await apiGateway.put('/admin/limits/enforcement', { enforced });
+  return res.data;
+}
+
 export async function clearLimitOverride(id) {
   const res = await apiGateway.delete(`/admin/limits/overrides/${id}`);
   return res.data;

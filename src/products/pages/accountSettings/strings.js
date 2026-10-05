@@ -60,6 +60,8 @@ export const settingsStrings = {
     overviewTitle: 'Your sending allowance',
     overviewHint: 'Spurly spreads your allowance across the day at an uneven pace, the way a person would, so you can run campaigns freely without ever looking like a script. Every campaign, sequence and the extension share these numbers.',
     ceilingLabel: 'All automated actions today',
+    limitsOffTitle: 'Limits are off',
+    limitsOffHint: 'Sending limits are switched off right now, so campaigns, sequences and the extension run without caps or pacing. Your usage is still counted below.',
     quietTitle: 'Quiet hours',
     quietHint: 'Around the clock, Spurly slows right down overnight instead of stopping, and the edges shift a little each day. Times are in your timezone.',
     quietSwitchTitle: 'Slow down overnight',

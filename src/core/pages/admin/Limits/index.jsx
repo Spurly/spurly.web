@@ -53,6 +53,8 @@ export function AdminLimitsPage() {
   const [savingAction, setSavingAction] = useState(null);
   const [userForm, setUserForm] = useState({ userId: '', action: 'connect', hour: '', day: '', week: '', note: '' });
   const [userSaving, setUserSaving] = useState(false);
+  const [confirmOff, setConfirmOff] = useState(false);
+  const [switching, setSwitching] = useState(false);
 
   const fetchLimits = useCallback(() => {
     adminController.getLimits(eventEmitter);
@@ -93,6 +95,19 @@ export function AdminLimitsPage() {
     eventEmitter.on(ADMIN_EVENTS.GET_LIMITS_FAILURE, onLoadFailed);
     eventEmitter.on(ADMIN_EVENTS.SET_LIMIT_OVERRIDE_SUCCESS, onSaved);
     eventEmitter.on(ADMIN_EVENTS.SET_LIMIT_OVERRIDE_FAILURE, onSaveFailed);
+    function onSwitched(res) {
+      setSwitching(false);
+      setConfirmOff(false);
+      toast.success(res?.enforcement?.enforced === false ? 'Limits are off for every user' : 'Limits are on');
+      fetchLimits();
+    }
+    function onSwitchFailed(err) {
+      setSwitching(false);
+      toast.error(getToastError(err, "Couldn't change the limits switch"));
+    }
+
+    eventEmitter.on(ADMIN_EVENTS.SET_LIMIT_ENFORCEMENT_SUCCESS, onSwitched);
+    eventEmitter.on(ADMIN_EVENTS.SET_LIMIT_ENFORCEMENT_FAILURE, onSwitchFailed);
     eventEmitter.on(ADMIN_EVENTS.CLEAR_LIMIT_OVERRIDE_SUCCESS, onCleared);
     eventEmitter.on(ADMIN_EVENTS.CLEAR_LIMIT_OVERRIDE_FAILURE, onClearFailed);
     fetchLimits();
@@ -101,6 +116,8 @@ export function AdminLimitsPage() {
       eventEmitter.off(ADMIN_EVENTS.GET_LIMITS_FAILURE, onLoadFailed);
       eventEmitter.off(ADMIN_EVENTS.SET_LIMIT_OVERRIDE_SUCCESS, onSaved);
       eventEmitter.off(ADMIN_EVENTS.SET_LIMIT_OVERRIDE_FAILURE, onSaveFailed);
+      eventEmitter.off(ADMIN_EVENTS.SET_LIMIT_ENFORCEMENT_SUCCESS, onSwitched);
+      eventEmitter.off(ADMIN_EVENTS.SET_LIMIT_ENFORCEMENT_FAILURE, onSwitchFailed);
       eventEmitter.off(ADMIN_EVENTS.CLEAR_LIMIT_OVERRIDE_SUCCESS, onCleared);
       eventEmitter.off(ADMIN_EVENTS.CLEAR_LIMIT_OVERRIDE_FAILURE, onClearFailed);
     };
@@ -165,6 +182,12 @@ export function AdminLimitsPage() {
     setUserForm((f) => ({ ...f, userId: '', hour: '', day: '', week: '', note: '' }));
   };
 
+  const enforced = data?.enforcement?.enforced !== false;
+  const changeEnforcement = (next) => {
+    setSwitching(true);
+    adminController.setLimitEnforcement(eventEmitter, next);
+  };
+
   const userOverrides = data ? data.overrides.filter((o) => o.scope === 'user') : [];
 
   return (
@@ -185,6 +208,45 @@ export function AdminLimitsPage() {
 
         {data && (
           <>
+            <div
+              className={`p-4 rounded-[var(--ui-radius-md)] border flex flex-wrap items-center justify-between gap-3 ${
+                enforced
+                  ? 'border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)]'
+                  : 'border-[var(--ui-warning-fg)] bg-[var(--ui-surface-card)]'
+              }`}
+            >
+              <div className="max-w-2xl">
+                <div className="font-medium text-[var(--ui-text-primary)]">
+                  {enforced ? 'Limits are on' : 'Limits are OFF for every user'}
+                </div>
+                <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+                  {enforced
+                    ? 'Turning limits off lets every user run campaigns, sequences and the extension with no caps, pacing or quiet hours. Usage is still recorded so you can analyse it. LinkedIn can restrict accounts that send this much.'
+                    : 'Nothing is being capped or paced right now. Usage is still recorded. Turn limits back on once the new numbers are set.'}
+                </p>
+              </div>
+              {enforced && !confirmOff && (
+                <Button variant="secondary" onClick={() => setConfirmOff(true)}>
+                  Turn all limits off
+                </Button>
+              )}
+              {enforced && confirmOff && (
+                <div className="flex items-center gap-2">
+                  <Button variant="primary" loading={switching} onClick={() => changeEnforcement(false)}>
+                    Yes, turn off for everyone
+                  </Button>
+                  <Button variant="secondary" onClick={() => setConfirmOff(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              )}
+              {!enforced && (
+                <Button variant="primary" loading={switching} onClick={() => changeEnforcement(true)}>
+                  Turn limits back on
+                </Button>
+              )}
+            </div>
+
             <p className="text-[var(--ui-text-secondary)] text-[length:var(--ui-t-body)]">
               These numbers apply to every plan. Edit a row to change it for all users. Values above the hard max are
               clamped. Changes apply within about a minute. The account-wide daily ceiling for risky automated actions
