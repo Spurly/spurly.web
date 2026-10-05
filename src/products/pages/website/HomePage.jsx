@@ -6,16 +6,8 @@ import Nav from "./components/Nav.jsx";
 import MobileMenu from "./components/MobileMenu.jsx";
 import Hero from "./components/Hero.jsx";
 import LogoCloud from "./components/LogoCloud.jsx";
-import Problem from "./components/home/Problem.jsx";
-import Pillars from "./components/home/Pillars.jsx";
 import HowItWorks from "./components/home/HowItWorks.jsx";
-import AiSection from "./components/home/AiSection.jsx";
-import HomeVideo from "./components/home/HomeVideo.jsx";
 import FeatureTour from "./components/home/FeatureTour.jsx";
-import Signals from "./components/home/Signals.jsx";
-import SafetySection from "./components/home/SafetySection.jsx";
-import ByHand from "./components/home/ByHand.jsx";
-import ExtensionBlock from "./components/home/ExtensionBlock.jsx";
 import Solutions from "./components/home/Solutions.jsx";
 import HomeFaq from "./components/home/HomeFaq.jsx";
 import Pricing from "./components/Pricing.jsx";
@@ -40,8 +32,8 @@ export default function HomePage() {
   return (
     <>
       <Seo
-        title="Spurly: AI LinkedIn Outreach Automation in the Cloud"
-        description="Spurly is AI-powered LinkedIn outreach: AI writes your messages, then campaigns find, connect and follow up from the cloud. 7-day free trial."
+        title="Spurly: LinkedIn Automation Tool for Lead Generation"
+        description="Spurly finds your ideal prospects on LinkedIn, writes personal messages with AI and follows up automatically. For founders and sales teams. 7-day free trial."
         path="/"
         jsonLd={[ORGANIZATION_LD, WEBSITE_LD, ...HOME_LD, videoLd()].filter(Boolean)}
       />
@@ -54,16 +46,8 @@ export default function HomePage() {
       <main id="top">
         <Hero />
         <LogoCloud />
-        <Problem />
-        <Pillars />
-        <AiSection />
         <HowItWorks />
-        <HomeVideo />
         <FeatureTour />
-        <Signals />
-        <SafetySection />
-        <ByHand />
-        <ExtensionBlock />
         <Solutions />
         <Pricing />
         <HomeFaq />

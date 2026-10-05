@@ -20,7 +20,11 @@ export default function Pricing() {
         <div className="price-grid single">
           <PlanCard className="reveal d1" />
         </div>
-        <p className="center" style={{ marginTop: 24, color: "var(--text-3)", fontSize: 13.5 }}>
+        <p className="center" style={{ marginTop: 20, color: "var(--text-2)", fontSize: 14.5 }}>
+          Designed to stay within LinkedIn's limits, with hourly and daily caps and a pause when someone replies. No tool can promise zero risk.{" "}
+          <Link to="/product/safety">How safety works</Link>.
+        </p>
+        <p className="center" style={{ marginTop: 14, color: "var(--text-3)", fontSize: 13.5 }}>
           {TRIAL_NOTE} Cancel in Settings → Billing; access runs to the end of the period you've paid for.{" "}
           <Link to="/pricing">See full pricing and FAQ</Link>.
         </p>

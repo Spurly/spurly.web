@@ -10,7 +10,7 @@ export default function FinalCTA() {
       <div className="wrap">
         <div className="cta-panel reveal">
           <span className="eyebrow">Get started</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Let your outreach <em>run itself.</em></h2>
+          <h2 className="h2" style={{ marginTop: 14 }}>Get leads from LinkedIn, <em>on autopilot.</em></h2>
           <p className="lead">Connect your LinkedIn account, build an audience and launch your first campaign in minutes. 7-day free trial, then {price.label}/month.</p>
           <div className="hero-actions">
             <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>

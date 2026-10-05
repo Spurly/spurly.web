@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="foot-grid">
           <div className="foot-brand">
             <Link className="brand" to="/" aria-label="Spurly home"><img src="/spurly-icon-128.png" alt="" width="34" height="34" /><span>Spurly</span></Link>
-            <p>AI-powered LinkedIn outreach. AI drafts your messages, then campaigns find people, connect, follow up and collect replies in one inbox, from the cloud at a safe pace.</p>
+            <p>LinkedIn automation for lead generation. Spurly finds your ideal prospects, writes personal messages with AI and follows up automatically, from the cloud at a safe pace.</p>
             <p className="legal-name">Spurly is a product of ArkTech Catalyst.</p>
           </div>
           <div className="foot-cols">

@@ -4,7 +4,7 @@ import { MenuIcon } from "../icons.jsx";
 import { useAuth } from "src/core/auth/hooks/useAuth";
 
 const LINKS = [
-  { href: "#product", label: "Product" },
+  { href: "#tour", label: "Features" },
   { href: "#how", label: "How it works" },
   { href: "#who", label: "Who it's for" },
   { to: "/pricing", label: "Pricing" },

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import SectionCta from "../SectionCta.jsx";
 
 /* Tabbed tour. Every panel is in the prerendered HTML (inactive ones are
    `hidden`, still in the DOM), so crawlers read all of it. Screenshots are from
@@ -8,7 +9,7 @@ const TABS = [
   {
     key: "campaigns",
     label: "Campaigns and sequences",
-    body: "Send connection requests and follow-ups at a safe daily pace. Combine steps such as visit profile, connect, message, follow, like, comment and wait, and Spurly stops the sequence when someone replies.",
+    body: "AI drafts your connection notes and follow-ups, and you approve them. Spurly sends each step at a safe daily pace, combining steps such as visit profile, connect, message, follow, like, comment and wait, and stops the sequence when someone replies.",
     to: "/product/campaigns",
     shot: { src: "/assets/app-campaigns.webp", w: 1700, h: 943, alt: "Spurly campaigns page showing sending, accepted and replies-waiting counts and a card for each campaign." },
   },
@@ -33,13 +34,6 @@ const TABS = [
     to: "/product/network",
     shot: { src: "/assets/app-network.webp", w: 1700, h: 943, alt: "Spurly network page with the number of connections, when they were last checked and a table of your LinkedIn connections with title, company and enrichment status." },
   },
-  {
-    key: "posts",
-    label: "Posts",
-    to: "/product/posts",
-    body: "Schedule text and image posts and see the likes and comments they get, from the same place you run outreach.",
-    shot: { src: "/assets/app-posts.webp", w: 1700, h: 944, alt: "Spurly posts page with a composer, an image and video picker, a schedule field and a list of published and cancelled posts." },
-  },
 ];
 
 export default function FeatureTour() {
@@ -48,8 +42,8 @@ export default function FeatureTour() {
     <section id="tour" className="section-pad">
       <div className="wrap">
         <div className="sec-head center reveal">
-          <span className="eyebrow">Feature tour</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>One tool, <em>the whole workflow.</em></h2>
+          <span className="eyebrow">What you get</span>
+          <h2 className="h2" style={{ marginTop: 14 }}>Everything from first search to <em>first reply.</em></h2>
         </div>
         <div className="tour glass reveal d1">
           <div className="shot-tabs" role="tablist" aria-label="Spurly features">
@@ -86,6 +80,7 @@ export default function FeatureTour() {
             </div>
           ))}
         </div>
+        <SectionCta />
       </div>
     </section>
   );

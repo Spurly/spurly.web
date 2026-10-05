@@ -30,7 +30,7 @@ export const SOFTWARE_LD = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Chrome",
   description:
-    "AI-powered LinkedIn outreach automation in the cloud: AI drafts your messages, then Spurly helps you find the right people, connect, follow up and reply from one inbox, at a safe daily pace. Includes a Chrome extension for capturing profiles. 7-day free trial.",
+    "Spurly is a LinkedIn automation tool that finds your ideal prospects, writes personal messages with AI and follows up automatically, stopping when they reply. Runs from the cloud at a safe daily pace, with one inbox for replies. Built for founders and sales teams. Includes an optional Chrome extension for capturing profiles. 7-day free trial.",
   offers: [
     offer(PRICES.INTL),
     { ...offer(PRICES.IN), eligibleRegion: "IN" },
@@ -52,12 +52,11 @@ export const HOME_LD = [
     "@context": "https://schema.org",
     "@type": "HowTo",
     name: "How to run LinkedIn outreach with Spurly",
-    description: "Four steps from a LinkedIn search to a conversation in your inbox.",
+    description: "Three steps from a LinkedIn search to a conversation in your inbox.",
     step: [
       { "@type": "HowToStep", position: "1", name: "Connect LinkedIn securely", text: "Sign in to your LinkedIn account once through a secure connection." },
-      { "@type": "HowToStep", position: "2", name: "Build an audience", text: "Search with filters, find people at target companies, import post authors, paste a URL or upload a CSV." },
-      { "@type": "HowToStep", position: "3", name: "Launch a sequence", text: "Connect, wait until they accept, message and follow up, with AI-drafted copy you approve. Spurly sends each step at a safe pace from the cloud." },
-      { "@type": "HowToStep", position: "4", name: "Reply from one inbox", text: "When someone answers, the sequence stops for them and the conversation waits in your inbox." },
+      { "@type": "HowToStep", position: "2", name: "Pick an audience, launch a sequence", text: "Search with filters, find people at target companies, import post authors or a CSV. AI drafts the connection note and follow-ups, and you approve them." },
+      { "@type": "HowToStep", position: "3", name: "Reply from one inbox", text: "Spurly connects, waits for the accept and follows up at a safe pace from the cloud. When someone answers, the sequence stops and the conversation waits in your inbox." },
     ],
   },
 ];

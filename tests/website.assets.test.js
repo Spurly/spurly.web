@@ -41,9 +41,14 @@ describe('people and trust pages', () => {
     expect((await render('/security')).html).toContain('Security and data handling');
     expect((await render('/blog/author/sarthak')).html).toContain('Posts by Sarthak');
   });
-  it('the home page shows the AI section and the video placeholder', async () => {
+  it('the home page states what Spurly is, who it is for and repeats one primary CTA', async () => {
     const { html } = await render('/');
-    expect(html).toContain('AI that writes the outreach');
-    expect(html).toContain('Video tour coming soon');
+    expect(html).toContain('Get leads from LinkedIn');
+    expect(html).toContain('LinkedIn automation for founders and sales teams');
+    expect(html).toContain('Spurly is a LinkedIn automation tool');
+    // hero + after how-it-works, tour, who-it-is-for + plan card + final CTA (the nav one renders after auth loads)
+    expect(html.split('Start 7-day free trial').length - 1).toBeGreaterThanOrEqual(6);
+    // the long sections moved to their own pages
+    expect(html).not.toContain('Video tour coming soon');
   });
 });

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import SectionCta from "../SectionCta.jsx";
 
 const AUDIENCES = [
   { cls: "d1", tag: "Founders", title: "Fill your pipeline without an SDR", body: "Define one sharp audience, launch a sequence and answer replies from one inbox while you build the product.", to: "/solutions/founders" },
@@ -13,6 +14,7 @@ export default function Solutions() {
         <div className="sec-head center reveal">
           <span className="eyebrow">Who it's for</span>
           <h2 className="h2" style={{ marginTop: 14 }}>Built for people who <em>live in outbound.</em></h2>
+          <p className="lead">Spurly is built first for founders and small sales teams who want pipeline without hiring an SDR. Recruiters use it too.</p>
         </div>
         <div className="aud-grid">
           {AUDIENCES.map((a) => (
@@ -24,6 +26,7 @@ export default function Solutions() {
             </article>
           ))}
         </div>
+        <SectionCta />
       </div>
     </section>
   );
