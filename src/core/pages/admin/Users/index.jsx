@@ -7,6 +7,7 @@ import { AdminLayout } from 'src/core/pages/admin/components/AdminLayout';
 import { DataTable } from 'src/core/DataTable';
 import { Button, useToast } from 'src/core/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
+import { startImpersonation } from 'src/shared/utils/impersonation.js';
 import CreditsModal from '../components/CreditsModal';
 import PlanAssignModal from '../components/PlanAssignModal';
 import UserDetailsModal from '../components/UserDetailsModal';
@@ -102,6 +103,22 @@ export function AdminUsersPage() {
     setSelectedUser(null);
   };
 
+  /**
+   * "Login as" — mints a token for this user via POST /auth/impersonate
+   * (admin-only, backend-gated) and swaps the browser session to it.
+   * Never touches their password; see src/shared/utils/impersonation.js.
+   */
+  const handleImpersonateClick = (targetUser) => {
+    const callEmitter = new EventEmitter();
+    callEmitter.once(ADMIN_EVENTS.IMPERSONATE_USER_SUCCESS, ({ user: impersonatedUser, token }) => {
+      startImpersonation({ targetToken: token, targetUser: impersonatedUser });
+    });
+    callEmitter.once(ADMIN_EVENTS.IMPERSONATE_USER_FAILURE, (err) => {
+      toast.error(getToastError(err, "Couldn't log in as that user"));
+    });
+    adminController.impersonateUser(callEmitter, targetUser._id);
+  };
+
   const filteredUsers = searchTerm
     ? users.filter((u) => {
         const q = searchTerm.toLowerCase();
@@ -112,6 +129,7 @@ export function AdminUsersPage() {
   const columns = buildUserColumns({
     onManageCredits: handleCreditsClick,
     onManagePlan: handlePlanClick,
+    onImpersonate: handleImpersonateClick,
   });
 
   const currentPage = Math.floor(pagination.skip / pagination.limit) + 1;

@@ -5,7 +5,7 @@ import { TextCell, ActionsCell, CalendarCell } from 'src/core/DataTable';
  * Admin Users columns. Action handlers are injected so each row can manage
  * credits and plan without the column file knowing about modals.
  */
-export function buildUserColumns({ onManageCredits, onManagePlan }) {
+export function buildUserColumns({ onManageCredits, onManagePlan, onImpersonate }) {
   return [
     {
       key: 'email',
@@ -34,7 +34,7 @@ export function buildUserColumns({ onManageCredits, onManagePlan }) {
     {
       key: 'actions',
       label: '',
-      width: 150,
+      width: 220,
       align: 'right',
       render: (_v, row) => (
         <ActionsCell>
@@ -44,6 +44,11 @@ export function buildUserColumns({ onManageCredits, onManagePlan }) {
           <Button size="sm" variant="secondary" onClick={() => onManagePlan(row)}>
             Plan
           </Button>
+          {onImpersonate && (
+            <Button size="sm" variant="secondary" onClick={() => onImpersonate(row)}>
+              Login as
+            </Button>
+          )}
         </ActionsCell>
       ),
     },

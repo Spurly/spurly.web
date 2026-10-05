@@ -37,6 +37,18 @@ export async function getUserDetails(userId) {
 }
 
 /**
+ * Mint a login token for another user, so an admin can reproduce and fix a
+ * bug from inside their own account. Never touches their password — this
+ * hits the auth module (not /admin) since it issues an ordinary JWT the
+ * same way login does.
+ * Returns { success, data: { user, token, impersonatedBy }, message, status }.
+ */
+export async function impersonateUser(userId) {
+  const res = await apiGateway.post(`/auth/impersonate/${userId}`);
+  return res.data;
+}
+
+/**
  * Credits Management
  * action: 'add' | 'deduct'. Amount is always positive; direction is the action.
  */

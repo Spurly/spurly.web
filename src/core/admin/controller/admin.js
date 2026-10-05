@@ -56,6 +56,16 @@ function getUserDetails(eventEmitter, userId) {
   );
 }
 
+function impersonateUser(eventEmitter, userId) {
+  return call(
+    eventEmitter,
+    () => adminGateway.impersonateUser(userId),
+    ADMIN_EVENTS.IMPERSONATE_USER_SUCCESS,
+    ADMIN_EVENTS.IMPERSONATE_USER_FAILURE,
+    "Couldn't log in as that user",
+  );
+}
+
 // ── Credits ────────────────────────────────────────────────────────────
 function updateCredits(eventEmitter, userId, amount, action, reason) {
   return call(
@@ -319,6 +329,7 @@ const adminController = {
   getAllUsers,
   getUserCredits,
   getUserDetails,
+  impersonateUser,
   updateCredits,
   getAnalyticsOverview,
   getUserUsageAnalytics,
