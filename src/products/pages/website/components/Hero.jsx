@@ -33,7 +33,10 @@ export default function Hero() {
 
         <div className="hero-shot">
           <img
-            src="/assets/app-campaigns.webp"
+            src="/assets/app-campaigns-1200.webp"
+            srcSet="/assets/app-campaigns-800.webp 800w, /assets/app-campaigns-1200.webp 1200w, /assets/app-campaigns.webp 1700w"
+            sizes="(max-width: 1040px) 100vw, 1000px"
+            fetchPriority="high"
             alt="Spurly campaigns page showing sending, accepted and replies-waiting counts and a card for each campaign."
             width="1700"
             height="943"
