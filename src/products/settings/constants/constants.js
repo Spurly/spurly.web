@@ -48,3 +48,29 @@ export const ACCOUNT_HEALTH_EVENTS = {
  */
 export const HEALTH_POLL_INTERVAL_MS = 4000;
 export const HEALTH_POLL_MAX_ATTEMPTS = 5;
+
+/** Events for the native (own-form) LinkedIn sign-in. See useLinkedInConnect.js. */
+export const NATIVE_CONNECT_EVENTS = {
+  STEP_SUCCESS: 'NATIVE_CONNECT_STEP_SUCCESS',
+  STEP_FAILURE: 'NATIVE_CONNECT_STEP_FAILURE',
+  POLL_SUCCESS: 'NATIVE_CONNECT_POLL_SUCCESS',
+  POLL_FAILURE: 'NATIVE_CONNECT_POLL_FAILURE',
+  RESEND_SUCCESS: 'NATIVE_CONNECT_RESEND_SUCCESS',
+  RESEND_FAILURE: 'NATIVE_CONNECT_RESEND_FAILURE',
+};
+
+/**
+ * While waiting for the user to approve the sign-in in the LinkedIn app (or a
+ * "Yes, it's me" email), ask the server this often. Bounded by the provider's
+ * own 5-minute sign-in window, plus a little slack.
+ */
+export const APPROVAL_POLL_INTERVAL_MS = 3000;
+export const APPROVAL_POLL_TIMEOUT_MS = 5.5 * 60 * 1000;
+
+/** Checkpoint types the native form can render. Anything else -> hosted page. */
+export const CHECKPOINT_TYPES = {
+  TWO_FA: '2FA',
+  OTP: 'OTP',
+  IN_APP: 'IN_APP_VALIDATION',
+  PHONE: 'PHONE_REGISTER',
+};

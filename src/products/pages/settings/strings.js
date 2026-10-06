@@ -15,8 +15,11 @@ export const linkedInSettingsStrings = {
   notConnected: {
     title: 'Not connected',
     body: 'Connect once and Spurly can send on a schedule, with your laptop closed.',
-    authNoteBefore: 'You sign in on LinkedIn’s own page through our provider. ',
-    authNoteBold: 'Spurly never sees or stores your password.',
+    // Copy depends on the connect flow, because the two make different promises.
+    authNoteBefore: 'You sign in with your LinkedIn email and password, and verify it’s you if LinkedIn asks. ',
+    authNoteBold: 'Spurly never stores your password.',
+    hostedAuthNoteBefore: 'You sign in on LinkedIn’s own page through our provider. ',
+    hostedAuthNoteBold: 'Spurly never sees or stores your password.',
     connect: 'Connect LinkedIn',
     connecting: 'Opening…',
     checkAgain: 'Already connected? Check again',

@@ -7,11 +7,22 @@ import { Account } from '../entities/account.js';
  * Talks to /api/hub/account — the user's own LinkedIn account, connected
  * server-side so Spurly can send without the extension or an open browser.
  *
- * Linking deliberately happens on the vendor's hosted page rather than in a
- * form here. The user's LinkedIn password and session cookie never reach
- * Spurly, which is the entire reason that flow was chosen — so there is no
- * "credentials" endpoint in this file, and there should never be one.
+ * Two ways to link:
+ *   - native (default): our own sign-in form. The email + password go to
+ *     /hub/account/connect, which passes them to LinkedIn's sign-in through
+ *     our provider and never stores them; checkpoints (2FA, email/SMS code,
+ *     app approval, phone) are answered on /hub/account/connect/checkpoint*.
+ *   - hosted (fallback): the provider's own sign-in page, via createLink().
+ *     Offered when the native flow fails in a way the user cannot fix, or for
+ *     everyone when the server sets account.connectFlow = 'hosted'.
  */
+
+/**
+ * A LinkedIn sign-in happens on the provider's servers and can take well over
+ * the gateway's default 10s (measured logins run 5-40s). The server caps its
+ * own wait at 50s, so this only needs to outlast that.
+ */
+const SIGN_IN_TIMEOUT_MS = 65000;
 
 /**
  * GET /hub/account — always resolves to a shape, never null. "Not connected"
@@ -50,5 +61,59 @@ async function disconnect() {
   return res.data?.data ?? {};
 }
 
-const hubAccountGateway = { get, createLink, refresh, disconnect };
+/**
+ * Every native step answers { state: 'connected', account } or
+ * { state: 'checkpoint', checkpoint: { type, expiresAt } }. Failures reject
+ * with the server body: { message, status, data: { code, fallback } }.
+ */
+function readStep(res) {
+  const data = res.data?.data ?? {};
+  return {
+    state: data.state ?? null,
+    checkpoint: data.checkpoint ?? null,
+    account: data.account ? Account.fromResponse(data.account) : null,
+  };
+}
+
+/** POST /hub/account/connect — email + password. Never logged, never stored client-side. */
+async function connectWithCredentials({ username, password }) {
+  const res = await apiGateway.post('/hub/account/connect', { username, password }, { timeout: SIGN_IN_TIMEOUT_MS });
+  return readStep(res);
+}
+
+/** POST /hub/account/connect/checkpoint — a code, or a phone number written (+91)9876543210. */
+async function solveCheckpoint(code) {
+  const res = await apiGateway.post('/hub/account/connect/checkpoint', { code }, { timeout: SIGN_IN_TIMEOUT_MS });
+  return readStep(res);
+}
+
+/** POST /hub/account/connect/checkpoint/another-way — ask LinkedIn for a different method. */
+async function tryAnotherWay() {
+  const res = await apiGateway.post('/hub/account/connect/checkpoint/another-way', {}, { timeout: SIGN_IN_TIMEOUT_MS });
+  return readStep(res);
+}
+
+/** POST /hub/account/connect/checkpoint/resend — send the code / app notification again. */
+async function resendCheckpoint() {
+  const res = await apiGateway.post('/hub/account/connect/checkpoint/resend', {}, { timeout: SIGN_IN_TIMEOUT_MS });
+  return res.data?.data ?? {};
+}
+
+/** POST /hub/account/connect/checkpoint/status — poll while waiting on an app approval. */
+async function checkpointStatus() {
+  const res = await apiGateway.post('/hub/account/connect/checkpoint/status', {}, { timeout: 30000 });
+  return readStep(res);
+}
+
+const hubAccountGateway = {
+  get,
+  createLink,
+  refresh,
+  disconnect,
+  connectWithCredentials,
+  solveCheckpoint,
+  tryAnotherWay,
+  resendCheckpoint,
+  checkpointStatus,
+};
 export default hubAccountGateway;
