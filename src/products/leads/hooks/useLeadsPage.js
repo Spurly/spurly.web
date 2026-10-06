@@ -668,15 +668,22 @@ export function useLeadsPage() {
    * than letting the click round-trip to the server for a rejection the
    * user could see coming from the Degree column.
    *
-   * Leads not currently on this page (a prior search's results, if this
-   * page ever supports cross-page selection) fall out of `leads` and are
-   * simply not found here -- which correctly counts as "can't tell", not
-   * "fine". Empty selection is never messageable; there is nothing to send.
+   * Selection can span searches and pages (the `selected` Set of ids is
+   * deliberately kept when the query, degree filter, or page changes), so
+   * the degree check can't rely on the rows currently on screen -- that
+   * greyed the button out for 1st-degree leads picked under an earlier
+   * search. Instead we remember each lead's degree as its row is loaded
+   * (`degreeByIdRef`) and judge the whole selection from that. An id we have
+   * never seen a row for still counts as "can't tell", not "fine".
+   * Empty selection is never messageable; there is nothing to send.
    */
+  const degreeByIdRef = useRef(new Map());
   const selectedAreAllFirstDegree = useMemo(() => {
+    // Idempotent cache write: the latest loaded row wins, so a lead whose
+    // degree changed (invite accepted) is corrected when it is next loaded.
+    for (const l of leads) degreeByIdRef.current.set(l._id, l.connectionDegree);
     if (selected.size === 0) return false;
-    const byId = new Map(leads.map((l) => [l._id, l]));
-    return [...selected].every((id) => byId.get(id)?.connectionDegree === 1);
+    return [...selected].every((id) => degreeByIdRef.current.get(id) === 1);
   }, [selected, leads]);
 
   const activeSearch = searches.find((s) => s._id === activeSearchId) ?? null;
