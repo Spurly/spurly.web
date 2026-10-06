@@ -402,6 +402,7 @@ body.mkt .reveal.d1{transition-delay:.08s}body.mkt .reveal.d2{transition-delay:.
   body.mkt .nav-links{display:none}
   body.mkt .nav-toggle{display:flex}
   body.mkt .nav .nav-signin{display:none}
+  body.mkt .nav .nav-demo{display:none}
   body.mkt .demo-grid{grid-template-columns:1fr}
   body.mkt .steps{grid-template-columns:1fr;gap:16px}
   body.mkt .aud-grid{grid-template-columns:1fr}

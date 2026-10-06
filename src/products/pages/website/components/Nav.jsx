@@ -37,6 +37,7 @@ export default function Nav({ menuOpen, onToggleMenu }) {
           ))}
         </div>
         <div className="nav-cta">
+          <Link to="/book-demo" className="btn btn-ghost btn-sm nav-demo">Book a demo</Link>
           {!loading && (user ? (
             <Link to="/dashboard" className="nav-signin">Dashboard</Link>
           ) : (

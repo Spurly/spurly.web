@@ -16,6 +16,7 @@ export default function MobileMenu({ open, onClose }) {
       {LINKS.map((l) => (
         l.to ? <Link key={l.to} to={l.to} onClick={onClose}>{l.label}</Link> : <a key={l.href} href={l.href} onClick={onClose}>{l.label}</a>
       ))}
+      <Link to="/book-demo" onClick={onClose}>Book a demo</Link>
       {!loading && (user ? (
         <Link to="/dashboard" className="nav-signin mobile-signin" onClick={onClose}>Dashboard</Link>
       ) : (
