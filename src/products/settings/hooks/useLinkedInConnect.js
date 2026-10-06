@@ -7,9 +7,10 @@ import {
   APPROVAL_POLL_INTERVAL_MS,
   APPROVAL_POLL_TIMEOUT_MS,
   CHECKPOINT_TYPES,
+  CONNECT_ERROR_TITLES,
 } from '../constants/constants.js';
 
-const GENERIC_FAILURE = 'Could not connect LinkedIn. Try again.';
+const GENERIC_FAILURE = 'Something went wrong while connecting LinkedIn. Try again.';
 
 /**
  * Listen for exactly one of a success/failure pair. Plain `once` on both would
@@ -29,37 +30,61 @@ function listenForOne(emitter, okEvent, failEvent, onOk, onFail) {
   emitter.once(failEvent, fail);
 }
 
-/** The server writes user-facing copy for every native-flow failure (data.code set). */
-function messageOf(err) {
-  if (err?.data?.code && typeof err?.message === 'string' && err.message.trim()) return err.message;
-  return getToastError(err, GENERIC_FAILURE);
+/**
+ * A failure -> { code, title, message, field, fallback } for the dialog's
+ * alert. The server writes user-facing copy for every native-flow failure
+ * (data.code set); anything else (network, a crash) gets generic, honest copy.
+ */
+export function toConnectError(err) {
+  const code = err?.data?.code ?? null;
+  if (code && typeof err?.message === 'string' && err.message.trim()) {
+    return {
+      code,
+      title: CONNECT_ERROR_TITLES[code] ?? 'Couldn’t connect LinkedIn',
+      message: err.message,
+      field: err?.data?.field ?? null,
+      fallback: Boolean(err?.data?.fallback),
+    };
+  }
+  return {
+    code: 'UNKNOWN',
+    title: 'Couldn’t connect LinkedIn',
+    message: getToastError(err, GENERIC_FAILURE),
+    field: null,
+    fallback: true,
+  };
 }
 
 /**
  * State for the native LinkedIn sign-in dialog — our own form instead of the
  * provider's hosted page.
  *
- *   credentials -> (connected) -> onConnected(account)
- *               -> checkpoint (2FA | OTP | IN_APP_VALIDATION | PHONE_REGISTER)
- *                    -> code / phone / approval poll -> connected
+ *   form -> (connected) -> success
+ *        -> checkpoint (2FA | OTP | IN_APP_VALIDATION | PHONE_REGISTER)
+ *             -> code / phone / approval poll -> success
  *
  * `offerHosted` turns true whenever the server says the native flow cannot
  * finish (fallback: true) or something unexpected happened; the dialog then
- * offers the hosted sign-in page, which is the old flow kept as the way out.
+ * offers the hosted sign-in page, the old flow kept as the way out.
  *
- * No try/catch or async/await here — the controller emits events.
- * The password is never kept in this hook: the form owns it and hands it to
- * signIn(), which passes it straight to the controller.
+ * `onConnected(account)` fires the moment the account is bound, so the page
+ * behind updates while the dialog shows its success state.
+ *
+ * No try/catch or async/await here — the controller emits events. Secrets
+ * (password, cookie, proxy password) are never kept here: the form owns them
+ * and hands them to signIn(), which passes them straight to the controller.
  */
 export function useLinkedInConnect({ onConnected } = {}) {
   const eventEmitter = useMemo(() => new EventEmitter(), []);
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState('credentials');
-  const [checkpointType, setCheckpointType] = useState(null);
+  const [step, setStep] = useState('form'); // 'form' | 'checkpoint' | 'success'
+  const [checkpoint, setCheckpoint] = useState(null); // { type, expiresAt }
   const [busy, setBusy] = useState(null); // 'signin' | 'code' | 'another' | 'resend' | null
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
   const [notice, setNotice] = useState('');
   const [offerHosted, setOfferHosted] = useState(false);
+  const [connectedAccount, setConnectedAccount] = useState(null);
+  const [options, setOptions] = useState({ detectedCountry: null, loaded: false });
 
   /**
    * Bumped on open, close and success. Every answer checks it, so a slow reply
@@ -76,18 +101,21 @@ export function useLinkedInConnect({ onConnected } = {}) {
     setBusy(value);
   };
 
-  const backToStart = useCallback((message) => {
-    setStep('credentials');
-    setCheckpointType(null);
+  const backToForm = useCallback((nextError) => {
+    setStep('form');
+    setCheckpoint(null);
     setNotice('');
-    setError(message || '');
+    setError(nextError ?? null);
   }, []);
 
   const finish = useCallback((account) => {
     sessionRef.current += 1;
     busyRef.current = null;
     setBusy(null);
-    setOpen(false);
+    setError(null);
+    setNotice('');
+    setConnectedAccount(account ?? null);
+    setStep('success');
     onConnectedRef.current?.(account ?? null);
   }, []);
 
@@ -95,13 +123,24 @@ export function useLinkedInConnect({ onConnected } = {}) {
     sessionRef.current += 1;
     busyRef.current = null;
     setBusy(null);
-    setStep('credentials');
-    setCheckpointType(null);
-    setError('');
+    setStep('form');
+    setCheckpoint(null);
+    setError(null);
     setNotice('');
     setOfferHosted(false);
+    setConnectedAccount(null);
     setOpen(true);
-  }, []);
+
+    // Where "Automatic" will sign in from. A nicety: the dialog works without it.
+    listenForOne(
+      eventEmitter,
+      NATIVE_CONNECT_EVENTS.OPTIONS_SUCCESS,
+      NATIVE_CONNECT_EVENTS.OPTIONS_FAILURE,
+      (next) => setOptions({ detectedCountry: next?.detectedCountry ?? null, loaded: true }),
+      () => setOptions({ detectedCountry: null, loaded: true }),
+    );
+    accountController.getConnectOptions(eventEmitter);
+  }, [eventEmitter]);
 
   const closeDialog = useCallback(() => {
     sessionRef.current += 1;
@@ -115,7 +154,7 @@ export function useLinkedInConnect({ onConnected } = {}) {
     if (busyRef.current) return;
     const session = sessionRef.current;
     setBusyBoth(kind);
-    setError('');
+    setError(null);
     setNotice('');
 
     listenForOne(
@@ -131,38 +170,43 @@ export function useLinkedInConnect({ onConnected } = {}) {
         }
         if (next?.state === 'checkpoint' && next.checkpoint?.type) {
           setStep('checkpoint');
-          setCheckpointType(next.checkpoint.type);
-          if (kind === 'another') setNotice('LinkedIn switched to a different way to verify.');
+          setCheckpoint({ type: next.checkpoint.type, expiresAt: next.checkpoint.expiresAt ?? null });
+          if (kind === 'another') setNotice('LinkedIn switched to a different way to verify it’s you.');
           return;
         }
-        setError(GENERIC_FAILURE);
+        setError({ code: 'UNKNOWN', title: 'Couldn’t connect LinkedIn', message: GENERIC_FAILURE, field: null });
         setOfferHosted(true);
       },
       (err) => {
         if (session !== sessionRef.current) return;
         setBusyBoth(null);
-        if (err?.data?.code === 'EXPIRED') backToStart(messageOf(err));
-        else setError(messageOf(err));
-        if (err?.data?.fallback || !err?.data?.code) setOfferHosted(true);
+        const info = toConnectError(err);
+        if (info.code === 'EXPIRED') backToForm(info);
+        else setError(info);
+        if (info.fallback) setOfferHosted(true);
       },
     );
     call();
   };
 
-  const signIn = ({ username, password }) => runStep(
-    'signin',
-    () => accountController.connectWithCredentials(eventEmitter, { username, password }),
-  );
+  const signIn = (input) => runStep('signin', () => accountController.connectWithCredentials(eventEmitter, input));
 
   const submitCode = (code) => runStep('code', () => accountController.solveCheckpoint(eventEmitter, code));
 
   const tryAnotherWay = () => runStep('another', () => accountController.tryAnotherWay(eventEmitter));
 
+  /** "Use a different account" from a checkpoint — the open sign-in is simply superseded. */
+  const startOver = () => {
+    if (busyRef.current) return;
+    sessionRef.current += 1;
+    backToForm(null);
+  };
+
   const resend = () => {
     if (busyRef.current) return;
     const session = sessionRef.current;
     setBusyBoth('resend');
-    setError('');
+    setError(null);
     setNotice('');
     listenForOne(
       eventEmitter,
@@ -171,13 +215,16 @@ export function useLinkedInConnect({ onConnected } = {}) {
       () => {
         if (session !== sessionRef.current) return;
         setBusyBoth(null);
-        setNotice('Sent again. It can take a minute to arrive.');
+        setNotice(checkpoint?.type === CHECKPOINT_TYPES.IN_APP
+          ? 'Sent again. Check the LinkedIn app on your phone.'
+          : 'Sent again. It can take a minute to arrive — check spam too.');
       },
       (err) => {
         if (session !== sessionRef.current) return;
         setBusyBoth(null);
-        if (err?.data?.code === 'EXPIRED') backToStart(messageOf(err));
-        else setError(messageOf(err));
+        const info = toConnectError(err);
+        if (info.code === 'EXPIRED') backToForm(info);
+        else setError(info);
       },
     );
     accountController.resendCheckpoint(eventEmitter);
@@ -189,7 +236,7 @@ export function useLinkedInConnect({ onConnected } = {}) {
    * completes the sign-in ends here. Skips a tick while another request
    * (resend, try another way) is in flight, and never overlaps itself.
    */
-  const waitingOnApproval = open && step === 'checkpoint' && checkpointType === CHECKPOINT_TYPES.IN_APP;
+  const waitingOnApproval = open && step === 'checkpoint' && checkpoint?.type === CHECKPOINT_TYPES.IN_APP;
   useEffect(() => {
     if (!waitingOnApproval) return undefined;
     const session = sessionRef.current;
@@ -202,7 +249,14 @@ export function useLinkedInConnect({ onConnected } = {}) {
       if (Date.now() - startedAt > APPROVAL_POLL_TIMEOUT_MS) {
         stopped = true;
         clearInterval(timer);
-        if (session === sessionRef.current) backToStart('The approval wasn’t received in time. Sign in again.');
+        if (session === sessionRef.current) {
+          backToForm({
+            code: 'EXPIRED',
+            title: CONNECT_ERROR_TITLES.EXPIRED,
+            message: 'The approval wasn’t received in time. Sign in again and approve within 5 minutes.',
+            field: null,
+          });
+        }
         return;
       }
       inFlight = true;
@@ -226,7 +280,7 @@ export function useLinkedInConnect({ onConnected } = {}) {
           if (err?.data?.code === 'EXPIRED') {
             stopped = true;
             clearInterval(timer);
-            backToStart(messageOf(err));
+            backToForm(toConnectError(err));
           }
         },
       );
@@ -237,21 +291,25 @@ export function useLinkedInConnect({ onConnected } = {}) {
       stopped = true;
       clearInterval(timer);
     };
-  }, [waitingOnApproval, eventEmitter, finish, backToStart]);
+  }, [waitingOnApproval, eventEmitter, finish, backToForm]);
 
   return {
     open,
     step,
-    checkpointType,
+    checkpoint,
+    checkpointType: checkpoint?.type ?? null,
     busy,
     error,
     notice,
     offerHosted,
+    connectedAccount,
+    options,
     openDialog,
     closeDialog,
     signIn,
     submitCode,
     tryAnotherWay,
     resend,
+    startOver,
   };
 }

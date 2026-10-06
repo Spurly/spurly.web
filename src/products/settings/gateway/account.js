@@ -75,10 +75,23 @@ function readStep(res) {
   };
 }
 
-/** POST /hub/account/connect — email + password. Never logged, never stored client-side. */
-async function connectWithCredentials({ username, password }) {
-  const res = await apiGateway.post('/hub/account/connect', { username, password }, { timeout: SIGN_IN_TIMEOUT_MS });
+/**
+ * POST /hub/account/connect — start a native sign-in. `input`:
+ *   { method: 'credentials', username, password }
+ *   { method: 'cookies', accessToken, premiumToken?, userAgent }
+ *   plus sync: { chats, messages } and location:
+ *   { mode: 'auto' } | { mode: 'country', country } | { mode: 'proxy', proxy: { protocol, host, port, username?, password? } }
+ * Never logged, never stored client-side.
+ */
+async function connectWithCredentials(input) {
+  const res = await apiGateway.post('/hub/account/connect', input, { timeout: SIGN_IN_TIMEOUT_MS });
   return readStep(res);
+}
+
+/** GET /hub/account/connect/options — e.g. the country "Automatic" location resolves to. */
+async function getConnectOptions() {
+  const res = await apiGateway.get('/hub/account/connect/options');
+  return res.data?.data ?? {};
 }
 
 /** POST /hub/account/connect/checkpoint — a code, or a phone number written (+91)9876543210. */
@@ -111,6 +124,7 @@ const hubAccountGateway = {
   refresh,
   disconnect,
   connectWithCredentials,
+  getConnectOptions,
   solveCheckpoint,
   tryAnotherWay,
   resendCheckpoint,

@@ -188,12 +188,15 @@ export function Dropdown({
           <ul
             ref={menuRef}
             className={[
-              'fixed z-50 bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-popover)] overflow-y-auto sp-pop',
+              'fixed bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-popover)] overflow-y-auto sp-pop',
               isSm
                 ? 'min-w-[200px] max-w-[280px] rounded-[var(--ui-radius-md)] p-1 max-h-[280px]'
                 : 'rounded-[var(--ui-radius-md)] p-1.5 max-h-[240px]',
             ].join(' ')}
             style={{
+              // The popover layer, above modals: a dropdown inside a dialog
+              // (z 1100) rendered its menu at z-50, BEHIND the dialog.
+              zIndex: 'var(--ui-z-popover)',
               left: position.x,
               top: position.y,
               // Non-sm menus match the full-width trigger's own width rather

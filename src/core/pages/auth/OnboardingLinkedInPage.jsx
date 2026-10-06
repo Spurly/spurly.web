@@ -181,13 +181,16 @@ export default function OnboardingLinkedInPage() {
    * same "confirm, then continue automatically" shape as
    * InstallExtensionPage's install confirmation.
    */
+  // Waits for the connect dialog to close, so its success step is seen
+  // (its "Done" is the "continue").
+  const dialogOpen = connect.open;
   useEffect(() => {
-    if (!connected || advancedRef.current) return undefined;
+    if (!connected || dialogOpen || advancedRef.current) return undefined;
     advancedRef.current = true;
     setOnboardingStage("audience");
     const timer = setTimeout(() => navigate("/onboarding/audience"), CONTINUE_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [connected, navigate, setOnboardingStage]);
+  }, [connected, dialogOpen, navigate, setOnboardingStage]);
 
   function handleConnect() {
     if (connecting) return;

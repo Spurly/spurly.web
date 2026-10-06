@@ -60,8 +60,17 @@ async function nativeStep(eventEmitter, run) {
   }
 }
 
-function connectWithCredentials(eventEmitter, credentials) {
-  return nativeStep(eventEmitter, () => hubAccountGateway.connectWithCredentials(credentials));
+function connectWithCredentials(eventEmitter, input) {
+  return nativeStep(eventEmitter, () => hubAccountGateway.connectWithCredentials(input));
+}
+
+async function getConnectOptions(eventEmitter) {
+  try {
+    const options = await hubAccountGateway.getConnectOptions();
+    eventEmitter.emit(NATIVE_CONNECT_EVENTS.OPTIONS_SUCCESS, options);
+  } catch (error) {
+    eventEmitter.emit(NATIVE_CONNECT_EVENTS.OPTIONS_FAILURE, error);
+  }
 }
 
 function solveCheckpoint(eventEmitter, code) {
@@ -97,6 +106,7 @@ const accountController = {
   refresh,
   disconnect,
   connectWithCredentials,
+  getConnectOptions,
   solveCheckpoint,
   tryAnotherWay,
   checkpointStatus,

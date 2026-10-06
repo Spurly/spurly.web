@@ -179,8 +179,8 @@ export function useLinkedInSettings() {
    * needed here.
    */
   const connect = useLinkedInConnect({
+    // No toast: the dialog's own success step says it, with the account name.
     onConnected: (next) => {
-      toast.success('LinkedIn connected');
       if (next) {
         setAccount(next);
         setLoading(false);
