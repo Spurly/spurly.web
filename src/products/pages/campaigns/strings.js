@@ -12,7 +12,7 @@
 export const campaignsStrings = {
   list: {
     pageTitle: 'Campaigns',
-    pageSubtitle: 'Each campaign pairs an audience with what to send, and runs inside your daily cap. Spurly reports what it did, not what it might do.',
+    pageSubtitle: 'Each campaign pairs an audience with what to send, and runs at a human pace. Spurly reports what it did, not what it might do.',
     newCampaign: 'New campaign',
     sectionTitle: 'Campaigns',
     loading: 'Loading…',

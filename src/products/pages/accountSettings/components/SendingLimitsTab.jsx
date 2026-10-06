@@ -1,76 +1,29 @@
-import { Dropdown, Meter, SwitchRow } from 'src/core/primitives';
+import { Dropdown, SwitchRow } from 'src/core/primitives';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { useLimits } from 'src/core/limits/hooks/useLimits.js';
-import { LIMIT_GROUPS } from 'src/core/limits/constants/constants.js';
 import { settingsStrings as t } from '../strings.js';
 
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => [String(h), `${String(h).padStart(2, '0')}:00`]);
 
-/** "in 12 min" / "in 3 h" / "tomorrow" for the moment a full window frees up. */
-function untilLabel(iso, now = Date.now()) {
-  if (!iso) return null;
-  const ms = new Date(iso).getTime() - now;
-  if (!Number.isFinite(ms) || ms <= 0) return 'now';
-  const min = Math.ceil(ms / 60000);
-  if (min < 60) return `in ${min} min`;
-  const h = Math.round(min / 60);
-  if (h < 24) return `in ${h} h`;
-  return `in ${Math.round(h / 24)} d`;
-}
+/** Connection requests and messages are the two actions shown: what went out, never what is "left". */
+const ACTIVITY_ACTIONS = ['connect', 'message'];
 
-function WindowMeter({ label, win, unlimited = false }) {
+function ActivityRow({ action }) {
   return (
-    <div className="flex flex-col gap-1.5 min-w-0">
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">{label}</span>
-        <span className="ui-num !font-normal text-[length:var(--ui-t-meta)] text-[var(--ui-text-body)]">
-          {unlimited ? `${win.used} sent` : `${win.used}/${win.limit}`}
-        </span>
-      </div>
-      <Meter value={unlimited ? 0 : win.used} max={win.limit || 1} label={label} tone={!unlimited && win.remaining === 0 ? 'warning' : 'accent'} />
-      {!unlimited && win.nextSlotAt && (
-        <span className="text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)]">
-          Next slot {untilLabel(win.nextSlotAt)}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function ActionRow({ action, unlimited = false }) {
-  const status = action.status;
-  const limiting = !status.ok;
-  return (
-    <div className="flex flex-col gap-2.5 py-3 border-b border-[var(--ui-border)] last:border-b-0">
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-[length:var(--ui-t-control)] font-medium text-[var(--ui-text-primary)]">{action.label}</span>
-        <span className="ui-num !font-normal text-[length:var(--ui-t-meta)] text-[var(--ui-text-body)]">
-          {unlimited
-            ? `No limit · ${action.day.used} today · ${action.week.used} this week`
-            : `${action.day.remaining} left today · ${action.week.remaining} left this week`}
-        </span>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <WindowMeter label="This hour" win={{ ...action.hour, nextSlotAt: null }} unlimited={unlimited} />
-        <WindowMeter label="Last 24 hours" win={action.day} unlimited={unlimited} />
-        <WindowMeter label="Last 7 days" win={action.week} unlimited={unlimited} />
-      </div>
-      {limiting && status.message && (
-        <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-[1.5]">
-          <span className="font-medium text-[var(--ui-text-primary)]">{t.limits.reasons[status.reason] || 'Paused'}.</span> {status.message}
-        </p>
-      )}
-      {action.backoff && (
-        <p className="text-[length:var(--ui-t-label)] text-[var(--ui-warning-fg)]">{t.limits.backoff}</p>
-      )}
+    <div className="flex items-center justify-between gap-3 py-3 border-b border-[var(--ui-border)] last:border-b-0">
+      <span className="text-[length:var(--ui-t-control)] font-medium text-[var(--ui-text-primary)]">{action.label}</span>
+      <span className="ui-num !font-normal text-[length:var(--ui-t-meta)] text-[var(--ui-text-body)]">
+        {action.day.used} today · {action.week.used} this week
+      </span>
     </div>
   );
 }
 
 /**
- * Sending limits: the tracker. Everything here is real — one snapshot from
- * GET /api/limits, built by the same engine that gates every send, so the
- * numbers on this screen are the numbers automation obeys.
+ * Sending hours: what went out, when Spurly slows down, and the safety rules.
+ * Everything here is real — one snapshot from GET /api/limits. There are no
+ * allowances to run out of: Spurly spaces sends at an uneven pace on its own,
+ * and the only setting is when it should be quiet.
  */
 export function SendingLimitsTab() {
   const { snapshot, loading, error, saving, saveError, savePreferences } = useLimits();
@@ -90,51 +43,25 @@ export function SendingLimitsTab() {
     );
   }
 
-  const { quiet, ceiling, actions } = snapshot;
-  const limitsOff = snapshot.enforced === false;
+  const { quiet, actions } = snapshot;
+  const activity = ACTIVITY_ACTIONS.map((key) => actions.find((a) => a.action === key)).filter(Boolean);
 
   return (
     <>
-      <SectionCard
-        title={t.limits.overviewTitle}
-        action={
-          <span className="ui-num !font-normal text-[length:var(--ui-t-title)] text-[var(--ui-text-primary)]">
-            {limitsOff ? `${ceiling.used} · no limit` : `${ceiling.used} / ${ceiling.limit}`}
-          </span>
-        }
-      >
+      <SectionCard title={t.limits.overviewTitle}>
         <div className="flex flex-col gap-3.5">
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">{t.limits.ceilingLabel}</span>
-            <Meter value={ceiling.used} max={ceiling.limit} label={t.limits.ceilingLabel} />
+          <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-[1.5]">{t.limits.overviewHint}</p>
+          <div className="flex flex-col">
+            {activity.map((a) => (
+              <ActivityRow key={a.action} action={a} />
+            ))}
           </div>
-          {limitsOff ? (
-            <p className="text-[length:var(--ui-t-label)] text-[var(--ui-warning-fg)] leading-[1.5]">
-              <strong>{t.limits.limitsOffTitle}.</strong> {t.limits.limitsOffHint}
-            </p>
-          ) : (
-            <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-[1.5]">{t.limits.overviewHint}</p>
-          )}
           {!snapshot.connected && (
             <p className="text-[length:var(--ui-t-label)] text-[var(--ui-warning-fg)] leading-[1.5]">{t.limits.notConnected}</p>
           )}
           {error && <p className="text-[length:var(--ui-t-label)] text-[var(--ui-danger-fg)]">{error}</p>}
         </div>
       </SectionCard>
-
-      {LIMIT_GROUPS.map((group) => {
-        const rows = actions.filter((a) => a.group === group.key);
-        if (rows.length === 0) return null;
-        return (
-          <SectionCard key={group.key} title={group.label}>
-            <div className="flex flex-col">
-              {rows.map((a) => (
-                <ActionRow key={a.action} action={a} unlimited={limitsOff} />
-              ))}
-            </div>
-          </SectionCard>
-        );
-      })}
 
       <SectionCard title={t.limits.quietTitle}>
         <div className="flex flex-col gap-3">

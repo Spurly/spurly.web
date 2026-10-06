@@ -58,6 +58,5 @@ export const invitationsStrings = {
     'hourly-cap': 'hourly limit',
     'too-soon': 'pacing',
     'outside-hours': 'outside working hours',
-    'account-ceiling': 'account-wide limit',
   },
 };

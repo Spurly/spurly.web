@@ -2,7 +2,7 @@
 title: How Spurly keeps your LinkedIn account safe
 seoTitle: Is LinkedIn Automation Safe? How Spurly Paces It
 shortTitle: Safety
-description: How Spurly paces LinkedIn automation: daily and hourly limits, random gaps, reply-pause and an honest account of the risk no tool can remove.
+description: How Spurly paces LinkedIn automation: random gaps with no fixed pattern, quiet hours, a safety backstop near LinkedIn's own limit, reply-pause and an honest account of the risk no tool can remove.
 path: /product/safety
 template: product
 date: 2026-10-03
@@ -13,38 +13,37 @@ faq:
   - q: Is LinkedIn automation safe?
     a: No tool can promise that. LinkedIn's User Agreement restricts automation, and LinkedIn can restrict an account at its discretion. Spurly is designed to stay within the limits LinkedIn applies to normal use, and it paces its sends to look like a person, but the risk is never zero.
   - q: Will Spurly get my account banned?
-    a: Spurly cannot promise that it will not. It limits how many connection requests go out per hour and per day, spaces sends out with random gaps and stops when someone replies, which lowers the risk without removing it.
-  - q: Can I change the limits?
-    a: The limits are set by Spurly rather than by each user, and they are adjusted as LinkedIn's behaviour changes.
+    a: Spurly cannot promise that it will not. It spaces sends out with random gaps that follow no fixed pattern, slows down overnight, stays under LinkedIn's own weekly invitation limit and stops when someone replies, which lowers the risk without removing it.
+  - q: Can I change how Spurly spaces my sends?
+    a: You can turn the overnight slowdown on or off and choose its hours under Settings, Sending hours. The spacing itself and the safety backstop are set by Spurly and adjusted as LinkedIn's behaviour changes.
   - q: What if LinkedIn disconnects my account?
     a: Campaigns pause instead of continuing with a broken connection, and you reconnect your account to carry on.
 todo:
-  - Re-check the connection-request limits against backend .github/workflows/deploy.yml (HUB_SEND_DAILY_CAP, UNIPILE_HOURLY_INVITE_CAP, HUB_SEND_MIN_GAP_MS) whenever they change
+  - Re-check the backstop numbers (connect 80 a day and 200 a week, message 100 a day and 500 a week) against backend src/platform/limits/constants/registry.js whenever they change
 ---
 Spurly is designed to stay within LinkedIn's limits, and it paces its sends like a person would. But LinkedIn's User Agreement restricts automation, and no tool can promise an account will never be restricted. This page explains what Spurly does to lower the risk and what it cannot remove.
 
 
-![A Spurly campaign showing the sending window, hourly limit and the weekly invitation allowance. Names are blurred.](/assets/app-campaign-detail.webp)
+![A Spurly campaign showing its sending progress. Names are blurred.](/assets/app-campaign-detail.webp)
 
 ## The honest risk statement
 
 LinkedIn does not allow automation of the kind Spurly performs, and it can restrict or close an account at its own discretion. Spurly does not claim to be undetectable or 100% safe, and you should not trust any tool that does. What Spurly can do is keep your activity modest, regular and human-shaped. That is what the rest of this page describes.
 
-## Connection requests have limits
+## A backstop on connection requests and messages
 
-Every campaign paces connection requests against limits for each connected LinkedIn account. These are the current defaults, which Spurly may tighten at any time:
+Spurly does not hand you an allowance to count down. Sends are spread out on their own, and behind that sits a quiet safety backstop for connection requests and messages only. These are the current numbers, which Spurly may tighten at any time:
 
-| Limit | Default |
+| Backstop | Current value |
 |---|---|
-| Connection requests per day | 80 |
-| Connection requests per hour | 40 |
-| Minimum gap between requests | about 90 seconds, varied by up to 40% either way |
+| Connection requests | 80 a day, 200 a week |
+| Messages | 100 a day, 500 a week |
 
-Connection requests also count against LinkedIn's weekly invitation allowance, which Spurly tracks across Spurly and the Chrome extension together. Start with a small audience: 80 a day is a ceiling, not a target, and it is above the 20 to 40 a day that some vendors suggest for a typical account.
+200 a week is LinkedIn's own weekly invitation limit, so Spurly never goes past it. Connection requests also count against that weekly total across Spurly and the Chrome extension together. If a backstop is reached, sending simply waits and carries on as the day or week rolls over. Other actions, such as follows and likes, are spaced out the same way but have no fixed count. Start with a small audience: the backstop is a ceiling, not a target.
 
 ## Random gaps between actions
 
-Automated actions are spread out rather than sent in bursts. Between actions Spurly leaves a gap that varies from one send to the next instead of a fixed interval, so activity does not look like a timer. A person clicking a button themselves is not paced like this, since that is you, not automation.
+Automated actions are spread out rather than sent in bursts. Between actions Spurly leaves a gap that varies from one send to the next instead of a fixed interval, so activity does not look like a timer. Each day's volume also differs, and weekends are as active as weekdays. Overnight, by default from 11pm to 6am, sends spread out about four times further apart rather than stopping, and you can switch that off or change the hours. A person clicking a button themselves is not paced like this, since that is you, not automation.
 
 ## It stops when someone replies
 
@@ -56,7 +55,7 @@ Spurly records a send before it moves on. If an action may already have gone thr
 
 ## Problems pause the campaign
 
-If LinkedIn disconnects your account, or several actions fail in a row, the campaign pauses instead of working through your audience. You can see why, fix it and restart.
+If LinkedIn disconnects your account, or several actions fail in a row, the campaign pauses instead of working through your audience. You can see why, fix it and restart. If LinkedIn pushes back with a rate-limit error, Spurly backs off for a while before trying again, in campaigns and sequences alike.
 
 ## Optional clean-up of old invitations
 

@@ -134,7 +134,6 @@ export function HubDashboardPage() {
     })),
   ].filter(Boolean);
 
-  const cap = pacing?.dailyCap;
   const used = pacing?.dayUsed ?? 0;
 
   return (
@@ -260,8 +259,7 @@ export function HubDashboardPage() {
               <StatTile
                 label={t.metrics.invitesToday}
                 value={used.toLocaleString()}
-                max={cap || null}
-                caption={cap ? `${Math.max(0, cap - used)} left before the daily cap` : 'No daily cap set'}
+                caption="Connection requests sent today"
               />
               <StatTile
                 label={t.metrics.connectRate}

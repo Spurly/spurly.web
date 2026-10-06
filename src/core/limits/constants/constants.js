@@ -10,13 +10,5 @@ export const LIMITS_EVENTS = {
   SAVE_FAILURE: 'LIMITS_SAVE_FAILURE',
 };
 
-/** How often the tracker refreshes while the Sending limits tab is open. */
+/** How often the tracker refreshes while the Sending hours tab is open. */
 export const LIMITS_POLL_MS = 60 * 1000;
-
-/** Which action groups the tracker shows, in order, with their headings. */
-export const LIMIT_GROUPS = [
-  { key: 'outreach', label: 'Outreach' },
-  { key: 'engagement', label: 'Engagement' },
-  { key: 'content', label: 'Publishing' },
-  { key: 'inbox', label: 'Inbox housekeeping' },
-];

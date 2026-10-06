@@ -98,7 +98,7 @@ export function AdminLimitsPage() {
     function onSwitched(res) {
       setSwitching(false);
       setConfirmOff(false);
-      toast.success(res?.enforcement?.enforced === false ? 'Limits are off for every user' : 'Limits are on');
+      toast.success(res?.enforcement?.enforced === false ? 'Caps are off for every user' : 'Caps are on');
       fetchLimits();
     }
     function onSwitchFailed(err) {
@@ -217,17 +217,17 @@ export function AdminLimitsPage() {
             >
               <div className="max-w-2xl">
                 <div className="font-medium text-[var(--ui-text-primary)]">
-                  {enforced ? 'Limits are on' : 'Limits are OFF for every user'}
+                  {enforced ? 'Caps are on' : 'Caps are OFF for every user'}
                 </div>
                 <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
                   {enforced
-                    ? 'Turning limits off lets every user run campaigns, sequences and the extension with no caps, pacing or quiet hours. Usage is still recorded so you can analyse it. LinkedIn can restrict accounts that send this much.'
-                    : 'Nothing is being capped or paced right now. Usage is still recorded. Turn limits back on once the new numbers are set.'}
+                    ? 'Turning caps off removes the connect and message backstop for every user. Sends are still spaced randomly, with quiet hours as each user set them. Usage is still recorded so you can analyse it. LinkedIn can restrict accounts that send this much.'
+                    : 'Nothing is being capped right now; sends are still spaced. Usage is still recorded. Turn caps back on once the new numbers are set.'}
                 </p>
               </div>
               {enforced && !confirmOff && (
                 <Button variant="secondary" onClick={() => setConfirmOff(true)}>
-                  Turn all limits off
+                  Turn all caps off
                 </Button>
               )}
               {enforced && confirmOff && (
@@ -248,9 +248,9 @@ export function AdminLimitsPage() {
             </div>
 
             <p className="text-[var(--ui-text-secondary)] text-[length:var(--ui-t-body)]">
-              These numbers apply to every plan. Edit a row to change it for all users. Values above the hard max are
-              clamped. Changes apply within about a minute. The account-wide daily ceiling for risky automated actions
-              is {data.accountCeiling}.
+              Only connection requests and messages are capped, as a silent backstop near LinkedIn's own limit. Every
+              other action is paced only: random gaps and quiet hours, no cap. Edit a row to change it for all users.
+              Values above the hard max are clamped. Changes apply within about a minute.
             </p>
 
             <div className="overflow-x-auto border border-[var(--ui-border-hairline)] rounded-[var(--ui-radius-md)] bg-[var(--ui-surface-card)]">
@@ -277,18 +277,24 @@ export function AdminLimitsPage() {
                           <code className="text-[var(--ui-text-quaternary)]">{r.action}</code>
                           {o && <span className="ml-2 text-[var(--ui-warning-fg)]">overridden</span>}
                         </td>
-                        {FIELDS.map((f) => (
-                          <td key={f} className="px-4 py-3">
-                            <input
-                              type="number"
-                              min="0"
-                              aria-label={`${r.label} ${f}`}
-                              value={d[f] ?? ''}
-                              onChange={(e) => edit(r.action, f, e.target.value)}
-                              className={`w-20 ${INPUT}`}
-                            />
+                        {r.capped ? (
+                          FIELDS.map((f) => (
+                            <td key={f} className="px-4 py-3">
+                              <input
+                                type="number"
+                                min="0"
+                                aria-label={`${r.label} ${f}`}
+                                value={d[f] ?? ''}
+                                onChange={(e) => edit(r.action, f, e.target.value)}
+                                className={`w-20 ${INPUT}`}
+                              />
+                            </td>
+                          ))
+                        ) : (
+                          <td colSpan={FIELDS.length} className="px-4 py-3 text-[var(--ui-text-tertiary)]">
+                            Paced only, no cap
                           </td>
-                        ))}
+                        )}
                         <td className="px-4 py-3">
                           <input
                             type="number"
@@ -300,9 +306,15 @@ export function AdminLimitsPage() {
                           />
                         </td>
                         <td className="px-4 py-3 text-[var(--ui-text-tertiary)]">
-                          {r.hour}/{r.day}/{r.week}, {fmtGap(r.minGapMs)}
-                          <br />
-                          max {r.max.hour}/{r.max.day}/{r.max.week}
+                          {r.capped ? (
+                            <>
+                              {r.hour}/{r.day}/{r.week}, {fmtGap(r.minGapMs)}
+                              <br />
+                              max {r.max.hour}/{r.max.day}/{r.max.week}
+                            </>
+                          ) : (
+                            <>gap {fmtGap(r.minGapMs)}</>
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">

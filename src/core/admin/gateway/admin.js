@@ -235,7 +235,7 @@ export async function getUserPayments(userId) {
 }
 
 /**
- * Sending limits. GET returns { registry, overrides, accountCeiling, quietDefaults }.
+ * Sending limits. GET returns { registry, overrides, enforcement, quietDefaults }.
  * An override is { scope: 'global' | 'user', userId?, action, hour?, day?, week?, minGapMs?, note? };
  * values above a registry max are clamped by the backend.
  */

@@ -7,7 +7,7 @@
  * and toast messages built from a request's result stay inline where
  * they're assembled.
  */
-const pageSubtitle = 'Steps Spurly runs for everyone you enroll — visit, connect, wait, message — paced inside your daily cap.';
+const pageSubtitle = 'Steps Spurly runs for everyone you enroll — visit, connect, wait, message — spaced like a person would.';
 
 export const sequencesStrings = {
   list: {

@@ -239,23 +239,21 @@ function ExtensionAlert({ state, expanded }) {
 }
 
 /**
- * Daily cap + credits — the two readings Spurly runs against, stacked in the
- * sidebar footer exactly as the handoff draws them: a micro-caps label with
- * its mono figure, the one meter under the cap, and the credit balance as a
+ * Sent today + credits — the two readings stacked in the sidebar footer: a
+ * micro-caps label with its mono figure, and the credit balance as a
  * standalone mono reading (no meter — there is no plan maximum to draw a
- * denominator from).
+ * denominator from). "Sent today" is a plain count: there is no daily cap to
+ * measure it against, so there is no meter and no warning tone.
  */
-function Readings({ expanded, dayUsed, dailyCap, balance, onTopUp }) {
-  const hasCap = dayUsed != null && !!dailyCap;
-  const pct = hasCap ? Math.min(100, Math.round((dayUsed / dailyCap) * 100)) : 0;
-  const near = pct >= 80;
+function Readings({ expanded, dayUsed, balance, onTopUp }) {
+  const hasSent = dayUsed != null;
   const lowCredits = balance <= 20;
 
   if (!expanded) {
     return (
       <div className="flex flex-col items-center gap-1 py-1">
-        {hasCap && (
-          <Tooltip content={`${dayUsed}/${dailyCap} sent today`} placement="right">
+        {hasSent && (
+          <Tooltip content={`${dayUsed} sent today`} placement="right">
             <span className="ui-num text-[length:var(--ui-t-micro)] text-[var(--ui-text-secondary)] cursor-default">{dayUsed}</span>
           </Tooltip>
         )}
@@ -273,23 +271,13 @@ function Readings({ expanded, dayUsed, dailyCap, balance, onTopUp }) {
 
   return (
     <div className="px-2.5 pt-1 pb-2">
-      {hasCap && (
-        <>
-          <div className="flex items-baseline justify-between gap-2">
-            <span className="ui-micro !text-[length:var(--ui-t-micro)] !text-[var(--ui-text-secondary)]">Daily cap</span>
-            <span
-              className="ui-num !font-normal text-[length:var(--ui-t-meta)]"
-              style={{ color: near ? "var(--ui-warning-fg)" : "var(--ui-text-secondary)" }}
-            >
-              {dayUsed}/{dailyCap}
-            </span>
-          </div>
-          <div className="ui-meter mt-1.5" data-tone={near ? "warning" : undefined}>
-            <i style={{ width: `${pct}%` }} />
-          </div>
-        </>
+      {hasSent && (
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="ui-micro !text-[length:var(--ui-t-micro)] !text-[var(--ui-text-secondary)]">Sent today</span>
+          <span className="ui-num !font-normal text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)]">{dayUsed}</span>
+        </div>
       )}
-      <div className={`flex items-baseline justify-between gap-2 ${hasCap ? "mt-3" : ""}`}>
+      <div className={`flex items-baseline justify-between gap-2 ${hasSent ? "mt-3" : ""}`}>
         <span className="ui-micro !text-[length:var(--ui-t-micro)] !text-[var(--ui-text-secondary)]">Credits</span>
         <button
           type="button"
@@ -633,7 +621,6 @@ export function DashboardLayout({
           <Readings
             expanded={expanded}
             dayUsed={summary.pacing.dayUsed}
-            dailyCap={summary.pacing.dailyCap}
             balance={user?.creditBalance ?? 0}
             onTopUp={() => navigate("/dashboard/settings")}
           />
