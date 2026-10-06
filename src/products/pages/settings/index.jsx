@@ -6,13 +6,14 @@ import { useAccountHealth } from 'src/products/settings/hooks/useAccountHealth.j
 import { ConnectionCard } from './components/ConnectionCard.jsx';
 import { AccountHealthCard } from './components/AccountHealthCard.jsx';
 import { FreeAccountNotice } from './components/FreeAccountNotice.jsx';
+import { LinkedInConnectDialog } from 'src/products/settings/components/LinkedInConnectDialog.jsx';
 import { linkedInSettingsStrings as t } from './strings.js';
 
 /**
  * LinkedIn connection settings.
  *
- * A separate page rather than a tab on Settings: the server's hosted-auth
- * flow already redirects back here, and keeping it separate from the general
+ * Connecting opens our own sign-in dialog (LinkedInConnectDialog); the
+ * server's hosted-auth flow is the fallback and still redirects back here, and keeping it separate from the general
  * account Settings page keeps that page focused on account-wide fields.
  *
  * The state that matters is not "connected / not connected" — it is closer to
@@ -20,7 +21,16 @@ import { linkedInSettingsStrings as t } from './strings.js';
  * wrong is how a user ends up staring at "Connected" while nothing sends.
  */
 export function LinkedInSettingsPage() {
-  const { account, loading, busy, handleConnect, handleRefresh, handleDisconnect } = useLinkedInSettings();
+  const {
+    account,
+    loading,
+    busy,
+    connect,
+    handleConnect,
+    handleUseHosted,
+    handleRefresh,
+    handleDisconnect,
+  } = useLinkedInSettings();
   // Only once something is linked and alive; a dead row reads as not connected.
   const health = useAccountHealth(Boolean(account?.connected));
 
@@ -54,6 +64,7 @@ export function LinkedInSettingsPage() {
             {account?.connected && !account?.isPremium && <FreeAccountNotice />}
           </>
         )}
+        <LinkedInConnectDialog connect={connect} onUseHosted={handleUseHosted} hostedBusy={busy} />
     </SettingsFrame>
   );
 }

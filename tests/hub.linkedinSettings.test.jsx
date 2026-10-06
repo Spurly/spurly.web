@@ -65,13 +65,22 @@ describe('LinkedInSettingsPage', () => {
     queue.length = 0;
   });
 
-  it('offers the hosted flow when nothing is connected, and promises the password is never stored', async () => {
+  it('offers to connect when nothing is connected, and promises the password is never stored', async () => {
     renderWithProviders(<LinkedInSettingsPage />, { route: ROUTE });
 
     await waitFor(() => expect(screen.getByText('Not connected')).toBeInTheDocument());
     expect(screen.getByRole('button', { name: /connect linkedin/i })).toBeInTheDocument();
-    // This sentence is the reason hosted auth was chosen over a credentials
-    // form. If it ever disappears, the flow behind it has probably changed too.
+    // The native form passes the password through to LinkedIn; it never stores
+    // it. It does SEE it, so the hosted page's stronger promise must not show.
+    expect(screen.getByText(/never stores your password/i)).toBeInTheDocument();
+    expect(screen.queryByText(/never sees or stores/i)).not.toBeInTheDocument();
+  });
+
+  it('keeps the hosted page’s promise when the server switches to the hosted flow', async () => {
+    state.account = { connected: false, status: null, connectFlow: 'hosted' };
+    renderWithProviders(<LinkedInSettingsPage />, { route: ROUTE });
+
+    await waitFor(() => expect(screen.getByText('Not connected')).toBeInTheDocument());
     expect(screen.getByText(/never sees or stores your password/i)).toBeInTheDocument();
   });
 

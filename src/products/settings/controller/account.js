@@ -1,5 +1,5 @@
 import hubAccountGateway from '../gateway/account.js';
-import { ACCOUNT_EVENTS } from '../constants/constants.js';
+import { ACCOUNT_EVENTS, NATIVE_CONNECT_EVENTS } from '../constants/constants.js';
 
 /**
  * Hub account controller — the one thing the settings page/hook is allowed
@@ -45,5 +45,71 @@ async function disconnect(eventEmitter) {
   }
 }
 
-const accountController = { get, createLink, refresh, disconnect };
+/**
+ * Native sign-in steps. Each emits NATIVE_CONNECT_EVENTS.STEP_SUCCESS with
+ * { state, checkpoint, account } or STEP_FAILURE with the server body — the
+ * hook does not need to know which step answered, because every step can
+ * answer with any next state.
+ */
+async function nativeStep(eventEmitter, run) {
+  try {
+    const step = await run();
+    eventEmitter.emit(NATIVE_CONNECT_EVENTS.STEP_SUCCESS, step);
+  } catch (error) {
+    eventEmitter.emit(NATIVE_CONNECT_EVENTS.STEP_FAILURE, error);
+  }
+}
+
+function connectWithCredentials(eventEmitter, input) {
+  return nativeStep(eventEmitter, () => hubAccountGateway.connectWithCredentials(input));
+}
+
+async function getConnectOptions(eventEmitter) {
+  try {
+    const options = await hubAccountGateway.getConnectOptions();
+    eventEmitter.emit(NATIVE_CONNECT_EVENTS.OPTIONS_SUCCESS, options);
+  } catch (error) {
+    eventEmitter.emit(NATIVE_CONNECT_EVENTS.OPTIONS_FAILURE, error);
+  }
+}
+
+function solveCheckpoint(eventEmitter, code) {
+  return nativeStep(eventEmitter, () => hubAccountGateway.solveCheckpoint(code));
+}
+
+function tryAnotherWay(eventEmitter) {
+  return nativeStep(eventEmitter, () => hubAccountGateway.tryAnotherWay());
+}
+
+/** Polling has its own events so a late poll answer can never be read as a step's answer. */
+async function checkpointStatus(eventEmitter) {
+  try {
+    const step = await hubAccountGateway.checkpointStatus();
+    eventEmitter.emit(NATIVE_CONNECT_EVENTS.POLL_SUCCESS, step);
+  } catch (error) {
+    eventEmitter.emit(NATIVE_CONNECT_EVENTS.POLL_FAILURE, error);
+  }
+}
+
+async function resendCheckpoint(eventEmitter) {
+  try {
+    const data = await hubAccountGateway.resendCheckpoint();
+    eventEmitter.emit(NATIVE_CONNECT_EVENTS.RESEND_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(NATIVE_CONNECT_EVENTS.RESEND_FAILURE, error);
+  }
+}
+
+const accountController = {
+  get,
+  createLink,
+  refresh,
+  disconnect,
+  connectWithCredentials,
+  getConnectOptions,
+  solveCheckpoint,
+  tryAnotherWay,
+  checkpointStatus,
+  resendCheckpoint,
+};
 export default accountController;

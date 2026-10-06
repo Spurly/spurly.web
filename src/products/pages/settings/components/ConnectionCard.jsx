@@ -7,6 +7,7 @@ import { linkedInSettingsStrings as t } from '../strings.js';
 export function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconnect }) {
   const connected = Boolean(account?.status) && account.status !== 'DELETED';
   const view = STATUS_VIEW[account?.status] ?? null;
+  const hosted = account?.connectFlow === 'hosted';
 
   if (!connected) {
     return (
@@ -28,9 +29,9 @@ export function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconne
           </div>
 
           <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
-            {t.notConnected.authNoteBefore}
+            {hosted ? t.notConnected.hostedAuthNoteBefore : t.notConnected.authNoteBefore}
             <span className="text-[var(--ui-text-primary)] font-medium">
-              {t.notConnected.authNoteBold}
+              {hosted ? t.notConnected.hostedAuthNoteBold : t.notConnected.authNoteBold}
             </span>
           </p>
 

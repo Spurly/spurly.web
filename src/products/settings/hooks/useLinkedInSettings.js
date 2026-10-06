@@ -4,6 +4,7 @@ import { useToast, useConfirm } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import accountController from '../controller/account.js';
+import { useLinkedInConnect } from './useLinkedInConnect.js';
 import {
   ACCOUNT_EVENTS,
   POLL_INTERVAL_MS,
@@ -172,7 +173,29 @@ export function useLinkedInSettings() {
     return () => clearInterval(pollRef.current);
   }, [account?.status, load, eventEmitter]);
 
-  const handleConnect = () => {
+  /**
+   * Native sign-in (our own form) — the default. On success the server has
+   * already bound the account and answers with its view, so no vendor pull is
+   * needed here.
+   */
+  const connect = useLinkedInConnect({
+    // No toast: the dialog's own success step says it, with the account name.
+    onConnected: (next) => {
+      if (next) {
+        setAccount(next);
+        setLoading(false);
+      } else {
+        load();
+      }
+    },
+  });
+
+  /**
+   * The hosted sign-in page — the original flow, kept as the fallback. Used
+   * directly when the server says connectFlow is 'hosted' (the global switch),
+   * or from the native dialog when that cannot finish.
+   */
+  const handleConnectHosted = () => {
     if (busy) return;
 
     /**
@@ -200,6 +223,18 @@ export function useLinkedInSettings() {
       toast.error(getToastError(err, 'Could not start the LinkedIn connection'));
     });
     accountController.createLink(eventEmitter);
+  };
+
+  const handleConnect = () => {
+    if (busy) return;
+    if (account?.connectFlow === 'hosted') handleConnectHosted();
+    else connect.openDialog();
+  };
+
+  /** From inside the native dialog: close it and open the hosted page instead. */
+  const handleUseHosted = () => {
+    connect.closeDialog();
+    handleConnectHosted();
   };
 
   const handleRefresh = () => {
@@ -241,5 +276,15 @@ export function useLinkedInSettings() {
     accountController.disconnect(eventEmitter);
   };
 
-  return { account, loading, busy, handleConnect, handleRefresh, handleDisconnect };
+  return {
+    account,
+    loading,
+    busy,
+    connect,
+    handleConnect,
+    handleConnectHosted,
+    handleUseHosted,
+    handleRefresh,
+    handleDisconnect,
+  };
 }

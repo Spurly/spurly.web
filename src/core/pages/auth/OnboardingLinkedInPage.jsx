@@ -6,6 +6,8 @@ import { getToastError } from "src/shared/utils/apiError";
 import EventEmitter from "src/shared/utils/EventEmitter.js";
 import accountController from "src/products/settings/controller/account.js";
 import { ACCOUNT_EVENTS } from "src/products/settings/constants/constants.js";
+import { useLinkedInConnect } from "src/products/settings/hooks/useLinkedInConnect.js";
+import { LinkedInConnectDialog } from "src/products/settings/components/LinkedInConnectDialog.jsx";
 import { AuthShell, WelcomeAside, Stepper } from "./components/AuthShell.jsx";
 import {
   LinkedInIcon,
@@ -38,12 +40,21 @@ const RETRY_MAX_ATTEMPTS = 2;
 /** How long the "Connected!" message shows before moving on. */
 const CONTINUE_DELAY_MS = 1200;
 
-const WHY = [
-  {
+/** The first promise depends on the connect flow -- the two make different ones. */
+const PASSWORD_PROMISE = {
+  credentials: {
+    Icon: ShieldIcon,
+    t: "Your password is never stored",
+    d: "It's used once to sign in to LinkedIn, then thrown away.",
+  },
+  hosted: {
     Icon: ShieldIcon,
     t: "Your password stays on LinkedIn",
     d: "Spurly never sees it -- you sign in on LinkedIn's own page.",
   },
+};
+
+const WHY_REST = [
   {
     Icon: TargetIcon,
     t: "Builds your first audience",
@@ -72,6 +83,19 @@ export default function OnboardingLinkedInPage() {
   const [connecting, setConnecting] = useState(false);
   const [checkingAgain, setCheckingAgain] = useState(false);
   const [waitingOnCallback, setWaitingOnCallback] = useState(false);
+  // The native sign-in bound an account just now. It can still read
+  // CONNECTING for a few seconds while LinkedIn syncs, which is no reason to
+  // keep someone who has just signed in on this step.
+  const [justConnected, setJustConnected] = useState(false);
+
+  /** Our own sign-in form (the default); the hosted page is its fallback. */
+  const connect = useLinkedInConnect({
+    onConnected: (next) => {
+      if (next) setAccount(next);
+      setJustConnected(true);
+    },
+  });
+  const hostedFlow = account?.connectFlow === "hosted";
 
   const advancedRef = useRef(false);
 
@@ -149,7 +173,7 @@ export default function OnboardingLinkedInPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  const connected = Boolean(account?.connected);
+  const connected = Boolean(account?.connected) || justConnected;
 
   /**
    * Whatever got us here (already connected on load, or the redirect pull
@@ -157,15 +181,31 @@ export default function OnboardingLinkedInPage() {
    * same "confirm, then continue automatically" shape as
    * InstallExtensionPage's install confirmation.
    */
+  // Waits for the connect dialog to close, so its success step is seen
+  // (its "Done" is the "continue").
+  const dialogOpen = connect.open;
   useEffect(() => {
-    if (!connected || advancedRef.current) return undefined;
+    if (!connected || dialogOpen || advancedRef.current) return undefined;
     advancedRef.current = true;
     setOnboardingStage("audience");
     const timer = setTimeout(() => navigate("/onboarding/audience"), CONTINUE_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [connected, navigate, setOnboardingStage]);
+  }, [connected, dialogOpen, navigate, setOnboardingStage]);
 
   function handleConnect() {
+    if (connecting) return;
+    if (hostedFlow) handleConnectHosted();
+    else connect.openDialog();
+  }
+
+  /** From inside the native dialog: close it and use the hosted page instead. */
+  function handleUseHosted() {
+    connect.closeDialog();
+    handleConnectHosted();
+  }
+
+  /** The hosted sign-in page -- the original flow, now the fallback. */
+  function handleConnectHosted() {
     if (connecting) return;
 
     // Opened NOW, synchronously, so the browser doesn't treat it as a
@@ -259,8 +299,12 @@ export default function OnboardingLinkedInPage() {
           <div className="sp-store">
             <LinkedInIcon s={40} />
             <div>
-              <div className="sp-store__name">Sign in on LinkedIn's own page</div>
-              <div className="sp-store__ver">Your credentials never reach Spurly</div>
+              <div className="sp-store__name">
+                {hostedFlow ? "Sign in on LinkedIn's own page" : "Sign in with your LinkedIn account"}
+              </div>
+              <div className="sp-store__ver">
+                {hostedFlow ? "Your credentials never reach Spurly" : "Your password is never stored"}
+              </div>
             </div>
           </div>
         )}
@@ -268,7 +312,7 @@ export default function OnboardingLinkedInPage() {
         <div className="sp-howto">
           <div className="sp-howto__h">Why connect</div>
           <div className="sp-installsteps">
-            {WHY.map((w) => (
+            {[PASSWORD_PROMISE[hostedFlow ? "hosted" : "credentials"], ...WHY_REST].map((w) => (
               <div className="sp-istep" key={w.t}>
                 <span className="sp-istep__num">
                   <w.Icon s={16} />
@@ -289,9 +333,9 @@ export default function OnboardingLinkedInPage() {
             onClick={handleConnect}
             disabled={connecting || loading}
           >
-            {connecting ? (
+            {connecting || connect.open ? (
               <>
-                <span className="sp-spin" /> Opening LinkedIn…
+                <span className="sp-spin" /> {connecting ? "Opening LinkedIn…" : "Signing in…"}
               </>
             ) : waitingOnCallback ? (
               <>
@@ -328,6 +372,7 @@ export default function OnboardingLinkedInPage() {
           </button>
         )}
       </div>
+      <LinkedInConnectDialog connect={connect} onUseHosted={handleUseHosted} hostedBusy={connecting} />
     </AuthShell>
   );
 }
