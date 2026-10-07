@@ -10,7 +10,7 @@
  */
 export const inboxStrings = {
   pageTitle: 'Inbox',
-  pageSubtitle: 'Replies only. A conversation lands here the moment someone answers.',
+  pageSubtitle: 'Every LinkedIn conversation, synced live — messages you send and replies you get.',
   refreshTitle: 'Check for new messages',
   search: {
     placeholder: 'Search conversations',
