@@ -72,7 +72,7 @@ export function formatFollowers(n) {
  *
  * Status is DERIVED from real fields, never guessed: a 1st-degree lead is
  * Connected; one with an invitation out is Invited; everyone else is New.
- * Last activity is the invitation if there is one, else when the lead was
+ * Last activity is the latest invite / message sent, else when the lead was
  * imported. The LinkedIn link lives on the lead drawer (one click away) —
  * the handoff's table has no link column.
  *
@@ -101,7 +101,12 @@ function StatusCell({ row }) {
 }
 
 function activityOf(row = {}) {
-  if (row.pendingInvitationSentAt) return { label: 'Invite sent', at: row.pendingInvitationSentAt };
+  // Whichever of invite / message happened most recently; else the import.
+  const sent = [
+    row.pendingInvitationSentAt && { label: 'Invite sent', at: row.pendingInvitationSentAt },
+    row.lastMessageSentAt && { label: 'Message sent', at: row.lastMessageSentAt },
+  ].filter(Boolean);
+  if (sent.length > 0) return sent.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
   if (row.createdAt) return { label: 'Imported', at: row.createdAt };
   return { label: null, at: null };
 }

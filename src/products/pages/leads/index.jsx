@@ -20,6 +20,7 @@ import { LeadDrawer } from "./components/LeadDrawer.jsx";
 import { NewAudienceModal } from "./components/NewAudienceModal.jsx";
 import { AudiencePicker } from "./components/AudiencePicker.jsx";
 import { DegreeFilter } from "./components/DegreeFilter.jsx";
+import { ActivityFilter } from "./components/ActivityFilter.jsx";
 import { DuplicateSearchDialog, FetchMoreDialog, NewListDialog } from "./components/SourcingDialogs.jsx";
 import { leadsStrings as t } from "./strings.js";
 
@@ -49,6 +50,8 @@ export function HubLeadsPage() {
     setQuery,
     connectionDegree,
     setConnectionDegree,
+    activityType,
+    setActivityType,
     loading,
     submitting,
     needsAccount,
@@ -207,6 +210,7 @@ export function HubLeadsPage() {
   const picker = (
     <>
       <DegreeFilter value={connectionDegree} onChange={setConnectionDegree} />
+      <ActivityFilter value={activityType} onChange={setActivityType} />
       <AudiencePicker
         searches={searches}
         activeSearchId={activeSearchId}

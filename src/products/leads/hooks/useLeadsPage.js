@@ -42,6 +42,9 @@ export function useLeadsPage() {
   // filtering only the page already in memory would silently hide matches
   // sitting on other pages.
   const [connectionDegree, setConnectionDegree] = useState([]);
+  // "Last activity" type filter — an array of 'invite' / 'message', sent
+  // comma-separated. Server-side for the same pagination reason as above.
+  const [activityType, setActivityType] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [needsAccount, setNeedsAccount] = useState(false);
@@ -144,10 +147,11 @@ export function useLeadsPage() {
       searchId: activeSearchId,
       q: query,
       connectionDegree: connectionDegree.length > 0 ? connectionDegree.join(',') : undefined,
+      activityType: activityType.length > 0 ? activityType.join(',') : undefined,
       page,
       limit: PAGE_SIZE,
     });
-  }, [activeSearchId, query, connectionDegree, toast]);
+  }, [activeSearchId, query, connectionDegree, activityType, toast]);
 
   useEffect(() => {
     loadSearches();
@@ -699,6 +703,8 @@ export function useLeadsPage() {
     setQuery,
     connectionDegree,
     setConnectionDegree,
+    activityType,
+    setActivityType,
     loading,
     submitting,
     needsAccount,

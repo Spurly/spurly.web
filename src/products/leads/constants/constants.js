@@ -37,3 +37,9 @@ export const DEFAULT_FETCH_COUNT = 30;
 
 /** Default "followers to import" — bigger than a search's: a follower list is cheap to page and the audience is usually the point. */
 export const DEFAULT_FOLLOWERS_COUNT = 100;
+
+/** Options for the table's "Last activity" type filter (server param `activityType`). */
+export const ACTIVITY_TYPES = [
+  { value: 'invite', label: 'Invite sent' },
+  { value: 'message', label: 'Message sent' },
+];

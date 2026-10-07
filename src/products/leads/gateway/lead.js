@@ -155,12 +155,14 @@ async function deleteSearch(id, { deleteLeads = false } = {}) {
  * table is paginated, so filtering only what's already loaded would miss
  * matches on other pages.
  */
-async function listLeads({ searchId, q, enrichmentStatus, connectionDegree, page = 1, limit = 50 } = {}) {
+async function listLeads({ searchId, q, enrichmentStatus, connectionDegree, activityType, page = 1, limit = 50 } = {}) {
   const params = { page, limit };
   if (searchId) params.searchId = searchId;
   if (q) params.q = q;
   if (enrichmentStatus) params.enrichmentStatus = enrichmentStatus;
   if (connectionDegree) params.connectionDegree = connectionDegree;
+  // Comma-separated 'invite,message' — leads we have invited / messaged.
+  if (activityType) params.activityType = activityType;
   const res = await apiGateway.get('/hub/leads', { params });
   const data = res.data?.data ?? { leads: [], pagination: { page: 1, limit, total: 0 } };
   return { ...data, leads: Lead.fromList(data.leads ?? []) };
