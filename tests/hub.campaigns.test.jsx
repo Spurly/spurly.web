@@ -111,6 +111,7 @@ const aDetail = (over = {}) => ({
   account: { status: 'OK', isPremium: false, notesAllowed: false, noteCap: 200, ...over.account },
   sender: { expected: true, stale: false, lastRunAt: new Date().toISOString(), staleAfterMs: 300000, ...over.sender },
   pacing: {
+    action: 'connect',
     ok: false,
     reason: 'outside-hours',
     message: 'Outside your sending hours — this picks up again in the next window.',

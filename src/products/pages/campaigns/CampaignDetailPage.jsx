@@ -139,7 +139,7 @@ export function CampaignDetailPage() {
             : '24/7',
         },
         { label: 'Timezone', value: data.pacing.timezone.replace('_', ' ') },
-        { label: 'Hourly cap', value: `${data.pacing.hourlyCap} / hour` },
+        { label: 'Daily limit', value: `${data.pacing.dayUsed} / ${data.pacing.dailyCap}` },
         {
           label: 'Sender',
           value: data.sender?.expected && data.sender.stale
@@ -301,7 +301,7 @@ export function CampaignDetailPage() {
                     valueLabel={`${data.pacing.weekUsed} / ${data.pacing.weeklyLimit}`}
                     value={data.pacing.weekUsed}
                     max={data.pacing.weeklyLimit}
-                    caption="LinkedIn counts invitations per person, so anything sent from the extension spends the same allowance."
+                    caption={isMessage ? 'Counted across everything you send, including from the extension.' : 'LinkedIn counts invitations per person, so anything sent from the extension spends the same allowance.'}
                   />
                 </div>
               </RailCard>

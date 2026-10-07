@@ -38,12 +38,11 @@ export function PacingBanner({ campaign, pacing, sender }) {
           {pacing.quiet?.enabled
             ? `Slower ${pacing.quiet.startHour}:00–${pacing.quiet.endHour}:00 ${pacing.timezone.replace('_', ' ')}`
             : 'Around the clock'} ·
-          {' '}up to {pacing.hourlyCap}/hour ·
-          {' '}{pacing.weekUsed} of {pacing.weeklyLimit} invitations used this week
+          {' '}up to {pacing.dailyCap}/day ·
+          {' '}{pacing.weekUsed} of {pacing.weeklyLimit} {pacing.action === 'message' ? 'messages' : 'invitations'} used this week
           {/* Said explicitly because the number will not match this campaign's
-              own count, and the difference is the whole point: LinkedIn counts
-              invitations per person, so anything sent from the extension is
-              spending the same allowance. */}
+              own count: the allowance is per action across everything the user
+              sends, including the extension. */}
           {' '}across everything you send.
         </p>
         {/* The heartbeat, stated quietly when it is fine. A campaign that is
