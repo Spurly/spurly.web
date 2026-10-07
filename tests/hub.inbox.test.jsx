@@ -157,6 +157,19 @@ describe('an empty inbox says WHY it is empty', () => {
     expect(screen.queryByRole('button', { name: /sync now/i })).not.toBeInTheDocument();
   });
 
+  it('says a first sync is waiting in line, not working, once it has been queued a while', async () => {
+    summary = aSummary({
+      sync: { status: 'queued', phase: 'chats', chatsSeen: 0, messagesImported: 0, error: '', waitingSince: new Date(Date.now() - 10 * 60 * 1000).toISOString() },
+      chats: 0,
+      unread: 0,
+    });
+    chats = [];
+    renderAt('/hub/inbox');
+
+    expect(await screen.findByText(/Waiting for your sync to start/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Fetching your conversations/i)).not.toBeInTheDocument();
+  });
+
   it('surfaces the reason a sweep failed instead of a generic empty', async () => {
     summary = aSummary({ sync: { status: 'failed', phase: 'chats', chatsSeen: 0, messagesImported: 0, error: 'Your LinkedIn connection needs attention.' }, chats: 0, unread: 0 });
     chats = [];

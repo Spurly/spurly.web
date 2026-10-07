@@ -39,6 +39,15 @@ export function emptyStateFor(summary) {
       sync: true,
     };
   }
+  // Queued and never run is a different state from "working": nothing has
+  // started, and a minute or two of that is normal but ten is not. Saying so
+  // beats a spinner that implies progress.
+  if (summary.sync.waitingSince && Date.now() - new Date(summary.sync.waitingSince).getTime() > 90 * 1000) {
+    return {
+      title: 'Waiting for your sync to start',
+      hint: 'Your conversations are queued and will start fetching shortly. You can leave this page — they will be here when it finishes.',
+    };
+  }
   if (summary.sync.status !== 'done') {
     return {
       title: 'Fetching your conversations',
