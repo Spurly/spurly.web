@@ -161,7 +161,7 @@ async function listLeads({ searchId, q, enrichmentStatus, connectionDegree, acti
   if (q) params.q = q;
   if (enrichmentStatus) params.enrichmentStatus = enrichmentStatus;
   if (connectionDegree) params.connectionDegree = connectionDegree;
-  // Comma-separated 'invite,message' — leads we have invited / messaged.
+  // Comma-separated 'invite,message,imported,enriched' — see the Activity filter.
   if (activityType) params.activityType = activityType;
   const res = await apiGateway.get('/hub/leads', { params });
   const data = res.data?.data ?? { leads: [], pagination: { page: 1, limit, total: 0 } };

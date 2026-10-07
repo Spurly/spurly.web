@@ -4,12 +4,13 @@ import { ACTIVITY_TYPES } from 'src/products/leads/constants/constants.js';
 
 /**
  * The table's "Activity ▾" filter — multi-select on what the Last activity
- * column says: leads you have sent an invite to, and/or a message to. Same
- * popover shape as DegreeFilter; picking both shows either.
+ * column says — Invite sent, Message sent, Imported (neither sent yet) — plus
+ * Enriched. Same popover shape as DegreeFilter; picking several shows leads
+ * matching any of them.
  *
  * Server-side (GET /hub/leads?activityType=invite,message), not a re-filter
  * of the loaded page, because the table is paginated. `value` is a plain
- * array of 'invite' / 'message'; useLeadsPage joins it for the server.
+ * array of ACTIVITY_TYPES values; useLeadsPage joins it for the server.
  */
 export function ActivityFilter({ value = [], onChange, label = 'Filter by last activity' }) {
   const [open, setOpen] = useState(false);

@@ -42,4 +42,6 @@ export const DEFAULT_FOLLOWERS_COUNT = 100;
 export const ACTIVITY_TYPES = [
   { value: 'invite', label: 'Invite sent' },
   { value: 'message', label: 'Message sent' },
+  { value: 'imported', label: 'Imported' },
+  { value: 'enriched', label: 'Enriched' },
 ];
