@@ -29,6 +29,7 @@ import { NotificationBell } from "src/core/pages/notifications/components/Notifi
 import { SidebarBrand } from "./SidebarBrand";
 import { AskSpurly } from "./AskSpurly";
 import { AccountStatusBanner } from "./AccountStatusBanner";
+import { TrialBanner } from "./TrialBanner";
 import { ImpersonationBanner } from "./ImpersonationBanner";
 import { useSidebarSummary } from "src/core/sidebarSummary/hooks/useSidebarSummary.js";
 import { formatCompactNumber } from "src/shared/utils/formatCompactNumber.js";
@@ -632,6 +633,8 @@ export function DashboardLayout({
         className={`flex-1 flex flex-col min-w-0 ${layout === "page" || layout === "plain" ? "overflow-y-auto" : "overflow-hidden"}`}
       >
         <ImpersonationBanner />
+
+        <TrialBanner />
 
         {!onLinkedInSettings && (
           <AccountStatusBanner

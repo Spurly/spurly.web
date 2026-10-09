@@ -15,9 +15,9 @@ faq:
   - q: Is there a free trial?
     a: Yes. Every account gets a 7-day free trial of the full product, then the monthly plan starts.
   - q: Do I need a card to start the trial?
-    a: Yes. Add a card (or UPI in India) to start your 7-day free trial. You won't be charged until day 8. Cancel anytime before then and you pay nothing.
+    a: No. Sign up and start using Spurly straight away, with no card and no payment details. You are only asked to pay when the 7 days are over.
   - q: What happens after the 7-day trial?
-    a: On day 8 your card or UPI mandate is charged for the first month, and the plan then renews monthly until you cancel.
+    a: When the trial ends, your LinkedIn account is disconnected and your campaigns are paused until you subscribe. Your leads, conversations and campaigns are all kept. Subscribe and you are charged for the first month straight away, then monthly until you cancel. Reconnect LinkedIn and you carry on where you left off.
   - q: Can I cancel anytime?
     a: Yes. Go to Settings → Billing → Cancel. Your access runs to the end of the period you have already paid for.
   - q: Why is the price different in India?
@@ -52,11 +52,11 @@ Everything below comes with the one plan.
 
 ## How the 7-day free trial works
 
-1. **Add a card (or UPI in India).** You need one to start the trial.
+1. **Sign up.** No card, no payment details.
 2. **Use everything for 7 days.** Connect LinkedIn, build an audience and launch a campaign.
-3. **Day 8: the plan starts.** You are billed for the first month unless you cancelled before then.
+3. **When the 7 days end, subscribe to continue.** You pay for the first month at that point (card, or UPI in India), then monthly. If you don't, your LinkedIn account is disconnected and campaigns pause, but nothing is deleted.
 
-Add a card (or UPI in India) to start your 7-day free trial. You won't be charged until day 8. Cancel anytime before then and you pay nothing.
+You are never charged during the trial, and you never need a card to start it.
 
 ## Why is pricing different in India?
 

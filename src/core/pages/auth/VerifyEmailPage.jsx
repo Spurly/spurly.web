@@ -44,7 +44,9 @@ export default function VerifyEmailPage() {
     emitter.once(AUTH_EVENTS.VERIFY_SIGNUP_OTP_SUCCESS, () => {
       setLoading(false);
       toast.success('Account created', { description: 'Welcome to Spurly.' });
-      navigate('/subscribe', { replace: true });
+      // No paywall after signup: the free trial starts now. /subscribe is only
+      // for people whose trial has ended (SubscribeGate sends them there).
+      navigate('/onboarding', { replace: true });
     });
     emitter.once(AUTH_EVENTS.VERIFY_SIGNUP_OTP_FAILURE, (err) => {
       setLoading(false);

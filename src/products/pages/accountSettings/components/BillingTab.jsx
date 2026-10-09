@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Badge, Button, EmptyState, SoonTag, StatTile, useConfirm, useToast } from 'src/core/primitives';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
@@ -103,6 +104,7 @@ function InvoicesCard({ reloadKey }) {
 /** One line under the plan name: what happens next with this subscription. */
 function planLine(sub, tier) {
   if (sub?.exempt) return 'Complimentary account — nothing to pay.';
+  if (sub?.appTrial) return `Free trial until ${longDate(sub.trialEndsAt)}. No payment method on file — add one any time and nothing is charged until the trial ends.`;
   if (sub?.cancelled) return `Cancelled — you have access until ${longDate(sub.accessUntil)}. You won't be charged again.`;
   if (sub?.trialing) return `Free trial — first charge on ${longDate(sub.trialEndsAt)}. Cancel before then and you pay nothing.`;
   if (sub?.firstPaymentPending) return 'Your trial has ended — your first payment is being processed. UPI AutoPay and card mandates can take a few hours to debit; you keep full access meanwhile.';
@@ -129,6 +131,7 @@ export function BillingTab() {
   const { pacing } = useSidebarSummary();
   const confirm = useConfirm();
   const toast = useToast();
+  const navigate = useNavigate();
   const [cancelling, setCancelling] = useState(false);
   const balance = user?.creditBalance ?? 0;
   const tier = user?.tier || 'free';
@@ -179,9 +182,15 @@ export function BillingTab() {
                 {cancelling ? 'Cancelling…' : 'Cancel subscription'}
               </Button>
             )}
-            <Button variant="primary" disabled title="Plan changes are handled by support for now">
-              Upgrade <SoonTag className="ml-1 !bg-[var(--ui-surface-card)]" />
-            </Button>
+            {sub?.appTrial ? (
+              <Button variant="primary" onClick={() => navigate('/subscribe')}>
+                Add payment
+              </Button>
+            ) : (
+              <Button variant="primary" disabled title="Plan changes are handled by support for now">
+                Upgrade <SoonTag className="ml-1 !bg-[var(--ui-surface-card)]" />
+              </Button>
+            )}
           </div>
           {sub?.paymentIssue && (
             <p className="rounded-[var(--ui-radius-sm)] bg-[var(--ui-warning-tint)] px-3 py-2 text-[length:var(--ui-t-label)] text-[var(--ui-warning-fg)]">

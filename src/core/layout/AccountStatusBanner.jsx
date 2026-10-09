@@ -26,7 +26,7 @@ export const ACCOUNT_BANNER_COPY = {
   },
   DELETED: {
     title: 'Your LinkedIn account was disconnected',
-    body: 'It was removed on LinkedIn’s side. Your leads and campaigns are kept; reconnect to send again.',
+    body: 'Your leads, conversations and campaigns are all kept — reconnect to send again.',
   },
 };
 

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { useSubscription } from 'src/core/billing/hooks/useSubscription';
 import { useToast } from 'src/core/primitives';
@@ -48,10 +48,15 @@ export default function SubscribePage() {
   // idle → checkout (modal open) → confirming (verified, waiting for /me) → idle
   const [phase, setPhase] = useState('idle');
   const [error, setError] = useState('');
+  const onTrial = Boolean(status?.isAppTrial());
+  const trialEnded = Boolean(status?.isTrialEnded());
 
-  // Already active (paid in another tab, trialing, comped)? Nothing to do here.
+  // Already active (paid in another tab, comped)? Nothing to do here. A user
+  // on the FREE TRIAL is active too but may be here on purpose (the "Add
+  // payment" banner), so they stay until they have actually paid.
+  const settled = (s) => Boolean(s?.isActive() && !s.isAppTrial());
   useEffect(() => {
-    if (status?.isActive()) {
+    if (settled(status)) {
       navigate(postAuthDestination(user), { replace: true });
     }
   }, [status, user, navigate]);
@@ -88,7 +93,7 @@ export default function SubscribePage() {
   function confirmAccess(attempt = 0) {
     const emitter = refetch();
     emitter.once(SUBSCRIPTION_EVENTS.GET_MY_SUBSCRIPTION_SUCCESS, (summary) => {
-      if (summary?.isActive()) return; // the effect above navigates
+      if (settled(summary)) return; // the effect above navigates
       if (attempt + 1 >= CONFIRM_POLLS) {
         setPhase('idle');
         setError("Your payment went through but we're still confirming it. Refresh in a minute — you won't be charged twice.");
@@ -112,7 +117,9 @@ export default function SubscribePage() {
     subscriptionsController.startCheckout(emitter, {
       description: pricing.trialEligible
         ? `${pricing.trialDays}-day free trial, then ${formatMoney(pricing.amount, pricing.currency)}/month`
-        : `${formatMoney(pricing.amount, pricing.currency)}/month`,
+        : onTrial
+          ? `Free until ${longDate(pricing.firstChargeAt || status.trialEndsAt)}, then ${formatMoney(pricing.amount, pricing.currency)}/month`
+          : `${formatMoney(pricing.amount, pricing.currency)}/month`,
     });
     emitter.on(SUBSCRIPTION_EVENTS.CHECKOUT_SUCCESS, () => {
       setPhase('confirming');
@@ -138,6 +145,8 @@ export default function SubscribePage() {
 
   function headline() {
     if (isPastDue) return 'Your payment failed — update it to continue';
+    if (onTrial) return 'Add payment to keep going after your trial';
+    if (trialEnded) return 'Your free trial has ended';
     if (pricing?.trialEligible) return `Start your ${pricing.trialDays}-day free trial`;
     return 'Subscribe to Spurly';
   }
@@ -146,6 +155,12 @@ export default function SubscribePage() {
     if (isPastDue) {
       return "We couldn't charge your last renewal, so your account is on hold. Subscribe again with a working card or UPI to continue.";
     }
+    if (onTrial) {
+      return `You're on the free trial until ${longDate(status.trialEndsAt)}. Add a payment method now and nothing is charged today — your first payment of ${price} is on that date.`;
+    }
+    if (trialEnded) {
+      return 'Subscribe to pick up right where you left off. Your leads, campaigns and conversations are all still here — after you pay, we\'ll ask you to reconnect your LinkedIn account.';
+    }
     if (pricing?.trialEligible) {
       return `Nothing is charged today. Set up autopay now and you'll be billed ${price}/month after ${pricing.trialDays} days — cancel any time before that and you pay nothing.`;
     }
@@ -153,6 +168,9 @@ export default function SubscribePage() {
   }
 
   function legal() {
+    if (onTrial && pricing.firstChargeAt) {
+      return `Free until ${longDate(pricing.firstChargeAt)}, then ${price} every month, charged automatically. Cancel any time from Settings → Billing.`;
+    }
     if (pricing.firstChargeAt) {
       return `You still have access until ${longDate(pricing.firstChargeAt)}. Autopay resumes then at ${price}/month. Cancel any time from Settings → Billing.`;
     }
@@ -201,6 +219,7 @@ export default function SubscribePage() {
               {pricing.trialEligible && (
                 <div className="sp-price__then">First {pricing.trialDays} days free</div>
               )}
+              {onTrial && <div className="sp-price__then">Free until {longDate(status.trialEndsAt)}</div>}
             </div>
 
             <ul className="sp-price__features">
@@ -227,10 +246,23 @@ export default function SubscribePage() {
                   </>
                 ) : pricing.trialEligible ? (
                   'Start free trial'
+                ) : onTrial ? (
+                  `Add payment · ${price}/month from ${longDate(pricing.firstChargeAt || status.trialEndsAt)}`
                 ) : (
                   `Subscribe · ${price}/month`
                 )}
               </button>
+            )}
+
+            {onTrial && (
+              <Link
+                to={postAuthDestination(user)}
+                replace
+                className="sp-btn sp-btn--ghost"
+                style={{ marginTop: 8, textAlign: 'center' }}
+              >
+                Maybe later
+              </Link>
             )}
 
             <p className="sp-legal" style={{ marginTop: 16 }}>

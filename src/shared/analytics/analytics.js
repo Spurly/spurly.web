@@ -30,7 +30,7 @@ const APP_TITLES = [
   [/^\/login/, 'Log in'],
   [/^\/forgot-password/, 'Forgot password'],
   [/^\/reset-password/, 'Reset password'],
-  [/^\/subscribe/, 'Start your free trial'],
+  [/^\/subscribe/, 'Subscribe'],
   [/^\/onboarding\/linkedin/, 'Connect LinkedIn'],
   [/^\/onboarding\/audience/, 'Choose your audience'],
   [/^\/onboarding\/install/, 'Install the extension'],

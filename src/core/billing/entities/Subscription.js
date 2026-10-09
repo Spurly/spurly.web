@@ -71,6 +71,13 @@ function createSubscriptionSummary(data) {
     razorpayStatus: data?.razorpayStatus || null,
     trialing: !!data?.trialing,
     trialEndsAt: data?.trialEndsAt || null,
+    // The free trial run by the app itself: full access, no subscription and
+    // no payment method on file. Distinct from `trialing` with a Razorpay
+    // subscription behind it (someone who paid mid-trial: first charge is
+    // deferred to the trial's end).
+    appTrial: !!data?.appTrial,
+    // Set when the trial is over and nothing was paid — the page says so.
+    trialEndedAt: data?.trialEndedAt || null,
     nextChargeAt: data?.nextChargeAt || null,
     cancelled: !!data?.cancelled,
     accessUntil: data?.accessUntil || null,
@@ -99,6 +106,10 @@ function createSubscriptionSummary(data) {
   summary.isActive = () => summary.status === 'active';
   summary.isPastDue = () => summary.status === 'past_due';
   summary.isPendingAuthorization = () => summary.status === 'pending_authorization';
+  /** Running the free trial with no subscription — banner + "add payment". */
+  summary.isAppTrial = () => summary.status === 'active' && summary.appTrial;
+  /** Trial over and not paid — the locked state that deserves "your trial ended" copy. */
+  summary.isTrialEnded = () => summary.status === 'none' && !!summary.trialEndedAt;
   /** Access granted without payment — worth showing differently in settings. */
   summary.isComped = () => summary.exempt === true;
   /** Has a live (non-cancelled) Razorpay subscription that can be cancelled. */
