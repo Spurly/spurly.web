@@ -54,14 +54,33 @@ function ConsentBody({ params }) {
   return (
     <Shell>
       <h1 className="text-[length:var(--ui-t-title)] font-medium text-[var(--ui-text-primary)]">Connect {consent.client.name} to Spurly?</h1>
-      <p className="mt-1 mb-4 text-[var(--ui-text-secondary)]">It will act on your Spurly account as you.</p>
+      <p className="mt-1 text-[var(--ui-text-secondary)]">It will act on your Spurly account as you.</p>
+      <AppIdentity client={consent.client} redirectUri={params.redirect_uri} />
       <ConsentScopes requested={consent.requested} value={scopes} onChange={setPicked} disabled={busy} />
-      {consent.error && <p className="mt-3 text-[var(--ui-danger,#b42318)]" role="alert">{consent.error.message}</p>}
+      {consent.error && <p className="mt-3 text-[var(--ui-danger-fg)]" role="alert">{consent.error.message}</p>}
       <div className="mt-5 flex justify-end gap-2">
         <Button variant="ghost" onClick={consent.deny} disabled={busy}>Deny</Button>
         <Button variant="primary" onClick={() => consent.approve(scopes)} disabled={busy || scopes.length === 0} loading={busy}>Approve</Button>
       </div>
     </Shell>
+  );
+}
+
+/**
+ * The app's name is chosen by whoever registered it, so it proves nothing. Show where it really is:
+ * its address when it has one (a published client document), otherwise say plainly that it is unverified,
+ * and always where approving will send the browser.
+ */
+function AppIdentity({ client, redirectUri }) {
+  const host = (value) => (value && URL.canParse(value) ? new URL(value).host || new URL(value).protocol : null);
+  const clientHost = client.id?.startsWith('https://') ? host(client.id) : null;
+  const returnHost = host(redirectUri);
+  return (
+    <dl className="mt-3 mb-4 rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] p-3 text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]" data-testid="app-identity">
+      <div className="flex gap-2"><dt>App address</dt><dd className="font-medium text-[var(--ui-text-primary)]">{clientHost ?? 'Unverified: this app registered itself'}</dd></div>
+      {returnHost && <div className="flex gap-2"><dt>Returns you to</dt><dd className="font-medium text-[var(--ui-text-primary)]">{returnHost}</dd></div>}
+      <p className="mt-2 text-[var(--ui-text-tertiary)]">Only approve if you started this from an app you trust.</p>
+    </dl>
   );
 }
 

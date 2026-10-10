@@ -111,12 +111,21 @@ describe('OAuth consent page', () => {
   it('shows who is asking, never pre-ticks Act, and approving follows the redirect', async () => {
     renderWithProviders(<OAuthConsentPage />, { route });
     expect(await screen.findByText(/Connect Claude to Spurly/)).toBeTruthy();
+    // the name is not proof: the address and the return host are shown beside it
+    expect(screen.getByTestId('app-identity').textContent).toContain('claude.ai');
     const boxes = screen.getAllByRole('checkbox');
     expect(boxes.map((b) => b.checked)).toEqual([true, true, false]);
     fireEvent.click(screen.getByText('Approve'));
     await waitFor(() => expect(assign).toHaveBeenCalledWith('https://claude.ai/cb?code=abc'));
     const [, body] = gatewayModule.default.post.mock.calls.find(([url]) => url === '/oauth/consent');
     expect(body).toMatchObject({ approved: true, scopes: ['read', 'draft'], client_id: 'https://claude.ai/c', state: 's1' });
+  });
+
+  it('an app that registered itself is labelled unverified', async () => {
+    state.consent = () => ({ success: true, data: { client: { id: 'spc_abc', name: 'Claude' }, scopes: ['read'] } });
+    renderWithProviders(<OAuthConsentPage />, { route });
+    await screen.findByText(/Connect Claude to Spurly/);
+    expect(screen.getByTestId('app-identity').textContent).toMatch(/Unverified/);
   });
 
   it('Deny redirects with the error the server built', async () => {
