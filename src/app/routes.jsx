@@ -98,6 +98,14 @@ const TemplatesPage = lazyWithProgress(() =>
     default: m.TemplatesPage,
   })),
 );
+const AiAssistantsPage = lazyWithProgress(() =>
+  import("src/products/pages/aiAssistants").then((m) => ({
+    default: m.AiAssistantsPage,
+  })),
+);
+const OAuthConsentPage = lazyWithProgress(
+  () => import("src/products/pages/aiAssistants/OAuthConsentPage.jsx"),
+);
 const SettingsPage = lazyWithProgress(() =>
   import("src/products/pages/accountSettings").then((m) => ({
     default: m.SettingsPage,
@@ -359,6 +367,18 @@ export function AppRoutes() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/dashboard/settings/ai-assistants"
+            element={
+              <ProtectedRoute>
+                <SubscribeGate>
+                  <AiAssistantsPage />
+                </SubscribeGate>
+              </ProtectedRoute>
+            }
+          />
+          {/* OAuth consent: handles its own login redirect so the request survives the round trip. */}
+          <Route path="/oauth/consent" element={<OAuthConsentPage />} />
           {/* Hub's settings page, under /dashboard only because that is where the
           user looks for settings. This is the page with the Connect button,
           and Connect is the click that starts billing us for a linked

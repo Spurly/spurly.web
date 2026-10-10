@@ -4,11 +4,32 @@
   "buildCommand": "npm run build",
   "rewrites": [
     {
-      "source": "/(dashboard|hub|admin|onboarding|subscribe|signup|login|forgot-password|reset-password|dev)(/.*)?",
+      "source": "/(dashboard|hub|admin|onboarding|subscribe|signup|login|forgot-password|reset-password|oauth|dev)(/.*)?",
       "destination": "/app"
     }
   ],
   "headers": [
+    {
+      "source": "/oauth/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'none'"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
     {
       "source": "/assets/(.*)\\.(js|css)",
       "headers": [
