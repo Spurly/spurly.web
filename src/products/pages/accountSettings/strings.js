@@ -14,6 +14,7 @@ export const settingsStrings = {
     linkedin: 'LinkedIn',
     limits: 'Sending hours',
     ai: 'AI context',
+    assistants: 'AI assistants',
     extension: 'Extension',
     team: 'Team',
     billing: 'Billing',

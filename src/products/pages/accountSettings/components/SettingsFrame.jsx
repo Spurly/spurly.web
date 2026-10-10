@@ -17,6 +17,7 @@ export const SETTINGS_TABS = [
   { id: 'linkedin', label: t.tabs.linkedin },
   { id: 'limits', label: t.tabs.limits },
   { id: 'ai', label: t.tabs.ai },
+  { id: 'assistants', label: t.tabs.assistants },
   { id: 'extension', label: t.tabs.extension },
   { id: 'team', label: t.tabs.team },
   { id: 'billing', label: t.tabs.billing },
@@ -25,7 +26,7 @@ export const SETTINGS_TABS = [
 export function SettingsFrame({ activeTab, children }) {
   const navigate = useNavigate();
   const go = (id) =>
-    navigate(id === 'linkedin' ? '/dashboard/settings/linkedin' : id === 'account' ? '/dashboard/settings' : `/dashboard/settings?tab=${id}`);
+    navigate(id === 'linkedin' ? '/dashboard/settings/linkedin' : id === 'assistants' ? '/dashboard/settings/ai-assistants' : id === 'account' ? '/dashboard/settings' : `/dashboard/settings?tab=${id}`);
 
   return (
     <DashboardLayout

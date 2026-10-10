@@ -18,7 +18,7 @@ export { SettingsFrame } from './components/SettingsFrame.jsx';
 export function SettingsPage() {
   const [params] = useSearchParams();
   const requested = params.get('tab');
-  const activeTab = SETTINGS_TABS.some((x) => x.id === requested) && requested !== 'linkedin' ? requested : 'account';
+  const activeTab = SETTINGS_TABS.some((x) => x.id === requested) && requested !== 'linkedin' && requested !== 'assistants' ? requested : 'account';
 
   return (
     <SettingsFrame activeTab={activeTab}>
