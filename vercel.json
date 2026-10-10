@@ -4,7 +4,7 @@
   "buildCommand": "npm run build",
   "rewrites": [
     {
-      "source": "/(dashboard|hub|admin|onboarding|subscribe|signup|login|forgot-password|reset-password|dev)(/.*)?",
+      "source": "/(dashboard|hub|admin|onboarding|subscribe|signup|login|forgot-password|reset-password|oauth|dev)(/.*)?",
       "destination": "/app"
     }
   ],
