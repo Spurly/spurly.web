@@ -347,7 +347,13 @@ table { font-variant-numeric: tabular-nums; }
 /* Page titles, the one place the display face appears in app chrome. */
 .ui-display {
   font-family: var(--ui-font-display);
-  font-weight: 650;
+  /* Serif, regular weight, plain ink: the Claude-style editorial heading.
+     One size on every page (--ui-t-display). */
+  font-weight: 400;
+  font-size: var(--ui-t-display);
+  line-height: 1.15;
+  letter-spacing: var(--ui-track-display);
+  color: var(--ui-text-primary);
 }
 
 /* Chat wallpaper: a quiet tile of outline doodles (bubble, plane, star, ring,

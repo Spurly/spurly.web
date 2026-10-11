@@ -49,7 +49,7 @@ export function Checkbox({
             'w-full h-full grid place-items-center rounded-[var(--ui-radius-2xs)] border-[1.5px]',
             'transition-[background-color,border-color] duration-[var(--ui-dur-fast)] ease-[cubic-bezier(0.2,0,0.1,1)]',
             active
-              ? 'bg-[var(--ui-accent)] border-[var(--ui-accent)] text-[var(--ui-accent-on)]'
+              ? 'ui-check-on bg-[var(--ui-accent)] border-[var(--ui-accent)] text-[var(--ui-accent-on)]'
               : 'bg-[var(--ui-surface-card)] border-[var(--ui-border-strong)]',
             'peer-focus-visible:shadow-[var(--ui-focus-ring)]',
           ].join(' ')}

@@ -13,3 +13,4 @@ export { ActionsCell } from './ActionsCell';
 export { ActivityCell } from './ActivityCell';
 export { SoonCell } from './SoonCell';
 export { MeterCell } from './MeterCell';
+export { ChipCell } from './ChipCell';

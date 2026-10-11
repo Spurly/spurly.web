@@ -102,11 +102,12 @@ export function Badge({
       className={[
         'inline-flex items-center font-medium whitespace-nowrap max-w-full',
         minimal
-          ? 'font-[family-name:var(--ui-font-mono)] uppercase tracking-[0.04em]'
+          ? ''
           : '',
         SIZES[size] ?? SIZES.md,
         minimal ? '' : PAD[size] ?? PAD.md,
         minimal ? '' : pill ? 'rounded-[var(--ui-radius-pill)]' : 'rounded-[var(--ui-radius-xs)]',
+        minimal ? '' : 'ui-pill',
         palette,
         className,
       ]

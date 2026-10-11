@@ -11,6 +11,21 @@ export const dashboardStrings = {
     connectRate: 'Connect rate',
     repliesWaiting: 'Replies waiting',
   },
+  claude: {
+    eyebrow: 'Works with Claude',
+    title: 'Run Spurly from Claude',
+    body: 'Connect Spurly to Claude and ask in plain language. Review your numbers, triage replies and draft campaigns from a chat. Sending stays off until you allow it.',
+    connect: 'Connect with Claude',
+    copy: 'Copy server address',
+    copied: 'Copied',
+    guide: 'Setup guide',
+    chatLabel: 'Example conversation with Claude using Spurly',
+    connected: 'Spurly connected',
+    replies: [
+      'Your acceptance rate is up on last week, and 3 replies are waiting on you. Want me to draft answers?',
+      'Two are asking about pricing. I can draft replies for you to approve. Nothing is sent without your say-so.',
+    ],
+  },
   attention: {
     title: 'Worth your attention',
     allCaughtUpTitle: "You're caught up",

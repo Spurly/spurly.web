@@ -19,6 +19,7 @@ import { dashboardStrings as t } from './strings.js';
 import { analyticsStrings as at } from './analytics/strings.js';
 import { HeroCard } from './analytics/HeroCard.jsx';
 import { TrendTile } from './analytics/TrendTile.jsx';
+import { ClaudeCard } from './ClaudeCard.jsx';
 import {
   ActivityCard,
   AnalyticsError,
@@ -166,6 +167,8 @@ export function HubDashboardPage() {
         {analyticsError && !analytics && <AnalyticsError message={analyticsError} onRetry={reloadAnalytics} />}
 
         <HeroCard data={analytics} loading={analyticsLoading && !analytics} days={days} />
+
+        <ClaudeCard />
 
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <p className="ui-micro !text-[length:var(--ui-t-micro)] !text-[var(--ui-text-secondary)]">{at.range(days)}</p>
@@ -367,7 +370,7 @@ export function HubDashboardPage() {
                       <span className="flex-1 min-w-0 truncate text-[length:var(--ui-t-control)] text-[var(--ui-text-primary)]">
                         {c.name || 'Untitled campaign'}
                       </span>
-                      <span className={`font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] uppercase tracking-[var(--ui-track-meta)] ${warn ? 'text-[var(--ui-warning-fg)]' : 'text-[var(--ui-accent-fg)]'}`}>
+                      <span className={`font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] tracking-[var(--ui-track-meta)] ${warn ? 'text-[var(--ui-warning-fg)]' : 'text-[var(--ui-accent-fg)]'}`}>
                         {view.label}
                       </span>
                     </span>

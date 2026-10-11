@@ -135,7 +135,7 @@ function Advanced({ state, set, detectedCountry, errors, disabled, serverField }
 
       <div className="flex flex-col gap-5 px-3.5 pb-4 pt-1 border-t border-[var(--ui-neutral-150)]">
         <section className="flex flex-col gap-2 pt-3">
-          <h3 className="flex items-center gap-1.5 text-[length:var(--ui-t-label)] font-medium uppercase tracking-[var(--ui-track-meta)] text-[var(--ui-text-tertiary)]">
+          <h3 className="flex items-center gap-1.5 text-[length:var(--ui-t-label)] font-medium tracking-[var(--ui-track-meta)] text-[var(--ui-text-tertiary)]">
             <MessagesSquare size={13} /> Messaging history
           </h3>
           <SwitchRow
@@ -160,7 +160,7 @@ function Advanced({ state, set, detectedCountry, errors, disabled, serverField }
         </section>
 
         <section className="flex flex-col gap-2">
-          <h3 className="flex items-center gap-1.5 text-[length:var(--ui-t-label)] font-medium uppercase tracking-[var(--ui-track-meta)] text-[var(--ui-text-tertiary)]">
+          <h3 className="flex items-center gap-1.5 text-[length:var(--ui-t-label)] font-medium tracking-[var(--ui-track-meta)] text-[var(--ui-text-tertiary)]">
             <MapPin size={13} /> Sign in from
           </h3>
           <LocationChoice

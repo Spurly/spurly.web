@@ -15,7 +15,8 @@ import {
 import { useAuth } from "src/core/auth/hooks/useAuth.js";
 import { useLeadsPage } from "src/products/leads/hooks/useLeadsPage.js";
 import { isBusy } from "src/products/leads/hooks/audience.js";
-import { hubLeadColumns, hubLeadEnrichColumns } from "./components/columns.jsx";
+import { ArrowUpRight, PanelRight } from "lucide-react";
+import { hubLeadColumns, hubLeadEnrichColumns, leadRowTone } from "./components/columns.jsx";
 import { LeadDrawer } from "./components/LeadDrawer.jsx";
 import { NewAudienceModal } from "./components/NewAudienceModal.jsx";
 import { AudiencePicker } from "./components/AudiencePicker.jsx";
@@ -39,6 +40,16 @@ const NEW_LIST = "__new_list__";
  * no total, so the honest answer to "how far along is it?" is "412 so far", and
  * a progress bar would have to invent the denominator.
  */
+/** Hover quick actions on a lead row: open the drawer, or jump to LinkedIn. */
+function makeRowActions(openLead) {
+  return (row) => [
+    { key: "open", label: "Open", icon: <PanelRight size={13} strokeWidth={2} />, onClick: () => openLead(row) },
+    ...(row.profileUrl
+      ? [{ key: "linkedin", label: "LinkedIn", icon: <ArrowUpRight size={13} strokeWidth={2} />, href: row.profileUrl }]
+      : []),
+  ];
+}
+
 export function HubLeadsPage() {
   const {
     searches,
@@ -259,6 +270,8 @@ export function HubLeadsPage() {
           selectedKeys={selected}
           onSelectionChange={setSelected}
           onRowClick={setSelectedLead}
+          rowTone={leadRowTone}
+          rowActions={makeRowActions(setSelectedLead)}
           toolbar={{
             searchValue: query,
             onSearch: setQuery,
@@ -382,6 +395,8 @@ export function HubLeadsPage() {
           selectedKeys={enrichSelected}
           onSelectionChange={setEnrichSelected}
           onRowClick={setSelectedLead}
+          rowTone={leadRowTone}
+          rowActions={makeRowActions(setSelectedLead)}
           toolbar={{
             searchValue: enrichQuery,
             onSearch: setEnrichQuery,

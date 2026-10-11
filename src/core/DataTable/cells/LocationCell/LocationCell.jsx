@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChipCell } from '../ChipCell';
 import { countryCodeFromLocation, countryNameFromCode, flagUrl } from 'src/shared/utils/location';
 
 /**
@@ -13,7 +14,7 @@ import { countryCodeFromLocation, countryNameFromCode, flagUrl } from 'src/share
  * unreachable. A load failure hides the image rather than leaving a broken-image
  * glyph in the middle of the table.
  */
-export function LocationCell({ value, tone = 'secondary', flag = false }) {
+export function LocationCell({ value, tone = 'secondary', flag = false, chip = false }) {
   const [failed, setFailed] = useState(false);
 
   if (value === null || value === undefined || value === '') {
@@ -28,6 +29,30 @@ export function LocationCell({ value, tone = 'secondary', flag = false }) {
 
   const code = countryCodeFromLocation(value);
   const showFlag = flag && Boolean(code) && !failed;
+
+  if (chip) {
+    return (
+      <ChipCell
+        value={value}
+        icon={
+          showFlag ? (
+            <img
+              src={flagUrl(code, 20)}
+              srcSet={`${flagUrl(code, 20)} 1x, ${flagUrl(code, 40)} 2x`}
+              width={14}
+              height={11}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              decoding="async"
+              onError={() => setFailed(true)}
+              className="shrink-0 rounded-[2px] object-cover"
+            />
+          ) : null
+        }
+      />
+    );
+  }
 
   return (
     <span className={`flex items-center gap-1.5 min-w-0 ${tones[tone] ?? tones.secondary}`}>

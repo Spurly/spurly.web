@@ -1,5 +1,6 @@
 import { Avatar } from 'src/core/primitives';
 import { resolveDensity } from 'src/core/tokens';
+import { ChipCell } from '../ChipCell';
 import { useCompanyLogo, companyLogoUrl } from 'src/core/people/hooks/companyLogo';
 
 /**
@@ -14,13 +15,23 @@ import { useCompanyLogo, companyLogoUrl } from 'src/core/people/hooks/companyLog
  * CDN, 404 from logo.dev — all of them land on Avatar's tinted initial, which
  * is what this cell drew before logos existed and is a perfectly good cell.
  */
-export function CompanyCell({ value, logo = null, density = 'default' }) {
+export function CompanyCell({ value, logo = null, density = 'default', chip = false, onClick }) {
   const domain = useCompanyLogo(value);
   const d = resolveDensity(density);
 
   if (!value) return <span className="text-[var(--ui-text-tertiary)]">—</span>;
 
   const src = logo || companyLogoUrl(domain, 64) || null;
+
+  if (chip) {
+    return (
+      <ChipCell
+        value={value}
+        onClick={onClick}
+        icon={<Avatar src={src} name={value} size={16} shape="square" />}
+      />
+    );
+  }
 
   return (
     <span className="flex items-center gap-2 min-w-0">

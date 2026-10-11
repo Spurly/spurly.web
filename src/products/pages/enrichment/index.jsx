@@ -70,14 +70,14 @@ export function HubEnrichmentPage() {
     <DashboardLayout
       title={t.pageTitle}
       subtitle={t.pageSubtitle}
-      layout="page"
+      layout="fill"
       actions={
         <Button variant="primary" leadingIcon={<SparkIcon size={14} />} onClick={() => navigate('/hub/leads', { state: { tab: 'enrich' } })}>
           {t.enrichLeads}
         </Button>
       }
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 flex-1 min-h-0">
         {totals.running > 0 && (
           <WorkingLine verbs={['Enriching', 'Reading', 'Resolving', 'Reconciling']} trailing={`${totals.inFlight.toLocaleString()} in flight`}>
             {totals.running} {totals.running === 1 ? 'batch' : 'batches'} running · profiles resolve in the background, you can leave the page
@@ -125,13 +125,13 @@ export function HubEnrichmentPage() {
           ]}
         />
 
-        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-sm)] overflow-hidden">
+        <div className="flex-1 min-h-0 flex flex-col rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)] overflow-hidden">
           <DataTable
+            className="flex-1"
             columns={columns}
             data={visible}
             rowKey={(row) => row._id}
             loading={loading}
-            stickyHeader={false}
             onRowClick={(row) => navigate(`/hub/enrichment/${row._id}`)}
             emptyIcon={<EnrichIcon size={22} strokeWidth={1.6} />}
             emptyMessage={search || status !== 'all' ? 'No batches match' : t.emptyTitle}

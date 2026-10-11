@@ -43,7 +43,7 @@ export function Gauge({ value, label, caption, color = 'var(--ui-chart-1)', size
           </div>
         </div>
       </div>
-      <p className="mt-2 font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] uppercase tracking-[var(--ui-track-meta)] text-[var(--ui-text-secondary)]">
+      <p className="mt-2 font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] tracking-[var(--ui-track-meta)] text-[var(--ui-text-secondary)]">
         {label}
       </p>
       {caption && <p className="mt-1 text-center text-[length:var(--ui-t-meta)] text-[var(--ui-text-quaternary)] leading-[1.4]">{caption}</p>}

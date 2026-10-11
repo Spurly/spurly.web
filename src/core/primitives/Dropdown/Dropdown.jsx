@@ -151,7 +151,7 @@ export function Dropdown({
           isSm ? 'h-[var(--ui-ctl-h)] max-w-[220px]' : 'w-full h-[var(--ui-ctl-h-lg)]',
           icon ? (isSm ? 'pl-8' : 'pl-10') : (isSm ? 'pl-3' : 'pl-4'),
           isSm ? 'pr-7' : 'pr-10',
-          'bg-[var(--ui-surface-card)] border text-left tracking-[-0.006em] focus:outline-none transition-colors flex items-center',
+          'bg-[var(--ui-surface-card)] bg-[image:var(--ui-control-bg)] shadow-[var(--ui-control-shadow)] border text-left tracking-[-0.006em] focus:outline-none transition-[border-color,box-shadow,color] flex items-center',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
           isSm
             ? 'rounded-[var(--ui-radius-sm)] text-[length:var(--ui-t-label)]'
@@ -160,7 +160,7 @@ export function Dropdown({
             ? 'border-[var(--ui-danger)] focus:shadow-[0_0_0_3px_rgba(200,65,47,0.18)]'
             : open
               ? 'border-[var(--ui-accent)] shadow-[var(--ui-focus-ring)]'
-              : 'border-[var(--ui-border)] hover:border-[var(--ui-accent-border)] hover:shadow-[var(--ui-hover-ring)]',
+              : 'border-[var(--ui-border)] hover:border-[var(--ui-accent-border)] hover:shadow-[var(--ui-control-shadow-hover)]',
           value
             ? (isSm ? 'text-[var(--ui-text-body)]' : 'text-[var(--ui-text-primary)]')
             : (isSm ? 'text-[var(--ui-text-body)]' : 'text-[var(--ui-text-quaternary)]'),

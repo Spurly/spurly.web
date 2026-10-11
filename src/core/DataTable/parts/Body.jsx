@@ -13,6 +13,8 @@ export function Body({
   selectedKeys = new Set(),
   onToggleSelect,
   onRowClick,
+  rowTone = null,
+  rowActions = null,
   loading = false,
   emptyMessage = 'Nothing here yet',
   emptyHint,
@@ -50,18 +52,21 @@ export function Body({
 
   return (
     <tbody>
-      {data.map((row) => {
+      {data.map((row, rowIndex) => {
         const id = rowKey(row);
         return (
           <Row
             key={id}
             rowId={id}
+            index={rowIndex}
             row={row}
             columns={columns}
             density={density}
             selectable={selectable}
             isSelected={selectedKeys.has(id)}
             onRowClick={onRowClick}
+            tone={rowTone ? rowTone(row) : null}
+            actions={rowActions ? rowActions(row) : null}
             onToggleSelect={onToggleSelect}
           />
         );

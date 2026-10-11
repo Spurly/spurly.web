@@ -121,7 +121,7 @@ export function FactList({ items }) {
           key={item.label}
           className="flex items-center justify-between gap-3 py-2.5 border-b border-[var(--ui-border-hairline)] last:border-b-0"
         >
-          <dt className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] uppercase tracking-[0.09em] text-[var(--ui-text-secondary)] shrink-0">{item.label}</dt>
+          <dt className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] tracking-[0.09em] text-[var(--ui-text-secondary)] shrink-0">{item.label}</dt>
           <dd
             className="text-[length:var(--ui-t-control)] text-[var(--ui-text-primary)] text-right truncate"
             style={item.tone ? { color: item.tone } : undefined}

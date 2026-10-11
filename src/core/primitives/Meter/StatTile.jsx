@@ -1,5 +1,6 @@
 import { Meter } from './Meter';
 import { Surface } from '../Surface';
+import { CountUp } from 'src/core/charts/CountUp.jsx';
 
 /**
  * The handoff's stat tile (Dashboard, Campaigns, Settings → Billing):
@@ -25,6 +26,7 @@ export function StatTile({
   caption = null,
   soon = false,
   size = 'lg',
+  countUp = true,
   depth,
   className = '',
 }) {
@@ -42,11 +44,11 @@ export function StatTile({
         {soon && <SoonTag />}
       </div>
       <div
-        className={`ui-num tracking-[-0.02em] leading-none ${
-          size === 'sm' ? 'text-[length:var(--ui-t-section)] mt-2' : 'text-[length:var(--ui-t-metric)] mt-2.5'
-        } ${soon ? 'text-[var(--ui-text-disabled)]' : 'text-[var(--ui-text-primary)]'}`}
+        className={`ui-metric ${
+          size === 'sm' ? '!text-[length:var(--ui-t-section)] mt-2' : 'mt-2.5'
+        } ${soon ? '!text-[var(--ui-text-disabled)]' : ''}`}
       >
-        {soon ? '—' : value}
+        {soon ? '—' : countUp && typeof value === 'number' ? <CountUp value={value} format={(n) => Math.round(n).toLocaleString()} /> : value}
         {!soon && suffix}
       </div>
       {hasMeter ? (
@@ -67,7 +69,7 @@ export function StatTile({
 export function SoonTag({ className = '' }) {
   return (
     <span
-      className={`inline-flex items-center h-[17px] px-1.5 rounded-[var(--ui-radius-2xs)] bg-[var(--ui-neutral-150)] text-[var(--ui-text-quaternary)] font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] font-medium uppercase tracking-[0.08em] leading-none shrink-0 ${className}`}
+      className={`inline-flex items-center h-[17px] px-1.5 rounded-[var(--ui-radius-2xs)] bg-[var(--ui-neutral-150)] text-[var(--ui-text-quaternary)] font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] font-medium leading-none shrink-0 ${className}`}
       title="Coming soon"
     >
       Soon

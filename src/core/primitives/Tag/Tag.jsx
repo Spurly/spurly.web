@@ -19,26 +19,29 @@ export function Tag({
   tone = 'neutral',
   removable = false,
   onRemove,
+  onClick,
   title,
   className = '',
 }) {
-  const palette =
-    tone === 'accent'
-      ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)]'
-      : 'bg-[var(--ui-surface-sunken)] text-[var(--ui-text-secondary)]';
+  const interactive = typeof onClick === 'function';
+  const Root = interactive ? 'button' : 'span';
 
   return (
-    <span
+    <Root
       title={title}
-      className={[
-        'inline-flex items-center gap-1.5 h-6 max-w-full rounded-[var(--ui-radius-xs)]',
-        'text-[length:var(--ui-t-label)] font-medium whitespace-nowrap',
-        removable ? 'pl-2.5 pr-1' : 'px-2.5',
-        palette,
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+      type={interactive ? 'button' : undefined}
+      onClick={
+        interactive
+          ? (e) => {
+              // A chip in a table row must not also open the row's drawer.
+              e.stopPropagation();
+              onClick(e);
+            }
+          : undefined
+      }
+      data-tone={tone === 'neutral' ? undefined : tone}
+      data-interactive={interactive ? '' : undefined}
+      className={['ui-chip', removable ? '!pr-1' : '', className].filter(Boolean).join(' ')}
     >
       <span className="truncate">{children}</span>
       {removable && (
@@ -59,6 +62,6 @@ export function Tag({
           </svg>
         </button>
       )}
-    </span>
+    </Root>
   );
 }

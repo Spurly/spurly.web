@@ -449,7 +449,7 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
           <div className="rounded-[var(--ui-radius-md)] border border-[var(--ui-neutral-150)] overflow-hidden">
             {summary.map(([k, v]) => (
               <div key={k} className="flex items-center gap-3 px-[13px] py-[11px] border-b border-[var(--ui-border-hairline)] last:border-b-0">
-                <span className="w-[132px] shrink-0 font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] uppercase tracking-[0.09em] text-[var(--ui-text-secondary)]">
+                <span className="w-[132px] shrink-0 font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] tracking-[0.09em] text-[var(--ui-text-secondary)]">
                   {k}
                 </span>
                 <span className="flex-1 min-w-0 text-right truncate text-[length:var(--ui-t-control)] text-[var(--ui-text-primary)]" title={v}>

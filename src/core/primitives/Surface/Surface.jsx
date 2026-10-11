@@ -20,8 +20,8 @@ import { useTilt } from './useTilt.js';
  * test environments (see useMotionAllowed), with identical markup and layout.
  */
 const VARIANTS = {
-  solid: 'bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)]',
-  hairline: 'bg-[var(--ui-surface-card)] border border-[var(--ui-border-hairline)] shadow-[var(--ui-shadow-sm)]',
+  solid: 'bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-card)]',
+  hairline: 'bg-[var(--ui-surface-card)] border border-[var(--ui-border-hairline)] shadow-[var(--ui-shadow-card)]',
   sunken: 'bg-[var(--ui-surface-sunken)] border border-transparent',
 };
 

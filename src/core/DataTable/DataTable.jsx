@@ -54,6 +54,8 @@ export function DataTable({
   selectedKeys,
   onSelectionChange,
   onRowClick,
+  rowTone = null,
+  rowActions = null,
   sort,
   onSortChange,
   pagination,
@@ -203,6 +205,8 @@ export function DataTable({
             selectedKeys={table.selected}
             onToggleSelect={table.toggleRow}
             onRowClick={onRowClick}
+            rowTone={rowTone}
+            rowActions={rowActions}
             loading={loading}
             emptyMessage={emptyMessage}
             emptyHint={emptyHint}

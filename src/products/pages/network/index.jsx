@@ -50,7 +50,7 @@ export function HubNetworkPage() {
     <DashboardLayout
       title={t.pageTitle}
       subtitle={t.pageSubtitle}
-      layout="page"
+      layout="fill"
       actions={
         exists ? (
           <Button variant="primary" onClick={sync} disabled={starting || syncing}>
@@ -59,7 +59,7 @@ export function HubNetworkPage() {
         ) : null
       }
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 flex-1 min-h-0">
         {needsAccount && (
           <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] p-4 flex items-center justify-between gap-3">
             <div>
@@ -100,13 +100,13 @@ export function HubNetworkPage() {
           </div>
         )}
 
-        <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-sm)] overflow-hidden">
+        <div className="flex-1 min-h-0 flex flex-col rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)] overflow-hidden">
           <DataTable
+            className="flex-1"
             columns={columns}
             data={exists ? connections : []}
             rowKey={(row) => row._id}
             loading={loading || (exists && listLoading && connections.length === 0)}
-            stickyHeader={false}
             onRowClick={(row) => setSelectedLead(row)}
             emptyIcon={<NetworkIcon size={22} strokeWidth={1.6} />}
             emptyMessage={!exists ? t.emptyTitle : q ? t.noMatchTitle : syncing ? 'Connections are arriving' : t.emptyTitle}

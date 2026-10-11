@@ -52,9 +52,10 @@ export const VARIANTS = {
      Hover picks up the accent on the border and text before the fill, so the
      control answers the cursor without becoming a second primary button. */
   secondary:
-    'bg-[var(--ui-surface-card)] text-[var(--ui-text-body)] border border-[var(--ui-border)] ' +
-    'hover:border-[var(--ui-accent-border)] hover:text-[var(--ui-text-primary)] hover:shadow-[var(--ui-hover-ring)] ' +
-    'active:bg-[var(--ui-surface-hover)]',
+    'bg-[var(--ui-surface-card)] bg-[image:var(--ui-control-bg)] text-[var(--ui-text-body)] border border-[var(--ui-border)] ' +
+    'shadow-[var(--ui-control-shadow)] ' +
+    'hover:border-[var(--ui-accent-border)] hover:text-[var(--ui-text-primary)] hover:shadow-[var(--ui-control-shadow-hover)] hover:-translate-y-px ' +
+    'active:translate-y-0 active:shadow-[var(--ui-control-shadow-pressed)] active:bg-[var(--ui-surface-hover)]',
 
   /* The accent-outlined secondary ("Draft openers", "Rewrite"): an action
      Spurly itself performs, so it carries the accent without being a fill. */
@@ -96,7 +97,7 @@ export const VARIANTS = {
 export const BASE =
   'inline-flex items-center justify-center font-medium whitespace-nowrap select-none ' +
   'tracking-[-0.008em] cursor-pointer border border-transparent ' +
-  'transition-[background-color,border-color,color,box-shadow] duration-[var(--ui-dur-fast)] ' +
+  'transition-[background-color,border-color,color,box-shadow,transform] duration-[var(--ui-dur-fast)] ' +
   'ease-[cubic-bezier(0.2,0,0.1,1)] ' +
   'focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)] ' +
   'disabled:opacity-[0.42] disabled:pointer-events-none';

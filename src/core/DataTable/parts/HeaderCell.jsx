@@ -16,8 +16,7 @@ const JUSTIFY = { left: 'justify-start', center: 'justify-center', right: 'justi
  * set in the mono face can never be mistaken for data (spurlyDESIGN.md).
  */
 const LABEL =
-  'font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] font-medium uppercase ' +
-  'tracking-[var(--ui-track-meta)]';
+  'text-[length:var(--ui-t-micro)] font-medium';
 
 /**
  * REORDERING
@@ -72,7 +71,7 @@ export function HeaderCell({
       onDragEnd={draggable ? onDragEnd : undefined}
       onKeyDown={draggable ? (e) => onKeyDown?.(e, column) : undefined}
       className={[
-        'relative whitespace-nowrap bg-[var(--ui-surface-header)] border-b border-[var(--ui-border)]',
+        'ui-th relative whitespace-nowrap bg-[var(--ui-surface-header)] border-b border-[var(--ui-border)]',
         ALIGN[column.align] || ALIGN.left,
         draggable ? 'cursor-grab active:cursor-grabbing select-none' : '',
         isDragging ? 'opacity-40' : '',

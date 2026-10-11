@@ -455,7 +455,7 @@ function NodeCard({
           {Icon && <Icon size={15} aria-hidden="true" />}
         </span>
         <div className="flex-1 min-w-0">
-          <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] font-medium uppercase tracking-[var(--ui-track-meta)] text-[var(--ui-accent-fg)]">
+          <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] font-medium tracking-[var(--ui-track-meta)] text-[var(--ui-accent-fg)]">
             Step {index + 1}
             {(step.delayDays ?? 0) > 0 && <span className="text-[var(--ui-text-quaternary)]"> · after {step.delayDays}d</span>}
           </p>
