@@ -1,6 +1,16 @@
 /** The address people paste into Claude, ChatGPT or Cursor. */
 export const MCP_URL = import.meta.env.VITE_MCP_URL || 'https://api.getspurly.com/mcp';
 
+/** Where people add a custom connector in Claude. Claude has no prefill link, so the card also copies MCP_URL. */
+export const CLAUDE_CONNECTORS_URL = 'https://claude.ai/customize/connectors';
+
+/** Things worth asking Claude once Spurly is connected. Shown on the dashboard card and the landing page. */
+export const CLAUDE_PROMPTS = [
+  'How did my outreach do this week?',
+  'Which replies need an answer today?',
+  'Draft a campaign for heads of growth at fintechs in London.',
+];
+
 /** What each permission means, in the words the user sees. Order is lowest to highest risk. */
 export const SCOPE_INFO = {
   read: { label: 'Read', hint: 'See your campaigns, leads, inbox and numbers. Cannot change anything.' },

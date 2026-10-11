@@ -499,6 +499,36 @@ body.mkt .safety-panel{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;pad
 body.mkt .safety-panel ul{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 body.mkt .safety-panel li{display:flex;gap:10px;align-items:flex-start;font-size:var(--fs-body,15px);line-height:1.5}
 body.mkt .safety-panel li svg{width:17px;height:17px;color:var(--teal);flex:none;margin-top:2px}
+body.mkt .btn-claude{color:#fff;border:1px solid #C75F3C;background:linear-gradient(180deg,#EC9573 0%,#D96F4A 55%,#CC5F3B 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 12px 28px -6px rgba(217,111,74,.55);position:relative;overflow:hidden}
+body.mkt .btn-claude::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:35%;background:rgba(255,255,255,.35);transform:skewX(-14deg);filter:blur(2px);opacity:0;transition:left .7s,opacity .3s}
+body.mkt .btn-claude:hover{transform:translateY(-2px);filter:brightness(1.05);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 16px 34px -6px rgba(217,111,74,.65)}
+body.mkt .btn-claude:hover::after{left:130%;opacity:1}
+body.mkt .safety-panel.claude-panel{position:relative;overflow:hidden;border-radius:var(--r-panel);border:1px solid #F2D9CC;background:linear-gradient(135deg,#FFF4ED 0%,#fff 50%,#FFEFE4 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 30px 60px -36px rgba(217,111,74,.5);backdrop-filter:none}
+body.mkt .claude-panel::before{content:"";position:absolute;left:-110px;top:-110px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(236,149,115,.35),transparent 68%);pointer-events:none}
+body.mkt .claude-panel>*{position:relative}
+body.mkt .claude-logo{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:11px;color:#fff;background:linear-gradient(160deg,#EE9A78,#CF6540);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 8px 18px -6px rgba(217,111,74,.7)}
+body.mkt .claude-logo.sm{width:22px;height:22px;border-radius:7px;box-shadow:none}
+body.mkt .claude-logo.xs{width:26px;height:26px;border-radius:50%;box-shadow:none;flex:none}
+body.mkt .claude-eyebrow{display:inline-flex;align-items:center;gap:10px;font:600 13px/1 var(--mono,ui-monospace,monospace);letter-spacing:.08em;text-transform:uppercase;color:#C2593A}
+body.mkt .claude-points{margin-top:22px}
+body.mkt .claude-points li svg{color:#D96F4A}
+body.mkt .claude-actions{display:flex;flex-wrap:wrap;align-items:center;gap:22px;margin-top:26px}
+body.mkt .claude-actions .more-link{margin-top:0}
+body.mkt .claude-window{overflow:hidden;border-radius:var(--r-panel);border:1px solid #F2D9CC;background:#fff;box-shadow:0 24px 48px -26px rgba(217,111,74,.55)}
+body.mkt .claude-bar{display:flex;align-items:center;gap:9px;padding:12px 18px;border-bottom:1px solid #F6E4DA;background:#FFFAF7;font-size:15px}
+body.mkt .claude-status{margin-left:auto;display:flex;align-items:center;gap:7px;font:600 11px/1 var(--mono,ui-monospace,monospace);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+body.mkt .claude-status i{width:7px;height:7px;border-radius:50%;background:#3fa56b}
+body.mkt .claude-thread{display:flex;flex-direction:column;gap:14px;padding:20px}
+body.mkt .claude-row{display:flex;align-items:flex-start;gap:9px;max-width:94%}
+body.mkt .claude-msg{margin:0;padding:10px 15px;font-size:var(--fs-body,15px);line-height:1.5;border-radius:16px}
+body.mkt .claude-msg.you{align-self:flex-end;max-width:86%;color:#fff;background:linear-gradient(180deg,#E98A66,#D2653F);border-bottom-right-radius:4px;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+body.mkt .claude-msg.bot{color:var(--ink);background:#FFFAF7;border:1px solid #F2E4DC;border-top-left-radius:4px}
+body.mkt .claude-typing{display:flex;gap:5px;padding:12px 14px;border-radius:16px;background:#FFFAF7;border:1px solid #F2E4DC}
+body.mkt .claude-typing i{width:7px;height:7px;border-radius:50%;background:#D96F4A;animation:claude-bounce 1s infinite}
+body.mkt .claude-typing i:nth-child(2){animation-delay:.15s}
+body.mkt .claude-typing i:nth-child(3){animation-delay:.3s}
+@keyframes claude-bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+@media (prefers-reduced-motion:reduce){body.mkt .claude-typing i{animation:none}}
 body.mkt .tour-panel[hidden]{display:none}
 body.mkt .ext-block{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:clamp(22px,3.2vw,38px);border-radius:var(--r-panel)}
 body.mkt .ext-block .h3{margin-bottom:8px}

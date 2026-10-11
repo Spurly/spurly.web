@@ -8,6 +8,7 @@ import Hero from "./components/Hero.jsx";
 import LogoCloud from "./components/LogoCloud.jsx";
 import HowItWorks from "./components/home/HowItWorks.jsx";
 import FeatureTour from "./components/home/FeatureTour.jsx";
+import ClaudeSection from "./components/home/ClaudeSection.jsx";
 import Solutions from "./components/home/Solutions.jsx";
 import HomeFaq from "./components/home/HomeFaq.jsx";
 import Pricing from "./components/Pricing.jsx";
@@ -48,6 +49,7 @@ export default function HomePage() {
         <LogoCloud />
         <HowItWorks />
         <FeatureTour />
+        <ClaudeSection />
         <Solutions />
         <Pricing />
         <HomeFaq />
