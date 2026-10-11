@@ -141,7 +141,7 @@ export function HubInboxPage() {
           <aside className="w-[322px] shrink-0 flex flex-col min-h-0 border-r border-[var(--ui-border)] bg-[var(--ui-surface-card)]">
             <div className="shrink-0 px-4 pt-5 pb-3 border-b border-[var(--ui-border-hairline)]">
               <div className="flex items-center gap-2">
-                <h1 className="flex-1 text-[length:var(--ui-t-heading)] font-semibold tracking-[var(--ui-track-tight)] text-[var(--ui-text-primary)]">
+                <h1 className="ui-display flex-1">
                   {t.pageTitle}
                 </h1>
                 <IconButton

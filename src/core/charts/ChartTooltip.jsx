@@ -6,7 +6,7 @@ export function ChartTooltip({ active, payload, label, formatLabel = (l) => l, f
   if (!active || !Array.isArray(payload) || payload.length === 0) return null;
   return (
     <div className="rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-md)] px-3 py-2 min-w-[140px]">
-      <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] uppercase tracking-[var(--ui-track-meta)] text-[var(--ui-text-quaternary)]">
+      <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] tracking-[var(--ui-track-meta)] text-[var(--ui-text-quaternary)]">
         {formatLabel(label)}
       </p>
       <div className="mt-1.5 flex flex-col gap-1">

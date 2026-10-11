@@ -114,12 +114,12 @@ function NavRow({ item, active, expanded, onClick, badge = null }) {
       aria-current={active ? "page" : undefined}
       className={[
         "group relative w-full flex items-center gap-2.5 h-[var(--ui-nav-row)] rounded-[var(--ui-radius-sm)] text-[length:var(--ui-t-nav)]",
-        "transition-colors duration-[var(--ui-dur-fast)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]",
+        "transition-[background-color,color,transform] duration-[var(--ui-dur-fast)] active:scale-[0.985] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]",
         expanded ? "px-2.5" : "px-0 justify-center",
         /* Where you are is the one question the sidebar exists to answer:
            the accent tint, the accent text and the spine say it together. */
         active
-          ? "bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-medium " +
+          ? "bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)] font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_1px_2px_rgba(59,91,219,0.14)] " +
             "before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[var(--ui-spine)] " +
             "before:rounded-r-full before:bg-[var(--ui-accent)]"
           : "text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-rail-hover)] hover:text-[var(--ui-text-primary)]",
@@ -390,6 +390,9 @@ function AccountRow({ user, expanded, onLogout }) {
  *   "card" (default) — ONE card filling the remaining height. The table
  *                      screens: toolbar, bulk bar, rows and pagination all
  *                      live inside it, never as stacked cards.
+ *   "fill"           — no card, no page scroll: the page lays out its own fixed
+ *                      regions and ONE of them (a table card) takes the
+ *                      remaining height and scrolls its rows, like Leads.
  *   "page"           — no card; the whole column scrolls. Dashboards,
  *                      settings, card grids — screens made of several
  *                      regions, each of which brings its own card.
@@ -403,6 +406,9 @@ function AccountRow({ user, expanded, onLogout }) {
 export function DashboardLayout({
   children,
   title,
+  // A plain-string `subtitle` is a description and is no longer shown (one
+  // title per page, no blurb). A non-string subtitle (a node) carries live
+  // data, like a status line or a usage count, and still renders.
   subtitle,
   actions = null,
   tabs = null,
@@ -528,7 +534,8 @@ export function DashboardLayout({
     });
   };
 
-  const hasHeader = header && (title || subtitle || actions);
+  const hasHeader = header && (title || actions);
+  const dataSubtitle = subtitle && typeof subtitle !== "string" ? subtitle : null;
 
   return (
     <div
@@ -536,7 +543,7 @@ export function DashboardLayout({
       style={{ minHeight: 600 }}
     >
       <aside
-        className="flex flex-col h-full shrink-0 bg-[var(--ui-surface-sunken)] border-r border-[var(--ui-border)] transition-[width] duration-[var(--ui-dur-base)] ease-[cubic-bezier(0.2,0,0.1,1)]"
+        className="flex flex-col h-full shrink-0 bg-[var(--ui-surface-sunken)] border-r border-[var(--ui-border)] shadow-[var(--ui-shadow-rail)] relative z-[2] transition-[width] duration-[var(--ui-dur-base)] ease-[cubic-bezier(0.2,0,0.1,1)]"
         style={{ width: expanded ? WIDTH_EXPANDED : WIDTH_COLLAPSED }}
       >
         <div
@@ -643,15 +650,17 @@ export function DashboardLayout({
           />
         )}
 
-        {hasHeader && (
-          <header className="shrink-0 flex items-start gap-4 px-[var(--ui-shell-x)] pt-5">
+        {(hasHeader || tabs) && (
+          <div className="ui-topbar shrink-0">
+            {hasHeader && (
+            <header className="flex items-center gap-4 px-[var(--ui-shell-x)] min-h-[var(--ui-topbar-h)] py-2">
             {backTo && (
               <Tooltip content={backLabel} placement="bottom">
                 <button
                   type="button"
                   onClick={() => navigate(backTo)}
                   aria-label={backLabel}
-                  className="mt-0.5 grid place-items-center w-8 h-8 shrink-0 rounded-[var(--ui-radius-btn)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] text-[var(--ui-text-secondary)] transition-[border-color,color,box-shadow] duration-[var(--ui-dur-fast)] hover:border-[var(--ui-accent-border)] hover:text-[var(--ui-text-primary)] hover:shadow-[var(--ui-hover-ring)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
+                  className="grid place-items-center w-8 h-8 shrink-0 rounded-[var(--ui-radius-btn)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] text-[var(--ui-text-secondary)] transition-[border-color,color,box-shadow] duration-[var(--ui-dur-fast)] hover:border-[var(--ui-accent-border)] hover:text-[var(--ui-text-primary)] hover:shadow-[var(--ui-hover-ring)] focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]"
                 >
                   <ArrowLeftIcon size={15} strokeWidth={2} />
                 </button>
@@ -660,38 +669,41 @@ export function DashboardLayout({
             <div className="min-w-0 flex-1">
               {title && (
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <h1 className="ui-display m-0 text-[length:var(--ui-t-display)] tracking-[var(--ui-track-display)] leading-[1.15] text-[var(--ui-text-primary)] truncate">
+                  <h1 className="ui-display m-0 truncate">
                     {title}
                   </h1>
                   {badge && <span className="shrink-0">{badge}</span>}
                 </div>
               )}
-              {subtitle && (
-                <div className="mt-[5px] text-[length:var(--ui-t-nav)] leading-[1.45] text-[var(--ui-text-secondary)] max-w-[62ch]">
-                  {subtitle}
+              {dataSubtitle && (
+                <div className="mt-0.5 text-[length:var(--ui-t-label)] leading-[1.4] text-[var(--ui-text-secondary)]">
+                  {dataSubtitle}
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-2 shrink-0 pt-1">
+            <div className="flex items-center gap-2 shrink-0">
               <NotificationBell />
               {actions}
             </div>
           </header>
+            )}
+            {tabs && <div className={`px-[var(--ui-shell-x)] ${hasHeader ? "" : "pt-4"}`}>{tabs}</div>}
+          </div>
         )}
-
-        {tabs && <div className="shrink-0 px-[var(--ui-shell-x)] pt-4">{tabs}</div>}
 
         {layout === "bare" ? (
           <main className={`flex-1 min-h-0 flex flex-col overflow-hidden ${hasHeader || tabs ? "mt-4 border-t border-[var(--ui-border)]" : ""}`}>
             {children}
           </main>
+        ) : layout === "fill" ? (
+          <main className="flex-1 min-h-0 flex flex-col overflow-hidden px-[var(--ui-shell-x)] pt-4 pb-5">{children}</main>
         ) : layout === "plain" ? (
           <main className="flex-1 flex flex-col px-[var(--ui-shell-x)] pt-4 pb-5">{children}</main>
         ) : layout === "page" ? (
           <main className="flex-1 px-[var(--ui-shell-x)] pt-4 pb-6">{children}</main>
         ) : (
           <main className="flex-1 min-h-0 flex flex-col overflow-hidden px-[var(--ui-shell-x)] pt-4 pb-5">
-            <div className="flex-1 min-h-0 flex flex-col overflow-hidden rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-sm)]">
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)]">
               {children}
             </div>
           </main>

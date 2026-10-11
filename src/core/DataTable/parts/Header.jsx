@@ -101,7 +101,7 @@ export function Header({
         {selectable && (
           <th
             scope="col"
-            className="bg-[var(--ui-surface-header)] border-b border-[var(--ui-border)]"
+            className="ui-th bg-[var(--ui-surface-header)] border-b border-[var(--ui-border)]"
             style={{ height: d.header, padding: `0 0 0 ${d.padX}px` }}
           >
             <div className="flex items-center h-full">

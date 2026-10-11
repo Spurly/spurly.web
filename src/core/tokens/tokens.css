@@ -7,6 +7,15 @@
    or size, add a token here — never a literal in a component.
 
    ------------------------------------------------------------
+   v6 (Oct 2026): DEPTH AND CHARACTER. The app stops being flat. Surfaces
+   now sit on a real elevation ladder (page < card < raised control < popover),
+   the page header is a tinted, softly shadowed band, table headers and
+   controls carry a top highlight, and cell values wear raised chips. This
+   deliberately reverses the older "flat surfaces and hairlines" rule: the
+   restraint that remains is in COLOUR (one accent), not in lighting. All of
+   it lives in the "Depth" block below plus the .ui-topbar / .ui-th /
+   .ui-chip / .ui-pill classes at the end of this file.
+
    v5 (Oct 2026): BLUE, CLEAN. The warm editorial look is gone. One royal
    blue accent (#3b5bdb fill and text, #5b7cfa for dots), a cool near-white
    ramp, navy ink, and Instrument Sans for display as well as text (bold,
@@ -233,6 +242,7 @@
   --ui-danger-fg:    #a3301f;
   --ui-danger-dot:   #d9503c;
   --ui-danger-tint:  #fbe8e3;
+  --ui-danger-border: #f0c5bc;
 
   --ui-info:         var(--ui-accent);
   --ui-info-fg:      var(--ui-accent-fg);
@@ -271,11 +281,10 @@
      stays as a real fallback: nothing in the layout depends on
      either face arriving. Self-hosting is a later optimisation,
      not a correctness issue. */
-  --ui-font-sans: "Instrument Sans", -apple-system, BlinkMacSystemFont, system-ui,
+  --ui-font-sans: "Geist", "Instrument Sans", -apple-system, BlinkMacSystemFont, system-ui,
                   "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  --ui-font-display: "Instrument Sans", -apple-system, BlinkMacSystemFont, system-ui,
-                  "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  --ui-font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", SFMono-Regular,
+  --ui-font-display: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --ui-font-mono: "Geist Mono", "IBM Plex Mono", ui-monospace, "SF Mono", SFMono-Regular,
                   Menlo, Consolas, monospace;
 
   /* ---- Type scale ------------------------------------------
@@ -293,14 +302,14 @@
        label    field labels, hints, errors, tags, pagination.
        meta     mono. Badges, timestamps, counts.
        micro    mono. Column headers, rail labels, stat labels. */
-  --ui-t-display: 26px;
-  --ui-t-metric:  26px;
+  --ui-t-display: 28px;
+  --ui-t-metric:  22px;
   --ui-t-section: 16px;
   --ui-t-nav:     13.5px;
   --ui-t-body:    14px;
   --ui-t-label:   12.5px;
   --ui-t-meta:    11.5px;
-  --ui-t-micro:   10.5px;
+  --ui-t-micro:   12px;
 
   /* Three steps the handoff uses constantly that the eight above
      don't cover. `control` is the text inside every 30-32px control
@@ -327,11 +336,11 @@
 
   /* Optical tracking. Large text needs pulling in; small mono
      caps need room to breathe or they set as a solid block. */
-  --ui-track-display: -0.03em;
+  --ui-track-display: -0.015em;
   --ui-track-tight:   -0.024em;
   --ui-track-base:    -0.006em;
-  --ui-track-meta:     0.11em;
-  --ui-track-micro:    0.13em;
+  --ui-track-meta:     0.005em;
+  --ui-track-micro:    0.005em;
 
   /* ---- Radii -----------------------------------------------
      Nothing above 18px except pills. Large radii on everything is
@@ -442,6 +451,46 @@
     inset 0 0.5px 0 0 var(--ui-accent-glow),
     0 5px 16px rgba(59, 91, 219, 0.34);
 
+  /* ---- Depth (v6) -------------------------------------------
+     Light comes from above. Every raised thing gets (1) a 1px white
+     highlight on its top edge, (2) a tight contact shadow, (3) a wide,
+     soft, blue-tinted ambient shadow. Blue-tinted, not black: a grey
+     shadow on this cool ground reads as dirt.
+
+       topbar   the page header band — tinted a step toward the accent
+                so it reads as a different plane from the canvas
+       card     a content card resting on the canvas
+       control  a raised control: secondary button, dropdown, chip
+       header   the table header band                                  */
+  --ui-topbar-bg:     linear-gradient(180deg, rgba(226, 233, 253, 0.92) 0%, rgba(237, 241, 254, 0.88) 100%);
+  --ui-topbar-border: #c9d5f5;
+  --ui-shadow-topbar: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 10px 22px -16px rgba(25, 35, 95, 0.38);
+
+  --ui-shadow-card:
+    0 0 0 0.5px rgba(25, 35, 95, 0.05),
+    0 1px 2px rgba(25, 35, 95, 0.05),
+    0 12px 30px -16px rgba(25, 35, 95, 0.22);
+  --ui-shadow-card-hover:
+    0 0 0 0.5px rgba(59, 91, 219, 0.14),
+    0 2px 4px rgba(25, 35, 95, 0.06),
+    0 18px 38px -16px rgba(59, 91, 219, 0.30);
+
+  --ui-shadow-rail: 1px 0 0 rgba(255, 255, 255, 0.7) inset, 6px 0 18px -14px rgba(25, 35, 95, 0.28);
+
+  --ui-header-gradient: linear-gradient(180deg, #fcfdff 0%, #f0f3fc 100%);
+
+  --ui-control-bg:     linear-gradient(180deg, #ffffff 0%, #f5f7fd 100%);
+  --ui-control-shadow: inset 0 1px 0 #ffffff, 0 1px 2px rgba(25, 35, 95, 0.09);
+  --ui-control-shadow-hover:
+    inset 0 1px 0 #ffffff, 0 3px 8px -2px rgba(59, 91, 219, 0.22), 0 0 0 3px rgba(59, 91, 219, 0.09);
+  --ui-control-shadow-pressed: inset 0 1px 2px rgba(25, 35, 95, 0.14);
+
+  /* Chips: the value of a cell, drawn as a small physical object. */
+  --ui-chip-bg:     linear-gradient(180deg, #ffffff 0%, #f1f4fb 100%);
+  --ui-chip-border: #dde3f1;
+  --ui-chip-shadow: inset 0 1px 0 #ffffff, 0 1px 1.5px rgba(25, 35, 95, 0.08);
+  --ui-chip-shadow-hover: inset 0 1px 0 #ffffff, 0 3px 8px -2px rgba(59, 91, 219, 0.28);
+
   /* ---- Motion ----------------------------------------------
      Two curves, three durations, one rule: things that react to a
      POINTER use `ease` (--ui-ease); things that TRAVEL use the
@@ -488,6 +537,18 @@
    plain <span>s inside cells need them too.
    ============================================================ */
 
+/* A big card figure. Sans, tabular, medium: a 22px mono figure read as a
+   terminal; this reads as a number. */
+.ui-metric {
+  font-family: var(--ui-font-sans);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--ui-w-medium);
+  font-size: var(--ui-t-metric);
+  letter-spacing: var(--ui-track-tight);
+  line-height: 1;
+  color: var(--ui-text-primary);
+}
+
 .ui-num,
 .ui-reading {
   font-family: var(--ui-font-mono);
@@ -496,6 +557,7 @@
 }
 
 .ui-reading {
+  font-family: var(--ui-font-sans);
   font-size: var(--ui-t-metric);
   letter-spacing: var(--ui-track-tight);
   color: var(--ui-text-primary);
@@ -505,16 +567,15 @@
    headers, menu groups. The tracking is not optional — mono caps
    at 10.5px set as a solid block without it. */
 .ui-micro {
-  font-family: var(--ui-font-mono);
+  font-family: var(--ui-font-sans);
   font-size: var(--ui-t-micro);
   font-weight: var(--ui-w-medium);
-  text-transform: uppercase;
   letter-spacing: var(--ui-track-micro);
   color: var(--ui-text-tertiary);
 }
 
 .ui-meta {
-  font-family: var(--ui-font-mono);
+  font-family: var(--ui-font-sans);
   font-size: var(--ui-t-meta);
   font-weight: var(--ui-w-medium);
   letter-spacing: var(--ui-track-meta);
@@ -584,4 +645,144 @@
 
 @media (prefers-reduced-motion: reduce) {
   .ui-meter > i { transition: none; }
+}
+
+/* ============================================================
+   DEPTH (v6)
+   ============================================================ */
+
+/* The page header band. Sticky so it stays on the canvas when a "page"
+   layout scrolls; the blur lets the ribbons backdrop show through faintly. */
+.ui-topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--ui-z-sticky);
+  background: var(--ui-topbar-bg);
+  border-bottom: 1px solid var(--ui-topbar-border);
+  box-shadow: var(--ui-shadow-topbar);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  backdrop-filter: blur(14px) saturate(1.25);
+}
+
+/* Table header cell: a lit top edge on a faint vertical gradient, so the
+   header reads as a rail the rows slide under. */
+.ui-th {
+  background-image: var(--ui-header-gradient);
+  box-shadow: inset 0 1px 0 #ffffff;
+}
+
+/* Chip — a value drawn as a small raised object. `data-interactive` (set when
+   the chip has an onClick) adds the lift on hover and the press on active. */
+.ui-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: var(--ui-radius-xs);
+  border: 1px solid var(--ui-chip-border);
+  background: var(--ui-chip-bg);
+  box-shadow: var(--ui-chip-shadow);
+  color: var(--ui-text-body);
+  font-size: var(--ui-t-label);
+  font-weight: var(--ui-w-medium);
+  white-space: nowrap;
+  transition: box-shadow var(--ui-dur-fast) var(--ui-ease), border-color var(--ui-dur-fast) var(--ui-ease),
+    transform var(--ui-dur-fast) var(--ui-ease);
+}
+.ui-chip[data-tone="accent"]  { background: linear-gradient(180deg, #f3f6ff 0%, var(--ui-accent-tint) 100%); border-color: var(--ui-accent-border); color: var(--ui-accent-fg); }
+.ui-chip[data-tone="success"] { background: linear-gradient(180deg, #f1f9f2 0%, var(--ui-success-tint) 100%); border-color: #c6e2cc; color: var(--ui-success-fg); }
+.ui-chip[data-tone="warning"] { background: linear-gradient(180deg, #fff6e9 0%, var(--ui-warning-tint) 100%); border-color: var(--ui-warning-border); color: var(--ui-warning-fg); }
+.ui-chip[data-tone="danger"]  { background: linear-gradient(180deg, #fff1ee 0%, var(--ui-danger-tint) 100%); border-color: #f0c5bc; color: var(--ui-danger-fg); }
+.ui-chip[data-size="sm"] { height: 22px; padding: 0 8px; }
+.ui-chip[data-mono] { flex-shrink: 0; font-family: var(--ui-font-mono); font-size: var(--ui-t-meta); letter-spacing: 0.02em; }
+.ui-chip[data-interactive] { cursor: pointer; }
+.ui-chip[data-interactive]:hover {
+  border-color: var(--ui-accent-border);
+  box-shadow: var(--ui-chip-shadow-hover);
+  transform: translateY(-1px);
+}
+.ui-chip[data-interactive]:active { transform: none; box-shadow: var(--ui-control-shadow-pressed); }
+.ui-chip[data-interactive]:focus-visible { outline: none; box-shadow: var(--ui-focus-ring); }
+
+/* Status pill (Badge tint/solid): a hairline ring in the pill's own colour so
+   it has an edge on both white and tinted rows. */
+.ui-pill { box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 16%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.55); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-chip { transition: none; }
+  .ui-chip[data-interactive]:hover { transform: none; }
+}
+
+/* Zebra + entrance for table rows. The alternate tint goes on the cells, and
+   only while the row is neither hovered nor selected, so those states keep
+   painting their own background. Rows rise in with a short stagger (capped at
+   14 steps, so a 100-row page never waits on its tail); a new page or sort
+   remounts the rows and replays it. */
+.ui-row--alt:not([aria-selected="true"]):not(:hover) > td { background-color: #f9fafe; }
+.ui-row { animation: ui-row-in 260ms var(--ui-spring) both; animation-delay: calc(var(--i, 0) * 18ms); }
+@keyframes ui-row-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+/* Press feedback for anything that is a button-shaped surface. */
+@media (prefers-reduced-motion: reduce) {
+  .ui-row { animation: none; }
+}
+
+/* Row status stripe: a 3px edge on the first cell, by tone. */
+.ui-row[data-tone="success"] > td:first-child { box-shadow: inset 3px 0 0 var(--ui-success-dot); }
+.ui-row[data-tone="accent"]  > td:first-child { box-shadow: inset 3px 0 0 var(--ui-accent-dot); }
+.ui-row[data-tone="warning"] > td:first-child { box-shadow: inset 3px 0 0 var(--ui-warning-dot); }
+.ui-row[data-tone="danger"]  > td:first-child { box-shadow: inset 3px 0 0 var(--ui-danger-dot); }
+
+/* Hover quick actions, pinned to the right of the row's last cell. The fade on
+   the left covers any text underneath. */
+.ui-row-actions {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+  padding-left: 36px;
+  transform: translate(8px, -50%);
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, var(--ui-surface-hover) 34%);
+  transition: opacity var(--ui-dur-fast) var(--ui-ease), transform var(--ui-dur-base) var(--ui-spring);
+}
+.ui-row:hover .ui-row-actions,
+.ui-row:focus-within .ui-row-actions { opacity: 1; transform: translate(0, -50%); pointer-events: auto; }
+.ui-row-actions .ui-chip { text-decoration: none; }
+
+/* Skeleton shimmer: a highlight sweeping across the placeholder. */
+.ui-shimmer {
+  display: block;
+  background: linear-gradient(100deg, var(--ui-neutral-150) 30%, #f7f9ff 50%, var(--ui-neutral-150) 70%);
+  background-size: 220% 100%;
+  animation: ui-shimmer 1.4s linear infinite;
+}
+@keyframes ui-shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+
+/* A checked box glows softly and pops once. */
+.ui-check-on {
+  box-shadow: 0 0 0 3px rgba(59, 91, 219, 0.16), 0 2px 6px -1px rgba(59, 91, 219, 0.45);
+  animation: ui-check-pop 240ms var(--ui-spring);
+}
+@keyframes ui-check-pop { 0% { transform: scale(0.82); } 60% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+/* The selection band slides up into place. */
+.ui-bulk-in { animation: ui-bulk-in 280ms var(--ui-spring) both; }
+@keyframes ui-bulk-in { from { opacity: 0; transform: translateY(14px) scale(0.985); } to { opacity: 1; transform: none; } }
+
+/* Staggered card entrance: siblings rise in one after another. */
+.ui-surface--tilt:nth-child(2) { animation-delay: 60ms; }
+.ui-surface--tilt:nth-child(3) { animation-delay: 120ms; }
+.ui-surface--tilt:nth-child(4) { animation-delay: 180ms; }
+.ui-surface--tilt:nth-child(5) { animation-delay: 240ms; }
+.ui-surface--tilt:nth-child(6) { animation-delay: 300ms; }
+.ui-surface--tilt:nth-child(n+7) { animation-delay: 360ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-shimmer, .ui-check-on, .ui-bulk-in { animation: none; }
+  .ui-row-actions { transition: none; }
 }

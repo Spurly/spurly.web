@@ -1,6 +1,7 @@
 import { Badge } from 'src/core/primitives';
 import {
-  TextCell,
+  ChipCell,
+  CompanyCell,
   PersonCell,
   LocationCell,
   ActivityCell,
@@ -10,6 +11,7 @@ import {
 
 /** 1st / 2nd / 3rd, from the normalised degree the backend stores. */
 const DEGREE_LABEL = { 1: '1st', 2: '2nd', 3: '3rd' };
+const DEGREE_TONE = { 1: 'success', 2: 'accent', 3: 'neutral' };
 
 /**
  * Follower counts are BUCKETS, not counts.
@@ -85,6 +87,12 @@ const STATUS_VIEW = {
   new: { label: 'New', tone: 'neutral' },
 };
 
+/** Row stripe colour: connected leads green, invited blue, new leads none. */
+export function leadRowTone(row = {}) {
+  const s = leadStatus(row);
+  return s === 'connected' ? 'success' : s === 'invited' ? 'accent' : null;
+}
+
 export function leadStatus(row = {}) {
   if (row.connectionDegree === 1) return 'connected';
   if (row.pendingInvitationSentAt || row.pendingInvitationId) return 'invited';
@@ -129,32 +137,30 @@ export const hubLeadColumns = [
     title: (row) => row.currentTitle,
     // Blank until the lead's full profile has been resolved (open the
     // drawer, or enrich) — correctly empty, not broken.
-    render: (value) => <TextCell value={value || null} tone="body" />,
+    render: (value) => <ChipCell value={value || null} />,
   },
   {
     key: 'companyName',
     label: 'Company',
-    width: 158,
+    width: 180,
     sortable: true,
     title: (row) => row.companyName,
-    render: (value) => <TextCell value={value || null} tone="body" />,
+    render: (value) => <CompanyCell value={value || null} chip />,
   },
   {
     key: 'location',
     label: 'Location',
-    width: 150,
+    width: 200,
     sortable: true,
-    render: (value) => <LocationCell value={value} />,
+    render: (value) => <LocationCell value={value} chip flag />,
   },
   {
     key: 'connectionDegree',
-    label: 'Deg',
-    width: 64,
+    label: 'Degree',
+    width: 100,
     align: 'center',
     render: (value) => (
-      <span className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)]">
-        {DEGREE_LABEL[value] ?? '—'}
-      </span>
+      <ChipCell value={DEGREE_LABEL[value] ?? null} mono tone={DEGREE_TONE[value]} dot />
     ),
   },
   {

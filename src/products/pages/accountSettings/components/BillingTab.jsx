@@ -39,7 +39,7 @@ function InvoicesCard({ reloadKey }) {
     subscriptionsController.getInvoices(emitter);
   }, [reloadKey]);
 
-  const th = 'px-4 py-2 text-left text-[length:var(--ui-t-meta)] font-medium uppercase tracking-wider text-[var(--ui-text-secondary)]';
+  const th = 'px-4 py-2 text-left text-[length:var(--ui-t-meta)] font-medium tracking-wider text-[var(--ui-text-secondary)]';
   const td = 'px-4 py-3 text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] tabular-nums';
 
   return (

@@ -11,6 +11,9 @@ export function Row({
   onRowClick = null,
   onToggleSelect = null,
   rowId,
+  index = 0,
+  tone = null,
+  actions = null,
 }) {
   const d = resolveDensity(density);
 
@@ -18,13 +21,15 @@ export function Row({
     <tr
       onClick={onRowClick ? () => onRowClick(row) : undefined}
       aria-selected={selectable ? isSelected : undefined}
+      data-tone={tone || undefined}
       /* The accent edge is an INSET SHADOW, not a border or a pseudo-element:
          a border would shift every cell by 2px on hover, and a row that nudges
          sideways under the cursor feels broken. Shadows don't affect layout, so
          this is free. Requires border-collapse: separate on the table — under
          `collapse`, shadows on a <tr> don't paint reliably. */
       className={[
-        'group transition-[background-color,box-shadow] duration-[140ms]',
+        'group ui-row transition-[background-color,box-shadow] duration-[140ms]',
+        index % 2 === 1 ? 'ui-row--alt' : '',
         onRowClick ? 'cursor-pointer' : '',
         isSelected
           ? 'bg-[var(--ui-accent-tint)] shadow-[inset_2px_0_0_var(--ui-accent)]'
@@ -32,7 +37,7 @@ export function Row({
       ]
         .filter(Boolean)
         .join(' ')}
-      style={{ height: d.row }}
+      style={{ height: d.row, '--i': Math.min(index, 14) }}
     >
       {selectable && (
         <td
@@ -50,8 +55,14 @@ export function Row({
         </td>
       )}
 
-      {columns.map((column) => (
-        <Cell key={column.key} row={row} column={column} density={density} />
+      {columns.map((column, i) => (
+        <Cell
+          key={column.key}
+          row={row}
+          column={column}
+          density={density}
+          actions={i === columns.length - 1 ? actions : null}
+        />
       ))}
     </tr>
   );

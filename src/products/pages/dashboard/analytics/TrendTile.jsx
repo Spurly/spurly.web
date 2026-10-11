@@ -28,7 +28,7 @@ export function TrendTile({ label, value, delta, prev, series, color, days, load
           </span>
         )}
       </div>
-      <div className="ui-num tracking-[-0.02em] leading-none text-[length:var(--ui-t-metric)] mt-2.5 text-[var(--ui-text-primary)]">
+      <div className="ui-metric mt-2.5">
         {loading ? '—' : <CountUp value={value} />}
       </div>
       <div className="mt-3">

@@ -160,7 +160,7 @@ export function FieldMappingPanel({
         style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
       >
         <div
-          className="hidden sm:grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1.2fr)] gap-4 px-[var(--ui-pad-lg)] py-2.5 text-[length:var(--ui-t-label)] font-medium uppercase tracking-[0.04em]"
+          className="hidden sm:grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1.2fr)] gap-4 px-[var(--ui-pad-lg)] py-2.5 text-[length:var(--ui-t-label)] font-medium "
           style={{ color: 'var(--ui-text-tertiary)', borderBottom: '1px solid var(--ui-border-hairline)' }}
         >
           <span>Spurly field</span>

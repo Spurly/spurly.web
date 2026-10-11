@@ -85,7 +85,7 @@ export function HubCompanyPage() {
   return (
     <DashboardLayout
       title={company.name}
-      subtitle={company.tagline || undefined}
+      subtitle={company.tagline ? <>{company.tagline}</> : undefined}
       {...layoutProps}
       actions={
         <div className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export function HubCompanyPage() {
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
           <StatTile label={t.tiles.followers} value={number(company.followersCount)} />
           <StatTile label={t.tiles.employees} value={employeesLabel(company)} />
-          <StatTile label={t.tiles.founded} value={company.foundedYear ?? '—'} />
+          <StatTile label={t.tiles.founded} value={company.foundedYear ?? '—'} countUp={false} />
           <StatTile label={t.tiles.industry} value={company.industry?.[0] ?? '—'} caption={company.industry?.slice(1).join(', ') || undefined} />
         </div>
 

@@ -24,7 +24,7 @@ export function TeamTab() {
             <p className="text-[length:var(--ui-t-control)] font-medium text-[var(--ui-text-primary)] truncate">{user?.name}</p>
             <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)] truncate">{user?.email}</p>
           </div>
-          <span className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] uppercase tracking-[var(--ui-track-meta)] text-[var(--ui-text-secondary)]">
+          <span className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] tracking-[var(--ui-track-meta)] text-[var(--ui-text-secondary)]">
             Owner
           </span>
         </div>

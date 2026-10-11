@@ -10,7 +10,7 @@ import { Button } from 'src/core/primitives';
 export function BulkActionBar({ count, onClear, children }) {
   return (
     <div
-      className="flex items-center gap-2 h-12 shrink-0 px-[var(--ui-card-x)] overflow-x-auto bg-[var(--ui-accent-wash)] border-b border-[var(--ui-accent-tint-strong)] shadow-[inset_2px_0_0_var(--ui-accent)] sp-rise"
+      className="flex items-center gap-2 h-12 shrink-0 px-[var(--ui-card-x)] overflow-x-auto bg-[var(--ui-accent-wash)] border-b border-[var(--ui-accent-tint-strong)] shadow-[inset_2px_0_0_var(--ui-accent)] ui-bulk-in"
       role="region"
       aria-label="Bulk actions"
     >

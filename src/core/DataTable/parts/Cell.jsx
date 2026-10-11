@@ -17,7 +17,7 @@ const ALIGN = { left: 'justify-start', center: 'justify-center', right: 'justify
  *   - the full value goes on `title`, so nothing is lost to truncation
  *   - `column.wrap` opts into two lines and still clamps
  */
-export function Cell({ row = {}, column = {}, density = 'default' }) {
+export function Cell({ row = {}, column = {}, density = 'default', actions = null }) {
   const d = resolveDensity(density);
   const raw = row[column.key];
   const content = column.render ? column.render(raw, row) : raw;
@@ -32,7 +32,7 @@ export function Cell({ row = {}, column = {}, density = 'default' }) {
   return (
     <td
       data-column-id={column.key}
-      className={`border-b border-[var(--ui-border-hairline)] ${column.cellClassName || ''}`}
+      className={`border-b border-[var(--ui-border-hairline)] ${actions ? 'relative' : ''} ${column.cellClassName || ''}`}
       style={{ height: d.row, padding: `0 ${d.padX}px`, fontSize: d.fontSize }}
     >
       <div
@@ -53,6 +53,29 @@ export function Cell({ row = {}, column = {}, density = 'default' }) {
           {content ?? <span className="text-[var(--ui-text-quaternary)]">—</span>}
         </span>
       </div>
+      {actions && actions.length > 0 && (
+        <div className="ui-row-actions" onClick={(e) => e.stopPropagation()}>
+          {actions.map((a) => {
+            const Tag = a.href ? 'a' : 'button';
+            return (
+              <Tag
+                key={a.key}
+                {...(a.href ? { href: a.href, target: '_blank', rel: 'noreferrer noopener' } : { type: 'button' })}
+                onClick={a.onClick}
+                title={a.label}
+                aria-label={a.label}
+                data-interactive=""
+                data-tone={a.tone}
+                data-size="sm"
+                className="ui-chip"
+              >
+                {a.icon}
+                <span>{a.label}</span>
+              </Tag>
+            );
+          })}
+        </div>
+      )}
     </td>
   );
 }

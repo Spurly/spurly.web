@@ -57,7 +57,7 @@ export function ClaudeCard() {
             <span className="grid h-10 w-10 place-items-center rounded-[12px] bg-[linear-gradient(160deg,#EE9A78,#CF6540)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_8px_18px_-6px_rgba(217,111,74,0.7)]">
               <Burst />
             </span>
-            <span className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] uppercase tracking-[var(--ui-track-meta)] text-[#C2593A]">
+            <span className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] tracking-[var(--ui-track-meta)] text-[#C2593A]">
               {t.claude.eyebrow}
             </span>
           </div>
@@ -90,7 +90,7 @@ export function ClaudeCard() {
           <div className="flex items-center gap-2 border-b border-[#F6E4DA] bg-[#FFFAF7] px-4 py-2.5">
             <span className="grid h-5 w-5 place-items-center rounded-[6px] bg-[linear-gradient(160deg,#EE9A78,#CF6540)] text-white"><Burst size={12} /></span>
             <span className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-primary)]">Claude</span>
-            <span className="ml-auto flex items-center gap-1.5 font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] uppercase tracking-[var(--ui-track-meta)] text-[var(--ui-text-secondary)]">
+            <span className="ml-auto flex items-center gap-1.5 font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] tracking-[var(--ui-track-meta)] text-[var(--ui-text-secondary)]">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--ui-success-dot)]" aria-hidden="true" />
               {t.claude.connected}
             </span>

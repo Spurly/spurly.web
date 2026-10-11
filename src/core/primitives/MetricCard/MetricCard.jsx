@@ -23,10 +23,10 @@ export function MetricCard({ label, value, change, delta, changeType, icon, vari
         </div>
       )}
       <p
-        className="text-[length:var(--ui-t-meta)] font-medium uppercase tracking-[0.04em] mb-2"
+        className="text-[length:var(--ui-t-meta)] font-medium mb-2"
         style={{ color: hintColor ?? 'var(--ui-text-tertiary)' }}
       >{label}</p>
-      <p className="text-[length:var(--ui-t-metric)] font-medium tracking-[-0.012em] text-[var(--ui-text-primary)] leading-none tabular-nums">{value}</p>
+      <p className="ui-metric">{value}</p>
       {deltaValue !== undefined && (
         <div className="flex items-center gap-1.5 mt-3">
           <span

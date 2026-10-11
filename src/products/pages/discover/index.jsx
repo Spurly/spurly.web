@@ -71,7 +71,7 @@ export function HubDiscoverPage() {
   return (
     <DashboardLayout
       title={t.pageTitle}
-      subtitle={usage ? `${t.pageSubtitle} ${t.usageLabel(usage.used, usage.cap)}.` : t.pageSubtitle}
+      subtitle={usage ? <>{`${t.usageLabel(usage.used, usage.cap)}.`}</> : undefined}
       layout="page"
     >
       <div className="flex flex-col gap-4">

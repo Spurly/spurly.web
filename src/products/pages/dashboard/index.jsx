@@ -370,7 +370,7 @@ export function HubDashboardPage() {
                       <span className="flex-1 min-w-0 truncate text-[length:var(--ui-t-control)] text-[var(--ui-text-primary)]">
                         {c.name || 'Untitled campaign'}
                       </span>
-                      <span className={`font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] uppercase tracking-[var(--ui-track-meta)] ${warn ? 'text-[var(--ui-warning-fg)]' : 'text-[var(--ui-accent-fg)]'}`}>
+                      <span className={`font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] tracking-[var(--ui-track-meta)] ${warn ? 'text-[var(--ui-warning-fg)]' : 'text-[var(--ui-accent-fg)]'}`}>
                         {view.label}
                       </span>
                     </span>
