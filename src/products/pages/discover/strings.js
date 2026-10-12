@@ -32,12 +32,15 @@ export const discoverStrings = {
     },
     posts: {
       keywordsLabel: 'Post keywords',
-      keywordsPlaceholder: 'e.g. hiring react, looking for a CRM',
+      keywordsPlaceholder: 'e.g. #smartlead, hiring react developer',
       urlPlaceholder: 'https://www.linkedin.com/search/results/content/?keywords=…',
       emptyTitle: 'Search for posts',
       emptyHint: 'People who post about a topic care about it. Select the authors you want and import them.',
       noResultsTitle: 'No posts found',
       noResultsHint: 'Try different keywords or a longer time range.',
+      hashtagSuggestion: (word) => `Try #${word} instead`,
+      hashtagHintSingle: 'A plain word matches loosely. A hashtag matches the exact topic.',
+      hashtagHintMulti: 'Plain keywords match loosely. Put # before the key word (e.g. #smartlead) for exact topic matches.',
     },
   },
   filters: {

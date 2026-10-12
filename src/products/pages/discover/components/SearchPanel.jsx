@@ -35,6 +35,13 @@ export function SearchPanel({ category, loading, disabled, onSearch }) {
   const [filters, setFilters] = useState({});
   const set = (key) => (value) => setFilters((f) => ({ ...f, [key]: value }));
   const value = useUrl ? url : keywords;
+
+  // Part 1 (discover_posts_relevance_plan.md): a plain keyword matches loosely on
+  // LinkedIn's post search; a #hashtag matches the exact topic (verified live). We
+  // never rewrite the user's query ourselves — only suggest, for posts, not URL mode.
+  const trimmedKeywords = keywords.trim();
+  const showHashtagHint = category === 'posts' && !useUrl && !!trimmedKeywords && !trimmedKeywords.includes('#');
+  const hashtagCandidate = showHashtagHint && !/\s/.test(trimmedKeywords) ? trimmedKeywords : null;
   const submit = (event) => {
     event.preventDefault();
     if (!value.trim() || loading || disabled) return;
@@ -64,6 +71,25 @@ export function SearchPanel({ category, loading, disabled, onSearch }) {
           {t.search}
         </Button>
       </div>
+
+      {showHashtagHint && (
+        <div className="flex items-center gap-2 -mt-1">
+          <span className="ui-micro !text-[var(--ui-text-secondary)]">
+            {hashtagCandidate ? t.tabs.posts.hashtagHintSingle : t.tabs.posts.hashtagHintMulti}
+          </span>
+          {hashtagCandidate && (
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              className="h-auto !px-0 ui-micro"
+              onClick={() => setKeywords(`#${hashtagCandidate}`)}
+            >
+              {t.tabs.posts.hashtagSuggestion(hashtagCandidate)}
+            </Button>
+          )}
+        </div>
+      )}
 
       {!useUrl && category === 'companies' && (
         <div className="flex flex-col gap-3">
