@@ -10,8 +10,8 @@ export default function FinalCTA() {
       <div className="wrap">
         <div className="cta-panel reveal">
           <span className="eyebrow">Get started</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Get leads from LinkedIn, <em>on autopilot.</em></h2>
-          <p className="lead">Connect your LinkedIn account, build an audience and launch your first campaign in minutes. 7-day free trial, then {price.label}/month.</p>
+          <h2 className="h2" style={{ marginTop: 14 }}>Put your AI SDR <em>to work today.</em></h2>
+          <p className="lead">Define your ICP, approve your first AI-written sequence and launch in minutes. 7-day free trial, then {price.label}/month.</p>
           <div className="hero-actions">
             <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>
               <TargetIcon />

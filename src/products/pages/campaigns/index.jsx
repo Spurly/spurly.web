@@ -74,7 +74,7 @@ export function HubCampaignsPage() {
             verbs={['Sending', 'Watching', 'Pacing', 'Reconciling']}
             trailing={summary.pacing?.dayUsed != null ? `${summary.pacing.dayUsed} sent today` : null}
           >
-            {running} {running === 1 ? 'campaign' : 'campaigns'} sending · paced through your working hours
+            {running} {running === 1 ? 'campaign' : 'campaigns'} sending · paced 24/7, slower during your quiet hours
           </WorkingLine>
         )}
 

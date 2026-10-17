@@ -7,6 +7,7 @@ excerpt: "There is no official benchmark for acceptance rate. Here is how to mea
 path: /blog/linkedin-acceptance-rate
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 readTime: 5 min read
 cluster: outreach
 parent: /blog/linkedin-outreach-guide
@@ -54,3 +55,7 @@ Tool vendors link a low rate to restrictions: ignored requests and "I don't know
 Spurly detects acceptances automatically for your connections and lets you withdraw stale invitations, so the numbers are easy to read. Insights charts are not available yet.
 
 Definition: [connection acceptance rate](/glossary/connection-acceptance-rate). Process: [outreach guide](/blog/linkedin-outreach-guide).
+
+## Where an AI SDR fits
+
+Your list, your message and your approval still matter most. Spurly's AI SDR drafts personalized notes you approve and sends them 24/7. See the [campaigns](/product/campaigns) and [how to personalize at scale](/blog/personalize-linkedin-connection-requests).

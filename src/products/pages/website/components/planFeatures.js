@@ -1,5 +1,9 @@
 /* Every feature below is marked "Market now" in SEO_CONTENT_PLAN section 3. */
 export const PLAN_FEATURES = [
+  "AI-written, personalized messages and sequences",
+  "Intent signals: profile viewers, followers, post authors, hiring companies",
+  "Auto-accept and auto-withdraw invitations",
+  "Works with Claude (MCP)",
   "Campaigns and multi-step sequences, sent at a safe daily pace",
   "Pause automatically when someone replies",
   "One inbox for all your LinkedIn conversations",

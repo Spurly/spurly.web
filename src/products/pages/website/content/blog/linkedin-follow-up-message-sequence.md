@@ -7,6 +7,7 @@ excerpt: "A calm four-step follow-up sequence for LinkedIn: what to send, when t
 path: /blog/linkedin-follow-up-message-sequence
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 readTime: 6 min read
 cluster: outreach
 parent: /blog/linkedin-outreach-guide
@@ -67,3 +68,7 @@ Giving them an easy no raises honest replies.
 By hand, set reminders and keep a note of where each person is. With a tool, build the steps once and let it handle the timing. In Spurly, [sequences](/product/campaigns) chain a connection request, waits and messages, fill in each person's details and stop for anyone who replies; all replies land in the [unified inbox](/product/inbox). Remember that automation carries risk with LinkedIn; see [is LinkedIn automation safe?](/blog/is-linkedin-automation-safe).
 
 Copy-ready wording is in the [follow-up templates](/templates/linkedin-follow-up-messages). The full process is in the [outreach guide](/blog/linkedin-outreach-guide).
+
+## Where an AI SDR fits
+
+Your list, your message and your approval still matter most. Spurly's [campaigns](/product/campaigns) run this kind of sequence for you: visit, connect, wait for the accept, message and follow up, stopping the moment someone replies.

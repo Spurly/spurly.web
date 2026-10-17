@@ -8,31 +8,41 @@ import SectionCta from "../SectionCta.jsx";
 const TABS = [
   {
     key: "campaigns",
-    label: "Campaigns and sequences",
-    body: "AI drafts your connection notes and follow-ups, and you approve them. Spurly sends each step at a safe daily pace, combining steps such as visit profile, connect, message, follow, like, comment and wait, and stops the sequence when someone replies.",
+    label: "AI campaigns and sequences",
+    body: "AI writes a personalized connection note and follow-ups for your ICP, and you approve them. Spurly combines visit, connect, message, follow, like, comment and wait, sends each step at a safe daily pace and stops when someone replies.",
     to: "/product/campaigns",
     shot: { src: "/assets/app-campaigns.webp", w: 1700, h: 943, alt: "Spurly campaigns page showing sending, accepted and replies-waiting counts and a card for each campaign." },
   },
   {
     key: "inbox",
-    label: "Inbox",
-    body: "Every LinkedIn conversation in one list. Reply, react and send files and PDFs, and see new messages as they arrive.",
+    label: "Unified inbox",
+    body: "Every LinkedIn conversation in one list, with replies from your campaigns on top. Reply, react and send files and PDFs as messages arrive.",
     to: "/product/inbox",
     shot: { src: "/assets/app-inbox.webp", w: 1700, h: 937, alt: "Spurly inbox with a conversation list, a message thread and a reply box with a Write button. The message text is blurred." },
   },
   {
     key: "finder",
-    label: "Lead finder",
-    body: "Filtered LinkedIn search, company search, post authors, pasted URLs and CSV import all feed one audience. Hiring companies and posts on your topic point to people with a reason to talk.",
+    label: "ICP lead finder",
+    body: "Filtered LinkedIn search, company search, post authors, pasted URLs and CSV all feed one audience. Hiring companies and posts on your topic point to people with a reason to talk.",
     to: "/product/lead-finder",
     shot: { src: "/assets/app-leads.webp", w: 1700, h: 942, alt: "Spurly leads table with a bulk-action bar and degree, status and enrichment columns." },
   },
   {
     key: "network",
-    label: "Network and viewers",
-    body: "Your network is synced, so every first-degree connection is in Spurly. Profile viewers and followers of you or your company page can become an audience.",
+    label: "Warm leads",
+    body: "Your network is synced, and profile viewers and followers of you or your company page become an audience in one click.",
     to: "/product/network",
     shot: { src: "/assets/app-network.webp", w: 1700, h: 943, alt: "Spurly network page with the number of connections, when they were last checked and a table of your LinkedIn connections with title, company and enrichment status." },
+  },
+  {
+    key: "hours",
+    label: "24/7, on your terms",
+    body: "Spurly works around the clock with uneven, human-like gaps. Choose quiet hours and it slows right down overnight instead of stopping. It stops a person the moment they reply and skips anyone contacted in the last 30 days.",
+  },
+  {
+    key: "invitations",
+    label: "Invitations and enrichment",
+    body: "Auto-accept incoming invitations from people whose headline matches your keywords, auto-withdraw invitations nobody accepted, and find work emails and phone numbers for your leads.",
   },
 ];
 
@@ -42,8 +52,8 @@ export default function FeatureTour() {
     <section id="tour" className="section-pad">
       <div className="wrap">
         <div className="sec-head center reveal">
-          <span className="eyebrow">What you get</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Everything from first search to <em>first reply.</em></h2>
+          <span className="eyebrow">What your AI SDR does</span>
+          <h2 className="h2" style={{ marginTop: 14 }}>Every SDR job on LinkedIn, <em>in one tool.</em></h2>
         </div>
         <div className="tour glass reveal d1">
           <div className="shot-tabs" role="tablist" aria-label="Spurly features">

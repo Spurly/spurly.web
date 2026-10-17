@@ -15,20 +15,20 @@ export default function Hero() {
     <section className="hero">
       <div className="hero-panel">
         <div className="wrap hero-center">
-          <span className="chip"><span className="dot" />LinkedIn automation for founders and sales teams</span>
+          <span className="chip"><span className="dot" />AI SDR for LinkedIn, built for founders and B2B sales teams</span>
           <h1 className="display">
-            <span className="ln">Get leads from LinkedIn</span>{" "}
-            <span className="ln"><em>on autopilot.</em></span>
+            <span className="ln">Find high-intent leads on LinkedIn.</span>{" "}
+            <span className="ln"><em>Let your AI SDR do the outreach.</em></span>
           </h1>
-          <p className="lead">Spurly is a LinkedIn automation tool that finds your ideal prospects, writes personal messages with AI and follows up automatically, stopping when they reply. You approve every message.</p>
+          <p className="lead">Spurly is an AI SDR for LinkedIn. Tell it your ICP and it finds the right people, spots the warm ones (profile viewers, new followers, people posting about your topic, companies hiring), writes personalized messages with AI and follows up until they reply. It runs 24/7 in the cloud, and you approve every message.</p>
           <div className="hero-actions">
             <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>
               <TargetIcon />
               Start 7-day free trial
             </Link>
-            <Button variant="ghost" size="lg" href="#tour">See it in action</Button>
+            <Button variant="ghost" size="lg" href="#how">See how it works</Button>
           </div>
-          <p className="hero-micro">7-day free trial, then {price.label}/month. Card or UPI to start, nothing charged until day 8. Cancel anytime.</p>
+          <p className="hero-micro">7-day free trial, then {price.label}/month. No card needed to start. Cancel anytime.</p>
         </div>
 
         <div className="hero-shot">

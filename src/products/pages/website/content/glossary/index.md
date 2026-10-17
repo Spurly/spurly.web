@@ -6,6 +6,7 @@ description: Plain-English definitions of the terms used in LinkedIn outreach, f
 path: /glossary
 template: page
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.5
 target_query: linkedin outreach glossary
 related: [/blog/linkedin-outreach-guide, /templates]
@@ -22,5 +23,7 @@ Short definitions of the terms you meet in LinkedIn outreach, each with how it a
 - [Sales cadence](/glossary/sales-cadence)
 - [ICP (ideal customer profile)](/glossary/icp)
 - [Drip campaign](/glossary/drip-campaign)
+- [AI SDR](/glossary/ai-sdr)
+- [Intent signals](/glossary/intent-signals)
 
 For the full process, read the [LinkedIn outreach guide](/blog/linkedin-outreach-guide).

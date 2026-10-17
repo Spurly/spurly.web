@@ -7,6 +7,7 @@ excerpt: "Ten short, honest connection request messages you can adapt, each with
 path: /blog/linkedin-connection-request-examples
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 readTime: 6 min read
 cluster: outreach
 parent: /blog/linkedin-outreach-guide
@@ -90,3 +91,9 @@ Why they work: honesty about intent builds trust.
 - Copying a template word for word to hundreds of people.
 
 If you are sending many, see [how to personalise at scale](/blog/personalize-linkedin-connection-requests), keep an eye on your [acceptance rate](/blog/linkedin-acceptance-rate) and read the full [outreach guide](/blog/linkedin-outreach-guide).
+
+## Send these automatically, with AI
+
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Spurly's AI can draft a note like these from a short brief, and your [campaigns](/product/campaigns) send it to each person 24/7 once you approve. The 7-day free trial needs no card; see [pricing](/pricing).
+
+To make any example your own, read [how to personalize connection requests at scale](/blog/personalize-linkedin-connection-requests) and [how to raise your acceptance rate](/blog/linkedin-acceptance-rate).

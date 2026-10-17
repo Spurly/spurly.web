@@ -7,6 +7,7 @@ excerpt: "LinkedIn does not publish its triggers. Here are the patterns that lea
 path: /blog/what-gets-linkedin-accounts-restricted
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 readTime: 6 min read
 cluster: automation-safety
 parent: /blog/is-linkedin-automation-safe
@@ -88,3 +89,9 @@ Checked on 3 October 2026. Statements about LinkedIn are paraphrased, so check t
 - [Waalaxy: restricted account](https://www.waalaxy.com/blog/linkedin-platform-knowledge/restricted-linkedin-method), updated 25 June 2026
 - [Zeliq: LinkedIn automation 2026](https://www.zeliq.com/blog/linkedin-automation-2026), 9 June 2026
 - [Expandi: LinkedIn connections limit](https://expandi.io/blog/linkedin-connections-limit), published 22 September 2026
+
+## Stay inside the limits automatically
+
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Its [campaigns](/product/campaigns) run 24/7 with uneven, human-like gaps, cap every action type, let you set quiet hours and stop a person's sequence the moment they reply. No tool can promise zero risk; [the safety page](/product/safety) explains how pacing works.
+
+More on the numbers behind these patterns: [the weekly invitation limit](/blog/linkedin-weekly-invitation-limit) and [what a good acceptance rate looks like](/blog/linkedin-acceptance-rate).

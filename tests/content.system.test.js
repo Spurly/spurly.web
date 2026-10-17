@@ -107,7 +107,7 @@ describe('/pricing page', () => {
     const text = html.replace(/&#x27;/g, "'");
     expect(text).toContain('$24.99');
     expect(text).toContain('₹2,499');
-    expect(text).toContain("Add a card (or UPI in India) to start your 7-day free trial. You won't be charged until day 8. Cancel anytime before then and you pay nothing.");
+    expect(text).toContain("No card needed to start your 7-day free trial. Subscribe when it ends to keep going, and cancel anytime.");
     expect(text).toContain('Settings → Billing → Cancel');
     expect(head).toContain('SoftwareApplication');
     expect(head).toContain('FAQPage');

@@ -8,11 +8,11 @@
  */
 
 const SUMMARY =
-  'Spurly is a LinkedIn automation tool that finds your ideal prospects, writes personal messages with AI (you approve them) and follows up automatically, stopping when they reply. It is built for founders and sales teams. Connect your LinkedIn account once, then find the right people, ' +
+  'Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. It is built for founders and B2B sales teams. Connect your LinkedIn account once, then find the right people, ' +
   'send connection requests and multi-step follow-ups at a safe daily pace, and reply from one unified inbox, ' +
-  'from the cloud, so campaigns keep going with your laptop closed. A Chrome extension captures profiles from ' +
+  'from the cloud, around the clock, so campaigns keep going with your laptop closed. A Chrome extension captures profiles from ' +
   'LinkedIn and Sales Navigator pages. One plan: $24.99/month (₹2,499/month in India) with a 7-day free trial; ' +
-  'a card (or UPI in India) is needed to start the trial. Spurly is designed to stay within LinkedIn\'s limits, ' +
+  'no card is needed to start the trial. Spurly is designed to stay within LinkedIn\'s limits, ' +
   'but no tool can guarantee LinkedIn won\'t restrict an account.';
 
 export function decodeHtml(s) {

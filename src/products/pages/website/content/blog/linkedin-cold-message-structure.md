@@ -7,6 +7,7 @@ excerpt: "Hook, reason, value, ask: a structure you can reuse for any LinkedIn c
 path: /blog/linkedin-cold-message-structure
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 readTime: 5 min read
 cluster: outreach
 parent: /blog/linkedin-outreach-guide
@@ -57,3 +58,7 @@ faq:
 - Sending the same text to everyone; see [personalising at scale](/blog/personalize-linkedin-connection-requests).
 
 Copy-ready wording is in the [cold outreach templates](/templates/linkedin-cold-outreach-messages). The rest of the process is in the [outreach guide](/blog/linkedin-outreach-guide).
+
+## Where an AI SDR fits
+
+Your list, your message and your approval still matter most. Spurly's AI SDR can draft a message in this structure from a short brief, and you approve it before it goes out. See the [campaigns](/product/campaigns).

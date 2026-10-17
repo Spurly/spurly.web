@@ -7,6 +7,7 @@ excerpt: "LinkedIn documents no warm-up period, but vendors recommend one. What 
 path: /blog/linkedin-account-warm-up
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 readTime: 5 min read
 cluster: automation-safety
 parent: /blog/is-linkedin-automation-safe
@@ -71,3 +72,9 @@ Checked on 3 October 2026.
 
 - [Expandi: safest LinkedIn automation tools](https://expandi.io/blog/safest-linkedin-automation-tools/), dated 28 September 2026
 - [Zeliq: LinkedIn automation 2026](https://www.zeliq.com/blog/linkedin-automation-2026), 9 June 2026
+
+## Pace every action automatically
+
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. It caps every action type, leaves uneven gaps, runs 24/7 with optional quiet hours and lets you start small and raise volume yourself. See the [campaigns](/product/campaigns) and [how safety works](/product/safety); no tool can promise zero risk.
+
+Related numbers: [LinkedIn automation limits per day](/blog/linkedin-automation-limits-per-day) and [the weekly invitation limit](/blog/linkedin-weekly-invitation-limit).

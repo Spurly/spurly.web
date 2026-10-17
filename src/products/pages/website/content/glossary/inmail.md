@@ -6,9 +6,17 @@ description: "InMail is a LinkedIn message you can send to someone you are not c
 path: /glossary/inmail
 template: page
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.5
 target_query: what is linkedin inmail
 related: [/glossary, /blog/linkedin-outreach-guide]
+faq:
+  - q: What is LinkedIn InMail?
+    a: InMail is a LinkedIn message you can send to someone you are not connected to, using a paid credit.
+  - q: Is InMail free?
+    a: Credits come with Premium plans such as Sales Navigator and Recruiter. Some members have open profiles that anyone can message for free.
+  - q: Does Spurly send InMail?
+    a: No. Spurly sends connection requests and messages to people you are connected to.
 ---
 **InMail** is a LinkedIn message you can send to a person you are not connected to. It is a paid feature: credits come with Premium plans such as Sales Navigator and Recruiter, and the number you get depends on the plan.
 
@@ -23,3 +31,7 @@ InMail works when the person is hard to reach any other way and you have a clear
 ## InMail and automation
 
 Spurly does not send InMail. It sends connection requests and messages to people you are connected to. See the [LinkedIn outreach guide](/blog/linkedin-outreach-guide) for how the standard flow works.
+
+## Reaching people without InMail credits
+
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. It sends connection requests and messages to people you are connected to, not InMail. See the [campaigns](/product/campaigns) and [what an ICP is](/glossary/icp).

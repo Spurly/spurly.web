@@ -7,6 +7,7 @@ import MobileMenu from "./components/MobileMenu.jsx";
 import Hero from "./components/Hero.jsx";
 import LogoCloud from "./components/LogoCloud.jsx";
 import HowItWorks from "./components/home/HowItWorks.jsx";
+import Signals from "./components/home/Signals.jsx";
 import FeatureTour from "./components/home/FeatureTour.jsx";
 import ClaudeSection from "./components/home/ClaudeSection.jsx";
 import Solutions from "./components/home/Solutions.jsx";
@@ -33,8 +34,8 @@ export default function HomePage() {
   return (
     <>
       <Seo
-        title="Spurly: LinkedIn Automation Tool for Lead Generation"
-        description="Spurly finds your ideal prospects on LinkedIn, writes personal messages with AI and follows up automatically. For founders and sales teams. 7-day free trial."
+        title="Spurly: AI SDR & LinkedIn Automation Tool"
+        description="Spurly is an AI SDR for LinkedIn. It finds high-intent leads that match your ICP, writes personalized outreach with AI and follows up. 7-day free trial."
         path="/"
         jsonLd={[ORGANIZATION_LD, WEBSITE_LD, ...HOME_LD, videoLd()].filter(Boolean)}
       />
@@ -48,6 +49,7 @@ export default function HomePage() {
         <Hero />
         <LogoCloud />
         <HowItWorks />
+        <Signals />
         <FeatureTour />
         <ClaudeSection />
         <Solutions />

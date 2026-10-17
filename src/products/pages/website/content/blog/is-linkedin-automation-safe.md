@@ -7,6 +7,7 @@ excerpt: "An honest guide to the risk of automating LinkedIn: the rules, what ge
 path: /blog/is-linkedin-automation-safe
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 readTime: 12 min read
 cluster: automation-safety
 author: sarthak
@@ -128,7 +129,7 @@ Spurly cannot decide how LinkedIn treats your account. A new or rarely used acco
 
 ## Should you automate at all?
 
-If you can do the work by hand at the volume you need, you remove the automation risk. Automation exists because outreach takes time and follow-up gets forgotten, and many people accept a modest risk for that. It is a decision about your professional profile, so make it with the facts. Spurly costs $24.99 a month after a 7-day free trial; see [pricing](/pricing). Add a card (or UPI in India) to start your 7-day free trial. You won't be charged until day 8. Cancel anytime before then and you pay nothing.
+If you can do the work by hand at the volume you need, you remove the automation risk. Automation exists because outreach takes time and follow-up gets forgotten, and many people accept a modest risk for that. It is a decision about your professional profile, so make it with the facts. Spurly costs $24.99 a month after a 7-day free trial; see [pricing](/pricing). No card needed to start your 7-day free trial. Subscribe when it ends to keep going, and cancel anytime.
 
 ## Sources
 
@@ -142,3 +143,9 @@ Checked on 3 October 2026. Statements about LinkedIn's rules are paraphrased, no
 - [Zeliq: LinkedIn automation 2026](https://www.zeliq.com/blog/linkedin-automation-2026), 9 June 2026
 - [Datablist: LinkedIn account restrictions explained](https://www.datablist.com/how-to/linkedin-account-restriction), 9 July 2026
 - [HeyReach: statement on the LinkedIn removal](https://www.heyreach.io/blog/heyreach-ban), about 25 March 2026
+
+## How Spurly paces its AI SDR
+
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. It runs 24/7 with uneven gaps, optional quiet hours, caps on every action type, a stop when someone replies and a 30-day skip for people you already contacted. That lowers the risk; it never makes it zero. Details are on the [safety page](/product/safety).
+
+Also read [cloud vs extension automation](/blog/cloud-vs-extension-linkedin-automation) and [what gets accounts restricted](/blog/what-gets-linkedin-accounts-restricted).

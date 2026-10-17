@@ -14,8 +14,8 @@ export default function Pricing() {
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="eyebrow">Pricing</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>One plan. <em>Everything included.</em></h2>
-          <p className="lead">7-day free trial, then {price.label}/month. No tiers to compare.</p>
+          <h2 className="h2" style={{ marginTop: 14 }}>An AI SDR for <em>{price.label}/month.</em></h2>
+          <p className="lead">Everything included, no tiers to compare.{price.region === "IN" ? "" : " Less than a day of an SDR's salary."}</p>
         </div>
         <div className="price-grid single">
           <PlanCard className="reveal d1" />

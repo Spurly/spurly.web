@@ -32,8 +32,8 @@ export default function ClaudeSection() {
         <div className="safety-panel claude-panel reveal">
           <div>
             <span className="claude-eyebrow"><span className="claude-logo"><Burst /></span>Works with Claude</span>
-            <h2 className="h2" style={{ marginTop: 16 }}>Run your outreach <em>from a Claude chat.</em></h2>
-            <p className="lead">Connect Spurly to Claude and ask for what you need. Review your results, triage replies and plan the next campaign without opening a dashboard.</p>
+            <h2 className="h2" style={{ marginTop: 16 }}>Talk to your AI SDR <em>in Claude.</em></h2>
+            <p className="lead">Connect Spurly to Claude through MCP and manage outreach in plain language: check results, sort replies, draft answers and plan the next campaign, without opening a dashboard.</p>
             <ul className="claude-points">{POINTS.map((p) => <CheckItem key={p}>{p}</CheckItem>)}</ul>
             <p className="claude-actions">
               <Link className="btn btn-claude btn-lg" to="/product/ai-assistants-setup">Connect Spurly to Claude</Link>

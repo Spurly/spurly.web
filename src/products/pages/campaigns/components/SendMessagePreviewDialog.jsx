@@ -76,7 +76,7 @@ export function SendMessagePreviewDialog({
       title="Review before sending"
       description={
         pendingCount > 0
-          ? `This ${copy.verb} goes to ${pendingCount.toLocaleString()} ${pendingCount === 1 ? 'person' : 'people'}, paced through your working hours — not all at once.`
+          ? `This ${copy.verb} goes to ${pendingCount.toLocaleString()} ${pendingCount === 1 ? 'person' : 'people'}, paced 24/7, slower during your quiet hours — not all at once.`
           : 'Nobody is queued to receive this right now.'
       }
       size="md"

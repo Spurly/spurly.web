@@ -24,7 +24,7 @@ describe('public pages: no outdated claims', () => {
     const { html, head } = await render('/');
     expect(html).toContain('$24.99');
     expect(html).not.toContain('₹');
-    expect(html).toContain("You won&#x27;t be charged until day 8");
+    expect(html).toContain("No card needed to start your 7-day free trial");
     // structured data carries both real offers
     expect(head).toContain('"price":"24.99"');
     expect(head).toContain('"price":"2499"');

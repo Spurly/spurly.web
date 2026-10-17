@@ -71,7 +71,7 @@ export const ORGANIZATION_LD = {
   url: SITE_URL + "/",
   logo: SITE_URL + "/assets/spurly-icon-lg.png",
   description:
-    "Spurly runs LinkedIn outreach for you: find the right people, connect, follow up and reply from one inbox, from the cloud and at a safe daily pace.",
+    "Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message.",
   sameAs: SAME_AS,
   foundingDate: "2026",
 };

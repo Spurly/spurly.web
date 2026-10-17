@@ -162,7 +162,7 @@ export function useCampaignDetail() {
       toast.error(getToastError(error, 'Could not load members'));
     }
     function handleStartSuccess() {
-      toast.success('Started. Sending is paced through your working hours.');
+      toast.success('Started. Sending is paced 24/7, slower during your quiet hours.');
       if (mountedRef.current) setBusy(false);
       load();
       loadMembers(pagination.page);

@@ -17,7 +17,7 @@ export default function ContentShell({ children }) {
           <div className="nav-links">
             <a href="/#product">Product</a>
             <a href="/#how">How it works</a>
-            <a href="/#who">Who it's for</a>
+            <a href="/#signals">Intent signals</a>
             <Link to="/pricing">Pricing</Link>
             <Link to="/blog">Blog</Link>
           </div>

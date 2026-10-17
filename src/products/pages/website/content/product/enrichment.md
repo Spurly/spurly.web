@@ -1,15 +1,22 @@
 ---
-title: Fill in the gaps on your LinkedIn leads
-seoTitle: LinkedIn Lead Enrichment for Outreach | Spurly
+title: "Work emails and phone numbers for your LinkedIn leads"
+seoTitle: "LinkedIn Lead Enrichment for Outreach | Spurly"
 shortTitle: Lead enrichment
-description: Spurly fills in job title, company and history for the leads you pick, in the background, so your LinkedIn messages can be personal. 7-day free trial.
+description: "Spurly finds work emails and phone numbers and fills in title, company and history for the leads you pick, in the background. 7-day free trial."
 path: /product/enrichment
 template: product
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.7
 target_query: linkedin lead enrichment
 related: [/product/lead-finder, /product/campaigns, /glossary/lead-enrichment]
 faq:
+  - q: Does Spurly find email addresses and phone numbers?
+    a: Yes. Email and phone enrichment is included with the plan. Each lead shows whether enrichment worked, and failed leads can be retried.
+  - q: Is enrichment included in the price?
+    a: Yes. Enrichment is part of the one plan, along with everything else in Spurly.
+  - q: Why enrich leads before messaging them?
+    a: A message that mentions their real title or company gets a better reception than "Hi there". Enriched details become variables in your messages, with a live preview before anything sends.
   - q: What does enrichment add to a lead?
     a: Spurly fills in what the search left out, such as title, company and work history, for the leads you choose.
   - q: Does it run in the background?
@@ -21,7 +28,7 @@ faq:
 todo:
   - Add a screenshot of the Needs enrichment tab and the batch view
 ---
-A lead from a search often has little more than a name and a headline. Enrichment fills in the rest, such as title, company and work history, so your message can mention something true about the person.
+Enrichment finds work emails and phone numbers for your LinkedIn leads and fills in their title, company and work history, so the outreach your AI SDR sends can mention something true about each person. A lead from a search often has little more than a name and a headline.
 
 ## Pick the leads that matter
 

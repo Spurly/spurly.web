@@ -6,10 +6,17 @@ description: Step-by-step setup for connecting Spurly to Claude, Claude Code and
 path: /product/ai-assistants-setup
 template: page
 date: 2026-10-10
+updated: 2026-10-17
 priority: 0.6
 target_query: spurly mcp setup
 related: [/product/ai-assistants, /product/safety]
 faq:
+  - q: What is the Spurly Claude LinkedIn MCP server?
+    a: It is Spurly's remote MCP server at https://api.getspurly.com/mcp. Connect it to Claude and you can run your LinkedIn outreach in plain language. See what assistants can do on the Claude page.
+  - q: Which permissions should I start with?
+    a: Start with Read and Draft. They let the assistant look at your data and create drafts, and nothing is sent or started. Turn on Act only for assistants you trust.
+  - q: How do I disconnect Spurly from Claude?
+    a: Open Settings, AI assistants, and disconnect the app or revoke its token. It stops working straight away.
   - q: What is the server address?
     a: The address is https://api.getspurly.com/mcp. It is also shown in Settings under AI assistants.
   - q: Do I need a token?
@@ -17,6 +24,8 @@ faq:
   - q: Why can the assistant read but not send?
     a: Sending needs the Act permission and the account setting "Allow AI assistants to take actions", which is off by default. Turn it on in Settings under AI assistants.
 ---
+This guide sets up the Claude LinkedIn MCP connection, so Claude, Claude Code or Cursor can work with your Spurly outreach. See [your AI SDR inside Claude](/product/ai-assistants) for what an assistant can do once it is connected.
+
 You need a Spurly account with a connected LinkedIn account. The server address is `https://api.getspurly.com/mcp`.
 
 ## Claude on the web and desktop

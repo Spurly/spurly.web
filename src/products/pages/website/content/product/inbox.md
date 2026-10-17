@@ -1,15 +1,22 @@
 ---
-title: One inbox for every LinkedIn conversation
-seoTitle: LinkedIn Inbox Management in One Place | Spurly
+title: "Every LinkedIn reply in one inbox, 24/7"
+seoTitle: "LinkedIn Unified Inbox: Every Reply in One Place | Spurly"
 shortTitle: Unified inbox
-description: Read and reply to every LinkedIn conversation in one inbox, with files, reactions and new messages as they arrive. Part of Spurly's 7-day free trial.
+description: "One LinkedIn inbox with your campaign replies on top. Replies arrive 24/7, you reply, react and send files, and Claude can draft answers. 7-day trial."
 path: /product/inbox
 template: product
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.8
-target_query: linkedin inbox management
+target_query: linkedin unified inbox
 related: [/product/campaigns, /product/lead-finder]
 faq:
+  - q: Do replies reach the inbox at night and on weekends?
+    a: Yes. Campaigns run around the clock and replies land in your inbox the moment they arrive, day or night, weekends included.
+  - q: Can Claude answer my replies?
+    a: Claude can sort your replies and draft answers, and you approve each one before it is sent. Connect it through the AI assistants setup.
+  - q: Is the inbox separate from my campaigns?
+    a: No. Replies to messages sent by your campaigns and sequences land in the same list as your other conversations, and a reply stops that person's sequence.
   - q: Does Spurly show read receipts?
     a: No. LinkedIn does not provide read receipts, so Spurly cannot show whether someone has read your message.
   - q: Do new messages arrive when I am not in the app?
@@ -21,14 +28,13 @@ faq:
 todo:
   - Add a real inbox screenshot and one line from your own use of it
 ---
-Spurly's inbox puts every LinkedIn conversation in one place, so replies to your campaigns never get lost between tabs. You read, reply, react and send files from the same screen where you run your outreach.
-
+Spurly's unified LinkedIn inbox puts every conversation in one list, with replies from your campaigns on top, and replies arrive 24/7. You read, reply, react and send files from the same screen where you run your outreach.
 
 ![The Spurly inbox with a conversation list, an open thread and a reply box. The message text is blurred.](/assets/app-inbox.webp)
 
 ## All your conversations in one list
 
-Your LinkedIn conversations appear in a two-pane inbox: the list of conversations on one side and the thread on the other. Replies to messages sent by your [campaigns and sequences](/product/campaigns) land here alongside every other conversation, so there is one place to check instead of several.
+Your LinkedIn conversations appear in a two-pane inbox: the list of conversations on one side and the thread on the other. Replies to messages sent by your [campaigns and sequences](/product/campaigns) land here on top, alongside every other conversation, so there is one place to check instead of several.
 
 ## Reply, react and send files
 
@@ -36,7 +42,11 @@ Reply to any conversation, react to a message, and send or receive files and PDF
 
 ## New messages as they arrive
 
-Spurly receives new messages on its servers as they arrive, so you do not have to refresh or keep a LinkedIn tab open to see them.
+Spurly receives new messages on its servers as they arrive, day or night, so you do not have to refresh or keep a LinkedIn tab open to see them.
+
+## Let Claude triage and draft
+
+Connect Spurly to Claude and ask it which replies need an answer today. It can sort them and draft responses, and you approve each draft before it is sent. See [Claude and AI assistants](/product/ai-assistants).
 
 ## Replies stop your sequences
 

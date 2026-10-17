@@ -6,11 +6,18 @@ description: Save profiles from LinkedIn and Sales Navigator pages into Spurly i
 path: /product/chrome-extension
 template: product
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.8
 target_query: linkedin chrome extension lead capture
 chromeCta: true
 related: [/product/lead-finder, /product/campaigns]
 faq:
+  - q: Can I send connection requests from the extension?
+    a: Yes. The Outreach tab sends connection requests through a real Spurly campaign, so the activity is tracked and paced like everything else.
+  - q: Do I need a card to try Spurly with the extension?
+    a: No. The 7-day free trial starts with no card.
+  - q: What happens after I capture people?
+    a: They appear in your Spurly contacts and can join any campaign or sequence, where AI can draft the connection note and follow-ups for you to approve.
   - q: Do I need the Chrome extension to use Spurly?
     a: No. It is optional. You can build audiences inside Spurly with the lead finder or a CSV import, and the extension is a faster way to capture people while you browse LinkedIn.
   - q: Does it work on Sales Navigator?
@@ -23,7 +30,7 @@ todo:
   - Add real screenshots of the Capture, Outreach and Templates tabs
   - Confirm "free to install" wording is right for the Web Store listing
 ---
-The Spurly Chrome extension saves profiles from LinkedIn and Sales Navigator pages into Spurly in one click. It is now one way to fill your audience, not the whole product: once people are in Spurly, [campaigns](/product/campaigns) send the outreach from the cloud.
+The Spurly Chrome extension saves profiles from LinkedIn and Sales Navigator pages into Spurly in one click, ready to join an AI-written campaign. It is now one way to fill your audience, not the whole product: once people are in Spurly, [campaigns](/product/campaigns) send the outreach from the cloud.
 
 ## Capture while you browse
 

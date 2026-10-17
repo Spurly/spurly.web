@@ -1,15 +1,22 @@
 ---
-title: Write and schedule LinkedIn posts
-seoTitle: Schedule LinkedIn Posts From One Place | Spurly
+title: "Warm up your audience with scheduled LinkedIn posts"
+seoTitle: "Schedule LinkedIn Posts From One Place | Spurly"
 shortTitle: Posts
-description: Write a LinkedIn post, schedule text posts up to 60 days ahead or publish an image or video now, and see how your posts perform. 7-day free trial.
+description: "Schedule LinkedIn text posts up to 60 days ahead or publish an image or video now. Warm up the people your outreach reaches. 7-day free trial."
 path: /product/posts
 template: product
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.7
 target_query: schedule linkedin posts
 related: [/product/campaigns, /product/safety, /product/inbox]
 faq:
+  - q: Does posting help my LinkedIn outreach?
+    a: It can. People check your profile before they accept a connection request or answer a message, and recent, relevant posts make that check easier to pass.
+  - q: Can AI help me engage with my leads' posts?
+    a: Yes. Spurly's AI can draft comments on your leads' posts, and you review and approve every comment before it is posted.
+  - q: Can I see how my posts are doing?
+    a: Yes. Spurly shows likes and comments on your recent posts next to your outreach.
   - q: How far ahead can I schedule a LinkedIn post?
     a: Text posts can be scheduled up to 60 days ahead.
   - q: Can I schedule posts with images or video?
@@ -21,7 +28,7 @@ faq:
 todo:
   - Add a screenshot of the composer and the list of your posts
 ---
-Write a post in Spurly and either publish it now or schedule it. It goes out from your own LinkedIn account, and you can see how your recent posts are doing next to your outreach.
+To schedule LinkedIn posts, write the post in Spurly and pick a date: text posts can be scheduled up to 60 days ahead, and a post with an image or video is published right away. Scheduled posts warm up the people your outreach reaches, since prospects look at your profile before they reply, and they go out from your own LinkedIn account.
 
 ## Schedule text posts
 

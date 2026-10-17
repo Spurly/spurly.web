@@ -1,9 +1,9 @@
 import SectionCta from "../SectionCta.jsx";
 
 const STEPS = [
-  { title: "Connect LinkedIn securely", body: "Sign in to your LinkedIn account once through a secure connection. There is nothing to install." },
-  { title: "Pick an audience, launch a sequence", body: "Search with filters, find people at target companies, import post authors or a CSV. AI drafts the connection note and follow-ups, and you approve them." },
-  { title: "Reply from one inbox", body: "Spurly connects, waits for the accept and follows up at a safe pace, even with your laptop closed. When someone answers, the sequence stops and the conversation waits in your inbox." },
+  { title: "Define your ICP", body: "Connect LinkedIn once, with nothing to install. Describe who you sell to with filters such as title, company and location, or start from target companies, post authors, profile viewers or a CSV." },
+  { title: "AI writes and runs the outreach", body: "AI drafts a personalized connection note and follow-ups in your voice. You approve them once, then Spurly visits profiles, connects, messages, likes and follows up on schedule at a safe pace." },
+  { title: "You take the warm conversations", body: "When someone replies, their sequence stops and the chat lands in one inbox. Answer there, or ask Claude to sort replies and draft answers for you to approve." },
 ];
 
 export default function HowItWorks() {
@@ -12,8 +12,8 @@ export default function HowItWorks() {
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="eyebrow">How it works</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Three steps from a search to <em>a conversation.</em></h2>
-          <p className="lead">Spurly runs LinkedIn outreach in three steps: connect your account, launch an AI-written sequence and reply from one inbox.</p>
+          <h2 className="h2" style={{ marginTop: 14 }}>Your AI SDR, <em>live in three steps.</em></h2>
+          <p className="lead">Define your ICP, let AI write and run the outreach, and step in when someone replies.</p>
         </div>
         <ol className="steps">
           {STEPS.map((s, i) => (

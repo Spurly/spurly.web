@@ -7,6 +7,7 @@ excerpt: "A restriction is stressful but often recoverable. Here is what to do, 
 path: /blog/linkedin-account-restricted-what-to-do
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 readTime: 5 min read
 cluster: automation-safety
 parent: /blog/is-linkedin-automation-safe
@@ -66,3 +67,9 @@ Checked on 3 October 2026.
 
 - [Datablist: LinkedIn account restriction explained](https://www.datablist.com/how-to/linkedin-account-restriction), 9 July 2026
 - [Waalaxy: restricted LinkedIn account](https://www.waalaxy.com/blog/linkedin-platform-knowledge/restricted-linkedin-method), updated 25 June 2026
+
+## When you are back online
+
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. If LinkedIn disconnects your account, Spurly pauses the campaign instead of working through your list, and you restart it when you reconnect. Pacing is explained on the [safety page](/product/safety); no tool can promise zero risk.
+
+Read next: [what gets accounts restricted](/blog/what-gets-linkedin-accounts-restricted) and [is LinkedIn automation safe](/blog/is-linkedin-automation-safe).

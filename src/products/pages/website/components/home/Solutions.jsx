@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import SectionCta from "../SectionCta.jsx";
 
 const AUDIENCES = [
-  { cls: "d1", tag: "Founders", title: "Fill your pipeline without an SDR", body: "Define one sharp audience, launch a sequence and answer replies from one inbox while you build the product.", to: "/solutions/founders" },
-  { cls: "d2", tag: "Sales teams", title: "Keep every rep's outreach steady", body: "Each rep builds a prospect list, runs a sequence from their own LinkedIn account and handles replies in one place.", to: "/solutions/sales-teams" },
+  { cls: "d1", tag: "Founders", title: "Pipeline without hiring an SDR", body: "Your AI SDR finds warm leads, writes and follows up while you build the product. You step in when someone replies.", to: "/solutions/founders" },
+  { cls: "d2", tag: "Sales teams", title: "An AI SDR next to every rep", body: "Each rep runs AI-written sequences from their own LinkedIn account and works replies in one inbox.", to: "/solutions/sales-teams" },
   { cls: "d3", tag: "Recruiters", title: "From a role to a shortlist", body: "Search for candidates, keep a list per role and reach each one with a personal note instead of a copy-paste blast.", to: "/solutions/recruiters" },
 ];
 
@@ -13,8 +13,8 @@ export default function Solutions() {
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="eyebrow">Who it's for</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Built for people who <em>live in outbound.</em></h2>
-          <p className="lead">Spurly is built first for founders and small sales teams who want pipeline without hiring an SDR. Recruiters use it too.</p>
+          <h2 className="h2" style={{ marginTop: 14 }}>An AI SDR for everyone <em>who sells on LinkedIn.</em></h2>
+          <p className="lead">Built first for founders and small B2B sales teams who want an SDR's pipeline without an SDR's salary. Recruiters use it too.</p>
         </div>
         <div className="aud-grid">
           {AUDIENCES.map((a) => (

@@ -1,11 +1,12 @@
 ---
-title: "Simple pricing: one plan, everything included"
-seoTitle: "Spurly Pricing: One Plan, 7-Day Free Trial"
+title: "One AI SDR, one plan, everything included"
+seoTitle: "Spurly Pricing: AI SDR for LinkedIn, 7-Day Trial"
 shortTitle: Pricing
-description: "Spurly costs $24.99/month outside India or ₹2,499/month in India, with a 7-day free trial and everything included. No tiers to compare."
+description: "Spurly is an AI SDR for LinkedIn for one flat monthly price: intent signals, AI-written outreach, 24/7 sequences, inbox and Claude. 7-day free trial."
 path: /pricing
 template: pricing
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.9
 target_query: spurly pricing
 related: [/blog/free-linkedin-outreach-pipeline-founders]
@@ -22,33 +23,49 @@ faq:
     a: Yes. Go to Settings → Billing → Cancel. Your access runs to the end of the period you have already paid for.
   - q: Why is the price different in India?
     a: Spurly is priced in Indian rupees for visitors in India and in US dollars everywhere else. Checkout shows the exact price before you pay.
+  - q: Does the price include AI?
+    a: Yes. AI writing is included in the one plan. Spurly's AI drafts your connection notes, follow-ups and comments in your voice, and you review every draft before it goes out. There is no separate AI add-on or credit pack.
+  - q: Does Spurly run 24/7?
+    a: Yes. Campaigns and sequences run around the clock from Spurly's servers, weekends included, with uneven gaps like a person's. You can set quiet hours, and Spurly slows right down overnight instead of stopping.
   - q: Is there a plan for teams or organizations?
     a: Yes. Team and organization plans are arranged with us directly. Book a meeting and we will agree a plan around how many seats you need.
   - q: Is there a permanently free tier?
     a: No. Spurly is a paid product, and the 7-day free trial lets you use everything before you pay.
 ---
-Spurly has one plan: **$24.99 per month** (**₹2,499 per month** in India), with a 7-day free trial and every feature included. There are no tiers to compare and nothing to unlock later.
+Spurly is an AI SDR for LinkedIn with one plan: **$24.99 per month** (**₹2,499 per month** in India), a 7-day free trial and every feature included. There are no tiers to compare and nothing to unlock later.
 
 ## What is included
 
 Everything below comes with the one plan.
 
-**Find the right people**
-- Audience builder: LinkedIn people search with filters
-- Leads from companies, posts and pasted LinkedIn URLs
-- Your network synced, plus profile viewers and followers as leads
-- Email and phone enrichment
-- Chrome extension capture and CSV import
-
-**Connect and follow up**
+- AI-written, personalized messages and sequences
+- Intent signals: profile viewers, followers, post authors, hiring companies
+- Auto-accept and auto-withdraw invitations
+- Works with Claude (MCP)
 - Campaigns and multi-step sequences, sent at a safe daily pace
 - Pause automatically when someone replies
-- Message templates with variables and a live preview
-- AI drafts for connection notes and messages, reviewed by you before launch
-
-**Reply and stay visible**
 - One inbox for all your LinkedIn conversations
+- Audience builder: LinkedIn people search with filters
+- Find leads from companies, posts and pasted LinkedIn URLs
+- Your network synced, plus profile viewers and followers as leads
+- Email and phone enrichment
 - Schedule posts and see likes and comments
+- Chrome extension capture and CSV import
+- Message templates with variables and a live preview
+
+## What you would pay elsewhere
+
+Entry-plan prices listed on each tool's own pricing page on 17 October 2026, per user or seat. Plans differ in features and limits, so this compares price tags, not products.
+
+| Tool | Entry plan listed on its pricing page | Source |
+|---|---|---|
+| Spurly | $24.99 per month (₹2,499 in India), one plan, everything included | getspurly.com |
+| Waalaxy | Pro €19 per user per month; Advanced €49; Business €69 | waalaxy.com/pricing |
+| Dripify | Pro $79 per user per month ($59 per month on annual billing); Advanced $99 ($79 annual) | dripify.com/pricing |
+| Beeze | Launch $79 per month, billed yearly; Growth $143; Scale $159 | beeze.ai |
+| Valley | Starter $199 per seat per month ($149 on quarterly billing); Plus $299; Growth $499 | joinvalley.co/pricing |
+
+Prices change, so check each page before you decide. Currency symbols are shown as listed; Dripify, Beeze and Valley do not name a currency code on their pages.
 
 ## How the 7-day free trial works
 

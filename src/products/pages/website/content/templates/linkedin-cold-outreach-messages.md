@@ -6,6 +6,7 @@ description: Eight LinkedIn cold message templates for sales, partnerships, recr
 path: /templates/linkedin-cold-outreach-messages
 template: page
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.8
 target_query: linkedin cold message templates
 related: [/templates, /blog/linkedin-cold-message-structure, /templates/linkedin-follow-up-messages, /blog/linkedin-outreach-guide]
@@ -54,3 +55,7 @@ Cold means the person has not heard from you before. The aim of the first messag
 ## Before you send
 
 Read the message as the person receiving it. Is the first sentence about them? Is there one clear question? If not, rewrite it. Free note drafting: [connection request generator](/tools/linkedin-connection-request-generator).
+
+## Let an AI SDR send it
+
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Paste a cold message into [campaigns](/product/campaigns), let AI adapt it per person, approve it once and Spurly sends it 24/7 and stops when someone replies. The 7-day free trial needs no card; see [pricing](/pricing).

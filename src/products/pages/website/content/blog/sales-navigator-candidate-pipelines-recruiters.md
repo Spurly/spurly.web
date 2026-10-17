@@ -6,7 +6,7 @@ excerpt: "Sales Navigator's filters are a recruiter's secret weapon. Here's how 
 path: /blog/sales-navigator-candidate-pipelines-recruiters
 template: article
 date: 2026-06-18
-updated: 2026-10-03
+updated: 2026-10-17
 readTime: 6 min read
 cluster: recruiting
 author: sarthak
@@ -34,3 +34,7 @@ Candidates get spammed with copy-paste "exciting opportunity" messages all day. 
 A separate list per role keeps your candidate pipelines clean: who's been contacted, who responded, who's worth a second look. That structure makes you faster on the next role too, because your searches and templates are already built.
 
 Founder or seller doing your own outbound? The same playbook applies — see [how to build a free LinkedIn outreach pipeline](/blog/free-linkedin-outreach-pipeline-founders).
+
+## Where an AI SDR fits
+
+Your list, your message and your approval still matter most. Spurly's AI SDR can run the outreach step of this workflow for you. See the [campaigns](/product/campaigns) and the [lead finder](/product/lead-finder).

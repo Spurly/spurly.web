@@ -6,9 +6,17 @@ description: "The Social Selling Index (SSI) is a LinkedIn score from 0 to 100 t
 path: /glossary/social-selling-index
 template: page
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.5
 target_query: linkedin social selling index
 related: [/glossary, /blog/linkedin-outreach-guide]
+faq:
+  - q: What is the LinkedIn Social Selling Index?
+    a: SSI is a score from 0 to 100 that LinkedIn gives your account to show how effectively you use the platform for selling, made of four parts scored up to 25 each.
+  - q: Does a higher SSI mean more replies?
+    a: Not reliably. LinkedIn presents SSI as an indicator of effort, and it does not tell you whether a message will be answered.
+  - q: What matters more than SSI for outreach?
+    a: A clear profile, a targeted list and short relevant messages affect replies far more than the score.
 ---
 **Social Selling Index (SSI)** is a score from 0 to 100 that LinkedIn gives your account to show how effectively you use the platform for selling. It is made of four parts, each scored up to 25.
 
@@ -26,3 +34,7 @@ LinkedIn presents SSI as an indicator of social selling effort. It is not a rank
 ## What actually helps outreach
 
 A clear profile, a targeted list and short relevant messages affect replies far more than the score. See the [LinkedIn outreach guide](/blog/linkedin-outreach-guide).
+
+## What Spurly does and does not change
+
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Spurly does not change your SSI; it automates the outreach side. See the [campaigns](/product/campaigns) and the [LinkedIn outreach guide](/blog/linkedin-outreach-guide).

@@ -30,8 +30,8 @@ Spurly began as a Chrome extension for capturing leads from LinkedIn. It grew in
 
 - **Honesty about risk.** LinkedIn restricts automation and no tool can promise otherwise. We say so on our [safety page](/product/safety) instead of hiding it.
 - **You stay in control.** AI drafts messages and comments, and nothing is sent or posted by AI without your approval.
-- **Clear pricing.** One plan, one price, and a free trial you can cancel before you are charged. See [pricing](/pricing).
+- **Clear pricing.** One plan, one price, and a 7-day free trial that needs no card. See [pricing](/pricing).
 
 ## Talk to us
 
-Questions, feedback or a team that needs more than one seat? Email [founders@getspurly.com](mailto:founders@getspurly.com). For account help, see the [support page](/support).
+Questions, feedback or a team that needs more than one seat? [Book a meeting](/book-demo) or email [founders@getspurly.com](mailto:founders@getspurly.com). For account help, see the [support page](/support).

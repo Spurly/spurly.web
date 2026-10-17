@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 
 const SIGNALS = [
-  ["People who viewed your profile", "They already looked at you. Turn viewers into leads."],
-  ["People who follow you or your page", "Followers of you or your company page are a warm audience."],
-  ["People posting about your topic", "Search posts on a topic and import their authors."],
-  ["Companies that are hiring", "A job search is a hiring signal: a company with an open role has a need."],
+  ["Viewed your profile", "They already checked you out. Reach them while you are still on their mind."],
+  ["Follow you or your company page", "Followers know who you are. They are your warmest audience."],
+  ["Posting about your topic", "Find people talking about the problem you solve and add them to a campaign."],
+  ["Hiring for the job you help with", "An open role means a real need and a budget."],
 ];
 
 export default function Signals() {
@@ -12,9 +12,9 @@ export default function Signals() {
     <section id="signals" className="section-pad">
       <div className="wrap">
         <div className="sec-head center reveal">
-          <span className="eyebrow">Signals</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Reach people <em>when they're interested.</em></h2>
-          <p className="lead">Most tools start from a search. Spurly can also start from the people who already noticed you and the companies that are hiring.</p>
+          <span className="eyebrow">Intent signals</span>
+          <h2 className="h2" style={{ marginTop: 14 }}>Start with warm leads, <em>not cold lists.</em></h2>
+          <p className="lead">A cold list gets ignored. Spurly starts from people who already showed interest in you or in the problem you solve.</p>
         </div>
         <div className="aud-grid four">
           {SIGNALS.map(([title, body], i) => (
@@ -24,7 +24,7 @@ export default function Signals() {
             </article>
           ))}
         </div>
-        <p className="center" style={{ marginTop: 26 }}><Link className="more-link" to="/product/lead-finder">See the lead finder →</Link></p>
+        <p className="center" style={{ marginTop: 26 }}><Link className="more-link" to="/product/lead-finder">See every intent signal →</Link></p>
       </div>
     </section>
   );

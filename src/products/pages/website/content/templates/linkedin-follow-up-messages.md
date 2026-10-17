@@ -6,6 +6,7 @@ description: Eight LinkedIn follow-up message templates for after a connection i
 path: /templates/linkedin-follow-up-messages
 template: page
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.8
 target_query: linkedin follow up message templates
 related: [/templates, /blog/linkedin-follow-up-message-sequence, /templates/linkedin-cold-outreach-messages, /product/campaigns]
@@ -54,3 +55,7 @@ Use these after someone accepts your request, or after a message that got no rep
 ## What to avoid
 
 Don't paste the same text in every step, and don't pretend a follow-up is a reply ("Re: our chat"). Do not keep following up after a clear no.
+
+## Let an AI SDR send it
+
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Paste a follow-up message into [campaigns](/product/campaigns), let AI adapt it per person, approve it once and Spurly sends it 24/7 and stops when someone replies. The 7-day free trial needs no card; see [pricing](/pricing).

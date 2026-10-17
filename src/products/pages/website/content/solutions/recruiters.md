@@ -6,6 +6,7 @@ description: Recruiters use Spurly to build candidate shortlists from LinkedIn, 
 path: /solutions/recruiters
 template: solutions
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.8
 target_query: linkedin outreach for recruiters
 related: [/product/lead-finder, /product/campaigns, /blog/sales-navigator-candidate-pipelines-recruiters]
@@ -22,7 +23,7 @@ todo:
   - Add one real recruiting workflow or result from a user
   - Confirm the InMail answer is the wording you want
 ---
-Spurly helps recruiters turn an open role into a shortlist of candidates and a steady, personal outreach sequence. You search LinkedIn, keep a list per role, send connection requests and follow-ups at a safe pace, and read every reply in one inbox.
+Spurly helps recruiters turn an open role into a shortlist of candidates and a steady, personal outreach sequence. You search LinkedIn, keep a list per role, let AI draft personalized connection notes and follow-ups for you to approve, send them at a safe pace and read every reply in one inbox.
 
 ## The recruiter's problem
 
@@ -41,7 +42,7 @@ If you work in Sales Navigator, the [Chrome extension](/product/chrome-extension
 
 ## Personal at scale
 
-Write a template once and Spurly fills in details such as first name for each person, with a live preview before anything goes out. Personal, relevant notes get replies; blasts get ignored.
+AI drafts the note from a short description of the role, or you write a template once, and Spurly fills in details such as first name for each person, with a live preview and your approval before anything goes out. Personal, relevant notes get replies; blasts get ignored.
 
 ## What Spurly is not
 

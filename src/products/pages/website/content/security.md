@@ -25,7 +25,6 @@ todo:
   - Confirm whether data at rest is encrypted at the database and storage layer, then add it
   - Confirm the hosting region (backend is moving from us-east-1 to Mumbai) and add it once decided
   - List the exact third-party processors (hosting, database, email, payments, analytics, AI providers) with Sarthak
-  - Confirm payments wording once Razorpay is live (we should not store full card details)
 ---
 This page describes what Spurly stores, how it connects to LinkedIn, where AI is used and what you control. It only says what we do today. For how Spurly keeps your LinkedIn account out of trouble, see [how Spurly keeps your account safe](/product/safety).
 
@@ -38,7 +37,7 @@ You connect your LinkedIn account once through a secure hosted login that Spurly
 - **Your account:** your name, your email address and a bcrypt hash of your password, never the password itself.
 - **Your work in Spurly:** the leads, audiences, campaigns, sequences, templates, notes and conversations you build or sync.
 - **Activity records:** a log of sends and outreach events, which is how Spurly paces sends and never repeats one.
-- **Billing records:** your plan and payment history. Payments are handled by our payment provider.
+- **Billing records:** your plan and payment history. Payments are processed by Razorpay. You enter card or UPI details in Razorpay's checkout, and Spurly does not store full card numbers.
 - **Product analytics:** which pages and features are used, to improve the product.
 
 ## What Spurly does not do

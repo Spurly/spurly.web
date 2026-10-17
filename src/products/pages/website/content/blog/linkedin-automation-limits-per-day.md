@@ -7,6 +7,7 @@ excerpt: "What vendors suggest per day for each LinkedIn action, and the connect
 path: /blog/linkedin-automation-limits-per-day
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 readTime: 6 min read
 cluster: automation-safety
 parent: /blog/is-linkedin-automation-safe
@@ -83,3 +84,7 @@ Checked on 3 October 2026.
 - [Zeliq: LinkedIn automation 2026](https://www.zeliq.com/blog/linkedin-automation-2026), 9 June 2026
 - [Expandi: safest LinkedIn automation tools](https://expandi.io/blog/safest-linkedin-automation-tools/), dated 28 September 2026
 - Spurly's limits are the production settings, checked on 4 October 2026.
+
+## Where an AI SDR fits
+
+Your list, your message and your approval still matter most. Spurly's AI SDR paces every action type with caps and uneven gaps, so you do not count by hand. See [how safety works](/product/safety) and the [campaigns](/product/campaigns).

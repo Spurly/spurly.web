@@ -5,8 +5,8 @@ import { useAuth } from "src/core/auth/hooks/useAuth";
 
 const LINKS = [
   { href: "#tour", label: "Features" },
+  { href: "#signals", label: "Intent signals" },
   { href: "#how", label: "How it works" },
-  { href: "#who", label: "Who it's for" },
   { to: "/pricing", label: "Pricing" },
   { to: "/blog", label: "Blog" },
 ];

@@ -6,6 +6,7 @@ description: "Looking for an Expandi alternative? Five LinkedIn automation tools
 path: /alternatives/expandi-alternatives
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.7
 target_query: expandi alternatives
 cluster: alternatives
@@ -14,13 +15,13 @@ related: [/compare/spurly-vs-expandi, /compare/spurly-vs-heyreach, /best/linkedi
 todo:
   - Re-check every price monthly and add a first-hand note on the tool you switched from
 ---
-Expandi costs $99 a month ($79 billed annually), with a dedicated IP and branching. People look for alternatives mainly because of price. Facts were checked on 3 October 2026.
+Expandi costs $99 a month ($79 billed annually), with a dedicated IP and branching. People look for alternatives mainly because of price. Facts were checked on 17 October 2026.
 
 ## The short list
 
-- **Spurly:** $24.99 a month (₹2,499 in India), a simple linear sequence builder. See [Spurly vs Expandi](/compare/spurly-vs-expandi).
+- **Spurly:** an AI SDR for LinkedIn at a flat $24.99 a month (₹2,499 in India): AI-written messages you approve, intent signals, Claude (MCP), auto-accept and auto-withdraw for invitations, and sending 24/7 with quiet hours. See [Spurly vs Expandi](/compare/spurly-vs-expandi).
 - **HeyReach:** $79 per sender a month, with a dedicated proxy and many-sender workspaces. See [Spurly vs HeyReach](/compare/spurly-vs-heyreach).
-- **Dripify:** from $59 a month. See [Spurly vs Dripify](/compare/spurly-vs-dripify).
+- **Dripify:** Pro $79 a month ($59 billed annually). See [Spurly vs Dripify](/compare/spurly-vs-dripify).
 - **Waalaxy:** from €19 a month. See [Spurly vs Waalaxy](/compare/spurly-vs-waalaxy).
 - **Linked Helper:** desktop software with a low entry price. See [Spurly vs Linked Helper](/compare/spurly-vs-linked-helper).
 
@@ -34,4 +35,4 @@ A dedicated IP does not make automation allowed. LinkedIn's User Agreement restr
 
 ## Sources
 
-Prices are from each vendor's pricing page, checked on 3 October 2026.
+Prices are from each vendor's pricing page, checked on 17 October 2026.

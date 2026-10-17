@@ -7,6 +7,7 @@ excerpt: "LinkedIn's rules prohibit third-party automation. What the User Agreem
 path: /blog/does-linkedin-allow-automation
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 readTime: 5 min read
 cluster: automation-safety
 parent: /blog/is-linkedin-automation-safe
@@ -65,3 +66,7 @@ Checked on 3 October 2026.
 - [Gatling: LinkedIn automation rules](https://gatling.chat/blog/linkedin-automation-rules), 19 August 2026
 - [Datablist: LinkedIn account restriction explained](https://www.datablist.com/how-to/linkedin-account-restriction), 9 July 2026
 - [Expandi: LinkedIn connections limit](https://expandi.io/blog/linkedin-connections-limit), published 22 September 2026
+
+## Where an AI SDR fits
+
+Your list, your message and your approval still matter most. If you decide to use automation anyway, weigh the risk first. Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Read [how safety works](/product/safety); no tool can promise zero risk.

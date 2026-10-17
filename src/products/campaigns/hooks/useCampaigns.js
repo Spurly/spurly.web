@@ -68,7 +68,7 @@ export function useCampaigns() {
       setLoading(false);
     }
     function handleStartSuccess() {
-      toast.success('Started. Sending is paced through your working hours.');
+      toast.success('Started. Sending is paced 24/7, slower during your quiet hours.');
       setBusy(false);
       load();
     }

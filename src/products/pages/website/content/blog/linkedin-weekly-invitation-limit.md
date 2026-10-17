@@ -7,6 +7,7 @@ excerpt: "LinkedIn does not publish a number for weekly connection requests. Her
 path: /blog/linkedin-weekly-invitation-limit
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 readTime: 6 min read
 cluster: automation-safety
 parent: /blog/is-linkedin-automation-safe
@@ -79,3 +80,9 @@ Checked on 3 October 2026.
 - [Expandi: LinkedIn connections limit](https://expandi.io/blog/linkedin-connections-limit), published 22 September 2026
 - [Waalaxy: weekly limit on invitations](https://www.waalaxy.com/blog/linkedin-platform-knowledge/bypass-linkedin-limit), updated 11 September 2026
 - [Zeliq: LinkedIn automation 2026](https://www.zeliq.com/blog/linkedin-automation-2026), 9 June 2026
+
+## Stay under the limit without counting
+
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. It spreads sends around the clock against daily, hourly and weekly caps, so you do not track invitations by hand. See the [campaigns](/product/campaigns) and [how pacing works](/product/safety); no tool can promise zero risk.
+
+Related: [LinkedIn automation limits per day](/blog/linkedin-automation-limits-per-day) and [account warm-up](/blog/linkedin-account-warm-up).

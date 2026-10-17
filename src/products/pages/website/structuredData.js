@@ -30,7 +30,7 @@ export const SOFTWARE_LD = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Chrome",
   description:
-    "Spurly is a LinkedIn automation tool that finds your ideal prospects, writes personal messages with AI and follows up automatically, stopping when they reply. Runs from the cloud at a safe daily pace, with one inbox for replies. Built for founders and sales teams. Includes an optional Chrome extension for capturing profiles. 7-day free trial.",
+    "Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Runs 24/7 from the cloud at a safe pace, with one inbox for replies and Claude (MCP) support. Built for founders and B2B sales teams. Includes an optional Chrome extension for capturing profiles. 7-day free trial.",
   offers: [
     offer(PRICES.INTL),
     { ...offer(PRICES.IN), eligibleRegion: "IN" },
@@ -52,11 +52,11 @@ export const HOME_LD = [
     "@context": "https://schema.org",
     "@type": "HowTo",
     name: "How to run LinkedIn outreach with Spurly",
-    description: "Three steps from a LinkedIn search to a conversation in your inbox.",
+    description: "Three steps from defining your ICP to a conversation in your inbox.",
     step: [
-      { "@type": "HowToStep", position: "1", name: "Connect LinkedIn securely", text: "Sign in to your LinkedIn account once through a secure connection." },
-      { "@type": "HowToStep", position: "2", name: "Pick an audience, launch a sequence", text: "Search with filters, find people at target companies, import post authors or a CSV. AI drafts the connection note and follow-ups, and you approve them." },
-      { "@type": "HowToStep", position: "3", name: "Reply from one inbox", text: "Spurly connects, waits for the accept and follows up at a safe pace from the cloud. When someone answers, the sequence stops and the conversation waits in your inbox." },
+      { "@type": "HowToStep", position: "1", name: "Define your ICP", text: "Connect LinkedIn once, with nothing to install. Describe who you sell to with filters such as title, company and location, or start from target companies, post authors, profile viewers or a CSV." },
+      { "@type": "HowToStep", position: "2", name: "AI writes and runs the outreach", text: "AI drafts a personalized connection note and follow-ups in your voice. You approve them once, then Spurly visits profiles, connects, messages, likes and follows up on schedule at a safe pace." },
+      { "@type": "HowToStep", position: "3", name: "You take the warm conversations", text: "When someone replies, their sequence stops and the chat lands in one inbox. Answer there, or ask Claude to sort replies and draft answers for you to approve." },
     ],
   },
 ];

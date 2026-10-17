@@ -7,6 +7,7 @@ excerpt: "A practical guide to LinkedIn outreach: who to contact, what to write,
 path: /blog/linkedin-outreach-guide
 template: article
 date: 2026-10-03
+updated: 2026-10-17
 readTime: 11 min read
 cluster: outreach
 author: sarthak
@@ -95,4 +96,8 @@ Change one thing at a time, such as the note, the audience or the follow-up, so 
 
 ## Where Spurly fits
 
-Spurly runs the repetitive parts: building the audience, sending connection requests at a limited pace, following up in sequences that stop when someone replies, and collecting every reply in one inbox. It does not decide who deserves your message or what to say; that is still your job. See [how campaigns work](/product/campaigns). Spurly costs $24.99 a month after a 7-day free trial. Add a card (or UPI in India) to start your 7-day free trial. You won't be charged until day 8. Cancel anytime before then and you pay nothing.
+Spurly runs the repetitive parts: building the audience, sending connection requests at a limited pace, following up in sequences that stop when someone replies, and collecting every reply in one inbox. It does not decide who deserves your message or what to say; that is still your job. See [how campaigns work](/product/campaigns). Spurly costs $24.99 a month after a 7-day free trial. No card needed to start your 7-day free trial. Subscribe when it ends to keep going, and cancel anytime.
+
+## Where an AI SDR fits
+
+Your list, your message and your approval still matter most. Spurly is an AI SDR for LinkedIn that applies this guide for you: it finds the list, drafts the messages you approve and follows up 24/7. See the [campaigns](/product/campaigns) and the [lead finder](/product/lead-finder).

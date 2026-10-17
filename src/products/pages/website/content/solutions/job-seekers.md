@@ -6,6 +6,7 @@ description: Job seekers use Spurly to connect with hiring managers and employee
 path: /solutions/job-seekers
 template: solutions
 date: 2026-10-03
+updated: 2026-10-17
 priority: 0.6
 target_query: linkedin outreach for job seekers
 related: [/product/lead-finder, /product/campaigns, /templates/linkedin-connection-request-messages]
@@ -25,7 +26,7 @@ A job search is an outreach project: you need to reach people at specific compan
 
 1. **Pick 10 to 20 companies.** Not 200.
 2. **Find the right people.** Hiring managers, team leads and people in the role you want. Use the [lead finder](/product/lead-finder) to search by company and title.
-3. **Write a short, honest note.** Use the [connection request templates](/templates/linkedin-connection-request-messages), and change the first sentence for each person.
+3. **Write a short, honest note.** Use the [connection request templates](/templates/linkedin-connection-request-messages) or let Spurly's AI draft one, and change the first sentence for each person. You approve everything before it sends.
 4. **Follow up once.** A [campaign](/product/campaigns) can send a request, wait for acceptance, send a short message and stop on a reply.
 
 ## Ask for advice, not a job

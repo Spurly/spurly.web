@@ -15,4 +15,4 @@ export function priceFor(region) {
 
 /** The exact trial copy (SEO_CONTENT_PLAN section 5). Use it verbatim wherever the trial is mentioned. */
 export const TRIAL_NOTE =
-  "Add a card (or UPI in India) to start your 7-day free trial. You won't be charged until day 8. Cancel anytime before then and you pay nothing.";
+  "No card needed to start your 7-day free trial. Subscribe when it ends to keep going, and cancel anytime.";

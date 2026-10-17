@@ -82,14 +82,14 @@ export function FaqBlock({ meta }) {
 }
 
 /** Full-width CTA after the main content. */
-export function CtaBand({ title = "Try it yourself" }) {
+export function CtaBand({ title = "Put your AI SDR to work" }) {
   const price = usePrice();
   return (
     <div className="blog-cta">
       <h2>{title}</h2>
       <p>
-        Spurly runs your LinkedIn outreach for you — find the right people, connect, follow up and reply
-        from one inbox. 7-day free trial, then {price.label}/month.
+        Spurly is an AI SDR for LinkedIn. It finds high-intent leads, writes personalized messages with AI and
+        follows up 24/7 until they reply. 7-day free trial, then {price.label}/month.
       </p>
       <Link to="/signup" className="btn btn-primary btn-lg">Start 7-day free trial</Link>
       <p className="trial-note-inline">{TRIAL_NOTE}</p>
