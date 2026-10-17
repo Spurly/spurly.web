@@ -17,6 +17,10 @@ export default function Footer() {
               <Link to="/product/campaigns">Campaigns</Link>
               <Link to="/product/inbox">Inbox</Link>
               <Link to="/product/lead-finder">Lead finder</Link>
+              <Link to="/product/network">Network and invitations</Link>
+              <Link to="/product/enrichment">Enrichment</Link>
+              <Link to="/product/posts">Posts</Link>
+              <Link to="/product/ai-assistants">Claude (MCP)</Link>
               <Link to="/product/safety">Safety</Link>
               <Link to="/product/chrome-extension">Chrome extension</Link>
               <Link to="/pricing">Pricing</Link>
@@ -26,9 +30,32 @@ export default function Footer() {
               <Link to="/solutions/founders">Founders</Link>
               <Link to="/solutions/sales-teams">Sales teams</Link>
               <Link to="/solutions/recruiters">Recruiters</Link>
-              <Link to="/compare/spurly-vs-expandi">Spurly vs Expandi</Link>
+              <Link to="/solutions/agencies">Agencies</Link>
+              <Link to="/solutions/job-seekers">Job seekers</Link>
+            </div>
+            <div className="foot-col">
+              <h4>Compare</h4>
               <Link to="/compare/spurly-vs-dripify">Spurly vs Dripify</Link>
               <Link to="/compare/spurly-vs-waalaxy">Spurly vs Waalaxy</Link>
+              <Link to="/compare/spurly-vs-expandi">Spurly vs Expandi</Link>
+              <Link to="/compare/spurly-vs-heyreach">Spurly vs HeyReach</Link>
+              <Link to="/compare/spurly-vs-lemlist">Spurly vs Lemlist</Link>
+              <Link to="/compare/spurly-vs-linked-helper">Spurly vs Linked Helper</Link>
+              <Link to="/compare/spurly-vs-phantombuster">Spurly vs PhantomBuster</Link>
+            </div>
+            <div className="foot-col">
+              <h4>Resources</h4>
+              <Link to="/best/linkedin-automation-tools">Best LinkedIn automation tools</Link>
+              <Link to="/alternatives/dripify-alternatives">Dripify alternatives</Link>
+              <Link to="/alternatives/waalaxy-alternatives">Waalaxy alternatives</Link>
+              <Link to="/alternatives/expandi-alternatives">Expandi alternatives</Link>
+              <Link to="/alternatives/linked-helper-alternatives">Linked Helper alternatives</Link>
+              <Link to="/alternatives/phantombuster-alternatives">PhantomBuster alternatives</Link>
+              <Link to="/templates">Message templates</Link>
+              <Link to="/templates/linkedin-connection-request-messages">Connection request messages</Link>
+              <Link to="/tools/linkedin-connection-request-generator">Request message generator</Link>
+              <Link to="/blog/linkedin-outreach-guide">LinkedIn outreach guide</Link>
+              <Link to="/glossary/ai-sdr">What is an AI SDR?</Link>
             </div>
             <div className="foot-col">
               <h4>Company</h4>
