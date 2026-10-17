@@ -1,15 +1,25 @@
+import { useNavigate } from 'react-router-dom';
 import { Surface, Skeleton } from 'src/core/primitives';
 import { AreaTrend, CountUp, fmtNum, sumOf } from 'src/core/charts';
 import { analyticsStrings as t } from './strings.js';
 
-function MiniStat({ label, value }) {
+/** A raised, clickable stat: lifts toward the cursor and bobs gently on its own. */
+function PopStat({ label, value, color, to, index = 0, big = false, prefix = '' }) {
+  const navigate = useNavigate();
   return (
-    <div className="min-w-0">
-      <div className="ui-num text-[length:var(--ui-t-heading)] leading-none text-[var(--ui-text-primary)]">
+    <button
+      type="button"
+      onClick={() => navigate(to)}
+      className={`ui-pop ${big ? 'ui-pop--big' : ''}`}
+      style={{ '--pop': color, '--d': `${index * 0.5}s` }}
+    >
+      <span className="ui-pop__dot" aria-hidden="true" />
+      <span className="ui-pop__value ui-num">
+        {prefix}
         <CountUp value={value} />
-      </div>
-      <p className="mt-1.5 text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)] truncate">{label}</p>
-    </div>
+      </span>
+      <span className="ui-pop__label">{label}</span>
+    </button>
   );
 }
 
@@ -38,8 +48,7 @@ export function HeroCard({ data, loading, days }) {
 
   return (
     <Surface
-      className="relative p-6"
-      style={{ background: 'linear-gradient(135deg, var(--ui-accent-wash) 0%, var(--ui-surface-card) 62%)' }}
+      className="relative p-6 ui-hero-live overflow-hidden"
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center">
         <div className="min-w-0">
@@ -51,22 +60,22 @@ export function HeroCard({ data, loading, days }) {
             <p className="mt-4 text-[length:var(--ui-t-title)] text-[var(--ui-text-body)] leading-[1.5] max-w-[420px]">{t.hero.empty}</p>
           ) : (
             <>
-              <div className="mt-4 flex items-baseline gap-2.5 flex-wrap">
-                <span className="ui-num leading-none tracking-[-0.03em] text-[var(--ui-text-primary)]" style={{ fontSize: 44 }}>
-                  {hasGain ? '+' : ''}
-                  <CountUp value={hasGain ? gained : totals.connections} />
-                </span>
-                <span className="text-[length:var(--ui-t-title)] text-[var(--ui-text-body)]">
-                  {hasGain ? t.hero.gained : t.hero.networkLabel.toLowerCase()}
-                </span>
-              </div>
               <p className="mt-2 text-[length:var(--ui-t-control)] text-[var(--ui-text-secondary)] leading-[1.5] max-w-[420px]">
                 {hasGain ? t.hero.grown(gained) : t.hero.network(totals.connections)}
               </p>
-              <div className="mt-6 grid grid-cols-3 gap-4 max-w-[460px]">
-                <MiniStat label={t.hero.invites} value={totals.invites} />
-                <MiniStat label={t.hero.messages} value={totals.messages} />
-                <MiniStat label={t.hero.conversations} value={totals.repliesConversations} />
+              <div className="mt-5 flex flex-wrap items-stretch gap-3">
+                <PopStat
+                  big
+                  index={0}
+                  prefix={hasGain ? '+' : ''}
+                  value={hasGain ? gained : totals.connections}
+                  label={hasGain ? t.hero.gained : t.hero.networkLabel.toLowerCase()}
+                  color="var(--ui-chart-4)"
+                  to="/hub/network"
+                />
+                <PopStat index={1} value={totals.invites} label={t.hero.invites} color="var(--ui-chart-1)" to="/hub/campaigns" />
+                <PopStat index={2} value={totals.messages} label={t.hero.messages} color="var(--ui-chart-2)" to="/hub/campaigns" />
+                <PopStat index={3} value={totals.repliesConversations} label={t.hero.conversations} color="var(--ui-chart-3)" to="/hub/inbox" />
               </div>
             </>
           )}

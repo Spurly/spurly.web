@@ -539,11 +539,11 @@ export function DashboardLayout({
 
   return (
     <div
-      className="flex h-screen overflow-hidden text-[var(--ui-text-primary)]"
+      className="ui-frame flex h-screen overflow-hidden text-[var(--ui-text-primary)]"
       style={{ minHeight: 600 }}
     >
       <aside
-        className="flex flex-col h-full shrink-0 bg-[var(--ui-surface-sunken)] border-r border-[var(--ui-border)] shadow-[var(--ui-shadow-rail)] relative z-[2] transition-[width] duration-[var(--ui-dur-base)] ease-[cubic-bezier(0.2,0,0.1,1)]"
+        className="ui-rail flex flex-col h-full shrink-0 bg-[var(--ui-surface-sunken)] relative z-[2] transition-[width] duration-[var(--ui-dur-base)] ease-[cubic-bezier(0.2,0,0.1,1)]"
         style={{ width: expanded ? WIDTH_EXPANDED : WIDTH_COLLAPSED }}
       >
         <div
@@ -637,7 +637,7 @@ export function DashboardLayout({
       </aside>
 
       <div
-        className={`flex-1 flex flex-col min-w-0 ${layout === "page" || layout === "plain" ? "overflow-y-auto" : "overflow-hidden"}`}
+        className={`ui-sheet flex-1 flex flex-col min-w-0 ${layout === "page" || layout === "plain" ? "overflow-y-auto" : "overflow-hidden"}`}
       >
         <ImpersonationBanner />
 

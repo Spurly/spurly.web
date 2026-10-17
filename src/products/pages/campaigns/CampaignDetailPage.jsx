@@ -164,7 +164,7 @@ export function CampaignDetailPage() {
       title={campaign.name}
       backTo="/hub/campaigns"
       backLabel={t.allCampaigns}
-      layout="plain"
+      layout="fill"
       badge={
         <Badge tone={view.tone} dot pulse={running}>
           {view.label}

@@ -36,7 +36,7 @@ export function CompanyCell({ value, logo = null, density = 'default', chip = fa
   return (
     <span className="flex items-center gap-2 min-w-0">
       <Avatar src={src} name={value} size={d.avatar - 3} shape="square" />
-      <span className="truncate text-[var(--ui-text-secondary)]">{value}</span>
+      <span className="truncate font-[var(--ui-w-medium)] text-[var(--ui-text-primary)]">{value}</span>
     </span>
   );
 }

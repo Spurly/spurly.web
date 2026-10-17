@@ -347,9 +347,9 @@ table { font-variant-numeric: tabular-nums; }
 /* Page titles, the one place the display face appears in app chrome. */
 .ui-display {
   font-family: var(--ui-font-display);
-  /* Serif, regular weight, plain ink: the Claude-style editorial heading.
+  /* Bold Instrument Sans, tight tracking: the landing page's heading.
      One size on every page (--ui-t-display). */
-  font-weight: 400;
+  font-weight: 700;
   font-size: var(--ui-t-display);
   line-height: 1.15;
   letter-spacing: var(--ui-track-display);
@@ -365,17 +365,7 @@ table { font-variant-numeric: tabular-nums; }
   background-size: 180px 180px;
 }
 
-/* Paper ribbons behind every route: one static image (about 19 KB), fixed to
-   the viewport. It replaces the live shader, so there is no WebGL, no frame
-   loop and no main-thread cost. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: url("/assets/ribbons.webp") center / cover no-repeat;
-}
+/* (Paper-ribbon backdrop removed in v7: the app now sits on the plain canvas, like the public site.) */
 
 /* Surface depth (core/primitives/Surface). Everything here is opt-in: a card
    with depth="flat" carries none of these classes. Tilt vars (--rx/--ry in

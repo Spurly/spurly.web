@@ -1,32 +1,50 @@
 import { Link } from "react-router-dom";
-import PlanCard from "./PlanCard.jsx";
+import { CheckItem } from "../icons.jsx";
 import { TRIAL_NOTE } from "../pricing.js";
 import { usePrice } from "../hooks/usePrice.js";
 
-/* One plan, monthly (SEO_CONTENT_PLAN §5). Prerendered in USD; after
-   hydration the price switches to INR for visitors in India (usePrice). Every feature below is marked "Market now" in
-   SEO_CONTENT_PLAN §3. */
+/* One plan, monthly. Short on purpose: price, one button, eight highlights.
+   The full list lives on /pricing (PlanCard). Prerendered in USD; after
+   hydration the price switches to INR for visitors in India (usePrice).
+   Every line below is also in planFeatures.js, so nothing here is new. */
+
+const HIGHLIGHTS = [
+  "AI-written messages and sequences",
+  "Intent signals: viewers, followers, posts, hiring",
+  "Auto-accept and auto-withdraw invitations",
+  "Works with Claude (MCP)",
+  "One inbox for every LinkedIn conversation",
+  "Lead finder, Chrome extension and CSV import",
+  "Email and phone enrichment",
+  "Safe daily pace, pauses when someone replies",
+];
 
 export default function Pricing() {
   const price = usePrice();
   return (
-    <section id="pricing" className="section-pad">
+    <section id="pricing" className="prc section-pad">
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="eyebrow">Pricing</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>An AI SDR for <em>{price.label}/month.</em></h2>
-          <p className="lead">Everything included, no tiers to compare.{price.region === "IN" ? "" : " Less than a day of an SDR's salary."}</p>
+          <h2 className="h2" style={{ marginTop: 14 }}>One plan. <em>Everything included.</em></h2>
         </div>
-        <div className="price-grid single">
-          <PlanCard className="reveal d1" />
+        <div className="prc-card reveal d1">
+          <div className="prc-main">
+            <span className="prc-badge">7-day free trial</span>
+            <div className="prc-name">Spurly</div>
+            <div className="prc-amt"><b className="tnum">{price.label}</b><span>/ month</span></div>
+            <p>{price.region === "IN" ? "Prices shown in INR for India." : "Billed in USD."} Cancel anytime.</p>
+            <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>Start 7-day free trial</Link>
+          </div>
+          <ul className="prc-list">
+            {HIGHLIGHTS.map((f) => <CheckItem key={f}>{f}</CheckItem>)}
+          </ul>
         </div>
-        <p className="center" style={{ marginTop: 20, color: "var(--text-2)", fontSize: 14.5 }}>
-          Designed to stay within LinkedIn's limits, with hourly and daily caps and a pause when someone replies. No tool can promise zero risk.{" "}
-          <Link to="/product/safety">How safety works</Link>.
+        <p className="center prc-note">
+          {TRIAL_NOTE} <Link to="/pricing">Full pricing and FAQ</Link>
         </p>
-        <p className="center" style={{ marginTop: 14, color: "var(--text-3)", fontSize: 13.5 }}>
-          {TRIAL_NOTE} Cancel in Settings → Billing; access runs to the end of the period you've paid for.{" "}
-          <Link to="/pricing">See full pricing and FAQ</Link>.
+        <p className="center prc-note">
+          Built to stay within LinkedIn's limits. No tool can promise zero risk. <Link to="/product/safety">How safety works</Link>
         </p>
       </div>
     </section>

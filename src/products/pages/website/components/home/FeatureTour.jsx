@@ -1,96 +1,165 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import SectionCta from "../SectionCta.jsx";
 
-/* Tabbed tour. Every panel is in the prerendered HTML (inactive ones are
-   `hidden`, still in the DOM), so crawlers read all of it. Screenshots are from
-   the real app with other people's names and photos blurred. */
-const TABS = [
+/* Features: a short numbered list on the left, one panel on the right.
+   Items 1-4 are the headline features; each plays a short silent loop in the
+   right panel. Until a clip exists the panel shows a screenshot or a
+   placeholder. Item 5 swaps the panel for the full feature list.
+   Every line of text is in the prerendered HTML (inactive panels are `hidden`,
+   still in the DOM), so crawlers read all of it. To add a clip: set `clip`
+   (an .mp4 under /public/assets/clips) and keep `shot` as its poster. */
+
+const FEATURES = [
   {
-    key: "campaigns",
-    label: "AI campaigns and sequences",
-    body: "AI writes a personalized connection note and follow-ups for your ICP, and you approve them. Spurly combines visit, connect, message, follow, like, comment and wait, sends each step at a safe daily pace and stops when someone replies.",
-    to: "/product/campaigns",
-    shot: { src: "/assets/app-campaigns.webp", w: 1700, h: 943, alt: "Spurly campaigns page showing sending, accepted and replies-waiting counts and a card for each campaign." },
-  },
-  {
-    key: "inbox",
-    label: "Unified inbox",
-    body: "Every LinkedIn conversation in one list, with replies from your campaigns on top. Reply, react and send files and PDFs as messages arrive.",
-    to: "/product/inbox",
-    shot: { src: "/assets/app-inbox.webp", w: 1700, h: 937, alt: "Spurly inbox with a conversation list, a message thread and a reply box with a Write button. The message text is blurred." },
-  },
-  {
-    key: "finder",
-    label: "ICP lead finder",
-    body: "Filtered LinkedIn search, company search, post authors, pasted URLs and CSV all feed one audience. Hiring companies and posts on your topic point to people with a reason to talk.",
+    key: "find",
+    tag: "Find",
+    title: "Find people worth messaging",
+    body: "Search LinkedIn, pull post authors, paste links or import a CSV. Hiring companies and profile viewers show who is already interested.",
     to: "/product/lead-finder",
     shot: { src: "/assets/app-leads.webp", w: 1700, h: 942, alt: "Spurly leads table with a bulk-action bar and degree, status and enrichment columns." },
+    clip: "/assets/clips/find.mp4",
   },
   {
-    key: "network",
-    label: "Warm leads",
-    body: "Your network is synced, and profile viewers and followers of you or your company page become an audience in one click.",
-    to: "/product/network",
-    shot: { src: "/assets/app-network.webp", w: 1700, h: 943, alt: "Spurly network page with the number of connections, when they were last checked and a table of your LinkedIn connections with title, company and enrichment status." },
+    key: "claude",
+    tag: "Claude",
+    title: "Run it from Claude",
+    body: "Connect Claude and ask in plain words: find leads, draft a campaign, check who replied. It works inside your limits.",
+    to: "/product/ai-assistants",
+    shot: { src: "/assets/clips/claude-poster.webp", w: 1280, h: 800, alt: "Spurly dashboard card for running Spurly from Claude, with Connect with Claude and an example chat." },
+    clip: "/assets/clips/claude.mp4",
   },
   {
-    key: "hours",
-    label: "24/7, on your terms",
-    body: "Spurly works around the clock with uneven, human-like gaps. Choose quiet hours and it slows right down overnight instead of stopping. It stops a person the moment they reply and skips anyone contacted in the last 30 days.",
+    key: "followup",
+    tag: "Follow up",
+    title: "Campaigns that follow up",
+    body: "AI writes the note and you approve it. Each step goes out at a safe pace and stops the moment someone replies.",
+    to: "/product/campaigns",
+    shot: { src: "/assets/app-campaigns.webp", w: 1700, h: 943, alt: "Spurly campaigns page showing sending, accepted and replies-waiting counts and a card for each campaign." },
+    clip: "/assets/clips/follow.mp4",
   },
   {
     key: "invitations",
-    label: "Invitations and enrichment",
-    body: "Auto-accept incoming invitations from people whose headline matches your keywords, auto-withdraw invitations nobody accepted, and find work emails and phone numbers for your leads.",
+    tag: "Invitations",
+    title: "Invitations on autopilot",
+    body: "Accept people whose headline matches your keywords, and withdraw invitations nobody accepted.",
+    to: "/product/network",
+    shot: { src: "/assets/clips/invitations-poster.webp", w: 1280, h: 800, alt: "Spurly invitation rules: withdraw stale invitations and accept incoming ones whose headline matches your keywords." },
+    clip: "/assets/clips/invitations.mp4",
+  },
+  {
+    key: "all",
+    tag: "And more",
+    title: "Everything else, included",
+    body: "Inbox, analytics, enrichment, quiet hours and more. See the full list.",
+    all: true,
   },
 ];
 
-export default function FeatureTour() {
-  const [active, setActive] = useState(TABS[0].key);
+const ALL_FEATURES = [
+  { group: "Find", items: ["LinkedIn search and filters", "Company search", "Post authors", "Paste profile links", "CSV import", "Chrome extension", "Profile viewers", "Followers", "Hiring companies"] },
+  { group: "Write and send", items: ["AI-written notes and follow-ups", "Message templates", "Approve before sending", "Campaigns", "Multi-step sequences"] },
+  { group: "Reply", items: ["Unified inbox", "Files and PDFs", "Stops when they reply"] },
+  { group: "Automate", items: ["Auto-accept invitations", "Auto-withdraw invitations", "Auto-engage with posts", "Quiet hours", "Safe daily limits", "Skips anyone contacted in 30 days"] },
+  { group: "Know and connect", items: ["Analytics dashboard", "Work emails and phones", "Claude (MCP)"] },
+];
+
+const PlayGlyph = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" /></svg>
+);
+
+function Media({ f, on }) {
+  if (f.clip && on) {
+    return (
+      <video className="feat-media" src={f.clip} poster={f.shot ? f.shot.src : undefined} autoPlay muted loop playsInline preload="metadata" aria-label={f.title} />
+    );
+  }
+  if (f.shot) {
+    return <img className="feat-media" src={f.shot.src} alt={f.shot.alt} width={f.shot.w} height={f.shot.h} loading="lazy" decoding="async" />;
+  }
   return (
-    <section id="tour" className="section-pad">
+    <div className="hv-center" role="img" aria-label={f.title + ", demo coming soon"}>
+      <span className="hv-play"><PlayGlyph /></span>
+      <strong>{f.title}</strong>
+      <small>Demo coming soon</small>
+    </div>
+  );
+}
+
+export default function FeatureTour() {
+  const [active, setActive] = useState(0);
+  const [auto, setAuto] = useState(true);
+  const last = FEATURES.length - 2; // autoplay cycles the 4 headline features only
+
+  function pick(i) {
+    setActive(i);
+    setAuto(false);
+  }
+
+  return (
+    <section id="tour" className="feat section-pad">
       <div className="wrap">
         <div className="sec-head center reveal">
-          <span className="eyebrow">What your AI SDR does</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Every SDR job on LinkedIn, <em>in one tool.</em></h2>
+          <span className="eyebrow">What Spurly does</span>
+          <h2 className="h2" style={{ marginTop: 14 }}>Every SDR job on LinkedIn, <em>done for you.</em></h2>
         </div>
-        <div className="tour glass reveal d1">
-          <div className="shot-tabs" role="tablist" aria-label="Spurly features">
-            {TABS.map((t, i) => (
-              <button
-                key={t.key}
-                id={"tour-tab-" + t.key}
-                className={"shot-tab" + (active === t.key ? " is-on" : "")}
-                role="tab"
-                aria-selected={active === t.key}
-                aria-controls={"tour-panel-" + t.key}
-                onClick={() => setActive(t.key)}
+        <div className="feat-grid reveal d1">
+          <div className="feat-list" role="tablist" aria-label="Spurly features" aria-orientation="vertical">
+            {FEATURES.map((f, i) => {
+              const on = active === i;
+              return (
+                <button
+                  key={f.key}
+                  id={"feat-tab-" + f.key}
+                  type="button"
+                  role="tab"
+                  className={"feat-item" + (on ? " is-on" : "")}
+                  aria-selected={on}
+                  aria-controls={"feat-panel-" + f.key}
+                  onClick={() => pick(i)}
+                >
+                  <span className="feat-tag">{String(i + 1).padStart(2, "0")} / {f.tag}</span>
+                  <span className="feat-title">{f.title}</span>
+                  <span className="feat-d"><span>{f.body}</span></span>
+                  <span className="feat-bar" aria-hidden="true">
+                    <i
+                      className={on && auto && !f.all ? "run" : ""}
+                      onAnimationEnd={() => setActive(active >= last ? 0 : active + 1)}
+                    />
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="feat-view">
+            {FEATURES.map((f, i) => (
+              <div
+                key={f.key}
+                id={"feat-panel-" + f.key}
+                role="tabpanel"
+                aria-labelledby={"feat-tab-" + f.key}
+                hidden={active !== i}
+                className="feat-panel"
               >
-                <span className="st-i">{i + 1}</span>
-                {t.label}
-              </button>
+                {f.all ? (
+                  <div className="feat-all">
+                    {ALL_FEATURES.map((g) => (
+                      <div key={g.group} className="feat-grp">
+                        <h3>{g.group}</h3>
+                        <ul>{g.items.map((it) => <li key={it}>{it}</li>)}</ul>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <div className="hv-bar" aria-hidden="true"><i /><i /><i /></div>
+                    <div className="hv-stage"><Media f={f} on={active === i} /></div>
+                    {f.to && <Link className="feat-more" to={f.to}>Learn more →</Link>}
+                  </>
+                )}
+              </div>
             ))}
           </div>
-          {TABS.map((t) => (
-            <div
-              key={t.key}
-              id={"tour-panel-" + t.key}
-              className="tour-panel"
-              role="tabpanel"
-              aria-labelledby={"tour-tab-" + t.key}
-              hidden={active !== t.key}
-            >
-              <h3 className="h3">{t.label}</h3>
-              <p>{t.body}</p>
-              {t.to && <Link className="more-link" to={t.to}>Learn more →</Link>}
-              {t.shot && (
-                <img className="tour-shot" src={t.shot.src} alt={t.shot.alt} width={t.shot.w} height={t.shot.h} loading="lazy" decoding="async" />
-              )}
-            </div>
-          ))}
         </div>
-        <SectionCta />
       </div>
     </section>
   );

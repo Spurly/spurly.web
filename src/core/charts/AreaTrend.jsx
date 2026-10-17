@@ -14,16 +14,21 @@ export function AreaTrend({ days = [], values = [], name = 'Value', color = 'var
   if (data.length === 0) return <div style={{ height }} aria-hidden="true" />;
 
   return (
-    <div style={{ height }} className="w-full" role="img" aria-label={`${name} over the selected range`}>
+    <div style={{ height }} className="w-full ui-scan" role="img" aria-label={`${name} over the selected range`}>
       <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 640, height }}>
         <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <defs>
+            <linearGradient id={`${gid}-line`} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--ui-chart-1)" />
+              <stop offset="55%" stopColor="var(--ui-chart-2)" />
+              <stop offset="100%" stopColor="var(--ui-chart-4)" />
+            </linearGradient>
             <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" style={{ stopColor: color, stopOpacity: 0.32 }} />
               <stop offset="100%" style={{ stopColor: color, stopOpacity: 0.02 }} />
             </linearGradient>
           </defs>
-          <CartesianGrid vertical={false} stroke="var(--ui-chart-grid)" />
+          <CartesianGrid vertical={false} stroke="var(--ui-chart-grid)" strokeDasharray="3 6" className="ui-flow-grid" />
           <XAxis
             dataKey="day"
             tickFormatter={shortDay}
@@ -50,10 +55,19 @@ export function AreaTrend({ days = [], values = [], name = 'Value', color = 'var
             type="monotone"
             dataKey="value"
             name={name}
-            stroke={color}
-            strokeWidth={2}
+            stroke={`url(#${gid}-line)`}
+            strokeWidth={2.75}
             fill={`url(#${gid})`}
-            dot={false}
+            dot={(props) => {
+              const { cx, cy, index, key } = props;
+              if (index !== data.length - 1 || cx == null) return <g key={key ?? index} />;
+              return (
+                <g key={key ?? index}>
+                  <circle cx={cx} cy={cy} r={5} fill="var(--ui-chart-4)" className="ui-live-ring" />
+                  <circle cx={cx} cy={cy} r={4.5} fill="var(--ui-chart-4)" stroke="var(--ui-surface-card)" strokeWidth={2} />
+                </g>
+              );
+            }}
             activeDot={{ r: 4, stroke: 'var(--ui-surface-card)', strokeWidth: 2 }}
           />
         </AreaChart>

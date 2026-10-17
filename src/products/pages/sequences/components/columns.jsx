@@ -28,6 +28,8 @@ const STOP_REASON = {
   self: 'This is you',
   'acceptance-timeout': 'Invite not accepted in time',
   manual: 'Stopped manually',
+  // The backend stops an enrollment the moment the lead replies (Phase 10, sequences/service runOneEnrollment).
+  'lead-replied': 'Replied — handed to you',
 };
 
 export function hubEnrollmentColumns(steps = []) {

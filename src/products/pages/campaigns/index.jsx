@@ -61,14 +61,16 @@ export function HubCampaignsPage() {
     <DashboardLayout
       title={t.pageTitle}
       subtitle={t.pageSubtitle}
-      layout="page"
+      layout="fill"
       actions={
         <Button variant="primary" leadingIcon={<PlusIcon size={14} strokeWidth={2} />} onClick={() => navigate('/hub/leads')}>
           {t.newCampaign}
         </Button>
       }
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 flex-1 min-h-0">
+        {/* Pinned: status line, totals and filters stay put; only the cards scroll. */}
+        <div className="flex flex-col gap-4 shrink-0">
         {running > 0 && (
           <WorkingLine
             verbs={['Sending', 'Watching', 'Pacing', 'Reconciling']}
@@ -113,7 +115,9 @@ export function HubCampaignsPage() {
           onChange={setStatus}
           options={STATUS_FILTERS.filter((f) => f.id === 'all' || f.id !== 'draft' || counts.draft > 0).map((f) => ({ ...f, count: counts[f.id] }))}
         />
+        </div>
 
+        <div className="flex-1 min-h-0 overflow-y-auto -mx-1 px-1 pb-1">
         {loading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3" role="status" aria-busy="true" aria-label="Loading campaigns">
             {[0, 1, 2].map((i) => (
@@ -143,6 +147,7 @@ export function HubCampaignsPage() {
             ))}
           </div>
         )}
+        </div>
       </div>
     </DashboardLayout>
   );

@@ -20,6 +20,12 @@ export function Row({
   return (
     <tr
       onClick={onRowClick ? () => onRowClick(row) : undefined}
+      /* Quick actions follow the pointer: publish its x (relative to the row)
+         as --mx; .ui-row-actions positions itself from it. */
+      onMouseMove={actions ? (e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+      } : undefined}
       aria-selected={selectable ? isSelected : undefined}
       data-tone={tone || undefined}
       /* The accent edge is an INSET SHADOW, not a border or a pseudo-element:
@@ -28,7 +34,7 @@ export function Row({
          this is free. Requires border-collapse: separate on the table — under
          `collapse`, shadows on a <tr> don't paint reliably. */
       className={[
-        'group ui-row transition-[background-color,box-shadow] duration-[140ms]',
+        'group ui-row relative transition-[background-color,box-shadow] duration-[140ms]',
         index % 2 === 1 ? 'ui-row--alt' : '',
         onRowClick ? 'cursor-pointer' : '',
         isSelected

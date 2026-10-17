@@ -2,6 +2,7 @@ import { Badge } from 'src/core/primitives';
 import {
   ChipCell,
   CompanyCell,
+  TextCell,
   PersonCell,
   LocationCell,
   ActivityCell,
@@ -137,7 +138,7 @@ export const hubLeadColumns = [
     title: (row) => row.currentTitle,
     // Blank until the lead's full profile has been resolved (open the
     // drawer, or enrich) — correctly empty, not broken.
-    render: (value) => <ChipCell value={value || null} />,
+    render: (value) => <TextCell value={value || null} tone="primary" />,
   },
   {
     key: 'companyName',
@@ -145,14 +146,14 @@ export const hubLeadColumns = [
     width: 180,
     sortable: true,
     title: (row) => row.companyName,
-    render: (value) => <CompanyCell value={value || null} chip />,
+    render: (value) => <CompanyCell value={value || null} />,
   },
   {
     key: 'location',
     label: 'Location',
     width: 200,
     sortable: true,
-    render: (value) => <LocationCell value={value} chip flag />,
+    render: (value) => <LocationCell value={value} flag />,
   },
   {
     key: 'connectionDegree',

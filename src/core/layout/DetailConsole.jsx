@@ -28,11 +28,14 @@ import { Meter, Stat } from 'src/core/primitives/Meter';
  * scrolls the whole page like anything else, never a nested scrollbar.
  */
 export function DetailConsole({ main, rail, className = '' }) {
+  /* Height-bound: the table card in `main` scrolls its own rows under a fixed
+     header and toolbar, and the rail scrolls as one column beside it. The page
+     itself never scrolls (pair with DashboardLayout layout="fill"). */
   return (
-    <div className={`flex flex-col ${className}`}>
-      <div className="flex items-start gap-4">
-        <div className="flex-1 min-w-0 flex flex-col gap-4">{main}</div>
-        <div className="w-[376px] shrink-0 flex flex-col gap-3 pb-1">{rail}</div>
+    <div className={`flex flex-col flex-1 min-h-0 ${className}`}>
+      <div className="flex flex-1 min-h-0 items-stretch gap-4">
+        <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-4">{main}</div>
+        <div className="w-[376px] shrink-0 min-h-0 overflow-y-auto flex flex-col gap-3 pb-1 pr-0.5">{rail}</div>
       </div>
     </div>
   );
@@ -80,7 +83,7 @@ export function RailCard({ title, children, grow = false, tone = 'default', clas
     <div
       className={[
         'rounded-[var(--ui-radius-lg)] border bg-[var(--ui-surface-card)] overflow-hidden flex flex-col',
-        grow ? 'flex-1' : 'shrink-0',
+        grow ? 'grow shrink-0 basis-auto' : 'shrink-0',
         toneBorder,
         className,
       ].filter(Boolean).join(' ')}

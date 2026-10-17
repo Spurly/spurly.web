@@ -11,7 +11,7 @@ export function TrendTile({ label, value, delta, prev, series, color, days, load
   const up = delta != null && delta > 0;
   const down = delta != null && delta < 0;
   return (
-    <Surface className="min-w-0 px-4 pt-4 pb-3.5">
+    <Surface className="ui-pop-tile min-w-0 px-4 pt-4 pb-3.5" style={{ '--pop': color }}>
       <div className="flex items-center justify-between gap-2 min-w-0">
         <span className="ui-micro !text-[length:var(--ui-t-micro)] !text-[var(--ui-text-secondary)] truncate">{label}</span>
         {delta != null && delta !== 0 && (

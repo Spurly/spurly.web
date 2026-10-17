@@ -1,0 +1,332 @@
+{
+ "note": "Synced to vo.mp3 played at 1.08x (pitch kept). Times in output seconds.",
+ "tempo": 1.08,
+ "scenes": [
+  {
+   "kind": "hook",
+   "beats": [
+    {
+     "at": 1.0648,
+     "until": 2.037,
+     "text": "Okay, *stop.*",
+     "size": 160,
+     "stagger": 0.12
+    },
+    {
+     "at": 2.037,
+     "until": 4.9537,
+     "text": "Still doing LinkedIn outreach *by* *hand?*",
+     "size": 88,
+     "strike": 1.2037,
+     "strike_text": "by hand?",
+     "strike_dy": 8
+    },
+    {
+     "at": 4.9537,
+     "until": 7.0833,
+     "text": "Watch software do it *for* *you.*",
+     "size": 100
+    }
+   ],
+   "dur": 7.0833
+  },
+  {
+   "kind": "window",
+   "clip": "find",
+   "src": [
+    0.0
+   ],
+   "enter": 0.55,
+   "fade_in": 0.25,
+   "url": "getspurly.com/hub/leads",
+   "captions": [
+    {
+     "at": 0.0926,
+     "text": "Stay for the *last* *trick.*"
+    }
+   ],
+   "dur": 3.287,
+   "speed": 1.0,
+   "flash": true
+  },
+  {
+   "kind": "window",
+   "clip": "find",
+   "src": [
+    3.1
+   ],
+   "url": "getspurly.com/hub/leads",
+   "captions": [
+    {
+     "at": 0.0926,
+     "text": "Pick a *city.*",
+     "until": 0.9722
+    },
+    {
+     "at": 0.9722,
+     "text": "An *industry.*",
+     "until": 1.8981
+    },
+    {
+     "at": 1.8981,
+     "text": "The *title* you sell to."
+    }
+   ],
+   "dur": 3.3796,
+   "speed": 1.0
+  },
+  {
+   "kind": "window",
+   "clip": "find",
+   "src": [
+    10.6
+   ],
+   "src_end": 14.1,
+   "url": "getspurly.com/hub/leads",
+   "captions": [
+    {
+     "at": 0.0,
+     "text": "Hit *run\u2026*",
+     "until": 0.8333
+    },
+    {
+     "at": 0.8333,
+     "text": "Leads *pour* *in.*"
+    }
+   ],
+   "dur": 3.3333,
+   "speed": 1.05
+  },
+  {
+   "kind": "window",
+   "clip": "follow",
+   "src": [
+    0.4
+   ],
+   "url": "getspurly.com/hub/campaigns",
+   "captions": [
+    {
+     "at": 0.0926,
+     "text": "The part everyone *hates.*",
+     "until": 3.4259
+    },
+    {
+     "at": 3.4259,
+     "text": "*AI* writes it for you.",
+     "until": 6.0648
+    },
+    {
+     "at": 6.0648,
+     "text": "You *approve* it. Done."
+    }
+   ],
+   "dur": 8.1019,
+   "segs": [
+    [
+     0.4,
+     1.45,
+     1.8519
+    ],
+    [
+     1.45,
+     5.35,
+     3.3333
+    ],
+    [
+     5.35,
+     5.62,
+     1.3889
+    ],
+    [
+     5.62,
+     6.7,
+     1.5278
+    ]
+   ]
+  },
+  {
+   "kind": "window",
+   "clip": "follow",
+   "src": [
+    7.2
+   ],
+   "url": "getspurly.com/hub/campaigns",
+   "captions": [
+    {
+     "at": 0.0926,
+     "text": "Then it sends. *Slowly.*",
+     "until": 2.3611
+    },
+    {
+     "at": 2.3611,
+     "text": "Paced like a *real* *person.*",
+     "until": 4.8611
+    },
+    {
+     "at": 4.8611,
+     "text": "Inside your *daily* *limits.*"
+    }
+   ],
+   "dur": 6.2963,
+   "segs": [
+    [
+     6.7,
+     7.6,
+     2.037
+    ],
+    [
+     7.6,
+     8.45,
+     1.8519
+    ],
+    [
+     8.45,
+     10.15,
+     2.4074
+    ]
+   ]
+  },
+  {
+   "kind": "window",
+   "clip": "follow",
+   "src": [
+    10.2
+   ],
+   "src_end": 14.85,
+   "url": "getspurly.com/hub/sequences",
+   "captions": [
+    {
+     "at": 0.0926,
+     "text": "It *follows* *up* on its own.",
+     "until": 1.5278
+    },
+    {
+     "at": 1.5278,
+     "text": "They reply? It *stops.*",
+     "until": 3.9815
+    },
+    {
+     "at": 3.9815,
+     "text": "And hands it to *you.*"
+    }
+   ],
+   "dur": 6.1111,
+   "speed": 0.7609
+  },
+  {
+   "kind": "window",
+   "clip": "invitations",
+   "src": [
+    3.9
+   ],
+   "src_end": 6.4,
+   "url": "getspurly.com/hub/invitations",
+   "captions": [
+    {
+     "at": 0.0926,
+     "text": "Invites that match your *keywords?*"
+    }
+   ],
+   "dur": 2.9167,
+   "speed": 0.8571
+  },
+  {
+   "kind": "window",
+   "clip": "invitations",
+   "src": [
+    7.3
+   ],
+   "src_end": 13.6,
+   "exit": 0.35,
+   "url": "getspurly.com/hub/invitations",
+   "captions": [
+    {
+     "at": 0.0926,
+     "text": "*Accepted.*",
+     "until": 1.713
+    },
+    {
+     "at": 1.713,
+     "text": "Old requests? *Withdrawn.*",
+     "until": 3.1944
+    },
+    {
+     "at": 3.1944,
+     "text": "All on *autopilot.*"
+    }
+   ],
+   "dur": 6.1574,
+   "speed": 1.0232
+  },
+  {
+   "kind": "card",
+   "text": "And now\u2026 the *last* *trick.*",
+   "size": 104,
+   "dur": 2.5
+  },
+  {
+   "kind": "window",
+   "clip": "claude",
+   "src": [
+    1.0
+   ],
+   "enter": 0.5,
+   "fade_in": 0.2,
+   "url": "getspurly.com",
+   "captions": [
+    {
+     "at": 0.0926,
+     "text": "Run it ALL from *Claude.*",
+     "until": 0.9259
+    },
+    {
+     "at": 0.9259,
+     "text": "Find me fintech founders in London, and draft a campaign.",
+     "until": 4.6296,
+     "typing": true
+    },
+    {
+     "at": 4.6296,
+     "text": "It does the *work\u2026*",
+     "until": 5.4167
+    },
+    {
+     "at": 5.4167,
+     "text": "Nothing sends *without* *you.*"
+    }
+   ],
+   "dur": 7.0833,
+   "segs": [
+    [
+     1.6,
+     3.85,
+     2.4074
+    ],
+    [
+     3.9,
+     6.2,
+     1.5278
+    ],
+    [
+     8.0,
+     10.4,
+     1.6204
+    ],
+    [
+     10.5,
+     12.8,
+     1.5278
+    ]
+   ],
+   "flash": true
+  },
+  {
+   "kind": "cta",
+   "fade_in": 0.3,
+   "tagline": "LinkedIn outreach, on autopilot.",
+   "button": "Start your 7-day free trial",
+   "url": "getspurly.com",
+   "dur": 5.6944
+  }
+ ]
+}

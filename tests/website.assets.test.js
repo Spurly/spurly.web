@@ -41,13 +41,24 @@ describe('people and trust pages', () => {
     expect((await render('/security')).html).toContain('Security and data handling');
     expect((await render('/blog/author/sarthak')).html).toContain('Posts by Sarthak');
   });
-  it('the home page states what Spurly is, who it is for and repeats one primary CTA', async () => {
+  it('the home page states what Spurly is and repeats one primary CTA', async () => {
     const { html } = await render('/');
-    expect(html).toContain('Find high-intent leads on LinkedIn');
-    expect(html).toContain('AI SDR for LinkedIn, built for founders and B2B sales teams');
+    expect(html).toContain('AI SDR</em>');
+    expect(html).toContain('for LinkedIn.');
+    expect(html).toContain('An AI agent that finds people already interested in you');
+    expect(html).toContain('LinkedIn automation');
     expect(html).toContain('Spurly is an AI SDR for LinkedIn');
-    // hero + after how-it-works, tour, who-it-is-for + plan card + final CTA (the nav one renders after auth loads)
-    expect(html.split('Start 7-day free trial').length - 1).toBeGreaterThanOrEqual(6);
+    // the hero shows the demo video as a click-to-play poster (nothing loads before the click)
+    expect(html).toContain('Play: Spurly product demo');
+    expect(html).toContain('/assets/video/spurly-demo-poster.webp');
+    expect(html).not.toContain('spurly-demo.mp4');
+    // sections: features band, intent signals grid, pricing, FAQ, final CTA
+    expect(html).toContain('Every SDR job on LinkedIn');
+    expect(html).toContain('intent signals tracked');
+    expect(html).toContain('Everything included');
+    expect(html).toContain('Questions, ');
+    // hero + plan card + final CTA (the top bar has no trial button)
+    expect(html.split('Start 7-day free trial').length - 1).toBeGreaterThanOrEqual(3);
     // the long sections moved to their own pages
     expect(html).not.toContain('Video tour coming soon');
   });

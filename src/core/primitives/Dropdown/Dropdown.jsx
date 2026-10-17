@@ -19,6 +19,7 @@ import { usePopperPosition } from 'src/core/primitives/Popper';
  * - disabled   — boolean, closes and blocks opening the menu
  * - title      — native title tooltip on the trigger
  * - ariaLabel  — accessible name for the trigger, when there's no visible label
+ * - dividerAfterFirst — draws a rule under the first option (for a leading "+ New …" action)
  * - className  — additional class on the wrapper
  */
 export function Dropdown({
@@ -34,6 +35,7 @@ export function Dropdown({
   disabled = false,
   title,
   ariaLabel,
+  dividerAfterFirst = false,
   className = '',
 }) {
   const [open, setOpen] = useState(false);
@@ -190,7 +192,7 @@ export function Dropdown({
             className={[
               'fixed bg-[var(--ui-surface-card)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-popover)] overflow-y-auto sp-pop',
               isSm
-                ? 'min-w-[200px] max-w-[280px] rounded-[var(--ui-radius-md)] p-1 max-h-[280px]'
+                ? 'min-w-[200px] max-w-[280px] rounded-[var(--ui-radius-md)] p-1 max-h-[360px]'
                 : 'rounded-[var(--ui-radius-md)] p-1.5 max-h-[240px]',
             ].join(' ')}
             style={{
@@ -206,10 +208,11 @@ export function Dropdown({
             }}
             role="listbox"
           >
-            {options.map(([val, label]) => (
+            {options.map(([val, label], idx) => (
               <li
                 key={val}
                 className={[
+                  dividerAfterFirst && idx === 0 ? 'mb-1 border-b border-[var(--ui-border-hairline)] rounded-b-none pb-px' : '',
                   'flex items-center justify-between gap-2 rounded-[var(--ui-radius-sm)] cursor-pointer transition-colors truncate',
                   isSm ? 'px-2 h-8 text-[length:var(--ui-t-control)]' : 'px-3 h-9 text-[length:var(--ui-t-body)]',
                   val === value

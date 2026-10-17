@@ -56,6 +56,19 @@ export function Sparkline({ values = [], color = 'var(--ui-chart-1)', height = 3
         className="ui-spark-line"
         style={{ opacity: flat ? 0.45 : 1 }}
       />
+      {!flat && (
+        <path
+          d={line}
+          fill="none"
+          stroke={color}
+          strokeWidth="3.2"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+          pathLength="1"
+          strokeDasharray="0.07 0.93"
+          className="ui-spark-comet"
+        />
+      )}
     </svg>
   );
 }

@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ArrowRight, Trash2, AlertCircle, X, UploadCloud, RotateCcw } from 'lucide-react';
 import { DataTable } from 'src/core/DataTable';
-import { Button, Input, useToast } from 'src/core/primitives';
+import { Button, Dropdown, Input, useToast } from 'src/core/primitives';
 import { IMPORT_EVENTS } from 'src/products/import/constants/constants.js';
 import { stagingColumns } from './stagingColumns.jsx';
 
@@ -180,129 +180,105 @@ export function StagingPanel({ store, onGoToUpload }) {
     );
   }
 
+  /* One strip above the rows, like Leads' working line: a failed action wins,
+     otherwise the expectation note while a selection exists. */
+  const banner = actionError ? (
+    <div className="relative flex items-center gap-3 px-4 py-2.5 bg-[var(--ui-danger-tint)] border-b border-[var(--ui-border)]">
+      <AlertCircle size={16} className="shrink-0" style={{ color: 'var(--ui-danger)' }} />
+      <p className="flex-1 text-[length:var(--ui-t-label)] pr-6 text-[var(--ui-text-secondary)]">{actionError}</p>
+      <button
+        type="button"
+        onClick={clearActionError}
+        aria-label="Dismiss"
+        className="absolute top-1/2 -translate-y-1/2 right-2.5 w-6 h-6 grid place-items-center rounded-[var(--ui-radius-sm)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-hover)] transition-colors"
+      >
+        <X size={14} />
+      </button>
+    </div>
+  ) : selected.size > 0 ? (
+    <p className="px-4 py-2 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] bg-[var(--ui-accent-tint)] border-b border-[var(--ui-border)]">
+      Sending resolves each profile through LinkedIn before it lands in Hub. Rows leave this table as they land, and anything that can’t be resolved shows as Failed, ready to retry.
+    </p>
+  ) : null;
+
+  const statusFilterControl = (
+    <Dropdown
+      variant="dashboard"
+      size="sm"
+      value={statusFilter}
+      onChange={setStatusFilter}
+      ariaLabel="Filter by status"
+      options={STATUS_FILTERS.map((f) => [
+        f.id,
+        `${f.label} · ${f.id === 'all' ? stats.total : stats.byStatus?.[f.id] ?? 0}`,
+      ])}
+    />
+  );
+
   return (
-    <div className="flex flex-col gap-4">
-      {/* Action error */}
-      {actionError && (
-        <div
-          className="relative flex gap-3 px-4 py-3 rounded-[var(--ui-radius-lg)]"
-          style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(200,65,47,0.22)' }}
-        >
-          <AlertCircle size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
-          <p className="flex-1 text-[length:var(--ui-t-body)] pr-6" style={{ color: 'var(--ui-text-secondary)' }}>
-            {actionError}
-          </p>
-          <button
-            onClick={clearActionError}
-            className="absolute top-2.5 right-2.5 w-6 h-6 grid place-items-center rounded-[var(--ui-radius-sm)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-hover)] transition-colors"
-          >
-            <X size={14} />
-          </button>
-        </div>
-      )}
-
-      {/* Status filter chips */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {STATUS_FILTERS.map((filter) => {
-          const count =
-            filter.id === 'all' ? stats.total : stats.byStatus?.[filter.id] ?? 0;
-          const active = statusFilter === filter.id;
-          return (
-            <button
-              key={filter.id}
-              onClick={() => setStatusFilter(filter.id)}
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] font-medium transition-colors"
-              style={{
-                background: active ? 'var(--ui-accent-tint)' : 'var(--ui-surface-card)',
-                color: active ? 'var(--ui-accent)' : 'var(--ui-text-secondary)',
-                border: `1px solid ${active ? 'transparent' : 'var(--ui-border-hairline)'}`,
-              }}
-            >
-              {filter.label}
-              <span className="tabular-nums" style={{ opacity: 0.7 }}>
-                {count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Staging table */}
-      <div className="rounded-[var(--ui-radius-lg)] overflow-hidden" style={{ border: '1px solid var(--ui-border-hairline)' }}>
-        <DataTable
-          columns={stagingColumns}
-          data={leads}
-          rowKey={(row) => row._id}
-          loading={loading}
-          error={error}
-          selectable
-          reorderable
-          selectedKeys={selected}
-          onSelectionChange={setSelected}
-          emptyMessage={
-            search ? 'No staged leads match your search' : 'No leads in this status'
-          }
-          emptyHint={
-            search ? 'Try a different search term' : 'Try a different status filter'
-          }
-          maxHeight="58vh"
-          toolbar={{
-            searchValue: search,
-            onSearch: setSearch,
-            searchPlaceholder: 'Search by name, company, location...',
-            bulkActions:
-              selected.size > 0 ? (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={openPromoteConfirm}
+    <div className="flex flex-col flex-1 min-h-0">
+      <DataTable
+        className="flex-1"
+        columns={stagingColumns}
+        data={leads}
+        rowKey={(row) => row._id}
+        loading={loading}
+        error={error}
+        banner={banner}
+        selectable
+        reorderable
+        selectedKeys={selected}
+        onSelectionChange={setSelected}
+        emptyMessage={search ? 'No staged leads match your search' : 'No leads in this status'}
+        emptyHint={search ? 'Try a different search term' : 'Try a different status filter'}
+        toolbar={{
+          searchValue: search,
+          onSearch: setSearch,
+          searchPlaceholder: 'Search by name, company, location...',
+          filters: statusFilterControl,
+          bulkActions:
+            selected.size > 0 ? (
+              <>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  leadingIcon={<ArrowRight size={13} />}
+                  onClick={openPromoteConfirm}
+                  disabled={busy}
+                >
+                  Send to Hub ({selected.size})
+                </Button>
+                {failedSelected > 0 && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    leadingIcon={<RotateCcw size={13} />}
+                    onClick={handleRetry}
                     disabled={busy}
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: 'var(--ui-success-tint)', color: 'var(--ui-success)' }}
+                    title={`Reset ${failedSelected} failed lead${failedSelected === 1 ? '' : 's'} to try sending again`}
                   >
-                    <ArrowRight size={14} />
-                    Send to Hub ({selected.size})
-                  </button>
-                  {failedSelected > 0 && (
-                    <button
-                      onClick={handleRetry}
-                      disabled={busy}
-                      title={`Reset ${failedSelected} failed lead${failedSelected === 1 ? '' : 's'} to try sending again`}
-                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{ background: 'var(--ui-accent-tint)', color: 'var(--ui-accent)' }}
-                    >
-                      <RotateCcw size={14} />
-                      Retry ({failedSelected})
-                    </button>
-                  )}
-                  <button
-                    onClick={() => setConfirmDelete(true)}
-                    disabled={busy}
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--ui-radius-lg)] text-[length:var(--ui-t-body)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ color: 'var(--ui-danger)' }}
-                  >
-                    <Trash2 size={14} />
-                    Delete
-                  </button>
-                </div>
-              ) : null,
-          }}
-          pagination={{
-            page,
-            pageSize: pagination.limit,
-            total: pagination.total,
-            onPageChange: setPage,
-          }}
-        />
-      </div>
-
-      {/* Sets expectations before the async part starts */}
-      {selected.size > 0 && (
-        <p className="text-[length:var(--ui-t-label)] px-1" style={{ color: 'var(--ui-text-tertiary)' }}>
-          Sending resolves each profile through LinkedIn before it lands in Hub — this can take a
-          little while for a larger batch. Rows disappear from this table as they land; anything that
-          can’t be resolved shows up here as Failed, ready to retry.
-        </p>
-      )}
+                    Retry ({failedSelected})
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="dangerSoft"
+                  leadingIcon={<Trash2 size={13} />}
+                  onClick={() => setConfirmDelete(true)}
+                  disabled={busy}
+                >
+                  Delete
+                </Button>
+              </>
+            ) : null,
+        }}
+        pagination={{
+          page,
+          pageSize: pagination.limit,
+          total: pagination.total,
+          onPageChange: setPage,
+        }}
+      />
 
       {/* Promote confirmation — names the Hub audience this batch lands in */}
       {confirmPromote && (

@@ -1,32 +1,14 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "src/core/auth/hooks/useAuth";
+import { NAV_LINKS } from "./navLinks.js";
 
-const LINKS = [
-  { href: "#tour", label: "Features" },
-  { href: "#signals", label: "Intent signals" },
-  { href: "#how", label: "How it works" },
-  { to: "/pricing", label: "Pricing" },
-  { to: "/blog", label: "Blog" },
-];
-
-export default function MobileMenu({ open, onClose }) {
-  const { user, loading } = useAuth();
+export default function MobileMenu({ open, onClose, home = true }) {
   return (
     <div className={"mobile-menu" + (open ? " open" : "")} aria-hidden={open ? "false" : "true"}>
-      {LINKS.map((l) => (
-        l.to ? <Link key={l.to} to={l.to} onClick={onClose}>{l.label}</Link> : <a key={l.href} href={l.href} onClick={onClose}>{l.label}</a>
+      {NAV_LINKS.map((l) => (
+        <a key={l.href} href={home ? l.href : "/" + l.href} onClick={onClose}>{l.label}</a>
       ))}
-      <Link to="/book-demo" onClick={onClose}>Book a demo</Link>
-      {!loading && (user ? (
-        <Link to="/dashboard" className="nav-signin mobile-signin" onClick={onClose}>Dashboard</Link>
-      ) : (
-        <Link to="/login" className="nav-signin mobile-signin" onClick={onClose}>Sign in</Link>
-      ))}
-      {!loading && !user && (
-        <Link to="/signup" className="btn btn-primary btn-lg" onClick={onClose}>
-          Start 7-day free trial
-        </Link>
-      )}
+      <Link to="/book-demo" className="btn btn-primary btn-lg" onClick={onClose}>Book a demo</Link>
+      <Link to="/login" className="btn btn-ghost btn-lg" onClick={onClose}>Log in</Link>
     </div>
   );
 }

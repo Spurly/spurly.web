@@ -1,31 +1,24 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import Nav from "./Nav.jsx";
+import MobileMenu from "./MobileMenu.jsx";
 import Footer from "./Footer.jsx";
 
-/* Shell for static content pages (legal, support, blog). Reuses the site's
-   glass nav + footer. Homepage section links use plain anchors so they
-   navigate back to "/" and scroll. */
+/* Shell for static content pages (legal, support, blog, pricing, product).
+   Same floating top bar as the home page; its section links point at the
+   home page (`home={false}`). */
 
 export default function ContentShell({ children }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  function setMenu(open) {
+    setMenuOpen(open);
+    document.body.style.overflow = open ? "hidden" : "";
+  }
+
   return (
     <>
-      <header className="nav scrolled content-nav" role="banner">
-        <nav className="nav-inner" aria-label="Primary">
-          <Link className="brand" to="/" aria-label="Spurly home">
-            <img src="/spurly-icon-128.png" alt="" width="34" height="34" />
-            <span>Spurly</span>
-          </Link>
-          <div className="nav-links">
-            <a href="/#product">Product</a>
-            <a href="/#how">How it works</a>
-            <a href="/#signals">Intent signals</a>
-            <Link to="/pricing">Pricing</Link>
-            <Link to="/blog">Blog</Link>
-          </div>
-          <div className="nav-cta">
-            <Link to="/signup" className="btn btn-primary btn-sm">Start 7-day free trial</Link>
-          </div>
-        </nav>
-      </header>
+      <Nav home={false} menuOpen={menuOpen} onToggleMenu={() => setMenu(!menuOpen)} />
+      <MobileMenu home={false} open={menuOpen} onClose={() => setMenu(false)} />
 
       <main className="content-page">{children}</main>
 

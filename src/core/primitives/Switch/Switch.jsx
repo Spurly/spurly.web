@@ -34,7 +34,7 @@ export function Switch({ checked = false, onChange, disabled = false, label, cla
 /** A bordered row: title + one-line reason on the left, a Switch on the right. */
 export function SwitchRow({ title, hint, checked, onChange, disabled, soon = null }) {
   return (
-    <div className="flex items-center justify-between gap-4 px-3.5 py-3 rounded-[var(--ui-radius-md)] border border-[var(--ui-border)]">
+    <div className="flex items-center justify-between gap-4 px-4 py-3.5 rounded-[14px] bg-[#f6f8ff] border border-transparent transition-colors duration-[var(--ui-dur-fast)] hover:bg-[#eef2ff] hover:border-[#dfe6fb]">
       <div className="min-w-0">
         <p className="flex items-center gap-2 text-[length:var(--ui-t-control)] font-medium text-[var(--ui-text-primary)]">
           {title}

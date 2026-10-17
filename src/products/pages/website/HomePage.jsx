@@ -5,12 +5,8 @@ import { ORGANIZATION_LD, WEBSITE_LD } from "./seo.js";
 import Nav from "./components/Nav.jsx";
 import MobileMenu from "./components/MobileMenu.jsx";
 import Hero from "./components/Hero.jsx";
-import LogoCloud from "./components/LogoCloud.jsx";
-import HowItWorks from "./components/home/HowItWorks.jsx";
 import Signals from "./components/home/Signals.jsx";
 import FeatureTour from "./components/home/FeatureTour.jsx";
-import ClaudeSection from "./components/home/ClaudeSection.jsx";
-import Solutions from "./components/home/Solutions.jsx";
 import HomeFaq from "./components/home/HomeFaq.jsx";
 import Pricing from "./components/Pricing.jsx";
 import FinalCTA from "./components/FinalCTA.jsx";
@@ -47,12 +43,8 @@ export default function HomePage() {
 
       <main id="top">
         <Hero />
-        <LogoCloud />
-        <HowItWorks />
-        <Signals />
         <FeatureTour />
-        <ClaudeSection />
-        <Solutions />
+        <Signals />
         <Pricing />
         <HomeFaq />
         <FinalCTA />

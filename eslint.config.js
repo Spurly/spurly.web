@@ -12,7 +12,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
  */
 export default [
 
-  { ignores: ['dist', 'node_modules', '**/*.generated.js'] },
+  { ignores: ['dist', 'node_modules', '**/*.generated.js', 'demo-clips'] },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {

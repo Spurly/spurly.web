@@ -35,7 +35,10 @@ export function SettingsFrame({ activeTab, children }) {
       layout="page"
       tabs={<PageTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={go} />}
     >
-      <div className="max-w-[720px] flex flex-col gap-3 pt-1">{children}</div>
+      {/* Two columns once there is room, so the page isn't a narrow strip beside an empty field. */}
+      <div className="max-w-[1240px] grid grid-cols-1 min-[1180px]:grid-cols-2 gap-4 items-start pt-1 [&>*:only-child]:min-[1180px]:col-span-2 [&>*:only-child]:max-w-[820px]">
+        {children}
+      </div>
     </DashboardLayout>
   );
 }

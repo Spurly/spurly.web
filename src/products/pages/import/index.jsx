@@ -46,10 +46,10 @@ export function ImportPage() {
     <DashboardLayout
       title={t.pageTitle}
       subtitle={t.pageSubtitle}
-      layout="page"
+      layout={activeTab === 'staged' ? 'card' : 'page'}
       tabs={<PageTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />}
     >
-      <div className="flex flex-col gap-4 w-full max-w-[1400px]">
+      <div className={activeTab === 'staged' ? 'flex flex-col flex-1 min-h-0' : 'flex flex-col gap-4 w-full max-w-[1400px]'}>
         {activeTab === 'upload' ? (
           <div className="max-w-[1100px] flex flex-col gap-4">
             <UploadPanel onStaged={handleStaged} />

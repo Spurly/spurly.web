@@ -32,7 +32,7 @@ export function Cell({ row = {}, column = {}, density = 'default', actions = nul
   return (
     <td
       data-column-id={column.key}
-      className={`border-b border-[var(--ui-border-hairline)] ${actions ? 'relative' : ''} ${column.cellClassName || ''}`}
+      className={`border-b border-[var(--ui-border-hairline)] ${column.cellClassName || ''}`}
       style={{ height: d.row, padding: `0 ${d.padX}px`, fontSize: d.fontSize }}
     >
       <div

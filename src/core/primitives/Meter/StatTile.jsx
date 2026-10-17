@@ -16,6 +16,8 @@ import { CountUp } from 'src/core/charts/CountUp.jsx';
  * an em dash and a SOON tag sits beside the label, so a stakeholder sees
  * where the number will live without being shown a fake one.
  */
+const POP = { accent: 'var(--ui-chart-1)', success: 'var(--ui-chart-4)', warning: 'var(--ui-chart-3)', danger: 'var(--ui-chart-5)' };
+
 export function StatTile({
   label,
   value,
@@ -37,7 +39,8 @@ export function StatTile({
   return (
     <Surface
       depth={depth}
-      className={`min-w-0 ${size === 'sm' ? 'px-3.5 py-3' : 'px-4 pt-4 pb-3.5'} ${className}`}
+      style={{ '--pop': POP[tone] ?? POP.accent }}
+      className={`ui-pop-tile min-w-0 ${size === 'sm' ? 'px-3.5 py-3' : 'px-4 pt-4 pb-3.5'} ${className}`}
     >
       <div className="flex items-center gap-2 min-w-0">
         <span className="ui-micro !text-[length:var(--ui-t-micro)] !text-[var(--ui-text-secondary)] truncate">{label}</span>

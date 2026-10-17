@@ -15,6 +15,20 @@ const SERIES = [
   { key: 'replies', name: 'Replies', color: 'var(--ui-chart-3)', dashed: true },
 ];
 
+/** The newest point breathes, so the chart reads as live. */
+function liveDot(color, last) {
+  return function LiveDot(props) {
+    const { cx, cy, index, key } = props;
+    if (index !== last || cx == null || cy == null) return <g key={key ?? index} />;
+    return (
+      <g key={key ?? index}>
+        <circle cx={cx} cy={cy} r={5} fill={color} className="ui-live-ring" />
+        <circle cx={cx} cy={cy} r={4} fill={color} stroke="var(--ui-surface-card)" strokeWidth={2} />
+      </g>
+    );
+  };
+}
+
 export function ActivityChart({ days = [], invites = [], newConnections = [], replies = [], height = 240 }) {
   const [hidden, setHidden] = useState(() => new Set());
   const source = { invites, newConnections, replies };
@@ -57,10 +71,10 @@ export function ActivityChart({ days = [], invites = [], newConnections = [], re
           );
         })}
       </div>
-      <div style={{ height }} className="w-full" role="img" aria-label="Invites sent, new connections and replies per day">
+      <div style={{ height }} className="w-full ui-scan" role="img" aria-label="Invites sent, new connections and replies per day">
         <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 640, height }}>
           <ComposedChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-            <CartesianGrid vertical={false} stroke="var(--ui-chart-grid)" />
+            <CartesianGrid vertical={false} stroke="var(--ui-chart-grid)" strokeDasharray="3 6" className="ui-flow-grid" />
             <XAxis
               dataKey="day"
               tickFormatter={shortDay}
@@ -95,8 +109,8 @@ export function ActivityChart({ days = [], invites = [], newConnections = [], re
               dataKey="newConnections"
               name="New connections"
               stroke="var(--ui-chart-2)"
-              strokeWidth={2}
-              dot={false}
+              strokeWidth={2.5}
+              dot={liveDot('var(--ui-chart-2)', data.length - 1)}
               activeDot={{ r: 4, stroke: 'var(--ui-surface-card)', strokeWidth: 2 }}
               hide={hidden.has('newConnections')}
             />
@@ -107,7 +121,8 @@ export function ActivityChart({ days = [], invites = [], newConnections = [], re
               stroke="var(--ui-chart-3)"
               strokeWidth={2}
               strokeDasharray="5 4"
-              dot={false}
+              className="ui-flow-line"
+              dot={liveDot('var(--ui-chart-3)', data.length - 1)}
               activeDot={{ r: 4, stroke: 'var(--ui-surface-card)', strokeWidth: 2 }}
               hide={hidden.has('replies')}
             />

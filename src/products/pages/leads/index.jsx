@@ -343,6 +343,7 @@ export function HubLeadsPage() {
                 <Dropdown
                   variant="dashboard"
                   size="sm"
+                  dividerAfterFirst
                   value=""
                   onChange={(val) => (val === NEW_LIST ? openNewList() : addToAudience(val))}
                   disabled={savingList || selected.size === 0}

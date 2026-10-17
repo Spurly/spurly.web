@@ -60,15 +60,15 @@ export function LocationCell({ value, tone = 'secondary', flag = false, chip = f
         <img
           src={flagUrl(code, 20)}
           srcSet={`${flagUrl(code, 20)} 1x, ${flagUrl(code, 40)} 2x`}
-          width={14}
-          height={11}
+          width={18}
+          height={13}
           alt=""
           aria-hidden="true"
           loading="lazy"
           decoding="async"
           onError={() => setFailed(true)}
           title={countryNameFromCode(code)}
-          className="shrink-0 rounded-[var(--ui-radius-xs)] object-cover ring-1 ring-[var(--ui-border-hairline)]"
+          className="shrink-0 rounded-[3px] object-cover shadow-[0_0_0_1px_rgba(25,35,95,0.12),0_1px_2px_rgba(25,35,95,0.15)]"
         />
       )}
       <span className="truncate">{value}</span>

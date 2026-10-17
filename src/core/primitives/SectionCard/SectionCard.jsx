@@ -44,7 +44,7 @@ export function SectionCard({
     >
       {title && (
         <div
-          className={`flex items-center justify-between gap-3 px-4 h-12 border-b border-[var(--ui-neutral-150)] shrink-0 ${collapsible ? 'cursor-pointer select-none' : ''}`}
+          className={`flex items-center justify-between gap-3 px-5 h-[52px] border-b border-[var(--ui-neutral-150)] bg-[linear-gradient(180deg,#f8faff_0%,#ffffff_100%)] shrink-0 ${collapsible ? 'cursor-pointer select-none' : ''}`}
           onClick={collapsible ? () => setCollapsed((c) => !c) : undefined}
           role={collapsible ? 'button' : undefined}
           aria-expanded={collapsible ? !collapsed : undefined}
@@ -57,9 +57,13 @@ export function SectionCard({
                 <ChevronDownIcon size={13} strokeWidth={2} className="shrink-0 text-[var(--ui-text-quaternary)]" />
               ))}
             {icon && <span className={`shrink-0 ${accent ? 'text-[var(--ui-accent)]' : 'text-[var(--ui-text-quaternary)]'}`}>{icon}</span>}
+            <span
+              aria-hidden="true"
+              className="shrink-0 w-[3px] h-[15px] rounded-full bg-[linear-gradient(180deg,#5b7cfa,#3b5bdb)]"
+            />
             <h3
-              className={`ui-micro !text-[length:var(--ui-t-micro)] shrink-0 ${
-                accent ? '!text-[var(--ui-accent-fg)]' : '!text-[var(--ui-text-secondary)]'
+              className={`shrink-0 text-[length:var(--ui-t-section)] font-[var(--ui-w-strong)] tracking-[-0.012em] ${
+                accent ? 'text-[var(--ui-accent-fg)]' : 'text-[var(--ui-text-primary)]'
               }`}
             >
               {title}
@@ -85,7 +89,7 @@ export function SectionCard({
           </div>
         </div>
       )}
-      {!isCollapsed && <div className={`${noPadding ? '' : 'p-4'} ${bodyClassName}`}>{children}</div>}
+      {!isCollapsed && <div className={`${noPadding ? '' : 'p-5'} ${bodyClassName}`}>{children}</div>}
     </Surface>
   );
 }

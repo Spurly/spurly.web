@@ -740,15 +740,19 @@
 .ui-row-actions {
   position: absolute;
   top: 50%;
-  right: 10px;
+  left: clamp(8px, calc(var(--mx, 85%) + 16px), calc(100% - 230px));
+  z-index: 3;
   display: flex;
-  gap: 6px;
-  padding-left: 36px;
-  transform: translate(8px, -50%);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #dfe5f5;
+  box-shadow: 0 10px 24px -10px rgba(25,35,95,.4);
+  transform: translate(6px, -50%);
   opacity: 0;
   pointer-events: none;
-  background: linear-gradient(90deg, transparent 0%, var(--ui-surface-hover) 34%);
-  transition: opacity var(--ui-dur-fast) var(--ui-ease), transform var(--ui-dur-base) var(--ui-spring);
+  transition: opacity var(--ui-dur-fast) var(--ui-ease), transform var(--ui-dur-base) var(--ui-spring), left 90ms ease-out;
 }
 .ui-row:hover .ui-row-actions,
 .ui-row:focus-within .ui-row-actions { opacity: 1; transform: translate(0, -50%); pointer-events: auto; }
@@ -786,3 +790,245 @@
   .ui-shimmer, .ui-check-on, .ui-bulk-in { animation: none; }
   .ui-row-actions { transition: none; }
 }
+
+
+/* ============================================================
+   v7 (Oct 2026): LANDING THEME. The public site's look now runs the
+   app. Instrument Sans (bold, tight) for headings and text, IBM Plex
+   Mono for readings, softer rounder cards, and a dark navy sidebar like
+   the site's top bar and dark bands. One block, easy to revert: delete
+   it and the `ui-rail` class in DashboardLayout, and restore the
+   `body::before` ribbons rule in index.css.
+   ============================================================ */
+:root {
+  --ui-font-sans: "Instrument Sans", "Geist", -apple-system, BlinkMacSystemFont, system-ui,
+                  "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --ui-font-display: "Instrument Sans", "Geist", -apple-system, BlinkMacSystemFont, system-ui,
+                     "Helvetica Neue", Arial, sans-serif;
+  --ui-font-mono: "IBM Plex Mono", "Geist Mono", ui-monospace, "SF Mono", SFMono-Regular,
+                  Menlo, Consolas, monospace;
+  --ui-track-display: -0.035em;
+
+  --ui-radius-btn: 12px;
+  --ui-radius-md: 12px;
+  --ui-radius-lg: 16px;
+  --ui-radius-xl: 22px;
+
+  /* Primary button fill: the site's blue gradient. */
+  --ui-btn-primary-bg: linear-gradient(135deg, #3553d6 0%, #3b6be0 100%);
+  --ui-btn-primary-bg-hover: linear-gradient(135deg, #2f4bc2 0%, #3560d0 100%);
+}
+.ui-chip { border-radius: var(--ui-radius-sm); }
+
+/* The sidebar is the site's navy: tokens are re-pointed inside it, so every
+   row, label, badge and popover in the rail follows without a component edit. */
+.ui-rail {
+  --ui-surface-sunken: #0d1030;
+  --ui-surface-card: rgba(255, 255, 255, 0.07);
+  --ui-surface-rail-hover: rgba(255, 255, 255, 0.09);
+  --ui-surface-rail-active: rgba(255, 255, 255, 0.14);
+  --ui-border: rgba(255, 255, 255, 0.12);
+  --ui-text-primary: #ffffff;
+  --ui-text-secondary: rgba(255, 255, 255, 0.72);
+  --ui-text-quaternary: rgba(255, 255, 255, 0.55);
+  --ui-text-body: rgba(255, 255, 255, 0.86);
+  --ui-neutral-400: rgba(255, 255, 255, 0.5);
+  --ui-accent-tint: rgba(127, 155, 255, 0.2);
+  --ui-accent-fg: #b9c9ff;
+  --ui-accent-border: rgba(127, 155, 255, 0.45);
+  --ui-shadow-rail: none;
+  --ui-hover-ring: 0 0 0 3px rgba(127, 155, 255, 0.22);
+  color: #fff;
+}
+.ui-rail img[src$="spurly-icon-128.png"] {
+  background: #fff;
+  border-radius: 7px;
+  padding: 2px;
+  box-sizing: content-box;
+}
+.ui-rail [aria-current="page"] {
+  box-shadow: none;
+}
+
+/* v7, inside the pages: the page header band is clean white like the site's
+   top bar (not lilac), table headers and controls are flat and crisp, and
+   headings inside tabs and tables carry the landing page's semi-bold. */
+:root {
+  --ui-topbar-bg: rgba(255, 255, 255, 0.92);
+  --ui-topbar-border: #e4e9f6;
+  --ui-shadow-topbar: 0 10px 26px -20px rgba(25, 35, 95, 0.35);
+  --ui-header-gradient: linear-gradient(180deg, #fafbff 0%, #f2f5fc 100%);
+  --ui-control-bg: linear-gradient(180deg,#ffffff 0%,#f3f6fd 100%);
+}
+[role="tab"][data-active="true"] { font-weight: var(--ui-w-strong); }
+.ui-th, .ui-th * { font-weight: var(--ui-w-strong); }
+.ui-th { color: var(--ui-text-secondary); box-shadow: none; border-bottom: 1px solid var(--ui-border); }
+
+/* v8 ONE-PAGE FRAME ------------------------------------------------------
+   The navy rail and the page are one object: navy runs behind everything and
+   the content is a single rounded sheet inset into it. */
+.ui-frame{ background:#0d1030; }
+.ui-sheet{ background:#f7f9fe; }
+@media (min-width:768px){
+  .ui-sheet{
+    margin:8px 8px 8px 0; border-radius:20px;
+    box-shadow:0 0 0 1px rgba(255,255,255,.06), 0 24px 60px -24px rgba(0,0,0,.55);
+  }
+  .ui-sheet > .ui-topbar{ border-top-left-radius:20px; border-top-right-radius:20px; }
+}
+
+/* Controls with character ------------------------------------------------ */
+/* primary buttons: lit top edge + coloured shadow so they feel pressable */
+.ui-sheet button[class*="ui-btn-primary-bg"]{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 6px 14px -6px rgba(59,91,219,.65);
+  transition: transform var(--ui-dur-fast) var(--ui-ease, ease), box-shadow var(--ui-dur-fast) ease;
+}
+.ui-sheet button[class*="ui-btn-primary-bg"]:hover{ transform:translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 10px 18px -8px rgba(59,91,219,.75); }
+.ui-sheet button[class*="ui-btn-primary-bg"]:active{ transform:translateY(0); }
+
+/* inputs: soft inset, blue glow on focus */
+.ui-sheet input:not([type="checkbox"]):not([type="radio"]),.ui-sheet select,.ui-sheet textarea{
+  box-shadow: inset 0 1px 2px rgba(25,35,95,.06);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.ui-sheet input:not([type="checkbox"]):not([type="radio"]):focus,.ui-sheet select:focus,.ui-sheet textarea:focus{
+  border-color:#5b7cfa; box-shadow:0 0 0 3px rgba(91,124,250,.22);
+}
+
+/* dropdowns / menus: floating panel with a blue-tinted shadow, rounded items */
+[role="menu"],[role="listbox"]{
+  border:1px solid #dfe5f5; border-radius:14px; padding:6px; background:#fff;
+  box-shadow:0 18px 40px -16px rgba(25,35,95,.35), 0 2px 6px rgba(25,35,95,.06);
+  animation:ui-pop .14s cubic-bezier(.2,.8,.2,1);
+}
+[role="menuitem"],[role="option"]{ border-radius:9px; transition:background .12s ease; }
+[role="menuitem"]:hover,[role="option"]:hover,[role="option"][aria-selected="true"]{ background:#eef2ff; }
+@keyframes ui-pop{ from{opacity:0; transform:translateY(-4px) scale(.98);} to{opacity:1; transform:none;} }
+@media (prefers-reduced-motion:reduce){ [role="menu"],[role="listbox"]{animation:none;} }
+
+/* table rows: blue edge marker on hover, quiet zebra */
+.ui-sheet tbody tr{ transition:background .12s ease, box-shadow .12s ease; }
+.ui-sheet tbody tr:hover{ background:#f0f4ff; box-shadow:inset 3px 0 0 #5b7cfa; }
+
+/* v8.1 second pass ------------------------------------------------------ */
+.ui-sheet{ --ui-control-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(25,35,95,.12), 0 0 0 1px rgba(25,35,95,.02); --ui-border:#d9e0f2; }
+/* tone strip: slimmer, softer */
+.ui-row[data-tone] > td:first-child{ box-shadow: inset 2px 0 0 color-mix(in srgb, currentColor 0%, transparent); }
+.ui-row[data-tone="success"] > td:first-child{ box-shadow: inset 2px 0 0 color-mix(in srgb,var(--ui-success-dot) 55%,transparent); }
+/* column headers: ink, not washed out */
+.ui-th,.ui-th *{ color:#3a4170; letter-spacing:-0.005em; }
+.ui-th{ background:#f1f4fc; }
+/* dropdown items: room to breathe + first-item divider for "New …" actions */
+[role="listbox"] [role="option"]{ min-height:34px; }
+[role="listbox"][class*="max-h-"]{ max-height:min(360px,60vh); }
+/* selection toolbar: tinted bar so the bulk actions read as one group */
+.ui-sheet [class*="bulk"]{ background:linear-gradient(90deg,#eef2ff,#f7f9ff); }
+
+/* v8.2 every page ------------------------------------------------------- */
+/* cards: lit top edge so panels read as raised paper on the sheet */
+.ui-sheet{
+  --ui-shadow-card:
+    inset 0 1px 0 #fff,
+    0 0 0 1px rgba(25,35,95,.05),
+    0 1px 2px rgba(25,35,95,.05),
+    0 14px 32px -18px rgba(25,35,95,.26);
+}
+/* dialogs and drawers share the floating-panel language */
+[role="dialog"]{ border-radius:20px; }
+[role="dialog"]:not([aria-modal="false"]){ box-shadow:0 30px 80px -24px rgba(13,16,48,.55), 0 0 0 1px rgba(25,35,95,.06); }
+/* page headings: tighter, heavier, matching the landing */
+.ui-sheet .ui-display{ letter-spacing:-0.035em; }
+/* keyboard focus stays visible everywhere */
+.ui-sheet :is(a,button,[role="tab"],[tabindex]):focus-visible{ outline:2px solid #5b7cfa; outline-offset:2px; }
+
+/* v8.3 colourful, always-moving analytics -------------------------------- */
+:root{
+  --ui-chart-1:#3b5bdb; --ui-chart-2:#8b5cf6; --ui-chart-3:#f59e0b; --ui-chart-4:#12b3a8; --ui-chart-5:#ef5b8a;
+  --ui-chart-grid:#dfe6f8;
+  /* funnel travels blue → violet → teal: the lead becoming a conversation */
+  --ui-funnel-1:#9db4ff; --ui-funnel-2:#7b93fb; --ui-funnel-3:#6a6df0; --ui-funnel-4:#8b5cf6; --ui-funnel-5:#12b3a8; --ui-funnel-6:#0fa968;
+}
+@keyframes ui-flow{ to{ stroke-dashoffset:-9; } }
+@keyframes ui-grid-flow{ to{ stroke-dashoffset:-18; } }
+@keyframes ui-live{ 0%{ transform:scale(1); opacity:.55; } 100%{ transform:scale(3.2); opacity:0; } }
+@keyframes ui-sweep{ 0%{ transform:translateX(-120%); } 55%,100%{ transform:translateX(220%); } }
+@keyframes ui-bar-shine{ to{ background-position:-200% 0; } }
+/* dashed series and the grid keep travelling */
+.ui-flow-line .recharts-line-curve, .recharts-line-curve.ui-flow-line{ animation:ui-flow 1.1s linear infinite; }
+.recharts-line-curve[stroke-dasharray="5 4"]{ animation:ui-flow 1.1s linear infinite; }
+.ui-flow-grid line, .recharts-cartesian-grid-horizontal line{ animation:ui-grid-flow 2.4s linear infinite; }
+/* newest data point emits a ring */
+.ui-live-ring{ transform-box:fill-box; transform-origin:center; animation:ui-live 1.8s ease-out infinite; }
+/* funnel: a light band keeps sweeping the slabs, staggered */
+.ui-funnel__slab{ position:relative; overflow:hidden; }
+.ui-funnel__slab::after{
+  content:""; position:absolute; inset:0; width:45%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);
+  animation:ui-sweep 3.6s ease-in-out infinite; animation-delay:calc(var(--i,0) * .35s);
+}
+/* bars: moving sheen along the fill */
+.ui-bar-grow{
+  background-image:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.4) 50%,rgba(255,255,255,0) 100%) !important;
+  background-size:200% 100% !important; background-blend-mode:soft-light;
+  animation:ui-bar-shine 2.6s linear infinite;
+}
+@media (prefers-reduced-motion:reduce){
+  .recharts-line-curve, .ui-flow-grid line, .recharts-cartesian-grid-horizontal line, .ui-live-ring, .ui-funnel__slab::after, .ui-bar-grow{ animation:none !important; }
+}
+
+/* v8.4 visible life: scan beam, comet sparklines, drifting hero ------------ */
+@keyframes ui-comet{ from{ stroke-dashoffset:0; } to{ stroke-dashoffset:-1; } }
+@keyframes ui-beam{ 0%{ transform:translateX(-30%); opacity:0; } 12%{ opacity:1; } 88%{ opacity:1; } 100%{ transform:translateX(110%); opacity:0; } }
+@keyframes ui-drift{ 0%{ background-position:0% 0%, 100% 100%, 0 0; } 50%{ background-position:100% 40%, 0% 60%, 0 0; } 100%{ background-position:0% 0%, 100% 100%, 0 0; } }
+/* a bright comet runs along every sparkline */
+.ui-spark-comet{ animation:ui-comet 2.2s linear infinite; filter:drop-shadow(0 0 3px currentColor); opacity:.9; }
+/* a soft beam sweeps across big charts, left to right, forever */
+.ui-scan{ position:relative; overflow:hidden; border-radius:12px; }
+.ui-scan::after{
+  content:""; position:absolute; top:0; bottom:0; left:0; width:22%; pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(91,124,250,.16),rgba(139,92,246,.10),transparent);
+  animation:ui-beam 5.5s ease-in-out infinite;
+}
+/* hero card: two coloured light pools drift behind the numbers */
+.ui-hero-live{
+  background:
+    radial-gradient(circle at 18% 20%, rgba(91,124,250,.20) 0, transparent 38%),
+    radial-gradient(circle at 82% 80%, rgba(18,179,168,.16) 0, transparent 40%),
+    linear-gradient(135deg,#f3f6ff 0%,#ffffff 62%);
+  background-size:160% 160%, 160% 160%, 100% 100%;
+  animation:ui-drift 14s ease-in-out infinite;
+}
+@media (prefers-reduced-motion:reduce){
+  .ui-spark-comet, .ui-scan::after, .ui-hero-live{ animation:none !important; }
+}
+
+/* v8.5 pop stats ---------------------------------------------------------- */
+@keyframes ui-bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
+.ui-pop{
+  --pop:#3b5bdb;
+  position:relative; display:flex; flex-direction:column; align-items:flex-start; gap:2px;
+  min-width:116px; padding:12px 16px 12px 18px; border-radius:16px; text-align:left; cursor:pointer;
+  background:linear-gradient(180deg,#fff 0%,color-mix(in srgb,var(--pop) 7%,#fff) 100%);
+  border:1px solid color-mix(in srgb,var(--pop) 28%,#dfe6f8);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(25,35,95,.08), 0 12px 22px -12px color-mix(in srgb,var(--pop) 55%,transparent);
+  animation:ui-bob 4.2s ease-in-out infinite; animation-delay:var(--d,0s);
+  transition:box-shadow .18s ease, border-color .18s ease, transform .18s ease;
+}
+.ui-pop:hover{
+  animation-play-state:paused; transform:translateY(-6px) scale(1.04);
+  border-color:var(--pop);
+  box-shadow: inset 0 1px 0 #fff, 0 18px 30px -12px color-mix(in srgb,var(--pop) 70%,transparent);
+}
+.ui-pop:active{ transform:translateY(-2px) scale(.99); }
+.ui-pop:focus-visible{ outline:2px solid var(--pop); outline-offset:3px; }
+.ui-pop__dot{ position:absolute; left:7px; top:14px; bottom:14px; width:3px; border-radius:99px; background:var(--pop); }
+.ui-pop__value{ font-size:26px; line-height:1.05; letter-spacing:-.03em; color:var(--ui-text-primary); }
+.ui-pop__label{ font-size:var(--ui-t-meta); color:var(--ui-text-secondary); white-space:nowrap; }
+.ui-pop--big{ min-width:170px; background:linear-gradient(135deg,color-mix(in srgb,var(--pop) 14%,#fff),#fff); }
+.ui-pop--big .ui-pop__value{ font-size:38px; }
+@media (prefers-reduced-motion:reduce){ .ui-pop{ animation:none; } }
+
+/* trend tiles share the pop language: coloured top edge, lift on hover */
+.ui-pop-tile{ position:relative; transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.ui-pop-tile::before{ content:""; position:absolute; left:16px; right:16px; top:0; height:3px; border-radius:0 0 4px 4px; background:var(--pop); opacity:.85; }
+.ui-pop-tile:hover{ transform:translateY(-4px); border-color:color-mix(in srgb,var(--pop) 45%,#dfe6f8); box-shadow:0 18px 30px -16px color-mix(in srgb,var(--pop) 60%,transparent); }

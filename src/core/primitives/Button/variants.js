@@ -37,7 +37,7 @@ export const VARIANTS = {
   // only on hover, so the button lifts toward the cursor rather than
   // floating permanently. See --ui-btn-shadow in tokens.css.
   primary:
-    'bg-[var(--ui-accent)] text-[var(--ui-accent-on)] hover:bg-[var(--ui-accent-hover)] ' +
+    'bg-[var(--ui-accent)] bg-[image:var(--ui-btn-primary-bg)] text-[var(--ui-accent-on)] hover:bg-[var(--ui-accent-hover)] hover:bg-[image:var(--ui-btn-primary-bg-hover)] ' +
     'active:bg-[var(--ui-accent)] shadow-[var(--ui-btn-shadow)] hover:shadow-[var(--ui-btn-shadow-hover)]',
 
   /* Kept as a distinct name because ~30 call sites ask for it. It resolves
@@ -45,7 +45,7 @@ export const VARIANTS = {
      `primary` was near-black, and v2 inverts that. Rather than rewrite every
      call site to say `primary` — a diff with no reader — the two names agree. */
   accent:
-    'bg-[var(--ui-accent)] text-[var(--ui-accent-on)] hover:bg-[var(--ui-accent-hover)] ' +
+    'bg-[var(--ui-accent)] bg-[image:var(--ui-btn-primary-bg)] text-[var(--ui-accent-on)] hover:bg-[var(--ui-accent-hover)] hover:bg-[image:var(--ui-btn-primary-bg-hover)] ' +
     'active:bg-[var(--ui-accent)] shadow-[var(--ui-btn-shadow)] hover:shadow-[var(--ui-btn-shadow-hover)]',
 
   /* Default for almost everything. Surface + hairline.
