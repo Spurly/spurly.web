@@ -136,6 +136,8 @@ export function BillingTab() {
   const balance = user?.creditBalance ?? 0;
   const tier = user?.tier || 'free';
   const price = sub?.amount != null ? formatMoney(sub.amount, sub.currency) : null;
+  // While on the free trial the plan is the trial, not the "free" tier next to a price.
+  const onTrial = Boolean(sub?.appTrial || sub?.trialing);
 
   function onCancel() {
     const until = sub?.trialing ? sub.trialEndsAt : sub?.paymentIssue ? null : sub?.nextChargeAt;
@@ -170,8 +172,8 @@ export function BillingTab() {
           <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">
               <p className="text-[length:var(--ui-t-heading)] font-semibold tracking-[var(--ui-track-tight)] text-[var(--ui-text-primary)] capitalize">
-                {tier}
-                {price ? ` · ${price} / month` : ''}
+                {onTrial ? 'Free trial' : tier}
+                {price ? (onTrial ? ` · then ${price} / month` : ` · ${price} / month`) : ''}
               </p>
               <p className="mt-1 text-[length:var(--ui-t-control)] text-[var(--ui-text-secondary)]">
                 {planLine(sub, tier)}
