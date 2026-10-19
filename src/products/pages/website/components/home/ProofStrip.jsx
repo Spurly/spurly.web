@@ -7,7 +7,6 @@ import { getProof } from "../../proof/proof.js";
 function Card({ r, tone }) {
   return (
     <article className={"rv-card rv-" + tone}>
-      {r.sample && <em className="rv-sample">Sample</em>}
       <header>
         <span className="rv-av" aria-hidden="true">
           {r.avatar ? <img src={r.avatar} alt="" width="40" height="40" loading="lazy" decoding="async" referrerPolicy="no-referrer" /> : r.name.slice(0, 1)}

@@ -36,12 +36,19 @@ export default function ResultsBar() {
   useEffect(() => {
     const el = root.current;
     if (!el) return undefined;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return undefined;
-    const io = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      io.disconnect();
-      play();
-    }, { threshold: 0.5 });
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !("IntersectionObserver" in window)
+    )
+      return undefined;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        play();
+      },
+      { threshold: 0.5 },
+    );
     io.observe(el);
     return () => {
       io.disconnect();
@@ -49,15 +56,21 @@ export default function ResultsBar() {
     };
   }, []);
 
-  const values = { day, invites: run.invites[day], replies: run.replies[day], calls: run.calls[day] };
+  const values = {
+    day,
+    invites: run.invites[day],
+    replies: run.replies[day],
+    calls: run.calls[day],
+  };
 
   return (
     <section className="rb" aria-label="Results simulation">
       <div className="wrap">
         <div className="flip-card reveal" ref={root}>
           <div className="flip-top">
-            <span className="rb-tag rb-sim">Simulation · not live data</span>
-            <button type="button" className="flip-replay" onClick={play}>↻ Replay</button>
+            <button type="button" className="flip-replay" onClick={play}>
+              ↻ Replay
+            </button>
           </div>
           <div className="flip-grid">
             {UNITS.map((u) => (
@@ -68,7 +81,10 @@ export default function ResultsBar() {
             ))}
           </div>
           <p className="rb-note">
-            A typical {SIM_DAYS}-day run at a safe pace: about 80 invites a week (the pace of Spurly's own account, 476 in {SIM_DAYS} days), a few replies a day and a couple of calls booked each week. Your results will vary.
+            A typical {SIM_DAYS}-day run at a safe pace: about 80 invites a week
+            (the pace of Spurly's own account, 476 in {SIM_DAYS} days), a few
+            replies a day and a couple of calls booked each week. Your results
+            will vary.
           </p>
         </div>
       </div>

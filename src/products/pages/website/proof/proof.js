@@ -88,14 +88,14 @@ export function projectExample(e) {
 export const SAMPLE = {
   ratings: [],
   reviews: [
-    { name: "Priya Nair", result: "6 calls booked in 14 days", role: "Founder, B2B SaaS", quote: "Set it up in an afternoon. Two weeks later I was talking to more of the right people than I had all last quarter." },
-    { name: "Daniel Ortiz", result: "38% reply rate", role: "Agency owner", quote: "The follow-ups stop the moment someone replies, which is exactly what I wanted. No more awkward double messages." },
-    { name: "Meera Kapoor", result: "5 hrs saved every week", role: "Recruiter", quote: "One inbox for every LinkedIn conversation saved me hours every week." },
-    { name: "Tom Hughes", result: "2x more replies", role: "Sales lead", quote: "The intent signals mean I only message people who already know who we are. Replies went up straight away." },
-    { name: "Aisha Rahman", result: "0 account warnings", role: "Consultant", quote: "It feels safe. The pace is slow and steady, nothing like the burst-sending tools I tried before." },
-    { name: "Lucas Meyer", result: "10 min a day", role: "Founder", quote: "I run it from Claude and just approve the drafts. Outreach went from a chore to ten minutes a day." },
-    { name: "Sofia Alvarez", result: "41% acceptance rate", role: "Head of Growth", quote: "The notes read like I wrote them. People actually answer." },
-    { name: "Karan Malhotra", result: "4 calls in the first week", role: "Co-founder, startup", quote: "We replaced a manual spreadsheet routine with this and haven't looked back." },
+    { name: "Priya Nair", avatar: "https://randomuser.me/api/portraits/women/44.jpg", result: "6 calls booked in 14 days", role: "Founder, B2B SaaS", quote: "Set it up in an afternoon. Two weeks later I was talking to more of the right people than I had all last quarter." },
+    { name: "Daniel Ortiz", avatar: "https://randomuser.me/api/portraits/men/32.jpg", result: "38% reply rate", role: "Agency owner", quote: "The follow-ups stop the moment someone replies, which is exactly what I wanted. No more awkward double messages." },
+    { name: "Meera Kapoor", avatar: "https://randomuser.me/api/portraits/women/68.jpg", result: "5 hrs saved every week", role: "Recruiter", quote: "One inbox for every LinkedIn conversation saved me hours every week." },
+    { name: "Tom Hughes", avatar: "https://randomuser.me/api/portraits/men/46.jpg", result: "2x more replies", role: "Sales lead", quote: "The intent signals mean I only message people who already know who we are. Replies went up straight away." },
+    { name: "Aisha Rahman", avatar: "https://randomuser.me/api/portraits/women/65.jpg", result: "0 account warnings", role: "Consultant", quote: "It feels safe. The pace is slow and steady, nothing like the burst-sending tools I tried before." },
+    { name: "Lucas Meyer", avatar: "https://randomuser.me/api/portraits/men/75.jpg", result: "10 min a day", role: "Founder", quote: "I run it from Claude and just approve the drafts. Outreach went from a chore to ten minutes a day." },
+    { name: "Sofia Alvarez", avatar: "https://randomuser.me/api/portraits/women/26.jpg", result: "41% acceptance rate", role: "Head of Growth", quote: "The notes read like I wrote them. People actually answer." },
+    { name: "Karan Malhotra", avatar: "https://randomuser.me/api/portraits/men/52.jpg", result: "4 calls in the first week", role: "Co-founder, startup", quote: "We replaced a manual spreadsheet routine with this and haven't looked back." },
   ],
   caseStudies: [
     {
