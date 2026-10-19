@@ -4,7 +4,7 @@ import { NAV_LINKS } from "./navLinks.js";
 export default function MobileMenu({ open, onClose, home = true, focused = false }) {
   return (
     <div className={"mobile-menu" + (open ? " open" : "")} aria-hidden={open ? "false" : "true"}>
-      {!focused && NAV_LINKS.map((l) => (
+      {NAV_LINKS.map((l) => (
         <a key={l.href} href={home ? l.href : "/" + l.href} onClick={onClose}>{l.label}</a>
       ))}
       {focused

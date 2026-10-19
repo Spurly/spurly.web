@@ -5,8 +5,8 @@ import { NAV_LINKS } from "./navLinks.js";
 
 /* Floating pill: logo, four section links, a quiet Log in link, one button.
    On scroll the pill tightens. `home={false}` (content pages) points the
-   section links at the home page. `focused` (the landing page) drops the
-   section links so the one button, Book a call, is the only way forward. */
+   section links at the home page. `focused` (the landing page) keeps the section
+   links and swaps the button for Book a call, which scrolls to the booking section. */
 export default function Nav({ menuOpen, onToggleMenu, home = true, focused = false }) {
   const href = (h) => (home ? h : "/" + h);
   const [scrolled, setScrolled] = useState(false);
@@ -28,7 +28,7 @@ export default function Nav({ menuOpen, onToggleMenu, home = true, focused = fal
           <span>Spurly</span>
         </a>
         <div className="topbar-links">
-          {!focused && NAV_LINKS.map((l) => (
+          {NAV_LINKS.map((l) => (
             <a key={l.href} href={href(l.href)}>{l.label}</a>
           ))}
         </div>
