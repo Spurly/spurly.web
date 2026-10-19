@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { REAL, SAMPLE } from "../src/products/pages/website/proof/proof.js";
-import { saleFor } from "../src/products/pages/website/pricing.js";
+import { saleFor, currentSaleEnd } from "../src/products/pages/website/pricing.js";
 import CaseStudies from "../src/products/pages/website/components/home/CaseStudies.jsx";
 
 describe("proof data", () => {
@@ -31,12 +31,15 @@ describe("proof data", () => {
 });
 
 describe("launch sale", () => {
-  it("ends at one fixed moment for everyone, then the list price returns", () => {
+  it("repeats every 2 days on one shared schedule, at the same price", () => {
     const off = { demo: false };
-    expect(saleFor("US", Date.parse("2026-10-21T22:59:59+05:30"), off)).not.toBeNull();
-    expect(saleFor("US", Date.parse("2026-10-21T23:00:01+05:30"), off)).toBeNull();
-    // demo mode (local dev) never ends the sale; the countdown rolls instead
-    expect(saleFor("US", Date.parse("2027-01-01T00:00:00+05:30"), { demo: true })).not.toBeNull();
+    expect(saleFor("IN", Date.parse("2026-10-21T22:59:59+05:30"), off).endsAt).toBe(new Date("2026-10-21T23:00:00+05:30").toISOString());
+    // the instant a round ends, the next 2-day round is already running
+    const next = saleFor("IN", Date.parse("2026-10-21T23:00:01+05:30"), off);
+    expect(next).not.toBeNull();
+    expect(next.saleLabel).toBe("₹499");
+    expect(next.endsAt).toBe(new Date("2026-10-23T23:00:00+05:30").toISOString());
+    expect(currentSaleEnd(Date.parse("2027-01-01T00:00:00+05:30"))).toBeTruthy();
   });
 
   it("computes the discount per region", () => {

@@ -19,17 +19,21 @@ export function timeLeft(endsAt, now) {
 /** Live countdown. Null on the server and on the first client render (so the
  *  prerendered HTML and hydration agree), then ticks every second. With `demo`
  *  the deadline is the per-browser rolling 2 days instead of `endsAt`. */
-export function useCountdown(endsAt, { demo = false } = {}) {
+export function useCountdown(endsAt, { demo = false, nextEnd = null } = {}) {
   const [left, setLeft] = useState(null);
 
   useEffect(() => {
-    if (!endsAt && !demo) return undefined;
-    const end = demo ? getDemoDeadline() : endsAt;
-    const tick = () => setLeft(timeLeft(end, Date.now()));
+    if (!endsAt && !demo && !nextEnd) return undefined;
+    // nextEnd: a repeating sale, so a finished round rolls straight into the next one
+    const tick = () => {
+      const now = Date.now();
+      const end = nextEnd ? nextEnd(now) : demo ? getDemoDeadline() : endsAt;
+      setLeft(timeLeft(end, now));
+    };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [endsAt, demo]);
+  }, [endsAt, demo, nextEnd]);
 
-  return endsAt || demo ? left : null;
+  return endsAt || demo || nextEnd ? left : null;
 }

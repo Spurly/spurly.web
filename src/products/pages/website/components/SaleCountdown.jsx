@@ -1,5 +1,5 @@
 import { useCountdown } from "../hooks/useCountdown.js";
-import { DEMO_ROLLING_SALE } from "../pricing.js";
+import { DEMO_ROLLING_SALE, SALE, currentSaleEnd } from "../pricing.js";
 
 const pad = (n) => String(n).padStart(2, "0");
 
@@ -7,7 +7,7 @@ const pad = (n) => String(n).padStart(2, "0");
    end date, on the server, and once the sale is over. In demo mode (local dev)
    it counts down a rolling 2 days per browser instead. */
 export default function SaleCountdown({ endsAt, className = "sale-count" }) {
-  const left = useCountdown(endsAt, { demo: DEMO_ROLLING_SALE });
+  const left = useCountdown(endsAt, { demo: DEMO_ROLLING_SALE && !SALE.cycle, nextEnd: SALE.cycle ? currentSaleEnd : null });
   if (!left) return null;
   return (
     <span className={className}>
