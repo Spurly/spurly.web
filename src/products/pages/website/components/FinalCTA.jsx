@@ -16,10 +16,10 @@ export default function FinalCTA() {
           </p>
           {price.sale && <p className="cta-count"><SaleCountdown endsAt={price.sale.endsAt} /></p>}
           <div className="hero-actions">
-            <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>
-              Start 7-day free trial <span className="arr" aria-hidden="true">→</span>
-            </Link>
-            <a href="#book" className="btn btn-ghost btn-lg">Book a call</a>
+            <a href="#book" className="btn btn-primary btn-lg" data-magnetic>
+              Book a call <span className="arr" aria-hidden="true">→</span>
+            </a>
+            <Link to="/signup" className="btn btn-ghost btn-lg">Start 7-day free trial</Link>
           </div>
           <ul className="cta-points">
             <li>You approve every message</li>
