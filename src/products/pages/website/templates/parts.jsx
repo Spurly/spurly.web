@@ -89,7 +89,7 @@ export function CtaBand({ title = "Put your AI SDR to work" }) {
       <h2>{title}</h2>
       <p>
         Spurly is an AI SDR for LinkedIn. It finds high-intent leads, writes personalized messages with AI and
-        follows up 24/7 until they reply. 7-day free trial, then {price.label}/month.
+        follows up 24/7 until they reply. 7-day free trial, then {price.now}/month.
       </p>
       <Link to="/signup" className="btn btn-primary btn-lg">Start 7-day free trial</Link>
       <p className="trial-note-inline">{TRIAL_NOTE}</p>
@@ -102,7 +102,7 @@ export function InlineCta() {
   const price = usePrice();
   return (
     <p className="inline-cta">
-      <Link to="/signup">Start 7-day free trial, then {price.label}/month →</Link>
+      <Link to="/signup">Start 7-day free trial, then {price.now}/month →</Link>
     </p>
   );
 }

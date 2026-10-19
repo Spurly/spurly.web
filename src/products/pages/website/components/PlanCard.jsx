@@ -11,9 +11,13 @@ export default function PlanCard({ className = "" }) {
   const price = usePrice();
   return (
     <article className={`price glass feat ${className}`.trim()}>
+      {price.sale && <span className="prc-sale prc-sale-light">{price.sale.label} live · {price.sale.percentOff}% off</span>}
       <span className="badge">7-day free trial</span>
       <div className="pname">Spurly</div>
-      <div className="pamt"><b className="tnum">{price.label}</b><span>/ month</span></div>
+      <div className="pamt">
+        {price.sale && <s className="prc-was prc-was-light" aria-label={"Was " + price.sale.listLabel}>{price.sale.listLabel}</s>}
+        <b className="tnum">{price.now}</b><span>/ month</span>
+      </div>
       <p className="pdesc">{price.region === "IN" ? "Prices shown in INR for India." : "Billed in USD."}</p>
       <Link to="/signup" className="btn btn-primary" data-magnetic>Start 7-day free trial</Link>
       <ul>

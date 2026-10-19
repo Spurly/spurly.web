@@ -5,6 +5,8 @@ import { ORGANIZATION_LD, WEBSITE_LD } from "./seo.js";
 import Nav from "./components/Nav.jsx";
 import MobileMenu from "./components/MobileMenu.jsx";
 import Hero from "./components/Hero.jsx";
+import ProofStrip from "./components/home/ProofStrip.jsx";
+import CaseStudies from "./components/home/CaseStudies.jsx";
 import Signals from "./components/home/Signals.jsx";
 import FeatureTour from "./components/home/FeatureTour.jsx";
 import HomeFaq from "./components/home/HomeFaq.jsx";
@@ -43,6 +45,8 @@ export default function HomePage() {
 
       <main id="top">
         <Hero />
+        <ProofStrip />
+        <CaseStudies />
         <FeatureTour />
         <Signals />
         <Pricing />

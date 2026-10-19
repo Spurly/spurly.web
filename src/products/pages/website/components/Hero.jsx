@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import HeroVideo from "./home/HeroVideo.jsx";
 import { usePrice } from "../hooks/usePrice.js";
+import PriceTag from "./PriceTag.jsx";
 
 /* Hero: five things and nothing else. A two-part pill, a short headline, one
    line of copy, one button, then the demo video frame. Plain HTML and CSS, so
@@ -25,8 +26,12 @@ export default function Hero() {
             <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>
               Start 7-day free trial <span className="arr" aria-hidden="true">→</span>
             </Link>
+            <Link to="/book-demo" className="btn btn-ghost btn-lg">Book a call</Link>
           </div>
-          <p className="hero-micro">No card needed · then {price.label}/month · cancel anytime</p>
+          <p className="hero-micro">No card needed · then <PriceTag price={price} />/month · cancel anytime</p>
+          {price.sale && (
+            <p className="sale-pill"><b>{price.sale.label} live</b>{price.sale.percentOff}% off · {price.sale.saleLabel}/month instead of {price.sale.listLabel}</p>
+          )}
         </div>
 
         <HeroVideo />
