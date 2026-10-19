@@ -5,8 +5,9 @@ import { NAV_LINKS } from "./navLinks.js";
 
 /* Floating pill: logo, four section links, a quiet Log in link, one button.
    On scroll the pill tightens. `home={false}` (content pages) points the
-   section links at the home page. */
-export default function Nav({ menuOpen, onToggleMenu, home = true }) {
+   section links at the home page. `focused` (the landing page) drops the
+   section links so the one button, Book a call, is the only way forward. */
+export default function Nav({ menuOpen, onToggleMenu, home = true, focused = false }) {
   const href = (h) => (home ? h : "/" + h);
   const [scrolled, setScrolled] = useState(false);
 
@@ -27,12 +28,14 @@ export default function Nav({ menuOpen, onToggleMenu, home = true }) {
           <span>Spurly</span>
         </a>
         <div className="topbar-links">
-          {NAV_LINKS.map((l) => (
+          {!focused && NAV_LINKS.map((l) => (
             <a key={l.href} href={href(l.href)}>{l.label}</a>
           ))}
         </div>
         <Link to="/login" className="topbar-login">Log in</Link>
-        <Link to="/book-demo" className="topbar-btn">Book a demo</Link>
+        {focused
+          ? <a href="#book" className="topbar-btn">Book a call</a>
+          : <Link to="/book-demo" className="topbar-btn">Book a demo</Link>}
         <button className="topbar-toggle" aria-label="Open menu" aria-expanded={menuOpen ? "true" : "false"} onClick={onToggleMenu}>
           <MenuIcon />
         </button>

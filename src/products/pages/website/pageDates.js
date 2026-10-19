@@ -5,7 +5,7 @@
    Bump a page's date when its visible text changes, not for code-only edits.
    Blog posts carry their own `date` / `updated` in blogPosts.js. */
 export const PAGE_UPDATED = {
-  "/": "2026-10-17", // home: AI SDR positioning rewrite (Batch 1)
+  "/": "2026-10-19", // home: landing-page conversion rewrite (urgency bar, book a call, examples)
   "/book-demo": "2026-10-04", // new demo booking page (Calendly)
   "/support": "2026-10-03", // FAQ rewritten (T0.1)
   "/privacy": "2026-10-03", // data-storage wording corrected

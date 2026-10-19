@@ -20,17 +20,23 @@ export function priceFor(region) {
 export const SALE = {
   enabled: true,
   label: "Launch sale",
-  endsAt: null,
+  endsAt: "2026-10-21T23:00:00+05:30",
   prices: {
     INTL: { amount: "11", label: "$11" },
     IN: { amount: "499", label: "₹499" },
   },
 };
 
-/** The live sale for a region, or null when disabled or past `endsAt`. */
-export function saleFor(region, now = Date.now()) {
+/* Demo mode: local dev (or VITE_DEMO_COUNTDOWN=true) shows a rolling 2-day
+   countdown per browser, for showing the page to teammates. A production build
+   has DEV false, so real visitors only ever see the fixed `endsAt` above. */
+export const DEMO_ROLLING_SALE = Boolean(import.meta.env?.DEV) || import.meta.env?.VITE_DEMO_COUNTDOWN === "true";
+
+/** The live sale for a region, or null when disabled or past `endsAt`.
+ *  In demo mode the sale never ends (the countdown rolls instead). */
+export function saleFor(region, now = Date.now(), { demo = DEMO_ROLLING_SALE } = {}) {
   if (!SALE.enabled) return null;
-  if (SALE.endsAt && now >= Date.parse(SALE.endsAt)) return null;
+  if (!demo && SALE.endsAt && now >= Date.parse(SALE.endsAt)) return null;
   const list = priceFor(region);
   const sale = region === "IN" ? SALE.prices.IN : SALE.prices.INTL;
   const percentOff = Math.round((1 - Number(sale.amount) / Number(list.amount)) * 100);

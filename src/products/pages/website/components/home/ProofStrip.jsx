@@ -1,30 +1,21 @@
 import { getProof } from "../../proof/proof.js";
 
-/* Rating badges plus a two-row scrolling wall of review cards, Waalaxy-style.
-   Renders nothing when there are no ratings and no reviews, so a production
-   build without real reviews simply omits it. */
-
-function Stars({ score }) {
-  const full = Math.round(score * 2) / 2;
-  return (
-    <span className="rv-stars" role="img" aria-label={score + " out of 5"}>
-      {[1, 2, 3, 4, 5].map((n) => (
-        <i key={n} className={n <= full ? "on" : n - 0.5 === full ? "half" : ""} aria-hidden="true">★</i>
-      ))}
-    </span>
-  );
-}
+/* A two-row scrolling wall of review cards, Waalaxy-style. Sample cards are
+   tagged "Sample" and the heading says so; the "Real replies" heading is used
+   only when every card is a real review. Renders nothing with no reviews. */
 
 function Card({ r, tone }) {
   return (
     <article className={"rv-card rv-" + tone}>
+      {r.sample && <em className="rv-sample">Sample</em>}
       <header>
-        <span className="rv-av" aria-hidden="true">{r.name.slice(0, 1)}</span>
+        <span className="rv-av" aria-hidden="true">
+          {r.avatar ? <img src={r.avatar} alt="" width="40" height="40" loading="lazy" decoding="async" referrerPolicy="no-referrer" /> : r.name.slice(0, 1)}
+        </span>
         <div><strong>{r.name}</strong><small>{r.role}</small></div>
-        <span className="rv-src">{r.platform}</span>
       </header>
       <p>“{r.quote}”</p>
-      {r.sample && <em className="rv-sample">Sample</em>}
+      {r.result && <span className="rv-result">{r.result}</span>}
     </article>
   );
 }
@@ -43,27 +34,20 @@ function Row({ items, reverse }) {
 }
 
 export default function ProofStrip() {
-  const { ratings, reviews } = getProof();
-  if (!ratings.length && !reviews.length) return null;
+  const { reviews } = getProof();
+  if (!reviews.length) return null;
   const half = Math.ceil(reviews.length / 2);
+  const allReal = reviews.every((r) => !r.sample);
 
   return (
     <section className="rv section-pad" aria-label="What customers say">
       <div className="wrap">
         <div className="sec-head center reveal">
-          <span className="eyebrow">Loved by people who do outreach</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Now they’re getting replies, <em>and new clients.</em></h2>
+          <span className="eyebrow">{allReal ? "What founders and sales teams get" : "Sample reviews"}</span>
+          {allReal
+            ? <h2 className="h2" style={{ marginTop: 14 }}>Real replies. <em>Real calls booked.</em></h2>
+            : <h2 className="h2" style={{ marginTop: 14 }}>Customer reviews, <em>shown as a preview.</em></h2>}
         </div>
-        {ratings.length > 0 && (
-          <ul className="rv-ratings reveal d1">
-            {ratings.map((r) => (
-              <li key={r.platform}>
-                <Stars score={r.score} />
-                <small><b>{r.score}</b> on {r.platform}{r.sample ? " (sample)" : ""}</small>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
       {reviews.length > 0 && (
         <div className="rv-wall reveal d2">
@@ -71,6 +55,9 @@ export default function ProofStrip() {
           {reviews.length > 1 && <Row items={reviews.slice(half)} reverse />}
         </div>
       )}
+      <div className="wrap rv-cta reveal d2">
+        <a href="#book" className="btn btn-primary btn-lg" data-magnetic>Book a call <span className="arr">→</span></a>
+      </div>
     </section>
   );
 }

@@ -44,8 +44,9 @@ describe('people and trust pages', () => {
   it('the home page states what Spurly is and repeats one primary CTA', async () => {
     const { html } = await render('/');
     expect(html).toContain('AI SDR</em>');
-    expect(html).toContain('for LinkedIn.');
-    expect(html).toContain('An AI agent that finds people already interested in you');
+    expect(html).toContain('LinkedIn leads.');
+    expect(html).toContain('On autopilot.');
+    expect(html).toContain('Spurly is a LinkedIn automation tool that finds your ideal prospects');
     expect(html).toContain('LinkedIn automation');
     expect(html).toContain('Spurly is an AI SDR for LinkedIn');
     // the hero shows the demo video as a click-to-play poster (nothing loads before the click)
@@ -55,8 +56,8 @@ describe('people and trust pages', () => {
     // sections: features band, intent signals grid, pricing, FAQ, final CTA
     expect(html).toContain('Every SDR job on LinkedIn');
     expect(html).toContain('intent signals tracked');
-    expect(html).toContain('Everything included');
-    expect(html).toContain('Questions, ');
+    expect(html).toContain('everything included');
+    expect(html).toContain('Before you book, ');
     // hero + plan card + final CTA (the top bar has no trial button)
     expect(html.split('Start 7-day free trial').length - 1).toBeGreaterThanOrEqual(3);
     // the long sections moved to their own pages

@@ -3,6 +3,7 @@ import { CheckItem } from "../icons.jsx";
 import { TRIAL_NOTE } from "../pricing.js";
 import { usePrice } from "../hooks/usePrice.js";
 import PriceTag from "./PriceTag.jsx";
+import SaleCountdown from "./SaleCountdown.jsx";
 
 /* One plan, monthly. Short on purpose: price, one button, eight highlights.
    The full list lives on /pricing (PlanCard). Prerendered in USD; after
@@ -26,12 +27,15 @@ export default function Pricing() {
     <section id="pricing" className="prc section-pad">
       <div className="wrap">
         <div className="sec-head center reveal">
-          <span className="eyebrow">Pricing</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>One plan. <em>Everything included.</em></h2>
+          <span className="eyebrow">{price.sale ? "Launch pricing" : "Pricing"}</span>
+          <h2 className="h2" style={{ marginTop: 14 }}>Your AI SDR for <em>{price.now} a month.</em></h2>
+          <p className="prc-sub">One plan, everything included. About the price of a coffee a week, and no contract.</p>
         </div>
         <div className="prc-card reveal d1">
           <div className="prc-main">
-            {price.sale && <span className="prc-sale">{price.sale.label} live · {price.sale.percentOff}% off</span>}
+            {price.sale && (
+              <span className="prc-sale">{price.sale.label} live · {price.sale.percentOff}% off<SaleCountdown endsAt={price.sale.endsAt} className="prc-count" /></span>
+            )}
             <span className="prc-badge">7-day free trial</span>
             <div className="prc-name">Spurly</div>
             <div className="prc-amt">
@@ -40,6 +44,7 @@ export default function Pricing() {
             </div>
             <p>{price.region === "IN" ? "Prices shown in INR for India." : "Billed in USD."} Cancel anytime.</p>
             <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>Start 7-day free trial</Link>
+            <a href="#book" className="prc-book">or book a call first →</a>
           </div>
           <ul className="prc-list">
             {HIGHLIGHTS.map((f) => <CheckItem key={f}>{f}</CheckItem>)}

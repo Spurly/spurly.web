@@ -5,10 +5,12 @@ import { ORGANIZATION_LD, WEBSITE_LD } from "./seo.js";
 import Nav from "./components/Nav.jsx";
 import MobileMenu from "./components/MobileMenu.jsx";
 import Hero from "./components/Hero.jsx";
+import UrgencyBar from "./components/UrgencyBar.jsx";
+import ResultsBar from "./components/home/ResultsBar.jsx";
 import ProofStrip from "./components/home/ProofStrip.jsx";
-import CaseStudies from "./components/home/CaseStudies.jsx";
 import Signals from "./components/home/Signals.jsx";
 import FeatureTour from "./components/home/FeatureTour.jsx";
+import BookCall from "./components/home/BookCall.jsx";
 import HomeFaq from "./components/home/HomeFaq.jsx";
 import Pricing from "./components/Pricing.jsx";
 import FinalCTA from "./components/FinalCTA.jsx";
@@ -40,16 +42,18 @@ export default function HomePage() {
       <Helmet>
         <link rel="preload" href="/fonts/instrument-sans.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </Helmet>
-      <Nav menuOpen={menuOpen} onToggleMenu={() => setMenu(!menuOpen)} />
-      <MobileMenu open={menuOpen} onClose={() => setMenu(false)} />
+      <UrgencyBar />
+      <Nav focused menuOpen={menuOpen} onToggleMenu={() => setMenu(!menuOpen)} />
+      <MobileMenu focused open={menuOpen} onClose={() => setMenu(false)} />
 
       <main id="top">
         <Hero />
+        <ResultsBar />
         <ProofStrip />
-        <CaseStudies />
         <FeatureTour />
         <Signals />
         <Pricing />
+        <BookCall />
         <HomeFaq />
         <FinalCTA />
       </main>

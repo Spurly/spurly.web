@@ -1,25 +1,13 @@
-import { useEffect } from "react";
 import Seo from "../components/Seo.jsx";
 import { breadcrumbLd } from "../seo.js";
 import ContentShell from "../components/ContentShell.jsx";
-import { DEMO_CALENDAR_URL, DEMO_WIDGET_SRC } from "../booking.js";
+import { DEMO_CALENDAR_URL } from "../booking.js";
+import CalendlyEmbed from "../components/CalendlyEmbed.jsx";
 
-/* Demo booking page. The Calendly widget script is added in an effect so
-   nothing touches window/document during render (prerender-safe); the link
-   below the heading is the fallback when the script is blocked or JS is off. */
+/* Demo booking page. The link below the heading is the fallback when the
+   Calendly script is blocked or JS is off. */
 
 export default function BookDemo() {
-  useEffect(() => {
-    if (document.querySelector(`script[src="${DEMO_WIDGET_SRC}"]`)) {
-      window.Calendly?.initInlineWidgets?.();
-      return;
-    }
-    const s = document.createElement("script");
-    s.src = DEMO_WIDGET_SRC;
-    s.async = true;
-    document.body.appendChild(s);
-  }, []);
-
   return (
     <ContentShell>
       <Seo
@@ -43,11 +31,7 @@ export default function BookDemo() {
           <a href={DEMO_CALENDAR_URL} rel="noopener">Book on Calendly</a>.
         </p>
 
-        <div
-          className="calendly-inline-widget"
-          data-url={`${DEMO_CALENDAR_URL}?hide_gdpr_banner=1`}
-          style={{ minWidth: 320, height: 700 }}
-        />
+        <CalendlyEmbed />
       </article>
     </ContentShell>
   );

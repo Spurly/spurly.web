@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { usePrice } from "../hooks/usePrice.js";
 import PriceTag from "./PriceTag.jsx";
+import SaleCountdown from "./SaleCountdown.jsx";
 import { TRIAL_NOTE } from "../pricing.js";
 
 export default function FinalCTA() {
@@ -9,13 +10,22 @@ export default function FinalCTA() {
     <section className="section-pad" style={{ paddingTop: 0 }}>
       <div className="wrap">
         <div className="cta-panel reveal">
-          <h2 className="h2">Put your AI SDR <em>to work today.</em></h2>
-          <p className="lead">7-day free trial, then <PriceTag price={price} />/month.</p>
+          <h2 className="h2">Your LinkedIn outreach, <em>on autopilot by tonight.</em></h2>
+          <p className="lead">
+            {price.sale ? price.sale.label + " live: " : ""}7-day free trial, then <PriceTag price={price} />/month.
+          </p>
+          {price.sale && <p className="cta-count"><SaleCountdown endsAt={price.sale.endsAt} /></p>}
           <div className="hero-actions">
             <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>
               Start 7-day free trial <span className="arr" aria-hidden="true">→</span>
             </Link>
+            <a href="#book" className="btn btn-ghost btn-lg">Book a call</a>
           </div>
+          <ul className="cta-points">
+            <li>You approve every message</li>
+            <li>Stops when they reply</li>
+            <li>Runs with your laptop closed</li>
+          </ul>
           <p className="trial-note">{TRIAL_NOTE}</p>
         </div>
       </div>

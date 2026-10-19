@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { HOME_FAQ } from "./homeFaq.js";
 
 /* Title on the left, answers on the right. Collapsed by default to keep the
@@ -11,12 +10,12 @@ export default function HomeFaq() {
       <div className="wrap faq-wrap">
         <div className="faq-side reveal">
           <span className="eyebrow">FAQ</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Questions, <em>answered first.</em></h2>
-          <p>Something else? <Link className="more-link" to="/book-demo">Book a demo</Link> and ask us.</p>
+          <h2 className="h2" style={{ marginTop: 14 }}>Before you book, <em>read this.</em></h2>
+          <p>Something else? <a className="more-link" href="#book">Book a call</a> and ask us.</p>
         </div>
         <div className="home-faq reveal d1">
-          {HOME_FAQ.map((f) => (
-            <details key={f.q}>
+          {HOME_FAQ.map((f, i) => (
+            <details key={f.q} open={i === 0}>
               <summary>{f.q}</summary>
               <p>{f.a}</p>
             </details>
