@@ -7,7 +7,8 @@ import EventEmitter from "src/shared/utils/EventEmitter.js";
 import leadController from "src/products/leads/controller/lead.js";
 import { LEAD_EVENTS } from "src/products/leads/constants/constants.js";
 import accountController from "src/products/settings/controller/account.js";
-import { ACCOUNT_EVENTS } from "src/products/settings/constants/constants.js";
+import profileController from "src/products/settings/controller/profile.js";
+import { ACCOUNT_EVENTS, PROFILE_EVENTS } from "src/products/settings/constants/constants.js";
 import { AudienceForm } from "src/products/pages/leads/components/AudienceForm.jsx";
 import { AuthShell, WelcomeAside, Stepper } from "./components/AuthShell.jsx";
 import { LinkedInIcon, ArrowRightIcon, CheckCircleIcon } from "./components/icons.jsx";
@@ -40,7 +41,7 @@ const GOAL_NAME_PREFILL = {
 };
 
 /**
- * Step 4 of 5 -- build the first audience LinkedIn will search. Protected
+ * Step 5 of 6 -- build the first audience LinkedIn will search. Protected
  * route (auth + active subscription, like every onboarding page).
  *
  * Reuses AudienceForm.jsx and FilterTagPicker.jsx verbatim (the same
@@ -64,6 +65,8 @@ export default function OnboardingAudiencePage() {
   const [checkingAccount, setCheckingAccount] = useState(true);
   const [accountConnected, setAccountConnected] = useState(false);
   const [queued, setQueued] = useState(false);
+  const [checkingProfile, setCheckingProfile] = useState(true);
+  const [icpTitle, setIcpTitle] = useState("");
   const initialName = useMemo(
     () => GOAL_NAME_PREFILL[user?.primaryGoal] ?? "",
     [user?.primaryGoal],
@@ -87,6 +90,24 @@ export default function OnboardingAudiencePage() {
     });
     accountController.get(emitter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /*
+   * The ICP the user confirmed on the previous step seeds the job-title field.
+   * Only the title, and only the first one: the other ICP fields (industry,
+   * location, company size) need LinkedIn's own ids, which FilterTagPicker
+   * resolves from a keystroke -- sending the user's typed text there would be
+   * the silently-wrong guess this page's own header warns about. A failed or
+   * empty read just leaves the field blank; the step never waits on it.
+   */
+  useEffect(() => {
+    const emitter = new EventEmitter();
+    emitter.once(PROFILE_EVENTS.GET_SUCCESS, (profile) => {
+      setIcpTitle(profile?.icp?.roles?.[0] ?? "");
+      setCheckingProfile(false);
+    });
+    emitter.once(PROFILE_EVENTS.GET_FAILURE, () => setCheckingProfile(false));
+    profileController.get(emitter);
   }, []);
 
   function handleSubmit(payload) {
@@ -120,11 +141,11 @@ export default function OnboardingAudiencePage() {
 
   return (
     <AuthShell
-      aside={<WelcomeAside step={4} total={5} credits={100} />}
+      aside={<WelcomeAside step={5} total={6} credits={100} />}
       bodyTop
     >
       <div className="sp-card sp-card--wide">
-        <Stepper current={4} />
+        <Stepper current={5} />
 
         <div className="sp-card__head">
           <h2 className="sp-card__title">
@@ -157,7 +178,7 @@ export default function OnboardingAudiencePage() {
               Continue <ArrowRightIcon s={16} />
             </button>
           </>
-        ) : checkingAccount ? (
+        ) : checkingAccount || checkingProfile ? (
           <div className="sp-store">
             <span className="sp-spin" />
             <div>
@@ -187,6 +208,7 @@ export default function OnboardingAudiencePage() {
         ) : (
           <AudienceForm
             initialName={initialName}
+            initialTitle={icpTitle}
             onSubmit={handleSubmit}
             submitting={submitting}
           />

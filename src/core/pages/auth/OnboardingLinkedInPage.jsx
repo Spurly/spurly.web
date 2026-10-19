@@ -68,7 +68,7 @@ const WHY_REST = [
 ];
 
 /**
- * Step 3 of 5 -- connect the LinkedIn account Spurly will search and send
+ * Step 3 of 6 -- connect the LinkedIn account Spurly will search and send
  * from. Protected route (auth + active subscription, like every onboarding
  * page).
  */
@@ -187,8 +187,8 @@ export default function OnboardingLinkedInPage() {
   useEffect(() => {
     if (!connected || dialogOpen || advancedRef.current) return undefined;
     advancedRef.current = true;
-    setOnboardingStage("audience");
-    const timer = setTimeout(() => navigate("/onboarding/audience"), CONTINUE_DELAY_MS);
+    setOnboardingStage("profile");
+    const timer = setTimeout(() => navigate("/onboarding/profile"), CONTINUE_DELAY_MS);
     return () => clearTimeout(timer);
   }, [connected, dialogOpen, navigate, setOnboardingStage]);
 
@@ -252,7 +252,7 @@ export default function OnboardingLinkedInPage() {
 
   return (
     <AuthShell
-      aside={<WelcomeAside step={3} total={5} credits={100} />}
+      aside={<WelcomeAside step={3} total={6} credits={100} />}
       bodyTop
     >
       <div className="sp-card sp-card--wide">

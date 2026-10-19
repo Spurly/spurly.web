@@ -128,3 +128,40 @@ export function countryName(code) {
     ? new Intl.DisplayNames(['en'], { type: 'region' }).of(code) ?? code
     : code;
 }
+
+/**
+ * Events the profile controller emits and useProfileReview listens for. The
+ * profile is the owner's own LinkedIn profile as read after connecting, plus
+ * the ideal customer profile (ICP) they confirm on top of it.
+ */
+export const PROFILE_EVENTS = {
+  GET_SUCCESS: 'PROFILE_GET_SUCCESS',
+  GET_FAILURE: 'PROFILE_GET_FAILURE',
+  REFRESH_SUCCESS: 'PROFILE_REFRESH_SUCCESS',
+  REFRESH_FAILURE: 'PROFILE_REFRESH_FAILURE',
+  SAVE_ICP_SUCCESS: 'PROFILE_SAVE_ICP_SUCCESS',
+  SAVE_ICP_FAILURE: 'PROFILE_SAVE_ICP_FAILURE',
+};
+
+/**
+ * The first read of a just-connected account is slow (LinkedIn's own profile
+ * calls run 3-20s), so the server answers `checking: true` and the screen
+ * re-reads until the stored profile lands. Bounded: after this the screen
+ * says so and offers Try again / Continue instead of spinning for ever.
+ */
+export const PROFILE_POLL_INTERVAL_MS = 3000;
+export const PROFILE_POLL_MAX_ATTEMPTS = 15;
+
+/**
+ * ICP limits. These MUST match the server (unipileAccount/service/icp.js,
+ * ICP_LIMITS) -- the server is the authority, these only stop the form
+ * offering what it would refuse.
+ */
+export const ICP_MAX_ITEMS = 10;
+export const ICP_ITEM_MAX_LENGTH = 80;
+export const ICP_NOTES_MAX_LENGTH = 400;
+
+/** LinkedIn's own company-headcount buckets, as the server accepts them. */
+export const ICP_COMPANY_SIZES = [
+  '1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5001-10000', '10001+',
+];

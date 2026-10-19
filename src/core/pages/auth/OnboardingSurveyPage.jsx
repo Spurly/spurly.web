@@ -160,7 +160,7 @@ export default function OnboardingSurveyPage() {
 
   return (
     <AuthShell
-      aside={<WelcomeAside step={2} total={5} credits={100} />}
+      aside={<WelcomeAside step={2} total={6} credits={100} />}
       bodyTop
     >
       <div className="sp-card sp-card--wide">

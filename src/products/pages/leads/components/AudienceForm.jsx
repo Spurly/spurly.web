@@ -50,7 +50,7 @@ export function urlProblem(raw) {
   return null;
 }
 
-export function AudienceForm({ initialCompany = null, initialName = '', onSubmit, submitting = false }) {
+export function AudienceForm({ initialCompany = null, initialName = '', initialTitle = '', onSubmit, submitting = false }) {
   const [url, setUrl] = useState('');
   const [location, setLocation] = useState([]);
   const [industry, setIndustry] = useState([]);
@@ -58,7 +58,7 @@ export function AudienceForm({ initialCompany = null, initialName = '', onSubmit
   const [pastCompany, setPastCompany] = useState([]);
   const [school, setSchool] = useState([]);
   const [keywords, setKeywords] = useState('');
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(initialTitle);
   const [networkDistance, setNetworkDistance] = useState([]);
   const [name, setName] = useState(initialName);
 

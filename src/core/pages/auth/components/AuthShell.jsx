@@ -234,6 +234,7 @@ const STEP_LABELS = [
   "Create Account",
   "Tell us about you",
   "Connect LinkedIn",
+  "Your Profile",
   "Build Audience",
   "Install Extension",
 ];

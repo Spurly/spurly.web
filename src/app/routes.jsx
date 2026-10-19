@@ -88,6 +88,9 @@ const InstallExtensionPage = lazyWithProgress(
 const OnboardingLinkedInPage = lazyWithProgress(
   () => import("src/core/pages/auth/OnboardingLinkedInPage.jsx"),
 );
+const OnboardingProfilePage = lazyWithProgress(
+  () => import("src/products/settings/components/profileReview/OnboardingProfilePage.jsx"),
+);
 const OnboardingAudiencePage = lazyWithProgress(
   () => import("src/core/pages/auth/OnboardingAudiencePage.jsx"),
 );
@@ -285,6 +288,16 @@ export function AppRoutes() {
               <ProtectedRoute>
                 <SubscribeGate>
                   <OnboardingLinkedInPage />
+                </SubscribeGate>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/onboarding/profile"
+            element={
+              <ProtectedRoute>
+                <SubscribeGate>
+                  <OnboardingProfilePage />
                 </SubscribeGate>
               </ProtectedRoute>
             }

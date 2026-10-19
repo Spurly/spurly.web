@@ -27,6 +27,7 @@
 const STAGE_DESTINATION = {
   survey: '/onboarding',
   linkedin: '/onboarding/linkedin',
+  profile: '/onboarding/profile',
   audience: '/onboarding/audience',
   install: '/onboarding/install',
   done: '/dashboard',

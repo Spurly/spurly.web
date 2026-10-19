@@ -155,7 +155,7 @@ async function completeOnboarding(data) {
  * and audience-builder onboarding pages after their own action succeeds or
  * is explicitly skipped, never on page load.
  * POST /auth/onboarding/stage
- * @param {string} stage - one of 'survey' | 'linkedin' | 'audience' | 'install' | 'done'
+ * @param {string} stage - one of 'survey' | 'linkedin' | 'profile' | 'audience' | 'install' | 'done'
  * @returns {Promise<User>} The updated user
  */
 async function setOnboardingStage(stage) {

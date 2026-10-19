@@ -22,6 +22,13 @@ describe('postAuthDestination', () => {
     expect(postAuthDestination({ onboardingComplete: true })).toBe('/dashboard');
   });
 
+  it('sends each onboarding stage to its own page, including the profile step', () => {
+    expect(postAuthDestination({ onboardingStage: 'linkedin' })).toBe('/onboarding/linkedin');
+    expect(postAuthDestination({ onboardingStage: 'profile' })).toBe('/onboarding/profile');
+    expect(postAuthDestination({ onboardingStage: 'audience' })).toBe('/onboarding/audience');
+    expect(postAuthDestination({ onboardingStage: 'done' })).toBe('/dashboard');
+  });
+
   it('errs towards the dashboard when the flag is missing', () => {
     // The recoverable direction: the dashboard has navigation, the install
     // page does not.
