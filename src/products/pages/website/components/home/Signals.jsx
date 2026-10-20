@@ -54,7 +54,7 @@ export default function Signals() {
           </div>
           <div className="sig-lead reveal d2" role="img" aria-label="Example lead: a profile with the fields Spurly reads highlighted">
             <span className="sig-ex">Example</span>
-            <div className="sig-av">AR</div>
+            <img className="sig-av" src="/assets/example-lead-avatar.svg" alt="" width="68" height="68" />
             <strong>Alex Rivera</strong>
             <small>VP of Sales · Northwind</small>
             <span className="sig-tag">Viewed your profile · 2 days ago</span>

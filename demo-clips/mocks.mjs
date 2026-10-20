@@ -2,7 +2,7 @@
 // answered here. Invented people and companies only.
 
 export const USER = {
-  _id: 'u_demo', name: 'Maya Lindqvist', email: 'maya@northwind-demo.test',
+  _id: 'u_demo', name: 'Maya Lindqvist', email: 'maya@northwind.co',
   onboardingComplete: true, onboardingStage: 'done', tier: 'pro', creditBalance: 1240,
   linkedinPlan: 'premium', tablePreferences: {}, createdAt: '2026-06-01T09:00:00Z',
 };

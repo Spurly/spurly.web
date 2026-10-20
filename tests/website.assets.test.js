@@ -50,9 +50,9 @@ describe('people and trust pages', () => {
     expect(html).toContain('LinkedIn automation');
     expect(html).toContain('Spurly is an AI SDR for LinkedIn');
     // the hero shows the demo video as a click-to-play poster (nothing loads before the click)
-    expect(html).toContain('Play: Spurly product demo');
-    expect(html).toContain('/assets/video/spurly-demo-poster.webp');
-    expect(html).not.toContain('spurly-demo.mp4');
+    expect(html).toContain('Play: Spurly in 4 minutes');
+    expect(html).toContain('/assets/video/spurly-vsl-poster.webp');
+    expect(html).not.toContain('spurly-vsl.mp4');
     // sections: features band, intent signals grid, pricing, FAQ, final CTA
     expect(html).toContain('Every SDR job on LinkedIn');
     expect(html).toContain('intent signals tracked');

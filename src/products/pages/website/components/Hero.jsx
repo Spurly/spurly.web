@@ -32,7 +32,7 @@ export default function Hero() {
         </div>
 
         <HeroVideo />
-        <p className="hero-caption">1-minute demo: find leads, approve the notes, send at a safe pace.</p>
+        <p className="hero-caption">4-minute walkthrough: warm leads, AI that writes in your voice, follow-ups that run 24/7.</p>
       </div>
     </section>
   );

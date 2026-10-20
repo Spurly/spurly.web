@@ -1,0 +1,75 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Spurly VSL</title>
+<style>
+@font-face{font-family:IS;src:url(instrument-sans-latin-500-normal.woff2);font-weight:500}
+@font-face{font-family:IS;src:url(instrument-sans-latin-600-normal.woff2);font-weight:600}
+@font-face{font-family:IS;src:url(instrument-sans-latin-700-normal.woff2);font-weight:700}
+@font-face{font-family:NR;src:url(newsreader.woff2);font-style:italic;font-weight:200 800}
+@font-face{font-family:NRn;src:url(newsreader.woff2);font-weight:200 800}
+@font-face{font-family:MONO;src:url(plex-mono-500.woff2);font-weight:500}
+:root{
+  --navy:#060918; --blue:#3b5bdb; --violet:#7966ff; --cyan:#38bdf8; --mint:#34d399; --coral:#ff5d6c; --amber:#ffb547;
+  --ink:#0b1030; --paper:#f5f6ff;
+  --grad:linear-gradient(100deg,#8ea2ff 0%,#b39dff 45%,#67d4ff 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--navy)}
+body{font-family:IS,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+#stage{position:absolute;inset:0;overflow:hidden;background:var(--navy)}
+.layer{position:absolute;inset:0}
+.scene{position:absolute;inset:0;transform-origin:50% 50%;display:none}
+/* background */
+#bg{position:absolute;inset:-10%;}
+#bg .blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:.9}
+#grid{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.07) 1.2px,transparent 1.3px);background-size:38px 38px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 45%,#000 30%,transparent 80%)}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 85% 75% at 50% 50%,transparent 55%,rgba(2,3,12,.55) 100%)}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;mix-blend-mode:screen}
+/* kinetic text */
+.kt{position:absolute;left:50%;transform:translateX(-50%);width:max-content;font-family:IS}
+.kw-mask{display:inline-block;overflow:hidden;vertical-align:top;padding:0.06em 0.04em 0.14em;margin:-0.06em -0.04em -0.14em}
+.kw{display:inline-block;will-change:auto;transform-origin:50% 70%}
+.kw.hl{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kw.serif{font-family:NR;font-style:italic;font-weight:500;letter-spacing:-0.01em;color:#c9d2ff}
+.kw.mint{color:var(--mint)}
+.kw.strike{position:relative;color:#ffd7db}
+.kw.strike::after{content:"";position:absolute;left:-4%;top:52%;height:.09em;width:calc(108% * var(--sk,0));background:var(--coral);border-radius:.05em;box-shadow:0 0 18px rgba(255,93,108,.6)}
+/* captions */
+#cap{position:absolute;left:0;right:0;bottom:52px;display:flex;justify-content:center;pointer-events:none}
+#capfade{position:absolute;left:0;right:0;bottom:0;height:260px;pointer-events:none;background:linear-gradient(to top,rgba(4,6,20,.55),rgba(4,6,20,0))}
+#cap .line{display:flex;flex-wrap:wrap;justify-content:center;column-gap:17px;max-width:1700px;padding:0 40px}
+#cap .wm{display:inline-block;overflow:hidden;padding:.08em .03em .16em;margin:-.08em -.03em -.16em;vertical-align:top}
+#cap .w{display:inline-block;font:700 62px/1.12 IS;letter-spacing:-.022em;color:#fff;
+  text-shadow:0 2px 0 rgba(4,6,20,.35),0 6px 22px rgba(4,6,20,.75),0 0 2px rgba(4,6,20,.6)}
+#cap .w.on{color:#8ea2ff}
+#cap.dark .w{color:#0b1030;text-shadow:0 4px 18px rgba(255,255,255,.8)}
+#cap.dark .w.on{color:#3b5bdb}
+/* generic UI */
+.card{position:absolute;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 30px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.18)}
+.card.light{background:#fff;color:var(--ink);border:1px solid rgba(20,30,90,.08);box-shadow:0 30px 70px rgba(30,40,120,.18)}
+.mono{font-family:MONO;letter-spacing:.02em}
+.chip{display:inline-flex;align-items:center;gap:10px;padding:10px 20px;border-radius:999px;font:600 26px IS;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16)}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
+/* phone */
+.phone{position:absolute;width:430px;height:880px;border-radius:66px;background:#0a0c18;padding:14px;
+  box-shadow:0 0 0 2px #2a2f4a,0 0 0 9px #11142a,0 60px 120px rgba(0,0,0,.6), 0 0 120px rgba(121,102,255,.25)}
+.phone .scr{position:absolute;inset:14px;border-radius:54px;overflow:hidden;background:linear-gradient(180deg,#1b2350 0%,#3b2f7a 45%,#ff9e6b 100%)}
+.phone .isl{position:absolute;top:28px;left:50%;width:126px;height:36px;margin-left:-63px;border-radius:20px;background:#000;z-index:5}
+.notif{position:absolute;left:16px;right:16px;border-radius:26px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start;
+  background:rgba(255,255,255,.80);color:#0b1030;box-shadow:0 10px 30px rgba(0,0,0,.25);backdrop-filter:blur(20px)}
+.notif .ic{width:46px;height:46px;border-radius:12px;flex:none;background:#fff url(mark.png) center/62% no-repeat;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.notif b{font:700 21px IS;display:block;padding-right:40px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notif span{font:500 19px/1.3 IS;color:#3a4065;display:block}
+.notif i{position:absolute;right:18px;top:16px;font:500 15px IS;color:#6b7099;font-style:normal}
+</style></head>
+<body><div id="stage">
+  <div id="bg" class="layer"></div>
+  <div id="grid"></div>
+  <div id="scenes" class="layer"></div>
+  <div id="vig"></div>
+  <div id="capfade"></div><div id="cap"></div>
+  <div id="flash"></div>
+</div>
+<script type="module" src="main.js"></script>
+</body></html>
