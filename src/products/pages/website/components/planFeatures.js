@@ -10,7 +10,7 @@ export const PLAN_FEATURES = [
   "Audience builder: LinkedIn people search with filters",
   "Find leads from companies, posts and pasted LinkedIn URLs",
   "Your network synced, plus profile viewers and followers as leads",
-  "Email and phone enrichment",
+  // "Email and phone enrichment",
   "Schedule posts and see likes and comments",
   "Chrome extension capture and CSV import",
   "Message templates with variables and a live preview",

@@ -15,7 +15,7 @@ const HIGHLIGHTS = [
   "Works with Claude (MCP)",
   "One inbox for every LinkedIn conversation",
   "Lead finder, Chrome extension and CSV import",
-  "Email and phone enrichment",
+  // "Email and phone enrichment",
   "Safe daily pace, pauses when someone replies",
 ];
 
@@ -25,39 +25,70 @@ export default function Pricing() {
     <section id="pricing" className="prc section-pad">
       <div className="wrap">
         <div className="sec-head center reveal">
-          <span className="eyebrow">{price.sale ? "Launch offer" : "Pricing"}</span>
-          <h2 className="h2" style={{ marginTop: 14 }}>Your AI SDR for <em>{price.now} a month.</em></h2>
-          <p className="prc-sub">One plan, everything included. About the price of a coffee a week, and no contract.</p>
+          <span className="eyebrow">
+            {price.sale ? "Launch offer" : "Pricing"}
+          </span>
+          <h2 className="h2" style={{ marginTop: 14 }}>
+            Your AI SDR for <em>{price.now} a month.</em>
+          </h2>
+          <p className="prc-sub">
+            One plan, everything included. About the price of a coffee a week,
+            and no contract.
+          </p>
         </div>
         <div className="prc-card reveal d1">
           <div className="prc-main">
             {price.sale && (
-              <span className="prc-sale">{price.sale.label} · {price.sale.percentOff}% off</span>
+              <span className="prc-sale">
+                {price.sale.label} · {price.sale.percentOff}% off
+              </span>
             )}
             <span className="prc-badge">7-day free trial</span>
             <div className="prc-name">Spurly</div>
             <div className="prc-amt">
-              {price.sale && <s className="prc-was" aria-label={"Was " + price.sale.listLabel}>{price.sale.listLabel}</s>}
-              <b className="tnum">{price.now}</b><span>/ month</span>
+              {price.sale && (
+                <s
+                  className="prc-was"
+                  aria-label={"Was " + price.sale.listLabel}
+                >
+                  {price.sale.listLabel}
+                </s>
+              )}
+              <b className="tnum">{price.now}</b>
+              <span>/ month</span>
             </div>
             {price.sale && (
               <p className="prc-lock">
-                <b>Only for the {price.sale.audience}.</b> Join now and {price.now}/month is {price.sale.lock}, even after the price goes back to {price.sale.listLabel}.
+                <b>Only for the {price.sale.audience}.</b> Join now and{" "}
+                {price.now}/month is {price.sale.lock}, even after the price
+                goes back to {price.sale.listLabel}.
               </p>
             )}
-            <p>{price.region === "IN" ? "Prices shown in INR for India." : "Billed in USD."} Cancel anytime.</p>
-            <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>Start 7-day free trial</Link>
-            <a href="#book" className="prc-book">or book a call first →</a>
+            <p>
+              {price.region === "IN"
+                ? "Prices shown in INR for India."
+                : "Billed in USD."}{" "}
+              Cancel anytime.
+            </p>
+            <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>
+              Start 7-day free trial
+            </Link>
+            <a href="#book" className="prc-book">
+              or book a call first →
+            </a>
           </div>
           <ul className="prc-list">
-            {HIGHLIGHTS.map((f) => <CheckItem key={f}>{f}</CheckItem>)}
+            {HIGHLIGHTS.map((f) => (
+              <CheckItem key={f}>{f}</CheckItem>
+            ))}
           </ul>
         </div>
         <p className="center prc-note">
           {TRIAL_NOTE} <Link to="/pricing">Full pricing and FAQ</Link>
         </p>
         <p className="center prc-note">
-          Built to stay within LinkedIn's limits. No tool can promise zero risk. <Link to="/product/safety">How safety works</Link>
+          Built to stay within LinkedIn's limits. No tool can promise zero risk.{" "}
+          <Link to="/product/safety">How safety works</Link>
         </p>
       </div>
     </section>
