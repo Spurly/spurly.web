@@ -124,7 +124,7 @@ describe('template specifics', () => {
     expect(out).toContain('$24.99');
     expect(out).toContain('7-day free trial');
     expect(head).toContain('SoftwareApplication');
-    expect(head).toContain('2499');
+    expect(head).toContain('1499');
   });
 
   it('article shows author, FAQ and the trial note, and credits a Person', () => {

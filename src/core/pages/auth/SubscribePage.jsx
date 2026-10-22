@@ -30,7 +30,7 @@ const longDate = (d) =>
  * routes here from anywhere under /onboarding or /dashboard whenever access
  * isn't 'active'.
  *
- * Razorpay autopay: ₹2499 or $24.99 a month by region, with a 7-day free trial
+ * Razorpay autopay: launch offer ₹1,499 or $14.99 a month by region (regular ₹2,499 / $24.99), with a 7-day free trial
  * once per account. Checkout is Razorpay's modal on this page — no redirect —
  * and the backend verifies the result before access flips.
  *

@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 import { usePrice } from "../hooks/usePrice.js";
-import SaleCountdown from "./SaleCountdown.jsx";
 
-/* Slim bar above the nav while the launch sale is live. The countdown shows
-   only when pricing.js has a real `endsAt`; with none it says "live" and never
-   fakes a timer. Renders nothing when the sale is off or over. */
+/* Slim bar above the nav while the launch offer is on. The offer is limited by seats,
+   not by time, so there is no timer: it names the seats and the lock-in instead.
+   Renders nothing when the offer is off. */
 export default function UrgencyBar() {
   const price = usePrice();
   if (!price.sale) return null;
@@ -13,11 +12,13 @@ export default function UrgencyBar() {
   return (
     <div className="urgency-bar" role="region" aria-label={s.label}>
       <p>
-        <b>{s.label} live</b>
-        <span>{s.saleLabel}/month<span className="ub-long"> instead of <s>{s.listLabel}</s></span> · {s.percentOff}% off</span>
-        <SaleCountdown endsAt={s.endsAt} className="ub-count" />
+        <b>{s.label}</b>
+        <span>
+          {s.saleLabel}/month, {s.lock}, for the {s.audience}
+          <span className="ub-long"> · <s>{s.listLabel}</s> after that · {s.percentOff}% off</span>
+        </span>
       </p>
-      <Link to="/signup">Claim it →</Link>
+      <Link to="/signup">Claim your spot →</Link>
     </div>
   );
 }

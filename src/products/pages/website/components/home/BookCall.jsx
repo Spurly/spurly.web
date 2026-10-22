@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import CalendlyEmbed from "../CalendlyEmbed.jsx";
 import { DEMO_CALENDAR_URL } from "../../booking.js";
 import { usePrice } from "../../hooks/usePrice.js";
-import SaleCountdown from "../SaleCountdown.jsx";
 
 const ON_THE_CALL = [
   "A clear picture of who to reach, and the exact people on LinkedIn who fit.",
@@ -30,7 +29,7 @@ export default function BookCall() {
             </ol>
             {price.sale && (
               <p className="book-urgent">
-                Launch price {price.now} a month ends soon <SaleCountdown endsAt={price.sale.endsAt} className="book-count" />
+                {price.sale.label}: the {price.sale.audience} get {price.now} a month, {price.sale.lock}.
               </p>
             )}
             <p className="book-alt">

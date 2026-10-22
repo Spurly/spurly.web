@@ -6,13 +6,15 @@ description: "Spurly is an AI SDR for LinkedIn for one flat monthly price: inten
 path: /pricing
 template: pricing
 date: 2026-10-03
-updated: 2026-10-17
+updated: 2026-10-22
 priority: 0.9
 target_query: spurly pricing
 related: [/blog/free-linkedin-outreach-pipeline-founders]
 faq:
   - q: How much does Spurly cost?
-    a: Spurly has one plan. It costs $24.99 per month outside India and ₹2,499 per month in India, and every feature is included.
+    a: Spurly has one plan with every feature included. The launch offer for the first 100 members is $14.99 per month outside India and ₹1,499 per month in India, locked in for life. The regular price is $24.99 per month outside India and ₹2,499 per month in India.
+  - q: What is the launch offer?
+    a: The first 100 members to subscribe keep the launch price of $14.99 per month (₹1,499 in India) for as long as they stay subscribed, even after the price goes back to $24.99 (₹2,499 in India) for everyone else. It is limited by the number of members, not by a date.
   - q: Is there a free trial?
     a: Yes. Every account gets a 7-day free trial of the full product, then the monthly plan starts.
   - q: Do I need a card to start the trial?
@@ -32,7 +34,7 @@ faq:
   - q: Is there a permanently free tier?
     a: No. Spurly is a paid product, and the 7-day free trial lets you use everything before you pay.
 ---
-Spurly is an AI SDR for LinkedIn with one plan: **$24.99 per month** (**₹2,499 per month** in India), a 7-day free trial and every feature included. There are no tiers to compare and nothing to unlock later.
+Spurly is an AI SDR for LinkedIn with one plan, a 7-day free trial and every feature included. The launch offer for the first 100 members is **$14.99 per month** (**₹1,499 per month** in India), locked in for life. The regular price is $24.99 per month (₹2,499 in India). There are no tiers to compare and nothing to unlock later.
 
 ## What is included
 
@@ -59,7 +61,7 @@ Entry-plan prices listed on each tool's own pricing page on 17 October 2026, per
 
 | Tool | Entry plan listed on its pricing page | Source |
 |---|---|---|
-| Spurly | $24.99 per month (₹2,499 in India), one plan, everything included | getspurly.com |
+| Spurly | Launch offer $14.99 per month (₹1,499 in India) for the first 100 members, locked for life; regular price $24.99 (₹2,499 in India); one plan, everything included | getspurly.com |
 | Waalaxy | Pro €19 per user per month; Advanced €49; Business €69 | waalaxy.com/pricing |
 | Dripify | Pro $79 per user per month ($59 per month on annual billing); Advanced $99 ($79 annual) | dripify.com/pricing |
 | Beeze | Launch $79 per month, billed yearly; Growth $143; Scale $159 | beeze.ai |
@@ -77,7 +79,7 @@ You are never charged during the trial, and you never need a card to start it.
 
 ## Why is pricing different in India?
 
-Spurly is priced in rupees for visitors in India (₹2,499 per month) and in US dollars everywhere else ($24.99 per month). Checkout shows the exact price before you pay.
+Spurly is priced in rupees for visitors in India (₹1,499 per month at launch, ₹2,499 regular) and in US dollars everywhere else ($14.99 per month at launch, $24.99 regular). Checkout shows the exact price before you pay.
 
 ## Teams and organizations
 

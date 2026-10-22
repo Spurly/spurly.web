@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import './website.css';
+import OfferPopup from './components/OfferPopup.jsx';
 
 /**
  * Wraps every public marketing route. Adds the `mkt` class to <body> so the
@@ -35,6 +36,9 @@ export function WebsiteLayout() {
   }, [pathname]);
 
   return (
-    <Outlet />
+    <>
+      <Outlet />
+      <OfferPopup />
+    </>
   );
 }

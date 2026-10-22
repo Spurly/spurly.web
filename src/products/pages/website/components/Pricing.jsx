@@ -2,8 +2,6 @@ import { Link } from "react-router-dom";
 import { CheckItem } from "../icons.jsx";
 import { TRIAL_NOTE } from "../pricing.js";
 import { usePrice } from "../hooks/usePrice.js";
-import PriceTag from "./PriceTag.jsx";
-import SaleCountdown from "./SaleCountdown.jsx";
 
 /* One plan, monthly. Short on purpose: price, one button, eight highlights.
    The full list lives on /pricing (PlanCard). Prerendered in USD; after
@@ -27,14 +25,14 @@ export default function Pricing() {
     <section id="pricing" className="prc section-pad">
       <div className="wrap">
         <div className="sec-head center reveal">
-          <span className="eyebrow">{price.sale ? "Launch pricing" : "Pricing"}</span>
+          <span className="eyebrow">{price.sale ? "Launch offer" : "Pricing"}</span>
           <h2 className="h2" style={{ marginTop: 14 }}>Your AI SDR for <em>{price.now} a month.</em></h2>
           <p className="prc-sub">One plan, everything included. About the price of a coffee a week, and no contract.</p>
         </div>
         <div className="prc-card reveal d1">
           <div className="prc-main">
             {price.sale && (
-              <span className="prc-sale">{price.sale.label} live · {price.sale.percentOff}% off<SaleCountdown endsAt={price.sale.endsAt} className="prc-count" /></span>
+              <span className="prc-sale">{price.sale.label} · {price.sale.percentOff}% off</span>
             )}
             <span className="prc-badge">7-day free trial</span>
             <div className="prc-name">Spurly</div>
@@ -42,6 +40,11 @@ export default function Pricing() {
               {price.sale && <s className="prc-was" aria-label={"Was " + price.sale.listLabel}>{price.sale.listLabel}</s>}
               <b className="tnum">{price.now}</b><span>/ month</span>
             </div>
+            {price.sale && (
+              <p className="prc-lock">
+                <b>Only for the {price.sale.audience}.</b> Join now and {price.now}/month is {price.sale.lock}, even after the price goes back to {price.sale.listLabel}.
+              </p>
+            )}
             <p>{price.region === "IN" ? "Prices shown in INR for India." : "Billed in USD."} Cancel anytime.</p>
             <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>Start 7-day free trial</Link>
             <a href="#book" className="prc-book">or book a call first →</a>

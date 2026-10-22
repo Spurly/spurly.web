@@ -9,7 +9,8 @@ describe('llms.txt', () => {
 
   it('starts with the site name and a one-paragraph summary', () => {
     expect(txt.startsWith('# Spurly\n\n> Spurly is an AI SDR for LinkedIn')).toBe(true);
-    expect(txt).toContain('$24.99/month (₹2,499/month in India)');
+    expect(txt).toContain('$14.99/month (₹1,499/month in India)');
+    expect(txt).toContain('regular price $24.99/month (₹2,499/month in India)');
     expect(txt).not.toMatch(/no credit card|local-only|free plan/i);
   });
 

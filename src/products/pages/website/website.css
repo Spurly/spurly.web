@@ -938,3 +938,49 @@ body.mkt .cta-panel{position:relative;overflow:hidden;isolation:isolate}
 body.mkt .cta-panel>.cta-bg{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;opacity:.9;pointer-events:none}
 body.mkt .cta-panel>.cta-bg-shade{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(70% 90% at 50% 0%,rgba(91,124,250,.35),transparent 70%),linear-gradient(180deg,rgba(13,16,48,.42),rgba(13,16,48,.62))}
 body.mkt .cta-panel h2,body.mkt .cta-panel .lead,body.mkt .cta-panel .trial-note{text-shadow:0 2px 18px rgba(8,10,32,.85)}
+
+/* Launch offer: the "only for the first 100 members / locked for life" line under the price. */
+body.mkt .prc-lock{margin:0 0 14px;padding:10px 14px;border-radius:12px;background:#fff0e8;border:1px solid #ffd3bb;color:#7a2a05;font-size:14px;line-height:1.45;text-align:left}
+body.mkt .prc-lock b{color:#9a3412}
+body.mkt .prc-main .prc-lock{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.22);color:#ffe9dc}
+body.mkt .prc-main .prc-lock b{color:#fff}
+body.mkt .prc-main .prc-sale{background:linear-gradient(135deg,#ea580c,#c2410c)}
+
+/* Launch-offer popup: the one thing on the page that moves, so the eye lands on it. */
+body.mkt .offer-pop{position:fixed;left:20px;bottom:20px;z-index:120;width:min(340px,calc(100vw - 40px));padding:20px 20px 16px;border-radius:22px;color:#fff;background:linear-gradient(155deg,#1b1f55 0%,#0d1030 70%);border:1px solid rgba(139,160,255,.45);box-shadow:0 24px 60px rgba(13,16,48,.45),0 0 0 4px rgba(91,124,250,.18);animation:offerIn .6s cubic-bezier(.2,1.2,.3,1) both,offerGlow 2.6s ease-in-out 1s infinite}
+body.mkt .offer-pop-x{position:absolute;top:8px;right:10px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:#fff;font:400 20px/1 var(--body);cursor:pointer}
+body.mkt .offer-pop-x:hover{background:rgba(255,255,255,.22)}
+body.mkt .offer-pop-top{display:flex;align-items:center;gap:8px;padding-right:30px}
+body.mkt .offer-pop-live{display:inline-flex;align-items:center;gap:8px;font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#ffd9c2}
+body.mkt .offer-pop-live i{width:8px;height:8px;border-radius:50%;background:#ff6a2b;box-shadow:0 0 0 0 rgba(255,106,43,.7);animation:offerDot 1.6s ease-out infinite}
+body.mkt .offer-pop-off{padding:5px 9px;border-radius:999px;background:linear-gradient(135deg,#ff7a2f,#e24a0a);font:700 11px/1 var(--mono);letter-spacing:.04em;text-transform:uppercase}
+body.mkt .offer-pop-who{margin:14px 0 2px;font-size:14.5px;color:#d7defc}
+body.mkt .offer-pop-who b{color:#fff}
+body.mkt .offer-pop-price{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+body.mkt .offer-pop-price s{font:500 20px/1 var(--display);color:rgba(255,255,255,.5);text-decoration-thickness:2px}
+body.mkt .offer-pop-price b{font:700 44px/1.05 var(--display);letter-spacing:-.03em}
+body.mkt .offer-pop-price span{font-size:14px;color:#b9c4f2}
+body.mkt .offer-pop-lock{margin:4px 0 14px;font-size:13px;color:#b9c4f2}
+body.mkt .offer-pop-cta{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,#ff7a2f,#e24a0a);color:#fff;font:700 16px/1 var(--display);text-decoration:none;box-shadow:0 8px 22px rgba(226,74,10,.45);transition:transform .2s}
+body.mkt .offer-pop-cta:hover{transform:translateY(-2px)}
+body.mkt .offer-pop-cta::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);animation:offerShine 3.2s ease-in-out 1.4s infinite}
+body.mkt .offer-pop-note{margin:10px 0 0;text-align:center;font-size:12px;color:#97a3d6}
+@keyframes offerIn{from{opacity:0;transform:translateY(40px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes offerGlow{0%,100%{box-shadow:0 24px 60px rgba(13,16,48,.45),0 0 0 4px rgba(91,124,250,.18)}50%{box-shadow:0 24px 60px rgba(13,16,48,.45),0 0 0 10px rgba(255,122,47,.2),0 0 38px rgba(255,122,47,.35)}}
+@keyframes offerDot{70%,100%{box-shadow:0 0 0 10px rgba(255,106,43,0)}}
+@keyframes offerShine{0%,55%{left:-60%}100%{left:130%}}
+@media (max-width:640px){body.mkt .offer-pop{left:12px;right:12px;bottom:96px;width:auto}}
+@media (prefers-reduced-motion:reduce){body.mkt .offer-pop,body.mkt .offer-pop-live i,body.mkt .offer-pop-cta::after{animation:none}}
+
+/* Pricing card: keep "/ month" inside the dark panel when both prices are shown. */
+body.mkt .prc-amt{flex-wrap:wrap;row-gap:2px}
+body.mkt .prc-amt b{font-size:clamp(40px,4.4vw,54px)}
+
+/* Ambient depth: soft warm and indigo glows fixed behind the whole public site, so content
+   slides over them as you scroll. Kept faint on purpose: the orange belongs to the launch
+   offer, and a page that is orange everywhere makes the offer stop standing out. */
+body.mkt::before{display:block;content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(55% 42% at 88% 6%,rgba(255,138,76,.20),transparent 70%),
+    radial-gradient(50% 48% at 6% 32%,rgba(91,124,250,.17),transparent 70%),
+    radial-gradient(48% 42% at 78% 88%,rgba(255,164,112,.15),transparent 70%)}

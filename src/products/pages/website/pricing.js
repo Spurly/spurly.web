@@ -5,7 +5,7 @@
 export const TRIAL_DAYS = 7;
 
 export const PRICES = {
-  INTL: { currency: "USD", amount: "24.99", label: "$24.99" },
+  INTL: { currency: "USD", amount: "24.99", label: "$24.99" }, // regular price
   IN: { currency: "INR", amount: "2499", label: "₹2,499" },
 };
 
@@ -13,22 +13,20 @@ export function priceFor(region) {
   return region === "IN" ? PRICES.IN : PRICES.INTL;
 }
 
-/* Launch sale, shown on the public pages only (frontend display; checkout is separate).
-   Flip `enabled` to false to hide it everywhere. `endsAt` is an ISO date with offset,
-   e.g. "2026-10-31T23:59:59+05:30"; leave it null to show "Sale live" with no countdown.
-   Never put a rolling or per-visitor deadline here. */
+/* Launch offer, shown on the public pages (display only; the real charge is the Razorpay
+   plan the backend uses). It is seat-based, not timed: the first `seats` members lock in
+   the launch price for life, so there is deliberately no countdown. Flip `enabled` to
+   false when the seats are gone (and swap the backend plan ids to the regular-price plans).
+   Never add a rolling or per-visitor deadline here. */
 export const SALE = {
   enabled: true,
-  label: "Launch sale",
+  label: "Launch offer",
+  seats: 100,
   endsAt: null,
-  // Repeating sale: one shared schedule for every visitor (not per browser). A new
-  // 2-day round starts the moment the last one ends, at the same price. Rounds are
-  // counted from `anchor`, so everyone sees the same end time. Set to null to use
-  // a single fixed `endsAt` instead.
-  cycle: { anchor: "2026-10-19T23:00:00+05:30", periodMs: 2 * 24 * 60 * 60 * 1000 },
+  cycle: null,
   prices: {
-    INTL: { amount: "11", label: "$11" },
-    IN: { amount: "499", label: "₹499" },
+    INTL: { amount: "14.99", label: "$14.99" },
+    IN: { amount: "1499", label: "₹1,499" },
   },
 };
 
@@ -56,7 +54,17 @@ export function saleFor(region, now = Date.now(), { demo = DEMO_ROLLING_SALE } =
   const list = priceFor(region);
   const sale = region === "IN" ? SALE.prices.IN : SALE.prices.INTL;
   const percentOff = Math.round((1 - Number(sale.amount) / Number(list.amount)) * 100);
-  return { label: SALE.label, listLabel: list.label, saleLabel: sale.label, percentOff, endsAt };
+  return {
+    label: SALE.label,
+    listLabel: list.label,
+    saleLabel: sale.label,
+    percentOff,
+    endsAt,
+    seats: SALE.seats,
+    // One wording for every surface: who gets it, and what "locked" means.
+    audience: `first ${SALE.seats} members`,
+    lock: "price locked for life",
+  };
 }
 
 /** The exact trial copy (SEO_CONTENT_PLAN section 5). Use it verbatim wherever the trial is mentioned. */

@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { usePrice } from "../hooks/usePrice.js";
 import PriceTag from "./PriceTag.jsx";
-import SaleCountdown from "./SaleCountdown.jsx";
 import { TRIAL_NOTE } from "../pricing.js";
 
 const BG_VIDEO = "/assets/video/spurly-cta-bg.mp4";
@@ -42,9 +41,9 @@ export default function FinalCTA() {
           <div className="cta-bg-shade" aria-hidden="true" />
           <h2 className="h2">Your LinkedIn outreach, <em>on autopilot by tonight.</em></h2>
           <p className="lead">
-            {price.sale ? price.sale.label + " live: " : ""}7-day free trial, then <PriceTag price={price} />/month.
+            7-day free trial, then <PriceTag price={price} />/month.
           </p>
-          {price.sale && <p className="cta-count"><SaleCountdown endsAt={price.sale.endsAt} /></p>}
+          {price.sale && <p className="cta-count">{price.sale.label}: the {price.sale.audience} keep this price for life.</p>}
           <div className="hero-actions">
             <a href="#book" className="btn btn-primary btn-lg" data-magnetic>
               Book a call <span className="arr" aria-hidden="true">→</span>

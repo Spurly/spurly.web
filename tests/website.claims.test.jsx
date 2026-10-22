@@ -26,8 +26,9 @@ describe('public pages: no outdated claims', () => {
     expect(html).not.toContain('₹');
     expect(html).toContain("No card needed to start your 7-day free trial");
     // structured data carries both real offers
-    expect(head).toContain('"price":"24.99"');
-    expect(head).toContain('"price":"2499"');
+    // the Offers carry what a new customer pays today (launch price), list price is shown struck through
+    expect(head).toContain('"price":"14.99"');
+    expect(head).toContain('"price":"1499"');
     expect(head).toContain('"eligibleRegion":"IN"');
   });
 });

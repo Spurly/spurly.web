@@ -1,4 +1,4 @@
-import { PRICES, TRIAL_DAYS } from "./pricing.js";
+import { PRICES, SALE, TRIAL_DAYS } from "./pricing.js";
 import { HOME_FAQ } from "./components/home/homeFaq.js";
 
 /* Homepage JSON-LD (SoftwareApplication + FAQ + HowTo). Rendered by <Seo> on
@@ -21,6 +21,11 @@ function offer({ amount, currency }) {
   };
 }
 
+/** What a new customer pays today: the launch price while the offer is on, else the regular price. */
+function currentPrice(region) {
+  return SALE.enabled ? { ...PRICES[region], amount: SALE.prices[region].amount } : PRICES[region];
+}
+
 /** Product entity with the two real Offers. Used on / and /pricing. */
 export const SOFTWARE_LD = {
   "@context": "https://schema.org",
@@ -32,8 +37,8 @@ export const SOFTWARE_LD = {
   description:
     "Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Runs 24/7 from the cloud at a safe pace, with one inbox for replies and Claude (MCP) support. Built for founders and B2B sales teams. Includes an optional Chrome extension for capturing profiles. 7-day free trial.",
   offers: [
-    offer(PRICES.INTL),
-    { ...offer(PRICES.IN), eligibleRegion: "IN" },
+    offer(currentPrice("INTL")),
+    { ...offer(currentPrice("IN")), eligibleRegion: "IN" },
   ],
 };
 

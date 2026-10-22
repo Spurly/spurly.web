@@ -10,10 +10,45 @@ import { setUserRegion, track } from 'src/shared/analytics/analytics.js';
  * pages subscribe to the events below.
  */
 
-/** Logged-out visitor's region for the public pricing display. */
+const REGION_CACHE_KEY = 'spurly_public_region';
+// One in-flight/finished lookup per page load, shared by every price on the page.
+let publicRegionRequest = null;
+
+function readCachedRegion() {
+  try {
+    const value = window.localStorage.getItem(REGION_CACHE_KEY);
+    return value === 'IN' || value === 'INTL' ? value : null;
+  } catch {
+    return null; // storage blocked: just wait for the backend
+  }
+}
+
+function cacheRegion(region) {
+  try {
+    window.localStorage.setItem(REGION_CACHE_KEY, region);
+  } catch {
+    // storage blocked: nothing to remember
+  }
+}
+
+/**
+ * Logged-out visitor's region for the public pricing display.
+ * Emits SUCCESS with the region the backend gave last time in this browser
+ * (so a returning visitor never sees the wrong currency flash), then again
+ * with the fresh answer. Every price on the page shares ONE request.
+ */
 async function getPublicRegion(eventEmitter) {
   try {
-    const region = await subscriptionsGateway.getPublicRegion();
+    const cached = readCachedRegion();
+    if (cached) eventEmitter.emit(SUBSCRIPTION_EVENTS.GET_PUBLIC_REGION_SUCCESS, cached);
+    if (!publicRegionRequest) {
+      publicRegionRequest = subscriptionsGateway.getPublicRegion().catch((error) => {
+        publicRegionRequest = null; // let the next mount retry
+        throw error;
+      });
+    }
+    const region = await publicRegionRequest;
+    cacheRegion(region);
     setUserRegion(region);
     eventEmitter.emit(SUBSCRIPTION_EVENTS.GET_PUBLIC_REGION_SUCCESS, region);
   } catch (error) {
