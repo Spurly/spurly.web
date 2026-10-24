@@ -128,11 +128,25 @@ export function parseBlocks(body, file = 'content') {
   const seenIds = new Set();
   let i = 0;
   const isBlank = (l) => l.trim() === '';
-  const startsBlock = (l) => /^(#{2,3}\s|[-*]\s|\d+\.\s|>\s?|\||!\[)/.test(l);
+  const startsBlock = (l) => /^(#{2,3}\s|[-*]\s|\d+\.\s|>\s?|\||!\[|```)/.test(l);
 
   while (i < lines.length) {
     const line = lines[i];
     if (isBlank(line)) { i += 1; continue; }
+
+    // Fenced code block. Taken verbatim (React escapes it), so it is checked
+    // before the raw-HTML rule: a code sample may legitimately contain "<".
+    const fence = line.match(/^```\s*([a-z0-9-]*)\s*$/i);
+    if (fence) {
+      const code = [];
+      i += 1;
+      while (i < lines.length && !/^```\s*$/.test(lines[i])) { code.push(lines[i]); i += 1; }
+      if (i >= lines.length) throw new Error(`${file}: unclosed code block`);
+      i += 1;
+      blocks.push({ type: 'code', lang: fence[1].toLowerCase(), text: code.join('\n') });
+      continue;
+    }
+
     if (/^\s*</.test(line)) throw new Error(`${file}: raw HTML is not allowed (line "${line.slice(0, 40)}")`);
     if (/^#\s/.test(line)) throw new Error(`${file}: use ## for headings; the page title is the only H1`);
 
