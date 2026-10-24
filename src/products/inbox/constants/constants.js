@@ -25,7 +25,14 @@ export const INBOX_EVENTS = {
   ATTACHMENT_FAILURE: 'INBOX_ATTACHMENT_FAILURE',
   INMAIL_SUCCESS: 'INBOX_INMAIL_SUCCESS',
   INMAIL_FAILURE: 'INBOX_INMAIL_FAILURE',
+  /** A server push from the live inbox: { name, type, chatId, messageId, ... }. */
+  LIVE_EVENT: 'INBOX_LIVE_EVENT',
+  /** The live connection opened or dropped: { connected }. */
+  LIVE_STATUS: 'INBOX_LIVE_STATUS',
 };
+
+/** Coalesce a burst of live events (a read receipt right after a message) into one reload. */
+export const LIVE_RELOAD_DEBOUNCE_MS = 250;
 
 export const INMAIL_TEXT_MAX = 1900;
 export const INMAIL_SUBJECT_MAX = 200;

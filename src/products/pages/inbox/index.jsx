@@ -103,6 +103,7 @@ export function HubInboxPage() {
     chats,
     loading,
     refreshing,
+    live,
     query,
     setQuery,
     unreadOnly,
@@ -144,6 +145,15 @@ export function HubInboxPage() {
                 <h1 className="ui-display flex-1">
                   {t.pageTitle}
                 </h1>
+                {live && (
+                  <span
+                    className="inline-flex items-center gap-1.5 text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)]"
+                    title={t.liveTitle}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--ui-success)]" aria-hidden="true" />
+                    {t.live}
+                  </span>
+                )}
                 <IconButton
                   size="sm"
                   variant="ghost"

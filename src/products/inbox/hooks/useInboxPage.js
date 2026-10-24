@@ -4,7 +4,7 @@ import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import inboxController from '../controller/inbox.js';
-import { POLL_MS, INBOX_EVENTS } from '../constants/constants.js';
+import { POLL_MS, INBOX_EVENTS, LIVE_RELOAD_DEBOUNCE_MS } from '../constants/constants.js';
 
 /**
  * 🔴 AN EMPTY INBOX HAS FOUR CAUSES AND THEY LOOK IDENTICAL.
@@ -163,6 +163,36 @@ export function useInboxPage() {
     return () => clearInterval(t);
   }, [load]);
 
+  /**
+   * Live: the server pushes "this conversation changed" the moment a message
+   * arrives (controller#startLive), and the list reloads within a second. A
+   * burst (a message, then its read receipt) is one reload. `load` is read
+   * through a ref so a filter change does not drop and reopen the connection.
+   * The poll above stays as the fallback for a dropped connection.
+   */
+  const [live, setLive] = useState(false);
+  const loadRef = useRef(load);
+  useEffect(() => { loadRef.current = load; });
+  useEffect(() => {
+    let timer = null;
+    const onLive = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => loadRef.current(), LIVE_RELOAD_DEBOUNCE_MS);
+    };
+    const onLiveStatus = ({ connected }) => {
+      if (mountedRef.current) setLive(connected);
+    };
+    eventEmitter.on(INBOX_EVENTS.LIVE_EVENT, onLive);
+    eventEmitter.on(INBOX_EVENTS.LIVE_STATUS, onLiveStatus);
+    inboxController.startLive(eventEmitter);
+    return () => {
+      clearTimeout(timer);
+      eventEmitter.off(INBOX_EVENTS.LIVE_EVENT, onLive);
+      eventEmitter.off(INBOX_EVENTS.LIVE_STATUS, onLiveStatus);
+      inboxController.stopLive(eventEmitter);
+    };
+  }, [eventEmitter]);
+
   const refresh = () => {
     setRefreshing(true);
     load();
@@ -181,6 +211,7 @@ export function useInboxPage() {
     chats,
     loading,
     refreshing,
+    live,
     query,
     setQuery,
     unreadOnly,
