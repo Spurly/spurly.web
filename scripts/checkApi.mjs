@@ -125,6 +125,17 @@ async function call(operationId, { path, method, body, query, key = KEY, expect,
 
 const rl = readline.createInterface({ input: stdin, output: stdout });
 const ask = async (q) => (await rl.question(`  ? ${q} `)).trim();
+
+/** Ask without echoing what is typed (passwords, cookies). Falls back to plain input when not a TTY. */
+async function askSecret(q) {
+  if (!stdin.isTTY) return ask(q);
+  const write = rl._writeToOutput?.bind(rl);
+  rl._writeToOutput = (text) => { if (text.includes(q)) write?.(text); };
+  const answer = await rl.question(`  ? ${q} `);
+  rl._writeToOutput = write;
+  stdout.write('\n');
+  return answer.trim();
+}
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /* --------------------------------- flow ---------------------------------- */
@@ -214,9 +225,9 @@ async function connectFlow(accountId) {
   const body = { method, endUserIp: (await ask('Your public IP (blank to skip):')) || undefined };
   if (method === 'credentials') {
     body.username = await ask('LinkedIn email or phone:');
-    body.password = await ask('LinkedIn password (shown as you type; use a test account):');
+    body.password = await askSecret('LinkedIn password (hidden):');
   } else {
-    body.accessToken = await ask('li_at cookie value:');
+    body.accessToken = await askSecret('li_at cookie value (hidden):');
   }
   let res = await call('connectLinkedin', { path: `/accounts/${accountId}/linkedin/connect`, method: 'POST', body, expect: [200] });
   let guard = 0;
