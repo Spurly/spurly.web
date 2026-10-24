@@ -20,6 +20,7 @@
     "pretest:watch": "node scripts/buildContent.mjs && node scripts/buildOpenApi.mjs",
     "test:watch": "vitest",
     "content": "node scripts/buildContent.mjs && node scripts/buildOpenApi.mjs",
+    "api:check": "node scripts/checkApi.mjs",
     "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {

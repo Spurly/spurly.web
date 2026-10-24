@@ -449,7 +449,7 @@ export const OPENAPI = {
             sent: true,
             message: { ...exampleOutbound, text: '', attachments: [{ id: '', kind: 'file', name: 'proposal.pdf', mimeType: 'application/pdf', size: 248311, durationMs: null, downloadable: false }] },
           }),
-          ...errors('400:ValidationError', '404:NotFound', '413:FileTooLarge', '502:SendFailed'),
+          ...errors('400:ValidationError', '404:NotFound', '409:Conflict', '413:FileTooLarge', '502:SendFailed'),
           ...COMMON,
         },
       },
