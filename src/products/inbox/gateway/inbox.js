@@ -123,5 +123,75 @@ async function sendInmail(leadId, { subject, text }) {
   return res.data?.data ?? null;
 }
 
-const hubInboxGateway = { sendInmail, getSummary, listChats, getThread, markRead, sync, sendReply, reactToMessage, sendMedia, fetchAttachment };
+/**
+ * GET /hub/inbox/stream — the live inbox (Server-Sent Events).
+ *
+ * fetch() rather than EventSource, because EventSource cannot send the
+ * Authorization header this app signs in with. Reads the stream until it ends
+ * and parses `event:` / `data:` frames by hand (the format is four lines of
+ * spec). Never throws: the outcome is reported through the callbacks, and
+ * `close()` ends it from the caller's side.
+ *
+ * @param {{ onOpen: () => void, onEvent: (name: string, data: object) => void, onClose: (error?: { status?: number }) => void }} handlers
+ * @returns {{ close: () => void }}
+ */
+function parseJson(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+function openLiveStream({ onOpen, onEvent, onClose }) {
+  const controller = new AbortController();
+  let closedByCaller = false;
+
+  async function run() {
+    const token = localStorage.getItem('authToken');
+    const res = await fetch(`${apiGateway.client.defaults.baseURL}/hub/inbox/stream`, {
+      headers: { Accept: 'text/event-stream', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      credentials: 'include',
+      signal: controller.signal,
+    });
+    if (!res.ok || !res.body) throw Object.assign(new Error(`Live inbox unavailable (${res.status})`), { status: res.status });
+    onOpen();
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let end = buffer.indexOf('\n\n');
+      while (end !== -1) {
+        const frame = buffer.slice(0, end);
+        buffer = buffer.slice(end + 2);
+        let name = 'message';
+        const data = [];
+        for (const line of frame.split('\n')) {
+          if (line.startsWith('event:')) name = line.slice(6).trim();
+          else if (line.startsWith('data:')) data.push(line.slice(5).trim());
+        }
+        const parsed = data.length ? parseJson(data.join('\n')) : null;
+        if (parsed) onEvent(name, parsed);
+        end = buffer.indexOf('\n\n');
+      }
+    }
+  }
+
+  run()
+    .then(() => { if (!closedByCaller) onClose(); })
+    .catch((error) => { if (!closedByCaller) onClose(error); });
+
+  return {
+    close() {
+      closedByCaller = true;
+      controller.abort();
+    },
+  };
+}
+
+const hubInboxGateway = { sendInmail, getSummary, listChats, getThread, markRead, sync, sendReply, reactToMessage, sendMedia, fetchAttachment, openLiveStream };
 export default hubInboxGateway;

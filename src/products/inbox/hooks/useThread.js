@@ -3,7 +3,7 @@ import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import inboxController from '../controller/inbox.js';
-import { INBOX_EVENTS, MEDIA_KINDS } from '../constants/constants.js';
+import { INBOX_EVENTS, MEDIA_KINDS, LIVE_RELOAD_DEBOUNCE_MS } from '../constants/constants.js';
 
 /**
  * State for one open conversation: loading its messages, marking it read,
@@ -172,6 +172,32 @@ export function useThread({ chatId, onChanged }) {
   useEffect(() => {
     if (!chatId) return;
     inboxController.markRead(eventEmitter, chatId);
+  }, [chatId, eventEmitter]);
+
+  /**
+   * Live: a message arriving in (or changing in) THIS conversation reloads it
+   * within a second, and a new inbound one is marked read because the person
+   * is looking at it. Events for other conversations are the list's business.
+   * The connection is shared with the list (controller#startLive).
+   */
+  useEffect(() => {
+    if (!chatId) return undefined;
+    let timer = null;
+    const onLive = (evt) => {
+      if (evt.name !== 'message' || evt.chatId !== chatId) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        inboxController.getThread(eventEmitter, chatId);
+        if (evt.type === 'message.created' && evt.direction === 'inbound') inboxController.markRead(eventEmitter, chatId);
+      }, LIVE_RELOAD_DEBOUNCE_MS);
+    };
+    eventEmitter.on(INBOX_EVENTS.LIVE_EVENT, onLive);
+    inboxController.startLive(eventEmitter);
+    return () => {
+      clearTimeout(timer);
+      eventEmitter.off(INBOX_EVENTS.LIVE_EVENT, onLive);
+      inboxController.stopLive(eventEmitter);
+    };
   }, [chatId, eventEmitter]);
 
   const chat = data?.chat;

@@ -12,6 +12,8 @@ export const inboxStrings = {
   pageTitle: 'Inbox',
   pageSubtitle: 'Every LinkedIn conversation, synced live — messages you send and replies you get.',
   refreshTitle: 'Check for new messages',
+  live: 'Live',
+  liveTitle: 'Connected: new LinkedIn messages appear here the moment they arrive',
   search: {
     placeholder: 'Search conversations',
     ariaLabel: 'Search conversations',
