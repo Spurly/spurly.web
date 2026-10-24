@@ -8,7 +8,14 @@
  * Raw HTML is rejected on purpose: pages stay data, rendered by React templates.
  */
 
-export const TEMPLATES = ['article', 'product', 'solutions', 'comparison', 'pricing', 'tool', 'page'];
+export const TEMPLATES = ['article', 'product', 'solutions', 'comparison', 'pricing', 'tool', 'page', 'docs'];
+
+/**
+ * Developer-docs directives: a line `::name argument` embeds a block rendered
+ * from the OpenAPI spec (src/products/pages/developers/openapi.js), e.g.
+ * `::endpoint createAccount`, `::schema Account`, `::event message.created`.
+ */
+export const DIRECTIVES = ['endpoint', 'endpoints', 'schema', 'event', 'events', 'download'];
 const REQUIRED = ['title', 'description', 'path', 'date', 'template'];
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -128,7 +135,7 @@ export function parseBlocks(body, file = 'content') {
   const seenIds = new Set();
   let i = 0;
   const isBlank = (l) => l.trim() === '';
-  const startsBlock = (l) => /^(#{2,3}\s|[-*]\s|\d+\.\s|>\s?|\||!\[|```)/.test(l);
+  const startsBlock = (l) => /^(#{2,3}\s|[-*]\s|\d+\.\s|>\s?|\||!\[|```|::[a-z])/.test(l);
 
   while (i < lines.length) {
     const line = lines[i];
@@ -145,6 +152,13 @@ export function parseBlocks(body, file = 'content') {
       i += 1;
       blocks.push({ type: 'code', lang: fence[1].toLowerCase(), text: code.join('\n') });
       continue;
+    }
+
+    const directive = line.match(/^::([a-z]+)(?:\s+(\S+))?\s*$/);
+    if (directive) {
+      if (!DIRECTIVES.includes(directive[1])) throw new Error(`${file}: unknown directive "::${directive[1]}" (known: ${DIRECTIVES.join(', ')})`);
+      blocks.push({ type: 'embed', name: directive[1], arg: directive[2] || '' });
+      i += 1; continue;
     }
 
     if (/^\s*</.test(line)) throw new Error(`${file}: raw HTML is not allowed (line "${line.slice(0, 40)}")`);
@@ -230,6 +244,11 @@ export function parseContentFile(text, file = 'content') {
     if (!Array.isArray(meta.sources) || !meta.sources.length || meta.sources.some((x) => !x || !x.name || !/^https?:\/\//.test(x.url || ''))) {
       throw new Error(`${file}: a comparison page needs "sources:" with name and an http(s) url for each`);
     }
+  }
+  if (meta.template === 'docs') {
+    // Docs pages sit in the developer sidebar: a section and an order within it.
+    if (!meta.section) throw new Error(`${file}: a docs page needs "section:" (its sidebar group)`);
+    if (meta.order !== undefined && !Number.isFinite(Number(meta.order))) throw new Error(`${file}: "order" must be a number`);
   }
   if (meta.related !== undefined && !Array.isArray(meta.related)) throw new Error(`${file}: "related" must be a list of paths, e.g. [/pricing, /product/inbox]`);
   const body = parseBlocks(m[2], file);
