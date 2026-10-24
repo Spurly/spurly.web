@@ -49,6 +49,7 @@ const PUBLIC_PATH_PREFIXES = [
   '/glossary',
   '/alternatives',
   '/best',
+  '/developers',
 ];
 
 export function isPublicPath(path) {
