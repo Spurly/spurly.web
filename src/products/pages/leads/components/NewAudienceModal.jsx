@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Checkbox, Dialog, Input, SoonTag, StatTile } from 'src/core/primitives';
-import { ArrowRightIcon, ImportIcon, LeadsIcon, LinkIcon, SlidersIcon, SparkIcon } from 'src/core/icons';
+import { ArrowRightIcon, ImportIcon, LeadsIcon, LinkIcon, MessageIcon, SlidersIcon, SparkIcon } from 'src/core/icons';
 import { FilterTagPicker } from './FilterTagPicker.jsx';
-import { urlProblem } from './AudienceForm.jsx';
+import { postUrlProblem, urlProblem } from './AudienceForm.jsx';
 import { FetchCountField } from './SourcingDialogs.jsx';
 import { fetchCountProblem, perFetchMax } from 'src/products/leads/hooks/fetchCount.js';
 import { DEFAULT_FETCH_COUNT, DEFAULT_FOLLOWERS_COUNT } from 'src/products/leads/constants/constants.js';
@@ -24,6 +24,8 @@ import { DEFAULT_FETCH_COUNT, DEFAULT_FOLLOWERS_COUNT } from 'src/products/leads
  *              old dock form's pickers, moved here).
  *   followers — import the people who follow the connected account, or a
  *              company page it administers: `{ followers: { source, pageId? } }`.
+ *   post     — import the people who commented on one LinkedIn post:
+ *              `{ post: { url } }`. Any public post works, not only your own.
  *   csv      — upload a file: the Import page owns that flow, so picking it
  *              goes there rather than duplicating a file uploader.
  */
@@ -52,6 +54,12 @@ const SOURCES = [
     icon: LeadsIcon,
     title: 'Import my followers',
     body: 'The people who follow you on LinkedIn, or a company page you administer.',
+  },
+  {
+    id: 'post',
+    icon: MessageIcon,
+    title: 'Import from a post',
+    body: 'Paste a LinkedIn post link. Spurly imports everyone who commented on it.',
   },
   {
     id: 'csv',
@@ -137,6 +145,7 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
   const [step, setStep] = useState(0);
   const [source, setSource] = useState('url');
   const [url, setUrl] = useState('');
+  const [postUrl, setPostUrl] = useState('');
   const [name, setName] = useState('');
   const [location, setLocation] = useState([]);
   const [industry, setIndustry] = useState([]);
@@ -178,16 +187,17 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
 
   const pickSource = (id) => {
     setSource(id);
-    // Followers lists are cheap to page, so their default is larger than a search's.
+    // Followers and comment lists are cheap to page, so their default is larger than a search's.
     // Only swap the default while the user has not typed their own number.
     setFetchCount((prev) => {
       const untouched = prev === String(DEFAULT_FETCH_COUNT) || prev === String(DEFAULT_FOLLOWERS_COUNT);
       if (!untouched) return prev;
-      return String(id === 'followers' ? Math.min(DEFAULT_FOLLOWERS_COUNT, perFetchMax(usage)) : DEFAULT_FETCH_COUNT);
+      return String(id === 'followers' || id === 'post' ? Math.min(DEFAULT_FOLLOWERS_COUNT, perFetchMax(usage)) : DEFAULT_FETCH_COUNT);
     });
   };
 
   const urlError = source === 'url' ? urlProblem(url) : null;
+  const postError = source === 'post' ? postUrlProblem(postUrl) : null;
 
   const filterCount =
     location.length + industry.length + company.length + pastCompany.length + school.length +
@@ -208,13 +218,15 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
 
   const stepValid =
     step === 0
-      ? source === 'csv' || source === 'followers' || (source === 'url' ? url.trim() && !urlError : source === 'filters')
+      ? source === 'csv' || source === 'followers' || (source === 'post' ? postUrl.trim() && !postError : source === 'url' ? url.trim() && !urlError : source === 'filters')
       : step === 1
         ? !countError && (source === 'followers'
           ? true
-          : source === 'url'
-            ? url.trim() && !urlError
-            : filterCount > 0)
+          : source === 'post'
+            ? postUrl.trim() && !postError
+            : source === 'url'
+              ? url.trim() && !urlError
+              : filterCount > 0)
         : !countError;
 
   const next = () => {
@@ -231,6 +243,7 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
     const count = Number(fetchCount);
     const base = { name: name.trim(), count };
     if (source === 'followers') onSubmit({ followers: followersPayload, ...base });
+    else if (source === 'post') onSubmit({ post: { url: postUrl.trim() }, ...base });
     else if (source === 'url') onSubmit({ searchUrl: url.trim(), ...base });
     else onSubmit({ filters, ...base });
   };
@@ -239,15 +252,17 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
     setNetworkDistance((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]));
 
   const summary = [
-    ['Source', source === 'followers' ? 'LinkedIn followers' : source === 'url' ? 'LinkedIn search URL' : 'LinkedIn filters'],
-    ['Audience name', name.trim() || (source === 'followers' ? 'Named for you after the import' : 'Named for you after the search')],
-    source === 'followers'
-      ? ['Followers of', followerPage ? followerPage.name : 'Your LinkedIn account']
-      : source === 'url'
-        ? ['Search', url.trim()]
-        : ['Filters', `${filterCount} ${filterCount === 1 ? 'filter' : 'filters'} selected`],
-    [source === 'followers' ? 'Followers to fetch' : 'Profiles to fetch', `${Number(fetchCount) || 0} new people`],
-    ['Pace', source === 'followers' ? 'In pages, in the background' : 'Ten results per call, in the background'],
+    ['Source', source === 'post' ? 'LinkedIn post commenters' : source === 'followers' ? 'LinkedIn followers' : source === 'url' ? 'LinkedIn search URL' : 'LinkedIn filters'],
+    ['Audience name', name.trim() || (source === 'followers' || source === 'post' ? 'Named for you after the import' : 'Named for you after the search')],
+    source === 'post'
+      ? ['Post', postUrl.trim()]
+      : source === 'followers'
+        ? ['Followers of', followerPage ? followerPage.name : 'Your LinkedIn account']
+        : source === 'url'
+          ? ['Search', url.trim()]
+          : ['Filters', `${filterCount} ${filterCount === 1 ? 'filter' : 'filters'} selected`],
+    [source === 'post' ? 'Commenters to fetch' : source === 'followers' ? 'Followers to fetch' : 'Profiles to fetch', `${Number(fetchCount) || 0} new people`],
+    ['Pace', source === 'followers' || source === 'post' ? 'In pages, in the background' : 'Ten results per call, in the background'],
     ['Credits', `${creditBalance.toLocaleString()} available`],
   ];
 
@@ -334,6 +349,30 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
             </div>
           )}
 
+          {source === 'post' && (
+            <div className="mt-3.5">
+              <MicroLabel htmlFor="audience-post-url">LinkedIn post link</MicroLabel>
+              <textarea
+                id="audience-post-url"
+                rows={3}
+                value={postUrl}
+                onChange={(e) => setPostUrl(e.target.value)}
+                placeholder="https://www.linkedin.com/posts/…-activity-7123456789012345678-…"
+                aria-invalid={Boolean(postError) || undefined}
+                className={`w-full px-3 py-[11px] rounded-[var(--ui-radius-md)] border bg-[var(--ui-surface-card)] font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-label)] leading-[1.55] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-neutral-400)] resize-none outline-none transition-[border-color,box-shadow] duration-[var(--ui-dur-fast)] focus:border-[var(--ui-accent)] focus:shadow-[var(--ui-focus-ring)] ${
+                  postError ? 'border-[var(--ui-danger)]' : 'border-[var(--ui-border)]'
+                }`}
+              />
+              <p
+                className={`mt-2 text-[length:var(--ui-t-label)] leading-[1.5] ${
+                  postError ? 'text-[var(--ui-danger-fg)]' : 'text-[var(--ui-text-quaternary)]'
+                }`}
+              >
+                {postError || 'On LinkedIn, open the ••• menu on the post and choose “Copy link to post”. Commenters arrive without a title or company until they are enriched. Replies to comments are not included.'}
+              </p>
+            </div>
+          )}
+
           {source === 'url' && (
             <div className="mt-3.5">
               <MicroLabel htmlFor="audience-url">LinkedIn search URL</MicroLabel>
@@ -362,7 +401,14 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
 
       {step === 1 && (
         <div className="sp-rise flex flex-col gap-5">
-          {source === 'followers' ? (
+          {source === 'post' ? (
+            <div className="flex items-start gap-2.5 px-[13px] py-[11px] rounded-[var(--ui-radius-md)] border border-[var(--ui-accent-tint-strong)] bg-[var(--ui-accent-wash)]">
+              <MessageIcon size={14} className="mt-0.5 shrink-0 text-[var(--ui-accent)]" />
+              <p className="min-w-0 break-all font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-label)] text-[var(--ui-accent-fg)] leading-[1.5]">
+                {postUrl.trim()}
+              </p>
+            </div>
+          ) : source === 'followers' ? (
             <div className="flex items-start gap-2.5 px-[13px] py-[11px] rounded-[var(--ui-radius-md)] border border-[var(--ui-accent-tint-strong)] bg-[var(--ui-accent-wash)]">
               <LeadsIcon size={14} className="mt-0.5 shrink-0 text-[var(--ui-accent)]" />
               <p className="min-w-0 text-[length:var(--ui-t-label)] text-[var(--ui-accent-fg)] leading-[1.5]">
@@ -439,7 +485,7 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
             <div className="min-w-0">
               <p className="text-[length:var(--ui-t-nav)] font-medium text-[var(--ui-text-primary)]">Ready to run</p>
               <p className="mt-[3px] text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] leading-[1.5]">
-                {source === 'followers' ? 'LinkedIn returns followers in pages, so this imports in the background over a few minutes.' : 'LinkedIn returns ten results per call, so this imports in the background over a few minutes.'} You can
+                {source === 'post' ? 'LinkedIn returns comments in pages, so this imports in the background over a few minutes.' : source === 'followers' ? 'LinkedIn returns followers in pages, so this imports in the background over a few minutes.' : 'LinkedIn returns ten results per call, so this imports in the background over a few minutes.'} You can
                 leave the page — the count on Leads ticks up as pages come back.
               </p>
             </div>

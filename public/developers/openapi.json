@@ -1,0 +1,3727 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Spurly LinkedIn API",
+    "version": "1.0.0",
+    "summary": "Connect LinkedIn accounts, sync the inbox, and send and receive LinkedIn messages in real time.",
+    "description": "The Spurly LinkedIn API lets your product connect your users' LinkedIn accounts, sync their inbox and send and receive messages. Spurly runs the LinkedIn sign-in, verification, history sync and live delivery.",
+    "contact": {
+      "name": "Spurly",
+      "email": "founders@getspurly.com",
+      "url": "https://www.getspurly.com/developers"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.getspurly.com/v1",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "apiKey": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Accounts",
+      "description": "One account per user of yours whose LinkedIn you connect."
+    },
+    {
+      "name": "LinkedIn connection",
+      "description": "Sign a LinkedIn account in, handle verification, disconnect."
+    },
+    {
+      "name": "Inbox",
+      "description": "Sync status, conversations and messages."
+    },
+    {
+      "name": "Messages",
+      "description": "Send messages, files and reactions; download attachments."
+    },
+    {
+      "name": "Webhooks",
+      "description": "Manage your webhook and read the event feed."
+    }
+  ],
+  "paths": {
+    "/accounts": {
+      "post": {
+        "operationId": "createAccount",
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Create or fetch an account",
+        "description": "Creates the account for `externalId`, or returns the existing one. Idempotent: retrying is safe. The first call answers `201`, later calls `200` with the same account.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "externalId"
+                ],
+                "properties": {
+                  "externalId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9._:@-]+$",
+                    "description": "Your own id for this user. Letters, digits and `. _ : @ -`."
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "A display name, for your reference."
+                  }
+                }
+              },
+              "example": {
+                "externalId": "user_123",
+                "name": "Jane Doe"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Already existed; the same account is returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "account": {
+                          "$ref": "#/components/schemas/Account"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "account": {
+                      "id": "6719f0c2a1b2c3d4e5f60718",
+                      "externalId": "user_123",
+                      "name": "Jane Doe",
+                      "linkedin": {
+                        "state": "connected",
+                        "name": "Jane Doe",
+                        "profileUrl": "https://www.linkedin.com/in/janedoe",
+                        "isPremium": false,
+                        "connectedAt": "2026-10-24T06:00:00.000Z"
+                      },
+                      "createdAt": "2026-10-24T05:58:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "account": {
+                          "$ref": "#/components/schemas/Account"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "account": {
+                      "id": "6719f0c2a1b2c3d4e5f60718",
+                      "externalId": "user_123",
+                      "name": "Jane Doe",
+                      "linkedin": {
+                        "state": "connected",
+                        "name": "Jane Doe",
+                        "profileUrl": "https://www.linkedin.com/in/janedoe",
+                        "isPremium": false,
+                        "connectedAt": "2026-10-24T06:00:00.000Z"
+                      },
+                      "createdAt": "2026-10-24T05:58:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "get": {
+        "operationId": "listAccounts",
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "List accounts",
+        "description": "Your accounts, newest first.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit30"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of accounts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "accounts": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Account"
+                          }
+                        },
+                        "pagination": {
+                          "$ref": "#/components/schemas/Pagination"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "accounts": [
+                      {
+                        "id": "6719f0c2a1b2c3d4e5f60718",
+                        "externalId": "user_123",
+                        "name": "Jane Doe",
+                        "linkedin": {
+                          "state": "connected",
+                          "name": "Jane Doe",
+                          "profileUrl": "https://www.linkedin.com/in/janedoe",
+                          "isPremium": false,
+                          "connectedAt": "2026-10-24T06:00:00.000Z"
+                        },
+                        "createdAt": "2026-10-24T05:58:00.000Z"
+                      }
+                    ],
+                    "pagination": {
+                      "page": 1,
+                      "limit": 30,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}": {
+      "get": {
+        "operationId": "getAccount",
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Get an account",
+        "description": "The account and its live LinkedIn connection state.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "account": {
+                          "$ref": "#/components/schemas/Account"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "account": {
+                      "id": "6719f0c2a1b2c3d4e5f60718",
+                      "externalId": "user_123",
+                      "name": "Jane Doe",
+                      "linkedin": {
+                        "state": "connected",
+                        "name": "Jane Doe",
+                        "profileUrl": "https://www.linkedin.com/in/janedoe",
+                        "isPremium": false,
+                        "connectedAt": "2026-10-24T06:00:00.000Z"
+                      },
+                      "createdAt": "2026-10-24T05:58:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/linkedin/connect-options": {
+      "get": {
+        "operationId": "getConnectOptions",
+        "tags": [
+          "LinkedIn connection"
+        ],
+        "summary": "Get sign-in options",
+        "description": "The country LinkedIn will see the sign-in from when location is automatic. Use it to label that choice in your form.",
+        "parameters": [
+          {
+            "name": "endUserIp",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "49.36.1.1",
+            "description": "The person's own IP address."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Options.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "detectedCountry": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "ISO 3166-1 alpha-2 country code."
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "detectedCountry": "IN"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/linkedin/connect": {
+      "post": {
+        "operationId": "connectLinkedin",
+        "tags": [
+          "LinkedIn connection"
+        ],
+        "summary": "Connect LinkedIn",
+        "description": "Signs a LinkedIn account in with email and password, or with a session cookie. Answers `connected`, or `checkpoint` when LinkedIn asks for verification. The password or cookie is used once and never stored. Reconnecting an account in `needs_reconnect` uses this same call.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectRequest"
+              },
+              "examples": {
+                "credentials": {
+                  "summary": "Email and password",
+                  "value": {
+                    "method": "credentials",
+                    "username": "jane@acme.com",
+                    "password": "their-password",
+                    "endUserIp": "49.36.1.1",
+                    "sync": {
+                      "chats": true,
+                      "messages": true
+                    },
+                    "location": {
+                      "mode": "auto"
+                    }
+                  }
+                },
+                "cookies": {
+                  "summary": "Session cookie",
+                  "value": {
+                    "method": "cookies",
+                    "accessToken": "AQEDAR...li_at value",
+                    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+                    "endUserIp": "49.36.1.1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The next state of the sign-in.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ConnectResult"
+                    }
+                  }
+                },
+                "examples": {
+                  "connected": {
+                    "summary": "Connected",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "state": "connected",
+                        "account": {
+                          "id": "6719f0c2a1b2c3d4e5f60718",
+                          "externalId": "user_123",
+                          "name": "Jane Doe",
+                          "linkedin": {
+                            "state": "connected",
+                            "name": "Jane Doe",
+                            "profileUrl": "https://www.linkedin.com/in/janedoe",
+                            "isPremium": false,
+                            "connectedAt": "2026-10-24T06:00:00.000Z"
+                          },
+                          "createdAt": "2026-10-24T05:58:00.000Z"
+                        }
+                      }
+                    }
+                  },
+                  "checkpoint": {
+                    "summary": "LinkedIn asks for a code",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "state": "checkpoint",
+                        "checkpoint": {
+                          "type": "OTP",
+                          "expiresAt": null
+                        },
+                        "account": {
+                          "id": "6719f0c2a1b2c3d4e5f60718",
+                          "externalId": "user_123",
+                          "name": "Jane Doe",
+                          "linkedin": {
+                            "state": "not_connected",
+                            "name": "",
+                            "profileUrl": "",
+                            "isPremium": false,
+                            "connectedAt": null
+                          },
+                          "createdAt": "2026-10-24T05:58:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "410": {
+            "$ref": "#/components/responses/Expired"
+          },
+          "422": {
+            "$ref": "#/components/responses/SignInError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/linkedin/checkpoint": {
+      "post": {
+        "operationId": "solveCheckpoint",
+        "tags": [
+          "LinkedIn connection"
+        ],
+        "summary": "Submit a verification code",
+        "description": "For checkpoint types `OTP` and `2FA`, the code LinkedIn sent. For `PHONE_REGISTER`, the phone number to add, written `(+91)9876543210`; LinkedIn then texts a code, answered as an `OTP` checkpoint. May answer another checkpoint; continue until `connected`.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "The code LinkedIn sent, or for `PHONE_REGISTER` the phone number as `(+<country code>)<number>`."
+                  }
+                }
+              },
+              "example": {
+                "code": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The next state of the sign-in.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ConnectResult"
+                    }
+                  }
+                },
+                "examples": {
+                  "connected": {
+                    "summary": "Connected",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "state": "connected",
+                        "account": {
+                          "id": "6719f0c2a1b2c3d4e5f60718",
+                          "externalId": "user_123",
+                          "name": "Jane Doe",
+                          "linkedin": {
+                            "state": "connected",
+                            "name": "Jane Doe",
+                            "profileUrl": "https://www.linkedin.com/in/janedoe",
+                            "isPremium": false,
+                            "connectedAt": "2026-10-24T06:00:00.000Z"
+                          },
+                          "createdAt": "2026-10-24T05:58:00.000Z"
+                        }
+                      }
+                    }
+                  },
+                  "checkpoint": {
+                    "summary": "LinkedIn asks for a code",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "state": "checkpoint",
+                        "checkpoint": {
+                          "type": "OTP",
+                          "expiresAt": null
+                        },
+                        "account": {
+                          "id": "6719f0c2a1b2c3d4e5f60718",
+                          "externalId": "user_123",
+                          "name": "Jane Doe",
+                          "linkedin": {
+                            "state": "not_connected",
+                            "name": "",
+                            "profileUrl": "",
+                            "isPremium": false,
+                            "connectedAt": null
+                          },
+                          "createdAt": "2026-10-24T05:58:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "410": {
+            "$ref": "#/components/responses/Expired"
+          },
+          "422": {
+            "$ref": "#/components/responses/SignInError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/linkedin/checkpoint/status": {
+      "post": {
+        "operationId": "pollCheckpoint",
+        "tags": [
+          "LinkedIn connection"
+        ],
+        "summary": "Check an app approval",
+        "description": "For checkpoint type `IN_APP_VALIDATION` (the person approves the sign-in in the LinkedIn app). Call every 3 to 5 seconds, or wait for the `account.updated` webhook.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The next state of the sign-in.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ConnectResult"
+                    }
+                  }
+                },
+                "examples": {
+                  "connected": {
+                    "summary": "Connected",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "state": "connected",
+                        "account": {
+                          "id": "6719f0c2a1b2c3d4e5f60718",
+                          "externalId": "user_123",
+                          "name": "Jane Doe",
+                          "linkedin": {
+                            "state": "connected",
+                            "name": "Jane Doe",
+                            "profileUrl": "https://www.linkedin.com/in/janedoe",
+                            "isPremium": false,
+                            "connectedAt": "2026-10-24T06:00:00.000Z"
+                          },
+                          "createdAt": "2026-10-24T05:58:00.000Z"
+                        }
+                      }
+                    }
+                  },
+                  "checkpoint": {
+                    "summary": "LinkedIn asks for a code",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "state": "checkpoint",
+                        "checkpoint": {
+                          "type": "OTP",
+                          "expiresAt": null
+                        },
+                        "account": {
+                          "id": "6719f0c2a1b2c3d4e5f60718",
+                          "externalId": "user_123",
+                          "name": "Jane Doe",
+                          "linkedin": {
+                            "state": "not_connected",
+                            "name": "",
+                            "profileUrl": "",
+                            "isPremium": false,
+                            "connectedAt": null
+                          },
+                          "createdAt": "2026-10-24T05:58:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "410": {
+            "$ref": "#/components/responses/Expired"
+          },
+          "422": {
+            "$ref": "#/components/responses/SignInError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/linkedin/checkpoint/another-way": {
+      "post": {
+        "operationId": "checkpointAnotherWay",
+        "tags": [
+          "LinkedIn connection"
+        ],
+        "summary": "Try another verification method",
+        "description": "Asks LinkedIn for a different verification method. Answers the new checkpoint. `NO_ALTERNATIVE` when there is none.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The next state of the sign-in.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ConnectResult"
+                    }
+                  }
+                },
+                "examples": {
+                  "connected": {
+                    "summary": "Connected",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "state": "connected",
+                        "account": {
+                          "id": "6719f0c2a1b2c3d4e5f60718",
+                          "externalId": "user_123",
+                          "name": "Jane Doe",
+                          "linkedin": {
+                            "state": "connected",
+                            "name": "Jane Doe",
+                            "profileUrl": "https://www.linkedin.com/in/janedoe",
+                            "isPremium": false,
+                            "connectedAt": "2026-10-24T06:00:00.000Z"
+                          },
+                          "createdAt": "2026-10-24T05:58:00.000Z"
+                        }
+                      }
+                    }
+                  },
+                  "checkpoint": {
+                    "summary": "LinkedIn asks for a code",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "state": "checkpoint",
+                        "checkpoint": {
+                          "type": "OTP",
+                          "expiresAt": null
+                        },
+                        "account": {
+                          "id": "6719f0c2a1b2c3d4e5f60718",
+                          "externalId": "user_123",
+                          "name": "Jane Doe",
+                          "linkedin": {
+                            "state": "not_connected",
+                            "name": "",
+                            "profileUrl": "",
+                            "isPremium": false,
+                            "connectedAt": null
+                          },
+                          "createdAt": "2026-10-24T05:58:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "410": {
+            "$ref": "#/components/responses/Expired"
+          },
+          "422": {
+            "$ref": "#/components/responses/SignInError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/linkedin/checkpoint/resend": {
+      "post": {
+        "operationId": "resendCheckpoint",
+        "tags": [
+          "LinkedIn connection"
+        ],
+        "summary": "Resend the verification code",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sent again.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "resent": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "resent": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "410": {
+            "$ref": "#/components/responses/Expired"
+          },
+          "422": {
+            "$ref": "#/components/responses/SignInError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/linkedin": {
+      "delete": {
+        "operationId": "disconnectLinkedin",
+        "tags": [
+          "LinkedIn connection"
+        ],
+        "summary": "Disconnect LinkedIn",
+        "description": "Signs the LinkedIn account out of Spurly. Conversations already synced stay readable. Connect again at any time.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Disconnected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "account": {
+                          "$ref": "#/components/schemas/Account"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "account": {
+                      "id": "6719f0c2a1b2c3d4e5f60718",
+                      "externalId": "user_123",
+                      "name": "Jane Doe",
+                      "linkedin": {
+                        "state": "not_connected",
+                        "name": "",
+                        "profileUrl": "",
+                        "isPremium": false,
+                        "connectedAt": null
+                      },
+                      "createdAt": "2026-10-24T05:58:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/inbox": {
+      "get": {
+        "operationId": "getInboxStatus",
+        "tags": [
+          "Inbox"
+        ],
+        "summary": "Get inbox status",
+        "description": "Counts and the state of the history sync. Use it to explain an empty inbox while the first sync runs.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inbox status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InboxStatus"
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "connected": true,
+                    "chats": 45,
+                    "unread": 3,
+                    "historyPending": 0,
+                    "sync": {
+                      "status": "done",
+                      "phase": "done",
+                      "chatsSeen": 45,
+                      "messagesImported": 326,
+                      "lastRunAt": "2026-10-24T06:05:00.000Z",
+                      "firstCompletedAt": "2026-10-24T06:03:00.000Z",
+                      "error": ""
+                    },
+                    "liveFeedSeenAt": "2026-10-24T06:10:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/inbox/sync": {
+      "post": {
+        "operationId": "syncInbox",
+        "tags": [
+          "Inbox"
+        ],
+        "summary": "Sync the inbox",
+        "description": "Queues a history sync. Rarely needed: the first sync starts on its own when LinkedIn connects, and new messages arrive live.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Queued.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "queued": {
+                          "type": "boolean"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "queued": true,
+                    "message": "Inbox sync queued. It runs in the background and fills in as it goes."
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/chats": {
+      "get": {
+        "operationId": "listChats",
+        "tags": [
+          "Inbox"
+        ],
+        "summary": "List conversations",
+        "description": "Most recently active first.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          },
+          {
+            "name": "unread",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Only conversations with unread messages."
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search the person's name and the last message."
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit30"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of conversations.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "chats": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Chat"
+                          }
+                        },
+                        "pagination": {
+                          "$ref": "#/components/schemas/Pagination"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "chats": [
+                      {
+                        "id": "6719f1aa3c4d5e6f70811223",
+                        "name": "Bob Smith",
+                        "headline": "CTO at Acme",
+                        "profileUrl": "https://www.linkedin.com/in/bobsmith",
+                        "pictureUrl": "https://media.licdn.com/dms/image/example.jpg",
+                        "connectionDegree": 1,
+                        "unreadCount": 2,
+                        "lastMessageAt": "2026-10-24T06:09:00.000Z",
+                        "lastMessageText": "Sounds good, talk Monday.",
+                        "lastMessageDirection": "inbound",
+                        "readOnly": false
+                      }
+                    ],
+                    "pagination": {
+                      "page": 1,
+                      "limit": 30,
+                      "total": 45
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/chats/{chatId}": {
+      "get": {
+        "operationId": "getChat",
+        "tags": [
+          "Inbox"
+        ],
+        "summary": "Get a conversation and its messages",
+        "description": "Page 1 holds the most recent messages. Inside a page, messages run oldest to newest.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          },
+          {
+            "$ref": "#/components/parameters/chatId"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "description": "Messages per page."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The conversation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "chat": {
+                          "$ref": "#/components/schemas/Chat"
+                        },
+                        "messages": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Message"
+                          }
+                        },
+                        "pagination": {
+                          "$ref": "#/components/schemas/Pagination"
+                        },
+                        "historyPending": {
+                          "type": "boolean",
+                          "description": "True while the history sync has not reached this conversation's older messages."
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "chat": {
+                      "id": "6719f1aa3c4d5e6f70811223",
+                      "name": "Bob Smith",
+                      "headline": "CTO at Acme",
+                      "profileUrl": "https://www.linkedin.com/in/bobsmith",
+                      "pictureUrl": "https://media.licdn.com/dms/image/example.jpg",
+                      "connectionDegree": 1,
+                      "unreadCount": 2,
+                      "lastMessageAt": "2026-10-24T06:09:00.000Z",
+                      "lastMessageText": "Sounds good, talk Monday.",
+                      "lastMessageDirection": "inbound",
+                      "readOnly": false
+                    },
+                    "messages": [
+                      {
+                        "id": "6719f2bb4d5e6f7081122334",
+                        "chatId": "6719f1aa3c4d5e6f70811223",
+                        "direction": "inbound",
+                        "text": "Sounds good, talk Monday.",
+                        "sentAt": "2026-10-24T06:09:00.000Z",
+                        "delivered": true,
+                        "seen": false,
+                        "seenAt": null,
+                        "edited": false,
+                        "deleted": false,
+                        "attachments": [],
+                        "reactions": []
+                      }
+                    ],
+                    "pagination": {
+                      "page": 1,
+                      "limit": 50,
+                      "total": 12
+                    },
+                    "historyPending": false
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/chats/{chatId}/read": {
+      "post": {
+        "operationId": "markChatRead",
+        "tags": [
+          "Inbox"
+        ],
+        "summary": "Mark a conversation read",
+        "description": "Clears the unread count in Spurly. Does not send a read receipt on LinkedIn.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          },
+          {
+            "$ref": "#/components/parameters/chatId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "ok": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "ok": true
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/chats/{chatId}/messages": {
+      "post": {
+        "operationId": "sendMessage",
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Reply in a conversation",
+        "description": "Sent immediately. Not retry-safe: on `SEND_UNCONFIRMED`, check the conversation before sending again.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          },
+          {
+            "$ref": "#/components/parameters/chatId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "text"
+                ],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8000
+                  }
+                }
+              },
+              "example": {
+                "text": "Thanks Bob, talk Monday."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sent": {
+                          "type": "boolean"
+                        },
+                        "message": {
+                          "$ref": "#/components/schemas/Message"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "sent": true,
+                    "message": {
+                      "id": "6719f2cc5e6f708112233445",
+                      "chatId": "6719f1aa3c4d5e6f70811223",
+                      "direction": "outbound",
+                      "text": "Thanks Bob, talk Monday.",
+                      "sentAt": "2026-10-24T06:12:00.000Z",
+                      "delivered": true,
+                      "seen": false,
+                      "seenAt": null,
+                      "edited": false,
+                      "deleted": false,
+                      "attachments": [],
+                      "reactions": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/SendFailed"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/conversations": {
+      "post": {
+        "operationId": "startConversation",
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Message someone new",
+        "description": "Sends a first message to a LinkedIn member. If a conversation with that person already exists, the message goes into it and `created` is false. LinkedIn only allows messaging 1st-degree connections and open profiles.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "profile",
+                  "text"
+                ],
+                "properties": {
+                  "profile": {
+                    "type": "string",
+                    "description": "A LinkedIn profile URL or public identifier."
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8000
+                  }
+                }
+              },
+              "example": {
+                "profile": "https://www.linkedin.com/in/bobsmith",
+                "text": "Hi Bob, great meeting you today."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sent": {
+                          "type": "boolean"
+                        },
+                        "created": {
+                          "type": "boolean",
+                          "description": "True when a new conversation was started."
+                        },
+                        "chat": {
+                          "$ref": "#/components/schemas/Chat"
+                        },
+                        "message": {
+                          "$ref": "#/components/schemas/Message"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "sent": true,
+                    "created": true,
+                    "chat": {
+                      "id": "6719f1aa3c4d5e6f70811223",
+                      "name": "Bob Smith",
+                      "headline": "CTO at Acme",
+                      "profileUrl": "https://www.linkedin.com/in/bobsmith",
+                      "pictureUrl": "https://media.licdn.com/dms/image/example.jpg",
+                      "connectionDegree": 1,
+                      "unreadCount": 0,
+                      "lastMessageAt": "2026-10-24T06:09:00.000Z",
+                      "lastMessageText": "Sounds good, talk Monday.",
+                      "lastMessageDirection": "outbound",
+                      "readOnly": false
+                    },
+                    "message": {
+                      "id": "6719f2cc5e6f708112233445",
+                      "chatId": "6719f1aa3c4d5e6f70811223",
+                      "direction": "outbound",
+                      "text": "Hi Bob, great meeting you today.",
+                      "sentAt": "2026-10-24T06:12:00.000Z",
+                      "delivered": true,
+                      "seen": false,
+                      "seenAt": null,
+                      "edited": false,
+                      "deleted": false,
+                      "attachments": [],
+                      "reactions": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/SendFailed"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/chats/{chatId}/media": {
+      "post": {
+        "operationId": "sendMedia",
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Send a file, voice note or video",
+        "description": "The request body is the raw file; set its `Content-Type`. Limits: `attachment` up to 20 MB (PDF, Word, Excel, PowerPoint, plain text, CSV, PNG, JPEG, GIF, WebP); `voice` up to 10 MB (M4A); `video` up to 50 MB (MP4, MOV).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          },
+          {
+            "$ref": "#/components/parameters/chatId"
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "attachment",
+                "voice",
+                "video"
+              ],
+              "default": "attachment"
+            },
+            "example": "attachment"
+          },
+          {
+            "name": "filename",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "proposal.pdf",
+            "description": "The file name the recipient sees."
+          },
+          {
+            "name": "text",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 8000
+            },
+            "description": "An optional caption."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          },
+          "x-file": {
+            "name": "proposal.pdf",
+            "type": "application/pdf"
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sent": {
+                          "type": "boolean"
+                        },
+                        "message": {
+                          "$ref": "#/components/schemas/Message"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "sent": true,
+                    "message": {
+                      "id": "6719f2cc5e6f708112233445",
+                      "chatId": "6719f1aa3c4d5e6f70811223",
+                      "direction": "outbound",
+                      "text": "",
+                      "sentAt": "2026-10-24T06:12:00.000Z",
+                      "delivered": true,
+                      "seen": false,
+                      "seenAt": null,
+                      "edited": false,
+                      "deleted": false,
+                      "attachments": [
+                        {
+                          "id": "",
+                          "kind": "file",
+                          "name": "proposal.pdf",
+                          "mimeType": "application/pdf",
+                          "size": 248311,
+                          "durationMs": null,
+                          "downloadable": false
+                        }
+                      ],
+                      "reactions": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/FileTooLarge"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/SendFailed"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/messages/{messageId}/reaction": {
+      "post": {
+        "operationId": "reactToMessage",
+        "tags": [
+          "Messages"
+        ],
+        "summary": "React to a message",
+        "description": "Adds your reaction, replacing your previous one on that message.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          },
+          {
+            "$ref": "#/components/parameters/messageId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "emoji"
+                ],
+                "properties": {
+                  "emoji": {
+                    "type": "string",
+                    "description": "One emoji."
+                  }
+                }
+              },
+              "example": {
+                "emoji": "👍"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reacted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "messageId": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{24}$"
+                        },
+                        "reactions": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Reaction"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "messageId": "6719f2bb4d5e6f7081122334",
+                    "reactions": [
+                      {
+                        "emoji": "👍",
+                        "fromMe": true,
+                        "at": "2026-10-24T06:15:00.000Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/messages/{messageId}/attachments/{attachmentId}": {
+      "get": {
+        "operationId": "downloadAttachment",
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Download an attachment",
+        "description": "Streams the file with its content type. Only attachments with `downloadable: true`.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          },
+          {
+            "$ref": "#/components/parameters/messageId"
+          },
+          {
+            "name": "attachmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "att_1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The file.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/webhook": {
+      "get": {
+        "operationId": "getWebhook",
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Get your webhook",
+        "responses": {
+          "200": {
+            "description": "Your webhook.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string"
+                        },
+                        "events": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "url": "https://your-app.com/spurly/webhook",
+                    "events": [
+                      "message.created",
+                      "message.updated",
+                      "account.updated"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "put": {
+        "operationId": "setWebhook",
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Set your webhook URL",
+        "description": "An HTTPS URL. Send an empty string to stop deliveries; events are still recorded in the event feed.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "url"
+                ],
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              },
+              "example": {
+                "url": "https://your-app.com/spurly/webhook"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "url": "https://your-app.com/spurly/webhook"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/webhook/test": {
+      "post": {
+        "operationId": "testWebhook",
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Send a test event",
+        "description": "Delivers a signed `webhook.test` event now and answers with what your endpoint returned.",
+        "responses": {
+          "200": {
+            "description": "Delivery result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "event": {
+                          "$ref": "#/components/schemas/Event"
+                        },
+                        "delivered": {
+                          "type": "boolean"
+                        },
+                        "status": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Your endpoint's HTTP status."
+                        },
+                        "error": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "event": {
+                      "id": "evt_6719f2c0a1b2c3d4e5f60799",
+                      "type": "webhook.test",
+                      "createdAt": "2026-10-24T06:30:00.000Z",
+                      "data": {
+                        "message": "Webhook test from Spurly"
+                      }
+                    },
+                    "delivered": true,
+                    "status": 200,
+                    "error": ""
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/webhook/rotate-secret": {
+      "post": {
+        "operationId": "rotateWebhookSecret",
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Rotate the signing secret",
+        "description": "Issues a new signing secret. The old one stops working at once, so deploy the new one straight away.",
+        "responses": {
+          "200": {
+            "description": "The new secret, shown once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "webhookSecret": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "webhookSecret": "whsec_9b1d..."
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "operationId": "listEvents",
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "List events",
+        "description": "Every event of the last 30 days, oldest first. Use it to catch up after downtime: pass the id of the last event you processed as `after`.",
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "evt_6719f2c0a1b2c3d4e5f60799",
+            "description": "Return events after this event id."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 100
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "message.created",
+                "message.updated",
+                "account.updated",
+                "webhook.test"
+              ]
+            },
+            "description": "Only this event type."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of events.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "events": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Event"
+                          }
+                        },
+                        "hasMore": {
+                          "type": "boolean"
+                        },
+                        "next": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Pass as `after` to get the next page."
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "events": [
+                      {
+                        "id": "evt_6719f2c0a1b2c3d4e5f60799",
+                        "type": "message.created",
+                        "createdAt": "2026-10-24T06:09:01.000Z",
+                        "data": {
+                          "accountId": "6719f0c2a1b2c3d4e5f60718",
+                          "externalId": "user_123",
+                          "origin": "linkedin",
+                          "chat": {
+                            "id": "6719f1aa3c4d5e6f70811223",
+                            "name": "Bob Smith",
+                            "headline": "CTO at Acme",
+                            "profileUrl": "https://www.linkedin.com/in/bobsmith",
+                            "pictureUrl": "https://media.licdn.com/dms/image/example.jpg",
+                            "connectionDegree": 1,
+                            "unreadCount": 2,
+                            "lastMessageAt": "2026-10-24T06:09:00.000Z",
+                            "lastMessageText": "Sounds good, talk Monday.",
+                            "lastMessageDirection": "inbound",
+                            "readOnly": false
+                          },
+                          "message": {
+                            "id": "6719f2bb4d5e6f7081122334",
+                            "chatId": "6719f1aa3c4d5e6f70811223",
+                            "direction": "inbound",
+                            "text": "Sounds good, talk Monday.",
+                            "sentAt": "2026-10-24T06:09:00.000Z",
+                            "delivered": true,
+                            "seen": false,
+                            "seenAt": null,
+                            "edited": false,
+                            "deleted": false,
+                            "attachments": [],
+                            "reactions": []
+                          }
+                        },
+                        "delivery": {
+                          "deliveredAt": "2026-10-24T06:09:01.300Z",
+                          "attempts": 1,
+                          "lastStatus": 200
+                        }
+                      }
+                    ],
+                    "hasMore": false,
+                    "next": "evt_6719f2c0a1b2c3d4e5f60799"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {
+    "message.created": {
+      "post": {
+        "operationId": "onMessageCreated",
+        "summary": "message.created",
+        "description": "A new message. `origin: linkedin` for a message that arrived from LinkedIn, including ones the person sent from LinkedIn itself; `origin: api` for one you sent through this API.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageEvent"
+              },
+              "example": {
+                "id": "evt_6719f2c0a1b2c3d4e5f60799",
+                "type": "message.created",
+                "createdAt": "2026-10-24T06:09:01.000Z",
+                "data": {
+                  "accountId": "6719f0c2a1b2c3d4e5f60718",
+                  "externalId": "user_123",
+                  "origin": "linkedin",
+                  "chat": {
+                    "id": "6719f1aa3c4d5e6f70811223",
+                    "name": "Bob Smith",
+                    "headline": "CTO at Acme",
+                    "profileUrl": "https://www.linkedin.com/in/bobsmith",
+                    "pictureUrl": "https://media.licdn.com/dms/image/example.jpg",
+                    "connectionDegree": 1,
+                    "unreadCount": 2,
+                    "lastMessageAt": "2026-10-24T06:09:00.000Z",
+                    "lastMessageText": "Sounds good, talk Monday.",
+                    "lastMessageDirection": "inbound",
+                    "readOnly": false
+                  },
+                  "message": {
+                    "id": "6719f2bb4d5e6f7081122334",
+                    "chatId": "6719f1aa3c4d5e6f70811223",
+                    "direction": "inbound",
+                    "text": "Sounds good, talk Monday.",
+                    "sentAt": "2026-10-24T06:09:00.000Z",
+                    "delivered": true,
+                    "seen": false,
+                    "seenAt": null,
+                    "edited": false,
+                    "deleted": false,
+                    "attachments": [],
+                    "reactions": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Received. Answer quickly; any 2xx counts."
+          }
+        }
+      }
+    },
+    "message.updated": {
+      "post": {
+        "operationId": "onMessageUpdated",
+        "summary": "message.updated",
+        "description": "An existing message changed. `change` says how.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageEvent"
+              },
+              "example": {
+                "id": "evt_6719f3a0a1b2c3d4e5f60801",
+                "type": "message.updated",
+                "createdAt": "2026-10-24T06:14:00.000Z",
+                "data": {
+                  "accountId": "6719f0c2a1b2c3d4e5f60718",
+                  "externalId": "user_123",
+                  "change": "read",
+                  "chat": {
+                    "id": "6719f1aa3c4d5e6f70811223",
+                    "name": "Bob Smith",
+                    "headline": "CTO at Acme",
+                    "profileUrl": "https://www.linkedin.com/in/bobsmith",
+                    "pictureUrl": "https://media.licdn.com/dms/image/example.jpg",
+                    "connectionDegree": 1,
+                    "unreadCount": 2,
+                    "lastMessageAt": "2026-10-24T06:09:00.000Z",
+                    "lastMessageText": "Sounds good, talk Monday.",
+                    "lastMessageDirection": "inbound",
+                    "readOnly": false
+                  },
+                  "message": {
+                    "id": "6719f2cc5e6f708112233445",
+                    "chatId": "6719f1aa3c4d5e6f70811223",
+                    "direction": "outbound",
+                    "text": "Thanks Bob, talk Monday.",
+                    "sentAt": "2026-10-24T06:12:00.000Z",
+                    "delivered": true,
+                    "seen": true,
+                    "seenAt": "2026-10-24T06:14:00.000Z",
+                    "edited": false,
+                    "deleted": false,
+                    "attachments": [],
+                    "reactions": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Received."
+          }
+        }
+      }
+    },
+    "account.updated": {
+      "post": {
+        "operationId": "onAccountUpdated",
+        "summary": "account.updated",
+        "description": "The LinkedIn connection state changed. Sent once per change.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountEvent"
+              },
+              "example": {
+                "id": "evt_6719f3d1a1b2c3d4e5f60800",
+                "type": "account.updated",
+                "createdAt": "2026-10-24T06:20:00.000Z",
+                "data": {
+                  "accountId": "6719f0c2a1b2c3d4e5f60718",
+                  "externalId": "user_123",
+                  "previousState": "connected",
+                  "account": {
+                    "id": "6719f0c2a1b2c3d4e5f60718",
+                    "externalId": "user_123",
+                    "name": "Jane Doe",
+                    "linkedin": {
+                      "state": "needs_reconnect",
+                      "name": "Jane Doe",
+                      "profileUrl": "https://www.linkedin.com/in/janedoe",
+                      "isPremium": false,
+                      "connectedAt": "2026-10-24T06:00:00.000Z"
+                    },
+                    "createdAt": "2026-10-24T05:58:00.000Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Received."
+          }
+        }
+      }
+    },
+    "webhook.test": {
+      "post": {
+        "operationId": "onWebhookTest",
+        "summary": "webhook.test",
+        "description": "Sent by POST /webhook/test.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Event"
+              },
+              "example": {
+                "id": "evt_6719f2c0a1b2c3d4e5f60799",
+                "type": "webhook.test",
+                "createdAt": "2026-10-24T06:30:00.000Z",
+                "data": {
+                  "message": "Webhook test from Spurly"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Received."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "spk_partner_...",
+        "description": "Your API key: `Authorization: Bearer spk_partner_...`."
+      }
+    },
+    "parameters": {
+      "accountId": {
+        "name": "accountId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{24}$"
+        },
+        "example": "6719f0c2a1b2c3d4e5f60718",
+        "description": "The account id."
+      },
+      "chatId": {
+        "name": "chatId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{24}$"
+        },
+        "example": "6719f1aa3c4d5e6f70811223",
+        "description": "The conversation id."
+      },
+      "messageId": {
+        "name": "messageId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{24}$"
+        },
+        "example": "6719f2bb4d5e6f7081122334",
+        "description": "The message id."
+      },
+      "page": {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "description": "Page number, from 1."
+      },
+      "limit30": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 30
+        },
+        "description": "Items per page."
+      }
+    },
+    "responses": {
+      "ValidationError": {
+        "description": "The request is invalid. `message` says what to fix.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "externalId is required: 1-128 characters, letters, digits and . _ : @ - only",
+              "code": "INVALID_EXTERNAL_ID",
+              "status": 400
+            }
+          }
+        }
+      },
+      "SignInError": {
+        "description": "LinkedIn refused the sign-in, the cookie or the code. `field` names the input to highlight. See the error reference for every code.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "That email and password didn’t work on LinkedIn. Check them and try again.",
+              "code": "INVALID_CREDENTIALS",
+              "field": "password",
+              "status": 422
+            }
+          }
+        }
+      },
+      "Expired": {
+        "description": "The verification timed out. Start the sign-in again.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "This sign-in expired. Enter your LinkedIn details again.",
+              "code": "EXPIRED",
+              "status": 410
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Missing, invalid or revoked API key.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Invalid or revoked API key.",
+              "code": "UNAUTHORIZED",
+              "status": 401
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "No such account, conversation, message or attachment under your key.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Account not found",
+              "code": "ACCOUNT_NOT_FOUND",
+              "status": 404
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "The request conflicts with the current state, for example LinkedIn is not connected.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Your LinkedIn connection needs attention before the inbox can sync.",
+              "code": "LINKEDIN_ACCOUNT_NOT_READY",
+              "status": 409
+            }
+          }
+        }
+      },
+      "FileTooLarge": {
+        "description": "The file is over the limit for its kind.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "That file is too large (limit 20 MB).",
+              "code": "FILE_TOO_LARGE",
+              "status": 413
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Too many requests for this key. Wait `Retry-After` seconds.",
+        "headers": {
+          "Retry-After": {
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Too many requests. Retry in 12 seconds.",
+              "code": "RATE_LIMITED",
+              "status": 429
+            }
+          }
+        }
+      },
+      "SendFailed": {
+        "description": "LinkedIn did not accept or did not confirm the send.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "We did not get a confirmation from LinkedIn. Check the conversation there before sending again — it may have gone out.",
+              "code": "SEND_UNCONFIRMED",
+              "status": 502
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Something failed on our side. Safe to retry reads; check before retrying a send.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Something went wrong",
+              "code": "INTERNAL",
+              "status": 500
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Account": {
+        "type": "object",
+        "description": "One user of yours, and their LinkedIn connection.",
+        "required": [
+          "id",
+          "externalId",
+          "name",
+          "linkedin",
+          "createdAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{24}$",
+            "description": "Spurly's id for the account."
+          },
+          "externalId": {
+            "type": "string",
+            "description": "Your id for the user."
+          },
+          "name": {
+            "type": "string",
+            "description": "The name you gave the account."
+          },
+          "linkedin": {
+            "$ref": "#/components/schemas/LinkedinConnection"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "example": {
+          "id": "6719f0c2a1b2c3d4e5f60718",
+          "externalId": "user_123",
+          "name": "Jane Doe",
+          "linkedin": {
+            "state": "connected",
+            "name": "Jane Doe",
+            "profileUrl": "https://www.linkedin.com/in/janedoe",
+            "isPremium": false,
+            "connectedAt": "2026-10-24T06:00:00.000Z"
+          },
+          "createdAt": "2026-10-24T05:58:00.000Z"
+        }
+      },
+      "LinkedinConnection": {
+        "type": "object",
+        "description": "The account's LinkedIn connection, live.",
+        "required": [
+          "state",
+          "name",
+          "profileUrl",
+          "isPremium",
+          "connectedAt"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "not_connected",
+              "connecting",
+              "connected",
+              "needs_reconnect"
+            ],
+            "description": "`not_connected`: none, or disconnected. `connecting`: signed in, LinkedIn is finishing setup. `connected`: live. `needs_reconnect`: LinkedIn ended the session; connect again."
+          },
+          "name": {
+            "type": "string",
+            "description": "The LinkedIn member's name. Empty when not connected."
+          },
+          "profileUrl": {
+            "type": "string",
+            "description": "Their LinkedIn profile URL. Empty when not connected."
+          },
+          "isPremium": {
+            "type": "boolean",
+            "description": "LinkedIn Premium, Sales Navigator or Recruiter."
+          },
+          "connectedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When this connection was made."
+          }
+        }
+      },
+      "ConnectRequest": {
+        "type": "object",
+        "required": [
+          "method"
+        ],
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "credentials",
+              "cookies"
+            ],
+            "default": "credentials",
+            "description": "Sign in with email and password, or with a session cookie."
+          },
+          "username": {
+            "type": "string",
+            "description": "`credentials`: the LinkedIn email or phone number."
+          },
+          "password": {
+            "type": "string",
+            "description": "`credentials`: the LinkedIn password. Never stored."
+          },
+          "accessToken": {
+            "type": "string",
+            "description": "`cookies`: the value of the `li_at` cookie."
+          },
+          "premiumToken": {
+            "type": "string",
+            "description": "`cookies`: the value of the `li_a` cookie (Sales Navigator or Recruiter only)."
+          },
+          "userAgent": {
+            "type": "string",
+            "maxLength": 512,
+            "description": "`cookies`: the user agent of the browser the cookie came from. Recommended."
+          },
+          "endUserIp": {
+            "type": "string",
+            "description": "The person's own IP address. Strongly recommended: with automatic location LinkedIn then sees the sign-in from their country, which means fewer verification steps."
+          },
+          "sync": {
+            "type": "object",
+            "description": "What history to import. Both default to true.",
+            "properties": {
+              "chats": {
+                "type": "boolean",
+                "default": true
+              },
+              "messages": {
+                "type": "boolean",
+                "default": true
+              }
+            }
+          },
+          "location": {
+            "type": "object",
+            "description": "Where LinkedIn sees the sign-in from.",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "country",
+                  "proxy"
+                ],
+                "default": "auto"
+              },
+              "country": {
+                "type": "string",
+                "description": "`country`: ISO 3166-1 alpha-2 code, for example `IN`."
+              },
+              "proxy": {
+                "type": "object",
+                "description": "`proxy`: your own proxy.",
+                "properties": {
+                  "protocol": {
+                    "type": "string",
+                    "enum": [
+                      "http",
+                      "https",
+                      "socks5"
+                    ]
+                  },
+                  "host": {
+                    "type": "string"
+                  },
+                  "port": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65535
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ConnectResult": {
+        "type": "object",
+        "required": [
+          "state",
+          "account"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "connected",
+              "checkpoint"
+            ]
+          },
+          "checkpoint": {
+            "$ref": "#/components/schemas/Checkpoint"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          }
+        }
+      },
+      "Checkpoint": {
+        "type": "object",
+        "description": "Present when `state` is `checkpoint`.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "OTP",
+              "2FA",
+              "PHONE_REGISTER",
+              "IN_APP_VALIDATION"
+            ],
+            "description": "`OTP`: a code sent to the account's email or phone. `2FA`: a code from an authenticator app. `PHONE_REGISTER`: LinkedIn wants a phone number added first. `IN_APP_VALIDATION`: the person approves in the LinkedIn app; poll status."
+          },
+          "expiresAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When the verification expires, if LinkedIn says."
+          }
+        }
+      },
+      "InboxStatus": {
+        "type": "object",
+        "properties": {
+          "connected": {
+            "type": "boolean",
+            "description": "LinkedIn is connected."
+          },
+          "chats": {
+            "type": "integer",
+            "description": "Conversations in the inbox."
+          },
+          "unread": {
+            "type": "integer",
+            "description": "Unread messages across all conversations."
+          },
+          "historyPending": {
+            "type": "integer",
+            "description": "Conversations whose older messages are still being imported."
+          },
+          "sync": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "The history sync. Null before the first one is queued.",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "queued",
+                  "running",
+                  "done",
+                  "failed"
+                ]
+              },
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "chats",
+                  "messages",
+                  "done"
+                ]
+              },
+              "chatsSeen": {
+                "type": "integer"
+              },
+              "messagesImported": {
+                "type": "integer"
+              },
+              "lastRunAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "firstCompletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time",
+                "description": "When the first full sync finished."
+              },
+              "error": {
+                "type": "string",
+                "description": "Why the last run failed, if it did."
+              }
+            }
+          },
+          "liveFeedSeenAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When the last live message arrived. Null until the first one."
+          }
+        }
+      },
+      "Chat": {
+        "type": "object",
+        "description": "A conversation with one LinkedIn member.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{24}$",
+            "description": "The conversation id."
+          },
+          "name": {
+            "type": "string",
+            "description": "The other person's name."
+          },
+          "headline": {
+            "type": "string",
+            "description": "Their LinkedIn headline."
+          },
+          "profileUrl": {
+            "type": "string",
+            "description": "Their LinkedIn profile URL."
+          },
+          "pictureUrl": {
+            "type": "string",
+            "description": "Their profile photo URL. May be empty."
+          },
+          "connectionDegree": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              1,
+              2,
+              3,
+              null
+            ],
+            "description": "LinkedIn degree of connection, when known."
+          },
+          "unreadCount": {
+            "type": "integer"
+          },
+          "lastMessageAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "lastMessageText": {
+            "type": "string"
+          },
+          "lastMessageDirection": {
+            "type": "string",
+            "enum": [
+              "inbound",
+              "outbound"
+            ]
+          },
+          "readOnly": {
+            "type": "boolean",
+            "description": "LinkedIn does not allow replies here (for example some InMail or sponsored threads)."
+          }
+        },
+        "example": {
+          "id": "6719f1aa3c4d5e6f70811223",
+          "name": "Bob Smith",
+          "headline": "CTO at Acme",
+          "profileUrl": "https://www.linkedin.com/in/bobsmith",
+          "pictureUrl": "https://media.licdn.com/dms/image/example.jpg",
+          "connectionDegree": 1,
+          "unreadCount": 2,
+          "lastMessageAt": "2026-10-24T06:09:00.000Z",
+          "lastMessageText": "Sounds good, talk Monday.",
+          "lastMessageDirection": "inbound",
+          "readOnly": false
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{24}$",
+            "description": "The message id."
+          },
+          "chatId": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{24}$"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "inbound",
+              "outbound"
+            ],
+            "description": "`outbound` was sent by the account's owner."
+          },
+          "text": {
+            "type": "string",
+            "description": "Empty for a deleted message or an attachment-only message."
+          },
+          "sentAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "delivered": {
+            "type": "boolean"
+          },
+          "seen": {
+            "type": "boolean",
+            "description": "Outbound: true once LinkedIn reports the other person read it (a `message.updated` with `change: read` is sent at that moment). Inbound: the account's owner has read it on LinkedIn."
+          },
+          "seenAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Outbound only: when the other person read it."
+          },
+          "edited": {
+            "type": "boolean"
+          },
+          "deleted": {
+            "type": "boolean"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            }
+          },
+          "reactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reaction"
+            }
+          }
+        },
+        "example": {
+          "id": "6719f2bb4d5e6f7081122334",
+          "chatId": "6719f1aa3c4d5e6f70811223",
+          "direction": "inbound",
+          "text": "Sounds good, talk Monday.",
+          "sentAt": "2026-10-24T06:09:00.000Z",
+          "delivered": true,
+          "seen": false,
+          "seenAt": null,
+          "edited": false,
+          "deleted": false,
+          "attachments": [],
+          "reactions": []
+        }
+      },
+      "Attachment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Use with the download endpoint. Empty on a file you just sent, until LinkedIn confirms it."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "image",
+              "video",
+              "audio",
+              "voice",
+              "file"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "size": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Bytes, when known."
+          },
+          "durationMs": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Audio and video length, when known."
+          },
+          "downloadable": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "id": "att_1",
+          "kind": "image",
+          "name": "plan.png",
+          "mimeType": "image/png",
+          "size": 48211,
+          "durationMs": null,
+          "downloadable": true
+        }
+      },
+      "Reaction": {
+        "type": "object",
+        "properties": {
+          "emoji": {
+            "type": "string"
+          },
+          "fromMe": {
+            "type": "boolean",
+            "description": "Added by the account's owner."
+          },
+          "at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "example": {
+          "emoji": "👍",
+          "fromMe": false,
+          "at": "2026-10-24T06:10:00.000Z"
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Items across all pages."
+          }
+        },
+        "example": {
+          "page": 1,
+          "limit": 30,
+          "total": 45
+        }
+      },
+      "Event": {
+        "type": "object",
+        "description": "Every webhook delivery and every event in the feed.",
+        "required": [
+          "id",
+          "type",
+          "createdAt",
+          "data"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable and unique. Use it to drop duplicates and as the `after` cursor."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "message.created",
+              "message.updated",
+              "account.updated",
+              "webhook.test"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "type": "object",
+            "description": "Depends on `type`."
+          },
+          "delivery": {
+            "type": "object",
+            "description": "Feed only: how the webhook delivery went.",
+            "properties": {
+              "deliveredAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "attempts": {
+                "type": "integer"
+              },
+              "lastStatus": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "MessageEvent": {
+        "type": "object",
+        "description": "`message.created` and `message.updated`.",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "message.created",
+              "message.updated"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "accountId": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{24}$"
+              },
+              "externalId": {
+                "type": "string"
+              },
+              "origin": {
+                "type": "string",
+                "enum": [
+                  "linkedin",
+                  "api"
+                ],
+                "description": "`message.created` only."
+              },
+              "change": {
+                "type": "string",
+                "enum": [
+                  "read",
+                  "reaction",
+                  "message_edited",
+                  "message_deleted",
+                  "message_delivered"
+                ],
+                "description": "`message.updated` only."
+              },
+              "chat": {
+                "$ref": "#/components/schemas/Chat"
+              },
+              "message": {
+                "$ref": "#/components/schemas/Message"
+              }
+            }
+          }
+        }
+      },
+      "AccountEvent": {
+        "type": "object",
+        "description": "`account.updated`.",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "const": "account.updated"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "accountId": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{24}$"
+              },
+              "externalId": {
+                "type": "string"
+              },
+              "previousState": {
+                "type": "string",
+                "enum": [
+                  "not_connected",
+                  "connecting",
+                  "connected",
+                  "needs_reconnect"
+                ]
+              },
+              "account": {
+                "$ref": "#/components/schemas/Account"
+              }
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "success",
+          "message",
+          "code",
+          "status"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": false
+          },
+          "message": {
+            "type": "string",
+            "description": "Written for people. Safe to show on a 4xx."
+          },
+          "code": {
+            "type": "string",
+            "description": "Stable, for your code to branch on."
+          },
+          "field": {
+            "type": "string",
+            "description": "Sign-in errors: the input to highlight."
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status, repeated."
+          }
+        }
+      }
+    }
+  }
+}

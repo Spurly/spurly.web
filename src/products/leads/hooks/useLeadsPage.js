@@ -334,7 +334,7 @@ export function useLeadsPage() {
         if (mountedRef.current) setDuplicate({ payload, audience: data.audience });
       } else if (code === 'NOT_PAGE_ADMIN') {
         toast.error('Your LinkedIn account is not an admin of that page, so LinkedIn will not share its followers.');
-      } else if (code === 'FETCH_LIMIT_MONTH' || code === 'SEARCH_EXHAUSTED' || code === 'FETCH_COUNT_TOO_LARGE') {
+      } else if (code === 'FETCH_LIMIT_MONTH' || code === 'SEARCH_EXHAUSTED' || code === 'FETCH_COUNT_TOO_LARGE' || code === 'INVALID_POST_URL') {
         toast.error(error?.message || 'Could not queue that search');
       } else toast.error(getToastError(error, 'Could not queue that search'));
       if (mountedRef.current) setSubmitting(false);

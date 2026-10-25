@@ -21,7 +21,7 @@ function statusView(s) {
 }
 
 /** Search audiences can fetch more; manual imports and custom lists cannot. */
-const canFetchMore = (s) => s.canFetchMore ?? (s.mode === 'url' || s.mode === 'structured' || s.mode === 'followers' || !s.mode);
+const canFetchMore = (s) => s.canFetchMore ?? (s.mode === 'url' || s.mode === 'structured' || s.mode === 'followers' || s.mode === 'post' || !s.mode);
 
 /**
  * The table's list picker — the handoff's "List  EU logistics ▾" control.

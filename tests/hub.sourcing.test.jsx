@@ -75,6 +75,7 @@ const { AppRoutes } = await import('src/app/routes');
 const { signedInAs } = await import('./helpers.jsx');
 const { fetchCountProblem, perFetchMax, budgetLine } = await import('src/products/leads/hooks/fetchCount.js');
 const { isBusy, describeSearch } = await import('src/products/leads/hooks/audience.js');
+const { postUrlProblem } = await import('src/products/pages/leads/components/AudienceForm.jsx');
 
 const hubSubscriber = SubscriptionSummary.fromResponse({ status: 'active', features: { hub: true } });
 
@@ -341,6 +342,62 @@ describe('importing followers', () => {
   it('describes a followers audience', () => {
     expect(describeSearch({ mode: 'followers', followersSource: 'own' })).toBe('Followers · your account');
     expect(describeSearch({ mode: 'followers', followersSource: 'page', followersPageName: 'Acme Labs' })).toBe('Followers · Acme Labs');
+  });
+});
+
+describe('importing from a post', () => {
+  const POST = 'https://www.linkedin.com/posts/jane-doe_launch-activity-7511473908223631360-AbCd';
+
+  async function openPost() {
+    renderAt('/hub/leads');
+    await userEvent.click(await screen.findByRole('button', { name: /new audience/i }));
+    await userEvent.click(await screen.findByRole('radio', { name: /import from a post/i }));
+  }
+
+  it('cannot continue without a post link, and says why a wrong paste is wrong', async () => {
+    await openPost();
+    const next = screen.getByRole('button', { name: /continue/i });
+    expect(next).toBeDisabled();
+
+    const box = screen.getByLabelText(/linkedin post link/i);
+    await userEvent.type(box, 'https://www.linkedin.com/in/jane-doe');
+    expect(await screen.findByText(/not a post/i)).toBeInTheDocument();
+    expect(next).toBeDisabled();
+
+    await userEvent.clear(box);
+    await userEvent.type(box, POST);
+    expect(next).toBeEnabled();
+  });
+
+  it('defaults to 100 and sends { post: { url } } with no search URL or filters', async () => {
+    await openPost();
+    await userEvent.type(screen.getByLabelText(/linkedin post link/i), POST);
+    await userEvent.click(screen.getByRole('button', { name: /continue/i }));
+    expect(await screen.findByLabelText(/commenters to fetch|profiles to fetch/i)).toHaveValue(100);
+    await userEvent.click(screen.getByRole('button', { name: /continue/i }));
+    await userEvent.click(screen.getByRole('button', { name: /run import/i }));
+
+    await waitFor(() => expect(posts.some((p) => p.url === '/hub/searches')).toBe(true));
+    const body = posts.find((p) => p.url === '/hub/searches').body;
+    expect(body).toMatchObject({ post: { url: POST }, count: 100 });
+    expect(body.searchUrl).toBeUndefined();
+    expect(body.filters).toBeUndefined();
+    expect(body.followers).toBeUndefined();
+  });
+
+  it('describes a post audience', () => {
+    expect(describeSearch({ mode: 'post', postUrl: POST })).toBe(`Post commenters · ${POST}`);
+    expect(describeSearch({ mode: 'post' })).toBe('Post commenters · LinkedIn post');
+  });
+
+  it('postUrlProblem accepts the three link shapes and rejects the usual wrong pastes', () => {
+    expect(postUrlProblem(POST)).toBeNull();
+    expect(postUrlProblem('https://www.linkedin.com/feed/update/urn:li:activity:7511473908223631360/')).toBeNull();
+    expect(postUrlProblem('https://www.linkedin.com/feed/update/urn%3Ali%3Aactivity%3A7511473908223631360')).toBeNull();
+    expect(postUrlProblem('')).toBeNull();
+    expect(postUrlProblem('https://lnkd.in/abc')).toMatch(/shortened/i);
+    expect(postUrlProblem('https://example.com/x')).toMatch(/linkedin link/i);
+    expect(postUrlProblem('https://www.linkedin.com/in/jane-doe')).toMatch(/not a post/i);
   });
 });
 
