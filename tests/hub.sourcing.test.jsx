@@ -395,7 +395,8 @@ describe('importing from a post', () => {
     expect(postUrlProblem('https://www.linkedin.com/feed/update/urn:li:activity:7511473908223631360/')).toBeNull();
     expect(postUrlProblem('https://www.linkedin.com/feed/update/urn%3Ali%3Aactivity%3A7511473908223631360')).toBeNull();
     expect(postUrlProblem('')).toBeNull();
-    expect(postUrlProblem('https://lnkd.in/abc')).toMatch(/shortened/i);
+    expect(postUrlProblem('https://lnkd.in/p/d7T4Vaun')).toBeNull();
+    expect(postUrlProblem('https://lnkd.in.evil.com/p/abc')).toMatch(/linkedin link/i);
     expect(postUrlProblem('https://example.com/x')).toMatch(/linkedin link/i);
     expect(postUrlProblem('https://www.linkedin.com/in/jane-doe')).toMatch(/not a post/i);
   });

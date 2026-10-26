@@ -59,9 +59,8 @@ export function urlProblem(raw) {
 export function postUrlProblem(raw) {
   const v = raw.trim();
   if (!v) return null;
-  if (/^https?:\/\/(www\.)?lnkd\.in\//i.test(v)) {
-    return 'That\'s a shortened link. Open the post on LinkedIn, choose “Copy link to post” and paste that.';
-  }
+  // "Copy link to post" gives a lnkd.in/p/… short link; the server follows it.
+  if (/^https:\/\/lnkd\.in\/p\/[\w-]+\/?$/i.test(v)) return null;
   if (!/linkedin\.com/i.test(v) && !/^urn:li:/i.test(v)) return 'That doesn\'t look like a LinkedIn link.';
   if (!/(activity|ugcPost|share)(-|:|%3A)\d{10,}/i.test(v)) {
     return 'That\'s a LinkedIn page, not a post. Open the post, choose “Copy link to post” and paste that.';
