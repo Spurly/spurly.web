@@ -39,6 +39,24 @@ async function publishMedia({ kind, file, text }) {
 async function cancel(postId) {
   return data(await apiGateway.delete(`/hub/posts/${postId}`));
 }
+/**
+ * A stored Content Studio file attached to a post, as a Blob. The route is authenticated, so an
+ * <img src> cannot reach it: it arrives as a Blob and is shown from an object URL.
+ * `preview` is a small JPEG (also the poster frame of a video); `file` is the real thing.
+ */
+async function fetchAsset(assetId, variant) {
+  try {
+    const res = await apiGateway.get(`/hub/content/assets/${encodeURIComponent(assetId)}/${variant === 'file' ? 'file' : 'preview'}`, { responseType: 'blob', timeout: 60000 });
+    return res.data;
+  } catch (error) {
+    // With responseType 'blob' the server's JSON error arrives as a Blob too: read it, so the reason is not lost.
+    if (typeof Blob !== 'undefined' && error instanceof Blob) {
+      const body = await error.text().then((t) => JSON.parse(t), () => null);
+      throw body || { message: 'Could not load this file' };
+    }
+    throw error;
+  }
+}
 async function getUsage() {
   return data(await apiGateway.get('/hub/posts/usage'), { connected: false, usage: {} });
 }
@@ -55,5 +73,5 @@ async function listAudiences() {
   return (res.data?.data?.searches ?? []).map((a) => ({ _id: a._id, name: a.name || 'Untitled audience' }));
 }
 
-const hubPostsGateway = { listAudiences, listLeadPosts, likeLeadPost, commentOnLeadPost, draftComment, listComments, listReactions, listOwn, publish, publishMedia, cancel, getUsage, getRule, saveRule };
+const hubPostsGateway = { listAudiences, listLeadPosts, likeLeadPost, commentOnLeadPost, draftComment, listComments, listReactions, listOwn, fetchAsset, publish, publishMedia, cancel, getUsage, getRule, saveRule };
 export default hubPostsGateway;
