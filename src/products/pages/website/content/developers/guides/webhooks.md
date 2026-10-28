@@ -5,7 +5,7 @@ lead: Real-time events for new messages, read receipts, reactions, edits and Lin
 path: /developers/guides/webhooks
 template: docs
 section: Guides
-order: 4
+order: 5
 date: 2026-10-24
 parent: /developers
 ---

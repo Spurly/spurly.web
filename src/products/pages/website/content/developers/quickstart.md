@@ -17,13 +17,13 @@ export SPURLY_API_KEY="spk_partner_..."
 
 ## 1. Create an account
 
-One account per user of yours. `externalId` is your own id for that user.
+One account per LinkedIn profile. `externalId` is your own id for that profile: a user with two LinkedIn accounts needs two, such as `user_123:1` and `user_123:2`. Reuse it when the same profile reconnects.
 
 ```bash
 curl -X POST "https://api.getspurly.com/v1/accounts" \
   -H "Authorization: Bearer $SPURLY_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"externalId":"user_123","name":"Jane Doe"}'
+  -d '{"externalId":"user_123:1","name":"Jane Doe"}'
 ```
 
 Keep the `id` from the answer; the next calls use it as `accountId`.

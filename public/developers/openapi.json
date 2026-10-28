@@ -52,7 +52,7 @@
           "Accounts"
         ],
         "summary": "Create or fetch an account",
-        "description": "Creates the account for `externalId`, or returns the existing one. Idempotent: retrying is safe. The first call answers `201`, later calls `200` with the same account.",
+        "description": "Creates the account for `externalId`, or returns the existing one. Idempotent: retrying is safe. The first call answers `201`, later calls `200` with the same account. Creating an `externalId` whose account was closed reopens it: the response is `200`, `reopened` is `true`, and `status` is `open` again. A reopened account must reconnect LinkedIn.",
         "requestBody": {
           "required": true,
           "content": {
@@ -68,12 +68,12 @@
                     "minLength": 1,
                     "maxLength": 128,
                     "pattern": "^[A-Za-z0-9._:@-]+$",
-                    "description": "Your own id for this user. Letters, digits and `. _ : @ -`."
+                    "description": "Your own id for one LinkedIn profile, not for a person: a person with several profiles gets one account each (for example `<partnerUserId>:<linkedinSlotId>`). Reusing the id on a reconnect returns the same account. Letters, digits and `. _ : @ -`."
                   },
                   "name": {
                     "type": "string",
                     "maxLength": 100,
-                    "description": "A display name, for your reference."
+                    "description": "A display name, for your reference. Once the profile connects, Spurly shows the LinkedIn name instead."
                   }
                 }
               },
@@ -86,7 +86,7 @@
         },
         "responses": {
           "200": {
-            "description": "Already existed; the same account is returned.",
+            "description": "Already existed (or was reopened); the account is returned. `reopened` is `true` only when a closed account was reopened.",
             "content": {
               "application/json": {
                 "schema": {
@@ -105,6 +105,9 @@
                       "properties": {
                         "account": {
                           "$ref": "#/components/schemas/Account"
+                        },
+                        "reopened": {
+                          "type": "boolean"
                         }
                       }
                     }
@@ -117,6 +120,8 @@
                       "id": "6719f0c2a1b2c3d4e5f60718",
                       "externalId": "user_123",
                       "name": "Jane Doe",
+                      "status": "open",
+                      "closedAt": null,
                       "linkedin": {
                         "state": "connected",
                         "name": "Jane Doe",
@@ -163,6 +168,8 @@
                       "id": "6719f0c2a1b2c3d4e5f60718",
                       "externalId": "user_123",
                       "name": "Jane Doe",
+                      "status": "open",
+                      "closedAt": null,
                       "linkedin": {
                         "state": "connected",
                         "name": "Jane Doe",
@@ -246,6 +253,8 @@
                         "id": "6719f0c2a1b2c3d4e5f60718",
                         "externalId": "user_123",
                         "name": "Jane Doe",
+                        "status": "open",
+                        "closedAt": null,
                         "linkedin": {
                           "state": "connected",
                           "name": "Jane Doe",
@@ -324,6 +333,8 @@
                       "id": "6719f0c2a1b2c3d4e5f60718",
                       "externalId": "user_123",
                       "name": "Jane Doe",
+                      "status": "open",
+                      "closedAt": null,
                       "linkedin": {
                         "state": "connected",
                         "name": "Jane Doe",
@@ -343,6 +354,192 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "closeAccount",
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Close an account",
+        "description": "Ends access for the account and disconnects its LinkedIn connection. Idempotent: closing a closed account returns it unchanged. The account stays readable with `status: closed`; every other call on it answers `409 ACCOUNT_CLOSED`. To reopen it, `POST /accounts` with the same `externalId`. If LinkedIn cannot be disconnected right now the account is still closed and the call answers `502 DISCONNECT_FAILED`; send `DELETE` again to finish.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Closed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "account": {
+                          "$ref": "#/components/schemas/Account"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "account": {
+                      "id": "6719f0c2a1b2c3d4e5f60718",
+                      "externalId": "user_123",
+                      "name": "Jane Doe",
+                      "status": "closed",
+                      "closedAt": "2026-10-28T09:00:00.000Z",
+                      "linkedin": {
+                        "state": "not_connected",
+                        "name": "",
+                        "profileUrl": "",
+                        "isPremium": false,
+                        "connectedAt": null
+                      },
+                      "createdAt": "2026-10-24T05:58:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          },
+          "502": {
+            "description": "The account is closed, but LinkedIn could not be disconnected yet. Send `DELETE` again.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The account is closed, but LinkedIn could not be disconnected yet. Send DELETE again to finish.",
+                  "code": "DISCONNECT_FAILED",
+                  "status": 502
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/login-link": {
+      "post": {
+        "operationId": "createLoginLink",
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Create an Open in Spurly link",
+        "description": "Returns a one-time link that signs the person into this account in the Spurly web app for 12 hours. Redirect them to `url` straight away: the link works once and expires after 120 seconds. **Access control is yours**: the link is the only way into the account, so issue it only to people entitled to that account. Sending `actor` is strongly recommended so every link can be traced to a person. A closed account answers `409 ACCOUNT_CLOSED`; another partner's account is a `404`.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accountId"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "actor": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Your own id or email for the person you are opening the account for. Recorded with the link for your audit trail; never shown to them."
+                  }
+                }
+              },
+              "example": {
+                "actor": "user_123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The link.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "description": "Send the person here. The ticket is in the URL fragment."
+                        },
+                        "expiresAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "url": "https://getspurly.com/partner/enter#t=3f9c…",
+                    "expiresAt": "2026-10-28T09:02:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
@@ -506,6 +703,8 @@
                           "id": "6719f0c2a1b2c3d4e5f60718",
                           "externalId": "user_123",
                           "name": "Jane Doe",
+                          "status": "open",
+                          "closedAt": null,
                           "linkedin": {
                             "state": "connected",
                             "name": "Jane Doe",
@@ -532,6 +731,8 @@
                           "id": "6719f0c2a1b2c3d4e5f60718",
                           "externalId": "user_123",
                           "name": "Jane Doe",
+                          "status": "open",
+                          "closedAt": null,
                           "linkedin": {
                             "state": "not_connected",
                             "name": "",
@@ -642,6 +843,8 @@
                           "id": "6719f0c2a1b2c3d4e5f60718",
                           "externalId": "user_123",
                           "name": "Jane Doe",
+                          "status": "open",
+                          "closedAt": null,
                           "linkedin": {
                             "state": "connected",
                             "name": "Jane Doe",
@@ -668,6 +871,8 @@
                           "id": "6719f0c2a1b2c3d4e5f60718",
                           "externalId": "user_123",
                           "name": "Jane Doe",
+                          "status": "open",
+                          "closedAt": null,
                           "linkedin": {
                             "state": "not_connected",
                             "name": "",
@@ -756,6 +961,8 @@
                           "id": "6719f0c2a1b2c3d4e5f60718",
                           "externalId": "user_123",
                           "name": "Jane Doe",
+                          "status": "open",
+                          "closedAt": null,
                           "linkedin": {
                             "state": "connected",
                             "name": "Jane Doe",
@@ -782,6 +989,8 @@
                           "id": "6719f0c2a1b2c3d4e5f60718",
                           "externalId": "user_123",
                           "name": "Jane Doe",
+                          "status": "open",
+                          "closedAt": null,
                           "linkedin": {
                             "state": "not_connected",
                             "name": "",
@@ -870,6 +1079,8 @@
                           "id": "6719f0c2a1b2c3d4e5f60718",
                           "externalId": "user_123",
                           "name": "Jane Doe",
+                          "status": "open",
+                          "closedAt": null,
                           "linkedin": {
                             "state": "connected",
                             "name": "Jane Doe",
@@ -896,6 +1107,8 @@
                           "id": "6719f0c2a1b2c3d4e5f60718",
                           "externalId": "user_123",
                           "name": "Jane Doe",
+                          "status": "open",
+                          "closedAt": null,
                           "linkedin": {
                             "state": "not_connected",
                             "name": "",
@@ -1059,6 +1272,8 @@
                       "id": "6719f0c2a1b2c3d4e5f60718",
                       "externalId": "user_123",
                       "name": "Jane Doe",
+                      "status": "open",
+                      "closedAt": null,
                       "linkedin": {
                         "state": "not_connected",
                         "name": "",
@@ -2679,6 +2894,8 @@
                     "id": "6719f0c2a1b2c3d4e5f60718",
                     "externalId": "user_123",
                     "name": "Jane Doe",
+                    "status": "open",
+                    "closedAt": null,
                     "linkedin": {
                       "state": "needs_reconnect",
                       "name": "Jane Doe",
@@ -2975,6 +3192,8 @@
           "id",
           "externalId",
           "name",
+          "status",
+          "closedAt",
           "linkedin",
           "createdAt"
         ],
@@ -2992,6 +3211,22 @@
             "type": "string",
             "description": "The name you gave the account."
           },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed"
+            ],
+            "description": "A closed account has no access; see `DELETE /accounts/{accountId}`."
+          },
+          "closedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When the account was closed, or null while open."
+          },
           "linkedin": {
             "$ref": "#/components/schemas/LinkedinConnection"
           },
@@ -3004,6 +3239,8 @@
           "id": "6719f0c2a1b2c3d4e5f60718",
           "externalId": "user_123",
           "name": "Jane Doe",
+          "status": "open",
+          "closedAt": null,
           "linkedin": {
             "state": "connected",
             "name": "Jane Doe",

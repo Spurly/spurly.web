@@ -11,8 +11,8 @@ parent: /developers
 ---
 ## The flow
 
-1. Create (or fetch) the account: `POST /accounts` with your user's id as `externalId`.
-2. Show your sign-in form. Offer **Email and password**, and optionally **Session cookie**.
+1. Create (or fetch) the account: `POST /accounts` with an `externalId` for this one LinkedIn profile, such as `<yourUserId>:<slot>`.
+2. Show your sign-in form. Offer **Email and password**, and optionally **Browser cookie** (the LinkedIn session cookie).
 3. Send what the user entered to `POST /accounts/:accountId/linkedin/connect`, with their IP address.
 4. If the answer is a **checkpoint**, show the matching step and continue until the state is `connected`.
 5. From then on, the `account.updated` webhook tells you whenever the connection changes.
@@ -25,9 +25,9 @@ Spurly's own dialog is a good model: two tabs, then a collapsed "Sync and locati
 |---|---|---|
 | Email or phone | `username` | Email and password tab |
 | LinkedIn password | `password` | Email and password tab. Used once, never stored |
-| `li_at` cookie | `accessToken` | Session cookie tab. Required there |
-| `li_a` cookie | `premiumToken` | Session cookie tab. Only for Sales Navigator and Recruiter |
-| Browser user agent | `userAgent` | Session cookie tab. Recommended |
+| `li_at` cookie | `accessToken` | Browser cookie tab. Required there |
+| `li_a` cookie | `premiumToken` | Browser cookie tab. Only for Sales Navigator and Recruiter |
+| Browser user agent | `userAgent` | Browser cookie tab. Recommended |
 | Sync history | `sync.chats`, `sync.messages` | Both default to true |
 | Location | `location` | Automatic, a chosen country, or the user's own proxy |
 
@@ -72,7 +72,7 @@ If LinkedIn asks for something the API cannot complete (`UNSUPPORTED_CHECKPOINT`
 | `connected` | Live | Inbox |
 | `needs_reconnect` | LinkedIn ended the session: password changed, signed out everywhere, or a security check | "Reconnect LinkedIn", which runs this same flow |
 
-Sessions end on LinkedIn's side from time to time, roughly monthly for many accounts. That is normal; the `account.updated` webhook tells you the moment it happens, so you can prompt the user straight away.
+LinkedIn signs accounts out from time to time, roughly monthly for many of them. That is normal; the `account.updated` webhook tells you the moment it happens, so you can prompt the user straight away.
 
 ## Disconnecting
 
