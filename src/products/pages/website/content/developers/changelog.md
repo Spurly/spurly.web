@@ -22,6 +22,8 @@ Additions, not breaking changes.
 
 Additions, not breaking changes.
 
+- **Open in Spurly.** `POST /accounts/{accountId}/login-link` (optional `actor`) returns a one-time link that signs the person into that account in the Spurly web app for 12 hours. Create it from your server when they click, and open it straight away: it works once and expires after 120 seconds. See the [Open in Spurly guide](/developers/guides/open-in-spurly).
+- `externalId` identifies **one LinkedIn profile**, not one of your users: a user with three LinkedIn accounts has three (for example `user_123:1`, `user_123:2`). Reuse the same value when that profile reconnects.
 - `DELETE /accounts/{accountId}` closes an account and disconnects its LinkedIn connection. Creating the same `externalId` again reopens it.
 - Accounts carry `status` (`open` or `closed`) and `closedAt`.
 - Calls on a closed account answer `409 ACCOUNT_CLOSED`.
