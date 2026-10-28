@@ -5,10 +5,18 @@ path: /developers/changelog
 template: docs
 section: Resources
 order: 2
-date: 2026-10-24
+date: 2026-10-28
 parent: /developers
 ---
 Non-breaking additions ship without notice and are listed here. Breaking changes only ship in a new API version, with at least 90 days of overlap. See [Limits and versioning](/developers/limits).
+
+## 28 October 2026
+
+Additions, not breaking changes.
+
+- `DELETE /accounts/{accountId}` closes an account and disconnects its LinkedIn connection. Creating the same `externalId` again reopens it.
+- Accounts carry `status` (`open` or `closed`) and `closedAt`.
+- Calls on a closed account answer `409 ACCOUNT_CLOSED`.
 
 ## 24 October 2026: v1
 

@@ -32,6 +32,8 @@ const exampleAccount = {
   id: ex.accountId,
   externalId: 'user_123',
   name: 'Jane Doe',
+  status: 'open',
+  closedAt: null,
   linkedin: exampleLinkedin,
   createdAt: '2026-10-24T05:58:00.000Z',
 };
@@ -130,7 +132,7 @@ export const OPENAPI = {
         tags: ['Accounts'],
         summary: 'Create or fetch an account',
         description:
-          'Creates the account for `externalId`, or returns the existing one. Idempotent: retrying is safe. The first call answers `201`, later calls `200` with the same account.',
+          'Creates the account for `externalId`, or returns the existing one. Idempotent: retrying is safe. The first call answers `201`, later calls `200` with the same account. Creating an `externalId` whose account was closed reopens it: the response is `200`, `reopened` is `true`, and `status` is `open` again. A reopened account must reconnect LinkedIn.',
         requestBody: {
           required: true,
           content: {
@@ -149,7 +151,7 @@ export const OPENAPI = {
         },
         responses: {
           201: ok('Created.', { type: 'object', properties: { account: ref('Account') } }, { account: exampleAccount }),
-          200: ok('Already existed; the same account is returned.', { type: 'object', properties: { account: ref('Account') } }, { account: exampleAccount }),
+          200: ok('Already existed (or was reopened); the account is returned. `reopened` is `true` only when a closed account was reopened.', { type: 'object', properties: { account: ref('Account'), reopened: { type: 'boolean' } } }, { account: exampleAccount }),
           ...errors('400:ValidationError'),
           ...COMMON,
         },
@@ -175,6 +177,20 @@ export const OPENAPI = {
         parameters: [accountIdParam],
         responses: {
           200: ok('The account.', { type: 'object', properties: { account: ref('Account') } }, { account: exampleAccount }),
+          ...errors('404:NotFound'),
+          ...COMMON,
+        },
+      },
+      delete: {
+        operationId: 'closeAccount',
+        tags: ['Accounts'],
+        summary: 'Close an account',
+        description:
+          'Ends access for the account and disconnects its LinkedIn connection. Idempotent: closing a closed account returns it unchanged. The account stays readable with `status: closed`; every other call on it answers `409 ACCOUNT_CLOSED`. To reopen it, `POST /accounts` with the same `externalId`. If LinkedIn cannot be disconnected right now the account is still closed and the call answers `502 DISCONNECT_FAILED`; send `DELETE` again to finish.',
+        parameters: [accountIdParam],
+        responses: {
+          200: ok('Closed.', { type: 'object', properties: { account: ref('Account') } }, { account: { ...exampleAccount, status: 'closed', closedAt: '2026-10-28T09:00:00.000Z', linkedin: { state: 'not_connected', name: '', profileUrl: '', isPremium: false, connectedAt: null } } }),
+          502: { description: 'The account is closed, but LinkedIn could not be disconnected yet. Send `DELETE` again.', content: { 'application/json': { schema: ref('Error'), example: { success: false, message: 'The account is closed, but LinkedIn could not be disconnected yet. Send DELETE again to finish.', code: 'DISCONNECT_FAILED', status: 502 } } } },
           ...errors('404:NotFound'),
           ...COMMON,
         },
@@ -671,11 +687,13 @@ export const OPENAPI = {
       Account: {
         type: 'object',
         description: 'One user of yours, and their LinkedIn connection.',
-        required: ['id', 'externalId', 'name', 'linkedin', 'createdAt'],
+        required: ['id', 'externalId', 'name', 'status', 'closedAt', 'linkedin', 'createdAt'],
         properties: {
           id: { ...ID, description: 'Spurly\'s id for the account.' },
           externalId: { type: 'string', description: 'Your id for the user.' },
           name: { type: 'string', description: 'The name you gave the account.' },
+          status: { type: 'string', enum: ['open', 'closed'], description: 'A closed account has no access; see `DELETE /accounts/{accountId}`.' },
+          closedAt: { type: ['string', 'null'], format: 'date-time', description: 'When the account was closed, or null while open.' },
           linkedin: ref('LinkedinConnection'),
           createdAt: { type: 'string', format: 'date-time' },
         },
