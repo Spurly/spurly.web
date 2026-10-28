@@ -1,6 +1,6 @@
 ---
 title: Changelog
-description: Changes to the Spurly LinkedIn API, newest first.
+description: Every change to the Spurly LinkedIn API, newest first, with the date it shipped and what it means for your integration.
 path: /developers/changelog
 template: docs
 section: Resources

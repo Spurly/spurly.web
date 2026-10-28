@@ -5,7 +5,7 @@ lead: Replies, new conversations, files and reactions, all sent immediately from
 path: /developers/guides/sending
 template: docs
 section: Guides
-order: 3
+order: 4
 date: 2026-10-24
 parent: /developers
 ---

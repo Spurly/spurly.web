@@ -5,7 +5,7 @@ lead: Every conversation and message, imported once and kept current in real tim
 path: /developers/guides/inbox
 template: docs
 section: Guides
-order: 2
+order: 3
 date: 2026-10-24
 parent: /developers
 ---
