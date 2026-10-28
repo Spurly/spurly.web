@@ -43,9 +43,9 @@ describe('Settings for a managed account', () => {
 
   it('the profile card never shows the placeholder email', async () => {
     const { ProfileTab } = await import('src/products/pages/accountSettings/components/ProfileTab.jsx');
-    const { container } = renderWithProviders(<ProfileTab />, { auth: signedInAs({ isManaged: true }) });
+    const { container } = renderWithProviders(<ProfileTab />, { auth: { ...signedInAs({ isManaged: true }), refetchUser: () => {} } });
     expect(container.textContent).not.toMatch(/managed\.getspurly\.com/);
-    expect(screen.queryByLabelText(/email/i)).not.toBeInTheDocument();
+    expect(container.querySelector('#settings-email')).toBeNull();
   });
 });
 

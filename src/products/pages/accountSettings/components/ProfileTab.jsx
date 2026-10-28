@@ -2,6 +2,7 @@ import { Avatar, Button, Input, SoonTag, SwitchRow } from 'src/core/primitives';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { useProfileTab } from 'src/products/accountSettings/hooks/useProfileTab.js';
 import { settingsStrings as t } from '../strings.js';
+import { DirectLoginCard } from './DirectLoginCard.jsx';
 
 function FieldLabel({ htmlFor, children }) {
   return (
@@ -19,18 +20,20 @@ function FieldLabel({ htmlFor, children }) {
 export function ProfileTab() {
   const { user, name, setName, companyName, setCompanyName, saving, dirty, handleSave } = useProfileTab();
 
-  // A managed account's address is a placeholder the person never sees.
+  // A managed account's address is a placeholder the person never sees,
+  // until they set up a direct login (then it is their own, and shown).
   const managed = Boolean(user?.isManaged);
+  const hideEmail = managed && !user?.hasDirectLogin;
 
   return (
     <>
       <SectionCard title={t.profile.sectionTitle}>
         <form onSubmit={handleSave} className="flex flex-col gap-4">
           <div className="flex items-center gap-3.5">
-            <Avatar src={user?.profilePicture || null} name={user?.name || (managed ? undefined : user?.email)} size={52} tone="accent" />
+            <Avatar src={user?.profilePicture || null} name={user?.name || (hideEmail ? undefined : user?.email)} size={52} tone="accent" />
             <div className="min-w-0 flex-1">
               <p className="text-[length:var(--ui-t-title)] font-semibold text-[var(--ui-text-primary)] truncate">{user?.name || '—'}</p>
-              {!managed && (
+              {!hideEmail && (
                 <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-meta)] text-[var(--ui-text-quaternary)] truncate">
                   {user?.email}
                   {user?.isAdmin ? ' · admin' : ' · owner'}
@@ -42,12 +45,12 @@ export function ProfileTab() {
             </Button>
           </div>
 
-          <div className={`grid grid-cols-1 ${managed ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} gap-3`}>
+          <div className={`grid grid-cols-1 ${hideEmail ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} gap-3`}>
             <div>
               <FieldLabel htmlFor="settings-name">{t.profile.nameLabel}</FieldLabel>
               <Input id="settings-name" fullWidth value={name} onChange={(e) => setName(e.target.value)} disabled={saving} maxLength={120} className="[&>input]:w-full" />
             </div>
-            {!managed && (
+            {!hideEmail && (
               <div>
                 <FieldLabel htmlFor="settings-email">{t.profile.emailLabel}</FieldLabel>
                 <Input id="settings-email" fullWidth value={user?.email || ''} disabled readOnly className="[&>input]:w-full" />
@@ -76,6 +79,8 @@ export function ProfileTab() {
           </div>
         </form>
       </SectionCard>
+
+      {managed && <DirectLoginCard />}
 
       <SectionCard title={t.notifications.sectionTitle} action={<SoonTag />}>
         <div className="flex flex-col gap-2">

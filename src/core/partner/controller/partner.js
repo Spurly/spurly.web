@@ -56,7 +56,15 @@ function getExistingSession() {
   if (!apiGateway.isAuthenticated() || isManagedSession()) return null;
   const stored = localStorage.getItem('user');
   if (!stored) return { email: '' };
-  const user = JSON.parse(stored);
+  let user;
+  try {
+    user = JSON.parse(stored);
+  } catch {
+    return { email: '' };
+  }
+  // A managed account signed in through its own direct login is also a
+  // managed session: replacing it with (usually) the same account needs no prompt.
+  if (user?.isManaged) return null;
   return { email: user?.email || '' };
 }
 

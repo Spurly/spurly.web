@@ -355,7 +355,7 @@ function AccountRow({ user, expanded, onLogout }) {
           expanded ? "px-2" : "justify-center"
         }`}
       >
-        <Avatar src={user?.profilePicture} name={user?.name || (user?.isManaged ? undefined : user?.email)} size={26} tone="accent" />
+        <Avatar src={user?.profilePicture} name={user?.name || (user?.isManaged && !user?.hasDirectLogin ? undefined : user?.email)} size={26} tone="accent" />
         {expanded && (
           <>
             <span className="min-w-0 flex-1 text-left">
@@ -363,7 +363,7 @@ function AccountRow({ user, expanded, onLogout }) {
                 {user?.name || "User"}
               </span>
               {/* A managed account's address is a placeholder; never show it. */}
-              {!user?.isManaged && (
+              {!(user?.isManaged && !user?.hasDirectLogin) && (
                 <span className="block font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-neutral-400)] leading-[1.3] truncate">
                   {user?.email}
                 </span>

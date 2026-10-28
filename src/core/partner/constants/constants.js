@@ -40,4 +40,9 @@ export const PARTNER_COPY = {
   },
   notAvailable: 'This isn’t available for this account.',
   manageElsewhere: 'Manage this connection from the app you came from.',
+  // A managed account with a direct login may reconnect its own LinkedIn profile here.
+  reconnectOnly: 'You can reconnect this account\'s LinkedIn profile here. To change or remove it, use the app you came from.',
+  // The "session ended" page, for someone who set up their own sign-in.
+  haveLogin: 'Have your own Spurly sign-in?',
+  logIn: 'Log in',
 };
