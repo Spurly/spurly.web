@@ -58,7 +58,17 @@ In the browser, call that endpoint on click and open the answer with `window.ope
 
 The full Spurly web app on that account, with Spurly's normal pacing and safety limits, and 100 starter credits.
 
-Some things stay with your product: connecting and disconnecting LinkedIn (read-only inside Spurly), and closing the account. These accounts cannot sign in with Google or a password, create API tokens, connect AI assistants or use the Chrome extension.
+Some things stay with your product: first-time LinkedIn connects, disconnecting, and closing the account. These accounts cannot create API tokens, connect AI assistants or use the Chrome extension, and they have no password unless the person sets up a direct login (below).
+
+## Direct login
+
+Inside Spurly, Settings > Account offers "Direct login": the person enters their own email and a password, confirms a 6-digit code sent to that email, and from then on can also sign in at getspurly.com/login (or with Google, if it is a Google address). Your button keeps working. Billing does not change.
+
+- `directLogin` on the account tells you whether one exists.
+- `DELETE /accounts/:accountId/login` removes it, for example when that person leaves your customer's team. Their open session ends within 12 hours; closing the account ends it at once.
+- An email that already belongs to a Spurly account is refused, never merged.
+
+Once an account has a direct login it is locked to its LinkedIn profile. The person can reconnect that same profile from Spurly when LinkedIn signs them out. Connecting a **different** profile, from your product or from Spurly, answers `409 DIFFERENT_PROFILE` and is disconnected at once: create a new account for that profile. This is why `externalId` must be one per LinkedIn profile.
 
 ## Closing and reopening
 
