@@ -30,11 +30,12 @@ const exampleLinkedin = {
 };
 const exampleAccount = {
   id: ex.accountId,
-  externalId: 'user_123',
+  externalId: 'user_123:1',
   name: 'Jane Doe',
   status: 'open',
   closedAt: null,
   linkedin: exampleLinkedin,
+  directLogin: false,
   createdAt: '2026-10-24T05:58:00.000Z',
 };
 const exampleChat = {
@@ -145,7 +146,7 @@ export const OPENAPI = {
                   name: { type: 'string', maxLength: 100, description: 'A display name, for your reference. Once the profile connects, Spurly shows the LinkedIn name instead.' },
                 },
               },
-              example: { externalId: 'user_123', name: 'Jane Doe' },
+              example: { externalId: 'user_123:1', name: 'Jane Doe' },
             },
           },
         },
@@ -191,6 +192,21 @@ export const OPENAPI = {
         responses: {
           200: ok('Closed.', { type: 'object', properties: { account: ref('Account') } }, { account: { ...exampleAccount, status: 'closed', closedAt: '2026-10-28T09:00:00.000Z', linkedin: { state: 'not_connected', name: '', profileUrl: '', isPremium: false, connectedAt: null } } }),
           502: { description: 'The account is closed, but LinkedIn could not be disconnected yet. Send `DELETE` again.', content: { 'application/json': { schema: ref('Error'), example: { success: false, message: 'The account is closed, but LinkedIn could not be disconnected yet. Send DELETE again to finish.', code: 'DISCONNECT_FAILED', status: 502 } } } },
+          ...errors('404:NotFound'),
+          ...COMMON,
+        },
+      },
+    },
+    '/accounts/{accountId}/login': {
+      delete: {
+        operationId: 'removeDirectLogin',
+        tags: ['Accounts'],
+        summary: 'Remove a direct login',
+        description:
+          'A person who opened an account with an Open in Spurly link can set up their own Spurly sign-in (their email and a password, confirmed by a code). This removes it: the email and password stop working, and so does Google sign-in with that address. The account, its data and your Open in Spurly links are untouched; a session already open ends within 12 hours. Idempotent: `removed` is `false` when there was nothing to remove. Works on closed accounts too.',
+        parameters: [accountIdParam],
+        responses: {
+          200: ok('Removed (or there was nothing to remove).', { type: 'object', properties: { removed: { type: 'boolean' }, account: ref('Account') } }, { removed: true, account: exampleAccount }),
           ...errors('404:NotFound'),
           ...COMMON,
         },
@@ -246,7 +262,7 @@ export const OPENAPI = {
         tags: ['LinkedIn connection'],
         summary: 'Connect LinkedIn',
         description:
-          'Signs a LinkedIn account in with email and password, or with a session cookie. Answers `connected`, or `checkpoint` when LinkedIn asks for verification. The password or cookie is used once and never stored. Reconnecting an account in `needs_reconnect` uses this same call.',
+          'Signs a LinkedIn account in with email and password, or with a session cookie. Answers `connected`, or `checkpoint` when LinkedIn asks for verification. The password or cookie is used once and never stored. Reconnecting an account in `needs_reconnect` uses this same call. On an account whose person set up a direct login, connecting a different LinkedIn profile is refused with `409 DIFFERENT_PROFILE` (it is disconnected at once): create a new account for that profile.',
         parameters: [accountIdParam],
         requestBody: {
           required: true,
@@ -687,14 +703,15 @@ export const OPENAPI = {
       Account: {
         type: 'object',
         description: 'One user of yours, and their LinkedIn connection.',
-        required: ['id', 'externalId', 'name', 'status', 'closedAt', 'linkedin', 'createdAt'],
+        required: ['id', 'externalId', 'name', 'status', 'closedAt', 'linkedin', 'directLogin', 'createdAt'],
         properties: {
           id: { ...ID, description: 'Spurly\'s id for the account.' },
-          externalId: { type: 'string', description: 'Your id for the user.' },
+          externalId: { type: 'string', description: 'Your id for this one LinkedIn profile (e.g. `user_123:1`), reused when it reconnects.' },
           name: { type: 'string', description: 'The name you gave the account.' },
           status: { type: 'string', enum: ['open', 'closed'], description: 'A closed account has no access; see `DELETE /accounts/{accountId}`.' },
           closedAt: { type: ['string', 'null'], format: 'date-time', description: 'When the account was closed, or null while open.' },
           linkedin: ref('LinkedinConnection'),
+          directLogin: { type: 'boolean', description: 'Whether the account\'s person set up their own Spurly sign-in (email + password). Remove it with `DELETE /accounts/{accountId}/login`.' },
           createdAt: { type: 'string', format: 'date-time' },
         },
         example: exampleAccount,

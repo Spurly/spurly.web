@@ -34,6 +34,10 @@ export function LinkedInSettingsPage() {
   } = useLinkedInSettings();
   const { user } = useAuth();
   const managed = Boolean(user?.isManaged);
+  // A managed account whose person has a direct login may reconnect the LinkedIn
+  // profile it already had (never a first connect, never a different profile).
+  // Needs our own sign-in form: the hosted page is not available to managed accounts.
+  const reconnectOnly = managed && Boolean(user?.hasDirectLogin) && Boolean(account?.knownProfile) && account?.connectFlow !== 'hosted';
   // Only once something is linked and alive; a dead row reads as not connected.
   const health = useAccountHealth(Boolean(account?.connected));
 
@@ -51,7 +55,8 @@ export function LinkedInSettingsPage() {
             <ConnectionCard
               account={account}
               busy={busy}
-              readOnly={managed}
+              readOnly={managed && !reconnectOnly}
+              reconnectOnly={reconnectOnly}
               onConnect={handleConnect}
               onRefresh={handleRefresh}
               onDisconnect={handleDisconnect}
@@ -68,7 +73,9 @@ export function LinkedInSettingsPage() {
             {account?.connected && !account?.isPremium && <FreeAccountNotice />}
           </>
         )}
-        {!managed && <LinkedInConnectDialog connect={connect} onUseHosted={handleUseHosted} hostedBusy={busy} />}
+        {(!managed || reconnectOnly) && (
+          <LinkedInConnectDialog connect={connect} onUseHosted={reconnectOnly ? undefined : handleUseHosted} hostedBusy={busy} />
+        )}
     </SettingsFrame>
   );
 }

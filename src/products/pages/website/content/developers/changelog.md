@@ -10,6 +10,14 @@ parent: /developers
 ---
 Non-breaking additions ship without notice and are listed here. Breaking changes only ship in a new API version, with at least 90 days of overlap. See [Limits and versioning](/developers/limits).
 
+## 29 October 2026
+
+Additions, not breaking changes.
+
+- A person who opens an account with an Open in Spurly link can set up their own Spurly sign-in (email and password). Accounts carry `directLogin`.
+- `DELETE /accounts/{accountId}/login` removes it. Your Open in Spurly links keep working either way.
+- On an account with a direct login, connecting a different LinkedIn profile answers `409 DIFFERENT_PROFILE` and is disconnected. Reconnecting the same profile works as before, from your product or from Spurly.
+
 ## 28 October 2026
 
 Additions, not breaking changes.

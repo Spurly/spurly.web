@@ -50,6 +50,7 @@ Every failure has the same shape and a matching HTTP status:
 | `ACCOUNT_NOT_FOUND` | 404 | No such account under your key |
 | `ACCOUNT_CLOSED` | 409 | The account was closed. Reopen it by creating the same `externalId` again |
 | `DISCONNECT_FAILED` | 502 | The account is closed but LinkedIn could not be disconnected yet; send `DELETE` again |
+| `DIFFERENT_PROFILE` | 409 | The account's person has a direct login, and a different LinkedIn profile was connected. It was disconnected; create a new account for that profile |
 | `NOT_FOUND` | 404 | No such endpoint |
 | `INTERNAL` | 500 | Something failed on our side |
 
