@@ -1,3 +1,4 @@
+import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { SettingsFrame } from '../accountSettings/components/SettingsFrame.jsx';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { Skeleton } from 'src/core/primitives';
@@ -31,6 +32,8 @@ export function LinkedInSettingsPage() {
     handleRefresh,
     handleDisconnect,
   } = useLinkedInSettings();
+  const { user } = useAuth();
+  const managed = Boolean(user?.isManaged);
   // Only once something is linked and alive; a dead row reads as not connected.
   const health = useAccountHealth(Boolean(account?.connected));
 
@@ -48,6 +51,7 @@ export function LinkedInSettingsPage() {
             <ConnectionCard
               account={account}
               busy={busy}
+              readOnly={managed}
               onConnect={handleConnect}
               onRefresh={handleRefresh}
               onDisconnect={handleDisconnect}
@@ -64,7 +68,7 @@ export function LinkedInSettingsPage() {
             {account?.connected && !account?.isPremium && <FreeAccountNotice />}
           </>
         )}
-        <LinkedInConnectDialog connect={connect} onUseHosted={handleUseHosted} hostedBusy={busy} />
+        {!managed && <LinkedInConnectDialog connect={connect} onUseHosted={handleUseHosted} hostedBusy={busy} />}
     </SettingsFrame>
   );
 }

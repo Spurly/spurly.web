@@ -1,5 +1,8 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSubscription } from 'src/core/billing/hooks/useSubscription';
+import { useAuth } from 'src/core/auth/hooks/useAuth';
+import PartnerEndedPage from 'src/core/pages/partner/PartnerEndedPage.jsx';
+import { ENDED_REASONS } from 'src/core/partner/constants/constants.js';
 
 /**
  * Wraps ProtectedRoute content that additionally requires an ACTIVE
@@ -23,6 +26,7 @@ import { useSubscription } from 'src/core/billing/hooks/useSubscription';
  */
 export function SubscribeGate({ children }) {
   const { status, ready } = useSubscription();
+  const { user } = useAuth();
   const location = useLocation();
 
   if (!ready) {
@@ -37,6 +41,8 @@ export function SubscribeGate({ children }) {
   }
 
   if (!status?.isActive()) {
+    // A managed account has no paywall to visit: its access was ended elsewhere.
+    if (user?.isManaged) return <PartnerEndedPage reason={ENDED_REASONS.ACCESS} />;
     return <Navigate to="/subscribe" replace state={{ from: location.pathname }} />;
   }
 

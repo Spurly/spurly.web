@@ -4,7 +4,7 @@
   "buildCommand": "npm run build",
   "rewrites": [
     {
-      "source": "/(dashboard|hub|admin|onboarding|subscribe|signup|login|forgot-password|reset-password|oauth|dev)(/.*)?",
+      "source": "/(dashboard|hub|admin|onboarding|subscribe|signup|login|forgot-password|reset-password|oauth|partner|dev)(/.*)?",
       "destination": "/app"
     }
   ],
@@ -28,6 +28,15 @@
           "key": "Cache-Control",
           "value": "no-store"
         }
+      ]
+    },
+    {
+      "source": "/partner/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
       ]
     },
     {

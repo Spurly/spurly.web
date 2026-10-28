@@ -19,33 +19,40 @@ function FieldLabel({ htmlFor, children }) {
 export function ProfileTab() {
   const { user, name, setName, companyName, setCompanyName, saving, dirty, handleSave } = useProfileTab();
 
+  // A managed account's address is a placeholder the person never sees.
+  const managed = Boolean(user?.isManaged);
+
   return (
     <>
       <SectionCard title={t.profile.sectionTitle}>
         <form onSubmit={handleSave} className="flex flex-col gap-4">
           <div className="flex items-center gap-3.5">
-            <Avatar src={user?.profilePicture || null} name={user?.name || user?.email} size={52} tone="accent" />
+            <Avatar src={user?.profilePicture || null} name={user?.name || (managed ? undefined : user?.email)} size={52} tone="accent" />
             <div className="min-w-0 flex-1">
               <p className="text-[length:var(--ui-t-title)] font-semibold text-[var(--ui-text-primary)] truncate">{user?.name || '—'}</p>
-              <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-meta)] text-[var(--ui-text-quaternary)] truncate">
-                {user?.email}
-                {user?.isAdmin ? ' · admin' : ' · owner'}
-              </p>
+              {!managed && (
+                <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-meta)] text-[var(--ui-text-quaternary)] truncate">
+                  {user?.email}
+                  {user?.isAdmin ? ' · admin' : ' · owner'}
+                </p>
+              )}
             </div>
             <Button disabled title="Your photo comes from your sign-in provider for now">
               Change photo <SoonTag className="ml-1" />
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className={`grid grid-cols-1 ${managed ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} gap-3`}>
             <div>
               <FieldLabel htmlFor="settings-name">{t.profile.nameLabel}</FieldLabel>
               <Input id="settings-name" fullWidth value={name} onChange={(e) => setName(e.target.value)} disabled={saving} maxLength={120} className="[&>input]:w-full" />
             </div>
-            <div>
-              <FieldLabel htmlFor="settings-email">{t.profile.emailLabel}</FieldLabel>
-              <Input id="settings-email" fullWidth value={user?.email || ''} disabled readOnly className="[&>input]:w-full" />
-            </div>
+            {!managed && (
+              <div>
+                <FieldLabel htmlFor="settings-email">{t.profile.emailLabel}</FieldLabel>
+                <Input id="settings-email" fullWidth value={user?.email || ''} disabled readOnly className="[&>input]:w-full" />
+              </div>
+            )}
             <div>
               <FieldLabel htmlFor="settings-company">{t.profile.companyLabel}</FieldLabel>
               <Input
@@ -60,7 +67,7 @@ export function ProfileTab() {
               />
             </div>
           </div>
-          <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-quaternary)]">{t.profile.emailHint}</p>
+          {!managed && <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-quaternary)]">{t.profile.emailHint}</p>}
 
           <div className="flex items-center gap-3">
             <Button type="submit" variant="primary" disabled={!dirty || saving}>

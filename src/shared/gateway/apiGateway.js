@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { isManagedSession } from 'src/shared/utils/managedSession.js';
 
 /**
  * API Gateway
@@ -50,6 +51,10 @@ const PUBLIC_PATH_PREFIXES = [
   '/alternatives',
   '/best',
   '/developers',
+  // "Open in Spurly": the one-time-link landing page and the "session ended"
+  // page. Both are reached signed out by design and are not marketing pages
+  // (noindex, not in the sitemap or the prerender list).
+  '/partner',
 ];
 
 export function isPublicPath(path) {
@@ -91,7 +96,12 @@ class ApiGateway {
           localStorage.removeItem('user');
 
           const path = window.location.pathname;
-          if (!isPublicPath(path)) {
+          if (!isPublicPath(path) && isManagedSession()) {
+            // A managed account has no password to sign in with: the way back
+            // is the app it was opened from, which the ended page says. The
+            // flag stays until that page has been shown (it clears it).
+            window.location.replace('/partner/ended');
+          } else if (!isPublicPath(path)) {
             // A full-page navigation, not a react-router push, is
             // deliberate: AuthContext holds `user` in React state, and
             // clearing localStorage alone leaves that stale state behind

@@ -139,8 +139,8 @@ export const OPENAPI = {
                 type: 'object',
                 required: ['externalId'],
                 properties: {
-                  externalId: { type: 'string', minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9._:@-]+$', description: 'Your own id for this user. Letters, digits and `. _ : @ -`.' },
-                  name: { type: 'string', maxLength: 100, description: 'A display name, for your reference.' },
+                  externalId: { type: 'string', minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9._:@-]+$', description: 'Your own id for one LinkedIn profile, not for a person: a person with several profiles gets one account each (for example `<partnerUserId>:<linkedinSlotId>`). Reusing the id on a reconnect returns the same account. Letters, digits and `. _ : @ -`.' },
+                  name: { type: 'string', maxLength: 100, description: 'A display name, for your reference. Once the profile connects, Spurly shows the LinkedIn name instead.' },
                 },
               },
               example: { externalId: 'user_123', name: 'Jane Doe' },
@@ -176,6 +176,37 @@ export const OPENAPI = {
         responses: {
           200: ok('The account.', { type: 'object', properties: { account: ref('Account') } }, { account: exampleAccount }),
           ...errors('404:NotFound'),
+          ...COMMON,
+        },
+      },
+    },
+    '/accounts/{accountId}/login-link': {
+      post: {
+        operationId: 'createLoginLink',
+        tags: ['Accounts'],
+        summary: 'Create an Open in Spurly link',
+        description:
+          'Returns a one-time link that signs the person into this account in the Spurly web app for 12 hours. Redirect them to `url` straight away: the link works once and expires after 120 seconds. **Access control is yours**: the link is the only way into the account, so issue it only to people entitled to that account. Sending `actor` is strongly recommended so every link can be traced to a person. A closed account answers `409 ACCOUNT_CLOSED`; another partner\'s account is a `404`.',
+        parameters: [accountIdParam],
+        requestBody: {
+          required: false,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  actor: { type: 'string', maxLength: 200, description: 'Your own id or email for the person you are opening the account for. Recorded with the link for your audit trail; never shown to them.' },
+                },
+              },
+              example: { actor: 'user_123' },
+            },
+          },
+        },
+        responses: {
+          200: ok('The link.', { type: 'object', properties: { url: { type: 'string', description: 'Send the person here. The ticket is in the URL fragment.' }, expiresAt: { type: 'string', format: 'date-time' } } }, { url: 'https://getspurly.com/partner/enter#t=3f9c…', expiresAt: '2026-10-28T09:02:00.000Z' }),
+          400: { $ref: '#/components/responses/ValidationError' },
+          404: { $ref: '#/components/responses/NotFound' },
+          409: { $ref: '#/components/responses/Conflict' },
           ...COMMON,
         },
       },

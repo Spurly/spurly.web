@@ -83,7 +83,7 @@ export function HubDashboardPage() {
 
         <HeroCard data={analytics} loading={analyticsLoading && !analytics} days={days} />
 
-        <ClaudeCard />
+        {!user?.isManaged && <ClaudeCard />}
 
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <p className="ui-micro !text-[length:var(--ui-t-micro)] !text-[var(--ui-text-secondary)]">{at.range(days)}</p>
