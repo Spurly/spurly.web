@@ -11,6 +11,8 @@ import { TrustBadges } from './components/widgets.jsx';
 import { StarIcon } from './components/icons.jsx';
 import subscriptionsController from 'src/core/billing/controller/subscriptions.js';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import PartnerEndedPage from 'src/core/pages/partner/PartnerEndedPage.jsx';
+import { ENDED_REASONS } from 'src/core/partner/constants/constants.js';
 import { postAuthDestination } from './postAuthDestination.js';
 
 const FEATURES = [
@@ -181,6 +183,9 @@ export default function SubscribePage() {
   }
 
   const busy = phase !== 'idle';
+
+  // A managed account never sees a paywall: its access is handled elsewhere.
+  if (user?.isManaged) return <PartnerEndedPage reason={ENDED_REASONS.ACCESS} />;
 
   return (
     <AuthShell aside={<WelcomeAside step={1} total={3} credits={100} />} bodyTop>

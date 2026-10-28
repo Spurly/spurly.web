@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useAuth } from 'src/core/auth/hooks/useAuth';
+import { PARTNER_COPY } from 'src/core/partner/constants/constants.js';
 import { SettingsFrame } from '../accountSettings/components/SettingsFrame.jsx';
 import { Button, SectionCard, useConfirm, useErrorToast, useToast } from 'src/core/primitives';
 import { useTokens } from 'src/products/aiAssistants/hooks/useTokens.js';
@@ -19,6 +21,20 @@ import { ActivityList } from 'src/products/aiAssistants/components/ActivityList.
  * activity. Sits behind SubscribeGate, so a lapsed trial never reaches it.
  */
 export function AiAssistantsPage() {
+  const { user } = useAuth();
+  if (user?.isManaged) {
+    return (
+      <SettingsFrame activeTab="assistants">
+        <SectionCard title="AI assistants">
+          <p className="text-[var(--ui-text-secondary)]" role="status">{PARTNER_COPY.notAvailable}</p>
+        </SectionCard>
+      </SettingsFrame>
+    );
+  }
+  return <AiAssistantsContent />;
+}
+
+function AiAssistantsContent() {
   const confirm = useConfirm();
   const toast = useToast();
   const tokens = useTokens();

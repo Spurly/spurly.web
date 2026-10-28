@@ -32,6 +32,8 @@ const exampleAccount = {
   id: ex.accountId,
   externalId: 'user_123',
   name: 'Jane Doe',
+  status: 'open',
+  closedAt: null,
   linkedin: exampleLinkedin,
   createdAt: '2026-10-24T05:58:00.000Z',
 };
@@ -130,7 +132,7 @@ export const OPENAPI = {
         tags: ['Accounts'],
         summary: 'Create or fetch an account',
         description:
-          'Creates the account for `externalId`, or returns the existing one. Idempotent: retrying is safe. The first call answers `201`, later calls `200` with the same account.',
+          'Creates the account for `externalId`, or returns the existing one. Idempotent: retrying is safe. The first call answers `201`, later calls `200` with the same account. Creating an `externalId` whose account was closed reopens it: the response is `200`, `reopened` is `true`, and `status` is `open` again. A reopened account must reconnect LinkedIn.',
         requestBody: {
           required: true,
           content: {
@@ -139,8 +141,8 @@ export const OPENAPI = {
                 type: 'object',
                 required: ['externalId'],
                 properties: {
-                  externalId: { type: 'string', minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9._:@-]+$', description: 'Your own id for this user. Letters, digits and `. _ : @ -`.' },
-                  name: { type: 'string', maxLength: 100, description: 'A display name, for your reference.' },
+                  externalId: { type: 'string', minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9._:@-]+$', description: 'Your own id for one LinkedIn profile, not for a person: a person with several profiles gets one account each (for example `<partnerUserId>:<linkedinSlotId>`). Reusing the id on a reconnect returns the same account. Letters, digits and `. _ : @ -`.' },
+                  name: { type: 'string', maxLength: 100, description: 'A display name, for your reference. Once the profile connects, Spurly shows the LinkedIn name instead.' },
                 },
               },
               example: { externalId: 'user_123', name: 'Jane Doe' },
@@ -149,7 +151,7 @@ export const OPENAPI = {
         },
         responses: {
           201: ok('Created.', { type: 'object', properties: { account: ref('Account') } }, { account: exampleAccount }),
-          200: ok('Already existed; the same account is returned.', { type: 'object', properties: { account: ref('Account') } }, { account: exampleAccount }),
+          200: ok('Already existed (or was reopened); the account is returned. `reopened` is `true` only when a closed account was reopened.', { type: 'object', properties: { account: ref('Account'), reopened: { type: 'boolean' } } }, { account: exampleAccount }),
           ...errors('400:ValidationError'),
           ...COMMON,
         },
@@ -176,6 +178,51 @@ export const OPENAPI = {
         responses: {
           200: ok('The account.', { type: 'object', properties: { account: ref('Account') } }, { account: exampleAccount }),
           ...errors('404:NotFound'),
+          ...COMMON,
+        },
+      },
+      delete: {
+        operationId: 'closeAccount',
+        tags: ['Accounts'],
+        summary: 'Close an account',
+        description:
+          'Ends access for the account and disconnects its LinkedIn connection. Idempotent: closing a closed account returns it unchanged. The account stays readable with `status: closed`; every other call on it answers `409 ACCOUNT_CLOSED`. To reopen it, `POST /accounts` with the same `externalId`. If LinkedIn cannot be disconnected right now the account is still closed and the call answers `502 DISCONNECT_FAILED`; send `DELETE` again to finish.',
+        parameters: [accountIdParam],
+        responses: {
+          200: ok('Closed.', { type: 'object', properties: { account: ref('Account') } }, { account: { ...exampleAccount, status: 'closed', closedAt: '2026-10-28T09:00:00.000Z', linkedin: { state: 'not_connected', name: '', profileUrl: '', isPremium: false, connectedAt: null } } }),
+          502: { description: 'The account is closed, but LinkedIn could not be disconnected yet. Send `DELETE` again.', content: { 'application/json': { schema: ref('Error'), example: { success: false, message: 'The account is closed, but LinkedIn could not be disconnected yet. Send DELETE again to finish.', code: 'DISCONNECT_FAILED', status: 502 } } } },
+          ...errors('404:NotFound'),
+          ...COMMON,
+        },
+      },
+    },
+    '/accounts/{accountId}/login-link': {
+      post: {
+        operationId: 'createLoginLink',
+        tags: ['Accounts'],
+        summary: 'Create an Open in Spurly link',
+        description:
+          'Returns a one-time link that signs the person into this account in the Spurly web app for 12 hours. Redirect them to `url` straight away: the link works once and expires after 120 seconds. **Access control is yours**: the link is the only way into the account, so issue it only to people entitled to that account. Sending `actor` is strongly recommended so every link can be traced to a person. A closed account answers `409 ACCOUNT_CLOSED`; another partner\'s account is a `404`.',
+        parameters: [accountIdParam],
+        requestBody: {
+          required: false,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  actor: { type: 'string', maxLength: 200, description: 'Your own id or email for the person you are opening the account for. Recorded with the link for your audit trail; never shown to them.' },
+                },
+              },
+              example: { actor: 'user_123' },
+            },
+          },
+        },
+        responses: {
+          200: ok('The link.', { type: 'object', properties: { url: { type: 'string', description: 'Send the person here. The ticket is in the URL fragment.' }, expiresAt: { type: 'string', format: 'date-time' } } }, { url: 'https://getspurly.com/partner/enter#t=3f9c…', expiresAt: '2026-10-28T09:02:00.000Z' }),
+          400: { $ref: '#/components/responses/ValidationError' },
+          404: { $ref: '#/components/responses/NotFound' },
+          409: { $ref: '#/components/responses/Conflict' },
           ...COMMON,
         },
       },
@@ -640,11 +687,13 @@ export const OPENAPI = {
       Account: {
         type: 'object',
         description: 'One user of yours, and their LinkedIn connection.',
-        required: ['id', 'externalId', 'name', 'linkedin', 'createdAt'],
+        required: ['id', 'externalId', 'name', 'status', 'closedAt', 'linkedin', 'createdAt'],
         properties: {
           id: { ...ID, description: 'Spurly\'s id for the account.' },
           externalId: { type: 'string', description: 'Your id for the user.' },
           name: { type: 'string', description: 'The name you gave the account.' },
+          status: { type: 'string', enum: ['open', 'closed'], description: 'A closed account has no access; see `DELETE /accounts/{accountId}`.' },
+          closedAt: { type: ['string', 'null'], format: 'date-time', description: 'When the account was closed, or null while open.' },
           linkedin: ref('LinkedinConnection'),
           createdAt: { type: 'string', format: 'date-time' },
         },

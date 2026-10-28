@@ -1,5 +1,6 @@
 import { Badge, Button } from 'src/core/primitives';
 import { TextCell, ActionsCell, CalendarCell } from 'src/core/DataTable';
+import { PartnerCell } from './PartnerCell.jsx';
 
 /**
  * Admin Users columns. Action handlers are injected so each row can manage
@@ -14,6 +15,13 @@ export function buildUserColumns({ onManageCredits, onManagePlan, onImpersonate 
       render: (value) => <span className="font-medium text-[var(--ui-text-primary)]">{value}</span>,
     },
     { key: 'name', label: 'Name', width: 170, render: (value) => <TextCell value={value} tone="secondary" /> },
+    {
+      key: 'partner',
+      label: 'Partner',
+      width: 220,
+      title: (row) => (row.partner ? `Partner: ${row.partner.slug}` : ''),
+      render: (_v, row) => <PartnerCell partner={row.partner} />,
+    },
     {
       key: 'plan',
       label: 'Plan',
