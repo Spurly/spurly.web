@@ -127,7 +127,7 @@ export function getToastError(err, label = GENERIC) {
   if (transport) return transport;
 
   const status = statusOf(err);
-  if (status === 401 || status === 403 || status === 429) return BY_STATUS[status];
+  if (status === 401 || status === 429) return BY_STATUS[status];
 
   const explicit = typeof err === 'object' && err !== null
     ? (err.response?.data?.userMessage ?? err.userMessage)
@@ -136,6 +136,11 @@ export function getToastError(err, label = GENERIC) {
 
   const server = extractServerMessage(err);
   if (server && readsAsProductCopy(server)) return server;
+
+  /* A 403 with nothing vetted to say still beats the action label: the next
+     click will be refused too. A vetted server message (for instance "Access
+     to this account has ended.") wins above, so it is never hidden behind it. */
+  if (status === 403) return BY_STATUS[403];
 
   return label;
 }
