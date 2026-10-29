@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { usePrice } from "../hooks/usePrice.js";
-import { TRIAL_NOTE } from "../pricing.js";
+import { PLAN_NOTE } from "../pricing.js";
 import { PUBLIC_ROUTES } from "../seo.js";
 import { getAuthor } from "../authors.js";
 import { formatDate } from "../blogPosts.js";
@@ -89,10 +89,10 @@ export function CtaBand({ title = "Put your AI SDR to work" }) {
       <h2>{title}</h2>
       <p>
         Spurly is an AI SDR for LinkedIn. It finds high-intent leads, writes personalized messages with AI and
-        follows up 24/7 until they reply. 7-day free trial, then {price.now}/month.
+        follows up 24/7 until they reply. {price.now}/month, cancel anytime.
       </p>
-      <Link to="/signup" className="btn btn-primary btn-lg">Start 7-day free trial</Link>
-      <p className="trial-note-inline">{TRIAL_NOTE}</p>
+      <Link to="/signup" className="btn btn-primary btn-lg">Get started</Link>
+      <p className="trial-note-inline">{PLAN_NOTE}</p>
     </div>
   );
 }
@@ -102,7 +102,7 @@ export function InlineCta() {
   const price = usePrice();
   return (
     <p className="inline-cta">
-      <Link to="/signup">Start 7-day free trial, then {price.now}/month →</Link>
+      <Link to="/signup">Get started, {price.now}/month →</Link>
     </p>
   );
 }

@@ -129,7 +129,7 @@ Spurly cannot decide how LinkedIn treats your account. A new or rarely used acco
 
 ## Should you automate at all?
 
-If you can do the work by hand at the volume you need, you remove the automation risk. Automation exists because outreach takes time and follow-up gets forgotten, and many people accept a modest risk for that. It is a decision about your professional profile, so make it with the facts. Spurly costs $24.99 a month after a 7-day free trial; see [pricing](/pricing). No card needed to start your 7-day free trial. Subscribe when it ends to keep going, and cancel anytime.
+If you can do the work by hand at the volume you need, you remove the automation risk. Automation exists because outreach takes time and follow-up gets forgotten, and many people accept a modest risk for that. It is a decision about your professional profile, so make it with the facts. Spurly costs $24.99 a month and you can cancel anytime; see [pricing](/pricing).
 
 ## Sources
 

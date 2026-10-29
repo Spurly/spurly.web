@@ -42,7 +42,7 @@ export const settingsStrings = {
     creditsCaption: 'One credit enriches one person',
     invoicesTitle: 'Invoices',
     invoicesEmptyTitle: 'No invoices yet',
-    invoicesEmptyHint: 'Your first invoice appears here when your subscription is charged — after the free trial, if you have one.',
+    invoicesEmptyHint: 'Your first invoice appears here when your subscription is charged.',
     invoicesErrorTitle: 'Couldn’t load invoices',
     invoicesErrorHint: 'Refresh the page to try again. Receipts are also emailed by Razorpay after every charge.',
     planSuffix: 'plan',

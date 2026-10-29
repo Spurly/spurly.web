@@ -2,7 +2,7 @@
 title: "Every LinkedIn reply in one inbox, 24/7"
 seoTitle: "LinkedIn Unified Inbox: Every Reply in One Place | Spurly"
 shortTitle: Unified inbox
-description: "One LinkedIn inbox with your campaign replies on top. Replies arrive 24/7, you reply, react and send files, and Claude can draft answers. 7-day trial."
+description: "One LinkedIn inbox with your campaign replies on top. Replies arrive 24/7, you reply, react and send files, and Claude can draft answers."
 path: /product/inbox
 template: product
 date: 2026-10-03

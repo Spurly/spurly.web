@@ -94,6 +94,6 @@ If you are sending many, see [how to personalise at scale](/blog/personalize-lin
 
 ## Send these automatically, with AI
 
-Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Spurly's AI can draft a note like these from a short brief, and your [campaigns](/product/campaigns) send it to each person 24/7 once you approve. The 7-day free trial needs no card; see [pricing](/pricing).
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Spurly's AI can draft a note like these from a short brief, and your [campaigns](/product/campaigns) send it to each person 24/7 once you approve. See [pricing](/pricing) for the plan.
 
 To make any example your own, read [how to personalize connection requests at scale](/blog/personalize-linkedin-connection-requests) and [how to raise your acceptance rate](/blog/linkedin-acceptance-rate).

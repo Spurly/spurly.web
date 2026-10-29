@@ -20,7 +20,7 @@ faq:
   - q: Why does the note say [First name]?
     a: The generator does not know the recipient's name, so it leaves a placeholder. Replace it with their first name before you send. Spurly campaigns fill this in automatically for every person on your list.
   - q: Can I send these notes automatically?
-    a: Yes. Spurly campaigns send connection requests and follow-ups at a safe pace and stop when someone replies. Start a 7-day free trial from the pricing page.
+    a: Yes. Spurly campaigns send connection requests and follow-ups at a safe pace and stop when someone replies. See the pricing page to get started.
 todo:
   - Add a screenshot of the finished tool and one first-hand example note
 ---

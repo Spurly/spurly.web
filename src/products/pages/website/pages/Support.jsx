@@ -10,7 +10,7 @@ const FAQS = [
   },
   {
     q: "How much does Spurly cost, and is there a free trial?",
-    a: "Spurly has one plan. The launch offer for the first 100 members is $14.99/month (₹1,499/month in India), locked for life; the regular price is $24.99/month (₹2,499/month in India). Every plan starts with a 7-day free trial. No card needed to start your 7-day free trial. Subscribe when it ends to keep going, and cancel anytime.",
+    a: "Spurly has one plan. The launch offer for the first 100 members is $14.99/month (₹1,499/month in India), locked for life; the regular price is $24.99/month (₹2,499/month in India). There is no free trial: you subscribe to start, and you can cancel anytime and keep access to the end of the month you paid for.",
   },
   {
     q: "Does Spurly work with Sales Navigator?",

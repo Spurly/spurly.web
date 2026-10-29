@@ -58,4 +58,4 @@ Read the message as the person receiving it. Is the first sentence about them? I
 
 ## Let an AI SDR send it
 
-Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Paste a cold message into [campaigns](/product/campaigns), let AI adapt it per person, approve it once and Spurly sends it 24/7 and stops when someone replies. The 7-day free trial needs no card; see [pricing](/pricing).
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Paste a cold message into [campaigns](/product/campaigns), let AI adapt it per person, approve it once and Spurly sends it 24/7 and stops when someone replies. See [pricing](/pricing) for the plan.

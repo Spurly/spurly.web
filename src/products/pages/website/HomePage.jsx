@@ -35,7 +35,7 @@ export default function HomePage() {
     <>
       <Seo
         title="Spurly: AI SDR & LinkedIn Automation Tool"
-        description="Spurly is an AI SDR for LinkedIn. It finds high-intent leads that match your ICP, writes personalized outreach with AI and follows up. 7-day free trial."
+        description="Spurly is an AI SDR for LinkedIn. It finds high-intent leads that match your ICP, writes personalized outreach with AI and follows up."
         path="/"
         jsonLd={[ORGANIZATION_LD, WEBSITE_LD, ...HOME_LD, videoLd()].filter(Boolean)}
       />

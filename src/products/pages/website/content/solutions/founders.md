@@ -2,7 +2,7 @@
 title: "An AI SDR for founders: LinkedIn pipeline without hiring"
 seoTitle: "AI SDR for Founders: LinkedIn Pipeline | Spurly"
 shortTitle: For founders
-description: "Spurly is an AI SDR for founders: it finds high-intent leads on LinkedIn, writes and follows up 24/7, and you take the replies. 7-day free trial."
+description: "Spurly is an AI SDR for founders: it finds high-intent leads on LinkedIn, writes and follows up 24/7, and you take the replies."
 path: /solutions/founders
 template: solutions
 date: 2026-10-03
@@ -18,7 +18,7 @@ faq:
   - q: Will it sound like a bot?
     a: Only if your copy does. AI drafts in your voice, you edit anything you like, Spurly fills in details such as first name for each person with a live preview, and every follow-up stops the moment someone replies so you can answer personally.
   - q: What does it cost?
-    a: One plan at $24.99 per month (₹2,499 in India) with a 7-day free trial.
+    a: One plan at $24.99 per month (₹2,499 in India) with every feature included.
 todo:
   - Add one real founder workflow from your own use (what you search for, what reply rate you see)
 ---
@@ -45,4 +45,4 @@ You decide who to reach and approve what goes out. AI drafts the copy, and Spurl
 
 ## What it costs
 
-Spurly has one plan at $24.99 per month (₹2,499 in India), with a 7-day free trial and everything included. See [pricing](/pricing). The longer playbook is in [how founders build a LinkedIn outreach pipeline](/blog/free-linkedin-outreach-pipeline-founders).
+Spurly has one plan at $24.99 per month (₹2,499 in India), with everything included. See [pricing](/pricing). The longer playbook is in [how founders build a LinkedIn outreach pipeline](/blog/free-linkedin-outreach-pipeline-founders).

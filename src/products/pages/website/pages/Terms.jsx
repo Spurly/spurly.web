@@ -60,7 +60,7 @@ export default function Terms() {
 
         <h2>4. Credits and billing</h2>
         <p>
-          Spurly offers a single paid monthly plan with a 7-day free trial. Credits are consumed only
+          Spurly offers a single paid monthly plan, with no free trial. Credits are consumed only
           when Spurly performs work for you. The plan renews monthly
           until cancelled. See current pricing on our{" "}
           <a href="/#pricing">pricing section</a>.

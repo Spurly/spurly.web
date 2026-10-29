@@ -3,7 +3,7 @@
  * The six page templates, rendered from fixture frontmatter + blocks so they are
  * covered before any real page uses them. Pins the T2.2 contract: one H1,
  * breadcrumbs (+BreadcrumbList), last updated, CTA after each main section,
- * FAQ (+FAQPage), author box, related pages, and the exact trial copy.
+ * FAQ (+FAQPage), author box, related pages, and the plan note.
  */
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
@@ -13,7 +13,7 @@ import { parseContentFile } from '../scripts/contentParser.mjs';
 import { CONTENT_META } from 'src/products/pages/website/content/content.meta.generated.js';
 import { CONTENT_BODIES } from 'src/products/pages/website/content/content.bodies.generated.js';
 import { PUBLIC_ROUTES } from 'src/products/pages/website/seo.js';
-import { TRIAL_NOTE } from 'src/products/pages/website/pricing.js';
+import { PLAN_NOTE } from 'src/products/pages/website/pricing.js';
 import ArticleTemplate from 'src/products/pages/website/templates/ArticleTemplate.jsx';
 import ProductTemplate from 'src/products/pages/website/templates/ProductTemplate.jsx';
 import SolutionsTemplate from 'src/products/pages/website/templates/SolutionsTemplate.jsx';
@@ -88,9 +88,10 @@ describe.each(CASES)('%s template', (name, Template, path, extra, eyebrow) => {
     expect(head).toContain('"@type":"WebPage"');
   });
 
-  it('ends with the CTA, the exact trial copy, the author box and related pages', () => {
-    expect(out).toContain('Start 7-day free trial');
-    expect(out.replace(/&#x27;/g, "'")).toContain(TRIAL_NOTE);
+  it('ends with the CTA, the plan note, the author box and related pages', () => {
+    expect(out).toContain('Get started');
+    expect(out).not.toContain('7-day free trial');
+    expect(out.replace(/&#x27;/g, "'")).toContain(PLAN_NOTE);
     expect(out).toContain('About the author');
     expect(out).toContain(CONTENT_META[0].title.replace(/&/g, '&amp;'));
   });
@@ -122,18 +123,19 @@ describe('template specifics', () => {
   it('pricing shows the plan card and the SoftwareApplication offers', () => {
     const { html: out, head } = html(PricingTemplate, fixture('pricing', '/pricing-fixture'));
     expect(out).toContain('$24.99');
-    expect(out).toContain('7-day free trial');
+    expect(out).toContain('Everything included');
+    expect(out).not.toContain('7-day free trial');
     expect(head).toContain('SoftwareApplication');
     expect(head).toContain('1499');
   });
 
-  it('article shows author, FAQ and the trial note, and credits a Person', () => {
+  it('article shows author, FAQ and the plan note, and credits a Person', () => {
     const { html: out, head } = html(ArticleTemplate, fixture('article', '/blog/fixture'));
     expect(out).toContain('About the author');
     expect(out).toContain('<h3>Does it work?</h3>');
     expect(head).toContain('"author":{"@type":"Person","name":"Sarthak Vats"');
     expect(head).toContain('linkedin.com/in/sarthak-vats-793128226');
-    expect(out.replace(/&#x27;/g, "'")).toContain(TRIAL_NOTE);
+    expect(out.replace(/&#x27;/g, "'")).toContain(PLAN_NOTE);
   });
 
   it('article without an author is credited to the organisation', () => {

@@ -2,8 +2,6 @@
    data and components can both import it. These are the real Razorpay plan
    amounts (SEO_CONTENT_PLAN §5); update here if the plans change. */
 
-export const TRIAL_DAYS = 7;
-
 export const PRICES = {
   INTL: { currency: "USD", amount: "24.99", label: "$24.99" }, // regular price
   IN: { currency: "INR", amount: "2499", label: "₹2,499" },
@@ -67,6 +65,6 @@ export function saleFor(region, now = Date.now(), { demo = DEMO_ROLLING_SALE } =
   };
 }
 
-/** The exact trial copy (SEO_CONTENT_PLAN section 5). Use it verbatim wherever the trial is mentioned. */
-export const TRIAL_NOTE =
-  "No card needed to start your 7-day free trial. Subscribe when it ends to keep going, and cancel anytime.";
+/** The one-line billing note shown under CTAs. There is no free trial: never imply one. */
+export const PLAN_NOTE =
+  "Subscribe to start, and cancel anytime. You keep access to the end of the month you've paid for.";

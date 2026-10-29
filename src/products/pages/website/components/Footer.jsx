@@ -70,7 +70,7 @@ export default function Footer() {
             </div>
             <div className="foot-col">
               <h4>Get Spurly</h4>
-              <Link to="/signup">Start 7-day free trial</Link>
+              <Link to="/signup">Get started</Link>
               <Link to="/login">Sign in</Link>
               <ChromeStoreLink>Chrome Web Store</ChromeStoreLink>
             </div>

@@ -2,7 +2,7 @@
 title: AI LinkedIn outreach that follows up 24/7
 seoTitle: AI LinkedIn Outreach: Campaigns & Sequences | Spurly
 shortTitle: Campaigns and sequences
-description: AI writes your LinkedIn connection note and follow-ups, you approve them, and Spurly sends them 24/7 and stops when someone replies. 7-day free trial.
+description: AI writes your LinkedIn connection note and follow-ups, you approve them, and Spurly sends them 24/7 and stops when someone replies.
 path: /product/campaigns
 template: product
 date: 2026-10-03

@@ -2,7 +2,7 @@
 title: "Warm up your audience with scheduled LinkedIn posts"
 seoTitle: "Schedule LinkedIn Posts From One Place | Spurly"
 shortTitle: Posts
-description: "Schedule LinkedIn text posts up to 60 days ahead or publish an image or video now. Warm up the people your outreach reaches. 7-day free trial."
+description: "Schedule LinkedIn text posts up to 60 days ahead or publish an image or video now. Warm up the people your outreach reaches."
 path: /product/posts
 template: product
 date: 2026-10-03

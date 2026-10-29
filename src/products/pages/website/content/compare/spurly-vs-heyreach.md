@@ -22,7 +22,7 @@ faq:
   - q: Which is cheaper, Spurly or HeyReach?
     a: Spurly is $24.99 per month (₹2,499 in India). As of October 2026 HeyReach lists $79 per sender per month on its Growth plan on monthly billing ($63 on yearly billing), with higher plans for agencies. Check HeyReach's page for current prices.
   - q: Does HeyReach have a free trial?
-    a: HeyReach lists a 14-day trial with no card needed. Spurly has a 7-day trial that also needs no card; you subscribe only if you continue after day 7.
+    a: HeyReach lists a 14-day trial with no card needed. Spurly has no free trial: you subscribe to start, and can cancel anytime.
 todo:
   - Add one first-hand line from your own use or from a customer who switched (needs permission)
   - Re-check HeyReach prices and plan limits monthly
@@ -38,7 +38,7 @@ As of October 2026, HeyReach's pricing page lists Growth at $79 per sender per m
 | | Spurly | HeyReach |
 |---|---|---|
 | Price | $24.99/month (₹2,499 in India), one plan | Growth $79 per sender per month ($63 on yearly billing); Agency from $999 per month; Unlimited $2,999 (October 2026) |
-| Free trial | 7 days; no card needed | 14 days, no card |
+| Free trial | None; subscribe to start | 14 days, no card |
 | Best for | One user, one LinkedIn account | Agencies and teams with many senders |
 | Multiple senders | One connected account per user | Many senders in one workspace, with a unified inbox across them |
 | Runs in the cloud | Yes | Yes |

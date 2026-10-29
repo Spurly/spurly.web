@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 export default function SectionCta({ more }) {
   return (
     <div className="section-cta reveal">
-      <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>Start 7-day free trial</Link>
+      <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>Get started</Link>
       {more && <Link className="more-link" to={more.to}>{more.label} →</Link>}
     </div>
   );

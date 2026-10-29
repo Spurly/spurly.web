@@ -2,7 +2,7 @@
 title: "Find high-intent leads on LinkedIn"
 seoTitle: "LinkedIn Intent Signals & Lead Finder | Spurly"
 shortTitle: Lead finder
-description: "Define your ICP, then find high-intent leads on LinkedIn: viewers, followers, post authors, hiring companies and inviters. 7-day free trial."
+description: "Define your ICP, then find high-intent leads on LinkedIn: viewers, followers, post authors, hiring companies and inviters."
 path: /product/lead-finder
 template: product
 date: 2026-10-03

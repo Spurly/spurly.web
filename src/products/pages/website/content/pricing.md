@@ -1,12 +1,12 @@
 ---
 title: "One AI SDR, one plan, everything included"
-seoTitle: "Spurly Pricing: AI SDR for LinkedIn, 7-Day Trial"
+seoTitle: "Spurly Pricing: AI SDR for LinkedIn, One Flat Plan"
 shortTitle: Pricing
-description: "Spurly is an AI SDR for LinkedIn for one flat monthly price: intent signals, AI-written outreach, 24/7 sequences, inbox and Claude. 7-day free trial."
+description: "Spurly is an AI SDR for LinkedIn for one flat monthly price: intent signals, AI-written outreach, 24/7 sequences, inbox and Claude."
 path: /pricing
 template: pricing
 date: 2026-10-03
-updated: 2026-10-22
+updated: 2026-10-29
 priority: 0.9
 target_query: spurly pricing
 related: [/blog/free-linkedin-outreach-pipeline-founders]
@@ -16,11 +16,11 @@ faq:
   - q: What is the launch offer?
     a: The first 100 members to subscribe keep the launch price of $14.99 per month (₹1,499 in India) for as long as they stay subscribed, even after the price goes back to $24.99 (₹2,499 in India) for everyone else. It is limited by the number of members, not by a date.
   - q: Is there a free trial?
-    a: Yes. Every account gets a 7-day free trial of the full product, then the monthly plan starts.
-  - q: Do I need a card to start the trial?
-    a: No. Sign up and start using Spurly straight away, with no card and no payment details. You are only asked to pay when the 7 days are over.
-  - q: What happens after the 7-day trial?
-    a: When the trial ends, your LinkedIn account is disconnected and your campaigns are paused until you subscribe. Your leads, conversations and campaigns are all kept. Subscribe and you are charged for the first month straight away, then monthly until you cancel. Reconnect LinkedIn and you carry on where you left off.
+    a: No. Spurly has no free trial. You subscribe first, and the full product with every feature is active as soon as you do. You can cancel anytime and keep access to the end of the month you paid for.
+  - q: How do I get started?
+    a: Create an account, then subscribe on the next screen with a card, or UPI in India. You are charged for the first month straight away, then monthly until you cancel. After that you connect LinkedIn, build an audience and launch a campaign.
+  - q: What happens if I cancel?
+    a: Autopay stops and you keep access until the end of the period you have already paid for. After that your LinkedIn account is disconnected and your campaigns are paused until you subscribe again. Your leads, conversations and campaigns are all kept, and when you resubscribe and reconnect LinkedIn you carry on where you left off.
   - q: Can I cancel anytime?
     a: Yes. Go to Settings → Billing → Cancel. Your access runs to the end of the period you have already paid for.
   - q: Why is the price different in India?
@@ -32,9 +32,9 @@ faq:
   - q: Is there a plan for teams or organizations?
     a: Yes. Team and organization plans are arranged with us directly. Book a meeting and we will agree a plan around how many seats you need.
   - q: Is there a permanently free tier?
-    a: No. Spurly is a paid product, and the 7-day free trial lets you use everything before you pay.
+    a: No. Spurly is a paid product with no free tier or free trial. You pay from the first day and every feature is included.
 ---
-Spurly is an AI SDR for LinkedIn with one plan, a 7-day free trial and every feature included. The launch offer for the first 100 members is **$14.99 per month** (**₹1,499 per month** in India), locked in for life. The regular price is $24.99 per month (₹2,499 in India). There are no tiers to compare and nothing to unlock later.
+Spurly is an AI SDR for LinkedIn with one plan and every feature included. The launch offer for the first 100 members is **$14.99 per month** (**₹1,499 per month** in India), locked in for life. The regular price is $24.99 per month (₹2,499 in India). There are no tiers to compare and nothing to unlock later.
 
 ## What is included
 
@@ -69,13 +69,13 @@ Entry-plan prices listed on each tool's own pricing page on 17 October 2026, per
 
 Prices change, so check each page before you decide. Currency symbols are shown as listed; Dripify, Beeze and Valley do not name a currency code on their pages.
 
-## How the 7-day free trial works
+## How getting started works
 
-1. **Sign up.** No card, no payment details.
-2. **Use everything for 7 days.** Connect LinkedIn, build an audience and launch a campaign.
-3. **When the 7 days end, subscribe to continue.** You pay for the first month at that point (card, or UPI in India), then monthly. If you don't, your LinkedIn account is disconnected and campaigns pause, but nothing is deleted.
+1. **Subscribe.** Create your account and pay for the first month with a card, or UPI in India. Your account is active straight away.
+2. **Connect LinkedIn.** Build an audience and launch a campaign.
+3. **Cancel whenever you like.** Your access runs to the end of the month you have paid for. If you don't renew, your LinkedIn account is disconnected and campaigns pause, but nothing is deleted.
 
-You are never charged during the trial, and you never need a card to start it.
+You are charged when you subscribe, then monthly until you cancel. There is no free trial.
 
 ## Why is pricing different in India?
 

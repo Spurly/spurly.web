@@ -24,7 +24,7 @@ export default function NotFound() {
         </p>
         <ul>
           <li><Link to="/">Spurly home</Link>: LinkedIn outreach that runs itself</li>
-          <li><a href="/#pricing">Pricing</a>: one plan, 7-day free trial</li>
+          <li><a href="/#pricing">Pricing</a>: one plan, everything included</li>
           <li><a href="/#how">How it works</a></li>
           <li><Link to="/blog">The blog</Link>: LinkedIn outreach guides</li>
           <li><Link to="/support">Support &amp; FAQ</Link></li>
@@ -36,7 +36,7 @@ export default function NotFound() {
           ))}
         </ul>
         <p>
-          Or <Link to="/signup">start your 7-day free trial</Link>.
+          Or <Link to="/signup">get started</Link>.
         </p>
       </article>
     </ContentShell>

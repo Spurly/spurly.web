@@ -36,7 +36,7 @@ As of October 2026, Linked Helper's pricing page lists Standard and Pro plans fr
 | | Spurly | Linked Helper |
 |---|---|---|
 | Price | $24.99/month (₹2,499 in India) | From $8.25 per license per month on prepaid terms (cloud-storage option from $16.50); Pro higher (October 2026) |
-| Free trial | 7 days; no card needed | 14 days, no card |
+| Free trial | None; subscribe to start | 14 days, no card |
 | Where it runs | Spurly's cloud | Your own computer or a server you set up |
 | Laptop must stay on | No | Yes, unless you run it on a server |
 | Accounts per licence | One per user | One LinkedIn account per licence |

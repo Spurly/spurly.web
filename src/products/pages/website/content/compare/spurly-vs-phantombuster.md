@@ -30,7 +30,7 @@ todo:
 |---|---|---|
 | Purpose | LinkedIn outreach campaigns | General automation and data extraction, including LinkedIn |
 | Price | $24.99/month (₹2,499 in India) | Plans priced by execution hours; Start is $69/month ($56/month billed annually), Grow $159, Scale $439 |
-| Free trial | 7 days; no card needed | A trial is offered; check the page for the length |
+| Free trial | None; subscribe to start | A trial is offered; check the page for the length |
 | Setup | Connect your account and start a campaign | Pick and configure individual automations, then chain them |
 | Inbox | Unified inbox | Not its focus |
 | Sequences | Built in; stop when someone replies | Built by combining automations |

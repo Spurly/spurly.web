@@ -41,7 +41,7 @@ export default function CaseStudies() {
         )}
         <ExampleScenarios />
         <p className="center prc-note">
-          Want results like these? <a href="#book">Book a call</a> and we’ll set it up with you, or <Link to="/signup">start the free trial</Link>.
+          Want results like these? <a href="#book">Book a call</a> and we’ll set it up with you, or <Link to="/signup">get started</Link>.
         </p>
       </div>
     </section>

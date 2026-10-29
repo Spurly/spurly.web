@@ -100,14 +100,15 @@ describe('shipped content files', () => {
 });
 
 describe('/pricing page', () => {
-  it('is the pricing template and carries the real prices and the exact trial copy', async () => {
+  it('is the pricing template and carries the real prices and the plan note, with no free trial', async () => {
     const meta = CONTENT_META.find((p) => p.path === '/pricing');
     expect(meta.template).toBe('pricing');
     const { html, head } = await render('/pricing');
     const text = html.replace(/&#x27;/g, "'");
     expect(text).toContain('$24.99');
     expect(text).toContain('₹2,499');
-    expect(text).toContain("No card needed to start your 7-day free trial. Subscribe when it ends to keep going, and cancel anytime.");
+    expect(text).toContain("Subscribe to start, and cancel anytime. You keep access to the end of the month you've paid for.");
+    expect(text).not.toMatch(/7-day free trial/i);
     expect(text).toContain('Settings → Billing → Cancel');
     expect(head).toContain('SoftwareApplication');
     expect(head).toContain('FAQPage');

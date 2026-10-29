@@ -36,7 +36,7 @@ As of October 2026, Lemlist's pricing page lists Email at $69 a month ($55 bille
 | | Spurly | Lemlist |
 |---|---|---|
 | Price | $24.99/month (₹2,499 in India), one plan | Email $69/month ($55 annual); Multichannel $109/month ($87 annual) (October 2026) |
-| Free trial | 7 days; no card needed | 14 days |
+| Free trial | None; subscribe to start | 14 days |
 | Channels | LinkedIn | Email, LinkedIn, and more |
 | LinkedIn actions | Visit, connect, message, follow, like, comment, endorse | Visits, follows, invites, messages and InMail |
 | Lead database | Search LinkedIn, import CSV | Lemlist lists a database of over 650 million contacts |
