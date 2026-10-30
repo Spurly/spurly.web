@@ -145,6 +145,7 @@ export function HubInboxPage() {
     hasMore,
     loadingMore,
     loadMore,
+    syncing,
   } = useInboxPage();
 
   const total = summary?.chats ?? chats.length;
@@ -217,6 +218,11 @@ export function HubInboxPage() {
               />
             </div>
 
+            {syncing && (
+              <p className="px-4 py-2 text-[length:var(--ui-t-control)] text-[var(--ui-text-secondary)] border-b border-[var(--ui-border-hairline)]">
+                {t.list.syncing}
+              </p>
+            )}
             <div className="flex-1 min-h-0 overflow-auto">
               {loading ? (
                 <ChatRowsSkeleton label={t.list.loading} />

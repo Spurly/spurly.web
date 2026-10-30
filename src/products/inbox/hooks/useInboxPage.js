@@ -26,10 +26,11 @@ export function emptyStateFor(summary) {
     };
   }
   if (!summary.sync) {
+    // No button: the worker queues a sweep for every connected account on its
+    // own, so there is nothing for the reader to press.
     return {
       title: 'Nothing synced yet',
-      hint: 'Your conversations have not been fetched yet. This starts on its own within a minute, or you can start it now.',
-      sync: true,
+      hint: 'Your conversations are being set up. They start fetching on their own within a minute and will appear here.',
     };
   }
   if (summary.sync.status === 'failed') {
@@ -250,6 +251,11 @@ export function useInboxPage() {
   };
 
   const empty = useMemo(() => emptyStateFor(summary), [summary]);
+  // Still catching up — the first sweep, a wider re-sweep, or history yet to
+  // download. Said quietly above the list so the reader knows more is coming.
+  const syncing = Boolean(summary?.sync)
+    && summary.sync.status !== 'failed'
+    && (summary.sync.phase !== 'done' || (summary.historyPending ?? 0) > 0);
   const nothingAtAll = !loading && chats.length === 0 && !debouncedQuery && !unreadOnly;
 
   return {
@@ -259,6 +265,7 @@ export function useInboxPage() {
     hasMore,
     loadingMore,
     loadMore,
+    syncing,
     loading,
     refreshing,
     live,
