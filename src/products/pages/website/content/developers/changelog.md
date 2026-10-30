@@ -5,10 +5,19 @@ path: /developers/changelog
 template: docs
 section: Resources
 order: 2
-date: 2026-10-28
+date: 2026-10-30
 parent: /developers
 ---
 Non-breaking additions ship without notice and are listed here. Breaking changes only ship in a new API version, with at least 90 days of overlap. See [Limits and versioning](/developers/limits).
+
+## 30 October 2026
+
+Inbox fixes and documentation. No request or response shapes changed.
+
+- `GET /accounts/{accountId}/chats` returns one row per person and only conversations from the account's current LinkedIn connection. Reconnecting LinkedIn no longer leaves repeated people in the list.
+- `pagination.total` counts those people, and every page is full.
+- Inbox sync now covers the newest 300 conversations per account (it was 100) and starts again on its own after a reconnect. See [Limits](/developers/limits#inbox-sync).
+- The [inbox guide](/developers/guides/inbox) now explains what is included in the sync, and what a `failed` sync means: the person must reconnect LinkedIn.
 
 ## 29 October 2026
 

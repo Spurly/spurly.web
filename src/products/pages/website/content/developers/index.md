@@ -13,7 +13,7 @@ date: 2026-10-24
 priority: 0.6
 target_query: linkedin messaging api
 ---
-The Spurly LinkedIn API is a REST API with webhooks. Spurly runs the hard parts of LinkedIn: the sign-in and its verification codes, keeping the session alive, importing the full message history and delivering every new message the moment it arrives. You build the experience in your own product.
+The Spurly LinkedIn API is a REST API with webhooks. Spurly runs the hard parts of LinkedIn: the sign-in and its verification codes, keeping the session alive, importing recent message history and delivering every new message the moment it arrives. You build the experience in your own product.
 
 ## What you can build
 
