@@ -20,6 +20,12 @@ const emptyPayload = () => ({
   account: { connected: true, premium: true },
 });
 
+const downloads = [];
+vi.mock('src/shared/utils/csvExport.js', async (importOriginal) => ({
+  ...(await importOriginal()),
+  downloadFile: (csv, filename) => downloads.push({ csv, filename }),
+}));
+
 const state = { payload: emptyPayload(), syncError: null, syncCalls: 0, listCalls: [] };
 
 vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
@@ -56,6 +62,7 @@ const stored = (over = {}) => ({
 });
 
 beforeEach(() => {
+  downloads.length = 0;
   state.payload = emptyPayload();
   state.syncError = null;
   state.syncCalls = 0;
@@ -245,5 +252,40 @@ describe('formatViewed: always "about", never finer than the stored precision', 
     expect(formatViewedAgo({ value: 1, unit: 'mo' })).toBe('about a month ago');
     expect(formatViewedAgo({ value: 5, unit: 'y' })).toBe('');
     expect(formatViewedAgo(null)).toBe('');
+  });
+});
+
+describe('Profile viewers export', () => {
+  it('the Export menu offers this page and a bulk export; "this page" downloads what is shown, no extra request', async () => {
+    state.payload = stored();
+    renderWithProviders(<HubProfileViewersPage />);
+    await screen.findByText('Viewer 1');
+    const calls = state.listCalls.length;
+    const trigger = screen.getByRole('button', { name: /Export/ });
+    fireEvent.mouseEnter(trigger.parentElement);
+    expect(await screen.findByRole('menuitem', { name: /Export this page/ })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: /Bulk export/ })).toHaveTextContent('All 2 viewers');
+    fireEvent.click(screen.getByRole('menuitem', { name: /Export this page/ }));
+    expect(downloads).toHaveLength(1);
+    expect(downloads[0].filename).toMatch(/^spurly-profile-viewers-\d{4}-\d{2}-\d{2}\.csv$/);
+    expect(downloads[0].csv).toContain('Viewer 1');
+    expect(downloads[0].csv).toContain('Viewer 2');
+    expect(state.listCalls).toHaveLength(calls);
+  });
+
+  it('bulk export reads the list again at the server page size and downloads every viewer', async () => {
+    state.payload = stored();
+    renderWithProviders(<HubProfileViewersPage />);
+    await screen.findByText('Viewer 1');
+    fireEvent.click(screen.getByRole('button', { name: /Export/ }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: /Bulk export/ }));
+    await waitFor(() => expect(downloads).toHaveLength(1));
+    expect(state.listCalls.at(-1)).toMatchObject({ page: 1, limit: 100 });
+  });
+
+  it('there is nothing to export before any viewer is stored', async () => {
+    renderWithProviders(<HubProfileViewersPage />);
+    await screen.findByText(/No viewers yet|Sync now/i);
+    expect(screen.getByRole('button', { name: /Export/ })).toBeDisabled();
   });
 });

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { DataTable } from 'src/core/DataTable';
-import { Button, FilterPills, StatTile, WorkingLine } from 'src/core/primitives';
+import { Button, ExportMenu, FilterPills, StatTile, WorkingLine } from 'src/core/primitives';
 import { EyeIcon } from 'src/core/icons';
 import { useProfileViewersPage } from 'src/products/profileViewers/hooks/useProfileViewersPage.js';
 import { DEGREE_FILTERS } from 'src/products/profileViewers/constants/constants.js';
@@ -28,7 +28,7 @@ function checkedAgo(value) {
  */
 export function HubProfileViewersPage() {
   const navigate = useNavigate();
-  const { data, loading, degreeId, changeDegree, goToPage, sync, syncing, needsAccount, rejected } = useProfileViewersPage();
+  const { data, loading, degreeId, changeDegree, goToPage, sync, syncing, needsAccount, rejected, exporting, exportViewers } = useProfileViewersPage();
 
   const viewers = data?.viewers ?? [];
   const summary = data?.summary;
@@ -47,9 +47,20 @@ export function HubProfileViewersPage() {
       subtitle={checked ? `${t.pageSubtitle} (${checked})` : t.pageSubtitle}
       layout="page"
       actions={
-        <Button variant="primary" onClick={sync} disabled={syncing || noAccount}>
-          {t.syncNow}
-        </Button>
+        <>
+          <ExportMenu
+            loading={exporting}
+            disabled={loading || !hasStored}
+            title={t.exportHint}
+            items={[
+              { key: 'page', label: t.exportPage, hint: t.exportPageHint(viewers.length), onSelect: () => exportViewers('page'), disabled: viewers.length === 0 },
+              { key: 'all', label: t.exportAll, hint: t.exportAllHint(data?.total ?? 0), onSelect: () => exportViewers('all') },
+            ]}
+          />
+          <Button variant="primary" onClick={sync} disabled={syncing || noAccount}>
+            {t.syncNow}
+          </Button>
+        </>
       }
     >
       <div className="flex flex-col gap-4">

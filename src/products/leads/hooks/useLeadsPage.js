@@ -12,6 +12,8 @@ import sequenceController from 'src/products/sequences/controller/sequence.js';
 import { SEQUENCE_EVENTS } from 'src/products/sequences/constants/constants.js';
 import { isBusy } from './audience.js';
 import { PAGE_SIZE, POLL_MS, LEAD_EVENTS } from '../constants/constants.js';
+import { buildLeadsCsv, leadsExportFilename } from '../exportCsv.js';
+import { downloadFile } from 'src/shared/utils/csvExport.js';
 
 /**
  * All state and orchestration for the hub leads page — importing an
@@ -46,6 +48,9 @@ export function useLeadsPage() {
   // comma-separated. Server-side for the same pagination reason as above.
   const [activityType, setActivityType] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
+  // Rows per page on the All leads table (50 / 75 / 100). The server takes it as `limit`.
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [submitting, setSubmitting] = useState(false);
   const [needsAccount, setNeedsAccount] = useState(false);
   const [selected, setSelected] = useState(() => new Set());
@@ -127,6 +132,51 @@ export function useLeadsPage() {
     leadController.listSearches(callEmitter);
   }, [toast]);
 
+  /** The audience filter, search box, degree and activity filters the table is showing right now. */
+  const currentFilters = useCallback(() => ({
+    searchId: activeSearchId,
+    q: query,
+    connectionDegree: connectionDegree.length > 0 ? connectionDegree.join(',') : undefined,
+    activityType: activityType.length > 0 ? activityType.join(',') : undefined,
+  }), [activeSearchId, query, connectionDegree, activityType]);
+
+  const download = useCallback((rows) => {
+    const csv = buildLeadsCsv(rows);
+    if (!csv) { toast.error('There are no leads to export'); return false; }
+    const audience = searches.find((s) => s._id === activeSearchId);
+    downloadFile(csv, leadsExportFilename(audience?.name));
+    return true;
+  }, [searches, activeSearchId, toast]);
+
+  /**
+   * Export CSV. scope 'page': exactly the rows on screen (the current page, with
+   * the filters and page size in use), no request. scope 'all': every lead
+   * matching the same filters across all pages (bulk), read from the server.
+   */
+  const exportLeads = useCallback((scope) => {
+    if (exporting) return;
+    if (scope === 'page') {
+      if (download(leads)) toast.success(`Exported ${leads.length.toLocaleString()} ${leads.length === 1 ? 'lead' : 'leads'} from this page`);
+      return;
+    }
+    setExporting(true);
+    const callEmitter = new EventEmitter();
+    callEmitter.once(LEAD_EVENTS.EXPORT_LEADS_SUCCESS, ({ leads: rows, total, truncated }) => {
+      if (!mountedRef.current) return;
+      setExporting(false);
+      if (!download(rows)) return;
+      toast.success(truncated
+        ? `Exported the first ${rows.length.toLocaleString()} of ${total.toLocaleString()} leads. Narrow the filters to export the rest.`
+        : `Exported ${rows.length.toLocaleString()} ${rows.length === 1 ? 'lead' : 'leads'} to CSV`);
+    });
+    callEmitter.once(LEAD_EVENTS.EXPORT_LEADS_FAILURE, (error) => {
+      if (!mountedRef.current) return;
+      setExporting(false);
+      toast.error(getToastError(error, 'Could not export leads'));
+    });
+    leadController.exportLeads(callEmitter, currentFilters());
+  }, [exporting, leads, download, currentFilters, toast]);
+
   const loadLeadsTokenRef = useRef(null);
   const loadLeads = useCallback(({ page = 1 } = {}) => {
     const token = {};
@@ -135,7 +185,7 @@ export function useLeadsPage() {
     callEmitter.once(LEAD_EVENTS.LIST_LEADS_SUCCESS, (res) => {
       if (!mountedRef.current || loadLeadsTokenRef.current !== token) return;
       setLeads(res.leads ?? []);
-      setPagination(res.pagination ?? { page, limit: PAGE_SIZE, total: 0 });
+      setPagination(res.pagination ?? { page, limit: pageSize, total: 0 });
       setLoading(false);
     });
     callEmitter.once(LEAD_EVENTS.LIST_LEADS_FAILURE, (error) => {
@@ -149,9 +199,9 @@ export function useLeadsPage() {
       connectionDegree: connectionDegree.length > 0 ? connectionDegree.join(',') : undefined,
       activityType: activityType.length > 0 ? activityType.join(',') : undefined,
       page,
-      limit: PAGE_SIZE,
+      limit: pageSize,
     });
-  }, [activeSearchId, query, connectionDegree, activityType, toast]);
+  }, [activeSearchId, query, connectionDegree, activityType, pageSize, toast]);
 
   useEffect(() => {
     loadSearches();
@@ -706,6 +756,10 @@ export function useLeadsPage() {
     activityType,
     setActivityType,
     loading,
+    exporting,
+    exportLeads,
+    pageSize,
+    setPageSize,
     submitting,
     needsAccount,
     selected,

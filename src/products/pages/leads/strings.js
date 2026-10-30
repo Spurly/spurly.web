@@ -13,6 +13,12 @@ export const leadsStrings = {
   // scoring is not built yet, so the scoring clause waits for it.
   pageSubtitle: 'Everyone Spurly has sourced for you. Imports keep running in the background — the list fills in as pages come back.',
   newAudience: 'New audience',
+  exportCsv: 'Export CSV',
+  exportHint: 'Download leads as a spreadsheet',
+  exportPage: 'Export this page',
+  exportPageHint: (n) => `${n.toLocaleString()} ${n === 1 ? 'lead' : 'leads'} shown, with your current filters`,
+  exportAll: 'Bulk export',
+  exportAllHint: (n) => `All ${n.toLocaleString()} ${n === 1 ? 'lead' : 'leads'} matching your current filters`,
   tabs: {
     all: 'All leads',
     enrich: 'Needs enrichment',

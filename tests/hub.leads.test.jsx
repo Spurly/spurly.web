@@ -20,6 +20,12 @@ import { stubGateway } from './gateway.js';
  *     somewhere else, and a toast that vanishes cannot say where.
  */
 
+const downloads = [];
+vi.mock('src/shared/utils/csvExport.js', async (importOriginal) => ({
+  ...(await importOriginal()),
+  downloadFile: (csv, filename) => downloads.push({ csv, filename }),
+}));
+
 let searches = [];
 let leadRows = [];
 let slowLeads = false;
@@ -86,6 +92,7 @@ beforeEach(() => {
   leadRows = [ASHA];
   slowLeads = false;
   getLeadsCalls.length = 0;
+  downloads.length = 0;
 });
 
 afterEach(() => {
@@ -346,5 +353,56 @@ describe('the poll that finishes an import', () => {
     await vi.advanceTimersByTimeAsync(5100);
 
     await waitFor(() => expect(screen.getByText('Asha Menon')).toBeInTheDocument());
+  });
+});
+
+const { HubLeadsPage } = await import('src/products/pages/leads/index.jsx');
+/** The page itself, not the whole route tree: these tests are about the table's own controls. */
+function renderLeadsPage() {
+  return render(
+    <HelmetProvider>
+      <MemoryRouter initialEntries={['/hub/leads']}>
+        <AuthContext.Provider value={signedInAs()}>
+          <SubscriptionContext.Provider value={{ status: hubSubscriber, loading: false, ready: true }}>
+            <ToastProvider><ConfirmProvider><HubLeadsPage /></ConfirmProvider></ToastProvider>
+          </SubscriptionContext.Provider>
+        </AuthContext.Provider>
+      </MemoryRouter>
+    </HelmetProvider>,
+  );
+}
+
+describe('leads export and page size', () => {
+  it('Export this page downloads exactly the rows shown, with no extra request', async () => {
+    renderLeadsPage();
+    await screen.findByText('Asha Menon');
+    const calls = getLeadsCalls.length;
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: /Export/ }));
+    await user.click(await screen.findByRole('menuitem', { name: /Export this page/ }));
+    expect(downloads).toHaveLength(1);
+    expect(downloads[0].csv).toContain('Asha Menon');
+    expect(downloads[0].csv).toContain('https://www.linkedin.com/in/asha');
+    expect(downloads[0].filename).toMatch(/^spurly-leads-\d{4}-\d{2}-\d{2}\.csv$/);
+    expect(getLeadsCalls).toHaveLength(calls);
+  });
+
+  it('Bulk export reads every page of the same filters at 200 a request', async () => {
+    renderLeadsPage();
+    await screen.findByText('Asha Menon');
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: /Export/ }));
+    await user.click(await screen.findByRole('menuitem', { name: /Bulk export/ }));
+    await waitFor(() => expect(downloads).toHaveLength(1));
+    expect(getLeadsCalls.at(-1)).toMatchObject({ page: 1, limit: 200 });
+  });
+
+  it('rows per page offers 50, 75 and 100 and sends the choice as the limit', async () => {
+    renderLeadsPage();
+    await screen.findByText('Asha Menon');
+    const select = screen.getByRole('combobox', { name: /rows/i });
+    expect([...select.options].map((o) => o.value)).toEqual(['50', '75', '100']);
+    await userEvent.setup().selectOptions(select, '75');
+    await waitFor(() => expect(getLeadsCalls.at(-1)).toMatchObject({ page: 1, limit: 75 }));
   });
 });

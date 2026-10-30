@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { DashboardLayout } from "src/core/layout/DashboardLayout";
 import { DataTable } from "src/core/DataTable";
-import { Button, Dropdown, PageTabs, SoonTag, WorkingLine } from "src/core/primitives";
+import { Button, Dropdown, ExportMenu, PageTabs, SoonTag, WorkingLine } from "src/core/primitives";
+import { LEAD_PAGE_SIZES } from "src/products/leads/constants/constants.js";
 import {
   PlusIcon,
   SendIcon,
@@ -64,6 +65,10 @@ export function HubLeadsPage() {
     activityType,
     setActivityType,
     loading,
+    exporting,
+    exportLeads,
+    pageSize,
+    setPageSize,
     submitting,
     needsAccount,
     selected,
@@ -238,14 +243,27 @@ export function HubLeadsPage() {
       title={t.pageTitle}
       subtitle={t.pageSubtitle}
       actions={
-        <Button
-          variant="primary"
-          leadingIcon={<PlusIcon size={14} strokeWidth={2} />}
-          onClick={() => setAudienceOpen(true)}
-          disabled={needsAccount}
-        >
-          {t.newAudience}
-        </Button>
+        <>
+          {activeTab === "all" && (
+            <ExportMenu
+              loading={exporting}
+              disabled={loading || leads.length === 0}
+              title={t.exportHint}
+              items={[
+                { key: "page", label: t.exportPage, hint: t.exportPageHint(leads.length), onSelect: () => exportLeads("page") },
+                { key: "all", label: t.exportAll, hint: t.exportAllHint(pagination.total), onSelect: () => exportLeads("all"), disabled: !pagination.total },
+              ]}
+            />
+          )}
+          <Button
+            variant="primary"
+            leadingIcon={<PlusIcon size={14} strokeWidth={2} />}
+            onClick={() => setAudienceOpen(true)}
+            disabled={needsAccount}
+          >
+            {t.newAudience}
+          </Button>
+        </>
       }
       tabs={<PageTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />}
     >
@@ -376,6 +394,8 @@ export function HubLeadsPage() {
             pageSize: pagination.limit,
             total: pagination.total,
             onPageChange: (page) => loadLeads({ page }),
+            onPageSizeChange: setPageSize,
+            pageSizeOptions: LEAD_PAGE_SIZES,
           }}
         />
       )}

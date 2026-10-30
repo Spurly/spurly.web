@@ -13,28 +13,9 @@
  * The file starts with a UTF-8 BOM so Excel reads names and text in any language correctly.
  */
 
-const BOM = '﻿';
-const FORMULA_START = /^[=+\-@\t\r]/;
+import { buildCsvTable, csvCell, csvFilename, exportDate, yesNo } from 'src/shared/utils/csvTable.js';
 
-const text = (v) => (typeof v === 'string' ? v : '');
-const yesNo = (v) => (v ? 'Yes' : 'No');
-
-/** One CSV cell. Numbers stay numbers (a negative one is not a formula); text is quoted and formula-guarded. */
-export function csvCell(value) {
-  if (value === null || value === undefined) return '';
-  if (typeof value === 'number') return Number.isFinite(value) ? String(value) : '';
-  if (typeof value === 'boolean') return yesNo(value);
-  let s = String(value).replace(/\r\n?/g, '\n');
-  if (FORMULA_START.test(s)) s = `'${s}`;
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
-
-/** "2026-10-30 08:15" in UTC, or '' when the value is missing or not a date. */
-export function exportDate(value) {
-  if (!value) return '';
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 16).replace('T', ' ');
-}
+export { csvCell, exportDate };
 
 const companyUrl = (company) => {
   if (!company) return '';
@@ -95,18 +76,10 @@ export const EXPORT_COLUMNS = {
 
 /** Header row plus one row per item, as CSV text (with BOM). '' when there is nothing to export. */
 export function buildDiscoverCsv(category, items) {
-  const columns = EXPORT_COLUMNS[category];
-  if (!columns || !Array.isArray(items) || items.length === 0) return '';
-  const header = columns.map(([name]) => csvCell(name)).join(',');
-  const rows = items.map((item) => columns.map(([, get]) => csvCell(get(item ?? {}))).join(','));
-  return BOM + [header, ...rows].join('\r\n') + '\r\n';
+  return buildCsvTable(EXPORT_COLUMNS[category], items);
 }
-
-const slug = (value) => text(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
 
 /** e.g. `spurly-posts-hiring-react-2026-10-30.csv`. A pasted URL search has no keywords to name it by. */
 export function discoverExportFilename(category, query, now = new Date()) {
-  const what = query?.url ? 'search-url' : slug(query?.keywords);
-  const day = now.toISOString().slice(0, 10);
-  return ['spurly', category, what, day].filter(Boolean).join('-') + '.csv';
+  return csvFilename([category, query?.url ? 'search-url' : query?.keywords], now);
 }

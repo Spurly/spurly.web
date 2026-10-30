@@ -4,6 +4,8 @@ import { getToastError } from 'src/shared/utils/apiError';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import hubProfileViewersController from '../controller/profileViewers.js';
 import { DEGREE_FILTERS, PAGE_SIZE, PROFILE_VIEWERS_EVENTS } from '../constants/constants.js';
+import { buildViewersCsv, viewersExportFilename } from '../exportCsv.js';
+import { downloadFile } from 'src/shared/utils/csvExport.js';
 
 /** What a failed sync means for the page: a different screen, a wait, LinkedIn's side, or a plain error. */
 export function syncFailureKind(error) {
@@ -36,6 +38,7 @@ export function useProfileViewersPage() {
   const [syncing, setSyncing] = useState(false);
   const [needsAccount, setNeedsAccount] = useState(false);
   const [rejected, setRejected] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const pageRef = useRef(1);
   const degreeRef = useRef(undefined);
@@ -47,6 +50,14 @@ export function useProfileViewersPage() {
       degree: degreeRef.current,
     });
   }, [eventEmitter]);
+
+  const downloadViewers = useCallback((rows) => {
+    const csv = buildViewersCsv(rows);
+    if (!csv) { toast.error('There are no viewers to export'); return false; }
+    const filter = DEGREE_FILTERS.find((f) => f.degree === degreeRef.current);
+    downloadFile(csv, viewersExportFilename(filter?.degree ? filter.label : ''));
+    return true;
+  }, [toast]);
 
   useEffect(() => {
     function onViewers(next) {
@@ -81,17 +92,33 @@ export function useProfileViewersPage() {
       }
     }
 
+    function onExport({ viewers, total, truncated }) {
+      setExporting(false);
+      if (!downloadViewers(viewers)) return;
+      toast.success(truncated
+        ? `Exported the first ${viewers.length.toLocaleString()} of ${total.toLocaleString()} viewers`
+        : `Exported ${viewers.length.toLocaleString()} ${viewers.length === 1 ? 'viewer' : 'viewers'} to CSV`);
+    }
+    function onExportFailure(error) {
+      setExporting(false);
+      toast.error(getToastError(error, 'Could not export profile viewers'));
+    }
+
     eventEmitter.on(PROFILE_VIEWERS_EVENTS.GET_VIEWERS_SUCCESS, onViewers);
+    eventEmitter.on(PROFILE_VIEWERS_EVENTS.EXPORT_VIEWERS_SUCCESS, onExport);
+    eventEmitter.on(PROFILE_VIEWERS_EVENTS.EXPORT_VIEWERS_FAILURE, onExportFailure);
     eventEmitter.on(PROFILE_VIEWERS_EVENTS.GET_VIEWERS_FAILURE, onViewersFailure);
     eventEmitter.on(PROFILE_VIEWERS_EVENTS.SYNC_VIEWERS_SUCCESS, onSync);
     eventEmitter.on(PROFILE_VIEWERS_EVENTS.SYNC_VIEWERS_FAILURE, onSyncFailure);
     return () => {
       eventEmitter.off(PROFILE_VIEWERS_EVENTS.GET_VIEWERS_SUCCESS, onViewers);
+      eventEmitter.off(PROFILE_VIEWERS_EVENTS.EXPORT_VIEWERS_SUCCESS, onExport);
+      eventEmitter.off(PROFILE_VIEWERS_EVENTS.EXPORT_VIEWERS_FAILURE, onExportFailure);
       eventEmitter.off(PROFILE_VIEWERS_EVENTS.GET_VIEWERS_FAILURE, onViewersFailure);
       eventEmitter.off(PROFILE_VIEWERS_EVENTS.SYNC_VIEWERS_SUCCESS, onSync);
       eventEmitter.off(PROFILE_VIEWERS_EVENTS.SYNC_VIEWERS_FAILURE, onSyncFailure);
     };
-  }, [eventEmitter, toast, load]);
+  }, [eventEmitter, toast, load, downloadViewers]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -99,6 +126,18 @@ export function useProfileViewersPage() {
     setSyncing(true);
     hubProfileViewersController.syncViewers(eventEmitter);
   }, [eventEmitter]);
+
+  /** Export CSV. scope 'page': the viewers on screen (no request). scope 'all': every stored viewer for the same connection-level filter, all pages. */
+  const exportViewers = useCallback((scope) => {
+    if (exporting) return;
+    if (scope === 'page') {
+      const rows = data?.viewers ?? [];
+      if (downloadViewers(rows)) toast.success(`Exported ${rows.length.toLocaleString()} ${rows.length === 1 ? 'viewer' : 'viewers'} from this page`);
+      return;
+    }
+    setExporting(true);
+    hubProfileViewersController.exportViewers(eventEmitter, { degree: degreeRef.current });
+  }, [eventEmitter, exporting, data, downloadViewers, toast]);
 
   const changeDegree = useCallback((id) => {
     const filter = DEGREE_FILTERS.find((f) => f.id === id) ?? DEGREE_FILTERS[0];
@@ -113,5 +152,5 @@ export function useProfileViewersPage() {
     load();
   }, [load]);
 
-  return { data, loading, degreeId, changeDegree, goToPage, sync, syncing, needsAccount, rejected };
+  return { data, loading, degreeId, changeDegree, goToPage, sync, syncing, needsAccount, rejected, exporting, exportViewers };
 }

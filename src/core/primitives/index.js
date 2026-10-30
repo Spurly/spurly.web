@@ -28,5 +28,6 @@ export { PageTabs } from './PageTabs';
 export { WorkingLine } from './WorkingLine';
 export { FilterPills } from './FilterPills';
 export { Menu } from './Menu';
+export { ExportMenu } from './ExportMenu';
 export { Switch, SwitchRow } from './Switch';
 export { Surface, SurfaceLayer, DepthProvider } from './Surface';

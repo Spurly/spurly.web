@@ -1,5 +1,6 @@
 import hubSourcingGateway from '../gateway/lead.js';
-import { LEAD_EVENTS } from '../constants/constants.js';
+import { LEAD_EVENTS, EXPORT_PAGE_SIZE, EXPORT_MAX_ROWS } from '../constants/constants.js';
+import { fetchAllPages } from 'src/shared/utils/fetchAllPages.js';
 
 async function createSearch(eventEmitter, payload) {
   try {
@@ -61,6 +62,26 @@ async function listLeads(eventEmitter, params) {
     eventEmitter.emit(LEAD_EVENTS.LIST_LEADS_SUCCESS, data);
   } catch (error) {
     eventEmitter.emit(LEAD_EVENTS.LIST_LEADS_FAILURE, error);
+  }
+}
+
+/**
+ * Bulk export: every lead matching the current audience and filters, across all
+ * pages (200 a request, a few at a time), up to EXPORT_MAX_ROWS. Stored data, no
+ * LinkedIn call. Emits { leads, total, truncated }.
+ */
+async function exportLeads(eventEmitter, params) {
+  try {
+    const { rows, total, truncated } = await fetchAllPages(
+      async (page) => {
+        const data = await hubSourcingGateway.listLeads({ ...params, page, limit: EXPORT_PAGE_SIZE });
+        return { rows: data.leads ?? [], total: data.pagination?.total ?? 0 };
+      },
+      { pageSize: EXPORT_PAGE_SIZE, maxRows: EXPORT_MAX_ROWS, keyOf: (lead) => lead._id },
+    );
+    eventEmitter.emit(LEAD_EVENTS.EXPORT_LEADS_SUCCESS, { leads: rows, total, truncated });
+  } catch (error) {
+    eventEmitter.emit(LEAD_EVENTS.EXPORT_LEADS_FAILURE, error);
   }
 }
 
@@ -135,6 +156,7 @@ const leadController = {
   runSearch,
   deleteSearch,
   listLeads,
+  exportLeads,
   resolveProfile,
   withdrawInvitation,
   createList,

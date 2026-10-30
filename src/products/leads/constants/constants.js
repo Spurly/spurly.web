@@ -1,4 +1,6 @@
 export const PAGE_SIZE = 50;
+/** Rows per page the All leads table offers; the server takes it as `limit` (it allows up to 200). */
+export const LEAD_PAGE_SIZES = [50, 75, 100];
 export const POLL_MS = 5000;
 
 export const LEAD_EVENTS = {
@@ -16,6 +18,8 @@ export const LEAD_EVENTS = {
   DELETE_SEARCH_FAILURE: 'LEAD_DELETE_SEARCH_FAILURE',
   LIST_LEADS_SUCCESS: 'LEAD_LIST_LEADS_SUCCESS',
   LIST_LEADS_FAILURE: 'LEAD_LIST_LEADS_FAILURE',
+  EXPORT_LEADS_SUCCESS: 'LEAD_EXPORT_LEADS_SUCCESS',
+  EXPORT_LEADS_FAILURE: 'LEAD_EXPORT_LEADS_FAILURE',
   RESOLVE_PROFILE_SUCCESS: 'LEAD_RESOLVE_PROFILE_SUCCESS',
   RESOLVE_PROFILE_FAILURE: 'LEAD_RESOLVE_PROFILE_FAILURE',
   WITHDRAW_INVITATION_SUCCESS: 'LEAD_WITHDRAW_INVITATION_SUCCESS',
@@ -31,6 +35,10 @@ export const LEAD_EVENTS = {
   FOLLOWER_SOURCES_SUCCESS: 'LEAD_FOLLOWER_SOURCES_SUCCESS',
   FOLLOWER_SOURCES_FAILURE: 'LEAD_FOLLOWER_SOURCES_FAILURE',
 };
+
+/** Export: rows per request (the server's page ceiling) and the most rows one export reads. */
+export const EXPORT_PAGE_SIZE = 200;
+export const EXPORT_MAX_ROWS = 10000;
 
 /** Default "profiles to fetch" — the old fixed import size. */
 export const DEFAULT_FETCH_COUNT = 30;
