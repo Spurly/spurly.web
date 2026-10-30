@@ -6,7 +6,7 @@ path: /developers/limits
 template: docs
 section: Get started
 order: 6
-date: 2026-10-24
+date: 2026-10-30
 parent: /developers
 ---
 ## Rate limit
@@ -28,6 +28,17 @@ Spurly applies **no pacing and no daily caps** to messages sent through this API
 - Pace bulk sending in your product. Space out messages to many different people rather than sending them in a burst.
 - Avoid sending the same text to many people in a short time.
 - Expect LinkedIn to refuse messages to people who are not 1st-degree connections (unless they have an open profile).
+
+## Inbox sync
+
+| What | Limit |
+|---|---|
+| Conversations imported per LinkedIn account | The newest 300 (may be raised) |
+| Messages imported per conversation | The latest 50 |
+| Conversations per `/chats` page | 100 |
+| Catch-up check for missed messages | About every 10 minutes, in addition to live delivery |
+
+See [the inbox guide](/developers/guides/inbox) for what that means for keeping your own copy.
 
 ## Files
 

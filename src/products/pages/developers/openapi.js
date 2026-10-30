@@ -352,7 +352,7 @@ export const OPENAPI = {
         operationId: 'getInboxStatus',
         tags: ['Inbox'],
         summary: 'Get inbox status',
-        description: 'Counts and the state of the history sync. Use it to explain an empty inbox while the first sync runs.',
+        description: 'Counts and the state of the history sync. Use it to explain an empty inbox while the first sync runs, and to spot a LinkedIn connection that needs attention: `sync.status` `failed` means the person has to reconnect LinkedIn, and new messages will not arrive until they do.',
         parameters: [accountIdParam],
         responses: {
           200: ok('Inbox status.', ref('InboxStatus'), {
@@ -370,7 +370,7 @@ export const OPENAPI = {
         operationId: 'syncInbox',
         tags: ['Inbox'],
         summary: 'Sync the inbox',
-        description: 'Queues a history sync. Rarely needed: the first sync starts on its own when LinkedIn connects, and new messages arrive live.',
+        description: 'Queues a history sync. Rarely needed: a sync starts on its own when LinkedIn connects or reconnects, and new messages arrive live. It does not fix a LinkedIn connection that needs attention.',
         parameters: [accountIdParam],
         responses: {
           202: ok('Queued.', { type: 'object', properties: { queued: { type: 'boolean' }, message: { type: 'string' } } }, { queued: true, message: 'Inbox sync queued. It runs in the background and fills in as it goes.' }),
@@ -384,7 +384,7 @@ export const OPENAPI = {
         operationId: 'listChats',
         tags: ['Inbox'],
         summary: 'List conversations',
-        description: 'Most recently active first.',
+        description: 'Most recently active first, one conversation per person. Archived conversations are not returned. The inbox holds the newest 300 conversations of the account; read pages until `pagination.total` is reached.',
         parameters: [
           accountIdParam,
           { name: 'unread', in: 'query', required: false, schema: { type: 'boolean', default: false }, description: 'Only conversations with unread messages.' },
@@ -790,7 +790,7 @@ export const OPENAPI = {
         type: 'object',
         properties: {
           connected: { type: 'boolean', description: 'LinkedIn is connected.' },
-          chats: { type: 'integer', description: 'Conversations in the inbox.' },
+          chats: { type: 'integer', description: 'Conversations in the inbox (up to the newest 300).' },
           unread: { type: 'integer', description: 'Unread messages across all conversations.' },
           historyPending: { type: 'integer', description: 'Conversations whose older messages are still being imported.' },
           sync: {
@@ -803,7 +803,7 @@ export const OPENAPI = {
               messagesImported: { type: 'integer' },
               lastRunAt: TS,
               firstCompletedAt: { ...TS, description: 'When the first full sync finished.' },
-              error: { type: 'string', description: 'Why the last run failed, if it did.' },
+              error: { type: 'string', description: 'Why the last run failed, if it did. When status is `failed` with a LinkedIn connection message, the person has to reconnect LinkedIn.' },
             },
           },
           liveFeedSeenAt: { ...TS, description: 'When the last live message arrived. Null until the first one.' },
