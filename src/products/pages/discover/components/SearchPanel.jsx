@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Button, FilterPills, Input, SwitchRow } from 'src/core/primitives';
-import { SearchIcon } from 'src/core/icons';
+import { useEffect, useRef, useState } from 'react';
+import { Button, FilterPills, Input, SwitchRow, Tooltip } from 'src/core/primitives';
+import { SearchIcon, SlidersIcon, ChevronDownIcon } from 'src/core/icons';
 import {
   DATE_POSTED_OPTIONS,
   SORT_OPTIONS,
@@ -9,7 +9,11 @@ import {
   HEADCOUNT_OPTIONS,
   PRESENCE_OPTIONS,
   JOB_TYPE_OPTIONS,
+  RESULT_COUNT_OPTIONS,
+  DEFAULT_RESULT_COUNT,
 } from 'src/products/discover/constants/constants.js';
+import { searchPagesFor, compactFilters } from 'src/products/discover/format.js';
+import { ROWS_PER_PAGE } from 'src/products/discover/constants/constants.js';
 import { FilterTagPicker } from 'src/products/pages/leads/components/FilterTagPicker.jsx';
 import { ChoiceChips } from './ChoiceChips.jsx';
 import { discoverStrings } from '../strings.js';
@@ -33,6 +37,21 @@ export function SearchPanel({ category, loading, disabled, onSearch }) {
   const [keywords, setKeywords] = useState('');
   const [url, setUrl] = useState('');
   const [filters, setFilters] = useState({});
+  const [count, setCount] = useState(DEFAULT_RESULT_COUNT);
+  const [showFilters, setShowFilters] = useState(false);
+  const filtersRef = useRef(null);
+  useEffect(() => {
+    if (!showFilters) return undefined;
+    const onDown = (e) => { if (!filtersRef.current?.contains(e.target)) setShowFilters(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setShowFilters(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [showFilters]);
+  const activeFilters = Object.keys(compactFilters(filters) ?? {}).length;
   const set = (key) => (value) => setFilters((f) => ({ ...f, [key]: value }));
   const value = useUrl ? url : keywords;
 
@@ -45,7 +64,7 @@ export function SearchPanel({ category, loading, disabled, onSearch }) {
   const submit = (event) => {
     event.preventDefault();
     if (!value.trim() || loading || disabled) return;
-    onSearch(category, useUrl ? { url } : { keywords, filters });
+    onSearch(category, useUrl ? { url, count } : { keywords, filters, count });
   };
 
   const sortPills = (
@@ -91,62 +110,97 @@ export function SearchPanel({ category, loading, disabled, onSearch }) {
         </div>
       )}
 
-      {!useUrl && category === 'companies' && (
-        <div className="flex flex-col gap-3">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <FilterTagPicker type="LOCATION" label="Location" placeholder="Search a city or region…" value={filters.location ?? []} onChange={set('location')} disabled={loading} />
-            <FilterTagPicker type="INDUSTRY" label="Industry" placeholder="Search an industry…" value={filters.industry ?? []} onChange={set('industry')} disabled={loading} />
-          </div>
-          <ChoiceChips label="Company size" options={HEADCOUNT_OPTIONS} value={filters.headcount ?? []} onChange={set('headcount')} disabled={loading} />
-          <SwitchRow title={t.filters.hiringOnly} checked={!!filters.hasJobOffers} onChange={set('hasJobOffers')} disabled={loading} />
-        </div>
-      )}
+      <div className="flex items-center justify-between gap-x-4 gap-y-2 flex-wrap">
+        <div className="flex items-center gap-x-4 gap-y-2 flex-wrap">
+          {!useUrl && (
+          <div ref={filtersRef} className="relative">
+            <Button type="button" variant="ghost" size="sm" aria-expanded={showFilters} onClick={() => setShowFilters((v) => !v)}>
+              <SlidersIcon size={14} />
+              {t.filtersButton}
+              {activeFilters > 0 && (
+                <span className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-accent-fg)]">{activeFilters}</span>
+              )}
+              <ChevronDownIcon size={14} className={showFilters ? 'rotate-180' : ''} />
+            </Button>
+            {showFilters && (
+              <div
+                role="dialog"
+                aria-label={t.filtersButton}
+                className="absolute left-0 top-full z-30 mt-2 flex w-[min(760px,calc(100vw-3rem))] flex-col gap-4 rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] p-4 shadow-[var(--ui-shadow-md)]"
+              >
+              {category === 'companies' && (
+                <div className="flex flex-col gap-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <FilterTagPicker type="LOCATION" label="Location" placeholder="Search a city or region…" value={filters.location ?? []} onChange={set('location')} disabled={loading} />
+                    <FilterTagPicker type="INDUSTRY" label="Industry" placeholder="Search an industry…" value={filters.industry ?? []} onChange={set('industry')} disabled={loading} />
+                  </div>
+                  <ChoiceChips label="Company size" options={HEADCOUNT_OPTIONS} value={filters.headcount ?? []} onChange={set('headcount')} disabled={loading} />
+                  <SwitchRow title={t.filters.hiringOnly} checked={!!filters.hasJobOffers} onChange={set('hasJobOffers')} disabled={loading} />
+                </div>
+              )}
 
-      {!useUrl && category === 'jobs' && (
-        <div className="flex flex-col gap-3">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <FilterTagPicker type="LOCATION" label="Location" placeholder="Search a city or region…" value={filters.region ? [filters.region] : []}
-              onChange={(next) => set('region')(next[next.length - 1])} disabled={loading} />
-            <div className="flex flex-col gap-1.5">
-              <span className="ui-micro !text-[var(--ui-text-secondary)]">{t.filters.sort}</span>
-              {sortPills}
-            </div>
-          </div>
-          <ChoiceChips label="Work type" options={PRESENCE_OPTIONS} value={filters.presence ?? []} onChange={set('presence')} disabled={loading} />
-          <ChoiceChips label="Job type" options={JOB_TYPE_OPTIONS} value={filters.jobType ?? []} onChange={set('jobType')} disabled={loading} />
-          <SwitchRow title={t.filters.easyApply} checked={!!filters.easyApply} onChange={set('easyApply')} disabled={loading} />
-        </div>
-      )}
+              {category === 'jobs' && (
+                <div className="flex flex-col gap-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <FilterTagPicker type="LOCATION" label="Location" placeholder="Search a city or region…" value={filters.region ? [filters.region] : []}
+                      onChange={(next) => set('region')(next[next.length - 1])} disabled={loading} />
+                    <div className="flex flex-col gap-1.5">
+                      <span className="ui-micro !text-[var(--ui-text-secondary)]">{t.filters.sort}</span>
+                      {sortPills}
+                    </div>
+                  </div>
+                  <ChoiceChips label="Work type" options={PRESENCE_OPTIONS} value={filters.presence ?? []} onChange={set('presence')} disabled={loading} />
+                  <ChoiceChips label="Job type" options={JOB_TYPE_OPTIONS} value={filters.jobType ?? []} onChange={set('jobType')} disabled={loading} />
+                  <SwitchRow title={t.filters.easyApply} checked={!!filters.easyApply} onChange={set('easyApply')} disabled={loading} />
+                </div>
+              )}
 
-      {!useUrl && category === 'posts' && (
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1.5">
-            <span className="ui-micro !text-[var(--ui-text-secondary)]">{t.filters.posted}</span>
-            <FilterPills ariaLabel="Posted" size="sm" value={filters.datePosted ?? 'any'} onChange={set('datePosted')}
-              options={optionValues(DATE_POSTED_OPTIONS)} />
+              {category === 'posts' && (
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <span className="ui-micro !text-[var(--ui-text-secondary)]">{t.filters.posted}</span>
+                    <FilterPills ariaLabel="Posted" size="sm" value={filters.datePosted ?? 'any'} onChange={set('datePosted')}
+                      options={optionValues(DATE_POSTED_OPTIONS)} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <span className="ui-micro !text-[var(--ui-text-secondary)]">{t.filters.sort}</span>
+                    {sortPills}
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <span className="ui-micro !text-[var(--ui-text-secondary)]">{t.filters.format}</span>
+                    <FilterPills ariaLabel="Format" size="sm" value={filters.contentType ?? 'any'} onChange={set('contentType')}
+                      options={optionValues(CONTENT_TYPE_OPTIONS)} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <span className="ui-micro !text-[var(--ui-text-secondary)]">{t.filters.postedBy}</span>
+                    <FilterPills ariaLabel="Posted by" size="sm" value={filters.postedBy ?? 'any'} onChange={set('postedBy')}
+                      options={optionValues(POSTED_BY_OPTIONS)} />
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <FilterTagPicker type="INDUSTRY" label={t.filters.authorIndustry} placeholder="Search an industry…" value={filters.authorIndustry ?? []} onChange={set('authorIndustry')} disabled={loading} />
+                    <FilterTagPicker type="COMPANY" label={t.filters.authorCompany} placeholder="Search a company…" value={filters.authorCompany ?? []} onChange={set('authorCompany')} disabled={loading} />
+                  </div>
+                </div>
+              )}
+                <div className="flex items-center justify-between border-t border-[var(--ui-border)] pt-3">
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setFilters({})} disabled={activeFilters === 0}>{t.clearFilters}</Button>
+                  <Button type="button" variant="primary" size="sm" onClick={() => setShowFilters(false)}>{t.done}</Button>
+                </div>
+              </div>
+            )}
           </div>
-          <div className="flex flex-col gap-1.5">
-            <span className="ui-micro !text-[var(--ui-text-secondary)]">{t.filters.sort}</span>
-            {sortPills}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <span className="ui-micro !text-[var(--ui-text-secondary)]">{t.filters.format}</span>
-            <FilterPills ariaLabel="Format" size="sm" value={filters.contentType ?? 'any'} onChange={set('contentType')}
-              options={optionValues(CONTENT_TYPE_OPTIONS)} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <span className="ui-micro !text-[var(--ui-text-secondary)]">{t.filters.postedBy}</span>
-            <FilterPills ariaLabel="Posted by" size="sm" value={filters.postedBy ?? 'any'} onChange={set('postedBy')}
-              options={optionValues(POSTED_BY_OPTIONS)} />
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <FilterTagPicker type="INDUSTRY" label={t.filters.authorIndustry} placeholder="Search an industry…" value={filters.authorIndustry ?? []} onChange={set('authorIndustry')} disabled={loading} />
-            <FilterTagPicker type="COMPANY" label={t.filters.authorCompany} placeholder="Search a company…" value={filters.authorCompany ?? []} onChange={set('authorCompany')} disabled={loading} />
+          )}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="ui-micro !text-[var(--ui-text-secondary)]">{t.resultCount}</span>
+            <FilterPills ariaLabel={t.resultCount} size="sm" value={count} onChange={setCount}
+              options={RESULT_COUNT_OPTIONS.map((n) => ({ id: n, label: String(n) }))} />
+            <Tooltip content={t.resultCountExplain(ROWS_PER_PAGE[category], searchPagesFor(category, count))} placement="bottom">
+              <span tabIndex={0} className="ui-micro !text-[var(--ui-text-tertiary)] underline decoration-dotted underline-offset-2 cursor-help">
+                {t.resultCountCost(searchPagesFor(category, count))}
+              </span>
+            </Tooltip>
           </div>
         </div>
-      )}
-
-      <div className="flex justify-end">
         <Button type="button" variant="ghost" size="sm" onClick={() => setUseUrl((v) => !v)}>
           {useUrl ? t.useKeywords : t.pasteUrl}
         </Button>

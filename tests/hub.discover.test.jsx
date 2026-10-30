@@ -39,6 +39,12 @@ const page = (category, items, extra = {}) => ({
   data: { [category]: items, rowCount: items.length, cursor: null, total: null, usage: usage(4), ...extra },
 });
 
+const downloads = [];
+vi.mock('src/shared/utils/csvExport.js', async (importOriginal) => ({
+  ...(await importOriginal()),
+  downloadFile: (csv, filename) => downloads.push({ csv, filename }),
+}));
+
 vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
   'GET /hub/discover/usage': async () => ({ success: true, data: state.usage }),
   'POST /hub/discover/posts/import-authors': async (_url, body) => {
@@ -75,6 +81,8 @@ async function search(text, button = 'Search') {
   fireEvent.click(screen.getByRole('button', { name: button }));
 }
 
+const openFilters = () => fireEvent.click(screen.getByRole('button', { name: /^Filters/ }));
+
 beforeEach(() => {
   state.responses = {};
   state.calls = [];
@@ -82,6 +90,7 @@ beforeEach(() => {
   state.usage = usage();
   state.importCalls = [];
   state.importError = null;
+  downloads.length = 0;
   lastLocation = null;
 });
 
@@ -100,7 +109,7 @@ describe('Discover page', () => {
     await search('saas');
 
     await waitFor(() => expect(screen.getByText('Fixture Company 1')).toBeInTheDocument());
-    expect(state.calls[0]).toEqual({ category: 'companies', body: { keywords: 'saas', url: undefined, filters: undefined, cursor: undefined } });
+    expect(state.calls[0]).toEqual({ category: 'companies', body: { keywords: 'saas', url: undefined, filters: undefined, cursor: undefined, count: 25 } });
     expect(screen.getByText('Fixture Company 3')).toBeInTheDocument();
     expect(screen.queryByText('Fixture School 2')).not.toBeInTheDocument();
 
@@ -136,12 +145,54 @@ describe('Discover page', () => {
     renderPage();
     await search('saas');
     await screen.findByText('Fixture Company 1');
-    fireEvent.click(screen.getByRole('button', { name: 'Load more' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Load 25 more' }));
     await screen.findByText('Fixture Company 2');
     expect(screen.getByText('Fixture Company 1')).toBeInTheDocument();
-    expect(state.calls[1].body).toMatchObject({ keywords: 'saas', cursor: 'CUR1' });
-    expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
+    expect(state.calls[1].body).toMatchObject({ keywords: 'saas', cursor: 'CUR1', count: 25 });
+    expect(screen.queryByRole('button', { name: 'Load 25 more' })).not.toBeInTheDocument();
     expect(screen.getByText('That is everything LinkedIn returned for this search.')).toBeInTheDocument();
+  });
+
+  it('results per search: the chosen count is sent, shown on Load more, and what it costs is stated', async () => {
+    state.responses.companies = page('companies', [company(1)], { cursor: 'CUR1' });
+    renderPage();
+    expect(await screen.findByText(/Costs up to 3 of your daily searches/)).toBeInTheDocument(); // 25 companies at 10 per LinkedIn page
+    fireEvent.click(screen.getByRole('radio', { name: '100' }));
+    expect(screen.getByText(/Costs up to 10 of your daily searches/)).toBeInTheDocument();
+    await search('saas');
+    await screen.findByText('Fixture Company 1');
+    expect(state.calls[0].body.count).toBe(100);
+    expect(screen.getByRole('button', { name: 'Load 100 more' })).toBeInTheDocument();
+    expect(screen.getByText('1 company loaded')).toBeInTheDocument();
+  });
+
+  it('posts cost one daily search per 50 rows', async () => {
+    renderPage();
+    fireEvent.click(await screen.findByRole('radio', { name: 'Posts' }));
+    expect(await screen.findByText('Costs 1 of your daily searches')).toBeInTheDocument();
+  });
+
+  it('Export CSV downloads every loaded row with the tab\'s own columns', async () => {
+    state.responses.posts = page('posts', [post(1), post(2, { text: '=HYPERLINK("http://x")' })]);
+    renderPage();
+    fireEvent.click(await screen.findByRole('radio', { name: 'Posts' }));
+    await search('hiring react');
+    await screen.findByText('Fixture Author 1');
+    expect(screen.getByText('2 posts loaded')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Export CSV/ }));
+    expect(downloads).toHaveLength(1);
+    expect(downloads[0].filename).toMatch(/^spurly-posts-hiring-react-\d{4}-\d{2}-\d{2}\.csv$/);
+    const lines = downloads[0].csv.replace('\uFEFF', '').trim().split('\r\n');
+    expect(lines[0]).toBe('Author,Author Type,Author Headline,Author LinkedIn URL,Post,Posted (UTC),Posted (as shown),Reactions,Comments,Reposts,Is Repost,Hiring Post,Job Title (hiring post),Post URL,Author LinkedIn ID');
+    expect(lines).toHaveLength(3);
+    expect(lines[1]).toContain('https://www.linkedin.com/in/fixture-author-1');
+    expect(lines[2]).toContain("'=HYPERLINK(");
+  });
+
+  it('no export button before there is something to export', async () => {
+    renderPage();
+    await screen.findByText('Search for companies');
+    expect(screen.queryByRole('button', { name: /Export CSV/ })).not.toBeInTheDocument();
   });
 
   it('no results says so, and does not look like the first-visit invitation', async () => {
@@ -162,7 +213,7 @@ describe('Discover page', () => {
     expect(screen.getByText('2 roles')).toBeInTheDocument();
     expect(screen.getAllByText('1 role')).toHaveLength(2);
     expect(screen.getByText('Company not shown by LinkedIn')).toBeInTheDocument();
-    expect(screen.getByText('3,995 results on LinkedIn')).toBeInTheDocument();
+    expect(screen.getByText(/3,995 results on LinkedIn/)).toBeInTheDocument();
     expect(screen.getByText('Easy Apply')).toBeInTheDocument();
     // the job with no company has no company actions: 2 companies -> 2 buttons
     expect(screen.getAllByRole('button', { name: 'Find people here' })).toHaveLength(2);
@@ -172,6 +223,7 @@ describe('Discover page', () => {
     state.responses.posts = page('posts', [post(1), post(2, { author: { ...post(2).author, isCompany: true, name: 'Fixture Page' } })]);
     renderPage();
     fireEvent.click(await screen.findByRole('radio', { name: 'Posts' }));
+    openFilters();
     fireEvent.click(screen.getByRole('radio', { name: 'Past week' }));
     await search('hiring react');
     await waitFor(() => expect(screen.getByText('Synthetic hiring post 1')).toBeInTheDocument());
@@ -185,6 +237,7 @@ describe('Discover page', () => {
     state.responses.posts = page('posts', [post(1)]);
     renderPage();
     fireEvent.click(await screen.findByRole('radio', { name: 'Posts' }));
+    openFilters();
     fireEvent.click(screen.getByRole('radio', { name: 'Newest first' }));
     fireEvent.click(screen.getByRole('radio', { name: 'Videos' }));
     await search('hiring');
@@ -202,6 +255,7 @@ describe('Discover page', () => {
     state.responses.posts = page('posts', [post(1)]);
     renderPage();
     fireEvent.click(await screen.findByRole('radio', { name: 'Posts' }));
+    openFilters();
     fireEvent.click(screen.getByRole('radio', { name: 'My 1st connections' }));
     await search('hiring');
     await screen.findByText('Synthetic hiring post 1');
@@ -215,6 +269,7 @@ describe('Discover page', () => {
   it('companies: size buckets and "hiring only" are sent; a pasted URL sends no filters', async () => {
     renderPage();
     await screen.findByRole('radio', { name: 'Companies' });
+    openFilters();
     fireEvent.click(screen.getByRole('button', { name: '11-50' }));
     fireEvent.click(screen.getByRole('button', { name: '10,001+' }));
     fireEvent.click(screen.getByRole('switch', { name: 'Only companies hiring on LinkedIn' }));
@@ -233,6 +288,7 @@ describe('Discover page', () => {
   it('jobs: work type, job type, sort and easy apply are sent', async () => {
     renderPage();
     fireEvent.click(await screen.findByRole('radio', { name: 'Jobs' }));
+    openFilters();
     fireEvent.click(screen.getByRole('button', { name: 'Remote' }));
     fireEvent.click(screen.getByRole('button', { name: 'Contract' }));
     fireEvent.click(screen.getByRole('radio', { name: 'Newest first' }));

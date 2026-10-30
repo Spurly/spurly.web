@@ -43,7 +43,7 @@ export function PostList({ posts, importing, onImport, keywords }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-[var(--ui-border)]">
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-4 py-2.5 border-b border-[var(--ui-border)] bg-[var(--ui-surface-card)]">
         <Checkbox checked={allSelected} indeterminate={selected.size > 0 && !allSelected} onChange={toggleAll} label={t.selectAll} disabled={selectable.length === 0} />
         <div className="flex items-center gap-3">
           {selected.size > 0 && (

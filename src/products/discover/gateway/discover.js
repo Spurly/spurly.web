@@ -4,10 +4,11 @@ const EMPTY_USAGE = { used: 0, cap: 100, resetsAt: null };
 
 /**
  * POST /hub/discover/:category (companies | jobs | posts).
- * Returns { companies|jobs|posts, rowCount, cursor, total, usage }. Spends one search page.
+ * `count` = rows wanted (the server joins LinkedIn pages to reach it). Without it, one default page.
+ * Returns { companies|jobs|posts, rowCount, cursor, total, usage, capReached }. Spends one search page per LinkedIn page.
  */
-async function search(category, { keywords, url, filters, cursor } = {}) {
-  const res = await apiGateway.post(`/hub/discover/${category}`, { keywords, url, filters, cursor });
+async function search(category, { keywords, url, filters, cursor, count } = {}) {
+  const res = await apiGateway.post(`/hub/discover/${category}`, { keywords, url, filters, cursor, count });
   const data = res.data?.data ?? {};
   return { rowCount: 0, cursor: null, total: null, usage: null, ...data, [category]: data[category] ?? [] };
 }

@@ -7,9 +7,9 @@ import { DISCOVER_EVENTS } from '../constants/constants.js';
  * so the page can drop an answer that a newer search has already replaced.
  */
 
-async function search(eventEmitter, { category, keywords, url, filters, cursor }, ctx = {}) {
+async function search(eventEmitter, { category, keywords, url, filters, cursor, count }, ctx = {}) {
   try {
-    const data = await hubDiscoverGateway.search(category, { keywords, url, filters, cursor });
+    const data = await hubDiscoverGateway.search(category, { keywords, url, filters, cursor, count });
     eventEmitter.emit(DISCOVER_EVENTS.SEARCH_SUCCESS, { ctx: { ...ctx, category }, data });
   } catch (error) {
     eventEmitter.emit(DISCOVER_EVENTS.SEARCH_FAILURE, { ctx: { ...ctx, category }, error });

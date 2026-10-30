@@ -5,6 +5,8 @@ import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import hubDiscoverController from '../controller/discover.js';
 import { DISCOVER_EVENTS, DISCOVER_TABS } from '../constants/constants.js';
 import { discoverFailureKind, serverMessage, compactFilters } from '../format.js';
+import { buildDiscoverCsv, discoverExportFilename } from '../exportCsv.js';
+import { downloadFile } from 'src/shared/utils/csvExport.js';
 
 const emptyTab = () => ({
   items: [],
@@ -52,6 +54,7 @@ export function useDiscoverPage() {
         error: null,
       }));
       if (data.usage) setUsage(data.usage);
+      if (data.capReached) toast.error(`Today's search limit was reached. Showing the ${(data[ctx.category] ?? []).length} rows fetched.`);
     }
     function onSearchFailure({ ctx, error }) {
       if (seqRef.current[ctx.category] !== ctx.seq) return;
@@ -90,7 +93,7 @@ export function useDiscoverPage() {
 
   useEffect(() => { hubDiscoverController.getUsage(eventEmitter); }, [eventEmitter]);
 
-  /** A fresh search on one tab. `query` is { keywords?, url?, filters? } (filters as the panel holds them). */
+  /** A fresh search on one tab. `query` is { keywords?, url?, filters?, count? } (filters as the panel holds them; count = rows wanted). */
   const search = useCallback((category, query) => {
     const seq = (seqRef.current[category] ?? 0) + 1;
     seqRef.current[category] = seq;
@@ -99,6 +102,7 @@ export function useDiscoverPage() {
       url: (query.url ?? '').trim() || undefined,
       // A pasted URL carries its own filters, so none are sent next to it.
       filters: query.url ? undefined : compactFilters(query.filters),
+      count: query.count || undefined,
     };
     patchTab(category, { loading: true, items: [], cursor: null, total: null, error: null, query: clean });
     hubDiscoverController.search(eventEmitter, { category, ...clean }, { seq, append: false });
@@ -114,6 +118,15 @@ export function useDiscoverPage() {
     hubDiscoverController.search(eventEmitter, { category, ...current.query, cursor: current.cursor }, { seq, append: true });
   }, [eventEmitter, patchTab, tabs]);
 
+  /** Download what is shown on a tab as a CSV (all loaded rows, not just the first page). */
+  const exportResults = useCallback((category) => {
+    const { items, query } = tabs[category] ?? {};
+    const csv = buildDiscoverCsv(category, items);
+    if (!csv) return;
+    downloadFile(csv, discoverExportFilename(category, query));
+    toast.success(`Exported ${items.length} ${items.length === 1 ? 'row' : 'rows'} to CSV`);
+  }, [tabs, toast]);
+
   const importAuthors = useCallback((authors, keywords) => {
     setImporting(true);
     setImported(null);
@@ -122,5 +135,5 @@ export function useDiscoverPage() {
 
   const dismissImported = useCallback(() => setImported(null), []);
 
-  return { tab, setTab, tabs, usage, search, loadMore, importing, imported, importAuthors, dismissImported };
+  return { tab, setTab, tabs, usage, search, loadMore, exportResults, importing, imported, importAuthors, dismissImported };
 }

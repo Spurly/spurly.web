@@ -69,6 +69,25 @@ export const discoverStrings = {
   useKeywords: "Use keywords instead",
   urlLabel: "LinkedIn search URL",
   loadMore: "Load more",
+  loadMoreCount: (n) => `Load ${n} more`,
+  resultCount: "Results per search",
+  filtersButton: "Filters",
+  clearFilters: "Clear all",
+  done: "Done",
+  resultCountCost: (pages) =>
+    pages === 1
+      ? "Costs 1 of your daily searches"
+      : `Costs up to ${pages} of your daily searches`,
+  resultCountExplain: (perPage, pages) =>
+    `Each search page counts against your daily searches. LinkedIn returns at most ${perPage} rows per request for this tab, so this many results takes ${pages === 1 ? "1 request" : `up to ${pages} requests`}, and each request counts as one daily search. It stops early if LinkedIn runs out of results.`,
+  nouns: {
+    companies: ["company", "companies"],
+    jobs: ["job", "jobs"],
+    posts: ["post", "posts"],
+  },
+  loaded: (n, noun) => `${n.toLocaleString()} ${noun} loaded`,
+  exportCsv: "Export CSV",
+  exportHint: "Download everything loaded as a spreadsheet",
   resultsTotal: (n) => `${n.toLocaleString()} results on LinkedIn`,
   noMoreResults: "That is everything LinkedIn returned for this search.",
   company: {

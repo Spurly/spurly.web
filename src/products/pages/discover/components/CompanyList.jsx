@@ -57,7 +57,7 @@ export function CompanyList({ companies }) {
   return (
     <div>
       {schoolCount > 0 && (
-        <div className="flex justify-end px-4 py-2 border-b border-[var(--ui-border)]">
+        <div className="sticky top-0 z-10 flex justify-end px-4 py-2 border-b border-[var(--ui-border)] bg-[var(--ui-surface-card)]">
           <Button type="button" variant="ghost" size="sm" onClick={() => setShowSchools((v) => !v)}>
             {showSchools ? t.hideSchools : `${t.showSchools} (${schoolCount})`}
           </Button>

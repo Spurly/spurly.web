@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { Button, EmptyState, FilterPills, WorkingLine } from 'src/core/primitives';
-import { SearchIcon } from 'src/core/icons';
+import { SearchIcon, DownloadIcon } from 'src/core/icons';
 import { useDiscoverPage } from 'src/products/discover/hooks/useDiscoverPage.js';
 import { DISCOVER_TABS } from 'src/products/discover/constants/constants.js';
 import { SearchPanel } from './components/SearchPanel.jsx';
@@ -58,7 +58,7 @@ function ErrorNotice({ error, onAccount }) {
  */
 export function HubDiscoverPage() {
   const navigate = useNavigate();
-  const { tab, setTab, tabs, usage, search, loadMore, importing, imported, importAuthors, dismissImported } = useDiscoverPage();
+  const { tab, setTab, tabs, usage, search, loadMore, exportResults, importing, imported, importAuthors, dismissImported } = useDiscoverPage();
 
   const current = tabs[tab];
   const copy = t.tabs[tab];
@@ -67,14 +67,17 @@ export function HubDiscoverPage() {
   const rows = current.items;
   const hasResults = rows.length > 0;
   const showEmpty = !current.loading && !hasResults && !current.error;
+  const [noun, nounPlural] = t.nouns[tab];
+  const pageCount = current.query?.count;
 
   return (
     <DashboardLayout
       title={t.pageTitle}
       subtitle={usage ? <>{`${t.usageLabel(usage.used, usage.cap)}.`}</> : undefined}
-      layout="page"
+      layout="fill"
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 flex-1 min-h-0">
+        <div className="flex flex-col gap-4 shrink-0">
         <FilterPills
           ariaLabel="Search type"
           value={tab}
@@ -101,10 +104,25 @@ export function HubDiscoverPage() {
           </div>
         )}
 
+        </div>
+
         {current.loading && !hasResults && <WorkingLine verbs={['Searching', 'Reading', 'Sorting']}>{t.searching}</WorkingLine>}
 
         {(hasResults || showEmpty) && (
-          <div className={card}>
+          <div className={`${card} flex flex-col flex-1 min-h-0`}>
+            {hasResults && (
+              <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 border-b border-[var(--ui-border)]">
+                <span className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+                  {t.loaded(rows.length, rows.length === 1 ? noun : nounPlural)}
+                  {current.total != null && ` · ${t.resultsTotal(current.total)}`}
+                </span>
+                <Button size="sm" onClick={() => exportResults(tab)} title={t.exportHint}>
+                  <DownloadIcon size={14} />
+                  {t.exportCsv}
+                </Button>
+              </div>
+            )}
+            <div className="flex-1 min-h-0 overflow-y-auto">
             {hasResults && tab === 'companies' && <CompanyList companies={rows} />}
             {hasResults && tab === 'jobs' && <JobList jobs={rows} />}
             {hasResults && tab === 'posts' && (
@@ -122,14 +140,15 @@ export function HubDiscoverPage() {
                 hint={current.searched ? copy.noResultsHint : copy.emptyHint}
               />
             )}
+            </div>
             {hasResults && (
-              <div className="flex items-center justify-between gap-3 px-4 py-3 border-t border-[var(--ui-border)]">
+              <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-3 border-t border-[var(--ui-border)]">
                 <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
-                  {current.total != null ? t.resultsTotal(current.total) : current.cursor ? '' : t.noMoreResults}
+                  {current.cursor ? '' : t.noMoreResults}
                 </span>
                 {current.cursor && (
                   <Button onClick={() => loadMore(tab)} loading={current.loading} disabled={capped}>
-                    {t.loadMore}
+                    {pageCount ? t.loadMoreCount(pageCount) : t.loadMore}
                   </Button>
                 )}
               </div>

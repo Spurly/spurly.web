@@ -1,3 +1,5 @@
+import { ROWS_PER_PAGE } from './constants/constants.js';
+
 /**
  * Pure helpers for the Discover page.
  */
@@ -81,4 +83,10 @@ export function compactFilters(filters) {
     }
   }
   return Object.keys(out).length ? out : undefined;
+}
+
+/** How many of today's search pages a search for `count` rows can spend. */
+export function searchPagesFor(category, count) {
+  const perPage = ROWS_PER_PAGE[category] ?? 10;
+  return Math.max(1, Math.ceil((Number(count) || perPage) / perPage));
 }

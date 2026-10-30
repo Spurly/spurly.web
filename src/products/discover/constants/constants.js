@@ -62,6 +62,17 @@ export const JOB_TYPE_OPTIONS = [
   { id: 'internship', label: 'Internship' },
 ];
 
+/**
+ * "Results per search" choices. A search fetches this many rows (the server joins
+ * several LinkedIn pages when it has to). 25 by default: more than the ~10 a bare
+ * page gives, but cheap on the daily search budget.
+ */
+export const RESULT_COUNT_OPTIONS = [10, 25, 50, 100];
+export const DEFAULT_RESULT_COUNT = 25;
+
+/** Most rows LinkedIn returns in one request, per tab (measured; companies stay at 10). Used to show what a search costs. */
+export const ROWS_PER_PAGE = { companies: 10, posts: 50, jobs: 50 };
+
 /** The most authors one import takes (mirrors the backend's MAX_AUTHORS_PER_IMPORT). */
 export const MAX_AUTHORS_PER_IMPORT = 100;
 
