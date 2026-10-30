@@ -24,8 +24,12 @@ export const inboxStrings = {
     loading: 'Loading…',
     noneUnread: 'Nothing unread.',
     noMatch: 'No conversations match that.',
+    loadMore: 'Load more',
+    loadingMore: 'Loading…',
+    syncing: 'Still fetching your conversations — more will appear here.',
   },
-  syncNow: 'Sync now',
+  // Only offered when a sync has FAILED on a healthy account; otherwise it runs on its own.
+  syncNow: 'Try again',
   thread: {
     pickConversation: 'Pick a conversation',
     loading: 'Loading…',

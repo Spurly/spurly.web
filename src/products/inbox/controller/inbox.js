@@ -21,9 +21,24 @@ async function loadInboxPage(eventEmitter, { q, unread } = {}) {
       hubInboxGateway.listChats({ q, unread }),
       hubInboxGateway.getSummary(),
     ]);
-    eventEmitter.emit(INBOX_EVENTS.PAGE_LOAD_SUCCESS, { chats: list.chats ?? [], summary });
+    eventEmitter.emit(INBOX_EVENTS.PAGE_LOAD_SUCCESS, { chats: list.chats ?? [], pagination: list.pagination, summary });
   } catch (error) {
     eventEmitter.emit(INBOX_EVENTS.PAGE_LOAD_FAILURE, error);
+  }
+}
+
+/**
+ * The conversation list is paged. Page 1 is what `loadInboxPage` polls; later
+ * pages are only fetched when the reader scrolls to the end. `sig` is echoed
+ * back so the hook can discard a page that was requested under a filter the
+ * reader has since changed.
+ */
+async function loadMoreChats(eventEmitter, { page, q, unread, sig }) {
+  try {
+    const list = await hubInboxGateway.listChats({ q, unread, page });
+    eventEmitter.emit(INBOX_EVENTS.MORE_LOAD_SUCCESS, { chats: list.chats ?? [], page, sig });
+  } catch (error) {
+    eventEmitter.emit(INBOX_EVENTS.MORE_LOAD_FAILURE, error);
   }
 }
 
@@ -167,5 +182,5 @@ function stopLive(eventEmitter) {
   liveAttempt = 0;
 }
 
-const inboxController = { sendInmail, loadInboxPage, getThread, markRead, sync, sendReply, reactToMessage, sendMedia, openAttachment, startLive, stopLive };
+const inboxController = { sendInmail, loadInboxPage, loadMoreChats, getThread, markRead, sync, sendReply, reactToMessage, sendMedia, openAttachment, startLive, stopLive };
 export default inboxController;
