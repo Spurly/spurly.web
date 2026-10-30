@@ -24,6 +24,8 @@ export const inboxStrings = {
     loading: 'Loading…',
     noneUnread: 'Nothing unread.',
     noMatch: 'No conversations match that.',
+    loadMore: 'Load more',
+    loadingMore: 'Loading…',
   },
   syncNow: 'Sync now',
   thread: {

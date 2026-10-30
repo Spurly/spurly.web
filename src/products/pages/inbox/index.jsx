@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { RefreshCw } from 'lucide-react';
 import { InboxIcon, SearchIcon } from 'src/core/icons';
@@ -30,6 +31,32 @@ import { inboxStrings as t } from './strings.js';
  * conversations from becoming ten entries in the back stack.
  */
 const DEGREE_LABEL = { 1: '1st', 2: '2nd', 3: '3rd' };
+
+/**
+ * The end of the list. Reaching it (200px early) fetches the next page, and a
+ * list too short to scroll keeps fetching until it fills; the button is the
+ * fallback where IntersectionObserver is unavailable.
+ */
+function LoadMore({ onLoadMore, loading }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return undefined;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting) onLoadMore();
+    }, { rootMargin: '200px' });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [onLoadMore]);
+
+  return (
+    <div ref={ref} className="px-4 py-4 text-center">
+      <Button variant="ghost" size="sm" onClick={onLoadMore} disabled={loading}>
+        {loading ? t.list.loadingMore : t.list.loadMore}
+      </Button>
+    </div>
+  );
+}
 
 function ChatRow({ chat, active }) {
   const unread = (chat.unreadCount ?? 0) > 0;
@@ -115,6 +142,9 @@ export function HubInboxPage() {
     empty,
     nothingAtAll,
     navigate,
+    hasMore,
+    loadingMore,
+    loadMore,
   } = useInboxPage();
 
   const total = summary?.chats ?? chats.length;
@@ -198,7 +228,10 @@ export function HubInboxPage() {
                   {unreadOnly && !debouncedQuery ? t.list.noneUnread : t.list.noMatch}
                 </p>
               ) : (
-                chats.map((chat) => <ChatRow key={chat._id} chat={chat} active={chat._id === openId} />)
+                <>
+                  {chats.map((chat) => <ChatRow key={chat._id} chat={chat} active={chat._id === openId} />)}
+                  {hasMore && <LoadMore onLoadMore={loadMore} loading={loadingMore} />}
+                </>
               )}
             </div>
           </aside>
