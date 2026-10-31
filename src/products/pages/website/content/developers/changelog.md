@@ -12,9 +12,10 @@ Non-breaking additions ship without notice and are listed here. Breaking changes
 
 ## 31 October 2026
 
-Inbox sync covers more history. No request or response shapes changed.
+Inbox sync covers more history, and the inbox status gains one field. Nothing existing changed.
 
-- Inbox sync now covers the newest 5,000 conversations per account (it was 300). Accounts that were synced earlier are re-synced automatically in the background, so older conversations appear over the following hours, newest first. Until a conversation's history arrives, `historyPending` is true. See [Limits](/developers/limits#inbox-sync).
+- Inbox sync now covers the newest 5,000 conversations per account (it was 300). Accounts that were synced earlier are re-synced automatically in the background, so older conversations appear over the following hours, newest first. `historyPending` counts the conversations still waiting for their messages. See [Limits](/developers/limits#inbox-sync).
+- `GET /accounts/{accountId}/inbox` now also returns `unreadChats`, the number of conversations with unread messages. `unread` still counts unread messages, so it can be larger.
 
 ## 30 October 2026
 

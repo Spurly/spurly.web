@@ -149,7 +149,8 @@ export function HubInboxPage() {
   } = useInboxPage();
 
   const total = summary?.chats ?? chats.length;
-  const unreadTotal = summary?.unread ?? chats.filter((c) => (c.unreadCount ?? 0) > 0).length;
+  // Conversations with something unread — what the Unread tab lists. `summary.unread` is a MESSAGE total and can far exceed the conversation count.
+  const unreadTotal = summary?.unreadChats ?? chats.filter((c) => (c.unreadCount ?? 0) > 0).length;
 
   return (
     <DashboardLayout header={false} layout="bare" title={t.pageTitle}>

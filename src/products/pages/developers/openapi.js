@@ -356,7 +356,7 @@ export const OPENAPI = {
         parameters: [accountIdParam],
         responses: {
           200: ok('Inbox status.', ref('InboxStatus'), {
-            connected: true, chats: 45, unread: 3, historyPending: 0,
+            connected: true, chats: 45, unread: 3, unreadChats: 2, historyPending: 0,
             sync: { status: 'done', phase: 'done', chatsSeen: 45, messagesImported: 326, lastRunAt: '2026-10-24T06:05:00.000Z', firstCompletedAt: '2026-10-24T06:03:00.000Z', error: '' },
             liveFeedSeenAt: '2026-10-24T06:10:00.000Z',
           }),
@@ -792,6 +792,7 @@ export const OPENAPI = {
           connected: { type: 'boolean', description: 'LinkedIn is connected.' },
           chats: { type: 'integer', description: 'Conversations in the inbox (up to the newest 5,000).' },
           unread: { type: 'integer', description: 'Unread messages across all conversations.' },
+          unreadChats: { type: 'integer', description: 'Conversations with at least one unread message. Matches the conversations returned by `GET /accounts/{accountId}/chats?unread=true`.' },
           historyPending: { type: 'integer', description: 'Conversations whose older messages are still being imported.' },
           sync: {
             type: ['object', 'null'],

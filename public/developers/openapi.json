@@ -1439,6 +1439,7 @@
                     "connected": true,
                     "chats": 45,
                     "unread": 3,
+                    "unreadChats": 2,
                     "historyPending": 0,
                     "sync": {
                       "status": "done",
@@ -3560,6 +3561,10 @@
           "unread": {
             "type": "integer",
             "description": "Unread messages across all conversations."
+          },
+          "unreadChats": {
+            "type": "integer",
+            "description": "Conversations with at least one unread message. Matches the conversations returned by `GET /accounts/{accountId}/chats?unread=true`."
           },
           "historyPending": {
             "type": "integer",
