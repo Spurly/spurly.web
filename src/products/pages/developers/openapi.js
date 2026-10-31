@@ -384,7 +384,7 @@ export const OPENAPI = {
         operationId: 'listChats',
         tags: ['Inbox'],
         summary: 'List conversations',
-        description: 'Most recently active first, one conversation per person. Archived conversations are not returned. The inbox holds the newest 300 conversations of the account; read pages until `pagination.total` is reached.',
+        description: 'Most recently active first, one conversation per person. Archived conversations are not returned. The inbox holds the newest 5,000 conversations of the account; read pages until `pagination.total` is reached.',
         parameters: [
           accountIdParam,
           { name: 'unread', in: 'query', required: false, schema: { type: 'boolean', default: false }, description: 'Only conversations with unread messages.' },
@@ -790,7 +790,7 @@ export const OPENAPI = {
         type: 'object',
         properties: {
           connected: { type: 'boolean', description: 'LinkedIn is connected.' },
-          chats: { type: 'integer', description: 'Conversations in the inbox (up to the newest 300).' },
+          chats: { type: 'integer', description: 'Conversations in the inbox (up to the newest 5,000).' },
           unread: { type: 'integer', description: 'Unread messages across all conversations.' },
           historyPending: { type: 'integer', description: 'Conversations whose older messages are still being imported.' },
           sync: {

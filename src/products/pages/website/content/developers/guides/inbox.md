@@ -11,13 +11,13 @@ parent: /developers
 ---
 ## How sync works
 
-When LinkedIn connects, Spurly imports the account's recent history in the background: first the conversations, then the messages in each. A large inbox takes a few minutes. From then on, new messages arrive **live** through LinkedIn's own push, usually within seconds. As a safety net, Spurly also checks each connected account for anything missed about every 10 minutes.
+When LinkedIn connects, Spurly imports the account's recent history in the background: first the conversations, then the messages in each. A small inbox takes a few minutes; an inbox with thousands of conversations can take several hours to finish, with the newest conversations filled in first. From then on, new messages arrive **live** through LinkedIn's own push, usually within seconds. As a safety net, Spurly also checks each connected account for anything missed about every 10 minutes.
 
 Every sync starts on its own. You never need to start one: connecting LinkedIn, or reconnecting it, queues it automatically.
 
 ### What is included
 
-- The **newest 300 conversations** on the account, which can grow as Spurly raises the limit. Older conversations are not imported.
+- The **newest 5,000 conversations** on the account, which can grow as Spurly raises the limit. Older conversations are not imported.
 - The **latest 50 messages** of each conversation. A very long conversation can be missing its oldest messages.
 - Archived conversations are not returned.
 - A conversation appears in the list as soon as it is found. Its messages follow, which is what `historyPending` tells you.

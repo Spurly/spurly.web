@@ -63,7 +63,7 @@ Then send yourself a test event with `POST /webhook/test`. New messages now arri
 
 ## 4. Read the inbox
 
-The history import starts on its own and takes a few minutes for a large inbox.
+The history import starts on its own and takes a few minutes for a small inbox and can take hours for one with thousands of conversations.
 
 ```bash
 curl "https://api.getspurly.com/v1/accounts/ACCOUNT_ID/chats" \

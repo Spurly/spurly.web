@@ -1547,7 +1547,7 @@
           "Inbox"
         ],
         "summary": "List conversations",
-        "description": "Most recently active first, one conversation per person. Archived conversations are not returned. The inbox holds the newest 300 conversations of the account; read pages until `pagination.total` is reached.",
+        "description": "Most recently active first, one conversation per person. Archived conversations are not returned. The inbox holds the newest 5,000 conversations of the account; read pages until `pagination.total` is reached.",
         "parameters": [
           {
             "$ref": "#/components/parameters/accountId"
@@ -3555,7 +3555,7 @@
           },
           "chats": {
             "type": "integer",
-            "description": "Conversations in the inbox (up to the newest 300)."
+            "description": "Conversations in the inbox (up to the newest 5,000)."
           },
           "unread": {
             "type": "integer",

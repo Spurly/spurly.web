@@ -328,7 +328,7 @@ function AccountRow({ user, expanded, onLogout }) {
       {open && (
         <div
           role="menu"
-          className={`absolute bottom-[calc(100%+6px)] z-[var(--ui-z-popover)] p-1.5 rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-popover)] sp-pop ${
+          className={`absolute bottom-[calc(100%+6px)] z-[var(--ui-z-popover)] p-1.5 rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] bg-[#1b1f4f] shadow-[0_12px_32px_-8px_rgba(0,0,0,0.55)] sp-pop ${
             expanded ? "left-0 right-0" : "left-0 w-[220px]"
           }`}
         >

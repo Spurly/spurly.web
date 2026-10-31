@@ -33,7 +33,7 @@ Spurly applies **no pacing and no daily caps** to messages sent through this API
 
 | What | Limit |
 |---|---|
-| Conversations imported per LinkedIn account | The newest 300 (may be raised) |
+| Conversations imported per LinkedIn account | The newest 5,000 (may be raised) |
 | Messages imported per conversation | The latest 50 |
 | Conversations per `/chats` page | 100 |
 | Catch-up check for missed messages | About every 10 minutes, in addition to live delivery |

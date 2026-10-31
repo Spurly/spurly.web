@@ -5,10 +5,16 @@ path: /developers/changelog
 template: docs
 section: Resources
 order: 2
-date: 2026-10-30
+date: 2026-10-31
 parent: /developers
 ---
 Non-breaking additions ship without notice and are listed here. Breaking changes only ship in a new API version, with at least 90 days of overlap. See [Limits and versioning](/developers/limits).
+
+## 31 October 2026
+
+Inbox sync covers more history. No request or response shapes changed.
+
+- Inbox sync now covers the newest 5,000 conversations per account (it was 300). Accounts that were synced earlier are re-synced automatically in the background, so older conversations appear over the following hours, newest first. Until a conversation's history arrives, `historyPending` is true. See [Limits](/developers/limits#inbox-sync).
 
 ## 30 October 2026
 
