@@ -36,7 +36,7 @@ export default function BookCall() {
               Calendar not loading? <a href={DEMO_CALENDAR_URL} rel="noopener">Book on Calendly</a>.
             </p>
             <p className="book-alt">
-              Prefer to set it up yourself? <Link to="/signup">Get started</Link>.
+              Prefer to try it yourself? <Link to="/signup">Start the 7-day free trial</Link>.
             </p>
           </div>
           <div className="book-card reveal d1">

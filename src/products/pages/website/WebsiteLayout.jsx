@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import './website.css';
 import OfferPopup from './components/OfferPopup.jsx';
-import { useLiveChat } from './useLiveChat.js';
 
 /**
  * Wraps every public marketing route. Adds the `mkt` class to <body> so the
@@ -14,7 +13,6 @@ import { useLiveChat } from './useLiveChat.js';
  */
 export function WebsiteLayout() {
   const { pathname } = useLocation();
-  useLiveChat();
 
   // Activate scoping synchronously during render so child components
   // that read CSS variables off document.body on mount see the marketing

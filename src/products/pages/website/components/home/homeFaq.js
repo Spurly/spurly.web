@@ -1,5 +1,5 @@
 /* Home page FAQ: one list drives both the visible section and the FAQPage
-   JSON-LD, so they can never disagree. Answer-first. Ordered objections first (safety, results, pricing, cancel), basics last. Facts only from
+   JSON-LD, so they can never disagree. Answer-first. Ordered objections first (safety, results, trial, cancel), basics last. Facts only from
    SEO_CONTENT_PLAN sections 3 and 5. */
 export const HOME_FAQ = [
   {
@@ -11,8 +11,8 @@ export const HOME_FAQ = [
     a: "It depends on your audience and your message, so we can't promise a number. For reference, Spurly's own LinkedIn account sent 476 invitations in 42 days with no team and no ad spend, and 45% were accepted: 214 new connections. The example scenarios on this page apply that same pace and accept rate, and are labelled as examples, not customer results.",
   },
   {
-    q: "Is there a free trial?",
-    a: "No. You subscribe to start, with a card or UPI in India, and the full product is active straight away. You pay the price shown above, then monthly until you cancel. If you cancel, you keep access to the end of the month you paid for; after that your LinkedIn account is disconnected and campaigns pause, but nothing is deleted.",
+    q: "Do I need a card to start the trial?",
+    a: "No. Start your 7-day free trial with no card and no payment details. When the 7 days end, subscribe to keep going: you pay for the first month at that point at the price shown above, then monthly until you cancel. If you don't subscribe, your LinkedIn account is disconnected and campaigns pause, but nothing is deleted.",
   },
   {
     q: "Can I cancel anytime?",

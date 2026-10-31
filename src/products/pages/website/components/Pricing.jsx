@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { CheckItem } from "../icons.jsx";
-import { PLAN_NOTE } from "../pricing.js";
+import { TRIAL_NOTE } from "../pricing.js";
 import { usePrice } from "../hooks/usePrice.js";
 
 /* One plan, monthly. Short on purpose: price, one button, eight highlights.
@@ -43,7 +43,7 @@ export default function Pricing() {
                 {price.sale.label} · {price.sale.percentOff}% off
               </span>
             )}
-            <span className="prc-badge">Everything included</span>
+            <span className="prc-badge">7-day free trial</span>
             <div className="prc-name">Spurly</div>
             <div className="prc-amt">
               {price.sale && (
@@ -71,7 +71,7 @@ export default function Pricing() {
               Cancel anytime.
             </p>
             <Link to="/signup" className="btn btn-primary btn-lg" data-magnetic>
-              Get started
+              Start 7-day free trial
             </Link>
             <a href="#book" className="prc-book">
               or book a call first →
@@ -84,7 +84,7 @@ export default function Pricing() {
           </ul>
         </div>
         <p className="center prc-note">
-          {PLAN_NOTE} <Link to="/pricing">Full pricing and FAQ</Link>
+          {TRIAL_NOTE} <Link to="/pricing">Full pricing and FAQ</Link>
         </p>
         <p className="center prc-note">
           Built to stay within LinkedIn's limits. No tool can promise zero risk.{" "}

@@ -47,7 +47,7 @@ export default function OfferPopup() {
       </div>
       <p className="offer-pop-lock">Price locked for life, even when it goes back up.</p>
       <Link to="/signup" className="offer-pop-cta" onClick={close}>Claim my spot <span aria-hidden="true">→</span></Link>
-      <p className="offer-pop-note">Cancel anytime</p>
+      <p className="offer-pop-note">7-day free trial · no card needed</p>
     </aside>
   );
 }

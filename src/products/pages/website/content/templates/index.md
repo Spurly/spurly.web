@@ -36,4 +36,4 @@ A template saves time on the structure, not on the thinking. Change the first se
 
 ## Send them with an AI SDR
 
-Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. It can draft a note from a short brief and send your approved sequence from [campaigns](/product/campaigns) 24/7. See [pricing](/pricing) for the plan.
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. It can draft a note from a short brief and send your approved sequence from [campaigns](/product/campaigns) 24/7. The 7-day free trial needs no card; see [pricing](/pricing).

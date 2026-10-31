@@ -38,7 +38,6 @@ export function describeSearch(search) {
       ? `Followers · ${search.followersPageName || 'company page'}`
       : 'Followers · your account';
   }
-  if (search.mode === 'post') return `Post commenters · ${search.postUrl || 'LinkedIn post'}`;
   if (search.mode !== 'structured') return search.searchUrl;
   const f = search.filters || {};
   const parts = [];

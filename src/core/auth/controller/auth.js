@@ -2,7 +2,6 @@ import authGateway from '../gateway/auth.js';
 import apiGateway from 'src/shared/gateway/apiGateway.js';
 import { AUTH_EVENTS } from '../constants/constants.js';
 import { track } from 'src/shared/analytics/analytics.js';
-import { clearManagedSession, isManagedSession } from 'src/shared/utils/managedSession.js';
 
 /**
  * Auth Controller
@@ -35,8 +34,6 @@ async function login(eventEmitter, email, password) {
     // Set token in API gateway and local storage
     apiGateway.setToken(token);
     localStorage.setItem('user', JSON.stringify(user.toJSON()));
-    // A normal sign-in replaces any partner-managed session in this browser.
-    clearManagedSession();
 
     eventEmitter.emit(AUTH_EVENTS.LOGIN_SUCCESS, { user, token });
   } catch (error) {
@@ -75,8 +72,6 @@ async function register(eventEmitter, name, email, password, confirmPassword) {
 
     apiGateway.setToken(token);
     localStorage.setItem('user', JSON.stringify(user.toJSON()));
-    // A normal sign-in replaces any partner-managed session in this browser.
-    clearManagedSession();
 
     track('sign_up', { method: 'email' });
     eventEmitter.emit(AUTH_EVENTS.REGISTER_SUCCESS, { user, token });
@@ -133,8 +128,6 @@ async function verifySignupOtp(eventEmitter, { email, code }) {
 
     apiGateway.setToken(token);
     localStorage.setItem('user', JSON.stringify(user.toJSON()));
-    // A normal sign-in replaces any partner-managed session in this browser.
-    clearManagedSession();
 
     track('sign_up', { method: 'email' });
     eventEmitter.emit(AUTH_EVENTS.VERIFY_SIGNUP_OTP_SUCCESS, { user, token });
@@ -189,8 +182,6 @@ async function resetPassword(eventEmitter, { email, code, password, confirmPassw
 
     apiGateway.setToken(token);
     localStorage.setItem('user', JSON.stringify(user.toJSON()));
-    // A normal sign-in replaces any partner-managed session in this browser.
-    clearManagedSession();
 
     eventEmitter.emit(AUTH_EVENTS.RESET_PASSWORD_SUCCESS, { user, token });
   } catch (error) {
@@ -204,9 +195,6 @@ async function resetPassword(eventEmitter, { email, code, password, confirmPassw
  * @param {EventEmitter} eventEmitter
  */
 async function logout(eventEmitter) {
-  // Read before anything is cleared: a managed session ends on the "session
-  // ended" page, not a login form (the flag is cleared there).
-  const managed = isManagedSession();
   try {
     await authGateway.logout();
   } catch (error) {
@@ -218,7 +206,7 @@ async function logout(eventEmitter) {
   localStorage.removeItem('user');
   apiGateway.removeToken();
 
-  eventEmitter.emit(AUTH_EVENTS.LOGOUT_SUCCESS, { managed });
+  eventEmitter.emit(AUTH_EVENTS.LOGOUT_SUCCESS);
 }
 
 /**
@@ -247,10 +235,6 @@ async function fetchCurrentUser(eventEmitter) {
 
     if (user) {
       localStorage.setItem('user', JSON.stringify(user.toJSON()));
-      // The server is the authority on what kind of account this is: a normal
-      // account never keeps a stale partner-managed marker (e.g. after an
-      // OAuth sign-in, which stores no token this controller sees).
-      if (!user.isManaged) clearManagedSession();
     }
 
     eventEmitter.emit(AUTH_EVENTS.FETCH_CURRENT_USER_SUCCESS, user);
@@ -403,8 +387,6 @@ async function handleLinkedInCallback(eventEmitter, code) {
 
     apiGateway.setToken(token);
     localStorage.setItem('user', JSON.stringify(user.toJSON()));
-    // A normal sign-in replaces any partner-managed session in this browser.
-    clearManagedSession();
 
     eventEmitter.emit(AUTH_EVENTS.HANDLE_LINKEDIN_CALLBACK_SUCCESS, { user, token });
   } catch (error) {

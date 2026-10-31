@@ -9,7 +9,6 @@ import ComparisonTemplate from "../templates/ComparisonTemplate.jsx";
 import PricingTemplate from "../templates/PricingTemplate.jsx";
 import ToolTemplate from "../templates/ToolTemplate.jsx";
 import PageTemplate from "../templates/PageTemplate.jsx";
-import DocsTemplate from "../../developers/DocsTemplate.jsx";
 
 /* One route component for every page built from a content file. The path picks
    the page, its `template` frontmatter picks the layout. */
@@ -21,7 +20,6 @@ const TEMPLATE_COMPONENTS = {
   pricing: PricingTemplate,
   tool: ToolTemplate,
   page: PageTemplate,
-  docs: DocsTemplate,
 };
 
 export default function ContentPage() {

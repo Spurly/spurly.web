@@ -7,20 +7,19 @@
     "node": ">=20.19.0"
   },
   "scripts": {
-    "predev": "node scripts/buildContent.mjs && node scripts/buildOpenApi.mjs",
+    "predev": "node scripts/buildContent.mjs",
     "dev": "vite",
-    "prebuild": "node scripts/buildContent.mjs && node scripts/buildOpenApi.mjs",
+    "prebuild": "node scripts/buildContent.mjs",
     "build": "vite build && vite build --ssr src/entry-server.jsx --outDir dist-ssr && node scripts/prerender.mjs",
     "lint": "eslint . --max-warnings 144",
     "preview": "vite preview",
     "lint:arch": "eslint -c eslint.boundaries.config.js src",
     "verify": "npm run lint:arch && npm run lint && npm test && npm run build",
-    "pretest": "node scripts/buildContent.mjs && node scripts/buildOpenApi.mjs",
+    "pretest": "node scripts/buildContent.mjs",
     "test": "vitest run",
-    "pretest:watch": "node scripts/buildContent.mjs && node scripts/buildOpenApi.mjs",
+    "pretest:watch": "node scripts/buildContent.mjs",
     "test:watch": "vitest",
-    "content": "node scripts/buildContent.mjs && node scripts/buildOpenApi.mjs",
-    "api:check": "node scripts/checkApi.mjs",
+    "content": "node scripts/buildContent.mjs",
     "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {

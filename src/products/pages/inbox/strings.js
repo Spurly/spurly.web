@@ -12,8 +12,6 @@ export const inboxStrings = {
   pageTitle: 'Inbox',
   pageSubtitle: 'Every LinkedIn conversation, synced live — messages you send and replies you get.',
   refreshTitle: 'Check for new messages',
-  live: 'Live',
-  liveTitle: 'Connected: new LinkedIn messages appear here the moment they arrive',
   search: {
     placeholder: 'Search conversations',
     ariaLabel: 'Search conversations',
@@ -24,12 +22,8 @@ export const inboxStrings = {
     loading: 'Loading…',
     noneUnread: 'Nothing unread.',
     noMatch: 'No conversations match that.',
-    loadMore: 'Load more',
-    loadingMore: 'Loading…',
-    syncing: 'Still fetching your conversations — more will appear here.',
   },
-  // Only offered when a sync has FAILED on a healthy account; otherwise it runs on its own.
-  syncNow: 'Try again',
+  syncNow: 'Sync now',
   thread: {
     pickConversation: 'Pick a conversation',
     loading: 'Loading…',

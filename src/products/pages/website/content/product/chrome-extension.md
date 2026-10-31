@@ -14,8 +14,8 @@ related: [/product/lead-finder, /product/campaigns]
 faq:
   - q: Can I send connection requests from the extension?
     a: Yes. The Outreach tab sends connection requests through a real Spurly campaign, so the activity is tracked and paced like everything else.
-  - q: Do I need a subscription to use Spurly with the extension?
-    a: Yes. The extension signs in to your Spurly account, which needs an active subscription.
+  - q: Do I need a card to try Spurly with the extension?
+    a: No. The 7-day free trial starts with no card.
   - q: What happens after I capture people?
     a: They appear in your Spurly contacts and can join any campaign or sequence, where AI can draft the connection note and follow-ups for you to approve.
   - q: Do I need the Chrome extension to use Spurly?
@@ -25,7 +25,7 @@ faq:
   - q: Where do captured profiles go?
     a: Into your Spurly contacts, which are stored on Spurly's servers, so you can use them in campaigns from any device.
   - q: Is the extension free?
-    a: The extension is free to install from the Chrome Web Store. Using Spurly itself needs a subscription at $24.99 per month (₹2,499 in India).
+    a: The extension is free to install from the Chrome Web Store. Using Spurly itself starts with a 7-day free trial and then costs $24.99 per month (₹2,499 in India).
 todo:
   - Add real screenshots of the Capture, Outreach and Templates tabs
   - Confirm "free to install" wording is right for the Web Store listing

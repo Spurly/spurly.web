@@ -9,5 +9,5 @@ export const PAGE_UPDATED = {
   "/book-demo": "2026-10-04", // new demo booking page (Calendly)
   "/support": "2026-10-03", // FAQ rewritten (T0.1)
   "/privacy": "2026-10-03", // data-storage wording corrected
-  "/terms": "2026-10-29", // plan wording corrected (single plan, no free trial)
+  "/terms": "2026-10-03", // plan wording corrected (single plan, 7-day trial)
 };

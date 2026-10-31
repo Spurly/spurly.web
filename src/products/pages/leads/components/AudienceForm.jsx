@@ -50,24 +50,6 @@ export function urlProblem(raw) {
   return null;
 }
 
-/**
- * Mirror of the server's parsePostUrl (unipileApi/normalizePosts.js): a post
- * link carries `activity-<id>`, `ugcPost-<id>` or `share-<id>` in its path, or
- * a `urn:li:activity:<id>`. The server stays the judge; this only catches the
- * common wrong paste before a round trip.
- */
-export function postUrlProblem(raw) {
-  const v = raw.trim();
-  if (!v) return null;
-  // "Copy link to post" gives a lnkd.in/p/… short link; the server follows it.
-  if (/^https:\/\/lnkd\.in\/p\/[\w-]+\/?$/i.test(v)) return null;
-  if (!/linkedin\.com/i.test(v) && !/^urn:li:/i.test(v)) return 'That doesn\'t look like a LinkedIn link.';
-  if (!/(activity|ugcPost|share)(-|:|%3A)\d{10,}/i.test(v)) {
-    return 'That\'s a LinkedIn page, not a post. Open the post, choose “Copy link to post” and paste that.';
-  }
-  return null;
-}
-
 export function AudienceForm({ initialCompany = null, initialName = '', initialTitle = '', onSubmit, submitting = false }) {
   const [url, setUrl] = useState('');
   const [location, setLocation] = useState([]);

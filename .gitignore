@@ -33,6 +33,3 @@ dist-ssr
 
 # Built from content/**/*.md by scripts/buildContent.mjs
 src/products/pages/website/content/*.generated.js
-
-# Generated from src/products/pages/developers/openapi.js (scripts/buildOpenApi.mjs)
-public/developers/openapi.json

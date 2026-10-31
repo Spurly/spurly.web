@@ -16,7 +16,7 @@ faq:
   - q: Can a founder run LinkedIn outreach without an SDR?
     a: Yes. Define one sharp ICP, build a list from a search, let AI draft one template that you edit and approve, and run it as a campaign with follow-ups and one inbox. A cloud tool such as Spurly sends it for you, so it takes minutes a day instead of a hire.
   - q: How much does Spurly cost for a founder?
-    a: Spurly has one plan: $24.99 per month outside India or ₹2,499 per month in India.
+    a: Spurly has one plan: $24.99 per month outside India or ₹2,499 per month in India, with a 7-day free trial that needs no card.
   - q: Do I need Sales Navigator to build the list?
     a: No. Spurly works with a standard LinkedIn account. Sales Navigator pages can be captured with the Chrome extension if you already use it.
 ---
@@ -42,12 +42,12 @@ Most replies come from the follow-up, not the first touch. Set up a sequence (in
 
 ## What it costs
 
-Spurly has one plan: $24.99/month (₹2,499/month in India). That's a fraction of the cost of an SDR. See the [pricing](/pricing).
+Spurly has one plan: $24.99/month (₹2,499/month in India), with a 7-day free trial. That's a fraction of the cost of an SDR, and you can try it before you pay. See the [pricing](/pricing).
 
 Hiring or sourcing instead of selling? The same engine works for talent — see [how recruiters use Sales Navigator to build candidate pipelines](/blog/sales-navigator-candidate-pipelines-recruiters).
 
 ## Let an AI SDR do the repetitive part
 
-Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. It runs your [campaigns](/product/campaigns) 24/7 from the cloud while you build the product, and you step in when someone replies. See [Spurly for founders](/solutions/founders). See [pricing](/pricing) for the plan.
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. It runs your [campaigns](/product/campaigns) 24/7 from the cloud while you build the product, and you step in when someone replies. See [Spurly for founders](/solutions/founders). The 7-day free trial needs no card; see [pricing](/pricing).
 
 Keep going with the [LinkedIn outreach guide](/blog/linkedin-outreach-guide) and the [four-part cold message structure](/blog/linkedin-cold-message-structure).

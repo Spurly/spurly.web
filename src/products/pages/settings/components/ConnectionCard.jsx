@@ -1,16 +1,10 @@
 import { Linkedin, RefreshCw, AlertTriangle, Unlink } from 'lucide-react';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { Button } from 'src/core/primitives';
-import { PARTNER_COPY } from 'src/core/partner/constants/constants.js';
 import { STATUS_VIEW, RECONNECT_HINT } from './statusView.js';
 import { linkedInSettingsStrings as t } from '../strings.js';
 
-/**
- * `readOnly`: a partner-managed account. Status only; the connection is managed from the app it came from.
- * `reconnectOnly`: a partner-managed account with a direct login. It may reconnect its own LinkedIn profile
- * (the server refuses a different one), never disconnect.
- */
-export function ConnectionCard({ account, busy, readOnly = false, reconnectOnly = false, onConnect, onRefresh, onDisconnect }) {
+export function ConnectionCard({ account, busy, onConnect, onRefresh, onDisconnect }) {
   const connected = Boolean(account?.status) && account.status !== 'DELETED';
   const view = STATUS_VIEW[account?.status] ?? null;
   const hosted = account?.connectFlow === 'hosted';
@@ -34,16 +28,6 @@ export function ConnectionCard({ account, busy, readOnly = false, reconnectOnly 
             </div>
           </div>
 
-          {readOnly ? (
-            <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">{PARTNER_COPY.manageElsewhere}</p>
-          ) : reconnectOnly ? (<>
-            <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">{PARTNER_COPY.reconnectOnly}</p>
-            <div className="flex items-center gap-2">
-              <Button onClick={onConnect} disabled={busy} leadingIcon={<Linkedin size={15} />}>
-                {busy ? t.connected.reconnecting : t.connected.reconnect}
-              </Button>
-            </div>
-          </>) : (<>
           <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
             {hosted ? t.notConnected.hostedAuthNoteBefore : t.notConnected.authNoteBefore}
             <span className="text-[var(--ui-text-primary)] font-medium">
@@ -67,7 +51,6 @@ export function ConnectionCard({ account, busy, readOnly = false, reconnectOnly 
               {busy ? t.notConnected.checking : t.notConnected.checkAgain}
             </Button>
           </div>
-          </>)}
         </div>
       </SectionCard>
     );
@@ -93,17 +76,15 @@ export function ConnectionCard({ account, busy, readOnly = false, reconnectOnly 
               {account.linkedinName || view?.detail}
             </p>
           </div>
-          {!readOnly && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onRefresh}
-              disabled={busy}
-              leadingIcon={<RefreshCw size={15} />}
-            >
-              {t.connected.refresh}
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRefresh}
+            disabled={busy}
+            leadingIcon={<RefreshCw size={15} />}
+          >
+            {t.connected.refresh}
+          </Button>
         </div>
 
         {needsAction && (
@@ -121,20 +102,6 @@ export function ConnectionCard({ account, busy, readOnly = false, reconnectOnly 
           </div>
         )}
 
-        {readOnly ? (
-          <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">{PARTNER_COPY.manageElsewhere}</p>
-        ) : reconnectOnly ? (
-          <div className="flex flex-col gap-3">
-            <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">{PARTNER_COPY.reconnectOnly}</p>
-            {needsAction && (
-              <div className="flex items-center gap-2">
-                <Button onClick={onConnect} disabled={busy} leadingIcon={<Linkedin size={15} />}>
-                  {busy ? t.connected.reconnecting : t.connected.reconnect}
-                </Button>
-              </div>
-            )}
-          </div>
-        ) : (
         <div className="flex items-center gap-2">
           {needsAction && (
             <Button onClick={onConnect} disabled={busy} leadingIcon={<Linkedin size={15} />}>
@@ -151,7 +118,6 @@ export function ConnectionCard({ account, busy, readOnly = false, reconnectOnly 
             {t.connected.disconnect}
           </Button>
         </div>
-        )}
       </div>
     </SectionCard>
   );

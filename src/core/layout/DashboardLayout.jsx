@@ -328,7 +328,7 @@ function AccountRow({ user, expanded, onLogout }) {
       {open && (
         <div
           role="menu"
-          className={`absolute bottom-[calc(100%+6px)] z-[var(--ui-z-popover)] p-1.5 rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] bg-[#1b1f4f] shadow-[0_12px_32px_-8px_rgba(0,0,0,0.55)] sp-pop ${
+          className={`absolute bottom-[calc(100%+6px)] z-[var(--ui-z-popover)] p-1.5 rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-popover)] sp-pop ${
             expanded ? "left-0 right-0" : "left-0 w-[220px]"
           }`}
         >
@@ -355,19 +355,16 @@ function AccountRow({ user, expanded, onLogout }) {
           expanded ? "px-2" : "justify-center"
         }`}
       >
-        <Avatar src={user?.profilePicture} name={user?.name || (user?.isManaged && !user?.hasDirectLogin ? undefined : user?.email)} size={26} tone="accent" />
+        <Avatar src={user?.profilePicture} name={user?.name || user?.email} size={26} tone="accent" />
         {expanded && (
           <>
             <span className="min-w-0 flex-1 text-left">
               <span className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-primary)] leading-[1.3] truncate">
                 {user?.name || "User"}
               </span>
-              {/* A managed account's address is a placeholder; never show it. */}
-              {!(user?.isManaged && !user?.hasDirectLogin) && (
-                <span className="block font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-neutral-400)] leading-[1.3] truncate">
-                  {user?.email}
-                </span>
-              )}
+              <span className="block font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-neutral-400)] leading-[1.3] truncate">
+                {user?.email}
+              </span>
             </span>
             <ChevronsUpDownIcon size={14} strokeWidth={2} className="shrink-0 text-[var(--ui-neutral-400)]" aria-hidden="true" />
           </>
@@ -532,9 +529,8 @@ export function DashboardLayout({
   const handleLogout = () => {
     // One navigation, after the session is actually cleared. AuthContext's own
     // LOGOUT_SUCCESS listener (registered first) has already run setUser(null).
-    // A managed account has no login page to go back to.
-    logout().once(AUTH_EVENTS.LOGOUT_SUCCESS, ({ managed } = {}) => {
-      navigate(managed ? "/partner/ended" : "/login", { replace: true });
+    logout().once(AUTH_EVENTS.LOGOUT_SUCCESS, () => {
+      navigate("/login", { replace: true });
     });
   };
 

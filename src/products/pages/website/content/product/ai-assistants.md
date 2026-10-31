@@ -15,8 +15,8 @@ faq:
     a: It is Spurly's remote MCP server. Connect it to Claude and you can manage your LinkedIn outreach in plain language: check results, sort replies, draft answers and plan campaigns, without opening the dashboard.
   - q: Can Claude reply to my leads on its own?
     a: Not by default. Claude can sort replies and draft answers for you to approve. Sending a reply needs the Act permission and the account setting "Allow AI assistants to take actions", which is off by default, and it passes your usual limits.
-  - q: Is the Claude connection included in the plan?
-    a: Yes. Assistants work with any active Spurly subscription, and the connection is included in the one plan at no extra cost.
+  - q: Does the Claude connection work during the free trial?
+    a: Yes. Assistants work during the 7-day free trial, and no card is needed to start it.
   - q: Can Claude send LinkedIn messages for me?
     a: Only if you allow it. Sending needs the Act permission on the connection and the account setting "Allow AI assistants to take actions", which is off by default. Everything it sends still passes through your daily and weekly limits.
   - q: Which assistants work with Spurly?
@@ -56,4 +56,4 @@ An assistant reads text from LinkedIn, such as bios and messages, and that text 
 
 ## Get started
 
-Add the Spurly server to your assistant and approve the connection. The [setup guide](/product/ai-assistants-setup) covers Claude, Claude Code and Cursor. The connection is included in the one Spurly plan.
+Add the Spurly server to your assistant and approve the connection. The [setup guide](/product/ai-assistants-setup) covers Claude, Claude Code and Cursor. Spurly has a 7-day free trial, and assistants work during the trial.

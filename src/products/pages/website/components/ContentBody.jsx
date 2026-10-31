@@ -43,12 +43,6 @@ function Block({ block }) {
       return <ol>{block.items.map((it, i) => <li key={i}><Inline nodes={it} /></li>)}</ol>;
     case "quote":
       return <blockquote><p><Inline nodes={block.inline} /></p></blockquote>;
-    case "code":
-      return (
-        <pre className="content-code" data-lang={block.lang || undefined}>
-          <code>{block.text}</code>
-        </pre>
-      );
     case "image":
       return (
         <figure className="content-figure">

@@ -42,7 +42,7 @@ As of October 2026, Waalaxy's pricing page lists three plans, priced per user pe
 | | Spurly | Waalaxy |
 |---|---|---|
 | Price | $24.99/month (₹2,499 in India), one plan | Pro €19, Advanced €49, Business €69 per user per month; 20% off quarterly, 50% off yearly (October 2026) |
-| Free trial | None; subscribe to start | 14 days on every plan |
+| Free trial | 7 days; no card needed | 14 days on every plan |
 | Runs in the cloud | Yes | Yes; the browser extension is no longer required for campaigns (since 1 July 2026) |
 | LinkedIn invitations | Paced by daily and hourly limits and LinkedIn's weekly allowance | 300 per month (Pro), 800 per month (Advanced, Business) |
 | Sequences | Linear steps: visit, connect, message, follow, like, comment, endorse, wait | Pre-built sequences and automated follow-ups |

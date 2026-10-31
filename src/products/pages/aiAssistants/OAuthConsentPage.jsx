@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Button, Card, Skeleton } from 'src/core/primitives';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
-import { PARTNER_COPY } from 'src/core/partner/constants/constants.js';
 import { useConsent } from 'src/products/aiAssistants/hooks/useConsent.js';
 import { ConsentScopes } from 'src/products/aiAssistants/components/ConsentScopes.jsx';
 
@@ -25,13 +24,6 @@ export default function OAuthConsentPage() {
   if (!user) {
     const next = encodeURIComponent(`${location.pathname}${location.search}`);
     return <Navigate to={`/login?next=${next}`} replace />;
-  }
-  if (user.isManaged) {
-    return (
-      <Shell>
-        <p className="text-[var(--ui-text-secondary)]" role="alert">{PARTNER_COPY.notAvailable}</p>
-      </Shell>
-    );
   }
   return <ConsentBody params={params} />;
 }

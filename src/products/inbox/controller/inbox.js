@@ -21,24 +21,9 @@ async function loadInboxPage(eventEmitter, { q, unread } = {}) {
       hubInboxGateway.listChats({ q, unread }),
       hubInboxGateway.getSummary(),
     ]);
-    eventEmitter.emit(INBOX_EVENTS.PAGE_LOAD_SUCCESS, { chats: list.chats ?? [], pagination: list.pagination, summary });
+    eventEmitter.emit(INBOX_EVENTS.PAGE_LOAD_SUCCESS, { chats: list.chats ?? [], summary });
   } catch (error) {
     eventEmitter.emit(INBOX_EVENTS.PAGE_LOAD_FAILURE, error);
-  }
-}
-
-/**
- * The conversation list is paged. Page 1 is what `loadInboxPage` polls; later
- * pages are only fetched when the reader scrolls to the end. `sig` is echoed
- * back so the hook can discard a page that was requested under a filter the
- * reader has since changed.
- */
-async function loadMoreChats(eventEmitter, { page, q, unread, sig }) {
-  try {
-    const list = await hubInboxGateway.listChats({ q, unread, page });
-    eventEmitter.emit(INBOX_EVENTS.MORE_LOAD_SUCCESS, { chats: list.chats ?? [], page, sig });
-  } catch (error) {
-    eventEmitter.emit(INBOX_EVENTS.MORE_LOAD_FAILURE, error);
   }
 }
 
@@ -122,65 +107,5 @@ async function sendInmail(eventEmitter, leadId, payload) {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Live inbox                                                          */
-/* ------------------------------------------------------------------ */
-
-/**
- * One live connection for the whole page, however many hooks listen: the
- * conversation list and the open thread each call startLive with their own
- * emitter, and every server event is re-emitted to each as LIVE_EVENT.
- *
- * Reconnects with backoff (1s, 2s, 5s, 10s, then every 30s). Stops for good on
- * 401/402/403: signed out or no access, and retrying would only repeat it.
- * The list's 30-second poll stays on underneath, so a dropped connection makes
- * the inbox slower, never wrong.
- */
-const RETRY_DELAYS_MS = [1000, 2000, 5000, 10000, 30000];
-const liveEmitters = new Set();
-let liveStream = null;
-let liveRetryTimer = null;
-let liveAttempt = 0;
-
-function broadcast(event, payload) {
-  for (const emitter of liveEmitters) emitter.emit(event, payload);
-}
-
-function connectLive() {
-  liveStream = hubInboxGateway.openLiveStream({
-    onOpen: () => {
-      liveAttempt = 0;
-      broadcast(INBOX_EVENTS.LIVE_STATUS, { connected: true });
-    },
-    onEvent: (name, data) => broadcast(INBOX_EVENTS.LIVE_EVENT, { name, ...data }),
-    onClose: (error) => {
-      liveStream = null;
-      broadcast(INBOX_EVENTS.LIVE_STATUS, { connected: false });
-      if (!liveEmitters.size || [401, 402, 403].includes(error?.status)) return;
-      const delay = RETRY_DELAYS_MS[Math.min(liveAttempt, RETRY_DELAYS_MS.length - 1)];
-      liveAttempt += 1;
-      liveRetryTimer = setTimeout(() => {
-        liveRetryTimer = null;
-        if (liveEmitters.size && !liveStream) connectLive();
-      }, delay);
-    },
-  });
-}
-
-function startLive(eventEmitter) {
-  liveEmitters.add(eventEmitter);
-  if (!liveStream && !liveRetryTimer) connectLive();
-}
-
-function stopLive(eventEmitter) {
-  liveEmitters.delete(eventEmitter);
-  if (liveEmitters.size) return;
-  liveStream?.close();
-  liveStream = null;
-  clearTimeout(liveRetryTimer);
-  liveRetryTimer = null;
-  liveAttempt = 0;
-}
-
-const inboxController = { sendInmail, loadInboxPage, loadMoreChats, getThread, markRead, sync, sendReply, reactToMessage, sendMedia, openAttachment, startLive, stopLive };
+const inboxController = { sendInmail, loadInboxPage, getThread, markRead, sync, sendReply, reactToMessage, sendMedia, openAttachment };
 export default inboxController;

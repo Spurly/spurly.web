@@ -16,7 +16,7 @@ faq:
   - q: Is Spurly good for an agency's own pipeline?
     a: Yes. It suits an agency or consultant who wants steady LinkedIn outreach for their own business at a flat price.
   - q: Does each team member need their own plan?
-    a: Yes. Spurly is $24.99 per month (₹2,499 in India) per user.
+    a: Yes. Spurly is $24.99 per month (₹2,499 in India) per user, with a 7-day free trial.
 todo:
   - Add one real agency or consultant workflow
 ---
@@ -41,4 +41,4 @@ Each user connects one LinkedIn account. There is no shared team workspace and n
 
 ## Cost
 
-One plan at $24.99 per month (₹2,499 in India) per user. See [pricing](/pricing).
+One plan at $24.99 per month (₹2,499 in India) per user, with a 7-day free trial. See [pricing](/pricing).

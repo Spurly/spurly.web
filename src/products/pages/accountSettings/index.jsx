@@ -1,7 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { SettingsFrame, SETTINGS_TABS } from './components/SettingsFrame.jsx';
-import { MANAGED_HIDDEN_TABS } from 'src/products/accountSettings/constants/constants.js';
 import { ProfileTab } from './components/ProfileTab.jsx';
 import { BillingTab } from './components/BillingTab.jsx';
 import { ExtensionTab } from './components/ExtensionTab.jsx';
@@ -19,10 +17,8 @@ export { SettingsFrame } from './components/SettingsFrame.jsx';
  */
 export function SettingsPage() {
   const [params] = useSearchParams();
-  const { user } = useAuth();
   const requested = params.get('tab');
-  const hidden = user?.isManaged && MANAGED_HIDDEN_TABS.includes(requested);
-  const activeTab = SETTINGS_TABS.some((x) => x.id === requested) && requested !== 'linkedin' && requested !== 'assistants' && !hidden ? requested : 'account';
+  const activeTab = SETTINGS_TABS.some((x) => x.id === requested) && requested !== 'linkedin' && requested !== 'assistants' ? requested : 'account';
 
   return (
     <SettingsFrame activeTab={activeTab}>

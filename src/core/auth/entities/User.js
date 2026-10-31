@@ -31,11 +31,6 @@ function createUser(data) {
     // mid-onboarding purely from a frontend normalisation bug.
     onboardingStage: data.onboardingStage ?? null,
     isAdmin: data.isAdmin ?? false,
-    // A partner-managed account (opened through "Open in Spurly"): the UI hides
-    // what such an account may not use. The server enforces it independently.
-    isManaged: data.isManaged ?? false,
-    // A managed account whose person set up their own email + password sign-in.
-    hasDirectLogin: data.hasDirectLogin ?? false,
     tier: data.tier || 'free',
     creditBalance: data.creditBalance ?? 0,
     createdAt: data.createdAt,
@@ -63,8 +58,6 @@ function createUser(data) {
     onboardingComplete: user.onboardingComplete,
     onboardingStage: user.onboardingStage,
     isAdmin: user.isAdmin,
-    isManaged: user.isManaged,
-    hasDirectLogin: user.hasDirectLogin,
     tier: user.tier,
     creditBalance: user.creditBalance,
     createdAt: user.createdAt,

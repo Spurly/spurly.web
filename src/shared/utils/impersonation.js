@@ -31,17 +31,6 @@ export function getImpersonatingAdmin() {
 }
 
 /**
- * Forget a saved admin session without restoring it. Opening a partner link
- * replaces the browser session outright, and a leftover "admin" slot would
- * otherwise show the impersonation banner over an account that is not
- * being impersonated.
- */
-export function clearImpersonation() {
-  localStorage.removeItem(ADMIN_TOKEN_KEY);
-  localStorage.removeItem(ADMIN_USER_KEY);
-}
-
-/**
  * Switch the browser session to the target user and hard-reload into the
  * dashboard, same as every other auth transition in this app (login,
  * logout, LinkedIn OAuth) — a full navigation rebuilds every provider from

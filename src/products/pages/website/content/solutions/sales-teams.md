@@ -2,7 +2,7 @@
 title: An AI SDR next to every rep
 seoTitle: AI SDR for Sales Teams on LinkedIn | Spurly
 shortTitle: For sales teams
-description: "Spurly is an AI SDR for sales teams on LinkedIn: each rep runs AI-written sequences from their own account, with replies in one inbox."
+description: "Spurly is an AI SDR for sales teams on LinkedIn: each rep runs AI-written sequences from their own account, with replies in one inbox. 7-day free trial."
 path: /solutions/sales-teams
 template: solutions
 date: 2026-10-03
@@ -18,7 +18,7 @@ faq:
   - q: Does it work with Sales Navigator?
     a: Reps can capture profiles from Sales Navigator pages with the Chrome extension. Spurly's own search is standard LinkedIn search, not Sales Navigator search.
   - q: How is it priced for a team?
-    a: The standard plan is $24.99 per month (₹2,499 in India) per account. Team and organization plans are agreed in a conversation, so book a meeting with us.
+    a: The standard plan is $24.99 per month (₹2,499 in India) per account, with a 7-day free trial. Team and organization plans are agreed in a conversation, so book a meeting with us.
 todo:
   - Decide what an organization plan actually contains so the call has an answer
   - Add one real sales workflow or result
@@ -46,4 +46,4 @@ Each rep connects their own LinkedIn account and runs their own campaigns. If yo
 
 ## Pricing
 
-The standard plan is per account: $24.99 per month (₹2,499 in India) with everything included. See [pricing](/pricing), or compare [Spurly with Dripify](/compare/spurly-vs-dripify).
+The standard plan is per account: $24.99 per month (₹2,499 in India) with a 7-day free trial and everything included. See [pricing](/pricing), or compare [Spurly with Dripify](/compare/spurly-vs-dripify).

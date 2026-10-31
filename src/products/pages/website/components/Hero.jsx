@@ -3,7 +3,7 @@ import HeroVideo from "./home/HeroVideo.jsx";
 
 /* Hero of the landing page: a chip that says who it is for, an outcome
    headline, the one-sentence definition, ONE main button (Book a call) with
-   a quiet "Get started" link, then the demo video with a caption. The sale
+   the free trial as a quiet link, then the demo video with a caption. The sale
    lives only in the top bar (UrgencyBar), not here.
    Keywords: "AI SDR", "LinkedIn" and "leads" in the headline, "LinkedIn
    automation" in the chip and the definition sentence. Plain HTML and CSS, so
@@ -27,7 +27,7 @@ export default function Hero() {
             </a>
           </div>
           <p className="hero-micro">
-            or <Link to="/signup" className="hero-trial">Get started</Link> · cancel anytime
+            or <Link to="/signup" className="hero-trial">Start 7-day free trial</Link> · no card needed · cancel anytime
           </p>
         </div>
 

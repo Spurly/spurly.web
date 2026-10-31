@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { usePrice } from "../hooks/usePrice.js";
 import PriceTag from "./PriceTag.jsx";
-import { PLAN_NOTE } from "../pricing.js";
+import { TRIAL_NOTE } from "../pricing.js";
 
 const BG_VIDEO = "/assets/video/spurly-cta-bg.mp4";
 
@@ -41,21 +41,21 @@ export default function FinalCTA() {
           <div className="cta-bg-shade" aria-hidden="true" />
           <h2 className="h2">Your LinkedIn outreach, <em>on autopilot by tonight.</em></h2>
           <p className="lead">
-            <PriceTag price={price} />/month, cancel anytime.
+            7-day free trial, then <PriceTag price={price} />/month.
           </p>
           {price.sale && <p className="cta-count">{price.sale.label}: the {price.sale.audience} keep this price for life.</p>}
           <div className="hero-actions">
             <a href="#book" className="btn btn-primary btn-lg" data-magnetic>
               Book a call <span className="arr" aria-hidden="true">→</span>
             </a>
-            <Link to="/signup" className="btn btn-ghost btn-lg">Get started</Link>
+            <Link to="/signup" className="btn btn-ghost btn-lg">Start 7-day free trial</Link>
           </div>
           <ul className="cta-points">
             <li>You approve every message</li>
             <li>Stops when they reply</li>
             <li>Runs with your laptop closed</li>
           </ul>
-          <p className="trial-note">{PLAN_NOTE}</p>
+          <p className="trial-note">{TRIAL_NOTE}</p>
         </div>
       </div>
     </section>

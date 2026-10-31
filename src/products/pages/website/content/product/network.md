@@ -2,7 +2,7 @@
 title: "Your LinkedIn network and invitations, handled for you"
 seoTitle: "Auto-Accept LinkedIn Invitations & Network | Spurly"
 shortTitle: Network and invitations
-description: "Auto-accept LinkedIn invitations by headline keywords, auto-withdraw stale ones, and keep every connection in one synced list."
+description: "Auto-accept LinkedIn invitations by headline keywords, auto-withdraw stale ones, and keep every connection in one synced list. 7-day free trial."
 path: /product/network
 template: product
 date: 2026-10-03

@@ -26,10 +26,10 @@ async function call(eventEmitter, fn, successEvent, failureEvent, fallbackMessag
 }
 
 // ── Users ──────────────────────────────────────────────────────────────
-function getAllUsers(eventEmitter, limit, skip, partner = '') {
+function getAllUsers(eventEmitter, limit, skip) {
   return call(
     eventEmitter,
-    () => adminGateway.getAllUsers(limit, skip, partner),
+    () => adminGateway.getAllUsers(limit, skip),
     ADMIN_EVENTS.GET_ALL_USERS_SUCCESS,
     ADMIN_EVENTS.GET_ALL_USERS_FAILURE,
     'Failed to load users',

@@ -7,9 +7,9 @@
 import { describe, it, expect } from 'vitest';
 import { render, PUBLIC_ROUTES, ogSlug } from 'src/entry-server.jsx';
 
-const BANNED = [/local-only/i, /never leaves your/i, /100% local/i, /no credit card/i, /Start free\b/, /\bSessions?\b/, /Start (the |your )?(7-day )?free trial/i, /no card needed to start/i];
+const BANNED = [/local-only/i, /never leaves your/i, /100% local/i, /no credit card/i, /Start free\b/, /\bSessions?\b/];
 // Terms is legal text still awaiting its rewrite (it carries the old wording);
-// only the credit-card claim is checked there.
+// only the trial claim is checked there.
 const LEGAL = new Set(['/terms']);
 
 describe('public pages: no outdated claims', () => {
@@ -20,12 +20,11 @@ describe('public pages: no outdated claims', () => {
     for (const re of banned) expect(text, `${path} matches ${re}`).not.toMatch(re);
   });
 
-  it('the home page prerenders the USD price and the plan note, with no free trial', async () => {
+  it('the home page prerenders the USD price and the exact trial copy', async () => {
     const { html, head } = await render('/');
     expect(html).toContain('$24.99');
     expect(html).not.toContain('₹');
-    expect(html).toContain("Subscribe to start, and cancel anytime");
-    expect(html).not.toMatch(/7-day free trial/i);
+    expect(html).toContain("No card needed to start your 7-day free trial");
     // structured data carries both real offers
     // the Offers carry what a new customer pays today (launch price), list price is shown struck through
     expect(head).toContain('"price":"14.99"');

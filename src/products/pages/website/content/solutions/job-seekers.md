@@ -16,7 +16,7 @@ faq:
   - q: Can I find people at specific companies?
     a: Yes. The lead finder can find people at target companies, filtered by title.
   - q: Is there a cheaper way for a short search?
-    a: Spurly has one plan at $24.99 per month (₹2,499 in India). You can cancel any time.
+    a: Spurly has one plan at $24.99 per month (₹2,499 in India) with a 7-day free trial. You can cancel any time.
 todo:
   - Add a real job-search workflow
 ---

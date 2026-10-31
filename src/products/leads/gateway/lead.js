@@ -29,8 +29,8 @@ import { Lead } from '../entities/lead.js';
  * 'append' fetches into that existing audience, 'new' makes a new audience
  * that continues from where the existing one stopped.
  */
-async function createSearch({ searchUrl, filters, followers, post, name, count, onDuplicate }) {
-  const res = await apiGateway.post('/hub/searches', { searchUrl, filters, followers, post, name, count, onDuplicate });
+async function createSearch({ searchUrl, filters, followers, name, count, onDuplicate }) {
+  const res = await apiGateway.post('/hub/searches', { searchUrl, filters, followers, name, count, onDuplicate });
   return {
     audience: Audience.fromResponse(res.data?.data?.search ?? null),
     appended: Boolean(res.data?.data?.appended),

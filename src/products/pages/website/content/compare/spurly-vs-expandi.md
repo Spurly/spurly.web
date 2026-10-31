@@ -40,7 +40,7 @@ As of October 2026, Expandi's pricing page lists the Business plan at $99 a mont
 | | Spurly | Expandi |
 |---|---|---|
 | Price | $24.99/month (₹2,499 in India), one plan | Business plan $99/month, or $79/month billed annually (October 2026) |
-| Free trial | None; subscribe to start | 7 days |
+| Free trial | 7 days; no card needed | 7 days |
 | Runs in the cloud | Yes | Yes |
 | Sequences | Linear steps: visit, connect, message, follow, like, comment, endorse, wait | Combine 10 actions and 10 conditions |
 | Pauses when someone replies | Yes | Not stated on its pricing page |

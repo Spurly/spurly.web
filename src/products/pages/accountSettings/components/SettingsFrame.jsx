@@ -1,8 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { PageTabs } from 'src/core/primitives';
-import { useAuth } from 'src/core/auth/hooks/useAuth';
-import { MANAGED_HIDDEN_TABS } from 'src/products/accountSettings/constants/constants.js';
 import { settingsStrings as t } from '../strings.js';
 
 /**
@@ -27,8 +25,6 @@ export const SETTINGS_TABS = [
 
 export function SettingsFrame({ activeTab, children }) {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const tabs = user?.isManaged ? SETTINGS_TABS.filter((x) => !MANAGED_HIDDEN_TABS.includes(x.id)) : SETTINGS_TABS;
   const go = (id) =>
     navigate(id === 'linkedin' ? '/dashboard/settings/linkedin' : id === 'assistants' ? '/dashboard/settings/ai-assistants' : id === 'account' ? '/dashboard/settings' : `/dashboard/settings?tab=${id}`);
 
@@ -37,7 +33,7 @@ export function SettingsFrame({ activeTab, children }) {
       title={t.pageTitle}
       subtitle={t.pageSubtitle}
       layout="page"
-      tabs={<PageTabs tabs={tabs} activeTab={activeTab} onTabChange={go} />}
+      tabs={<PageTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={go} />}
     >
       {/* Two columns once there is room, so the page isn't a narrow strip beside an empty field. */}
       <div className="max-w-[1240px] grid grid-cols-1 min-[1180px]:grid-cols-2 gap-4 items-start pt-1 [&>*:only-child]:min-[1180px]:col-span-2 [&>*:only-child]:max-w-[820px]">

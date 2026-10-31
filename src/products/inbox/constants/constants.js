@@ -9,9 +9,6 @@ export const POLL_MS = 30000;
 export const INBOX_EVENTS = {
   PAGE_LOAD_SUCCESS: 'INBOX_PAGE_LOAD_SUCCESS',
   PAGE_LOAD_FAILURE: 'INBOX_PAGE_LOAD_FAILURE',
-  /** The next page of the conversation list: { chats, page, sig }. */
-  MORE_LOAD_SUCCESS: 'INBOX_MORE_LOAD_SUCCESS',
-  MORE_LOAD_FAILURE: 'INBOX_MORE_LOAD_FAILURE',
   THREAD_LOAD_SUCCESS: 'INBOX_THREAD_LOAD_SUCCESS',
   THREAD_LOAD_FAILURE: 'INBOX_THREAD_LOAD_FAILURE',
   MARK_READ_SUCCESS: 'INBOX_MARK_READ_SUCCESS',
@@ -28,14 +25,7 @@ export const INBOX_EVENTS = {
   ATTACHMENT_FAILURE: 'INBOX_ATTACHMENT_FAILURE',
   INMAIL_SUCCESS: 'INBOX_INMAIL_SUCCESS',
   INMAIL_FAILURE: 'INBOX_INMAIL_FAILURE',
-  /** A server push from the live inbox: { name, type, chatId, messageId, ... }. */
-  LIVE_EVENT: 'INBOX_LIVE_EVENT',
-  /** The live connection opened or dropped: { connected }. */
-  LIVE_STATUS: 'INBOX_LIVE_STATUS',
 };
-
-/** Coalesce a burst of live events (a read receipt right after a message) into one reload. */
-export const LIVE_RELOAD_DEBOUNCE_MS = 250;
 
 export const INMAIL_TEXT_MAX = 1900;
 export const INMAIL_SUBJECT_MAX = 200;

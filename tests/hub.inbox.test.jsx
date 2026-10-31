@@ -139,13 +139,13 @@ describe('an empty inbox says WHY it is empty', () => {
     expect(screen.getByRole('button', { name: 'Go to settings' })).toBeInTheDocument();
   });
 
-  it('explains a never-queued sweep and does not ask the reader to start it', async () => {
+  it('offers to start a sweep when one has never been queued', async () => {
     summary = aSummary({ sync: null, chats: 0, unread: 0 });
     chats = [];
     renderAt('/hub/inbox');
 
     expect(await screen.findByText(/Nothing synced yet/i)).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /sync now|try again/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sync now/i })).toBeInTheDocument();
   });
 
   it('says it is still fetching rather than offering a button that changes nothing', async () => {

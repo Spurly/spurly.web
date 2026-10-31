@@ -2,7 +2,7 @@
 title: "Work emails and phone numbers for your LinkedIn leads"
 seoTitle: "LinkedIn Lead Enrichment for Outreach | Spurly"
 shortTitle: Lead enrichment
-description: "Spurly finds work emails and phone numbers and fills in title, company and history for the leads you pick, in the background."
+description: "Spurly finds work emails and phone numbers and fills in title, company and history for the leads you pick, in the background. 7-day free trial."
 path: /product/enrichment
 template: product
 date: 2026-10-03

@@ -6,7 +6,6 @@ import { RefreshCw } from 'lucide-react';
 import { AdminLayout } from 'src/core/pages/admin/components/AdminLayout';
 import { DataTable } from 'src/core/DataTable';
 import { Button, useToast } from 'src/core/primitives';
-import { Dropdown } from 'src/core/primitives/Dropdown';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 import { startImpersonation } from 'src/shared/utils/impersonation.js';
 import CreditsModal from '../components/CreditsModal';
@@ -27,10 +26,6 @@ export function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  // Slug of the partner whose accounts to show; '' = everyone. The partners to choose from
-  // arrive with every list response.
-  const [partner, setPartner] = useState('');
-  const [partners, setPartners] = useState([]);
   const [pagination, setPagination] = useState({ total: 0, limit: 20, skip: 0, pages: 0 });
   const [selectedUser, setSelectedUser] = useState(null);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
@@ -45,13 +40,12 @@ export function AdminUsersPage() {
   const fetchUsers = useCallback(() => {
     setLoading(true);
     setError('');
-    adminController.getAllUsers(eventEmitter, pagination.limit, pagination.skip, partner);
-  }, [eventEmitter, pagination.limit, pagination.skip, partner]);
+    adminController.getAllUsers(eventEmitter, pagination.limit, pagination.skip);
+  }, [eventEmitter, pagination.limit, pagination.skip]);
 
   useEffect(() => {
     function handleSuccess(data) {
       setUsers(data.users);
-      setPartners(data.partners || []);
       setPagination(data.pagination);
       setLoading(false);
     }
@@ -75,7 +69,7 @@ export function AdminUsersPage() {
   useEffect(() => {
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.skip, refreshTrigger, partner]);
+  }, [pagination.skip, refreshTrigger]);
 
   const handleCreditsClick = (user) => {
     setSelectedUser(user);
@@ -138,8 +132,6 @@ export function AdminUsersPage() {
     onImpersonate: handleImpersonateClick,
   });
 
-  const partnerOptions = [['', 'All users'], ...partners.map((p) => [p.slug, p.name || p.slug])];
-
   const currentPage = Math.floor(pagination.skip / pagination.limit) + 1;
 
   return (
@@ -165,29 +157,12 @@ export function AdminUsersPage() {
             rowKey={(row) => row._id}
             onRowClick={handleRowClick}
             loading={loading}
-            emptyMessage={searchTerm ? 'No users match your search' : partner ? 'No accounts for this partner' : 'No users found'}
+            emptyMessage={searchTerm ? 'No users match your search' : 'No users found'}
             emptyHint={searchTerm ? 'Try a different search term' : undefined}
             toolbar={{
               searchValue: searchTerm,
               onSearch: setSearchTerm,
               searchPlaceholder: 'Search by email or name (current page)...',
-              // Only when there is a partner to filter by.
-              filters: partners.length > 0 ? (
-                <div className="w-56">
-                  <Dropdown
-                    id="user-partner-filter"
-                    variant="dashboard"
-                    value={partner}
-                    onChange={(slug) => {
-                      setPartner(slug);
-                      setPagination((prev) => ({ ...prev, skip: 0 }));
-                    }}
-                    placeholder="Filter by partner"
-                    ariaLabel="Filter by partner"
-                    options={partnerOptions}
-                  />
-                </div>
-              ) : null,
               actions: (
                 <Button
                   variant="secondary"

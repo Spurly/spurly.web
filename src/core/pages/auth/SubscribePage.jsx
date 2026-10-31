@@ -11,8 +11,6 @@ import { TrustBadges } from './components/widgets.jsx';
 import { StarIcon } from './components/icons.jsx';
 import subscriptionsController from 'src/core/billing/controller/subscriptions.js';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
-import PartnerEndedPage from 'src/core/pages/partner/PartnerEndedPage.jsx';
-import { ENDED_REASONS } from 'src/core/partner/constants/constants.js';
 import { postAuthDestination } from './postAuthDestination.js';
 
 const FEATURES = [
@@ -32,9 +30,8 @@ const longDate = (d) =>
  * routes here from anywhere under /onboarding or /dashboard whenever access
  * isn't 'active'.
  *
- * Razorpay autopay: launch offer ₹1,499 or $14.99 a month by region (regular ₹2,499 / $24.99), charged at
- * checkout. There is no free trial for new accounts; the trial copy below
- * only serves accounts created before it was removed. Checkout is Razorpay's modal on this page — no redirect —
+ * Razorpay autopay: launch offer ₹1,499 or $14.99 a month by region (regular ₹2,499 / $24.99), with a 7-day free trial
+ * once per account. Checkout is Razorpay's modal on this page — no redirect —
  * and the backend verifies the result before access flips.
  *
  * Never renders a price or a pay button without pricing from the server.
@@ -184,9 +181,6 @@ export default function SubscribePage() {
   }
 
   const busy = phase !== 'idle';
-
-  // A managed account never sees a paywall: its access is handled elsewhere.
-  if (user?.isManaged) return <PartnerEndedPage reason={ENDED_REASONS.ACCESS} />;
 
   return (
     <AuthShell aside={<WelcomeAside step={1} total={3} credits={100} />} bodyTop>

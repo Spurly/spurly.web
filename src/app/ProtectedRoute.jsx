@@ -1,6 +1,5 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
-import { isManagedSession } from 'src/shared/utils/managedSession.js';
 
 export function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -17,7 +16,7 @@ export function ProtectedRoute({ children }) {
   }
 
   if (!user) {
-    return <Navigate to={isManagedSession() ? '/partner/ended' : '/login'} replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return children;

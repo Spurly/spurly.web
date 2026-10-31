@@ -4,7 +4,7 @@ import { useToast } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import inboxController from '../controller/inbox.js';
-import { POLL_MS, INBOX_EVENTS, LIVE_RELOAD_DEBOUNCE_MS } from '../constants/constants.js';
+import { POLL_MS, INBOX_EVENTS } from '../constants/constants.js';
 
 /**
  * 🔴 AN EMPTY INBOX HAS FOUR CAUSES AND THEY LOOK IDENTICAL.
@@ -26,11 +26,10 @@ export function emptyStateFor(summary) {
     };
   }
   if (!summary.sync) {
-    // No button: the worker queues a sweep for every connected account on its
-    // own, so there is nothing for the reader to press.
     return {
       title: 'Nothing synced yet',
-      hint: 'Your conversations are being set up. They start fetching on their own within a minute and will appear here.',
+      hint: 'Your conversations have not been fetched yet. This starts on its own within a minute, or you can start it now.',
+      sync: true,
     };
   }
   if (summary.sync.status === 'failed') {
@@ -74,12 +73,7 @@ export function useInboxPage() {
 
   const eventEmitter = useMemo(() => new EventEmitter(), []);
   const [summary, setSummary] = useState(null);
-  const [head, setHead] = useState([]);
-  const [listTotal, setListTotal] = useState(0);
-  const [loadingMore, setLoadingMore] = useState(false);
-  // Pages after the first. Keyed on the filters they were fetched under, so a
-  // new search or the Unread pill discards them without an effect to reset.
-  const [more, setMore] = useState({ sig: '', rows: [], page: 1 });
+  const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [query, setQuery] = useState('');
@@ -113,21 +107,6 @@ export function useInboxPage() {
    * the list, which is what you want when the query is served from our own
    * database in milliseconds.
    */
-  const sig = `${debouncedQuery}|${unreadOnly ? 1 : 0}`;
-  const sigRef = useRef(sig);
-  useEffect(() => { sigRef.current = sig; });
-  const loadedPage = more.sig === sig ? more.page : 1;
-
-  // Page 1 is re-polled and replaces the head; rows the reader has scrolled to
-  // stay below it. A conversation that moved up into the head is dropped from
-  // the tail by id.
-  const chats = useMemo(() => {
-    const tailRows = more.sig === sig ? more.rows : [];
-    const ids = new Set(head.map((c) => c._id));
-    return [...head, ...tailRows.filter((c) => !ids.has(c._id))];
-  }, [head, more, sig]);
-  const hasMore = head.length > 0 && chats.length < listTotal;
-
   const load = useCallback(() => {
     inboxController.loadInboxPage(eventEmitter, { q: debouncedQuery, unread: unreadOnly });
   }, [eventEmitter, debouncedQuery, unreadOnly]);
@@ -135,10 +114,9 @@ export function useInboxPage() {
   // Every controller call reports back through this one subscription — no
   // .then()/.catch() and nothing awaited here.
   useEffect(() => {
-    const onPageLoadSuccess = ({ chats: nextChats, pagination, summary: nextSummary }) => {
+    const onPageLoadSuccess = ({ chats: nextChats, summary: nextSummary }) => {
       if (!mountedRef.current) return;
-      setHead(nextChats);
-      setListTotal(pagination?.total ?? nextChats.length);
+      setChats(nextChats);
       setSummary(nextSummary);
       setLoading(false);
       setRefreshing(false);
@@ -148,22 +126,6 @@ export function useInboxPage() {
       toast.error(getToastError(err, 'Could not load your inbox'));
       setLoading(false);
       setRefreshing(false);
-    };
-    const onMoreSuccess = ({ chats: rows, page, sig: forSig }) => {
-      if (!mountedRef.current) return;
-      setLoadingMore(false);
-      // Requested under filters the reader has since changed — drop it.
-      if (forSig !== sigRef.current) return;
-      setMore((prev) => {
-        const base = prev.sig === forSig ? prev.rows : [];
-        const seen = new Set(base.map((c) => c._id));
-        return { sig: forSig, rows: [...base, ...rows.filter((c) => !seen.has(c._id))], page };
-      });
-    };
-    const onMoreFailure = (err) => {
-      if (!mountedRef.current) return;
-      setLoadingMore(false);
-      toast.error(getToastError(err, 'Could not load more conversations'));
     };
     const onSyncSuccess = () => {
       toast.success('Sync started. Conversations appear as they are fetched.');
@@ -175,15 +137,11 @@ export function useInboxPage() {
 
     eventEmitter.on(INBOX_EVENTS.PAGE_LOAD_SUCCESS, onPageLoadSuccess);
     eventEmitter.on(INBOX_EVENTS.PAGE_LOAD_FAILURE, onPageLoadFailure);
-    eventEmitter.on(INBOX_EVENTS.MORE_LOAD_SUCCESS, onMoreSuccess);
-    eventEmitter.on(INBOX_EVENTS.MORE_LOAD_FAILURE, onMoreFailure);
     eventEmitter.on(INBOX_EVENTS.SYNC_SUCCESS, onSyncSuccess);
     eventEmitter.on(INBOX_EVENTS.SYNC_FAILURE, onSyncFailure);
     return () => {
       eventEmitter.off(INBOX_EVENTS.PAGE_LOAD_SUCCESS, onPageLoadSuccess);
       eventEmitter.off(INBOX_EVENTS.PAGE_LOAD_FAILURE, onPageLoadFailure);
-      eventEmitter.off(INBOX_EVENTS.MORE_LOAD_SUCCESS, onMoreSuccess);
-      eventEmitter.off(INBOX_EVENTS.MORE_LOAD_FAILURE, onMoreFailure);
       eventEmitter.off(INBOX_EVENTS.SYNC_SUCCESS, onSyncSuccess);
       eventEmitter.off(INBOX_EVENTS.SYNC_FAILURE, onSyncFailure);
     };
@@ -205,42 +163,6 @@ export function useInboxPage() {
     return () => clearInterval(t);
   }, [load]);
 
-  /**
-   * Live: the server pushes "this conversation changed" the moment a message
-   * arrives (controller#startLive), and the list reloads within a second. A
-   * burst (a message, then its read receipt) is one reload. `load` is read
-   * through a ref so a filter change does not drop and reopen the connection.
-   * The poll above stays as the fallback for a dropped connection.
-   */
-  const [live, setLive] = useState(false);
-  const loadRef = useRef(load);
-  useEffect(() => { loadRef.current = load; });
-  useEffect(() => {
-    let timer = null;
-    const onLive = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => loadRef.current(), LIVE_RELOAD_DEBOUNCE_MS);
-    };
-    const onLiveStatus = ({ connected }) => {
-      if (mountedRef.current) setLive(connected);
-    };
-    eventEmitter.on(INBOX_EVENTS.LIVE_EVENT, onLive);
-    eventEmitter.on(INBOX_EVENTS.LIVE_STATUS, onLiveStatus);
-    inboxController.startLive(eventEmitter);
-    return () => {
-      clearTimeout(timer);
-      eventEmitter.off(INBOX_EVENTS.LIVE_EVENT, onLive);
-      eventEmitter.off(INBOX_EVENTS.LIVE_STATUS, onLiveStatus);
-      inboxController.stopLive(eventEmitter);
-    };
-  }, [eventEmitter]);
-
-  const loadMore = useCallback(() => {
-    if (loadingMore || !hasMore) return;
-    setLoadingMore(true);
-    inboxController.loadMoreChats(eventEmitter, { page: loadedPage + 1, q: debouncedQuery, unread: unreadOnly, sig });
-  }, [loadingMore, hasMore, eventEmitter, loadedPage, debouncedQuery, unreadOnly, sig]);
-
   const refresh = () => {
     setRefreshing(true);
     load();
@@ -251,24 +173,14 @@ export function useInboxPage() {
   };
 
   const empty = useMemo(() => emptyStateFor(summary), [summary]);
-  // Still catching up — the first sweep, a wider re-sweep, or history yet to
-  // download. Said quietly above the list so the reader knows more is coming.
-  const syncing = Boolean(summary?.sync)
-    && summary.sync.status !== 'failed'
-    && (summary.sync.phase !== 'done' || (summary.historyPending ?? 0) > 0);
   const nothingAtAll = !loading && chats.length === 0 && !debouncedQuery && !unreadOnly;
 
   return {
     openId,
     summary,
     chats,
-    hasMore,
-    loadingMore,
-    loadMore,
-    syncing,
     loading,
     refreshing,
-    live,
     query,
     setQuery,
     unreadOnly,

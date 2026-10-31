@@ -96,7 +96,7 @@ Change one thing at a time, such as the note, the audience or the follow-up, so 
 
 ## Where Spurly fits
 
-Spurly runs the repetitive parts: building the audience, sending connection requests at a limited pace, following up in sequences that stop when someone replies, and collecting every reply in one inbox. It does not decide who deserves your message or what to say; that is still your job. See [how campaigns work](/product/campaigns). Spurly costs $24.99 a month and you can cancel anytime. See [pricing](/pricing) for the plan.
+Spurly runs the repetitive parts: building the audience, sending connection requests at a limited pace, following up in sequences that stop when someone replies, and collecting every reply in one inbox. It does not decide who deserves your message or what to say; that is still your job. See [how campaigns work](/product/campaigns). Spurly costs $24.99 a month after a 7-day free trial. No card needed to start your 7-day free trial. Subscribe when it ends to keep going, and cancel anytime.
 
 ## Where an AI SDR fits
 

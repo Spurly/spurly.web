@@ -58,9 +58,8 @@ describe('people and trust pages', () => {
     expect(html).toContain('intent signals tracked');
     expect(html).toContain('everything included');
     expect(html).toContain('Before you book, ');
-    // hero + plan card + final CTA (the top bar has no CTA button); no trial wording anywhere
-    expect(html.split('Get started').length - 1).toBeGreaterThanOrEqual(3);
-    expect(html).not.toContain('Start 7-day free trial');
+    // hero + plan card + final CTA (the top bar has no trial button)
+    expect(html.split('Start 7-day free trial').length - 1).toBeGreaterThanOrEqual(3);
     // the long sections moved to their own pages
     expect(html).not.toContain('Video tour coming soon');
   });

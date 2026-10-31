@@ -1,10 +1,10 @@
-import { PRICES, SALE } from "./pricing.js";
+import { PRICES, SALE, TRIAL_DAYS } from "./pricing.js";
 import { HOME_FAQ } from "./components/home/homeFaq.js";
 
 /* Homepage JSON-LD (SoftwareApplication + FAQ + HowTo). Rendered by <Seo> on
    HomePage only, and baked into the prerendered "/" at build time. */
 
-/** One monthly Offer. */
+/** One monthly Offer. The trial is described on the SoftwareApplication itself. */
 function offer({ amount, currency }) {
   return {
     "@type": "Offer",
@@ -17,7 +17,7 @@ function offer({ amount, currency }) {
       billingDuration: "P1M",
       unitCode: "MON",
     },
-    description: "Billed monthly. Cancel anytime.",
+    description: `${TRIAL_DAYS}-day free trial, then billed monthly.`,
   };
 }
 
@@ -35,7 +35,7 @@ export const SOFTWARE_LD = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Chrome",
   description:
-    "Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Runs 24/7 from the cloud at a safe pace, with one inbox for replies and Claude (MCP) support. Built for founders and B2B sales teams. Includes an optional Chrome extension for capturing profiles.",
+    "Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Runs 24/7 from the cloud at a safe pace, with one inbox for replies and Claude (MCP) support. Built for founders and B2B sales teams. Includes an optional Chrome extension for capturing profiles. 7-day free trial.",
   offers: [
     offer(currentPrice("INTL")),
     { ...offer(currentPrice("IN")), eligibleRegion: "IN" },

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
-import { Button, Skeleton } from 'src/core/primitives';
+import { Button, Skeleton, WorkingLine } from 'src/core/primitives';
 import { PageTabs } from 'src/core/primitives/PageTabs';
 import { usePostsPage } from 'src/products/posts/hooks/usePostsPage.js';
 import { Composer } from './components/Composer.jsx';
@@ -30,7 +30,6 @@ export function HubPostsPage() {
       title="Posts"
       subtitle="Publish to LinkedIn, schedule ahead, and see who reacted."
       layout="page"
-      tabs={<PageTabs tabs={TABS} activeTab={tab} onTabChange={openTab} />}
       actions={tab === 'posts' ? <Button variant="primary" onClick={refresh} disabled={needsAccount}>Refresh</Button> : null}
     >
       <div className="flex flex-col gap-4">
@@ -44,12 +43,14 @@ export function HubPostsPage() {
           </div>
         )}
 
+        <PageTabs tabs={TABS} activeTab={tab} onTabChange={openTab} />
+
         {tab === 'posts' && !needsAccount && (
-          <div className="flex flex-col gap-4 max-w-[1280px]">
+          <div className="flex flex-col gap-4 max-w-[760px]">
             <UsageLine usage={usage} />
             <Composer key={composerKey} publishing={publishing} onPublish={publish} onPublishMedia={publishMedia} />
             {own.failed && <p role="alert" className="text-[var(--ui-text-secondary)]">Could not load your posts. Try Refresh.</p>}
-            {own.loading && own.posts.length === 0 && <div className="flex flex-col gap-3"><Skeleton width="100%" height={120} /><Skeleton width="100%" height={120} /></div>}
+            {own.loading && own.posts.length === 0 && <WorkingLine verbs={['Loading']}>Loading your posts</WorkingLine>}
             {!own.loading && <OwnPosts posts={own.posts} cancelling={cancelling} onCancel={cancel} />}
           </div>
         )}

@@ -6,7 +6,6 @@ import {
   syncAuthToExtension,
   clearExtensionAuth,
 } from 'src/shared/extension/extensionBridge.js';
-import { isManagedSession } from 'src/shared/utils/managedSession.js';
 
 export const AuthContext = createContext();
 
@@ -101,20 +100,15 @@ export function AuthProvider({ children }) {
    * is exactly when the extension needs to hear about it — that is what stops
    * the two halves ending up signed in as different people.
    *
-   * Not for a partner-managed session: that account is not signed in to the
-   * extension (D9), so the push is skipped and the extension keeps whatever
-   * account it already had.
-   *
    * Failures are ignored on purpose: no extension installed, an older build, or
    * a cookie-only OAuth session with no stored JWT are all normal, and none of
    * them should surface an error next to a sign-in that succeeded.
    */
   const userId = user?._id || user?.id || null;
-  const managed = Boolean(user?.isManaged) || isManagedSession();
   useEffect(() => {
-    if (!userId || managed) return;
+    if (!userId) return;
     syncAuthToExtension().catch(() => {});
-  }, [userId, managed]);
+  }, [userId]);
 
   const login = useCallback((email, password) => {
     setLoading(true);
@@ -239,15 +233,14 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     setLoading(true);
     const callEmitter = new EventEmitter();
-    callEmitter.once(AUTH_EVENTS.LOGOUT_SUCCESS, ({ managed: wasManaged } = {}) => {
+    callEmitter.once(AUTH_EVENTS.LOGOUT_SUCCESS, () => {
       setUser(null);
       setError(null);
       if (mountedRef.current) setLoading(false);
       // Sign the extension out too — one account, one session. Best effort:
       // the web sign-out has already happened and must not appear to fail
-      // because the extension is missing or asleep. A managed session was never
-      // pushed to the extension, so ending it must not sign out whoever is there.
-      if (!wasManaged) clearExtensionAuth().catch(() => {});
+      // because the extension is missing or asleep.
+      clearExtensionAuth().catch(() => {});
     });
     authController.logout(callEmitter);
     return callEmitter;

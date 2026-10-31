@@ -52,6 +52,6 @@ Read lets the assistant look at your data. Draft lets it create drafts. Act lets
 
 ## If something goes wrong
 
-- A message that your access has ended or that there is no active subscription means your plan has lapsed. Subscribe and try again.
+- A message that your trial has ended means your access has lapsed. Subscribe and try again.
 - Disconnect an app or revoke a token from Settings under AI assistants if you no longer want it to have access.
 - Spurly is designed to keep sending within LinkedIn's limits, but no tool can guarantee LinkedIn will not restrict an account. The [safety page](/product/safety) has the detail.

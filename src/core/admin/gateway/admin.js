@@ -16,15 +16,8 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
 /**
  * Users Management
  */
-/**
- * `partner` (a partner's slug) narrows the list to that partner's accounts. Every
- * row carries `partner` (null for an ordinary user) and the payload lists the
- * `partners` to filter by.
- */
-export async function getAllUsers(limit = 20, skip = 0, partner = '') {
-  const params = new URLSearchParams({ limit: String(limit), skip: String(skip) });
-  if (partner) params.set('partner', partner);
-  const res = await apiGateway.get(`/admin/users?${params}`);
+export async function getAllUsers(limit = 20, skip = 0) {
+  const res = await apiGateway.get(`/admin/users?limit=${limit}&skip=${skip}`);
   return res.data;
 }
 

@@ -61,7 +61,6 @@ export default function Footer() {
               <h4>Company</h4>
               <Link to="/about">About</Link>
               <Link to="/security">Security</Link>
-              <Link to="/developers">LinkedIn API</Link>
               <Link to="/blog">Blog</Link>
               <Link to="/book-demo">Book a demo</Link>
               <Link to="/support">Support</Link>
@@ -70,7 +69,7 @@ export default function Footer() {
             </div>
             <div className="foot-col">
               <h4>Get Spurly</h4>
-              <Link to="/signup">Get started</Link>
+              <Link to="/signup">Start 7-day free trial</Link>
               <Link to="/login">Sign in</Link>
               <ChromeStoreLink>Chrome Web Store</ChromeStoreLink>
             </div>

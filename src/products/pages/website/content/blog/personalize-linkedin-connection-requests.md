@@ -50,6 +50,6 @@ Want the founder's angle on building this into a full pipeline? Read [how founde
 
 ## Let AI draft it, and approve every note
 
-Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Describe who you are writing to and the AI drafts the note with placeholders that fill in per person; your [campaigns](/product/campaigns) then send it 24/7 at a safe pace. See [pricing](/pricing) for the plan.
+Spurly is an AI SDR for LinkedIn: it finds high-intent leads that match your ICP, writes personalized messages with AI and follows up until they reply, while you approve every message. Describe who you are writing to and the AI drafts the note with placeholders that fill in per person; your [campaigns](/product/campaigns) then send it 24/7 at a safe pace. The 7-day free trial needs no card; see [pricing](/pricing).
 
 See ten adaptable notes in [connection request examples](/blog/linkedin-connection-request-examples) and how to read your results in [what a good acceptance rate is](/blog/linkedin-acceptance-rate).
