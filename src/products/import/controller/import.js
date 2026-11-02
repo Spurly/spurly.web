@@ -27,7 +27,7 @@ const ROW_FIELDS = ['profileUrl', 'name', 'firstName', 'lastName', 'company', 't
  * audience. Emits IMPORT_SUCCESS with { sentToHub, finding, skipped,
  * duplicates, audience }, or IMPORT_FAILURE with the raw error.
  */
-async function importProfiles(eventEmitter, { profiles = [], lookupRows = [], sourceFile = '' }) {
+async function importProfiles(eventEmitter, { profiles = [], lookupRows = [], sourceFile = '', listName = '' }) {
   try {
     const rows = [...(profiles || []), ...(lookupRows || [])].map((r) =>
       Object.fromEntries(ROW_FIELDS.map((k) => [k, r?.[k] ?? ''])),
@@ -35,7 +35,7 @@ async function importProfiles(eventEmitter, { profiles = [], lookupRows = [], so
     if (rows.length === 0) {
       throw new Error('None of the rows had a LinkedIn profile URL, or a name and company to find one with');
     }
-    const res = await importGateway.autoImport(rows, sourceFile);
+    const res = await importGateway.autoImport(rows, sourceFile, listName);
     if (!res?.success) throw new Error(res?.message || 'Failed to import leads');
     const d = res.data || {};
     eventEmitter.emit(IMPORT_EVENTS.IMPORT_SUCCESS, {

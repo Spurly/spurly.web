@@ -78,8 +78,8 @@ async function deleteLeads(ids) {
  * name + company are found on LinkedIn and follow — every confirmed match,
  * into one audience named after the file. POST /imported-leads/auto-import
  */
-async function autoImport(rows, sourceFile = '') {
-  const response = await apiGateway.post('/imported-leads/auto-import', { rows, sourceFile });
+async function autoImport(rows, sourceFile = '', listName = '') {
+  const response = await apiGateway.post('/imported-leads/auto-import', { rows, sourceFile, listName });
   return response.data;
 }
 

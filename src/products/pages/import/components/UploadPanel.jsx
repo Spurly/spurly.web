@@ -4,7 +4,7 @@ import {
   UploadCloud, FileText, AlertCircle, X, ArrowLeft, ArrowRight, Download, Link2, Search, Ban, ShieldCheck,
 } from 'lucide-react';
 import { DataTable } from 'src/core/DataTable';
-import { Button, IconButton, useToast } from 'src/core/primitives';
+import { Button, Dialog, IconButton, Input, useToast } from 'src/core/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 import {
   analyzeCsv,
@@ -47,6 +47,15 @@ function downloadSample() {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** Mirrors the backend's fallback list name (lookup.js#audienceNameFor). */
+function defaultListName(fileName) {
+  const now = new Date();
+  const base = String(fileName || '').replace(/\.csv$/i, '').trim() || 'Import';
+  return `${base} · ${now.getDate()} ${SHORT_MONTHS[now.getMonth()]} ${now.getFullYear()}`.slice(0, 200);
+}
+
 const card = 'rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)]';
 
 function OutcomeTile({ icon, tone, tint, value, label, caption }) {
@@ -76,6 +85,10 @@ export function UploadPanel({ onDone, onCancel }) {
   const [error, setError] = useState(null); // { title, detail }
   const [dragActive, setDragActive] = useState(false);
   const [saving, setSaving] = useState(false);
+  // The "Name this list" step: every person from this upload lands in one
+  // Hub list, so it is named once, right before importing.
+  const [naming, setNaming] = useState(false);
+  const [listName, setListName] = useState('');
 
   const resetFile = useCallback(() => {
     setStep('upload');
@@ -144,6 +157,12 @@ export function UploadPanel({ onDone, onCancel }) {
     setStep('review');
   };
 
+  const openNaming = () => {
+    if (!extracted || saving || totalCount === 0 || overLimit) return;
+    setListName(defaultListName(fileName));
+    setNaming(true);
+  };
+
   const handleImport = () => {
     if (!extracted || saving || totalCount === 0 || overLimit) return;
     setSaving(true);
@@ -159,10 +178,12 @@ export function UploadPanel({ onDone, onCancel }) {
           .filter(Boolean)
           .join(' '),
       });
+      setNaming(false);
       onDone?.(res);
     });
     eventEmitter.once(IMPORT_EVENTS.IMPORT_FAILURE, (err) => {
       setSaving(false);
+      setNaming(false);
       setError({ title: "Couldn't import this file", detail: getApiErrorMessage(err, 'Something went wrong. Try again in a moment.') });
       toast.error(getToastError(err, "Couldn't import this file"));
     });
@@ -171,6 +192,7 @@ export function UploadPanel({ onDone, onCancel }) {
       profiles: extracted.profiles,
       lookupRows: extracted.lookupRows,
       sourceFile: fileName,
+      listName: listName.trim(),
     });
   };
 
@@ -204,8 +226,8 @@ export function UploadPanel({ onDone, onCancel }) {
         {step === 'review' && (
           <>
             <Button variant="ghost" leadingIcon={<ArrowLeft size={14} />} onClick={() => setStep('map')} disabled={saving}>Back</Button>
-            <Button variant="primary" onClick={handleImport} disabled={saving || totalCount === 0 || overLimit}>
-              {saving ? 'Importing…' : importLabel}
+            <Button variant="primary" onClick={openNaming} disabled={saving || totalCount === 0 || overLimit}>
+              {importLabel}
             </Button>
           </>
         )}
@@ -226,8 +248,53 @@ export function UploadPanel({ onDone, onCancel }) {
     </div>
   );
 
+  const nameDialog = (
+    <Dialog
+      open={naming}
+      onClose={() => !saving && setNaming(false)}
+      size="sm"
+      title="Name this list"
+      description="Everyone from this file lands in your Leads under this list, so you can filter to them and build a sequence."
+      footer={
+        <>
+          <Button variant="ghost" onClick={() => setNaming(false)} disabled={saving}>Cancel</Button>
+          <Button variant="primary" onClick={handleImport} loading={saving} disabled={saving}>
+            {importLabel}
+          </Button>
+        </>
+      }
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleImport();
+        }}
+      >
+        <label htmlFor="import-list-name" className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-1.5">
+          List name
+        </label>
+        <Input
+          id="import-list-name"
+          fullWidth
+          autoFocus
+          maxLength={200}
+          value={listName}
+          onChange={(e) => setListName(e.target.value)}
+          placeholder={defaultListName(fileName)}
+        />
+        <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-1.5">
+          {readyCount > 0 && `${readyCount.toLocaleString()} go in now`}
+          {readyCount > 0 && findCount > 0 && ' · '}
+          {findCount > 0 && `${findCount.toLocaleString()} join as Spurly finds them on LinkedIn`}
+          {'. Leave it blank to use the file name.'}
+        </p>
+      </form>
+    </Dialog>
+  );
+
   return (
     <div className="flex flex-col gap-4 w-full max-w-[1200px]">
+      {nameDialog}
       {bar}
       {errorBanner}
 
