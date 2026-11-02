@@ -190,7 +190,11 @@ export function FieldMappingPanel({
                       className="text-[length:var(--ui-t-meta)]"
                       style={{ color: missingThis ? 'var(--ui-danger)' : 'var(--ui-text-tertiary)' }}
                     >
-                      {field.required ? 'Required' : 'Required*'}
+                      {field.key === 'profileUrl' && canFindProfiles
+                        ? 'Optional — Company is mapped'
+                        : field.required
+                          ? 'Required'
+                          : 'Required*'}
                     </span>
                   )}
                 </p>
