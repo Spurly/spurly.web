@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowUpRight, Check, UserX } from 'lucide-react';
 import { Avatar, Badge, Button, Drawer } from 'src/core/primitives';
+import { normalizeDomain } from 'src/shared/utils/companyDomain.js';
 
 /**
  * "Which Rahul Sharma at TCS?" — the one decision the lookup can't make.
@@ -157,7 +158,7 @@ export function LookupReviewDrawer({ row, position, total, busy, onPick, onNone,
               {input.name}
             </h3>
             <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1">
-              {[input.title, input.company].filter(Boolean).join(' at ')}
+              {[input.title, input.company || normalizeDomain(input.website)].filter(Boolean).join(' at ')}
               {input.location ? <span className="text-[var(--ui-text-tertiary)]"> · {input.location}</span> : null}
             </p>
             {input.email && <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5">{input.email}</p>}

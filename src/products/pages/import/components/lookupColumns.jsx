@@ -2,6 +2,7 @@ import { ChevronRight } from 'lucide-react';
 import { LinkedInIcon } from 'src/core/icons';
 import { Avatar, Badge } from 'src/core/primitives';
 import { TextCell, PersonCell, CompanyCell, LocationCell, LinkCell } from 'src/core/DataTable';
+import { normalizeDomain } from 'src/shared/utils/companyDomain.js';
 
 /**
  * Columns for the Find profiles table — one row per CSV row that had a name
@@ -76,7 +77,7 @@ function MatchCell({ row }) {
     return <TextCell value={row.error || 'The search kept failing.'} tone="tertiary" />;
   }
   if (row.status === 'not_found') {
-    return <TextCell value="Nobody by this full name at this company" tone="tertiary" />;
+    return <TextCell value={row.error || 'Nobody by this full name at this company'} tone="tertiary" />;
   }
   return <span className="text-[var(--ui-text-tertiary)]">—</span>;
 }
@@ -103,7 +104,7 @@ export function buildLookupColumns() {
       key: 'company',
       label: 'Company',
       width: 170,
-      render: (_v, row) => <CompanyCell value={row.input?.company} />,
+      render: (_v, row) => <CompanyCell value={row.input?.company || normalizeDomain(row.input?.website)} />,
     },
     {
       key: 'status',

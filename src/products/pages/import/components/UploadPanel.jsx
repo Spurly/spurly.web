@@ -33,9 +33,9 @@ import { buildPreviewColumns } from './columns.jsx';
  */
 
 const SAMPLE_CSV = [
-  'First Name,Last Name,Company,Job Title,Location,LinkedIn URL',
-  'Ada,Lovelace,Analytical Engines,Founder,London,https://www.linkedin.com/in/example-ada',
-  'Grace,Hopper,Compiler Co,Engineering Lead,New York,',
+  'First Name,Last Name,Company,Company Website,Job Title,Location,LinkedIn URL',
+  'Ada,Lovelace,Analytical Engines,analyticalengines.example,Founder,London,https://www.linkedin.com/in/example-ada',
+  'Grace,Hopper,Compiler Co,compilerco.example,Engineering Lead,New York,',
 ].join('\n');
 
 function downloadSample() {
@@ -145,7 +145,7 @@ export function UploadPanel({ onDone, onCancel }) {
   const skipReasons = useMemo(() => {
     if (!extracted) return '';
     const parts = [];
-    if (extracted.skippedNoUrl) parts.push(`${extracted.skippedNoUrl} with no URL or company`);
+    if (extracted.skippedNoUrl) parts.push(`${extracted.skippedNoUrl} with no URL, company or website`);
     if (extracted.skippedBadUrl) parts.push(`${extracted.skippedBadUrl} with a broken LinkedIn URL`);
     if (extracted.skippedNoName) parts.push(`${extracted.skippedNoName} with no name`);
     return parts.join(', ');
@@ -405,7 +405,7 @@ export function UploadPanel({ onDone, onCancel }) {
               tint="var(--ui-accent-tint)"
               value={findCount}
               label="Spurly will find"
-              caption={findCount ? 'Searched on LinkedIn by name + company' : 'Every row has a URL'}
+              caption={findCount ? 'Searched on LinkedIn by name + company or website' : 'Every row has a URL'}
             />
             <OutcomeStat icon={<Ban size={15} />} tone="var(--ui-text-tertiary)" tint="var(--ui-surface-sunken)" value={skipped} label="Skipped" caption={skipped ? skipReasons : 'Nothing left out'} />
           </div>
@@ -435,7 +435,7 @@ export function UploadPanel({ onDone, onCancel }) {
             data={previewRows}
             rowKey={(row) => row._id}
             emptyMessage="No rows to import with this matching"
-            emptyHint="Go back and check the name, LinkedIn URL and company columns."
+            emptyHint="Go back and check the name, LinkedIn URL, company and website columns."
           />
         </div>
       )}
