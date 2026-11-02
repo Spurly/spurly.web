@@ -17,12 +17,13 @@ import { importStrings as t } from './strings.js';
  * Upload a CSV and nothing else is asked of the user: rows with a LinkedIn
  * URL go straight to the Hub, rows with a name + company are found on
  * LinkedIn and EVERY confirmed match follows them. The page is a live
- * readout of that pipeline — Finding on LinkedIn → Sending to Hub → Found —
- * and the people end up in Leads, under an audience named after the file,
+ * readout of that pipeline — Finding on LinkedIn → Sending to Hub → In
+ * your Leads. A row leaves this page once its people reach the Hub; they
+ * end up in Leads, under an audience named after the file,
  * where the user filters them and builds sequences.
  */
 
-const LOOKUP_VIEWS = { finding: 'in_progress', notfound: 'not_found', found: 'found' };
+const LOOKUP_VIEWS = { finding: 'in_progress', notfound: 'not_found' };
 const STAGING_VIEWS = { sending: 'queued', failed: 'failed' };
 
 export function ImportPage() {
@@ -40,11 +41,10 @@ export function ImportPage() {
   const counts = {
     finding: lookupStats.inFlight || 0,
     notFound: lookupStats.notFound || 0,
-    found: lookupStats.found || 0,
     sending: stagingStats.byStatus?.queued || 0,
     failed: stagingStats.byStatus?.failed || 0,
   };
-  const hasAnything = counts.finding + counts.notFound + counts.found + (stagingStats.total || 0) > 0;
+  const hasAnything = counts.finding + counts.notFound + (stagingStats.total || 0) > 0;
 
   const setView = useCallback(
     (next) => {
@@ -61,13 +61,13 @@ export function ImportPage() {
   useEffect(() => {
     if (decided.current || !firstLoadDone) return undefined;
     decided.current = true;
-    const start = counts.finding > 0 ? 'finding' : counts.sending > 0 ? 'sending' : counts.found > 0 ? 'found' : 'finding';
+    const start = counts.finding > 0 ? 'finding' : counts.sending > 0 ? 'sending' : counts.failed > 0 ? 'failed' : counts.notFound > 0 ? 'notfound' : 'finding';
     const timer = setTimeout(() => {
       setView(start);
       setMode(hasAnything ? 'pipeline' : 'upload');
     }, 0);
     return () => clearTimeout(timer);
-  }, [firstLoadDone, counts.finding, counts.sending, counts.found, hasAnything, setView]);
+  }, [firstLoadDone, counts.finding, counts.sending, counts.failed, counts.notFound, hasAnything, setView]);
 
   // Staged rows only move while something polls; keep both halves fresh
   // while anything is in flight (rows land in Hub Leads on their own).

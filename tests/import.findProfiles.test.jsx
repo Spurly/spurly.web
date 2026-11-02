@@ -72,12 +72,12 @@ describe('Find profiles — review drawer', () => {
 });
 
 describe('Import pipeline bar', () => {
-  it('reads Finding → Sending to Hub → Found, with no review or send step', async () => {
+  it('reads Finding → Sending to Hub → In your Leads, with no review or send step', async () => {
     const { PipelineBar } = await import('src/products/pages/import/components/PipelineBar.jsx');
     const calls = [];
     renderWithProviders(
       <PipelineBar
-        counts={{ finding: 3, notFound: 1, sending: 4, failed: 0, found: 5 }}
+        counts={{ finding: 3, notFound: 1, sending: 4, failed: 0 }}
         view="finding"
         onSelect={(v) => calls.push(['select', v])}
         onOpenLeads={() => calls.push(['leads'])}
@@ -87,7 +87,7 @@ describe('Import pipeline bar', () => {
     expect(tabs.map((t) => t.textContent)).toEqual([
       expect.stringMatching(/Finding on LinkedIn/),
       expect.stringMatching(/Sending to Hub/),
-      expect.stringMatching(/Found by Spurly/),
+      expect.stringMatching(/In your Leads/),
     ]);
     expect(screen.queryByRole('button', { name: /Review/ })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: '1 not found' }));

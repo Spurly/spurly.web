@@ -6,7 +6,7 @@ import { Button } from 'src/core/primitives';
  * moves. Replaces the old tabs — a row's journey is one pipeline, not three
  * unrelated lists:
  *
- *   Finding on LinkedIn → Sending to Hub → Found (in your Leads)
+ *   Finding on LinkedIn → Sending to Hub → In your Leads
  *
  * Fully automatic since 2026-11-02 — no review, no manual send: every
  * confirmed match moves on by itself, so the bar is a progress readout.
@@ -20,7 +20,9 @@ import { Button } from 'src/core/primitives';
 const fmt = (n) => (n || 0).toLocaleString();
 
 function Stage({ id, step, active, onSelect, icon: Icon, label, count, caption, attention, working, action, sublink }) {
-  const empty = !count;
+  // `count === null` is a destination, not a queue (the last stage: Leads).
+  const isDestination = count === null;
+  const empty = !count && !isDestination;
   const lit = attention && !empty;
   return (
     <div
@@ -66,13 +68,15 @@ function Stage({ id, step, active, onSelect, icon: Icon, label, count, caption, 
           <span className="truncate">{label}</span>
         </p>
         <p className="flex items-baseline gap-2 mt-1.5 min-w-0">
-          <span
-            className={`ui-num text-[length:var(--ui-t-section)] leading-none ${
-              empty ? 'text-[var(--ui-text-quaternary)]' : lit ? 'text-[var(--ui-warning-fg)]' : 'text-[var(--ui-text-primary)]'
-            }`}
-          >
-            {fmt(count)}
-          </span>
+          {isDestination ? null : (
+            <span
+              className={`ui-num text-[length:var(--ui-t-section)] leading-none ${
+                empty ? 'text-[var(--ui-text-quaternary)]' : lit ? 'text-[var(--ui-warning-fg)]' : 'text-[var(--ui-text-primary)]'
+              }`}
+            >
+              {fmt(count)}
+            </span>
+          )}
           {caption && <span className="truncate text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">{caption}</span>}
         </p>
       </div>
@@ -102,8 +106,12 @@ function SubLink({ children, onClick }) {
 }
 
 /**
- * @param {object} counts  { finding, notFound, sending, failed, found }
- * @param {string} view    finding | notfound | sending | failed | found
+ * @param {object} counts  { finding, notFound, sending, failed }
+ * @param {string} view    finding | notfound | sending | failed
+ *
+ * The third stage is where people END UP, not a list on this page: a row
+ * leaves the Import page the moment its people are handed to the Hub, so the
+ * stage is the way into Leads rather than a count of history.
  */
 export function PipelineBar({ counts, view, onSelect, onOpenLeads }) {
   const isActive = (ids) => ids.includes(view);
@@ -138,14 +146,14 @@ export function PipelineBar({ counts, view, onSelect, onOpenLeads }) {
         sublink={counts.failed ? <SubLink onClick={() => onSelect('failed')}>{fmt(counts.failed)} failed</SubLink> : null}
       />
       <Stage
-        id="found"
+        id="leads"
         step="3"
-        active={isActive(['found'])}
-        onSelect={onSelect}
+        active={false}
+        onSelect={onOpenLeads}
         icon={UserCheck}
-        label="Found by Spurly"
-        count={counts.found}
-        caption={counts.found ? 'rows matched' : ''}
+        label="In your Leads"
+        count={null}
+        caption="filter them, then build a sequence"
         action={
           <Button size="sm" variant="accentSoft" trailingIcon={<ArrowRight size={12} />} onClick={onOpenLeads}>
             Open Leads
