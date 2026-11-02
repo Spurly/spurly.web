@@ -137,7 +137,7 @@ export const IMPORT_FIELDS = [
     key: 'profileUrl',
     label: 'LinkedIn URL',
     required: true,
-    hint: 'The profile we visit when enriching. Required.',
+    hint: 'Required — unless you map Company: then Spurly finds the profile from name + company.',
     aliases: [
       'profileurl', 'profilelink', 'linkedinurl', 'linkedinprofileurl', 'linkedinprofile',
       'personlinkedinurl', 'linkedinlink', 'linkedin', 'publicprofileurl', 'profile', 'url',
@@ -303,14 +303,24 @@ export function normalizeMapping(mapping, columnCount) {
  *
  * @returns {{ ok: boolean, missing: string[] }} missing = human labels
  */
+export const MISSING_URL_LABEL = 'LinkedIn URL (or Company)';
+export const MISSING_NAME_LABEL = 'Full name (or First name)';
+
+/**
+ * A file needs a name, and EITHER a LinkedIn URL column OR a Company column.
+ * With a company, rows that have no URL are looked up on LinkedIn by name +
+ * company (backend importedLeads/service/lookup.js) instead of being skipped.
+ *
+ * @returns {{ ok: boolean, missing: string[], canFindProfiles: boolean }}
+ */
 export function validateMapping(mapping) {
   const missing = [];
-  if (!mapping || mapping.profileUrl === undefined || mapping.profileUrl === UNMAPPED) {
-    missing.push('LinkedIn URL');
-  }
+  const hasUrl = mapping?.profileUrl !== undefined && mapping?.profileUrl !== UNMAPPED && mapping?.profileUrl >= 0;
+  const hasCompany = mapping?.company !== undefined && mapping?.company >= 0;
+  if (!hasUrl && !hasCompany) missing.push(MISSING_URL_LABEL);
   const hasName = mapping?.name >= 0 || mapping?.firstName >= 0;
-  if (!hasName) missing.push('Full name (or First name)');
-  return { ok: missing.length === 0, missing };
+  if (!hasName) missing.push(MISSING_NAME_LABEL);
+  return { ok: missing.length === 0, missing, canFindProfiles: hasCompany };
 }
 
 /**
@@ -369,7 +379,7 @@ export function normalizeLinkedInUrl(raw) {
  *
  * @param {string[][]} rows
  * @param {Record<string, number>} mapping
- * @returns {{ profiles: object[], skippedCount: number, skippedNoUrl: number,
+ * @returns {{ profiles: object[], lookupRows: object[], skippedCount: number, skippedNoUrl: number,
  *             skippedBadUrl: number, skippedNoName: number }}
  */
 export function extractProfiles(rows = [], mapping = {}) {
@@ -379,12 +389,41 @@ export function extractProfiles(rows = [], mapping = {}) {
   let skippedBadUrl = 0;
   let skippedNoName = 0;
   const seenUrls = new Set();
+  const seenLookups = new Set();
 
   const profiles = [];
+  /* Rows with no URL but a name and a company — Spurly finds the profile on
+     LinkedIn (see validateMapping). Same shape as a profile, minus the URL. */
+  const lookupRows = [];
   rows.forEach((row, i) => {
     const rawUrl = cellAt(row, mapping.profileUrl ?? UNMAPPED);
     if (!rawUrl) {
-      skippedNoUrl++;
+      const firstName = cellAt(row, mapping.firstName ?? UNMAPPED);
+      const lastName = cellAt(row, mapping.lastName ?? UNMAPPED);
+      const name = cellAt(row, mapping.name ?? UNMAPPED) || [firstName, lastName].filter(Boolean).join(' ');
+      const company = cellAt(row, mapping.company ?? UNMAPPED);
+      if (!name || !company) {
+        skippedNoUrl++;
+        return;
+      }
+      const key = `${name.toLowerCase()}|${company.toLowerCase()}`;
+      if (seenLookups.has(key)) return;
+      seenLookups.add(key);
+      lookupRows.push({
+        profileUrl: '',
+        name,
+        firstName,
+        lastName,
+        company,
+        title: cellAt(row, mapping.title ?? UNMAPPED),
+        location: cellAt(row, mapping.location ?? UNMAPPED),
+        headline: cellAt(row, mapping.headline ?? UNMAPPED),
+        email: cellAt(row, mapping.email ?? UNMAPPED),
+        phone: cellAt(row, mapping.phone ?? UNMAPPED),
+        website: cellAt(row, mapping.website ?? UNMAPPED),
+        _needsLookup: true,
+        _id: `lookup_${Date.now()}_${i}`,
+      });
       return;
     }
     const profileUrl = normalizeLinkedInUrl(rawUrl);
@@ -434,6 +473,7 @@ export function extractProfiles(rows = [], mapping = {}) {
 
   return {
     profiles,
+    lookupRows,
     skippedNoUrl,
     skippedBadUrl,
     skippedNoName,

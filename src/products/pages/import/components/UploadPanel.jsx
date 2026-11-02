@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
-import { UploadCloud, FileText, AlertCircle, CheckCircle, X, ArrowRight, SlidersHorizontal } from 'lucide-react';
+import { UploadCloud, FileText, AlertCircle, CheckCircle, X, ArrowRight, SlidersHorizontal, Search } from 'lucide-react';
 import { DataTable } from 'src/core/DataTable';
 import { Button, useToast } from 'src/core/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
@@ -150,8 +150,9 @@ export function UploadPanel({ onStaged }) {
   };
 
   const handleSave = () => {
-    if (!extracted || extracted.profiles.length === 0 || saving) return;
-    if (extracted.profiles.length > MAX_IMPORT_ROWS) return;
+    if (!extracted || saving) return;
+    if (extracted.profiles.length + extracted.lookupRows.length === 0) return;
+    if (extracted.profiles.length > MAX_IMPORT_ROWS || extracted.lookupRows.length > MAX_IMPORT_ROWS) return;
     setSaving(true);
     setError(null);
 
@@ -159,11 +160,22 @@ export function UploadPanel({ onStaged }) {
       setSaving(false);
       setResult(res);
       onStaged?.(res);
-      toast.success(`Imported ${(res?.savedCount ?? 0).toLocaleString()} leads`, {
-        description: res?.failedCount
-          ? `${res.failedCount.toLocaleString()} row(s) couldn't be saved.`
-          : 'They are waiting in Staging.',
-      });
+      if (res?.lookupError) {
+        toast.error(getToastError(res.lookupError, "Couldn't start finding profiles"));
+      } else if (res?.lookupQueued) {
+        toast.success(
+          res.savedCount
+            ? `Imported ${res.savedCount.toLocaleString()} leads · finding ${res.lookupQueued.toLocaleString()} on LinkedIn`
+            : `Finding ${res.lookupQueued.toLocaleString()} people on LinkedIn`,
+          { description: 'Found profiles appear in Staged leads as they come in.' },
+        );
+      } else {
+        toast.success(`Imported ${(res?.savedCount ?? 0).toLocaleString()} leads`, {
+          description: res?.failedCount
+            ? `${res.failedCount.toLocaleString()} row(s) couldn't be saved.`
+            : 'They are waiting in Staging.',
+        });
+      }
     });
 
     eventEmitter.once(IMPORT_EVENTS.IMPORT_FAILURE, (err) => {
@@ -180,18 +192,32 @@ export function UploadPanel({ onStaged }) {
 
     importController.importProfiles(eventEmitter, {
       profiles: extracted.profiles,
+      lookupRows: extracted.lookupRows,
       sourceFile: fileName,
     });
   };
 
   const profileCount = extracted?.profiles.length ?? 0;
-  const overLimit = profileCount > MAX_IMPORT_ROWS;
+  const lookupCount = extracted?.lookupRows?.length ?? 0;
+  const totalCount = profileCount + lookupCount;
+  const overLimit = profileCount > MAX_IMPORT_ROWS || lookupCount > MAX_IMPORT_ROWS;
+  // Preview shows both kinds; rows still to be found have an empty URL cell.
+  const previewRows = useMemo(
+    () => (extracted ? [...extracted.profiles, ...(extracted.lookupRows || [])] : []),
+    [extracted],
+  );
+  const importLabel =
+    lookupCount === 0
+      ? `Import ${profileCount} lead${profileCount === 1 ? '' : 's'}`
+      : profileCount === 0
+        ? `Find ${lookupCount} on LinkedIn`
+        : `Import ${profileCount} + find ${lookupCount}`;
 
   /** Human summary of the rows the current mapping drops. */
   const skipSummary = useMemo(() => {
     if (!extracted) return '';
     const parts = [];
-    if (extracted.skippedNoUrl) parts.push(`${extracted.skippedNoUrl} with no URL`);
+    if (extracted.skippedNoUrl) parts.push(`${extracted.skippedNoUrl} with no URL or company`);
     if (extracted.skippedBadUrl) parts.push(`${extracted.skippedBadUrl} with an unusable LinkedIn URL`);
     if (extracted.skippedNoName) parts.push(`${extracted.skippedNoName} with no name`);
     return parts.join(', ');
@@ -217,6 +243,11 @@ export function UploadPanel({ onStaged }) {
           <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1.5">
             Staged <span className="font-medium">{result.savedCount}</span> lead
             {result.savedCount === 1 ? '' : 's'}.
+            {result.lookupQueued > 0 && (
+              <>
+                {' '}Finding <span className="font-medium">{result.lookupQueued}</span> more on LinkedIn.
+              </>
+            )}
             {result.failedCount > 0 && (
               <>
                 {' '}
@@ -227,14 +258,25 @@ export function UploadPanel({ onStaged }) {
             )}
           </p>
           <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-tertiary)] mt-2 max-w-sm">
-            Next: enrich them to pull in emails, headlines and experience — then send
-            the ones you want to your Hub leads.
+            {result.lookupQueued > 0
+              ? 'Spurly searches a couple of people a minute through your LinkedIn account. Clear matches land in Staged leads on their own; when several people fit, you pick the right one under Find profiles.'
+              : 'Next: send the ones you want to your Hub leads.'}
           </p>
+          {result.lookupError && (
+            <p className="text-[length:var(--ui-t-body)] mt-2 max-w-sm" style={{ color: 'var(--ui-danger)' }}>
+              {getApiErrorMessage(result.lookupError, "We couldn't start finding the rows without a URL.")}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2.5 mt-1">
           <Button variant="ghost" onClick={resetAll}>
             Import another
           </Button>
+          {result.lookupQueued > 0 && (
+            <Button variant="secondary" onClick={() => onStaged?.(result, { view: 'lookup' })}>
+              See profile search
+            </Button>
+          )}
           <Button
             variant="primary"
             trailingIcon={<ArrowRight size={16} />}
@@ -349,7 +391,9 @@ export function UploadPanel({ onStaged }) {
               <span className="font-medium text-[var(--ui-text-primary)]">email</span>,{' '}
               <span className="font-medium text-[var(--ui-text-primary)]">phone</span> and{' '}
               <span className="font-medium text-[var(--ui-text-primary)]">website</span> are imported
-              when you map them. A CSV exported from Spurly maps itself.
+              when you map them. A CSV exported from Spurly maps itself.{' '}
+              <span className="font-medium text-[var(--ui-text-primary)]">No LinkedIn URLs?</span> Map a
+              name and a company and Spurly finds the profiles for you.
             </div>
           </div>
         </>
@@ -380,9 +424,16 @@ export function UploadPanel({ onStaged }) {
             <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
               Ready to stage{' '}
               <span className="font-medium text-[var(--ui-text-primary)]">{profileCount}</span> lead
-              {profileCount === 1 ? '' : 's'}.{' '}
+              {profileCount === 1 ? '' : 's'}
+              {lookupCount > 0 && (
+                <>
+                  {' '}and find{' '}
+                  <span className="font-medium text-[var(--ui-text-primary)]">{lookupCount}</span> on LinkedIn
+                </>
+              )}
+              .{' '}
               <span style={{ color: 'var(--ui-text-tertiary)' }}>
-                Importing is free — you’re only charged when you enrich or send them to the Hub.
+                Importing is free — you’re only charged when you send them to the Hub.
               </span>
             </p>
             <div className="flex items-center gap-2 shrink-0">
@@ -392,9 +443,9 @@ export function UploadPanel({ onStaged }) {
               <Button
                 variant="primary"
                 onClick={handleSave}
-                disabled={saving || profileCount === 0 || overLimit}
+                disabled={saving || totalCount === 0 || overLimit}
               >
-                {saving ? 'Importing…' : `Import ${profileCount} lead${profileCount === 1 ? '' : 's'}`}
+                {saving ? 'Importing…' : importLabel}
               </Button>
             </div>
           </div>
@@ -404,7 +455,8 @@ export function UploadPanel({ onStaged }) {
             <span className="text-[var(--ui-text-secondary)]">
               <span className="font-medium text-[var(--ui-text-primary)]">{fileName}</span>
               {' · '}
-              {profileCount} valid lead{profileCount === 1 ? '' : 's'}
+              {profileCount} with a LinkedIn URL
+              {lookupCount > 0 && ` · ${lookupCount} to find by name + company`}
               {skipSummary && (
                 <span style={{ color: 'var(--ui-text-tertiary)' }}>
                   {' · '}
@@ -425,7 +477,7 @@ export function UploadPanel({ onStaged }) {
                   This file is too big for one import
                 </p>
                 <p className="mt-0.5">
-                  {profileCount.toLocaleString()} rows — the limit is{' '}
+                  {Math.max(profileCount, lookupCount).toLocaleString()} rows — the limit is{' '}
                   {MAX_IMPORT_ROWS.toLocaleString()} per import. Split the file and import each
                   part; your column mapping is remembered, so the next one is one click.
                 </p>
@@ -433,7 +485,27 @@ export function UploadPanel({ onStaged }) {
             </div>
           )}
 
-          {profileCount === 0 && (
+          {lookupCount > 0 && (
+            <div
+              className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
+              style={{ background: 'var(--ui-accent-tint)', border: '1px solid var(--ui-accent-border)' }}
+            >
+              <Search size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-accent)' }} />
+              <div className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
+                <p className="font-medium text-[var(--ui-text-primary)]">
+                  {lookupCount.toLocaleString()} row{lookupCount === 1 ? ' has' : 's have'} no LinkedIn URL — Spurly will find them
+                </p>
+                <p className="mt-0.5">
+                  We search LinkedIn by name + company through your connected account, a couple of people a
+                  minute. When exactly one person matches, they’re added to Staged leads. When several people
+                  fit (say, five Rahul Sharmas at TCS), nobody is added until you pick the right one under{' '}
+                  <span className="font-medium text-[var(--ui-text-primary)]">Find profiles</span>.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {totalCount === 0 && (
             <div
               className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
               style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(200,65,47,0.22)' }}
@@ -444,8 +516,8 @@ export function UploadPanel({ onStaged }) {
                   No rows can be imported with this mapping
                 </p>
                 <p className="mt-0.5">
-                  Every row was skipped ({skipSummary}). Go back and check that the LinkedIn URL and
-                  name columns point at the right data.
+                  Every row was skipped ({skipSummary}). Go back and check that the LinkedIn URL (or
+                  company) and name columns point at the right data.
                 </p>
               </div>
             </div>
@@ -454,7 +526,7 @@ export function UploadPanel({ onStaged }) {
           <div className="rounded-[var(--ui-radius-lg)] overflow-hidden" style={{ border: '1px solid var(--ui-border-hairline)' }}>
             <DataTable
               columns={previewColumns}
-              data={extracted.profiles}
+              data={previewRows}
               rowKey={(row) => row._id}
               emptyMessage="No leads to preview"
               maxHeight="52vh"

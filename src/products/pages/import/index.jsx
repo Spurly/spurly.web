@@ -2,8 +2,10 @@ import { useState, useCallback } from 'react';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { PageTabs } from 'src/core/primitives/PageTabs';
 import { useImportedLeads } from 'src/products/import/hooks/useImportedLeads.js';
+import { useLinkedInLookups } from 'src/products/import/hooks/useLinkedInLookups.js';
 import { UploadPanel } from './components/UploadPanel.jsx';
 import { StagingPanel } from './components/StagingPanel.jsx';
+import { LookupPanel } from './components/LookupPanel.jsx';
 import { importStrings as t } from './strings.js';
 
 /**
@@ -29,16 +31,28 @@ export function ImportPage() {
   // After an upload finishes, refresh the staging list so the counts are right
   // whether or not the user switches tabs immediately.
   const { refresh } = store;
+  // A found/picked profile lands in staging — refresh its count quietly.
+  const refreshStagedSilently = useCallback(() => refresh({ silent: true }), [refresh]);
+  const lookups = useLinkedInLookups({ onStaged: refreshStagedSilently });
+  const { refresh: refreshLookups } = lookups;
+
   const handleStaged = useCallback(
     (_result, opts = {}) => {
       refresh();
-      if (opts.view) setActiveTab('staged');
+      refreshLookups({ silent: true });
+      if (opts.view) setActiveTab(opts.view === 'lookup' ? 'lookup' : 'staged');
     },
-    [refresh],
+    [refresh, refreshLookups],
   );
 
+  // The lookup tab only exists once there is something in it (or being searched).
+  const lookupTotal =
+    (lookups.stats.inFlight || 0) + (lookups.stats.needsReview || 0) + (lookups.stats.notFound || 0) + (lookups.stats.found || 0);
   const tabs = [
     { id: 'staged', label: t.tabs.staged, count: store.stats.total },
+    ...(lookupTotal > 0 || activeTab === 'lookup'
+      ? [{ id: 'lookup', label: t.tabs.lookup, count: lookups.stats.needsReview || undefined }]
+      : []),
     { id: 'upload', label: t.tabs.upload },
   ];
 
@@ -53,6 +67,10 @@ export function ImportPage() {
         {activeTab === 'upload' ? (
           <div className="max-w-[1100px] flex flex-col gap-4">
             <UploadPanel onStaged={handleStaged} />
+          </div>
+        ) : activeTab === 'lookup' ? (
+          <div className="max-w-[1100px] flex flex-col gap-4">
+            <LookupPanel store={lookups} onGoToStaged={() => setActiveTab('staged')} />
           </div>
         ) : (
           <StagingPanel store={store} onGoToUpload={() => setActiveTab('upload')} />

@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react';
 import { LinkedInIcon } from 'src/core/icons';
 import { TextCell, PersonCell, CompanyCell, LocationCell, LinkCell } from 'src/core/DataTable';
 
@@ -15,14 +16,21 @@ import { TextCell, PersonCell, CompanyCell, LocationCell, LinkCell } from 'src/c
  * badly misleading for a row nobody has enriched yet.
  */
 
-/** Always shown — profileUrl and name are required by the mapping step. */
+/** Always shown. profileUrl is empty for rows Spurly will look up by name + company. */
 const BASE_COLUMNS = [
   {
     key: 'profileUrl',
     label: <LinkedInIcon size={14} aria-label="LinkedIn" />,
     width: 44,
     align: 'center',
-    render: (value) => <LinkCell href={value} icon={<LinkedInIcon size={14} />} label="Open LinkedIn profile" />,
+    render: (value) =>
+      value ? (
+        <LinkCell href={value} icon={<LinkedInIcon size={14} />} label="Open LinkedIn profile" />
+      ) : (
+        <span title="No URL in your file — Spurly will find this person by name + company">
+          <Search size={13} style={{ color: 'var(--ui-accent)' }} aria-label="To be found" />
+        </span>
+      ),
   },
   {
     key: 'name',

@@ -71,5 +71,52 @@ async function deleteLeads(ids) {
   return response.data;
 }
 
-const importGateway = { stageLeads, getLeads, getStats, promoteLeads, retryLeads, deleteLeads };
+/* ── Find LinkedIn URL — rows with a name + company but no URL ───────── */
+
+/** Queue rows to be looked up on LinkedIn. POST /imported-leads/lookups */
+async function queueLookups(rows, sourceFile = '') {
+  const response = await apiGateway.post('/imported-leads/lookups', { rows, sourceFile });
+  return response.data;
+}
+
+/**
+ * Lookup rows in one bucket, plus the counts for every bucket.
+ * GET /imported-leads/lookups  Query: { status: needs_review|not_found|in_progress|found, limit, skip }
+ */
+async function getLookups({ status = 'needs_review', limit = 25, skip = 0 } = {}) {
+  const response = await apiGateway.get('/imported-leads/lookups', { params: { status, limit, skip } });
+  return response.data;
+}
+
+/** Choose one candidate — it is staged. POST /imported-leads/lookups/:id/pick */
+async function pickLookup(id, profileUrl) {
+  const response = await apiGateway.post(`/imported-leads/lookups/${id}/pick`, { profileUrl });
+  return response.data;
+}
+
+/** Skip rows by id, or a whole bucket by status. POST /imported-leads/lookups/dismiss */
+async function dismissLookups({ ids, status } = {}) {
+  const response = await apiGateway.post('/imported-leads/lookups/dismiss', { ids, status });
+  return response.data;
+}
+
+/** Search again for not-found rows (all of them when no ids). POST /imported-leads/lookups/retry */
+async function retryLookups(ids) {
+  const response = await apiGateway.post('/imported-leads/lookups/retry', { ids });
+  return response.data;
+}
+
+const importGateway = {
+  stageLeads,
+  getLeads,
+  getStats,
+  promoteLeads,
+  retryLeads,
+  deleteLeads,
+  queueLookups,
+  getLookups,
+  pickLookup,
+  dismissLookups,
+  retryLookups,
+};
 export default importGateway;

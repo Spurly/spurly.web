@@ -12,6 +12,7 @@ export const importStrings = {
   pageSubtitle: 'Import a CSV, enrich the leads, then send them to the Hub.',
   tabs: {
     staged: 'Staged leads',
+    lookup: 'Find profiles',
     upload: 'Import CSV',
   },
 };

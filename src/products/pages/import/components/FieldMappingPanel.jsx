@@ -6,6 +6,8 @@ import {
   IMPORT_FIELDS,
   UNMAPPED,
   validateMapping,
+  MISSING_URL_LABEL,
+  MISSING_NAME_LABEL,
 } from 'src/shared/utils/csvImport.js';
 
 /**
@@ -43,7 +45,8 @@ export function FieldMappingPanel({
     [headers],
   );
 
-  const { ok, missing } = validateMapping(mapping);
+  const { ok, missing, canFindProfiles } = validateMapping(mapping);
+  const urlMapped = mapping.profileUrl !== undefined && mapping.profileUrl !== UNMAPPED;
 
   // A column used by two fields at once is legal but almost always a mistake,
   // so it's surfaced as a warning rather than blocking the import.
@@ -68,8 +71,8 @@ export function FieldMappingPanel({
 
   const isMissing = (field) => {
     if (!missing.length) return false;
-    if (field.key === 'profileUrl') return missing.includes('LinkedIn URL');
-    if (field.requiredGroup === 'name') return missing.includes('Full name (or First name)');
+    if (field.key === 'profileUrl' || field.key === 'company') return missing.includes(MISSING_URL_LABEL);
+    if (field.requiredGroup === 'name') return missing.includes(MISSING_NAME_LABEL);
     return false;
   };
 
@@ -224,6 +227,14 @@ export function FieldMappingPanel({
           <span className="text-[var(--ui-text-secondary)]">First name</span> — with first and last
           name columns we join them for you. Your choices are remembered for your next import.
         </p>
+        {canFindProfiles && (
+          <p className="px-[var(--ui-pad-lg)] pb-3 -mt-1 text-[length:var(--ui-t-label)]" style={{ color: 'var(--ui-text-tertiary)' }}>
+            <span className="text-[var(--ui-text-secondary)]">No LinkedIn URL?</span>{' '}
+            {urlMapped ? 'Rows with an empty URL cell' : 'Every row'} will be looked up on LinkedIn by name
+            + company. When we find exactly one match it’s added for you; when several people fit, you
+            pick the right one under <span className="text-[var(--ui-text-secondary)]">Find profiles</span>.
+          </p>
+        )}
       </div>
     </>
   );

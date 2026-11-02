@@ -62,6 +62,15 @@ export function EnrichStatusCell({ value, row = {} }) {
       >
         {s.label}
       </Badge>
+      {row.linkedinUrlSource === 'spurly' && (
+        <Badge
+          size="sm"
+          tone="info"
+          title="Your file had no LinkedIn URL for this person — Spurly found it by name + company. Worth a glance before sending."
+        >
+          Found by Spurly
+        </Badge>
+      )}
       {row.alreadyInHub && (
         <Badge
           size="sm"

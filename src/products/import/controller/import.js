@@ -1,5 +1,5 @@
 import importGateway from '../gateway/import.js';
-import { IMPORT_EVENTS } from '../constants/constants.js';
+import { IMPORT_EVENTS, LOOKUP_EVENTS } from '../constants/constants.js';
 
 /**
  * Import Controller
@@ -17,40 +17,71 @@ import { IMPORT_EVENTS } from '../constants/constants.js';
  * emitting an event instead of returning/throwing.
  */
 
+/** The lookup fields the backend keeps — UI-only keys (_id, _needsLookup) stay here. */
+const LOOKUP_FIELDS = ['name', 'firstName', 'lastName', 'company', 'title', 'location', 'headline', 'email', 'phone', 'website'];
+
 /**
  * Emits IMPORT_SUCCESS with { savedCount, failedCount, totalCount,
- * importBatchId }, or IMPORT_FAILURE with a user-readable message.
+ * importBatchId, lookupQueued }, or IMPORT_FAILURE with the raw error.
+ *
+ * `lookupRows` are rows with a name + company but no LinkedIn URL. They are
+ * NOT staged — they're queued for Spurly to find on LinkedIn, and land in
+ * staging by themselves once found (or wait under "Find profiles" when
+ * several people fit). Rows with a URL are staged first, so a lookup refusal
+ * (e.g. LinkedIn not connected) never loses them.
  */
-async function importProfiles(eventEmitter, { profiles, sourceFile = '' }) {
+async function importProfiles(eventEmitter, { profiles = [], lookupRows = [], sourceFile = '' }) {
   try {
-    if (!Array.isArray(profiles) || profiles.length === 0) {
-      throw new Error('No profiles to import');
+    const withUrl = (Array.isArray(profiles) ? profiles : []).filter((p) => p?.profileUrl && p.profileUrl.toString().trim());
+    const droppedForUrl = (profiles?.length || 0) - withUrl.length;
+    const toFind = Array.isArray(lookupRows) ? lookupRows : [];
+    if (withUrl.length === 0 && toFind.length === 0) {
+      throw new Error('None of the rows had a LinkedIn profile URL, or a name and company to find one with');
     }
 
-    // Staging requires a profileUrl on every row (it's the dedupe key); drop
-    // rows without one rather than failing the whole import.
-    const valid = profiles.filter((p) => p?.profileUrl && p.profileUrl.toString().trim());
-    const droppedForUrl = profiles.length - valid.length;
-    if (valid.length === 0) {
-      throw new Error('None of the rows had a LinkedIn profile URL');
+    let saved = 0;
+    let skipped = 0;
+    let importBatchId = null;
+    if (withUrl.length > 0) {
+      const res = await importGateway.stageLeads(withUrl, sourceFile);
+      if (!res?.success) {
+        throw new Error(res?.message || 'Failed to import leads');
+      }
+      const d = res.data || {};
+      // `inserted` + `updated` is what actually landed in staging. A row that
+      // matched an existing staged lead unchanged counts as saved too — it IS
+      // in the staging list, which is all this number is telling the user.
+      saved = (d.inserted ?? 0) + (d.updated ?? 0) || withUrl.length;
+      skipped = d.skipped ?? 0;
+      importBatchId = d.importBatchId || null;
     }
 
-    const res = await importGateway.stageLeads(valid, sourceFile);
-    if (!res?.success) {
-      throw new Error(res?.message || 'Failed to import leads');
+    let lookupQueued = 0;
+    let lookupSkipped = 0;
+    let lookupError = null;
+    if (toFind.length > 0) {
+      const rows = toFind.map((r) => Object.fromEntries(LOOKUP_FIELDS.map((k) => [k, r?.[k] ?? ''])));
+      try {
+        const res = await importGateway.queueLookups(rows, sourceFile);
+        if (!res?.success) throw new Error(res?.message || 'Could not start finding profiles');
+        lookupQueued = res.data?.queued ?? 0;
+        lookupSkipped = (res.data?.skippedMissing ?? 0) + (res.data?.skippedDuplicate ?? 0);
+      } catch (error) {
+        // Nothing with a URL was staged → this IS the import failing.
+        if (withUrl.length === 0) throw error;
+        // Otherwise the URL rows are safely staged; report the lookup half.
+        lookupError = error;
+      }
     }
-
-    const d = res.data || {};
-    // `inserted` + `updated` is what actually landed in staging. A row that
-    // matched an existing staged lead unchanged counts as saved too — it IS
-    // in the staging list, which is all this number is telling the user.
-    const saved = (d.inserted ?? 0) + (d.updated ?? 0);
 
     eventEmitter.emit(IMPORT_EVENTS.IMPORT_SUCCESS, {
-      savedCount: saved || valid.length,
-      failedCount: droppedForUrl + (d.skipped ?? 0),
-      totalCount: profiles.length,
-      importBatchId: d.importBatchId || null,
+      savedCount: saved,
+      failedCount: droppedForUrl + skipped,
+      totalCount: withUrl.length + toFind.length,
+      importBatchId,
+      lookupQueued,
+      lookupSkipped,
+      lookupError,
     });
   } catch (error) {
     // Raw error (not just its message) so callers can run it through
@@ -127,5 +158,65 @@ async function deleteLeads(eventEmitter, ids) {
   }
 }
 
-const importController = { importProfiles, loadLeads, promoteLeads, retryLeads, deleteLeads };
+/* ── Find profiles (LinkedIn URL lookup) ────────────────────────────── */
+
+/** Emits LOOKUP LOAD_SUCCESS with { rows, stats, pagination }, or LOAD_FAILURE. */
+async function loadLookups(eventEmitter, { status, limit, skip } = {}) {
+  try {
+    const res = await importGateway.getLookups({ status, limit, skip });
+    if (!res?.success) throw new Error(res?.message || 'Could not load profile lookups');
+    eventEmitter.emit(LOOKUP_EVENTS.LOAD_SUCCESS, {
+      rows: res.data?.rows || [],
+      stats: res.data?.stats || null,
+      pagination: res.data?.pagination || { total: 0, limit, skip: 0 },
+    });
+  } catch (error) {
+    eventEmitter.emit(LOOKUP_EVENTS.LOAD_FAILURE, error?.message || 'Could not load profile lookups');
+  }
+}
+
+/** Emits PICK_SUCCESS with { id, profileUrl }, or PICK_FAILURE with a message. */
+async function pickLookup(eventEmitter, id, profileUrl) {
+  try {
+    const res = await importGateway.pickLookup(id, profileUrl);
+    if (!res?.success) throw new Error(res?.message || 'Could not add that person');
+    eventEmitter.emit(LOOKUP_EVENTS.PICK_SUCCESS, { id, profileUrl });
+  } catch (error) {
+    eventEmitter.emit(LOOKUP_EVENTS.PICK_FAILURE, error?.response?.data?.message || error?.message || 'Could not add that person');
+  }
+}
+
+/** Emits DISMISS_SUCCESS with { dismissed }, or DISMISS_FAILURE. */
+async function dismissLookups(eventEmitter, { ids, status } = {}) {
+  try {
+    const res = await importGateway.dismissLookups({ ids, status });
+    if (!res?.success) throw new Error(res?.message || 'Could not skip those');
+    eventEmitter.emit(LOOKUP_EVENTS.DISMISS_SUCCESS, { dismissed: res.data?.dismissed || 0 });
+  } catch (error) {
+    eventEmitter.emit(LOOKUP_EVENTS.DISMISS_FAILURE, error?.message || 'Could not skip those');
+  }
+}
+
+/** Emits RETRY_SUCCESS with { requeued }, or RETRY_FAILURE. */
+async function retryLookups(eventEmitter, ids) {
+  try {
+    const res = await importGateway.retryLookups(ids);
+    if (!res?.success) throw new Error(res?.message || 'Could not search again');
+    eventEmitter.emit(LOOKUP_EVENTS.RETRY_SUCCESS, { requeued: res.data?.requeued || 0 });
+  } catch (error) {
+    eventEmitter.emit(LOOKUP_EVENTS.RETRY_FAILURE, error?.message || 'Could not search again');
+  }
+}
+
+const importController = {
+  importProfiles,
+  loadLeads,
+  promoteLeads,
+  retryLeads,
+  deleteLeads,
+  loadLookups,
+  pickLookup,
+  dismissLookups,
+  retryLookups,
+};
 export default importController;
