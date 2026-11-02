@@ -159,24 +159,31 @@ export function FieldMappingPanel({ headers, sampleValues, rows, mapping, onChan
     company: hasUrl ? 'Lets Spurly find rows that have no URL' : 'Needed to find people without a URL',
   };
 
-  const card = 'rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)]';
+  /* One card, two panes — the same anatomy as the Leads table card: a header
+     band, a body that scrolls by itself, and nothing on the page scrolls. The
+     preview pane is sunken with white person cards on it, so the preview
+     reads as a layer under the form rather than a second loose card. */
+  const band =
+    'shrink-0 flex items-center justify-between gap-3 px-[var(--ui-pad-lg)] min-h-[52px] border-b border-[var(--ui-border-hairline)] bg-[var(--ui-surface-header)]';
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] items-start">
-      {/* ── Left: the mapping ───────────────────────────────────────── */}
-      <div className="flex flex-col gap-4 min-w-0">
-        <section className={card}>
-          <header className="flex items-start justify-between gap-3 px-[var(--ui-pad-lg)] pt-4 pb-1">
-            <div>
-              <h3 className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">Who is each row?</h3>
-              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5">
-                A name, plus a LinkedIn URL or a company. We matched what we could.
-              </p>
-            </div>
-            <Button variant="ghost" size="sm" leadingIcon={<Wand2 size={13} />} onClick={onReset} title="Discard changes and re-detect">
-              Re-detect
-            </Button>
-          </header>
+    <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)]">
+      {/* ── Left: the mapping, its own scroll ─────────────────────────── */}
+      <section className="flex-1 min-w-0 min-h-0 flex flex-col">
+        <header className={band}>
+          <div className="min-w-0">
+            <h3 className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">Match your columns</h3>
+            <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
+              A name, plus a LinkedIn URL or a company. We matched what we could.
+            </p>
+          </div>
+          <Button variant="ghost" size="sm" leadingIcon={<Wand2 size={13} />} onClick={onReset} title="Discard changes and re-detect">
+            Re-detect
+          </Button>
+        </header>
+
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <p className="ui-micro px-[var(--ui-pad-lg)] pt-4 pb-1">Who is each row</p>
           <div className="px-[var(--ui-pad-lg)] divide-y divide-[var(--ui-border-hairline)]">
             {KEY_FIELDS.map((key) => (
               <FieldRow
@@ -192,16 +199,11 @@ export function FieldMappingPanel({ headers, sampleValues, rows, mapping, onChan
               />
             ))}
           </div>
-        </section>
 
-        <section className={card}>
-          <header className="flex items-center justify-between gap-3 px-[var(--ui-pad-lg)] py-3.5">
-            <div>
-              <h3 className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">More details</h3>
-              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5">
-                {detailsMapped} of {DETAIL_FIELDS.length} mapped · optional, used in your messages and filters
-              </p>
-            </div>
+          <div className="flex items-center justify-between gap-3 px-[var(--ui-pad-lg)] pt-5 pb-1 border-t border-[var(--ui-border-hairline)] mt-2">
+            <p className="ui-micro">
+              More details · {detailsMapped} of {DETAIL_FIELDS.length} mapped
+            </p>
             <Button
               size="sm"
               variant="ghost"
@@ -211,9 +213,9 @@ export function FieldMappingPanel({ headers, sampleValues, rows, mapping, onChan
             >
               {detailsOpen ? 'Hide' : 'Show'}
             </Button>
-          </header>
+          </div>
           {detailsOpen && (
-            <div className="px-[var(--ui-pad-lg)] pb-2 border-t border-[var(--ui-border-hairline)] divide-y divide-[var(--ui-border-hairline)]">
+            <div className="px-[var(--ui-pad-lg)] pb-3 divide-y divide-[var(--ui-border-hairline)]">
               {DETAIL_FIELDS.map((key) => (
                 <FieldRow
                   key={key}
@@ -228,41 +230,52 @@ export function FieldMappingPanel({ headers, sampleValues, rows, mapping, onChan
               ))}
             </div>
           )}
-        </section>
-      </div>
+        </div>
+      </section>
 
-      {/* ── Right: live preview + outcome ────────────────────────────── */}
-      <aside className={`${card} lg:sticky lg:top-4`}>
-        <header className="px-[var(--ui-pad-lg)] pt-4 pb-2">
-          <h3 className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">How Spurly reads your file</h3>
-          <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5">Updates as you change a column.</p>
+      {/* ── Right: the live preview, a sunken pane ───────────────────── */}
+      <aside className="lg:w-[400px] shrink-0 min-h-0 flex flex-col border-t lg:border-t-0 lg:border-l border-[var(--ui-border)] bg-[var(--ui-surface-sunken)]">
+        <header className={band}>
+          <div className="min-w-0">
+            <h3 className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">How Spurly reads your file</h3>
+            <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">Updates as you change a column</p>
+          </div>
         </header>
 
-        {!extracted ? (
-          <div className="mx-[var(--ui-pad-lg)] mb-4 flex gap-2.5 p-3 rounded-[var(--ui-radius-md)] bg-[var(--ui-danger-tint)]">
-            <AlertCircle size={16} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
-            <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
-              {!hasName
-                ? 'Pick the column with each person’s name.'
-                : 'Pick a LinkedIn URL column — or a Company column so Spurly can find each person.'}
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="px-[var(--ui-pad-lg)] divide-y divide-[var(--ui-border-hairline)]">
-              {preview.map(({ row, kind }) => (
-                <PreviewPerson key={row._id} row={row} kind={kind} />
-              ))}
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 flex flex-col gap-3">
+          {!extracted ? (
+            <div className="flex gap-2.5 p-3 rounded-[var(--ui-radius-md)] bg-[var(--ui-danger-tint)]">
+              <AlertCircle size={16} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
+              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+                {!hasName
+                  ? 'Pick the column with each person’s name.'
+                  : 'Pick a LinkedIn URL column — or a Company column so Spurly can find each person.'}
+              </p>
             </div>
-            <div className="mt-2 px-[var(--ui-pad-lg)] py-3.5 flex flex-col gap-2 border-t border-[var(--ui-border-hairline)] bg-[var(--ui-surface-sunken)] rounded-b-[var(--ui-radius-lg)]">
-              <Outcome icon={<Link2 size={14} />} tone="var(--ui-success)" value={extracted.profiles.length} label="straight to your Hub" />
-              <Outcome icon={<Search size={14} />} tone="var(--ui-accent)" value={extracted.lookupRows.length} label="Spurly will find on LinkedIn" />
-              {extracted.skippedCount > 0 && (
-                <Outcome icon={<Ban size={14} />} tone="var(--ui-text-tertiary)" value={extracted.skippedCount} label="skipped — missing name, URL or company" />
-              )}
-            </div>
-          </>
-        )}
+          ) : (
+            <>
+              <div className="flex flex-col gap-2">
+                {preview.map(({ row, kind }) => (
+                  <div
+                    key={row._id}
+                    className="px-3 rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)]"
+                  >
+                    <PreviewPerson row={row} kind={kind} />
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-1 rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)] px-3.5 py-3 flex flex-col gap-2">
+                <p className="ui-micro">Out of {(extracted.profiles.length + extracted.lookupRows.length + extracted.skippedCount).toLocaleString()} rows</p>
+                <Outcome icon={<Link2 size={14} />} tone="var(--ui-success)" value={extracted.profiles.length} label="straight to your Hub" />
+                <Outcome icon={<Search size={14} />} tone="var(--ui-accent)" value={extracted.lookupRows.length} label="Spurly will find on LinkedIn" />
+                {extracted.skippedCount > 0 && (
+                  <Outcome icon={<Ban size={14} />} tone="var(--ui-text-tertiary)" value={extracted.skippedCount} label="skipped — missing name, URL or company" />
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </aside>
     </div>
   );

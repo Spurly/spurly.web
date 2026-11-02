@@ -58,16 +58,19 @@ function defaultListName(fileName) {
 
 const card = 'rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)]';
 
-function OutcomeTile({ icon, tone, tint, value, label, caption }) {
+/** One reading in the review step's summary band — a band cell, not a card. */
+function OutcomeStat({ icon, tone, tint, value, label, caption }) {
   return (
-    <div className={`${card} p-4 flex gap-3 min-w-0`}>
+    <div className="flex items-center gap-3 px-[var(--ui-pad-lg)] py-3.5 min-w-0">
       <span className="w-9 h-9 shrink-0 rounded-[var(--ui-radius-md)] grid place-items-center" style={{ background: tint, color: tone }}>
         {icon}
       </span>
       <div className="min-w-0">
-        <p className="ui-num text-[length:var(--ui-t-section)] leading-tight text-[var(--ui-text-primary)]">{value.toLocaleString()}</p>
-        <p className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">{label}</p>
-        {caption && <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-0.5">{caption}</p>}
+        <p className="flex items-baseline gap-2">
+          <span className="ui-num text-[length:var(--ui-t-section)] leading-none text-[var(--ui-text-primary)]">{value.toLocaleString()}</span>
+          <span className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] truncate">{label}</span>
+        </p>
+        {caption && <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-1 truncate" title={caption}>{caption}</p>}
       </div>
     </div>
   );
@@ -293,14 +296,14 @@ export function UploadPanel({ onDone, onCancel }) {
   );
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-[1200px]">
+    <div className="flex flex-col gap-4 flex-1 min-h-0 w-full">
       {nameDialog}
       {bar}
       {errorBanner}
 
       {/* ── 1. Upload ───────────────────────────────────────────────── */}
       {step === 'upload' && (
-        <>
+        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 -mx-1 px-1 pb-1">
           <label
             onDragOver={(e) => {
               e.preventDefault();
@@ -373,7 +376,7 @@ export function UploadPanel({ onDone, onCancel }) {
               </div>
             ))}
           </div>
-        </>
+        </div>
       )}
 
       {/* ── 2. Match columns ────────────────────────────────────────── */}
@@ -388,69 +391,53 @@ export function UploadPanel({ onDone, onCancel }) {
         />
       )}
 
-      {/* ── 3. Review & import ──────────────────────────────────────── */}
+      {/* ── 3. Review & import ──────────────────────────────────────────
+          The Leads table's anatomy: ONE card that fills the height — a
+          summary band, the explainer as a banner strip, then the rows,
+          which scroll inside the card while the page stays put. */}
       {step === 'review' && extracted && (
-        <>
-          <div className="grid gap-3 md:grid-cols-3">
-            <OutcomeTile
-              icon={<Link2 size={17} />}
-              tone="var(--ui-success)"
-              tint="var(--ui-success-tint)"
-              value={readyCount}
-              label="Straight to your Hub"
-              caption="They have a LinkedIn URL"
-            />
-            <OutcomeTile
-              icon={<Search size={17} />}
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)]">
+          <div className="shrink-0 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[var(--ui-border-hairline)] border-b border-[var(--ui-border-hairline)] bg-[var(--ui-surface-header)]">
+            <OutcomeStat icon={<Link2 size={15} />} tone="var(--ui-success)" tint="var(--ui-success-tint)" value={readyCount} label="Straight to your Hub" caption="They have a LinkedIn URL" />
+            <OutcomeStat
+              icon={<Search size={15} />}
               tone="var(--ui-accent)"
               tint="var(--ui-accent-tint)"
               value={findCount}
               label="Spurly will find"
               caption={findCount ? 'Searched on LinkedIn by name + company' : 'Every row has a URL'}
             />
-            <OutcomeTile
-              icon={<Ban size={17} />}
-              tone="var(--ui-text-tertiary)"
-              tint="var(--ui-surface-sunken)"
-              value={skipped}
-              label="Skipped"
-              caption={skipped ? skipReasons : 'Nothing left out'}
-            />
+            <OutcomeStat icon={<Ban size={15} />} tone="var(--ui-text-tertiary)" tint="var(--ui-surface-sunken)" value={skipped} label="Skipped" caption={skipped ? skipReasons : 'Nothing left out'} />
           </div>
 
-          {findCount > 0 && (
-            <div className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)] bg-[var(--ui-accent-wash)] border border-[var(--ui-accent-tint)]">
-              <Search size={16} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-accent)' }} />
+          {overLimit ? (
+            <div className="shrink-0 flex items-start gap-3 px-[var(--ui-card-x)] py-2.5 bg-[var(--ui-danger-tint)] border-b border-[var(--ui-border)]">
+              <AlertCircle size={15} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
               <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
-                <span className="font-medium text-[var(--ui-text-primary)]">How finding works: </span>
-                Spurly searches LinkedIn for each name at its company and sends every match to your Hub — if three
-                Falguni Nayars work at Nykaa, all three are added. People whose name only partly matches, or who
-                don’t work there, are left out. Filter them in <span className="font-medium text-[var(--ui-text-primary)]">Leads</span>.
-              </p>
-            </div>
-          )}
-
-          {overLimit && (
-            <div className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)] bg-[var(--ui-danger-tint)]">
-              <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
-              <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
                 <span className="font-medium" style={{ color: 'var(--ui-danger)' }}>Too many rows for one import. </span>
                 The limit is {MAX_IMPORT_ROWS.toLocaleString()} per import — split the file. Your column matching is remembered.
               </p>
             </div>
-          )}
+          ) : findCount > 0 ? (
+            <div className="shrink-0 flex items-start gap-3 px-[var(--ui-card-x)] py-2.5 bg-[var(--ui-accent-wash)] border-b border-[var(--ui-border)] shadow-[inset_2px_0_0_var(--ui-accent)]">
+              <Search size={14} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-accent)' }} />
+              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+                <span className="font-medium text-[var(--ui-text-primary)]">Every match is added. </span>
+                If three Falguni Nayars work at Nykaa, all three land in your Leads. People whose name only partly
+                matches, or who don’t work there, are left out.
+              </p>
+            </div>
+          ) : null}
 
-          <div className={`${card} overflow-hidden`}>
-            <DataTable
-              columns={previewColumns}
-              data={previewRows}
-              rowKey={(row) => row._id}
-              emptyMessage="No rows to import with this matching"
-              emptyHint="Go back and check the name, LinkedIn URL and company columns."
-              maxHeight="52vh"
-            />
-          </div>
-        </>
+          <DataTable
+            className="flex-1"
+            columns={previewColumns}
+            data={previewRows}
+            rowKey={(row) => row._id}
+            emptyMessage="No rows to import with this matching"
+            emptyHint="Go back and check the name, LinkedIn URL and company columns."
+          />
+        </div>
       )}
     </div>
   );

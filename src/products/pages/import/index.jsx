@@ -92,7 +92,7 @@ export function ImportPage() {
 
   if (mode === 'upload') {
     return (
-      <DashboardLayout title={t.pageTitle} layout="page">
+      <DashboardLayout title={t.pageTitle} layout="fill">
         <UploadPanel onDone={handleImported} onCancel={hasAnything ? () => setMode('pipeline') : null} />
       </DashboardLayout>
     );
