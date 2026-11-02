@@ -1,5 +1,5 @@
 import importGateway from '../gateway/import.js';
-import { IMPORT_EVENTS } from '../constants/constants.js';
+import { IMPORT_EVENTS, LOOKUP_EVENTS } from '../constants/constants.js';
 
 /**
  * Import Controller
@@ -17,45 +17,35 @@ import { IMPORT_EVENTS } from '../constants/constants.js';
  * emitting an event instead of returning/throwing.
  */
 
+/** The fields the backend keeps — UI-only keys (_id, _needsLookup…) stay here. */
+const ROW_FIELDS = ['profileUrl', 'name', 'firstName', 'lastName', 'company', 'title', 'location', 'headline', 'email', 'phone', 'website'];
+
 /**
- * Emits IMPORT_SUCCESS with { savedCount, failedCount, totalCount,
- * importBatchId }, or IMPORT_FAILURE with a user-readable message.
+ * The CSV import, fully automatic (2026-11-02): one call. Rows with a
+ * LinkedIn URL go straight to the Hub; rows with a name + company are found
+ * on LinkedIn and every confirmed match follows them into the same Hub
+ * audience. Emits IMPORT_SUCCESS with { sentToHub, finding, skipped,
+ * duplicates, audience }, or IMPORT_FAILURE with the raw error.
  */
-async function importProfiles(eventEmitter, { profiles, sourceFile = '' }) {
+async function importProfiles(eventEmitter, { profiles = [], lookupRows = [], sourceFile = '', listName = '' }) {
   try {
-    if (!Array.isArray(profiles) || profiles.length === 0) {
-      throw new Error('No profiles to import');
+    const rows = [...(profiles || []), ...(lookupRows || [])].map((r) =>
+      Object.fromEntries(ROW_FIELDS.map((k) => [k, r?.[k] ?? ''])),
+    );
+    if (rows.length === 0) {
+      throw new Error('None of the rows had a LinkedIn profile URL, or a name and company to find one with');
     }
-
-    // Staging requires a profileUrl on every row (it's the dedupe key); drop
-    // rows without one rather than failing the whole import.
-    const valid = profiles.filter((p) => p?.profileUrl && p.profileUrl.toString().trim());
-    const droppedForUrl = profiles.length - valid.length;
-    if (valid.length === 0) {
-      throw new Error('None of the rows had a LinkedIn profile URL');
-    }
-
-    const res = await importGateway.stageLeads(valid, sourceFile);
-    if (!res?.success) {
-      throw new Error(res?.message || 'Failed to import leads');
-    }
-
+    const res = await importGateway.autoImport(rows, sourceFile, listName);
+    if (!res?.success) throw new Error(res?.message || 'Failed to import leads');
     const d = res.data || {};
-    // `inserted` + `updated` is what actually landed in staging. A row that
-    // matched an existing staged lead unchanged counts as saved too — it IS
-    // in the staging list, which is all this number is telling the user.
-    const saved = (d.inserted ?? 0) + (d.updated ?? 0);
-
     eventEmitter.emit(IMPORT_EVENTS.IMPORT_SUCCESS, {
-      savedCount: saved || valid.length,
-      failedCount: droppedForUrl + (d.skipped ?? 0),
-      totalCount: profiles.length,
-      importBatchId: d.importBatchId || null,
+      sentToHub: d.sentToHub ?? 0,
+      finding: d.finding ?? 0,
+      skipped: d.skipped ?? 0,
+      duplicates: d.duplicates ?? 0,
+      audience: d.audience || null,
     });
   } catch (error) {
-    // Raw error (not just its message) so callers can run it through
-    // apiError.js's status-aware toast/inline copy, same as before this
-    // controller existed.
     eventEmitter.emit(IMPORT_EVENTS.IMPORT_FAILURE, error);
   }
 }
@@ -127,5 +117,65 @@ async function deleteLeads(eventEmitter, ids) {
   }
 }
 
-const importController = { importProfiles, loadLeads, promoteLeads, retryLeads, deleteLeads };
+/* ── Find profiles (LinkedIn URL lookup) ────────────────────────────── */
+
+/** Emits LOOKUP LOAD_SUCCESS with { rows, stats, pagination }, or LOAD_FAILURE. */
+async function loadLookups(eventEmitter, { status, search, limit, skip } = {}) {
+  try {
+    const res = await importGateway.getLookups({ status, search, limit, skip });
+    if (!res?.success) throw new Error(res?.message || 'Could not load profile lookups');
+    eventEmitter.emit(LOOKUP_EVENTS.LOAD_SUCCESS, {
+      rows: res.data?.rows || [],
+      stats: res.data?.stats || null,
+      pagination: res.data?.pagination || { total: 0, limit, skip: 0 },
+    });
+  } catch (error) {
+    eventEmitter.emit(LOOKUP_EVENTS.LOAD_FAILURE, error?.message || 'Could not load profile lookups');
+  }
+}
+
+/** Emits PICK_SUCCESS with { id, staged }, or PICK_FAILURE with a message. */
+async function pickLookup(eventEmitter, id, profileUrls) {
+  try {
+    const res = await importGateway.pickLookup(id, profileUrls);
+    if (!res?.success) throw new Error(res?.message || 'Could not add that person');
+    eventEmitter.emit(LOOKUP_EVENTS.PICK_SUCCESS, { id, staged: res.data?.staged || 1 });
+  } catch (error) {
+    eventEmitter.emit(LOOKUP_EVENTS.PICK_FAILURE, error?.response?.data?.message || error?.message || 'Could not add that person');
+  }
+}
+
+/** Emits DISMISS_SUCCESS with { dismissed }, or DISMISS_FAILURE. */
+async function dismissLookups(eventEmitter, { ids, status } = {}) {
+  try {
+    const res = await importGateway.dismissLookups({ ids, status });
+    if (!res?.success) throw new Error(res?.message || 'Could not skip those');
+    eventEmitter.emit(LOOKUP_EVENTS.DISMISS_SUCCESS, { dismissed: res.data?.dismissed || 0 });
+  } catch (error) {
+    eventEmitter.emit(LOOKUP_EVENTS.DISMISS_FAILURE, error?.message || 'Could not skip those');
+  }
+}
+
+/** Emits RETRY_SUCCESS with { requeued }, or RETRY_FAILURE. */
+async function retryLookups(eventEmitter, ids) {
+  try {
+    const res = await importGateway.retryLookups(ids);
+    if (!res?.success) throw new Error(res?.message || 'Could not search again');
+    eventEmitter.emit(LOOKUP_EVENTS.RETRY_SUCCESS, { requeued: res.data?.requeued || 0 });
+  } catch (error) {
+    eventEmitter.emit(LOOKUP_EVENTS.RETRY_FAILURE, error?.message || 'Could not search again');
+  }
+}
+
+const importController = {
+  importProfiles,
+  loadLeads,
+  promoteLeads,
+  retryLeads,
+  deleteLeads,
+  loadLookups,
+  pickLookup,
+  dismissLookups,
+  retryLookups,
+};
 export default importController;

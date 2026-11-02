@@ -1,17 +1,10 @@
 /**
- * Static UI copy for the Import page shell (tabs, header).
+ * Static UI copy for the Import page shell.
  *
- * STATIC only — see leads/strings.js for the scope this follows. The bulk of
- * this feature's copy lives in components/{UploadPanel,StagingPanel,
- * FieldMappingPanel}.jsx instead of here: it's built from the CSV being
- * imported (headers, counts, mapping state) rather than fixed strings, so
- * pulling it out here would just be indirection over a template.
+ * STATIC only — see leads/strings.js for the scope this follows. Copy built
+ * from live data (counts, file names, mapping state) stays in the components.
  */
 export const importStrings = {
   pageTitle: 'Import',
-  pageSubtitle: 'Import a CSV, enrich the leads, then send them to the Hub.',
-  tabs: {
-    staged: 'Staged leads',
-    upload: 'Import CSV',
-  },
+  uploadCta: 'Upload CSV',
 };

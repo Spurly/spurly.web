@@ -126,7 +126,10 @@ export function Badge({
           aria-hidden="true"
         />
       )}
-      <span className="truncate">{children}</span>
+      {/* Tailwind's preflight makes every <svg> display:block, so an icon
+          passed as a child ("✓ In Hub") used to drop onto its own line above
+          the text. Keep children on one line, icon included. */}
+      <span className="truncate [&>svg]:inline-block [&>svg]:align-[-0.1em] [&>svg]:mr-0.5">{children}</span>
     </span>
   );
 }

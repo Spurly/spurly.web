@@ -155,8 +155,10 @@ async function deleteSearch(id, { deleteLeads = false } = {}) {
  * table is paginated, so filtering only what's already loaded would miss
  * matches on other pages.
  */
-async function listLeads({ searchId, q, enrichmentStatus, connectionDegree, activityType, page = 1, limit = 50 } = {}) {
+async function listLeads({ searchId, q, enrichmentStatus, connectionDegree, activityType, companies, page = 1, limit = 50 } = {}) {
   const params = { page, limit };
+  // Exact company names, sent as companies[]=… (names can contain commas).
+  if (Array.isArray(companies) && companies.length > 0) params.companies = companies;
   if (searchId) params.searchId = searchId;
   if (q) params.q = q;
   if (enrichmentStatus) params.enrichmentStatus = enrichmentStatus;
@@ -166,6 +168,19 @@ async function listLeads({ searchId, q, enrichmentStatus, connectionDegree, acti
   const res = await apiGateway.get('/hub/leads', { params });
   const data = res.data?.data ?? { leads: [], pagination: { page: 1, limit, total: 0 } };
   return { ...data, leads: Lead.fromList(data.leads ?? []) };
+}
+
+/**
+ * GET /hub/lead-companies — the Company filter's options: companies across
+ * the user's leads (or one audience's) with lead counts, most leads first,
+ * a page at a time. Returns { companies: [{ name, count }], page, hasMore }.
+ */
+async function listLeadCompanies({ searchId, q, page = 1, limit = 30 } = {}) {
+  const params = { page, limit };
+  if (searchId) params.searchId = searchId;
+  if (q && q.trim()) params.q = q.trim();
+  const res = await apiGateway.get('/hub/lead-companies', { params });
+  return res.data?.data ?? { companies: [], page, hasMore: false };
 }
 
 /**
@@ -205,6 +220,7 @@ const hubSourcingGateway = {
   runSearch,
   deleteSearch,
   listLeads,
+  listLeadCompanies,
   resolveProfile,
   withdrawInvitation,
   createList,

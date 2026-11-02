@@ -40,10 +40,27 @@ const ENRICH_STATUS = {
   failed:    { label: 'Failed',    tone: 'danger',  dot: true },
 };
 
-const ORIGIN_LABEL = {
-  csv: 'CSV Import',
-  extension: 'Extension',
-};
+/**
+ * Where the row's LinkedIn URL came from — the one provenance fact worth a
+ * column. "CSV Import" on every row said nothing; "Found by Spurly" tells the
+ * user which rows a machine matched and are worth a glance before sending.
+ */
+function SourceCell({ row }) {
+  if (row.origin === 'extension') return <Badge variant="minimal" tone="accent" dot>Extension</Badge>;
+  if (row.linkedinUrlSource === 'spurly') {
+    return (
+      <Badge
+        variant="minimal"
+        tone="info"
+        dot
+        title="Your file had no LinkedIn URL for this person — Spurly found it by name + company."
+      >
+        Found by Spurly
+      </Badge>
+    );
+  }
+  return <Badge variant="minimal" tone="neutral">Your file</Badge>;
+}
 
 export function EnrichStatusCell({ value, row = {} }) {
   const s = ENRICH_STATUS[value] || ENRICH_STATUS.pending;
@@ -68,7 +85,7 @@ export function EnrichStatusCell({ value, row = {} }) {
           tone="accent"
           title="Already in your Hub leads. Moving them updates the existing record."
         >
-          <Check size={10} className="mr-0.5" /> In Hub
+          <Check size={10} /> In Hub
         </Badge>
       )}
     </span>
@@ -95,27 +112,24 @@ export const stagingColumns = [
     label: 'Name',
     width: 200,
     title: (row) => row.name,
-    render: (value, row) => <PersonCell name={value} avatar={row.avatar} profileUrl={row.profileUrl} />,
+    render: (value, row) => <PersonCell name={value} avatar={row.avatarUrl || row.avatar} profileUrl={row.profileUrl} />,
   },
   {
     key: 'enrichStatus',
     label: 'Status',
-    width: 200,
+    width: 160,
     render: (value, row) => <EnrichStatusCell value={value} row={row} />,
+  },
+  {
+    key: 'linkedinUrlSource',
+    label: 'LinkedIn URL from',
+    width: 160,
+    render: (_v, row) => <SourceCell row={row} />,
   },
   { key: 'title', label: 'Title', width: 190, render: (value) => <TextCell value={value} tone="secondary" /> },
   { key: 'company', label: 'Company', width: 160, render: (value) => <CompanyCell value={value} /> },
   { key: 'email', label: 'Email', width: 200, render: (value) => <StagedEmail value={value} /> },
   { key: 'location', label: 'Location', width: 170, render: (value) => <LocationCell value={value} /> },
-  {
-    key: 'origin',
-    label: 'Imported via',
-    width: 130,
-    render: (value) => (
-      <Badge variant="minimal" tone={value === 'extension' ? 'accent' : 'neutral'}>
-        {ORIGIN_LABEL[value] || 'CSV Import'}
-      </Badge>
-    ),
-  },
+
   { key: 'sourceFile', label: 'File', width: 150, render: (value) => <TextCell value={value} tone="tertiary" /> },
 ];
