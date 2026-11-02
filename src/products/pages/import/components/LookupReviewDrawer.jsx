@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowUpRight, Check, UserX } from 'lucide-react';
+import { ArrowUpRight, UserX } from 'lucide-react';
 import { Avatar, Badge, Button, Drawer } from 'src/core/primitives';
 
 /**
@@ -16,19 +16,24 @@ import { Avatar, Badge, Button, Drawer } from 'src/core/primitives';
  */
 
 const DEGREE = { 1: '1st', 2: '2nd', 3: '3rd+' };
-const REASON_LABEL = { company: 'Company matches', title: 'Title matches', location: 'Location matches' };
+const REASON_LABEL = { company: 'Company', title: 'Title', location: 'Location' };
 
 function FileFact({ label, value }) {
   if (!value) return null;
   return (
-    <div className="min-w-0">
-      <dt className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">{label}</dt>
-      <dd className="text-[length:var(--ui-t-label)] text-[var(--ui-text-primary)] truncate" title={value}>{value}</dd>
-    </div>
+    <span className="inline-flex items-baseline gap-1.5 min-w-0">
+      <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">{label}</span>
+      <span className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-primary)] truncate" title={value}>
+        {value}
+      </span>
+    </span>
   );
 }
 
 function CandidateOption({ candidate, selected, onSelect }) {
+  const meta = [candidate.location, DEGREE[candidate.connectionDegree] && `${DEGREE[candidate.connectionDegree]} connection`]
+    .filter(Boolean)
+    .join(' · ');
   return (
     <div
       role="radio"
@@ -42,38 +47,31 @@ function CandidateOption({ candidate, selected, onSelect }) {
         }
       }}
       className={[
-        'relative flex items-start gap-3 p-3 rounded-[var(--ui-radius-md)] border cursor-pointer',
+        'group flex items-start gap-3 px-3.5 py-3 rounded-[var(--ui-radius-md)] border cursor-pointer',
         'transition-[background-color,border-color,box-shadow] duration-[var(--ui-dur-fast)]',
         'focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]',
         selected
-          ? 'bg-[var(--ui-accent-wash)] border-[var(--ui-accent-border)]'
-          : 'bg-[var(--ui-surface-card)] border-[var(--ui-border-hairline)] hover:border-[var(--ui-accent-border)]',
+          ? 'bg-[var(--ui-accent-wash)] border-[var(--ui-accent)] shadow-[0_0_0_1px_var(--ui-accent)]'
+          : 'bg-[var(--ui-surface-card)] border-[var(--ui-border)] hover:border-[var(--ui-accent-border)] hover:bg-[var(--ui-surface-hover)]',
       ].join(' ')}
     >
-      <Avatar src={candidate.profilePictureUrl || null} name={candidate.name} size={40} />
+      <span
+        aria-hidden="true"
+        className={[
+          'mt-2.5 w-4 h-4 shrink-0 rounded-full border-[1.5px] grid place-items-center transition-colors',
+          selected ? 'border-[var(--ui-accent)] bg-[var(--ui-accent)]' : 'border-[var(--ui-border)] group-hover:border-[var(--ui-accent-border)]',
+        ].join(' ')}
+      >
+        {selected && <span className="w-1.5 h-1.5 rounded-full bg-[var(--ui-accent-on)]" />}
+      </span>
+      <Avatar src={candidate.profilePictureUrl || null} name={candidate.name} size={36} />
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
           <span className="truncate text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
             {candidate.name}
           </span>
-          {DEGREE[candidate.connectionDegree] && (
-            <span className="shrink-0 text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
-              · {DEGREE[candidate.connectionDegree]}
-            </span>
-          )}
-        </div>
-        {candidate.headline && (
-          <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-0.5 line-clamp-2">
-            {candidate.headline}
-          </p>
-        )}
-        {candidate.location && (
-          <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-0.5 truncate">{candidate.location}</p>
-        )}
-        <div className="flex flex-wrap items-center gap-1.5 mt-2">
           {(candidate.reasons || []).map((r) => (
-            <Badge key={r} size="sm" tone="success">
-              <Check size={10} className="mr-0.5" />
+            <Badge key={r} size="sm" tone="success" variant="minimal" dot>
               {REASON_LABEL[r] || r}
             </Badge>
           ))}
@@ -82,21 +80,19 @@ function CandidateOption({ candidate, selected, onSelect }) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-0.5 text-[length:var(--ui-t-meta)] text-[var(--ui-accent-fg)] hover:underline"
+            title="Open on LinkedIn"
+            className="ml-auto shrink-0 inline-flex items-center gap-0.5 text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] hover:text-[var(--ui-accent-fg)]"
           >
-            View on LinkedIn <ArrowUpRight size={11} />
+            LinkedIn <ArrowUpRight size={12} />
           </a>
         </div>
+        {candidate.headline && (
+          <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-0.5 line-clamp-2 leading-snug">
+            {candidate.headline}
+          </p>
+        )}
+        {meta && <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-1 truncate">{meta}</p>}
       </div>
-      <span
-        aria-hidden="true"
-        className={[
-          'mt-1 w-4 h-4 shrink-0 rounded-full border grid place-items-center',
-          selected ? 'border-[var(--ui-accent)] bg-[var(--ui-accent)]' : 'border-[var(--ui-border)]',
-        ].join(' ')}
-      >
-        {selected && <span className="w-1.5 h-1.5 rounded-full bg-[var(--ui-accent-on)]" />}
-      </span>
     </div>
   );
 }
@@ -141,30 +137,23 @@ export function LookupReviewDrawer({ row, position, total, busy, onPick, onNone,
       }
     >
       {row && (
-        <div className="flex flex-col gap-5">
-          <section>
-            <p className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-2">
-              Your file says
-            </p>
-            <dl
-              className="grid grid-cols-2 gap-x-4 gap-y-2.5 p-3 rounded-[var(--ui-radius-md)]"
-              style={{ background: 'var(--ui-surface-sunken)', border: '1px solid var(--ui-border-hairline)' }}
-            >
+        <div className="flex flex-col gap-5 px-[var(--ui-pad-x)] py-5">
+          <section className="flex flex-col gap-2">
+            <p className="ui-micro">Your file says</p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 px-3.5 py-2.5 rounded-[var(--ui-radius-md)] bg-[var(--ui-surface-sunken)]">
               <FileFact label="Name" value={input.name} />
               <FileFact label="Company" value={input.company} />
               <FileFact label="Title" value={input.title} />
               <FileFact label="Location" value={input.location} />
               <FileFact label="Email" value={input.email} />
-            </dl>
+            </div>
           </section>
 
-          <section>
-            <p className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">
-              {candidates.length} people on LinkedIn match
-            </p>
-            <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-0.5 mb-2.5">
-              Only the person you choose is added. Not sure? Open their profile on LinkedIn first.
-            </p>
+          <section className="flex flex-col gap-2">
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="ui-micro">{candidates.length} matches on LinkedIn</p>
+              <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">Only the one you choose is added</p>
+            </div>
             <div role="radiogroup" aria-label="Candidates" className="flex flex-col gap-2">
               {candidates.map((c) => (
                 <CandidateOption

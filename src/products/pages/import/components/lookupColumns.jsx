@@ -92,7 +92,9 @@ export function buildLookupColumns() {
       label: 'Name',
       width: 200,
       title: (row) => row.input?.name,
-      render: (_v, row) => <PersonCell name={row.input?.name} />,
+      render: (_v, row) => (
+        <PersonCell name={row.input?.name} avatar={row.matchedProfile?.profilePictureUrl || null} />
+      ),
     },
     {
       key: 'company',

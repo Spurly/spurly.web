@@ -183,7 +183,7 @@ export function UploadPanel({ onDone, onCancel }) {
 
   // ── The bar: stepper left, the step's actions right ─────────────────
   const bar = (
-    <div className={`${card} flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-[var(--ui-pad-lg)] py-3`}>
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-h-[38px]">
       <div className="flex items-center gap-4 min-w-0">
         <ImportStepper step={step} />
         {fileName && step !== 'upload' && (
@@ -250,7 +250,7 @@ export function UploadPanel({ onDone, onCancel }) {
               setDragActive(false);
               handleFile(e.dataTransfer.files?.[0]);
             }}
-            className="flex flex-col items-center justify-center gap-4 py-16 px-[var(--ui-pad-lg)] rounded-[var(--ui-radius-lg)] cursor-pointer transition-colors"
+            className="flex flex-col items-center justify-center gap-3.5 py-12 px-[var(--ui-pad-lg)] rounded-[var(--ui-radius-lg)] cursor-pointer transition-colors"
             style={{
               background: dragActive ? 'var(--ui-accent-tint)' : 'var(--ui-surface-card)',
               border: `1.5px dashed ${dragActive ? 'var(--ui-accent)' : 'var(--ui-border)'}`,
@@ -268,35 +268,48 @@ export function UploadPanel({ onDone, onCancel }) {
                 or <span className="font-medium text-[var(--ui-accent-fg)]">browse your files</span> · up to {MAX_IMPORT_ROWS.toLocaleString()} rows · any column names
               </p>
             </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              leadingIcon={<Download size={13} />}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                downloadSample();
+              }}
+            >
+              Download a sample CSV
+            </Button>
           </label>
 
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className={`${card} p-4`}>
-              <Link2 size={16} style={{ color: 'var(--ui-success)' }} />
-              <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mt-2">Have LinkedIn URLs?</p>
-              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-1">
-                Rows with a profile URL and a name import straight away, ready to send to your Hub.
-              </p>
-            </div>
-            <div className={`${card} p-4`}>
-              <Search size={16} style={{ color: 'var(--ui-accent)' }} />
-              <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mt-2">Only names and companies?</p>
-              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-1">
-                Spurly finds each person on LinkedIn. When several people match, you pick the right one — nobody wrong gets in.
-              </p>
-            </div>
-            <div className={`${card} p-4 flex flex-col`}>
-              <ShieldCheck size={16} style={{ color: 'var(--ui-text-tertiary)' }} />
-              <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mt-2">Free and reversible</p>
-              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-1 flex-1">
-                Importing costs nothing. Credits are only used when leads land in your Hub.
-              </p>
-              <span className="mt-3">
-                <Button size="sm" variant="secondary" leadingIcon={<Download size={13} />} onClick={downloadSample}>
-                  Sample CSV
-                </Button>
-              </span>
-            </div>
+          <div className={`${card} grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[var(--ui-border-hairline)]`}>
+            {[
+              {
+                icon: <Link2 size={15} />, tone: 'var(--ui-success)', tint: 'var(--ui-success-tint)',
+                title: 'Have LinkedIn URLs?',
+                body: 'Rows with a profile URL and a name are ready to send to your Hub straight away.',
+              },
+              {
+                icon: <Search size={15} />, tone: 'var(--ui-accent)', tint: 'var(--ui-accent-tint)',
+                title: 'Only names and companies?',
+                body: 'Spurly finds each person on LinkedIn. If several people match, you pick — nobody wrong gets in.',
+              },
+              {
+                icon: <ShieldCheck size={15} />, tone: 'var(--ui-text-secondary)', tint: 'var(--ui-surface-sunken)',
+                title: 'Free to import',
+                body: 'Credits are only used when leads land in your Hub.',
+              },
+            ].map((tip) => (
+              <div key={tip.title} className="flex gap-3 p-4">
+                <span className="w-8 h-8 shrink-0 rounded-[var(--ui-radius-md)] grid place-items-center" style={{ color: tip.tone, background: tip.tint }}>
+                  {tip.icon}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">{tip.title}</p>
+                  <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-0.5 leading-snug">{tip.body}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </>
       )}

@@ -104,7 +104,7 @@ export const stagingColumns = [
     label: 'Name',
     width: 200,
     title: (row) => row.name,
-    render: (value, row) => <PersonCell name={value} avatar={row.avatar} profileUrl={row.profileUrl} />,
+    render: (value, row) => <PersonCell name={value} avatar={row.avatarUrl || row.avatar} profileUrl={row.profileUrl} />,
   },
   {
     key: 'enrichStatus',

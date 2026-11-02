@@ -1,4 +1,4 @@
-import { Search, UserSearch, Inbox, Send, ChevronRight } from 'lucide-react';
+import { Search, UserSearch, Inbox, Send, ArrowRight } from 'lucide-react';
 import { Button } from 'src/core/primitives';
 
 /**
@@ -17,8 +17,9 @@ import { Button } from 'src/core/primitives';
 
 const fmt = (n) => (n || 0).toLocaleString();
 
-function Stage({ id, active, onSelect, icon: Icon, label, count, caption, attention, working, action, sublink }) {
+function Stage({ id, step, active, onSelect, icon: Icon, label, count, caption, attention, working, action, sublink }) {
   const empty = !count;
+  const lit = attention && !empty;
   return (
     <div
       role="tab"
@@ -32,70 +33,63 @@ function Stage({ id, active, onSelect, icon: Icon, label, count, caption, attent
         }
       }}
       className={[
-        'relative flex-1 min-w-[180px] flex flex-col gap-2 px-4 py-3.5 cursor-pointer select-none',
+        'group relative flex-1 min-w-0 flex items-center gap-3 px-4 py-3 cursor-pointer select-none',
         'transition-[background-color] duration-[var(--ui-dur-fast)]',
-        'focus:outline-none focus-visible:shadow-[var(--ui-focus-ring)]',
+        'focus:outline-none focus-visible:bg-[var(--ui-surface-hover)]',
         active ? 'bg-[var(--ui-accent-wash)]' : 'hover:bg-[var(--ui-surface-hover)]',
       ].join(' ')}
     >
-      {/* the active stage owns the underline, like a tab */}
       <span
         aria-hidden="true"
-        className={`absolute left-0 right-0 bottom-0 h-[2px] ${active ? 'bg-[var(--ui-accent)]' : 'bg-transparent'}`}
+        className={`absolute left-0 right-0 bottom-0 h-[2px] transition-colors ${active ? 'bg-[var(--ui-accent)]' : 'bg-transparent'}`}
       />
-      <div className="flex items-center gap-2 min-w-0">
-        <span
-          className={[
-            'w-6 h-6 shrink-0 rounded-full grid place-items-center',
-            attention && !empty
-              ? 'bg-[var(--ui-warning-tint)] text-[var(--ui-warning-fg)]'
-              : active
-                ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)]'
-                : 'bg-[var(--ui-surface-sunken)] text-[var(--ui-text-tertiary)]',
-          ].join(' ')}
-        >
-          <Icon size={13} className={working && !empty ? 'animate-pulse' : ''} />
-        </span>
-        <span className="ui-micro truncate">{label}</span>
-      </div>
-
-      <div className="flex items-end justify-between gap-2 min-h-[30px]">
-        <span
-          className={`ui-num text-[length:var(--ui-t-section)] leading-none ${
-            empty ? 'text-[var(--ui-text-tertiary)]' : 'text-[var(--ui-text-primary)]'
-          }`}
-        >
-          {fmt(count)}
-        </span>
-        {action && !empty && (
-          <span onClick={(e) => e.stopPropagation()} role="presentation">
-            {action}
-          </span>
+      <span
+        className={[
+          'relative w-8 h-8 shrink-0 rounded-[var(--ui-radius-md)] grid place-items-center',
+          lit
+            ? 'bg-[var(--ui-warning-tint)] text-[var(--ui-warning-fg)]'
+            : active
+              ? 'bg-[var(--ui-accent-tint)] text-[var(--ui-accent-fg)]'
+              : 'bg-[var(--ui-surface-sunken)] text-[var(--ui-text-tertiary)]',
+        ].join(' ')}
+      >
+        <Icon size={15} />
+        {working && !empty && (
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--ui-accent)] sp-pulse" />
         )}
-      </div>
-
-      <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] leading-snug min-h-[1.2em]">
-        {caption}
-        {sublink}
-      </p>
-    </div>
-  );
-}
-
-function Arrow() {
-  return (
-    <span aria-hidden="true" className="hidden md:grid place-items-center w-0 relative z-[1]">
-      <span className="absolute grid place-items-center w-5 h-5 rounded-full bg-[var(--ui-surface-card)] border border-[var(--ui-border-hairline)] text-[var(--ui-text-quaternary)]">
-        <ChevronRight size={12} />
       </span>
-    </span>
+      <div className="min-w-0 flex-1">
+        <p className="flex items-center gap-1.5 text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] leading-none">
+          <span className="ui-num">{step}</span>
+          <span className="truncate">{label}</span>
+        </p>
+        <p className="flex items-baseline gap-2 mt-1.5 min-w-0">
+          <span
+            className={`ui-num text-[length:var(--ui-t-section)] leading-none ${
+              empty ? 'text-[var(--ui-text-quaternary)]' : lit ? 'text-[var(--ui-warning-fg)]' : 'text-[var(--ui-text-primary)]'
+            }`}
+          >
+            {fmt(count)}
+          </span>
+          <span className="truncate text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
+            {caption}
+            {sublink}
+          </span>
+        </p>
+      </div>
+      {action && !empty && (
+        <span className="shrink-0" onClick={(e) => e.stopPropagation()} role="presentation">
+          {action}
+        </span>
+      )}
+    </div>
   );
 }
 
 function SubLink({ children, onClick }) {
   return (
     <>
-      {' · '}
+      {' '}
       <button
         type="button"
         onClick={(e) => {
@@ -124,57 +118,58 @@ export function PipelineBar({ counts, view, onSelect, onReview, onSend }) {
     >
       <Stage
         id="finding"
+        step="1"
         active={isActive(['finding', 'notfound'])}
         onSelect={onSelect}
         icon={Search}
         label="Finding on LinkedIn"
         count={counts.finding}
         working
-        caption={counts.finding ? 'Searching by name + company' : 'Rows without a LinkedIn URL'}
+        caption={counts.finding ? 'searching' : ''}
         sublink={counts.notFound ? <SubLink onClick={() => onSelect('notfound')}>{fmt(counts.notFound)} not found</SubLink> : null}
       />
-      <Arrow />
       <Stage
         id="review"
+        step="2"
         active={isActive(['review'])}
         onSelect={onSelect}
         icon={UserSearch}
         label="Needs your review"
         count={counts.review}
         attention
-        caption={counts.review ? 'More than one person fits' : 'Ambiguous matches wait here'}
+        caption={counts.review ? 'waiting for you' : ''}
         action={
-          <Button size="sm" variant="primary" onClick={onReview}>
+          <Button size="sm" variant="accentSoft" trailingIcon={<ArrowRight size={12} />} onClick={onReview}>
             Review
           </Button>
         }
       />
-      <Arrow />
       <Stage
         id="ready"
+        step="3"
         active={isActive(['ready', 'failed'])}
         onSelect={onSelect}
         icon={Inbox}
         label="Ready to send"
         count={counts.ready}
-        caption={counts.ready ? 'Staged, not in your Hub yet' : 'Nothing waiting to send'}
+        caption=""
         sublink={counts.failed ? <SubLink onClick={() => onSelect('failed')}>{fmt(counts.failed)} failed</SubLink> : null}
         action={
-          <Button size="sm" variant="primary" leadingIcon={<Send size={12} />} onClick={onSend}>
+          <Button size="sm" variant="accentSoft" trailingIcon={<ArrowRight size={12} />} onClick={onSend}>
             Send to Hub
           </Button>
         }
       />
-      <Arrow />
       <Stage
         id="sending"
+        step="4"
         active={isActive(['sending'])}
         onSelect={onSelect}
         icon={Send}
         label="Sending to Hub"
         count={counts.sending}
         working
-        caption={counts.sending ? 'Landing in Hub Leads' : 'Sent rows leave this page'}
+        caption={counts.sending ? 'landing in Hub' : ''}
       />
     </div>
   );
