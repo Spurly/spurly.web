@@ -5,8 +5,8 @@ import { LOOKUP_LIMIT } from 'src/products/import/constants/constants.js';
 /**
  * "Find profiles" — CSV rows that had a name + company but no LinkedIn URL.
  *
- * Spurly searches each one on LinkedIn through the user's own account, a
- * couple a minute (backend importedLeads/lookupJob.js). One clear match is
+ * Spurly searches each one on LinkedIn through the user's own account in the
+ * background — roughly 10-15 a minute (backend importedLeads/lookupJob.js). One clear match is
  * added to Staged leads automatically. When several people fit — five Rahul
  * Sharmas at TCS — NOTHING is added: the row waits here and the user picks
  * the right person, or "None of these". Wrong people never reach Leads.
@@ -194,8 +194,8 @@ export function LookupPanel({ store, onGoToStaged }) {
     <div className="flex flex-col gap-3">
       {stats.inFlight > 0 && (
         <WorkingLine verbs={['Searching LinkedIn', 'Matching names', 'Checking companies']} variant="strip">
-          {stats.inFlight.toLocaleString()} left to search. Spurly looks up a couple of people a minute through your
-          LinkedIn account, so your account stays safe — big files take a few hours. You can leave this page.
+          {stats.inFlight.toLocaleString()} left to search through your LinkedIn account. This page updates by itself —
+          you can leave it.
         </WorkingLine>
       )}
 

@@ -259,7 +259,7 @@ export function UploadPanel({ onStaged }) {
           </p>
           <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-tertiary)] mt-2 max-w-sm">
             {result.lookupQueued > 0
-              ? 'Spurly searches a couple of people a minute through your LinkedIn account. Clear matches land in Staged leads on their own; when several people fit, you pick the right one under Find profiles.'
+              ? 'Spurly is searching LinkedIn for them now. Clear matches land in Staged leads on their own; when several people fit, you pick the right one under Find profiles.'
               : 'Next: send the ones you want to your Hub leads.'}
           </p>
           {result.lookupError && (
@@ -496,8 +496,8 @@ export function UploadPanel({ onStaged }) {
                   {lookupCount.toLocaleString()} row{lookupCount === 1 ? ' has' : 's have'} no LinkedIn URL — Spurly will find them
                 </p>
                 <p className="mt-0.5">
-                  We search LinkedIn by name + company through your connected account, a couple of people a
-                  minute. When exactly one person matches, they’re added to Staged leads. When several people
+                  We search LinkedIn by name + company through your connected account, in the background.
+                  When exactly one person matches, they’re added to Staged leads. When several people
                   fit (say, five Rahul Sharmas at TCS), nobody is added until you pick the right one under{' '}
                   <span className="font-medium text-[var(--ui-text-primary)]">Find profiles</span>.
                 </p>
