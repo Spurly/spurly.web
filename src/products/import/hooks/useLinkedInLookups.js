@@ -1,56 +1,68 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import importController from '../controller/import.js';
 import { LOOKUP_EVENTS, LOOKUP_LIMIT } from '../constants/constants.js';
 
 /**
  * The "Find profiles" tab: CSV rows that came with a name + company but no
- * LinkedIn URL, which Spurly is searching for on LinkedIn in the background.
+ * LinkedIn URL, which Spurly searches for on LinkedIn in the background.
  *
- * Buckets (`view`): needs_review (several people fit — pick one), not_found,
- * in_progress (still searching), found (added to staging for you).
+ * One paginated table with a status filter (all | needs_review |
+ * in_progress | not_found | found) and a search box — the same shape as the
+ * Staged leads table. Polls while anything is still being searched, so rows
+ * move on their own; stops when nothing is in flight.
  *
- * Polls while anything is still being searched, so a row moves out of
- * "Searching" on its own; stops when nothing is in flight. Same event-emitter
- * contract as useImportedLeads — no async/await or try/catch in here.
+ * Same event-emitter contract as useImportedLeads — no async/await or
+ * try/catch in here. `eventEmitter` is returned so the panel can `.once()` an
+ * outcome for its own UI follow-up (advance the review drawer, toast).
  */
 
-const POLL_INTERVAL_MS = 8000;
+const POLL_INTERVAL_MS = 5000;
 
 const EMPTY_STATS = { byStatus: {}, inFlight: 0, needsReview: 0, notFound: 0, found: 0 };
 
 export function useLinkedInLookups({ onStaged } = {}) {
   const eventEmitter = useMemo(() => new EventEmitter(), []);
 
-  const [view, setViewState] = useState('needs_review');
+  const [statusFilter, setStatusFilterState] = useState('all');
+  const [search, setSearchState] = useState('');
+  const [page, setPage] = useState(1);
   const [rows, setRows] = useState([]);
   const [stats, setStats] = useState(EMPTY_STATS);
   const [pagination, setPagination] = useState({ total: 0, limit: LOOKUP_LIMIT, skip: 0 });
-  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionError, setActionError] = useState(null);
-  // Row id currently being picked/skipped — disables just that row's buttons.
-  const [pendingId, setPendingId] = useState(null);
   const [busy, setBusy] = useState(false);
+
+  // Open on "Needs review" the first time there is something to review —
+  // that's the one bucket that is waiting on the user.
+  const autoFiltered = useRef(false);
 
   const load = useCallback(
     (opts = {}) => {
       if (!opts.silent) setLoading(true);
       setError(null);
       importController.loadLookups(eventEmitter, {
-        status: view,
+        status: statusFilter,
+        search,
         limit: LOOKUP_LIMIT,
         skip: Math.max(0, (page - 1) * LOOKUP_LIMIT),
       });
     },
-    [eventEmitter, view, page],
+    [eventEmitter, statusFilter, search, page],
   );
 
   useEffect(() => {
     function onLoad(payload) {
       setRows(payload.rows);
-      if (payload.stats) setStats(payload.stats);
+      if (payload.stats) {
+        setStats(payload.stats);
+        if (!autoFiltered.current && payload.stats.needsReview > 0) {
+          autoFiltered.current = true;
+          setStatusFilterState('needs_review');
+        }
+      }
       setPagination(payload.pagination);
       setLoading(false);
     }
@@ -59,17 +71,15 @@ export function useLinkedInLookups({ onStaged } = {}) {
       setLoading(false);
     }
     function onPick() {
-      setPendingId(null);
+      setBusy(false);
       onStaged?.();
       load({ silent: true });
     }
     function onActionFail(message) {
-      setPendingId(null);
       setBusy(false);
       setActionError(message);
     }
     function onDone() {
-      setPendingId(null);
       setBusy(false);
       load({ silent: true });
     }
@@ -94,13 +104,13 @@ export function useLinkedInLookups({ onStaged } = {}) {
     };
   }, [eventEmitter, load, onStaged]);
 
-  // Deferred a tick (like useImportedLeads' debounce) so the load's own
-  // setState never runs synchronously inside this effect.
+  // Debounced like the Staged leads table (350ms), which also keeps the
+  // load's setState out of this effect's synchronous body.
   useEffect(() => {
-    const timer = setTimeout(() => load(), 0);
+    const timer = setTimeout(() => load(), 350);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, page]);
+  }, [statusFilter, search, page]);
 
   const inFlight = stats.inFlight > 0;
   useEffect(() => {
@@ -113,67 +123,56 @@ export function useLinkedInLookups({ onStaged } = {}) {
     return () => clearInterval(interval);
   }, [inFlight, load, onStaged]);
 
+  const run = useCallback(
+    (fn) => {
+      if (busy) return;
+      setActionError(null);
+      setBusy(true);
+      fn();
+    },
+    [busy],
+  );
+
   const pick = useCallback(
-    (id, profileUrl) => {
-      if (pendingId) return;
-      setActionError(null);
-      setPendingId(id);
-      importController.pickLookup(eventEmitter, id, profileUrl);
-    },
-    [eventEmitter, pendingId],
+    (id, profileUrl) => run(() => importController.pickLookup(eventEmitter, id, profileUrl)),
+    [run, eventEmitter],
   );
-
+  /** Skip specific rows ("None of these", bulk Skip). */
   const dismiss = useCallback(
-    (id) => {
-      if (pendingId) return;
-      setActionError(null);
-      setPendingId(id);
-      importController.dismissLookups(eventEmitter, { ids: [id] });
-    },
-    [eventEmitter, pendingId],
+    (ids) => run(() => importController.dismissLookups(eventEmitter, { ids })),
+    [run, eventEmitter],
   );
-
-  const dismissAll = useCallback(
-    (status) => {
-      if (busy) return;
-      setActionError(null);
-      setBusy(true);
-      importController.dismissLookups(eventEmitter, { status });
-    },
-    [busy, eventEmitter],
-  );
-
   const retry = useCallback(
-    (ids) => {
-      if (busy) return;
-      setActionError(null);
-      setBusy(true);
-      importController.retryLookups(eventEmitter, ids);
-    },
-    [busy, eventEmitter],
+    (ids) => run(() => importController.retryLookups(eventEmitter, ids)),
+    [run, eventEmitter],
   );
 
   return {
-    view,
-    setView: (next) => {
-      setViewState(next);
+    eventEmitter,
+    statusFilter,
+    setStatusFilter: (next) => {
+      autoFiltered.current = true;
+      setStatusFilterState(next);
       setPage(1);
     },
+    search,
+    setSearch: (next) => {
+      setSearchState(next);
+      setPage(1);
+    },
+    page,
+    setPage,
     rows,
     stats,
     pagination,
-    page,
-    setPage,
     loading,
     error,
     actionError,
     clearActionError: () => setActionError(null),
-    pendingId,
     busy,
     refresh: load,
     pick,
     dismiss,
-    dismissAll,
     retry,
   };
 }

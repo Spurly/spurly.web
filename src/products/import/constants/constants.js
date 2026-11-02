@@ -15,8 +15,8 @@ export const IMPORT_EVENTS = {
   RETRY_FAILURE: 'IMPORT_RETRY_FAILURE',
 };
 
-/** Lookup list page size (each row carries up to five candidates). */
-export const LOOKUP_LIMIT = 20;
+/** Find-profiles table page size. */
+export const LOOKUP_LIMIT = 50;
 
 /** Events for the "Find profiles" tab (name + company → LinkedIn URL). */
 export const LOOKUP_EVENTS = {

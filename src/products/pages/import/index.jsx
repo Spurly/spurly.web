@@ -60,18 +60,16 @@ export function ImportPage() {
     <DashboardLayout
       title={t.pageTitle}
       subtitle={t.pageSubtitle}
-      layout={activeTab === 'staged' ? 'card' : 'page'}
+      layout={activeTab === 'upload' ? 'page' : 'card'}
       tabs={<PageTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />}
     >
-      <div className={activeTab === 'staged' ? 'flex flex-col flex-1 min-h-0' : 'flex flex-col gap-4 w-full max-w-[1400px]'}>
+      <div className={activeTab === 'upload' ? 'flex flex-col gap-4 w-full max-w-[1400px]' : 'flex flex-col flex-1 min-h-0'}>
         {activeTab === 'upload' ? (
           <div className="max-w-[1100px] flex flex-col gap-4">
             <UploadPanel onStaged={handleStaged} />
           </div>
         ) : activeTab === 'lookup' ? (
-          <div className="max-w-[1100px] flex flex-col gap-4">
-            <LookupPanel store={lookups} onGoToStaged={() => setActiveTab('staged')} />
-          </div>
+          <LookupPanel store={lookups} />
         ) : (
           <StagingPanel store={store} onGoToUpload={() => setActiveTab('upload')} />
         )}

@@ -81,10 +81,12 @@ async function queueLookups(rows, sourceFile = '') {
 
 /**
  * Lookup rows in one bucket, plus the counts for every bucket.
- * GET /imported-leads/lookups  Query: { status: needs_review|not_found|in_progress|found, limit, skip }
+ * GET /imported-leads/lookups  Query: { status: all|needs_review|not_found|in_progress|found, search?, limit, skip }
  */
-async function getLookups({ status = 'needs_review', limit = 25, skip = 0 } = {}) {
-  const response = await apiGateway.get('/imported-leads/lookups', { params: { status, limit, skip } });
+async function getLookups({ status = 'all', search, limit = 50, skip = 0 } = {}) {
+  const params = { status, limit, skip };
+  if (search && search.trim()) params.search = search.trim();
+  const response = await apiGateway.get('/imported-leads/lookups', { params });
   return response.data;
 }
 

@@ -161,9 +161,9 @@ async function deleteLeads(eventEmitter, ids) {
 /* ── Find profiles (LinkedIn URL lookup) ────────────────────────────── */
 
 /** Emits LOOKUP LOAD_SUCCESS with { rows, stats, pagination }, or LOAD_FAILURE. */
-async function loadLookups(eventEmitter, { status, limit, skip } = {}) {
+async function loadLookups(eventEmitter, { status, search, limit, skip } = {}) {
   try {
-    const res = await importGateway.getLookups({ status, limit, skip });
+    const res = await importGateway.getLookups({ status, search, limit, skip });
     if (!res?.success) throw new Error(res?.message || 'Could not load profile lookups');
     eventEmitter.emit(LOOKUP_EVENTS.LOAD_SUCCESS, {
       rows: res.data?.rows || [],

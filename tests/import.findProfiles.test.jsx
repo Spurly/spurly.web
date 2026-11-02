@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
 import { analyzeCsv, extractProfiles, validateMapping, UNMAPPED } from 'src/shared/utils/csvImport.js';
-import { LookupPanel } from 'src/products/pages/import/components/LookupPanel.jsx';
+import { LookupReviewDrawer } from 'src/products/pages/import/components/LookupReviewDrawer.jsx';
 import { renderWithProviders } from './helpers.jsx';
 
 /**
@@ -44,7 +44,7 @@ describe('csvImport — rows without a LinkedIn URL', () => {
   });
 });
 
-describe('LookupPanel — needs review', () => {
+describe('Find profiles — review drawer', () => {
   const candidates = [1, 2, 3].map((i) => ({
     profileUrl: `https://www.linkedin.com/in/rahul-sharma-${i}`,
     name: 'Rahul Sharma',
@@ -52,34 +52,19 @@ describe('LookupPanel — needs review', () => {
     location: 'Pune',
     reasons: i === 2 ? ['title'] : [],
   }));
-  const picks = [];
-  const store = {
-    view: 'needs_review',
-    setView: () => {},
-    rows: [{ _id: 'l1', status: 'needs_review', input: { name: 'Rahul Sharma', company: 'TCS' }, candidates }],
-    stats: { inFlight: 0, needsReview: 1, notFound: 0, found: 0 },
-    pagination: { total: 1 },
-    page: 1,
-    setPage: () => {},
-    loading: false,
-    error: null,
-    actionError: null,
-    clearActionError: () => {},
-    pendingId: null,
-    busy: false,
-    refresh: () => {},
-    pick: (id, url) => picks.push([id, url]),
-    dismiss: () => {},
-    dismissAll: () => {},
-    retry: () => {},
-  };
+  const row = { _id: 'l1', status: 'needs_review', input: { name: 'Rahul Sharma', company: 'TCS', title: 'Engineer' }, candidates };
 
-  it('shows every candidate and picks exactly the one clicked', () => {
-    renderWithProviders(<LookupPanel store={store} onGoToStaged={() => {}} />);
-    expect(screen.getByText('3 possible matches')).toBeTruthy();
-    expect(screen.getAllByText('Rahul Sharma')).toHaveLength(3);
-    fireEvent.click(screen.getAllByRole('button', { name: 'This one' })[1]);
-    expect(picks).toEqual([['l1', 'https://www.linkedin.com/in/rahul-sharma-2']]);
-    expect(screen.getByRole('button', { name: /None of these/ })).toBeTruthy();
+  it('shows the file facts and every candidate, and adds only the selected one', () => {
+    const picks = [];
+    renderWithProviders(
+      <LookupReviewDrawer row={row} position={1} total={1} busy={false} onPick={(u) => picks.push(u)} onNone={() => {}} onSkip={() => {}} onClose={() => {}} />,
+    );
+    expect(screen.getByText('Your file says')).toBeTruthy();
+    expect(screen.getAllByRole('radio')).toHaveLength(3);
+    const add = screen.getByRole('button', { name: 'Add to staged leads' });
+    expect(add.disabled).toBe(true); // nothing selected → nothing can be added
+    fireEvent.click(screen.getAllByRole('radio')[1]);
+    fireEvent.click(add);
+    expect(picks).toEqual(['https://www.linkedin.com/in/rahul-sharma-2']);
   });
 });
