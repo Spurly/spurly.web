@@ -65,6 +65,16 @@ async function listLeads(eventEmitter, params) {
   }
 }
 
+/** The Company filter's options, one page. Emits { companies, page, hasMore }. */
+async function listLeadCompanies(eventEmitter, params) {
+  try {
+    const data = await hubSourcingGateway.listLeadCompanies(params);
+    eventEmitter.emit(LEAD_EVENTS.LIST_COMPANIES_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(LEAD_EVENTS.LIST_COMPANIES_FAILURE, error);
+  }
+}
+
 /**
  * Bulk export: every lead matching the current audience and filters, across all
  * pages (200 a request, a few at a time), up to EXPORT_MAX_ROWS. Stored data, no
@@ -149,6 +159,7 @@ async function getFollowerSources(eventEmitter) {
 }
 
 const leadController = {
+  listLeadCompanies,
   createSearch,
   searchAudienceParams,
   listSearches,

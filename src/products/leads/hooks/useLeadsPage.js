@@ -47,6 +47,9 @@ export function useLeadsPage() {
   // "Last activity" type filter — an array of 'invite' / 'message', sent
   // comma-separated. Server-side for the same pagination reason as above.
   const [activityType, setActivityType] = useState([]);
+  // Company filter — exact company names (the Company dropdown, which pages
+  // its options from GET /hub/lead-companies). Server-side like the rest.
+  const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   // Rows per page on the All leads table (50 / 75 / 100). The server takes it as `limit`.
@@ -138,7 +141,8 @@ export function useLeadsPage() {
     q: query,
     connectionDegree: connectionDegree.length > 0 ? connectionDegree.join(',') : undefined,
     activityType: activityType.length > 0 ? activityType.join(',') : undefined,
-  }), [activeSearchId, query, connectionDegree, activityType]);
+    companies: companies.length > 0 ? companies : undefined,
+  }), [activeSearchId, query, connectionDegree, activityType, companies]);
 
   const download = useCallback((rows) => {
     const csv = buildLeadsCsv(rows);
@@ -198,10 +202,11 @@ export function useLeadsPage() {
       q: query,
       connectionDegree: connectionDegree.length > 0 ? connectionDegree.join(',') : undefined,
       activityType: activityType.length > 0 ? activityType.join(',') : undefined,
+      companies: companies.length > 0 ? companies : undefined,
       page,
       limit: pageSize,
     });
-  }, [activeSearchId, query, connectionDegree, activityType, pageSize, toast]);
+  }, [activeSearchId, query, connectionDegree, activityType, companies, pageSize, toast]);
 
   useEffect(() => {
     loadSearches();
@@ -755,6 +760,8 @@ export function useLeadsPage() {
     setConnectionDegree,
     activityType,
     setActivityType,
+    companies,
+    setCompanies,
     loading,
     exporting,
     exportLeads,
