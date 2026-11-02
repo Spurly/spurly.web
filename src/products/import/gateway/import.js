@@ -73,6 +73,16 @@ async function deleteLeads(ids) {
 
 /* ── Find LinkedIn URL — rows with a name + company but no URL ───────── */
 
+/**
+ * The CSV import (2026-11-02): rows with a URL go to the Hub now; rows with a
+ * name + company are found on LinkedIn and follow — every confirmed match,
+ * into one audience named after the file. POST /imported-leads/auto-import
+ */
+async function autoImport(rows, sourceFile = '') {
+  const response = await apiGateway.post('/imported-leads/auto-import', { rows, sourceFile });
+  return response.data;
+}
+
 /** Queue rows to be looked up on LinkedIn. POST /imported-leads/lookups */
 async function queueLookups(rows, sourceFile = '') {
   const response = await apiGateway.post('/imported-leads/lookups', { rows, sourceFile });
@@ -116,6 +126,7 @@ const importGateway = {
   promoteLeads,
   retryLeads,
   deleteLeads,
+  autoImport,
   queueLookups,
   getLookups,
   pickLookup,

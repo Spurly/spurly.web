@@ -17,76 +17,35 @@ import { IMPORT_EVENTS, LOOKUP_EVENTS } from '../constants/constants.js';
  * emitting an event instead of returning/throwing.
  */
 
-/** The lookup fields the backend keeps — UI-only keys (_id, _needsLookup) stay here. */
-const LOOKUP_FIELDS = ['name', 'firstName', 'lastName', 'company', 'title', 'location', 'headline', 'email', 'phone', 'website'];
+/** The fields the backend keeps — UI-only keys (_id, _needsLookup…) stay here. */
+const ROW_FIELDS = ['profileUrl', 'name', 'firstName', 'lastName', 'company', 'title', 'location', 'headline', 'email', 'phone', 'website'];
 
 /**
- * Emits IMPORT_SUCCESS with { savedCount, failedCount, totalCount,
- * importBatchId, lookupQueued }, or IMPORT_FAILURE with the raw error.
- *
- * `lookupRows` are rows with a name + company but no LinkedIn URL. They are
- * NOT staged — they're queued for Spurly to find on LinkedIn, and land in
- * staging by themselves once found (or wait under "Find profiles" when
- * several people fit). Rows with a URL are staged first, so a lookup refusal
- * (e.g. LinkedIn not connected) never loses them.
+ * The CSV import, fully automatic (2026-11-02): one call. Rows with a
+ * LinkedIn URL go straight to the Hub; rows with a name + company are found
+ * on LinkedIn and every confirmed match follows them into the same Hub
+ * audience. Emits IMPORT_SUCCESS with { sentToHub, finding, skipped,
+ * duplicates, audience }, or IMPORT_FAILURE with the raw error.
  */
 async function importProfiles(eventEmitter, { profiles = [], lookupRows = [], sourceFile = '' }) {
   try {
-    const withUrl = (Array.isArray(profiles) ? profiles : []).filter((p) => p?.profileUrl && p.profileUrl.toString().trim());
-    const droppedForUrl = (profiles?.length || 0) - withUrl.length;
-    const toFind = Array.isArray(lookupRows) ? lookupRows : [];
-    if (withUrl.length === 0 && toFind.length === 0) {
+    const rows = [...(profiles || []), ...(lookupRows || [])].map((r) =>
+      Object.fromEntries(ROW_FIELDS.map((k) => [k, r?.[k] ?? ''])),
+    );
+    if (rows.length === 0) {
       throw new Error('None of the rows had a LinkedIn profile URL, or a name and company to find one with');
     }
-
-    let saved = 0;
-    let skipped = 0;
-    let importBatchId = null;
-    if (withUrl.length > 0) {
-      const res = await importGateway.stageLeads(withUrl, sourceFile);
-      if (!res?.success) {
-        throw new Error(res?.message || 'Failed to import leads');
-      }
-      const d = res.data || {};
-      // `inserted` + `updated` is what actually landed in staging. A row that
-      // matched an existing staged lead unchanged counts as saved too — it IS
-      // in the staging list, which is all this number is telling the user.
-      saved = (d.inserted ?? 0) + (d.updated ?? 0) || withUrl.length;
-      skipped = d.skipped ?? 0;
-      importBatchId = d.importBatchId || null;
-    }
-
-    let lookupQueued = 0;
-    let lookupSkipped = 0;
-    let lookupError = null;
-    if (toFind.length > 0) {
-      const rows = toFind.map((r) => Object.fromEntries(LOOKUP_FIELDS.map((k) => [k, r?.[k] ?? ''])));
-      try {
-        const res = await importGateway.queueLookups(rows, sourceFile);
-        if (!res?.success) throw new Error(res?.message || 'Could not start finding profiles');
-        lookupQueued = res.data?.queued ?? 0;
-        lookupSkipped = (res.data?.skippedMissing ?? 0) + (res.data?.skippedDuplicate ?? 0);
-      } catch (error) {
-        // Nothing with a URL was staged → this IS the import failing.
-        if (withUrl.length === 0) throw error;
-        // Otherwise the URL rows are safely staged; report the lookup half.
-        lookupError = error;
-      }
-    }
-
+    const res = await importGateway.autoImport(rows, sourceFile);
+    if (!res?.success) throw new Error(res?.message || 'Failed to import leads');
+    const d = res.data || {};
     eventEmitter.emit(IMPORT_EVENTS.IMPORT_SUCCESS, {
-      savedCount: saved,
-      failedCount: droppedForUrl + skipped,
-      totalCount: withUrl.length + toFind.length,
-      importBatchId,
-      lookupQueued,
-      lookupSkipped,
-      lookupError,
+      sentToHub: d.sentToHub ?? 0,
+      finding: d.finding ?? 0,
+      skipped: d.skipped ?? 0,
+      duplicates: d.duplicates ?? 0,
+      audience: d.audience || null,
     });
   } catch (error) {
-    // Raw error (not just its message) so callers can run it through
-    // apiError.js's status-aware toast/inline copy, same as before this
-    // controller existed.
     eventEmitter.emit(IMPORT_EVENTS.IMPORT_FAILURE, error);
   }
 }

@@ -151,14 +151,14 @@ export function UploadPanel({ onDone, onCancel }) {
 
     eventEmitter.once(IMPORT_EVENTS.IMPORT_SUCCESS, (res) => {
       setSaving(false);
-      if (res?.lookupError) {
-        toast.error(getToastError(res.lookupError, "Couldn't start finding profiles"));
-      } else {
-        const parts = [];
-        if (res.savedCount) parts.push(`${res.savedCount.toLocaleString()} ready to send`);
-        if (res.lookupQueued) parts.push(`finding ${res.lookupQueued.toLocaleString()} on LinkedIn`);
-        toast.success(`Imported ${fileName}`, { description: parts.join(' · ') || undefined });
-      }
+      const parts = [];
+      if (res.sentToHub) parts.push(`${res.sentToHub.toLocaleString()} going to your Hub`);
+      if (res.finding) parts.push(`finding ${res.finding.toLocaleString()} on LinkedIn`);
+      toast.success(`Importing ${fileName}`, {
+        description: [parts.join(' · '), res.audience?.name ? `Leads land in “${res.audience.name}”.` : '']
+          .filter(Boolean)
+          .join(' '),
+      });
       onDone?.(res);
     });
     eventEmitter.once(IMPORT_EVENTS.IMPORT_FAILURE, (err) => {
@@ -174,12 +174,7 @@ export function UploadPanel({ onDone, onCancel }) {
     });
   };
 
-  const importLabel =
-    findCount === 0
-      ? `Import ${readyCount.toLocaleString()} lead${readyCount === 1 ? '' : 's'}`
-      : readyCount === 0
-        ? `Find ${findCount.toLocaleString()} on LinkedIn`
-        : `Import ${readyCount.toLocaleString()} + find ${findCount.toLocaleString()}`;
+  const importLabel = `Import ${totalCount.toLocaleString()} ${totalCount === 1 ? 'row' : 'rows'}`;
 
   // ── The bar: stepper left, the step's actions right ─────────────────
   const bar = (
@@ -287,17 +282,17 @@ export function UploadPanel({ onDone, onCancel }) {
               {
                 icon: <Link2 size={15} />, tone: 'var(--ui-success)', tint: 'var(--ui-success-tint)',
                 title: 'Have LinkedIn URLs?',
-                body: 'Rows with a profile URL and a name are ready to send to your Hub straight away.',
+                body: 'Rows with a profile URL go straight to your Hub Leads.',
               },
               {
                 icon: <Search size={15} />, tone: 'var(--ui-accent)', tint: 'var(--ui-accent-tint)',
                 title: 'Only names and companies?',
-                body: 'Spurly finds each person on LinkedIn. If several people match, you pick — nobody wrong gets in.',
+                body: 'Spurly finds each person on LinkedIn and adds every match to your Leads.',
               },
               {
                 icon: <ShieldCheck size={15} />, tone: 'var(--ui-text-secondary)', tint: 'var(--ui-surface-sunken)',
                 title: 'Free to import',
-                body: 'Credits are only used when leads land in your Hub.',
+                body: 'Credits are used only for leads that land in your Hub.',
               },
             ].map((tip) => (
               <div key={tip.title} className="flex gap-3 p-4">
@@ -335,8 +330,8 @@ export function UploadPanel({ onDone, onCancel }) {
               tone="var(--ui-success)"
               tint="var(--ui-success-tint)"
               value={readyCount}
-              label="Ready to import"
-              caption="Have a LinkedIn URL"
+              label="Straight to your Hub"
+              caption="They have a LinkedIn URL"
             />
             <OutcomeTile
               icon={<Search size={17} />}
@@ -361,8 +356,9 @@ export function UploadPanel({ onDone, onCancel }) {
               <Search size={16} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-accent)' }} />
               <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
                 <span className="font-medium text-[var(--ui-text-primary)]">How finding works: </span>
-                one clear match is added for you. When several people fit — five Rahul Sharmas at TCS — nobody is added
-                until you pick the right one under <span className="font-medium text-[var(--ui-text-primary)]">Needs your review</span>.
+                Spurly searches LinkedIn for each name at its company and sends every match to your Hub — if three
+                Falguni Nayars work at Nykaa, all three are added. People whose name only partly matches, or who
+                don’t work there, are left out. Filter them in <span className="font-medium text-[var(--ui-text-primary)]">Leads</span>.
               </p>
             </div>
           )}

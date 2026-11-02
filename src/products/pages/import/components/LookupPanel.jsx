@@ -150,9 +150,9 @@ export function LookupPanel({ store, controlled = false, reviewSignal = 0 }) {
   const emptyCopy = {
     all: ['No lookups yet', 'Import a CSV with names and companies but no LinkedIn URLs, and Spurly finds the profiles here.'],
     needs_review: ['Nothing to review', 'When several people match a name and company, they wait here for you to pick the right one.'],
-    in_progress: ['Nothing being searched', 'Every row has been looked up.'],
-    found: ['Nothing found yet', 'Profiles Spurly found — or you picked — show here, and are already in Staged leads.'],
-    not_found: ['Nobody missing', 'Rows where LinkedIn showed nobody by that name at that company show here.'],
+    in_progress: ['Nothing being searched', 'Every row has been looked up. Upload another CSV to find more people.'],
+    found: ['Nothing found yet', 'Rows Spurly matched show here. Every match is sent to your Hub and lands in Leads.'],
+    not_found: ['Nobody missing', 'Rows where LinkedIn showed nobody by that full name at that company show here.'],
   }[statusFilter] || ['Nothing here', ''];
 
   return (

@@ -255,7 +255,7 @@ export function FieldMappingPanel({ headers, sampleValues, rows, mapping, onChan
               ))}
             </div>
             <div className="mt-2 px-[var(--ui-pad-lg)] py-3.5 flex flex-col gap-2 border-t border-[var(--ui-border-hairline)] bg-[var(--ui-surface-sunken)] rounded-b-[var(--ui-radius-lg)]">
-              <Outcome icon={<Link2 size={14} />} tone="var(--ui-success)" value={extracted.profiles.length} label="ready to import" />
+              <Outcome icon={<Link2 size={14} />} tone="var(--ui-success)" value={extracted.profiles.length} label="straight to your Hub" />
               <Outcome icon={<Search size={14} />} tone="var(--ui-accent)" value={extracted.lookupRows.length} label="Spurly will find on LinkedIn" />
               {extracted.skippedCount > 0 && (
                 <Outcome icon={<Ban size={14} />} tone="var(--ui-text-tertiary)" value={extracted.skippedCount} label="skipped — missing name, URL or company" />

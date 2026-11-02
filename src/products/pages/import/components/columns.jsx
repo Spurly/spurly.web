@@ -51,7 +51,7 @@ const SOURCE_COLUMN = {
     value ? (
       <Badge variant="minimal" tone="accent" dot>Spurly will find</Badge>
     ) : (
-      <Badge variant="minimal" tone="success" dot>Ready</Badge>
+      <Badge variant="minimal" tone="success" dot>To your Hub</Badge>
     ),
 };
 

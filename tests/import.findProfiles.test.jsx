@@ -72,26 +72,28 @@ describe('Find profiles — review drawer', () => {
 });
 
 describe('Import pipeline bar', () => {
-  it('shows every stage with its count and the actions that are waiting on the user', async () => {
+  it('reads Finding → Sending to Hub → Found, with no review or send step', async () => {
     const { PipelineBar } = await import('src/products/pages/import/components/PipelineBar.jsx');
     const calls = [];
     renderWithProviders(
       <PipelineBar
-        counts={{ finding: 3, notFound: 1, review: 2, ready: 6, failed: 0, sending: 0 }}
-        view="review"
+        counts={{ finding: 3, notFound: 1, sending: 4, failed: 0, found: 5 }}
+        view="finding"
         onSelect={(v) => calls.push(['select', v])}
-        onReview={() => calls.push(['review'])}
-        onSend={() => calls.push(['send'])}
+        onOpenLeads={() => calls.push(['leads'])}
       />,
     );
-    expect(screen.getAllByRole('tab')).toHaveLength(4);
-    expect(screen.getByRole('tab', { selected: true }).textContent).toMatch(/Needs your review/);
-    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
-    fireEvent.click(screen.getByRole('button', { name: /Send to Hub/ }));
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs.map((t) => t.textContent)).toEqual([
+      expect.stringMatching(/Finding on LinkedIn/),
+      expect.stringMatching(/Sending to Hub/),
+      expect.stringMatching(/Found by Spurly/),
+    ]);
+    expect(screen.queryByRole('button', { name: /Review/ })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: '1 not found' }));
-    expect(calls).toEqual([['review'], ['send'], ['select', 'notfound']]);
-    // a zero stage has no action — "Sending to Hub" is 0
-    expect(screen.queryAllByRole('button', { name: /Send to Hub/ })).toHaveLength(1);
+    fireEvent.click(screen.getByRole('button', { name: /Open Leads/ }));
+    fireEvent.click(tabs[1]);
+    expect(calls).toEqual([['select', 'notfound'], ['leads'], ['select', 'sending']]);
   });
 });
 
@@ -105,7 +107,7 @@ describe('Match columns — live preview', () => {
     expect(screen.getByText('Ada Lovelace')).toBeTruthy();
     expect(screen.getByText('Has LinkedIn URL')).toBeTruthy();
     expect(screen.getByText('Spurly will find')).toBeTruthy();
-    expect(screen.getByText('ready to import').previousSibling.textContent).toBe('1');
+    expect(screen.getByText('straight to your Hub').previousSibling.textContent).toBe('1');
     expect(screen.getByText('Spurly will find on LinkedIn').previousSibling.textContent).toBe('1');
   });
 });

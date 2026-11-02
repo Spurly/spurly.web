@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { UploadCloud } from 'lucide-react';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { Button } from 'src/core/primitives';
@@ -11,23 +12,21 @@ import { PipelineBar } from './components/PipelineBar.jsx';
 import { importStrings as t } from './strings.js';
 
 /**
- * Import page — one pipeline instead of three tabs.
+ * Import page — fully automatic (2026-11-02).
  *
- * People come here to get a list into Spurly; they don't think in
- * "staging" vs "lookups". So the page is the journey a row takes, left to
- * right — Finding on LinkedIn → Needs your review → Ready to send → Sending
- * to Hub — with a live count per stage (PipelineBar). The selected stage is
- * the table below. Stages waiting on the user carry their own action.
- *
- * Uploading is a wizard that takes over the page (UploadPanel), opened from
- * the header button. A first visit with nothing imported opens straight into
- * it — an empty table is a dead end, a drop zone is a next step.
+ * Upload a CSV and nothing else is asked of the user: rows with a LinkedIn
+ * URL go straight to the Hub, rows with a name + company are found on
+ * LinkedIn and EVERY confirmed match follows them. The page is a live
+ * readout of that pipeline — Finding on LinkedIn → Sending to Hub → Found —
+ * and the people end up in Leads, under an audience named after the file,
+ * where the user filters them and builds sequences.
  */
 
-const LOOKUP_VIEWS = { finding: 'in_progress', notfound: 'not_found', review: 'needs_review' };
-const STAGING_VIEWS = { ready: 'pending', sending: 'queued', failed: 'failed' };
+const LOOKUP_VIEWS = { finding: 'in_progress', notfound: 'not_found', found: 'found' };
+const STAGING_VIEWS = { sending: 'queued', failed: 'failed' };
 
 export function ImportPage() {
+  const navigate = useNavigate();
   const store = useImportedLeads();
   const { refresh, setStatusFilter: setStagingFilter, stats: stagingStats } = store;
 
@@ -36,20 +35,16 @@ export function ImportPage() {
   const { refresh: refreshLookups, setStatusFilter: setLookupFilter, stats: lookupStats } = lookups;
 
   const [mode, setMode] = useState(null); // null (deciding) | 'pipeline' | 'upload'
-  const [view, setViewState] = useState('ready');
-  const [reviewSignal, setReviewSignal] = useState(0);
-  const [sendSignal, setSendSignal] = useState(0);
+  const [view, setViewState] = useState('finding');
 
   const counts = {
     finding: lookupStats.inFlight || 0,
     notFound: lookupStats.notFound || 0,
-    review: lookupStats.needsReview || 0,
-    ready: (stagingStats.byStatus?.pending || 0) + (stagingStats.byStatus?.enriched || 0),
-    failed: stagingStats.byStatus?.failed || 0,
+    found: lookupStats.found || 0,
     sending: stagingStats.byStatus?.queued || 0,
+    failed: stagingStats.byStatus?.failed || 0,
   };
-  const hasAnything =
-    (stagingStats.total || 0) + counts.finding + counts.review + counts.notFound + (lookupStats.found || 0) > 0;
+  const hasAnything = counts.finding + counts.notFound + counts.found + (stagingStats.total || 0) > 0;
 
   const setView = useCallback(
     (next) => {
@@ -60,31 +55,34 @@ export function ImportPage() {
     [setLookupFilter, setStagingFilter],
   );
 
-  // First load: decide where to start — on whatever is waiting for the user.
+  // First load: open on whatever is moving right now.
   const decided = useRef(false);
   const firstLoadDone = !store.loading && !lookups.loading;
   useEffect(() => {
     if (decided.current || !firstLoadDone) return undefined;
     decided.current = true;
-    const start =
-      counts.review > 0 ? 'review'
-        : counts.finding > 0 ? 'finding'
-          : counts.ready > 0 ? 'ready'
-            : counts.sending > 0 ? 'sending'
-              : counts.failed > 0 ? 'failed'
-                : 'ready';
+    const start = counts.finding > 0 ? 'finding' : counts.sending > 0 ? 'sending' : counts.found > 0 ? 'found' : 'finding';
     const timer = setTimeout(() => {
       setView(start);
       setMode(hasAnything ? 'pipeline' : 'upload');
     }, 0);
     return () => clearTimeout(timer);
-  }, [firstLoadDone, counts.review, counts.finding, counts.ready, counts.sending, counts.failed, hasAnything, setView]);
+  }, [firstLoadDone, counts.finding, counts.sending, counts.found, hasAnything, setView]);
+
+  // Staged rows only move while something polls; keep both halves fresh
+  // while anything is in flight (rows land in Hub Leads on their own).
+  const sendingNow = counts.sending > 0;
+  useEffect(() => {
+    if (!sendingNow) return undefined;
+    const interval = setInterval(() => refreshLookups({ silent: true }), 8000);
+    return () => clearInterval(interval);
+  }, [sendingNow, refreshLookups]);
 
   const handleImported = useCallback(
     (res) => {
       refresh({ silent: true });
       refreshLookups({ silent: true });
-      setView(res?.lookupQueued ? 'finding' : 'ready');
+      setView(res?.finding ? 'finding' : 'sending');
       setMode('pipeline');
     },
     [refresh, refreshLookups, setView],
@@ -111,24 +109,12 @@ export function ImportPage() {
       }
     >
       <div className="flex flex-col gap-4 flex-1 min-h-0">
-        <PipelineBar
-          counts={counts}
-          view={view}
-          onSelect={setView}
-          onReview={() => {
-            setView('review');
-            setReviewSignal((n) => n + 1);
-          }}
-          onSend={() => {
-            setView('ready');
-            setSendSignal((n) => n + 1);
-          }}
-        />
+        <PipelineBar counts={counts} view={view} onSelect={setView} onOpenLeads={() => navigate('/hub/leads')} />
         <div className="flex-1 min-h-[420px] flex flex-col rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)] overflow-hidden">
           {isLookupView ? (
-            <LookupPanel store={lookups} controlled reviewSignal={reviewSignal} />
+            <LookupPanel store={lookups} controlled />
           ) : (
-            <StagingPanel store={store} controlled sendSignal={sendSignal} onGoToUpload={() => setMode('upload')} />
+            <StagingPanel store={store} controlled onGoToUpload={() => setMode('upload')} />
           )}
         </div>
       </div>

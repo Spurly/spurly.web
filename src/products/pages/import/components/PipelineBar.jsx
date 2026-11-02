@@ -1,4 +1,4 @@
-import { Search, UserSearch, Inbox, Send, ArrowRight } from 'lucide-react';
+import { Search, Send, UserCheck, ArrowRight } from 'lucide-react';
 import { Button } from 'src/core/primitives';
 
 /**
@@ -6,8 +6,10 @@ import { Button } from 'src/core/primitives';
  * moves. Replaces the old tabs — a row's journey is one pipeline, not three
  * unrelated lists:
  *
- *   Finding on LinkedIn → Needs your review → Ready to send → Sending to Hub
+ *   Finding on LinkedIn → Sending to Hub → Found (in your Leads)
  *
+ * Fully automatic since 2026-11-02 — no review, no manual send: every
+ * confirmed match moves on by itself, so the bar is a progress readout.
  * Each stage is a filter for the table below (click to view it). A stage
  * that is waiting on the USER — review, or rows ready to send — is lit and
  * carries its own action, so the next step is always one obvious click.
@@ -100,10 +102,10 @@ function SubLink({ children, onClick }) {
 }
 
 /**
- * @param {object} counts  { finding, notFound, review, ready, failed, sending }
- * @param {string} view    finding | notfound | review | ready | failed | sending
+ * @param {object} counts  { finding, notFound, sending, failed, found }
+ * @param {string} view    finding | notfound | sending | failed | found
  */
-export function PipelineBar({ counts, view, onSelect, onReview, onSend }) {
+export function PipelineBar({ counts, view, onSelect, onOpenLeads }) {
   const isActive = (ids) => ids.includes(view);
   return (
     <div
@@ -124,47 +126,31 @@ export function PipelineBar({ counts, view, onSelect, onReview, onSend }) {
         sublink={counts.notFound ? <SubLink onClick={() => onSelect('notfound')}>{fmt(counts.notFound)} not found</SubLink> : null}
       />
       <Stage
-        id="review"
-        step="2"
-        active={isActive(['review'])}
-        onSelect={onSelect}
-        icon={UserSearch}
-        label="Needs your review"
-        count={counts.review}
-        attention
-        caption={counts.review ? 'waiting for you' : ''}
-        action={
-          <Button size="sm" variant="accentSoft" trailingIcon={<ArrowRight size={12} />} onClick={onReview}>
-            Review
-          </Button>
-        }
-      />
-      <Stage
-        id="ready"
-        step="3"
-        active={isActive(['ready', 'failed'])}
-        onSelect={onSelect}
-        icon={Inbox}
-        label="Ready to send"
-        count={counts.ready}
-        caption=""
-        sublink={counts.failed ? <SubLink onClick={() => onSelect('failed')}>{fmt(counts.failed)} failed</SubLink> : null}
-        action={
-          <Button size="sm" variant="accentSoft" trailingIcon={<ArrowRight size={12} />} onClick={onSend}>
-            Send to Hub
-          </Button>
-        }
-      />
-      <Stage
         id="sending"
-        step="4"
-        active={isActive(['sending'])}
+        step="2"
+        active={isActive(['sending', 'failed'])}
         onSelect={onSelect}
         icon={Send}
         label="Sending to Hub"
         count={counts.sending}
         working
-        caption={counts.sending ? 'landing in Hub' : ''}
+        caption={counts.sending ? 'resolving profiles' : ''}
+        sublink={counts.failed ? <SubLink onClick={() => onSelect('failed')}>{fmt(counts.failed)} failed</SubLink> : null}
+      />
+      <Stage
+        id="found"
+        step="3"
+        active={isActive(['found'])}
+        onSelect={onSelect}
+        icon={UserCheck}
+        label="Found by Spurly"
+        count={counts.found}
+        caption={counts.found ? 'rows matched' : ''}
+        action={
+          <Button size="sm" variant="accentSoft" trailingIcon={<ArrowRight size={12} />} onClick={onOpenLeads}>
+            Open Leads
+          </Button>
+        }
       />
     </div>
   );

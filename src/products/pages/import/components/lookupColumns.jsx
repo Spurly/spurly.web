@@ -13,7 +13,7 @@ export const LOOKUP_STATUS = {
   queued:       { label: 'Waiting',       tone: 'neutral', dot: true },
   searching:    { label: 'Searching…',    tone: 'info',    dot: true, pulse: true },
   needs_review: { label: 'Needs review',  tone: 'warning', dot: true },
-  matched:      { label: 'Matched',       tone: 'success', dot: true },
+  matched:      { label: 'Sent to Hub',   tone: 'success', dot: true },
   picked:       { label: 'You picked',    tone: 'success', dot: true },
   not_found:    { label: 'Not found',     tone: 'neutral', dot: false },
   failed:       { label: 'Search failed', tone: 'danger',  dot: true },
@@ -57,6 +57,9 @@ function FoundProfile({ row }) {
       <span className="min-w-0 flex flex-col leading-tight">
         <span className="truncate text-[length:var(--ui-t-label)] text-[var(--ui-text-primary)] group-hover:underline">
           {p.name || slug(row.matchedProfileUrl)}
+          {row.matchedCount > 1 && (
+            <span className="text-[var(--ui-text-tertiary)]"> +{row.matchedCount - 1} more</span>
+          )}
         </span>
         {p.headline && (
           <span className="truncate text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">{p.headline}</span>
@@ -73,7 +76,7 @@ function MatchCell({ row }) {
     return <TextCell value={row.error || 'The search kept failing.'} tone="tertiary" />;
   }
   if (row.status === 'not_found') {
-    return <TextCell value="Nobody by this name at this company" tone="tertiary" />;
+    return <TextCell value="Nobody by this full name at this company" tone="tertiary" />;
   }
   return <span className="text-[var(--ui-text-tertiary)]">—</span>;
 }
