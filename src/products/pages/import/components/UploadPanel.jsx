@@ -381,19 +381,19 @@ export function UploadPanel({ onStaged }) {
             <SlidersHorizontal size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-text-tertiary)' }} />
             <div className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] leading-relaxed">
               <span className="font-medium text-[var(--ui-text-primary)]">Field mapping:</span> your
-              file needs a LinkedIn profile URL and a name — but they can be called anything
-              (“Person Linkedin Url”, “Full Name”, separate first/last name columns). We match the
-              headers we recognise automatically and you confirm or change them before importing.{' '}
+              file needs a name, plus either a LinkedIn profile URL or a company — and the columns can be
+              called anything (“Person Linkedin Url”, “Full Name”, separate first/last name columns). We
+              match the headers we recognise automatically and you confirm or change them before
+              importing.{' '}
+              <span className="font-medium text-[var(--ui-text-primary)]">No LinkedIn URLs?</span> Map a
+              name and a company and Spurly finds the profiles on LinkedIn for you.{' '}
               <span className="font-medium text-[var(--ui-text-primary)]">Job title</span>,{' '}
-              <span className="font-medium text-[var(--ui-text-primary)]">company</span>,{' '}
               <span className="font-medium text-[var(--ui-text-primary)]">location</span>,{' '}
               <span className="font-medium text-[var(--ui-text-primary)]">headline</span>,{' '}
               <span className="font-medium text-[var(--ui-text-primary)]">email</span>,{' '}
               <span className="font-medium text-[var(--ui-text-primary)]">phone</span> and{' '}
               <span className="font-medium text-[var(--ui-text-primary)]">website</span> are imported
-              when you map them. A CSV exported from Spurly maps itself.{' '}
-              <span className="font-medium text-[var(--ui-text-primary)]">No LinkedIn URLs?</span> Map a
-              name and a company and Spurly finds the profiles for you.
+              when you map them. A CSV exported from Spurly maps itself.
             </div>
           </div>
         </>
