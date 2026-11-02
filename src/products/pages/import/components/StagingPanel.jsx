@@ -52,7 +52,19 @@ const STATUS_FILTERS = [
  * outcome to clear the selection and show a toast, so it listens for that on
  * `store.eventEmitter` with `.once()` instead of awaiting anything itself.
  */
-export function StagingPanel({ store, onGoToUpload }) {
+const EMPTY_BY_STATUS = {
+  pending: ['Nothing ready to send', 'Imported leads with a LinkedIn URL — and people Spurly found — land here.'],
+  queued: ['Nothing sending right now', 'Leads you send to the Hub show here until they land in Hub Leads.'],
+  failed: ['No failures', 'Leads that couldn’t be added to the Hub show here, ready to retry.'],
+};
+
+/**
+ * `controlled` — the Import page's pipeline bar owns the status filter, so
+ * the table's own dropdown is hidden. `sendSignal` — bumping it selects every
+ * ready row on screen and opens the Send-to-Hub step (the pipeline's
+ * "Send to Hub" button).
+ */
+export function StagingPanel({ store, onGoToUpload, controlled = false, sendSignal = 0 }) {
   const {
     leads,
     stats,
@@ -95,6 +107,20 @@ export function StagingPanel({ store, onGoToUpload }) {
   useEffect(() => {
     setSelected(new Set());
   }, [statusFilter, page, search]);
+
+  useEffect(() => {
+    if (!sendSignal) return undefined;
+    const t = setTimeout(() => {
+      const ready = leads.filter((l) => l.enrichStatus === 'pending' || l.enrichStatus === 'enriched' || l.enrichStatus === 'failed');
+      if (ready.length === 0) return;
+      setSelected(new Set(ready.map((l) => l._id)));
+      setAudienceName('');
+      setConfirmPromote(true);
+    }, 0);
+    return () => clearTimeout(t);
+    // Only the signal should fire this — not every poll refresh of `leads`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sendSignal]);
 
   const selectedIds = useMemo(() => Array.from(selected), [selected]);
   const selectedRows = useMemo(
@@ -153,7 +179,7 @@ export function StagingPanel({ store, onGoToUpload }) {
   };
 
   // ── Empty state ────────────────────────────────────────────────────────
-  if (!loading && stats.total === 0 && !search && statusFilter === 'all') {
+  if (!controlled && !loading && stats.total === 0 && !search && statusFilter === 'all') {
     return (
       <div
         className="flex flex-col items-center text-center gap-4 py-16 px-[var(--ui-pad-lg)] rounded-[var(--ui-radius-lg)]"
@@ -229,13 +255,13 @@ export function StagingPanel({ store, onGoToUpload }) {
         reorderable
         selectedKeys={selected}
         onSelectionChange={setSelected}
-        emptyMessage={search ? 'No staged leads match your search' : 'No leads in this status'}
-        emptyHint={search ? 'Try a different search term' : 'Try a different status filter'}
+        emptyMessage={search ? 'No staged leads match your search' : EMPTY_BY_STATUS[statusFilter]?.[0] || 'No leads in this status'}
+        emptyHint={search ? 'Try a different search term' : EMPTY_BY_STATUS[statusFilter]?.[1] || 'Try a different status filter'}
         toolbar={{
           searchValue: search,
           onSearch: setSearch,
           searchPlaceholder: 'Search by name, company, location...',
-          filters: statusFilterControl,
+          filters: controlled ? null : statusFilterControl,
           bulkActions:
             selected.size > 0 ? (
               <>

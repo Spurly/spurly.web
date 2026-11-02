@@ -68,3 +68,42 @@ describe('Find profiles — review drawer', () => {
     expect(picks).toEqual(['https://www.linkedin.com/in/rahul-sharma-2']);
   });
 });
+
+describe('Import pipeline bar', () => {
+  it('shows every stage with its count and the actions that are waiting on the user', async () => {
+    const { PipelineBar } = await import('src/products/pages/import/components/PipelineBar.jsx');
+    const calls = [];
+    renderWithProviders(
+      <PipelineBar
+        counts={{ finding: 3, notFound: 1, review: 2, ready: 6, failed: 0, sending: 0 }}
+        view="review"
+        onSelect={(v) => calls.push(['select', v])}
+        onReview={() => calls.push(['review'])}
+        onSend={() => calls.push(['send'])}
+      />,
+    );
+    expect(screen.getAllByRole('tab')).toHaveLength(4);
+    expect(screen.getByRole('tab', { selected: true }).textContent).toMatch(/Needs your review/);
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
+    fireEvent.click(screen.getByRole('button', { name: /Send to Hub/ }));
+    fireEvent.click(screen.getByRole('button', { name: '1 not found' }));
+    expect(calls).toEqual([['review'], ['send'], ['select', 'notfound']]);
+    // a zero stage has no action — "Sending to Hub" is 0
+    expect(screen.queryAllByRole('button', { name: /Send to Hub/ })).toHaveLength(1);
+  });
+});
+
+describe('Match columns — live preview', () => {
+  it('reads the file the way Spurly will and counts the outcome', async () => {
+    const { FieldMappingPanel } = await import('src/products/pages/import/components/FieldMappingPanel.jsx');
+    const a = analyzeCsv('First Name,Last Name,Company,LinkedIn URL\nAda,Lovelace,Analytical,linkedin.com/in/ada\nRahul,Sharma,TCS,\nNo,Company,,\n');
+    renderWithProviders(
+      <FieldMappingPanel headers={a.headers} sampleValues={a.sampleValues} rows={a.rows} mapping={a.mapping} onChange={() => {}} onReset={() => {}} />,
+    );
+    expect(screen.getByText('Ada Lovelace')).toBeTruthy();
+    expect(screen.getByText('Has LinkedIn URL')).toBeTruthy();
+    expect(screen.getByText('Spurly will find')).toBeTruthy();
+    expect(screen.getByText('ready to import').previousSibling.textContent).toBe('1');
+    expect(screen.getByText('Spurly will find on LinkedIn').previousSibling.textContent).toBe('1');
+  });
+});

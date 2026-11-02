@@ -1,8 +1,10 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
-import { UploadCloud, FileText, AlertCircle, CheckCircle, X, ArrowRight, SlidersHorizontal, Search } from 'lucide-react';
+import {
+  UploadCloud, FileText, AlertCircle, X, ArrowLeft, ArrowRight, Download, Link2, Search, Ban, ShieldCheck,
+} from 'lucide-react';
 import { DataTable } from 'src/core/DataTable';
-import { Button, useToast } from 'src/core/primitives';
+import { Button, IconButton, useToast } from 'src/core/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 import {
   analyzeCsv,
@@ -17,177 +19,152 @@ import { applyRememberedMapping, saveMapping } from './mappingMemory.js';
 import importController from 'src/products/import/controller/import.js';
 import { IMPORT_EVENTS } from 'src/products/import/constants/constants.js';
 import { FieldMappingPanel } from './FieldMappingPanel.jsx';
+import { ImportStepper } from './ImportStepper.jsx';
 import { buildPreviewColumns } from './columns.jsx';
 
 /**
- * CSV upload step of the Import page.
+ * The import wizard: Upload → Match columns → Review & import.
  *
- * Three stages, in one panel:
- *
- *   1. `upload`  — drop a file. Only a truly unreadable file errors here.
- *   2. `map`     — confirm which column feeds which Spurly field. Headers no
- *                  longer have to be named `profileurl` / `name`; a mismatch
- *                  is a dropdown to change, not an error to go fix in Excel.
- *   3. `preview` — see the rows exactly as they'll be staged, then import.
- *
- * Staging is free and reversible, so there's no confirmation friction beyond
- * this — the review that matters happens in the staging table afterwards, once
- * rows have been enriched.
+ * One bar on top carries the stepper (where am I) AND the step's actions
+ * (what next), so the primary button never moves and never scrolls away.
+ * After a successful import there is no success screen — `onDone` drops the
+ * user straight into the pipeline, at the stage their rows just entered,
+ * where they can watch them move.
  */
-export function UploadPanel({ onStaged }) {
+
+const SAMPLE_CSV = [
+  'First Name,Last Name,Company,Job Title,Location,LinkedIn URL',
+  'Ada,Lovelace,Analytical Engines,Founder,London,https://www.linkedin.com/in/example-ada',
+  'Grace,Hopper,Compiler Co,Engineering Lead,New York,',
+].join('\n');
+
+function downloadSample() {
+  const url = URL.createObjectURL(new Blob([SAMPLE_CSV], { type: 'text/csv' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'spurly-import-sample.csv';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+const card = 'rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)]';
+
+function OutcomeTile({ icon, tone, tint, value, label, caption }) {
+  return (
+    <div className={`${card} p-4 flex gap-3 min-w-0`}>
+      <span className="w-9 h-9 shrink-0 rounded-[var(--ui-radius-md)] grid place-items-center" style={{ background: tint, color: tone }}>
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <p className="ui-num text-[length:var(--ui-t-section)] leading-tight text-[var(--ui-text-primary)]">{value.toLocaleString()}</p>
+        <p className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)]">{label}</p>
+        {caption && <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] mt-0.5">{caption}</p>}
+      </div>
+    </div>
+  );
+}
+
+export function UploadPanel({ onDone, onCancel }) {
   const fileInputRef = useRef(null);
   const toast = useToast();
   const eventEmitter = useMemo(() => new EventEmitter(), []);
 
-  const [step, setStep] = useState('upload'); // 'upload' | 'map' | 'preview'
+  const [step, setStep] = useState('upload'); // 'upload' | 'map' | 'review'
   const [fileName, setFileName] = useState('');
   const [analysis, setAnalysis] = useState(null); // { headers, rows, sampleValues }
-  const [mapping, setMapping] = useState(null); // { field: columnIndex }
-  const [error, setError] = useState(null); // { title, detail, columns? }
+  const [mapping, setMapping] = useState(null);
+  const [error, setError] = useState(null); // { title, detail }
   const [dragActive, setDragActive] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [result, setResult] = useState(null); // { savedCount, failedCount, totalCount }
 
-  const resetAll = useCallback(() => {
+  const resetFile = useCallback(() => {
     setStep('upload');
     setFileName('');
     setAnalysis(null);
     setMapping(null);
     setError(null);
-    setSaving(false);
-    setResult(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   }, []);
 
   const handleFile = useCallback((file) => {
     if (!file) return;
     setError(null);
-    setResult(null);
-
-    // Guard against obviously-wrong file types before reading.
-    const isCsv =
-      file.type === 'text/csv' ||
-      file.type === 'application/vnd.ms-excel' ||
-      /\.csv$/i.test(file.name);
+    const isCsv = file.type === 'text/csv' || file.type === 'application/vnd.ms-excel' || /\.csv$/i.test(file.name);
     if (!isCsv) {
-      setAnalysis(null);
-      setMapping(null);
-      setFileName('');
-      setStep('upload');
-      setError({
-        title: 'That doesn’t look like a CSV',
-        detail: 'Please choose a comma-separated .csv file and try again.',
-      });
+      setError({ title: 'That doesn’t look like a CSV', detail: 'Choose a comma-separated .csv file. From Excel or Google Sheets: File → Download → CSV.' });
       return;
     }
-
     const reader = new FileReader();
     reader.onload = (event) => {
-      const text = event.target?.result;
-      const outcome = analyzeCsv(text);
+      const outcome = analyzeCsv(event.target?.result);
       if (!outcome.ok) {
-        setAnalysis(null);
-        setMapping(null);
         setFileName(file.name);
-        setStep('upload');
         setError(outcome.error);
         return;
       }
       setFileName(file.name);
-      setAnalysis({
-        headers: outcome.headers,
-        rows: outcome.rows,
-        sampleValues: outcome.sampleValues,
-      });
+      setAnalysis({ headers: outcome.headers, rows: outcome.rows, sampleValues: outcome.sampleValues });
       setMapping(applyRememberedMapping(outcome.headers, outcome.mapping));
       setStep('map');
     };
-    reader.onerror = () => {
-      setAnalysis(null);
-      setMapping(null);
-      setStep('upload');
-      setError({
-        title: "Couldn't read the file",
-        detail: 'Something went wrong reading the file. Please try again.',
-      });
-    };
+    reader.onerror = () => setError({ title: "Couldn't read the file", detail: 'Something went wrong reading it. Try again.' });
     reader.readAsText(file);
   }, []);
 
-  const onInputChange = (e) => handleFile(e.target.files?.[0]);
-
-  const onDrop = (e) => {
-    e.preventDefault();
-    setDragActive(false);
-    handleFile(e.dataTransfer.files?.[0]);
-  };
-
-  // Rows shaped by the CURRENT mapping. Recomputed rather than stored so the
-  // preview can never show one mapping's output while another is selected.
   const extracted = useMemo(() => {
-    if (!analysis || !mapping) return null;
-    if (!validateMapping(mapping).ok) return null;
+    if (!analysis || !mapping || !validateMapping(mapping).ok) return null;
     return extractProfiles(analysis.rows, mapping);
   }, [analysis, mapping]);
 
-  const mappedKeys = useMemo(
-    () =>
-      mapping
-        ? Object.keys(mapping).filter((key) => mapping[key] !== UNMAPPED)
-        : [],
-    [mapping],
-  );
+  const mappedKeys = useMemo(() => (mapping ? Object.keys(mapping).filter((k) => mapping[k] !== UNMAPPED) : []), [mapping]);
   const previewColumns = useMemo(() => buildPreviewColumns(mappedKeys), [mappedKeys]);
+  const previewRows = useMemo(() => (extracted ? [...extracted.profiles, ...extracted.lookupRows] : []), [extracted]);
 
-  const handleContinueFromMapping = () => {
+  const readyCount = extracted?.profiles.length ?? 0;
+  const findCount = extracted?.lookupRows.length ?? 0;
+  const totalCount = readyCount + findCount;
+  const skipped = extracted?.skippedCount ?? 0;
+  const overLimit = readyCount > MAX_IMPORT_ROWS || findCount > MAX_IMPORT_ROWS;
+
+  const skipReasons = useMemo(() => {
+    if (!extracted) return '';
+    const parts = [];
+    if (extracted.skippedNoUrl) parts.push(`${extracted.skippedNoUrl} with no URL or company`);
+    if (extracted.skippedBadUrl) parts.push(`${extracted.skippedBadUrl} with a broken LinkedIn URL`);
+    if (extracted.skippedNoName) parts.push(`${extracted.skippedNoName} with no name`);
+    return parts.join(', ');
+  }, [extracted]);
+
+  const goToReview = () => {
     if (!analysis || !mapping) return;
     const clean = normalizeMapping(mapping, analysis.headers.length);
     if (!validateMapping(clean).ok) return;
     saveMapping(analysis.headers, clean);
     setMapping(clean);
-    setError(null);
-    setStep('preview');
+    setStep('review');
   };
 
-  const handleSave = () => {
-    if (!extracted || saving) return;
-    if (extracted.profiles.length + extracted.lookupRows.length === 0) return;
-    if (extracted.profiles.length > MAX_IMPORT_ROWS || extracted.lookupRows.length > MAX_IMPORT_ROWS) return;
+  const handleImport = () => {
+    if (!extracted || saving || totalCount === 0 || overLimit) return;
     setSaving(true);
     setError(null);
 
     eventEmitter.once(IMPORT_EVENTS.IMPORT_SUCCESS, (res) => {
       setSaving(false);
-      setResult(res);
-      onStaged?.(res);
       if (res?.lookupError) {
         toast.error(getToastError(res.lookupError, "Couldn't start finding profiles"));
-      } else if (res?.lookupQueued) {
-        toast.success(
-          res.savedCount
-            ? `Imported ${res.savedCount.toLocaleString()} leads · finding ${res.lookupQueued.toLocaleString()} on LinkedIn`
-            : `Finding ${res.lookupQueued.toLocaleString()} people on LinkedIn`,
-          { description: 'Found profiles appear in Staged leads as they come in.' },
-        );
       } else {
-        toast.success(`Imported ${(res?.savedCount ?? 0).toLocaleString()} leads`, {
-          description: res?.failedCount
-            ? `${res.failedCount.toLocaleString()} row(s) couldn't be saved.`
-            : 'They are waiting in Staging.',
-        });
+        const parts = [];
+        if (res.savedCount) parts.push(`${res.savedCount.toLocaleString()} ready to send`);
+        if (res.lookupQueued) parts.push(`finding ${res.lookupQueued.toLocaleString()} on LinkedIn`);
+        toast.success(`Imported ${fileName}`, { description: parts.join(' · ') || undefined });
       }
+      onDone?.(res);
     });
-
     eventEmitter.once(IMPORT_EVENTS.IMPORT_FAILURE, (err) => {
       setSaving(false);
-      /* The detail belongs in the panel — this is the user's workspace for
-         fixing a bad CSV, and the block right here is where they're already
-         looking. The toast just says what failed. */
-      setError({
-        title: "Couldn't save the import",
-        detail: getApiErrorMessage(err, 'Something went wrong while saving. Try again in a moment.'),
-      });
-      toast.error(getToastError(err, "Couldn't save the import"));
+      setError({ title: "Couldn't import this file", detail: getApiErrorMessage(err, 'Something went wrong. Try again in a moment.') });
+      toast.error(getToastError(err, "Couldn't import this file"));
     });
 
     importController.importProfiles(eventEmitter, {
@@ -197,145 +174,69 @@ export function UploadPanel({ onStaged }) {
     });
   };
 
-  const profileCount = extracted?.profiles.length ?? 0;
-  const lookupCount = extracted?.lookupRows?.length ?? 0;
-  const totalCount = profileCount + lookupCount;
-  const overLimit = profileCount > MAX_IMPORT_ROWS || lookupCount > MAX_IMPORT_ROWS;
-  // Preview shows both kinds; rows still to be found have an empty URL cell.
-  const previewRows = useMemo(
-    () => (extracted ? [...extracted.profiles, ...(extracted.lookupRows || [])] : []),
-    [extracted],
-  );
   const importLabel =
-    lookupCount === 0
-      ? `Import ${profileCount} lead${profileCount === 1 ? '' : 's'}`
-      : profileCount === 0
-        ? `Find ${lookupCount} on LinkedIn`
-        : `Import ${profileCount} + find ${lookupCount}`;
+    findCount === 0
+      ? `Import ${readyCount.toLocaleString()} lead${readyCount === 1 ? '' : 's'}`
+      : readyCount === 0
+        ? `Find ${findCount.toLocaleString()} on LinkedIn`
+        : `Import ${readyCount.toLocaleString()} + find ${findCount.toLocaleString()}`;
 
-  /** Human summary of the rows the current mapping drops. */
-  const skipSummary = useMemo(() => {
-    if (!extracted) return '';
-    const parts = [];
-    if (extracted.skippedNoUrl) parts.push(`${extracted.skippedNoUrl} with no URL or company`);
-    if (extracted.skippedBadUrl) parts.push(`${extracted.skippedBadUrl} with an unusable LinkedIn URL`);
-    if (extracted.skippedNoName) parts.push(`${extracted.skippedNoName} with no name`);
-    return parts.join(', ');
-  }, [extracted]);
-
-  // ── Success ────────────────────────────────────────────────────────────
-  if (result) {
-    return (
-      <div
-        className="flex flex-col items-center text-center gap-4 py-14 px-[var(--ui-pad-lg)] rounded-[var(--ui-radius-lg)]"
-        style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
-      >
-        <div
-          className="w-14 h-14 rounded-full grid place-items-center"
-          style={{ background: 'var(--ui-success-tint)' }}
-        >
-          <CheckCircle size={28} style={{ color: 'var(--ui-success)' }} />
-        </div>
-        <div>
-          <h2 className="text-[length:var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em]">
-            Import complete
-          </h2>
-          <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1.5">
-            Staged <span className="font-medium">{result.savedCount}</span> lead
-            {result.savedCount === 1 ? '' : 's'}.
-            {result.lookupQueued > 0 && (
-              <>
-                {' '}Finding <span className="font-medium">{result.lookupQueued}</span> more on LinkedIn.
-              </>
-            )}
-            {result.failedCount > 0 && (
-              <>
-                {' '}
-                <span style={{ color: 'var(--ui-danger)' }}>
-                  {result.failedCount} skipped (missing URL).
-                </span>
-              </>
-            )}
-          </p>
-          <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-tertiary)] mt-2 max-w-sm">
-            {result.lookupQueued > 0
-              ? 'Spurly is searching LinkedIn for them now. Clear matches land in Staged leads on their own; when several people fit, you pick the right one under Find profiles.'
-              : 'Next: send the ones you want to your Hub leads.'}
-          </p>
-          {result.lookupError && (
-            <p className="text-[length:var(--ui-t-body)] mt-2 max-w-sm" style={{ color: 'var(--ui-danger)' }}>
-              {getApiErrorMessage(result.lookupError, "We couldn't start finding the rows without a URL.")}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-2.5 mt-1">
-          <Button variant="ghost" onClick={resetAll}>
-            Import another
-          </Button>
-          {result.lookupQueued > 0 && (
-            <Button variant="secondary" onClick={() => onStaged?.(result, { view: 'lookup' })}>
-              See profile search
-            </Button>
-          )}
-          <Button
-            variant="primary"
-            trailingIcon={<ArrowRight size={16} />}
-            onClick={() => onStaged?.(result, { view: true })}
-          >
-            View staged leads
-          </Button>
-        </div>
+  // ── The bar: stepper left, the step's actions right ─────────────────
+  const bar = (
+    <div className={`${card} flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-[var(--ui-pad-lg)] py-3`}>
+      <div className="flex items-center gap-4 min-w-0">
+        <ImportStepper step={step} />
+        {fileName && step !== 'upload' && (
+          <span className="hidden lg:inline-flex items-center gap-1.5 min-w-0 text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)]">
+            <FileText size={13} />
+            <span className="truncate max-w-[220px]" title={fileName}>{fileName}</span>
+            {analysis && <span>· {analysis.rows.length.toLocaleString()} rows</span>}
+          </span>
+        )}
       </div>
-    );
-  }
+      <div className="flex items-center gap-2 shrink-0">
+        {step === 'upload' && onCancel && (
+          <Button variant="ghost" onClick={onCancel}>Cancel</Button>
+        )}
+        {step === 'map' && (
+          <>
+            <Button variant="ghost" leadingIcon={<ArrowLeft size={14} />} onClick={resetFile}>Different file</Button>
+            <Button variant="primary" trailingIcon={<ArrowRight size={14} />} onClick={goToReview} disabled={!extracted}>
+              Continue
+            </Button>
+          </>
+        )}
+        {step === 'review' && (
+          <>
+            <Button variant="ghost" leadingIcon={<ArrowLeft size={14} />} onClick={() => setStep('map')} disabled={saving}>Back</Button>
+            <Button variant="primary" onClick={handleImport} disabled={saving || totalCount === 0 || overLimit}>
+              {saving ? 'Importing…' : importLabel}
+            </Button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  const errorBanner = error && (
+    <div className="relative flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)] bg-[var(--ui-danger-tint)]">
+      <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
+      <div className="flex-1 min-w-0 pr-8">
+        <p className="text-[length:var(--ui-t-body)] font-medium" style={{ color: 'var(--ui-danger)' }}>{error.title}</p>
+        <p className="text-[length:var(--ui-t-body)] mt-0.5 text-[var(--ui-text-secondary)]">{error.detail}</p>
+      </div>
+      <span className="absolute top-2.5 right-2.5">
+        <IconButton size="sm" icon={<X size={14} />} label="Dismiss" onClick={() => setError(null)} />
+      </span>
+    </div>
+  );
 
   return (
-    <>
-      {/* Error banner (dismissible) */}
-      {error && (
-        <div
-          className="relative flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
-          style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(200,65,47,0.22)' }}
-        >
-          <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
-          <div className="flex-1 min-w-0 pr-6">
-            <p className="text-[length:var(--ui-t-body)] font-medium" style={{ color: 'var(--ui-danger)' }}>
-              {error.title}
-            </p>
-            <p className="text-[length:var(--ui-t-body)] mt-0.5" style={{ color: 'var(--ui-text-secondary)' }}>
-              {error.detail}
-            </p>
-            {error.columns?.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
-                <span className="text-[length:var(--ui-t-label)]" style={{ color: 'var(--ui-text-tertiary)' }}>
-                  Columns in your file:
-                </span>
-                {error.columns.map((col, i) => (
-                  <code
-                    key={i}
-                    className="text-[length:var(--ui-t-meta)] font-mono px-1.5 py-0.5 rounded-[var(--ui-radius-sm)]"
-                    style={{
-                      background: 'var(--ui-surface-sunken)',
-                      color: 'var(--ui-text-secondary)',
-                      border: '1px solid var(--ui-border-hairline)',
-                    }}
-                  >
-                    {col || '(blank)'}
-                  </code>
-                ))}
-              </div>
-            )}
-          </div>
-          <button
-            onClick={() => setError(null)}
-            className="absolute top-3 right-3 w-6 h-6 grid place-items-center rounded-[var(--ui-radius-sm)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-hover)] hover:text-[var(--ui-text-primary)] transition-colors"
-          >
-            <X size={14} />
-          </button>
-        </div>
-      )}
+    <div className="flex flex-col gap-4 w-full max-w-[1200px]">
+      {bar}
+      {errorBanner}
 
-      {/* ── Step 1: pick a file ─────────────────────────────────────────── */}
+      {/* ── 1. Upload ───────────────────────────────────────────────── */}
       {step === 'upload' && (
         <>
           <label
@@ -344,196 +245,137 @@ export function UploadPanel({ onStaged }) {
               setDragActive(true);
             }}
             onDragLeave={() => setDragActive(false)}
-            onDrop={onDrop}
-            className="flex flex-col items-center justify-center gap-3 py-16 px-[var(--ui-pad-lg)] rounded-[var(--ui-radius-lg)] cursor-pointer transition-colors"
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragActive(false);
+              handleFile(e.dataTransfer.files?.[0]);
+            }}
+            className="flex flex-col items-center justify-center gap-4 py-16 px-[var(--ui-pad-lg)] rounded-[var(--ui-radius-lg)] cursor-pointer transition-colors"
             style={{
               background: dragActive ? 'var(--ui-accent-tint)' : 'var(--ui-surface-card)',
               border: `1.5px dashed ${dragActive ? 'var(--ui-accent)' : 'var(--ui-border)'}`,
             }}
           >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv,text/csv"
-              onChange={onInputChange}
-              className="hidden"
-            />
-            <div
-              className="w-14 h-14 rounded-[var(--ui-radius-lg)] grid place-items-center"
-              style={{ background: 'var(--ui-accent-tint)' }}
-            >
+            <input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={(e) => handleFile(e.target.files?.[0])} className="hidden" />
+            <span className="w-14 h-14 rounded-[var(--ui-radius-lg)] grid place-items-center bg-[var(--ui-accent-tint)]">
               <UploadCloud size={26} style={{ color: 'var(--ui-accent)' }} />
-            </div>
+            </span>
             <div className="text-center">
-              <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">
-                Drop a CSV here, or <span style={{ color: 'var(--ui-accent)' }}>browse</span>
+              <p className="text-[length:var(--ui-t-section)] font-medium text-[var(--ui-text-primary)] tracking-[-0.012em]">
+                {dragActive ? 'Drop it here' : 'Drop your CSV here'}
               </p>
               <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] mt-1">
-                Any column names work — you’ll match them to Spurly fields in the next step.
+                or <span className="font-medium text-[var(--ui-accent-fg)]">browse your files</span> · up to {MAX_IMPORT_ROWS.toLocaleString()} rows · any column names
               </p>
             </div>
           </label>
 
-          <div
-            className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
-            style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
-          >
-            <SlidersHorizontal size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-text-tertiary)' }} />
-            <div className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)] leading-relaxed">
-              <span className="font-medium text-[var(--ui-text-primary)]">Field mapping:</span> your
-              file needs a name, plus either a LinkedIn profile URL or a company — and the columns can be
-              called anything (“Person Linkedin Url”, “Full Name”, separate first/last name columns). We
-              match the headers we recognise automatically and you confirm or change them before
-              importing.{' '}
-              <span className="font-medium text-[var(--ui-text-primary)]">No LinkedIn URLs?</span> Map a
-              name and a company and Spurly finds the profiles on LinkedIn for you.{' '}
-              <span className="font-medium text-[var(--ui-text-primary)]">Job title</span>,{' '}
-              <span className="font-medium text-[var(--ui-text-primary)]">location</span>,{' '}
-              <span className="font-medium text-[var(--ui-text-primary)]">headline</span>,{' '}
-              <span className="font-medium text-[var(--ui-text-primary)]">email</span>,{' '}
-              <span className="font-medium text-[var(--ui-text-primary)]">phone</span> and{' '}
-              <span className="font-medium text-[var(--ui-text-primary)]">website</span> are imported
-              when you map them. A CSV exported from Spurly maps itself.
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className={`${card} p-4`}>
+              <Link2 size={16} style={{ color: 'var(--ui-success)' }} />
+              <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mt-2">Have LinkedIn URLs?</p>
+              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-1">
+                Rows with a profile URL and a name import straight away, ready to send to your Hub.
+              </p>
+            </div>
+            <div className={`${card} p-4`}>
+              <Search size={16} style={{ color: 'var(--ui-accent)' }} />
+              <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mt-2">Only names and companies?</p>
+              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-1">
+                Spurly finds each person on LinkedIn. When several people match, you pick the right one — nobody wrong gets in.
+              </p>
+            </div>
+            <div className={`${card} p-4 flex flex-col`}>
+              <ShieldCheck size={16} style={{ color: 'var(--ui-text-tertiary)' }} />
+              <p className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] mt-2">Free and reversible</p>
+              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] mt-1 flex-1">
+                Importing costs nothing. Credits are only used when leads land in your Hub.
+              </p>
+              <span className="mt-3">
+                <Button size="sm" variant="secondary" leadingIcon={<Download size={13} />} onClick={downloadSample}>
+                  Sample CSV
+                </Button>
+              </span>
             </div>
           </div>
         </>
       )}
 
-      {/* ── Step 2: map columns ─────────────────────────────────────────── */}
+      {/* ── 2. Match columns ────────────────────────────────────────── */}
       {step === 'map' && analysis && mapping && (
         <FieldMappingPanel
           headers={analysis.headers}
           sampleValues={analysis.sampleValues}
+          rows={analysis.rows}
           mapping={mapping}
-          rowCount={analysis.rows.length}
-          fileName={fileName}
           onChange={setMapping}
-          onBack={resetAll}
-          onContinue={handleContinueFromMapping}
           onReset={() => setMapping(autoDetectMapping(analysis.headers))}
         />
       )}
 
-      {/* ── Step 3: preview + import ────────────────────────────────────── */}
-      {step === 'preview' && extracted && (
+      {/* ── 3. Review & import ──────────────────────────────────────── */}
+      {step === 'review' && extracted && (
         <>
-          <div
-            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-[var(--ui-pad-lg)] py-4 rounded-[var(--ui-radius-lg)]"
-            style={{ background: 'var(--ui-surface-card)', border: '1px solid var(--ui-border-hairline)' }}
-          >
-            <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
-              Ready to stage{' '}
-              <span className="font-medium text-[var(--ui-text-primary)]">{profileCount}</span> lead
-              {profileCount === 1 ? '' : 's'}
-              {lookupCount > 0 && (
-                <>
-                  {' '}and find{' '}
-                  <span className="font-medium text-[var(--ui-text-primary)]">{lookupCount}</span> on LinkedIn
-                </>
-              )}
-              .{' '}
-              <span style={{ color: 'var(--ui-text-tertiary)' }}>
-                Importing is free — you’re only charged when you send them to the Hub.
-              </span>
-            </p>
-            <div className="flex items-center gap-2 shrink-0">
-              <Button variant="ghost" onClick={() => setStep('map')} disabled={saving}>
-                Edit mapping
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleSave}
-                disabled={saving || totalCount === 0 || overLimit}
-              >
-                {saving ? 'Importing…' : importLabel}
-              </Button>
-            </div>
+          <div className="grid gap-3 md:grid-cols-3">
+            <OutcomeTile
+              icon={<Link2 size={17} />}
+              tone="var(--ui-success)"
+              tint="var(--ui-success-tint)"
+              value={readyCount}
+              label="Ready to import"
+              caption="Have a LinkedIn URL"
+            />
+            <OutcomeTile
+              icon={<Search size={17} />}
+              tone="var(--ui-accent)"
+              tint="var(--ui-accent-tint)"
+              value={findCount}
+              label="Spurly will find"
+              caption={findCount ? 'Searched on LinkedIn by name + company' : 'Every row has a URL'}
+            />
+            <OutcomeTile
+              icon={<Ban size={17} />}
+              tone="var(--ui-text-tertiary)"
+              tint="var(--ui-surface-sunken)"
+              value={skipped}
+              label="Skipped"
+              caption={skipped ? skipReasons : 'Nothing left out'}
+            />
           </div>
 
-          <div className="flex items-center gap-2 text-[length:var(--ui-t-body)] px-1 -mt-2">
-            <FileText size={14} style={{ color: 'var(--ui-text-tertiary)' }} />
-            <span className="text-[var(--ui-text-secondary)]">
-              <span className="font-medium text-[var(--ui-text-primary)]">{fileName}</span>
-              {' · '}
-              {profileCount} with a LinkedIn URL
-              {lookupCount > 0 && ` · ${lookupCount} to find by name + company`}
-              {skipSummary && (
-                <span style={{ color: 'var(--ui-text-tertiary)' }}>
-                  {' · '}
-                  skipped {skipSummary}
-                </span>
-              )}
-            </span>
-          </div>
+          {findCount > 0 && (
+            <div className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)] bg-[var(--ui-accent-wash)] border border-[var(--ui-accent-tint)]">
+              <Search size={16} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-accent)' }} />
+              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+                <span className="font-medium text-[var(--ui-text-primary)]">How finding works: </span>
+                one clear match is added for you. When several people fit — five Rahul Sharmas at TCS — nobody is added
+                until you pick the right one under <span className="font-medium text-[var(--ui-text-primary)]">Needs your review</span>.
+              </p>
+            </div>
+          )}
 
           {overLimit && (
-            <div
-              className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
-              style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(200,65,47,0.22)' }}
-            >
+            <div className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)] bg-[var(--ui-danger-tint)]">
               <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
-              <div className="text-[length:var(--ui-t-body)]" style={{ color: 'var(--ui-text-secondary)' }}>
-                <p className="font-medium" style={{ color: 'var(--ui-danger)' }}>
-                  This file is too big for one import
-                </p>
-                <p className="mt-0.5">
-                  {Math.max(profileCount, lookupCount).toLocaleString()} rows — the limit is{' '}
-                  {MAX_IMPORT_ROWS.toLocaleString()} per import. Split the file and import each
-                  part; your column mapping is remembered, so the next one is one click.
-                </p>
-              </div>
+              <p className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
+                <span className="font-medium" style={{ color: 'var(--ui-danger)' }}>Too many rows for one import. </span>
+                The limit is {MAX_IMPORT_ROWS.toLocaleString()} per import — split the file. Your column matching is remembered.
+              </p>
             </div>
           )}
 
-          {lookupCount > 0 && (
-            <div
-              className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
-              style={{ background: 'var(--ui-accent-tint)', border: '1px solid var(--ui-accent-border)' }}
-            >
-              <Search size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-accent)' }} />
-              <div className="text-[length:var(--ui-t-body)] text-[var(--ui-text-secondary)]">
-                <p className="font-medium text-[var(--ui-text-primary)]">
-                  {lookupCount.toLocaleString()} row{lookupCount === 1 ? ' has' : 's have'} no LinkedIn URL — Spurly will find them
-                </p>
-                <p className="mt-0.5">
-                  We search LinkedIn by name + company through your connected account, in the background.
-                  When exactly one person matches, they’re added to Staged leads. When several people
-                  fit (say, five Rahul Sharmas at TCS), nobody is added until you pick the right one under{' '}
-                  <span className="font-medium text-[var(--ui-text-primary)]">Find profiles</span>.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {totalCount === 0 && (
-            <div
-              className="flex gap-3 px-4 py-3.5 rounded-[var(--ui-radius-lg)]"
-              style={{ background: 'var(--ui-danger-tint)', border: '1px solid rgba(200,65,47,0.22)' }}
-            >
-              <AlertCircle size={18} className="shrink-0 mt-0.5" style={{ color: 'var(--ui-danger)' }} />
-              <div className="text-[length:var(--ui-t-body)]" style={{ color: 'var(--ui-text-secondary)' }}>
-                <p className="font-medium" style={{ color: 'var(--ui-danger)' }}>
-                  No rows can be imported with this mapping
-                </p>
-                <p className="mt-0.5">
-                  Every row was skipped ({skipSummary}). Go back and check that the LinkedIn URL (or
-                  company) and name columns point at the right data.
-                </p>
-              </div>
-            </div>
-          )}
-
-          <div className="rounded-[var(--ui-radius-lg)] overflow-hidden" style={{ border: '1px solid var(--ui-border-hairline)' }}>
+          <div className={`${card} overflow-hidden`}>
             <DataTable
               columns={previewColumns}
               data={previewRows}
               rowKey={(row) => row._id}
-              emptyMessage="No leads to preview"
+              emptyMessage="No rows to import with this matching"
+              emptyHint="Go back and check the name, LinkedIn URL and company columns."
               maxHeight="52vh"
             />
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }

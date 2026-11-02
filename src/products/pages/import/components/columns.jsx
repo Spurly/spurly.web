@@ -1,5 +1,6 @@
 import { Search } from 'lucide-react';
 import { LinkedInIcon } from 'src/core/icons';
+import { Badge } from 'src/core/primitives';
 import { TextCell, PersonCell, CompanyCell, LocationCell, LinkCell } from 'src/core/DataTable';
 
 /**
@@ -41,6 +42,19 @@ const BASE_COLUMNS = [
   },
 ];
 
+/** Where each row is headed: imported as-is, or looked up on LinkedIn first. */
+const SOURCE_COLUMN = {
+  key: '_needsLookup',
+  label: 'On import',
+  width: 150,
+  render: (value) =>
+    value ? (
+      <Badge variant="minimal" tone="accent" dot>Spurly will find</Badge>
+    ) : (
+      <Badge variant="minimal" tone="success" dot>Ready</Badge>
+    ),
+};
+
 /** Shown only when the user mapped a column onto them, in this order. */
 const OPTIONAL_COLUMNS = [
   { key: 'title', label: 'Title', width: 200, render: (value) => <TextCell value={value} tone="secondary" /> },
@@ -59,5 +73,5 @@ const OPTIONAL_COLUMNS = [
  */
 export function buildPreviewColumns(mappedKeys = []) {
   const mapped = new Set(mappedKeys);
-  return [...BASE_COLUMNS, ...OPTIONAL_COLUMNS.filter((col) => mapped.has(col.key))];
+  return [...BASE_COLUMNS, SOURCE_COLUMN, ...OPTIONAL_COLUMNS.filter((col) => mapped.has(col.key))];
 }

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { RotateCcw, Trash2, AlertCircle, X, UserSearch, Search } from 'lucide-react';
 import { DataTable } from 'src/core/DataTable';
 import { Button, FilterPills, IconButton, WorkingLine, useToast } from 'src/core/primitives';
@@ -29,7 +29,12 @@ const FILTERS = [
 const SKIPPABLE = new Set(['queued', 'needs_review', 'not_found', 'failed']);
 const RETRYABLE = new Set(['not_found', 'failed']);
 
-export function LookupPanel({ store }) {
+/**
+ * `controlled` — the page's pipeline bar picks the status, so the pills are
+ * hidden. `reviewSignal` — bumping it opens the review drawer on the first
+ * row that needs review (the pipeline's "Review" button).
+ */
+export function LookupPanel({ store, controlled = false, reviewSignal = 0 }) {
   const {
     rows, stats, pagination, page, setPage, loading, error, actionError, clearActionError,
     statusFilter, setStatusFilter, search, setSearch, busy, eventEmitter, pick, dismiss, retry,
@@ -46,6 +51,20 @@ export function LookupPanel({ store }) {
   }, [statusFilter, page, search]);
 
   const reviewQueue = useMemo(() => rows.filter((r) => r.status === 'needs_review'), [rows]);
+
+  // Open the first row to review once the needs_review rows are on screen.
+  const pendingReviewOpen = useRef(0);
+  useEffect(() => {
+    if (reviewSignal) pendingReviewOpen.current = reviewSignal;
+  }, [reviewSignal]);
+  useEffect(() => {
+    if (!pendingReviewOpen.current || reviewQueue.length === 0) return undefined;
+    const t = setTimeout(() => {
+      pendingReviewOpen.current = 0;
+      setReviewId(reviewQueue[0]._id);
+    }, 0);
+    return () => clearTimeout(t);
+  }, [reviewQueue, reviewSignal]);
   const reviewRow = reviewQueue.find((r) => r._id === reviewId) || null;
   const reviewPosition = reviewRow ? reviewQueue.indexOf(reviewRow) + 1 : 0;
 
@@ -164,7 +183,9 @@ export function LookupPanel({ store }) {
           searchValue: search,
           onSearch: setSearch,
           searchPlaceholder: 'Search by name, company, title...',
-          chips: <FilterPills size="sm" options={pills} value={statusFilter} onChange={setStatusFilter} ariaLabel="Lookup status" />,
+          chips: controlled ? null : (
+            <FilterPills size="sm" options={pills} value={statusFilter} onChange={setStatusFilter} ariaLabel="Lookup status" />
+          ),
           actions: reviewAction,
           bulkActions:
             selected.size > 0 ? (

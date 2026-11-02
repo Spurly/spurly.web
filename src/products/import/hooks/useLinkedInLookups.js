@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import importController from '../controller/import.js';
 import { LOOKUP_EVENTS, LOOKUP_LIMIT } from '../constants/constants.js';
@@ -35,10 +35,6 @@ export function useLinkedInLookups({ onStaged } = {}) {
   const [actionError, setActionError] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  // Open on "Needs review" the first time there is something to review —
-  // that's the one bucket that is waiting on the user.
-  const autoFiltered = useRef(false);
-
   const load = useCallback(
     (opts = {}) => {
       if (!opts.silent) setLoading(true);
@@ -56,13 +52,7 @@ export function useLinkedInLookups({ onStaged } = {}) {
   useEffect(() => {
     function onLoad(payload) {
       setRows(payload.rows);
-      if (payload.stats) {
-        setStats(payload.stats);
-        if (!autoFiltered.current && payload.stats.needsReview > 0) {
-          autoFiltered.current = true;
-          setStatusFilterState('needs_review');
-        }
-      }
+      if (payload.stats) setStats(payload.stats);
       setPagination(payload.pagination);
       setLoading(false);
     }
@@ -151,7 +141,6 @@ export function useLinkedInLookups({ onStaged } = {}) {
     eventEmitter,
     statusFilter,
     setStatusFilter: (next) => {
-      autoFiltered.current = true;
       setStatusFilterState(next);
       setPage(1);
     },
