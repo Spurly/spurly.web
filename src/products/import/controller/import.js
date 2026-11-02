@@ -175,12 +175,12 @@ async function loadLookups(eventEmitter, { status, search, limit, skip } = {}) {
   }
 }
 
-/** Emits PICK_SUCCESS with { id, profileUrl }, or PICK_FAILURE with a message. */
-async function pickLookup(eventEmitter, id, profileUrl) {
+/** Emits PICK_SUCCESS with { id, staged }, or PICK_FAILURE with a message. */
+async function pickLookup(eventEmitter, id, profileUrls) {
   try {
-    const res = await importGateway.pickLookup(id, profileUrl);
+    const res = await importGateway.pickLookup(id, profileUrls);
     if (!res?.success) throw new Error(res?.message || 'Could not add that person');
-    eventEmitter.emit(LOOKUP_EVENTS.PICK_SUCCESS, { id, profileUrl });
+    eventEmitter.emit(LOOKUP_EVENTS.PICK_SUCCESS, { id, staged: res.data?.staged || 1 });
   } catch (error) {
     eventEmitter.emit(LOOKUP_EVENTS.PICK_FAILURE, error?.response?.data?.message || error?.message || 'Could not add that person');
   }

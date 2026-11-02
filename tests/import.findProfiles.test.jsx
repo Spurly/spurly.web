@@ -54,18 +54,20 @@ describe('Find profiles — review drawer', () => {
   }));
   const row = { _id: 'l1', status: 'needs_review', input: { name: 'Rahul Sharma', company: 'TCS', title: 'Engineer' }, candidates };
 
-  it('shows the file facts and every candidate, and adds only the selected one', () => {
+  it('shows who we are looking for and every candidate, and adds exactly the ticked ones', () => {
     const picks = [];
     renderWithProviders(
       <LookupReviewDrawer row={row} position={1} total={1} busy={false} onPick={(u) => picks.push(u)} onNone={() => {}} onSkip={() => {}} onClose={() => {}} />,
     );
-    expect(screen.getByText('Your file says')).toBeTruthy();
-    expect(screen.getAllByRole('radio')).toHaveLength(3);
-    const add = screen.getByRole('button', { name: 'Add to staged leads' });
-    expect(add.disabled).toBe(true); // nothing selected → nothing can be added
-    fireEvent.click(screen.getAllByRole('radio')[1]);
-    fireEvent.click(add);
-    expect(picks).toEqual(['https://www.linkedin.com/in/rahul-sharma-2']);
+    expect(screen.getByText('Looking for')).toBeTruthy();
+    expect(screen.getByText('Which of these is Rahul?')).toBeTruthy();
+    expect(screen.getByText('Similar title')).toBeTruthy();
+    expect(screen.getAllByRole('checkbox')).toHaveLength(3);
+    expect(screen.getByRole('button', { name: 'Add to staged leads' }).disabled).toBe(true); // nothing ticked
+    fireEvent.click(screen.getAllByRole('checkbox')[1]);
+    fireEvent.click(screen.getAllByRole('checkbox')[2]);
+    fireEvent.click(screen.getByRole('button', { name: 'Add 2 to staged leads' }));
+    expect(picks).toEqual([['https://www.linkedin.com/in/rahul-sharma-2', 'https://www.linkedin.com/in/rahul-sharma-3']]);
   });
 });
 

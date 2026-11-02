@@ -71,12 +71,10 @@ function Stage({ id, step, active, onSelect, icon: Icon, label, count, caption, 
           >
             {fmt(count)}
           </span>
-          <span className="truncate text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
-            {caption}
-            {sublink}
-          </span>
+          {caption && <span className="truncate text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">{caption}</span>}
         </p>
       </div>
+      {sublink && <span className="shrink-0 -my-2">{sublink}</span>}
       {action && !empty && (
         <span className="shrink-0" onClick={(e) => e.stopPropagation()} role="presentation">
           {action}
@@ -88,19 +86,16 @@ function Stage({ id, step, active, onSelect, icon: Icon, label, count, caption, 
 
 function SubLink({ children, onClick }) {
   return (
-    <>
-      {' '}
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onClick();
-        }}
-        className="underline decoration-dotted underline-offset-2 text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)]"
-      >
-        {children}
-      </button>
-    </>
+    <Button
+      size="sm"
+      variant="link"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+    >
+      {children}
+    </Button>
   );
 }
 

@@ -90,9 +90,10 @@ async function getLookups({ status = 'all', search, limit = 50, skip = 0 } = {})
   return response.data;
 }
 
-/** Choose one candidate — it is staged. POST /imported-leads/lookups/:id/pick */
-async function pickLookup(id, profileUrl) {
-  const response = await apiGateway.post(`/imported-leads/lookups/${id}/pick`, { profileUrl });
+/** Choose one or more candidates — each is staged. POST /imported-leads/lookups/:id/pick */
+async function pickLookup(id, profileUrls) {
+  const urls = Array.isArray(profileUrls) ? profileUrls : [profileUrls];
+  const response = await apiGateway.post(`/imported-leads/lookups/${id}/pick`, { profileUrls: urls });
   return response.data;
 }
 

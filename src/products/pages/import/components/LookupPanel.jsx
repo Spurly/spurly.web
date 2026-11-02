@@ -80,11 +80,13 @@ export function LookupPanel({ store, controlled = false, reviewSignal = 0 }) {
     if (!next) toast.success(message, { description: 'Nothing left to review on this page.' });
   };
 
-  const handlePick = (profileUrl) => {
+  const handlePick = (profileUrls) => {
     const id = reviewRow?._id;
     if (!id) return;
-    eventEmitter.once(LOOKUP_EVENTS.PICK_SUCCESS, () => advance(id, 'Added to Staged leads'));
-    pick(id, profileUrl);
+    eventEmitter.once(LOOKUP_EVENTS.PICK_SUCCESS, ({ staged } = {}) =>
+      advance(id, staged > 1 ? `Added ${staged} people to Staged leads` : 'Added to Staged leads'),
+    );
+    pick(id, profileUrls);
   };
 
   const handleNone = () => {

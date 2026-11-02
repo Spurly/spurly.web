@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ArrowRight, Trash2, AlertCircle, X, UploadCloud, RotateCcw } from 'lucide-react';
 import { DataTable } from 'src/core/DataTable';
-import { Button, Dropdown, Input, useToast } from 'src/core/primitives';
+import { Button, Dropdown, IconButton, Input, useToast } from 'src/core/primitives';
 import { IMPORT_EVENTS } from 'src/products/import/constants/constants.js';
 import { stagingColumns } from './stagingColumns.jsx';
 
@@ -122,6 +122,13 @@ export function StagingPanel({ store, onGoToUpload, controlled = false, sendSign
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sendSignal]);
 
+  // An Email column of dashes on every row is noise — show it only when at
+  // least one row on screen actually has an email.
+  const visibleColumns = useMemo(
+    () => (leads.some((l) => l.email) ? stagingColumns : stagingColumns.filter((c) => c.key !== 'email')),
+    [leads],
+  );
+
   const selectedIds = useMemo(() => Array.from(selected), [selected]);
   const selectedRows = useMemo(
     () => leads.filter((l) => selected.has(l._id)),
@@ -212,14 +219,9 @@ export function StagingPanel({ store, onGoToUpload, controlled = false, sendSign
     <div className="relative flex items-center gap-3 px-4 py-2.5 bg-[var(--ui-danger-tint)] border-b border-[var(--ui-border)]">
       <AlertCircle size={16} className="shrink-0" style={{ color: 'var(--ui-danger)' }} />
       <p className="flex-1 text-[length:var(--ui-t-label)] pr-6 text-[var(--ui-text-secondary)]">{actionError}</p>
-      <button
-        type="button"
-        onClick={clearActionError}
-        aria-label="Dismiss"
-        className="absolute top-1/2 -translate-y-1/2 right-2.5 w-6 h-6 grid place-items-center rounded-[var(--ui-radius-sm)] text-[var(--ui-text-tertiary)] hover:bg-[var(--ui-surface-hover)] transition-colors"
-      >
-        <X size={14} />
-      </button>
+      <span className="absolute top-1/2 -translate-y-1/2 right-2">
+        <IconButton size="sm" icon={<X size={14} />} label="Dismiss" onClick={clearActionError} />
+      </span>
     </div>
   ) : selected.size > 0 ? (
     <p className="px-4 py-2 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] bg-[var(--ui-accent-tint)] border-b border-[var(--ui-border)]">
@@ -245,7 +247,7 @@ export function StagingPanel({ store, onGoToUpload, controlled = false, sendSign
     <div className="flex flex-col flex-1 min-h-0">
       <DataTable
         className="flex-1"
-        columns={stagingColumns}
+        columns={visibleColumns}
         data={leads}
         rowKey={(row) => row._id}
         loading={loading}

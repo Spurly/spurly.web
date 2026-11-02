@@ -123,8 +123,9 @@ export function useLinkedInLookups({ onStaged } = {}) {
     [busy],
   );
 
+  /** Add one or more of a row's candidates to staging. */
   const pick = useCallback(
-    (id, profileUrl) => run(() => importController.pickLookup(eventEmitter, id, profileUrl)),
+    (id, profileUrls) => run(() => importController.pickLookup(eventEmitter, id, profileUrls)),
     [run, eventEmitter],
   );
   /** Skip specific rows ("None of these", bulk Skip). */

@@ -195,23 +195,23 @@ export function FieldMappingPanel({ headers, sampleValues, rows, mapping, onChan
         </section>
 
         <section className={card}>
-          <button
-            type="button"
-            onClick={() => setDetailsOpen((v) => !v)}
-            aria-expanded={detailsOpen}
-            className="w-full flex items-center justify-between gap-3 px-[var(--ui-pad-lg)] py-3.5 text-left"
-          >
-            <span>
-              <span className="block text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">More details</span>
-              <span className="block text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5">
+          <header className="flex items-center justify-between gap-3 px-[var(--ui-pad-lg)] py-3.5">
+            <div>
+              <h3 className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">More details</h3>
+              <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-tertiary)] mt-0.5">
                 {detailsMapped} of {DETAIL_FIELDS.length} mapped · optional, used in your messages and filters
-              </span>
-            </span>
-            <ChevronDown
-              size={16}
-              className={`shrink-0 text-[var(--ui-text-tertiary)] transition-transform ${detailsOpen ? 'rotate-180' : ''}`}
-            />
-          </button>
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              aria-expanded={detailsOpen}
+              trailingIcon={<ChevronDown size={13} className={`transition-transform ${detailsOpen ? 'rotate-180' : ''}`} />}
+              onClick={() => setDetailsOpen((v) => !v)}
+            >
+              {detailsOpen ? 'Hide' : 'Show'}
+            </Button>
+          </header>
           {detailsOpen && (
             <div className="px-[var(--ui-pad-lg)] pb-2 border-t border-[var(--ui-border-hairline)] divide-y divide-[var(--ui-border-hairline)]">
               {DETAIL_FIELDS.map((key) => (
