@@ -17,6 +17,10 @@
  * the user can point at the right header. Only `profileUrl` plus some form of
  * name (either a full-name column, or a first-name column) are mandatory.
  *
+ * Rows with no LinkedIn URL are looked up on LinkedIn: by name + company,
+ * and/or by name + the company's website, which pins the company down exactly
+ * (a "Company Website" column is auto-detected like any other).
+ *
  * A CSV exported by Spurly still round-trips: its `profileurl` / `Name`
  * headers are the first alias of each field, so auto-detection maps it with
  * nothing for the user to do.
@@ -137,7 +141,7 @@ export const IMPORT_FIELDS = [
     key: 'profileUrl',
     label: 'LinkedIn URL',
     required: true,
-    hint: 'Required — unless you map Company: then Spurly finds the profile from name + company.',
+    hint: 'Required — unless you map Company or Website: then Spurly finds the profile from name + company.',
     aliases: [
       'profileurl', 'profilelink', 'linkedinurl', 'linkedinprofileurl', 'linkedinprofile',
       'personlinkedinurl', 'linkedinlink', 'linkedin', 'publicprofileurl', 'profile', 'url',
@@ -194,7 +198,7 @@ export const IMPORT_FIELDS = [
   },
   {
     key: 'website',
-    label: 'Website',
+    label: 'Company website',
     aliases: ['website', 'websiteurl', 'companywebsite', 'companyurl', 'domain', 'homepage', 'site'],
   },
 ];
@@ -214,6 +218,8 @@ export const IMPORT_FIELD_KEYS = IMPORT_FIELDS.map((f) => f.key);
  * step means these are now *field* requirements, not literal header names.
  */
 export const REQUIRED_COLUMNS = ['profileurl', 'name'];
+
+import { normalizeDomain } from './companyDomain.js';
 
 /** Sentinel used by the mapping UI for "this field has no column". */
 export const UNMAPPED = -1;
@@ -303,13 +309,14 @@ export function normalizeMapping(mapping, columnCount) {
  *
  * @returns {{ ok: boolean, missing: string[] }} missing = human labels
  */
-export const MISSING_URL_LABEL = 'LinkedIn URL (or Company)';
+export const MISSING_URL_LABEL = 'LinkedIn URL (or Company or Website)';
 export const MISSING_NAME_LABEL = 'Full name (or First name)';
 
 /**
- * A file needs a name, and EITHER a LinkedIn URL column OR a Company column.
- * With a company, rows that have no URL are looked up on LinkedIn by name +
- * company (backend importedLeads/service/lookup.js) instead of being skipped.
+ * A file needs a name, and a LinkedIn URL column OR a Company column OR a
+ * Company website column. With a company or a website, rows that have no URL
+ * are looked up on LinkedIn (backend importedLeads/service/lookup.js) instead
+ * of being skipped; a website identifies the company exactly.
  *
  * @returns {{ ok: boolean, missing: string[], canFindProfiles: boolean }}
  */
@@ -317,10 +324,11 @@ export function validateMapping(mapping) {
   const missing = [];
   const hasUrl = mapping?.profileUrl !== undefined && mapping?.profileUrl !== UNMAPPED && mapping?.profileUrl >= 0;
   const hasCompany = mapping?.company !== undefined && mapping?.company >= 0;
-  if (!hasUrl && !hasCompany) missing.push(MISSING_URL_LABEL);
+  const hasWebsite = mapping?.website !== undefined && mapping?.website >= 0;
+  if (!hasUrl && !hasCompany && !hasWebsite) missing.push(MISSING_URL_LABEL);
   const hasName = mapping?.name >= 0 || mapping?.firstName >= 0;
   if (!hasName) missing.push(MISSING_NAME_LABEL);
-  return { ok: missing.length === 0, missing, canFindProfiles: hasCompany };
+  return { ok: missing.length === 0, missing, canFindProfiles: hasCompany || hasWebsite };
 }
 
 /**
@@ -392,8 +400,9 @@ export function extractProfiles(rows = [], mapping = {}) {
   const seenLookups = new Set();
 
   const profiles = [];
-  /* Rows with no URL but a name and a company — Spurly finds the profile on
-     LinkedIn (see validateMapping). Same shape as a profile, minus the URL. */
+  /* Rows with no URL but a name and a company or a usable company website —
+     Spurly finds the profile on LinkedIn (see validateMapping). Same shape as
+     a profile, minus the URL. */
   const lookupRows = [];
   rows.forEach((row, i) => {
     const rawUrl = cellAt(row, mapping.profileUrl ?? UNMAPPED);
@@ -402,11 +411,15 @@ export function extractProfiles(rows = [], mapping = {}) {
       const lastName = cellAt(row, mapping.lastName ?? UNMAPPED);
       const name = cellAt(row, mapping.name ?? UNMAPPED) || [firstName, lastName].filter(Boolean).join(' ');
       const company = cellAt(row, mapping.company ?? UNMAPPED);
-      if (!name || !company) {
+      const website = cellAt(row, mapping.website ?? UNMAPPED);
+      // A website only counts when it names a company: "gmail.com", "n/a" or a
+      // link host identify nobody (the backend applies the same rule).
+      const domain = normalizeDomain(website);
+      if (!name || (!company && !domain)) {
         skippedNoUrl++;
         return;
       }
-      const key = `${name.toLowerCase()}|${company.toLowerCase()}`;
+      const key = `${name.toLowerCase()}|${company ? company.toLowerCase() : `@${domain}`}`;
       if (seenLookups.has(key)) return;
       seenLookups.add(key);
       lookupRows.push({
@@ -420,7 +433,7 @@ export function extractProfiles(rows = [], mapping = {}) {
         headline: cellAt(row, mapping.headline ?? UNMAPPED),
         email: cellAt(row, mapping.email ?? UNMAPPED),
         phone: cellAt(row, mapping.phone ?? UNMAPPED),
-        website: cellAt(row, mapping.website ?? UNMAPPED),
+        website,
         _needsLookup: true,
         _id: `lookup_${Date.now()}_${i}`,
       });

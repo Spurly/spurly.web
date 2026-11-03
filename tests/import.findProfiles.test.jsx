@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
 import { analyzeCsv, extractProfiles, validateMapping, UNMAPPED } from 'src/shared/utils/csvImport.js';
+import { normalizeDomain } from 'src/shared/utils/companyDomain.js';
 import { LookupReviewDrawer } from 'src/products/pages/import/components/LookupReviewDrawer.jsx';
 import { renderWithProviders } from './helpers.jsx';
 
@@ -40,7 +41,7 @@ describe('csvImport — rows without a LinkedIn URL', () => {
 
   it('neither URL nor company → still asks for one of them', () => {
     const a = analyzeCsv('Name,Title\nAda,Engineer\n');
-    expect(validateMapping(a.mapping)).toMatchObject({ ok: false, missing: ['LinkedIn URL (or Company)'] });
+    expect(validateMapping(a.mapping)).toMatchObject({ ok: false, missing: ['LinkedIn URL (or Company or Website)'] });
   });
 });
 
@@ -109,5 +110,88 @@ describe('Match columns — live preview', () => {
     expect(screen.getByText('Spurly will find')).toBeTruthy();
     expect(screen.getByText('straight to your Hub').previousSibling.textContent).toBe('1');
     expect(screen.getByText('Spurly will find on LinkedIn').previousSibling.textContent).toBe('1');
+  });
+});
+
+describe('csvImport — Company Website column', () => {
+  it('"Company Website" is auto-detected as the website, not the company', () => {
+    const a = analyzeCsv('First Name,Last Name,Company,Company Website\nDeepinder,Goyal,Zomato,zomato.com\n');
+    expect(a.mapping.company).toBe(2);
+    expect(a.mapping.website).toBe(3);
+  });
+
+  it('a file with a name and ONLY a website column is importable and every row is looked up', () => {
+    const a = analyzeCsv('Full Name,Company Website\nDeepinder Goyal,https://www.eternal.com/\nSarthak Vats,getspurly.com\n');
+    expect(a.mapping.company).toBe(UNMAPPED);
+    expect(validateMapping(a.mapping)).toMatchObject({ ok: true, canFindProfiles: true });
+    const out = extractProfiles(a.rows, a.mapping);
+    expect(out.lookupRows.map((r) => r.name)).toEqual(['Deepinder Goyal', 'Sarthak Vats']);
+    expect(out.lookupRows[0]).toMatchObject({ company: '', website: 'https://www.eternal.com/', profileUrl: '', _needsLookup: true });
+    expect(out.skippedCount).toBe(0);
+  });
+
+  it('a website-only row is no longer skipped, but a bare name or a useless website still is', () => {
+    const csv = [
+      'Name,Company,Company Website',
+      'Deepinder Goyal,Zomato,zomato.com',
+      'Website Only,,getspurly.com',
+      'Bare Name,,',
+      'Mailbox Only,,gmail.com',
+      'Junk Only,,n/a',
+    ].join('\n');
+    const a = analyzeCsv(csv);
+    const out = extractProfiles(a.rows, a.mapping);
+    expect(out.lookupRows.map((r) => r.name)).toEqual(['Deepinder Goyal', 'Website Only']);
+    expect(out.skippedNoUrl).toBe(3);
+  });
+
+  it('dedupes by name + website when there is no company; a company keeps its old key', () => {
+    const csv = [
+      'Name,Company,Company Website',
+      'Asha Rao,,acme.com',
+      'Asha Rao,,https://WWW.acme.com/about',
+      'Asha Rao,,globex.com',
+      'Rahul Sharma,TCS,tcs.com',
+      'Rahul Sharma,tcs,other.com',
+    ].join('\n');
+    const out = extractProfiles(analyzeCsv(csv).rows, analyzeCsv(csv).mapping);
+    expect(out.lookupRows.map((r) => `${r.name}|${r.website}`)).toEqual(['Asha Rao|acme.com', 'Asha Rao|globex.com', 'Rahul Sharma|tcs.com']);
+  });
+
+  it('a row that has a LinkedIn URL goes straight to the Hub whatever its website says', () => {
+    const csv = 'Name,LinkedIn URL,Company Website\nAda Lovelace,linkedin.com/in/ada,gmail.com\n';
+    const a = analyzeCsv(csv);
+    const out = extractProfiles(a.rows, a.mapping);
+    expect(out.profiles).toHaveLength(1);
+    expect(out.lookupRows).toHaveLength(0);
+  });
+
+  it('normalizeDomain mirrors the backend rules', () => {
+    for (const [input, expected] of [
+      ['https://www.getspurly.com/', 'getspurly.com'],
+      ['getspurly.com', 'getspurly.com'],
+      ['http://getspurly.com/pricing', 'getspurly.com'],
+      ['WWW.GETSPURLY.COM', 'getspurly.com'],
+      ['https://www.tata.co.in', 'tata.co.in'],
+      ['gmail.com', ''],
+      ['https://www.linkedin.com/company/x', ''],
+      ['n/a', ''],
+      ['', ''],
+    ]) expect(normalizeDomain(input)).toBe(expected);
+  });
+});
+
+describe('Match columns — website-only file', () => {
+  it('maps the website as a key field, counts website rows as "Spurly will find", and shows the domain', async () => {
+    const { FieldMappingPanel } = await import('src/products/pages/import/components/FieldMappingPanel.jsx');
+    const a = analyzeCsv('Full Name,Company Website\nDeepinder Goyal,https://www.eternal.com/\nBare Name,\n');
+    renderWithProviders(
+      <FieldMappingPanel headers={a.headers} sampleValues={a.sampleValues} rows={a.rows} mapping={a.mapping} onChange={() => {}} onReset={() => {}} />,
+    );
+    expect(screen.getByText('Company website')).toBeTruthy();
+    expect(screen.getByText('Deepinder Goyal')).toBeTruthy();
+    expect(screen.getByText('eternal.com')).toBeTruthy();
+    expect(screen.getByText('Spurly will find on LinkedIn').previousSibling.textContent).toBe('1');
+    expect(screen.getByText('skipped — missing name, URL, company or website').previousSibling.textContent).toBe('1');
   });
 });

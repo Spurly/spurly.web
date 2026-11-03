@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { CheckCircle2, Circle, AlertCircle, Wand2, ChevronDown, Link2, Search, Ban } from 'lucide-react';
 import { Dropdown } from 'src/core/primitives/Dropdown';
 import { Avatar, Button } from 'src/core/primitives';
+import { normalizeDomain } from 'src/shared/utils/companyDomain.js';
 import {
   IMPORT_FIELD_BY_KEY,
   UNMAPPED,
@@ -25,8 +26,8 @@ import {
  *           a dropdown label is not.
  */
 
-const KEY_FIELDS = ['name', 'firstName', 'lastName', 'profileUrl', 'company'];
-const DETAIL_FIELDS = ['title', 'location', 'headline', 'email', 'phone', 'website'];
+const KEY_FIELDS = ['name', 'firstName', 'lastName', 'profileUrl', 'company', 'website'];
+const DETAIL_FIELDS = ['title', 'location', 'headline', 'email', 'phone'];
 
 const KEY_LABELS = {
   name: 'Full name',
@@ -34,6 +35,7 @@ const KEY_LABELS = {
   lastName: 'Last name',
   profileUrl: 'LinkedIn URL',
   company: 'Company',
+  website: 'Company website',
 };
 
 function isMapped(mapping, key) {
@@ -81,7 +83,8 @@ function FieldRow({ fieldKey, label, hint, mapping, sampleValues, columnOptions,
 }
 
 function PreviewPerson({ row, kind }) {
-  const subtitle = [row.title, row.company].filter(Boolean).join(' at ');
+  // A row found by its website alone has no company text yet — show the domain.
+  const subtitle = [row.title, row.company || normalizeDomain(row.website)].filter(Boolean).join(' at ');
   const tag = {
     ready: { icon: <Link2 size={11} />, text: 'Has LinkedIn URL', color: 'var(--ui-success-fg)', bg: 'var(--ui-success-tint)' },
     find: { icon: <Search size={11} />, text: 'Spurly will find', color: 'var(--ui-accent-fg)', bg: 'var(--ui-accent-tint)' },
@@ -92,7 +95,7 @@ function PreviewPerson({ row, kind }) {
       <div className="min-w-0 flex-1">
         <p className="text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-primary)] truncate">{row.name}</p>
         <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] truncate">
-          {subtitle || 'No title or company mapped'}
+          {subtitle || 'No title, company or website mapped'}
           {row.location ? ` · ${row.location}` : ''}
         </p>
       </div>
@@ -128,6 +131,7 @@ export function FieldMappingPanel({ headers, sampleValues, rows, mapping, onChan
   const { ok, canFindProfiles } = validateMapping(mapping);
   const hasName = isMapped(mapping, 'name') || isMapped(mapping, 'firstName');
   const hasUrl = isMapped(mapping, 'profileUrl');
+  const hasCompany = isMapped(mapping, 'company');
 
   const setField = (key, value) => {
     const index = parseInt(value, 10);
@@ -155,8 +159,11 @@ export function FieldMappingPanel({ headers, sampleValues, rows, mapping, onChan
 
   const keyHints = {
     name: 'Or map first + last name instead',
-    profileUrl: canFindProfiles && !hasUrl ? 'Optional — Spurly finds profiles from name + company' : 'Rows with a URL import straight away',
-    company: hasUrl ? 'Lets Spurly find rows that have no URL' : 'Needed to find people without a URL',
+    profileUrl: canFindProfiles && !hasUrl ? 'Optional — Spurly finds profiles from name + company or website' : 'Rows with a URL import straight away',
+    company: hasUrl ? 'Lets Spurly find rows that have no URL' : 'Needed to find people without a URL — or map Company website',
+    website: hasCompany
+      ? 'Pins down the exact company — far more reliable than a name'
+      : 'Spurly finds the company from its website, so no Company column is needed',
   };
 
   /* One card, two panes — the same anatomy as the Leads table card: a header
@@ -174,7 +181,7 @@ export function FieldMappingPanel({ headers, sampleValues, rows, mapping, onChan
           <div className="min-w-0">
             <h3 className="text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)]">Match your columns</h3>
             <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)]">
-              A name, plus a LinkedIn URL or a company. We matched what we could.
+              A name, plus a LinkedIn URL, a company or a company website. We matched what we could.
             </p>
           </div>
           <Button variant="ghost" size="sm" leadingIcon={<Wand2 size={13} />} onClick={onReset} title="Discard changes and re-detect">
@@ -195,7 +202,7 @@ export function FieldMappingPanel({ headers, sampleValues, rows, mapping, onChan
                 sampleValues={sampleValues}
                 columnOptions={columnOptions}
                 onChange={setField}
-                status={key === 'profileUrl' || key === 'company' ? urlCompanyStatus(key) : nameStatus(key)}
+                status={key === 'profileUrl' || key === 'company' || key === 'website' ? urlCompanyStatus(key) : nameStatus(key)}
               />
             ))}
           </div>
@@ -249,7 +256,7 @@ export function FieldMappingPanel({ headers, sampleValues, rows, mapping, onChan
               <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
                 {!hasName
                   ? 'Pick the column with each person’s name.'
-                  : 'Pick a LinkedIn URL column — or a Company column so Spurly can find each person.'}
+                  : 'Pick a LinkedIn URL column — or a Company or Company website column so Spurly can find each person.'}
               </p>
             </div>
           ) : (
@@ -270,7 +277,7 @@ export function FieldMappingPanel({ headers, sampleValues, rows, mapping, onChan
                 <Outcome icon={<Link2 size={14} />} tone="var(--ui-success)" value={extracted.profiles.length} label="straight to your Hub" />
                 <Outcome icon={<Search size={14} />} tone="var(--ui-accent)" value={extracted.lookupRows.length} label="Spurly will find on LinkedIn" />
                 {extracted.skippedCount > 0 && (
-                  <Outcome icon={<Ban size={14} />} tone="var(--ui-text-tertiary)" value={extracted.skippedCount} label="skipped — missing name, URL or company" />
+                  <Outcome icon={<Ban size={14} />} tone="var(--ui-text-tertiary)" value={extracted.skippedCount} label="skipped — missing name, URL, company or website" />
                 )}
               </div>
             </>
