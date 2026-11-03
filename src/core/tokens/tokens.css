@@ -528,6 +528,23 @@
   .ui-dock-sheet { animation: none; }
 }
 
+/* Tooltip arrival: a short fade that drifts in from the side it sits on
+   (--ui-tip-dx/dy default to "from below"; the Tooltip sets them per placement inline). Mounted on open, so
+   a keyframe rather than a transition. Pointer-driven, so --ui-ease. */
+@keyframes ui-tooltip-in {
+  from { opacity: 0; transform: translate(var(--ui-tip-dx, 0px), var(--ui-tip-dy, 4px)) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+.ui-tooltip {
+  --ui-tip-dx: 0px;
+  --ui-tip-dy: 4px;
+  animation: ui-tooltip-in var(--ui-dur-fast) var(--ui-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-tooltip { animation: none; }
+}
+
 /* ============================================================
    Two base rules that belong with the tokens rather than in a
    component: the app's default face, and the reading treatment.

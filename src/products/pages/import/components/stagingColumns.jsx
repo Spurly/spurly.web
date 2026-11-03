@@ -77,7 +77,17 @@ export function EnrichStatusCell({ value, row = {} }) {
         {s.label}
       </Badge>
       {failReason && (
-        <Tooltip content={failReason} placement="top">
+        <Tooltip
+          placement="top"
+          content={(
+            <span className="block">
+              <span className="block mb-1 text-[length:var(--ui-t-micro)] font-medium uppercase tracking-[0.06em] text-[color-mix(in_srgb,var(--ui-danger)_55%,white)]">
+                Why it failed
+              </span>
+              <span className="block">{failReason}</span>
+            </span>
+          )}
+        >
           <span
             tabIndex={0}
             role="img"
