@@ -82,7 +82,7 @@ export function EnrichStatusCell({ value, row = {} }) {
             tabIndex={0}
             role="img"
             aria-label="Why this failed"
-            className="inline-flex items-center justify-center text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-secondary)] cursor-help"
+            className="inline-flex items-center justify-center text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-secondary)] cursor-pointer"
           >
             <Info size={14} />
           </span>
