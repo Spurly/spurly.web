@@ -2,6 +2,14 @@ import { useCallback, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { usePopperPosition } from '../Popper';
 
+/** Where a tooltip drifts in from: the side it is attached to (see .ui-tooltip). */
+const DRIFT = {
+  top: { '--ui-tip-dx': '0px', '--ui-tip-dy': '4px' },
+  bottom: { '--ui-tip-dx': '0px', '--ui-tip-dy': '-4px' },
+  left: { '--ui-tip-dx': '4px', '--ui-tip-dy': '0px' },
+  right: { '--ui-tip-dx': '-4px', '--ui-tip-dy': '0px' },
+};
+
 /**
  * Tooltip with hover intent.
  *
@@ -71,9 +79,10 @@ export function Tooltip({
               top: position.y,
               zIndex: 'var(--ui-z-popover)',
               opacity: position.ready ? 1 : 0,
-              maxWidth: 260,
+              maxWidth: 280,
+              ...DRIFT[position.placement || placement],
             }}
-            className="pointer-events-none px-2 py-1 rounded-[var(--ui-radius-sm)] bg-[var(--ui-surface-inverse)] text-[var(--ui-text-inverse)] text-[length:var(--ui-t-label)] leading-snug shadow-[var(--ui-shadow-md)] whitespace-pre-line"
+            className={`${position.ready ? 'ui-tooltip ' : ''}pointer-events-none px-3 py-2 rounded-[var(--ui-radius-md)] border border-[color-mix(in_srgb,var(--ui-text-inverse)_12%,transparent)] bg-[var(--ui-surface-inverse)] text-[var(--ui-text-inverse)] text-[length:var(--ui-t-label)] leading-snug tracking-[-0.003em] shadow-[var(--ui-shadow-lg)] whitespace-pre-line`}
           >
             {content}
           </div>,

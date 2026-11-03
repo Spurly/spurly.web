@@ -1,6 +1,6 @@
 import { LinkedInIcon } from 'src/core/icons';
-import { Check } from 'lucide-react';
-import { Badge } from 'src/core/primitives';
+import { Check, Info } from 'lucide-react';
+import { Badge, Tooltip } from 'src/core/primitives';
 import { TextCell, PersonCell, CompanyCell, LocationCell, LinkCell } from 'src/core/DataTable';
 
 /**
@@ -64,21 +64,40 @@ function SourceCell({ row }) {
 
 export function EnrichStatusCell({ value, row = {} }) {
   const s = ENRICH_STATUS[value] || ENRICH_STATUS.pending;
-  // The failure reason is the most useful thing here, and a tooltip keeps it
-  // out of the way until something has actually gone wrong.
-  const title = value === 'failed' && row.enrichError ? row.enrichError : undefined;
+  // The reason a row failed is the one thing the user needs next, so it gets a
+  // visible (i) beside the badge — a bare `title` on the badge gives no hint
+  // that anything is there to hover.
+  const failReason = value === 'failed'
+    ? row.enrichError || 'LinkedIn could not load this profile. Check the LinkedIn URL in your file.'
+    : '';
 
   return (
     <span className="flex items-center gap-2 min-w-0">
-      <Badge
-        variant="minimal"
-        tone={s.tone}
-        dot={s.dot}
-        pulse={s.pulse}
-        title={title}
-      >
+      <Badge variant="minimal" tone={s.tone} dot={s.dot} pulse={s.pulse}>
         {s.label}
       </Badge>
+      {failReason && (
+        <Tooltip
+          placement="top"
+          content={(
+            <span className="block">
+              <span className="block mb-1 text-[length:var(--ui-t-micro)] font-medium uppercase tracking-[0.06em] text-[color-mix(in_srgb,var(--ui-danger)_55%,white)]">
+                Why it failed
+              </span>
+              <span className="block">{failReason}</span>
+            </span>
+          )}
+        >
+          <span
+            tabIndex={0}
+            role="img"
+            aria-label="Why this failed"
+            className="inline-flex items-center justify-center text-[var(--ui-text-tertiary)] hover:text-[var(--ui-text-secondary)] cursor-pointer"
+          >
+            <Info size={14} />
+          </span>
+        </Tooltip>
+      )}
       {row.alreadyInHub && (
         <Badge
           size="sm"
