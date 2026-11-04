@@ -28,12 +28,15 @@ import { Avatar, Tooltip } from "src/core/primitives";
 import { NotificationBell } from "src/core/pages/notifications/components/NotificationBell.jsx";
 import { SidebarBrand } from "./SidebarBrand";
 import { AskSpurly } from "./AskSpurly";
+import { OrgAccountSwitcher } from "./OrgAccountSwitcher";
 import { AccountStatusBanner } from "./AccountStatusBanner";
 import { TrialBanner } from "./TrialBanner";
 import { ImpersonationBanner } from "./ImpersonationBanner";
 import { useSidebarSummary } from "src/core/sidebarSummary/hooks/useSidebarSummary.js";
 import { formatCompactNumber } from "src/shared/utils/formatCompactNumber.js";
 import { AUTH_EVENTS } from "src/core/auth/constants/constants.js";
+import { useOrgState } from "src/core/org/hooks/useOrgState.js";
+import { ORG_NAV_ALWAYS, ORG_NAV_BY_FEATURE } from "src/core/org/constants/constants.js";
 
 /**
  * One sidebar, one product now.
@@ -463,15 +466,28 @@ export function DashboardLayout({
     }
   }, [expanded]);
 
-  const sections = useMemo(
-    () =>
-      NAV_SECTIONS.map((section) =>
-        section.label === "Manage" && user?.isAdmin
-          ? { ...section, items: [...section.items, ADMIN_ITEM] }
-          : section,
-      ),
-    [user?.isAdmin],
-  );
+  /* An organization member's sidebar comes from the server (their accounts belong to the org and
+     have no personal record, so the personal rows would only say "not connected"): Settings, plus
+     the rows of each workspace feature the server says is on. Solo users keep the full tree. */
+  const org = useOrgState();
+  const orgFeatures = org.features;
+  const sections = useMemo(() => {
+    let base = NAV_SECTIONS;
+    if (org.isMember) {
+      const allowed = new Set(ORG_NAV_ALWAYS);
+      for (const [feature, hrefs] of Object.entries(ORG_NAV_BY_FEATURE)) {
+        if (orgFeatures[feature]) hrefs.forEach((href) => allowed.add(href));
+      }
+      base = NAV_SECTIONS
+        .map((section) => ({ ...section, items: section.items.filter((item) => allowed.has(item.href)) }))
+        .filter((section) => section.items.length > 0);
+    }
+    return base.map((section) =>
+      section.label === "Manage" && user?.isAdmin
+        ? { ...section, items: [...section.items, ADMIN_ITEM] }
+        : section,
+    );
+  }, [user?.isAdmin, org.isMember, orgFeatures]);
 
   /* Some routes nest under a sibling's href (Settings at /dashboard/settings,
      LinkedIn at /dashboard/settings/linkedin), so pick only the most
@@ -609,6 +625,8 @@ export function DashboardLayout({
             </Tooltip>
           )}
         </div>
+
+        {expanded && org.isMember && org.workspaceEnabled && <OrgAccountSwitcher />}
 
         <nav className={`flex-1 overflow-y-auto flex flex-col gap-3.5 ${expanded ? "px-3" : "px-2"}`}>
           {sections.map((section) => (

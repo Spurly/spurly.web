@@ -10,7 +10,8 @@ import { AiContextTab } from './components/AiContextTab.jsx';
 import { SendingLimitsTab } from './components/SendingLimitsTab.jsx';
 import { TeamTab } from './components/TeamTab.jsx';
 import { OrganizationTab } from './components/OrganizationTab.jsx';
-import { isOrgSessionFor } from 'src/shared/utils/orgSession.js';
+import { useOrgState } from 'src/core/org/hooks/useOrgState.js';
+import { ORG_SETTINGS_TABS } from 'src/core/org/constants/constants.js';
 
 export { SettingsFrame } from './components/SettingsFrame.jsx';
 
@@ -22,9 +23,10 @@ export { SettingsFrame } from './components/SettingsFrame.jsx';
 export function SettingsPage() {
   const [params] = useSearchParams();
   const { user } = useAuth();
+  const { isMember } = useOrgState();
   const requested = params.get('tab');
   const hidden = user?.isManaged && MANAGED_HIDDEN_TABS.includes(requested);
-  const orgHidden = requested === 'organization' && !isOrgSessionFor(user);
+  const orgHidden = isMember ? !ORG_SETTINGS_TABS.includes(requested) : requested === 'organization';
   const activeTab = SETTINGS_TABS.some((x) => x.id === requested) && requested !== 'linkedin' && requested !== 'assistants' && !hidden && !orgHidden ? requested : 'account';
 
   return (

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { isManagedSession } from 'src/shared/utils/managedSession.js';
+import { withActiveAccount } from 'src/shared/orgAccount/activeAccount.js';
 
 /**
  * API Gateway
@@ -81,7 +82,8 @@ class ApiGateway {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
-      return config;
+      // An organization member's chosen LinkedIn account rides on every account-bound request.
+      return withActiveAccount(config);
     });
 
     // Response interceptor - handle errors

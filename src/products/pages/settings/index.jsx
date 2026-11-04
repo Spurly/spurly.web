@@ -1,4 +1,7 @@
+import { Navigate } from 'react-router-dom';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
+import { useOrgState } from 'src/core/org/hooks/useOrgState.js';
+import { ORG_PATHS } from 'src/core/org/constants/constants.js';
 import { SettingsFrame } from '../accountSettings/components/SettingsFrame.jsx';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { Skeleton } from 'src/core/primitives';
@@ -22,6 +25,14 @@ import { linkedInSettingsStrings as t } from './strings.js';
  * wrong is how a user ends up staring at "Connected" while nothing sends.
  */
 export function LinkedInSettingsPage() {
+  // An organization member connects LinkedIn accounts in Settings -> Organization; a personal
+  // connect here would register the same member a second time (the server refuses it too).
+  const { isMember } = useOrgState();
+  if (isMember) return <Navigate to={ORG_PATHS.SETTINGS} replace />;
+  return <PersonalLinkedInSettings />;
+}
+
+function PersonalLinkedInSettings() {
   const {
     account,
     loading,

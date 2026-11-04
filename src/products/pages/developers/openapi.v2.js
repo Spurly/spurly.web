@@ -165,7 +165,7 @@ const CONNECT_OPS = {
   '/orgs/{orgId}/accounts/connect': {
     post: op({
       id: 'v2ConnectAccount', tag: T.connect, summary: 'Connect a LinkedIn account',
-      description: 'Signs a LinkedIn account in under the organisation with credentials or a session cookie. Answers `connected`, or `checkpoint` when LinkedIn wants a verification step: finish it with the checkpoint calls using the `connectId`. A LinkedIn member can be live in one organisation at a time (`409 PROFILE_IN_USE`). Limited to 5 connects per hour per organisation. Spurly does not host a sign-in page for `/v2`.',
+      description: 'Signs a LinkedIn account in under the organisation with credentials or a session cookie. Answers `connected`, or `checkpoint` when LinkedIn wants a verification step: finish it with the checkpoint calls using the `connectId`. A LinkedIn member can be live in one organisation at a time (`409 PROFILE_IN_USE`). Limited to 5 connects per hour per organisation (`429 ORG_CONNECT_LIMIT`); if LinkedIn itself asks for a pause you get `429 LINKEDIN_RATE_LIMITED`. Spurly does not host a sign-in page for `/v2`.',
       params: ['orgId'], body: connectBody, bodyExample: { method: 'credentials', username: 'jane@example.com', password: '••••••••', endUserIp: '203.0.113.7' },
       success: connectResult, extra: connectErrors,
     }),
@@ -468,7 +468,7 @@ export const OPENAPI_V2 = {
       V2Gone: errorResponse('The sign-in expired. Start the connection again.', 'EXPIRED', 'This sign-in expired. Start the connection again.', 410),
       V2Unprocessable: errorResponse('LinkedIn refused the sign-in, or the text is too long (`TOO_LONG`).', 'TOO_LONG', 'The text is too long.', 422),
       V2RateLimited: {
-        ...errorResponse('Too many requests. Wait `Retry-After` seconds.', 'RATE_LIMITED', 'Too many requests.', 429),
+        ...errorResponse('Too many requests (`RATE_LIMITED`). The connect calls answer `ORG_CONNECT_LIMIT` when your organisation used its 5 sign-in attempts for the hour, and `LINKEDIN_RATE_LIMITED` when LinkedIn asks for a pause on sign-ins. Wait `Retry-After` seconds.', 'RATE_LIMITED', 'Too many requests.', 429),
         headers: { 'Retry-After': { description: 'Seconds to wait.', schema: { type: 'integer' } } },
       },
       V2ServerError: errorResponse('Something went wrong on our side. Safe to retry a read.', 'INTERNAL', 'Something went wrong', 500),

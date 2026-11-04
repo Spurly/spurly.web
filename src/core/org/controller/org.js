@@ -49,6 +49,8 @@ async function verifyLoginCode(eventEmitter, email, code) {
 
 const loadOrgs = (eventEmitter) => run(eventEmitter, () => orgGateway.getOrgs(), ORG_EVENTS.ORGS_LOADED, ORG_EVENTS.ORGS_FAILED);
 
+const loadState = (eventEmitter) => run(eventEmitter, () => orgGateway.getState(), ORG_EVENTS.STATE_LOADED, ORG_EVENTS.STATE_FAILED);
+
 const loadAccounts = (eventEmitter, params) => run(
   eventEmitter, () => orgGateway.getAccounts(params), ORG_EVENTS.ACCOUNTS_LOADED, ORG_EVENTS.ACCOUNTS_FAILED,
 );
@@ -57,6 +59,10 @@ const disconnectAccount = (eventEmitter, accountId) => run(
   eventEmitter, () => orgGateway.disconnectAccount(accountId), ORG_EVENTS.ACCOUNT_DISCONNECTED, ORG_EVENTS.ACCOUNT_DISCONNECT_FAILED,
 );
 
-const orgController = { requestLoginCode, verifyLoginCode, loadOrgs, loadAccounts, disconnectAccount };
+const setWorkspace = (eventEmitter, orgId, enabled) => run(
+  eventEmitter, () => orgGateway.setWorkspace(orgId, enabled), ORG_EVENTS.WORKSPACE_SET, ORG_EVENTS.WORKSPACE_FAILED,
+);
+
+const orgController = { requestLoginCode, verifyLoginCode, loadOrgs, loadState, loadAccounts, disconnectAccount, setWorkspace };
 
 export default orgController;

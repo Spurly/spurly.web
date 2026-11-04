@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import adminController from 'src/core/admin/controller/admin.js';
 import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
-import { Badge, Button, Drawer, useConfirm, useToast } from 'src/core/primitives';
+import { Badge, Button, Drawer, Input, useConfirm, useToast } from 'src/core/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 import { OrgStatusBadge } from './orgColumns.jsx';
 import { shortDate } from './format.js';
@@ -41,6 +41,9 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
   const [org, setOrg] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [workspaceBusy, setWorkspaceBusy] = useState(false);
+  const [creditsBusy, setCreditsBusy] = useState(false);
+  const [creditsAmount, setCreditsAmount] = useState('');
 
   const load = useCallback(() => {
     if (orgId) adminController.getOrg(eventEmitter, orgId);
@@ -64,15 +67,43 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
       setBusy(false);
       toast.error(getToastError(err, "Couldn't change the organization's status"));
     }
+    function handleWorkspaceSet() {
+      setWorkspaceBusy(false);
+      toast.success('Workspace updated');
+      load();
+      onChanged?.();
+    }
+    function handleWorkspaceFailed(err) {
+      setWorkspaceBusy(false);
+      toast.error(getToastError(err, "Couldn't change the workspace"));
+    }
+    function handleCreditsAdded(data) {
+      setCreditsBusy(false);
+      setCreditsAmount('');
+      toast.success(`Credits added. The pool now has ${data?.creditBalance ?? ''}.`);
+      load();
+    }
+    function handleCreditsFailed(err) {
+      setCreditsBusy(false);
+      toast.error(getToastError(err, "Couldn't add credits"));
+    }
+    eventEmitter.on(ADMIN_EVENTS.ADD_ORG_CREDITS_SUCCESS, handleCreditsAdded);
+    eventEmitter.on(ADMIN_EVENTS.ADD_ORG_CREDITS_FAILURE, handleCreditsFailed);
     eventEmitter.on(ADMIN_EVENTS.GET_ORG_SUCCESS, handleLoaded);
     eventEmitter.on(ADMIN_EVENTS.GET_ORG_FAILURE, handleLoadFailed);
     eventEmitter.on(ADMIN_EVENTS.SET_ORG_STATUS_SUCCESS, handleStatusSet);
     eventEmitter.on(ADMIN_EVENTS.SET_ORG_STATUS_FAILURE, handleStatusFailed);
+    eventEmitter.on(ADMIN_EVENTS.SET_ORG_WORKSPACE_SUCCESS, handleWorkspaceSet);
+    eventEmitter.on(ADMIN_EVENTS.SET_ORG_WORKSPACE_FAILURE, handleWorkspaceFailed);
     return () => {
       eventEmitter.off(ADMIN_EVENTS.GET_ORG_SUCCESS, handleLoaded);
       eventEmitter.off(ADMIN_EVENTS.GET_ORG_FAILURE, handleLoadFailed);
       eventEmitter.off(ADMIN_EVENTS.SET_ORG_STATUS_SUCCESS, handleStatusSet);
       eventEmitter.off(ADMIN_EVENTS.SET_ORG_STATUS_FAILURE, handleStatusFailed);
+      eventEmitter.off(ADMIN_EVENTS.SET_ORG_WORKSPACE_SUCCESS, handleWorkspaceSet);
+      eventEmitter.off(ADMIN_EVENTS.SET_ORG_WORKSPACE_FAILURE, handleWorkspaceFailed);
+      eventEmitter.off(ADMIN_EVENTS.ADD_ORG_CREDITS_SUCCESS, handleCreditsAdded);
+      eventEmitter.off(ADMIN_EVENTS.ADD_ORG_CREDITS_FAILURE, handleCreditsFailed);
     };
   }, [eventEmitter, toast, load, onChanged]);
 
@@ -97,6 +128,33 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
       if (!ok) return;
       setBusy(true);
       adminController.setOrgStatus(eventEmitter, orgId, next);
+    });
+  }
+
+  const workspaceOn = org?.workspaceEnabled === true;
+
+  const creditsNumber = Number(creditsAmount);
+  const creditsValid = Number.isInteger(creditsNumber) && creditsNumber >= 1 && creditsNumber <= 100000;
+
+  function handleAddCredits() {
+    if (!creditsValid) return;
+    setCreditsBusy(true);
+    adminController.addOrgCredits(eventEmitter, orgId, creditsNumber, '');
+  }
+
+  function handleWorkspaceToggle() {
+    const next = !workspaceOn;
+    confirm({
+      title: next ? 'Turn the workspace on?' : 'Turn the workspace off?',
+      description: next
+        ? "Spurly will keep this organization's inbox in the app, shared by its owner. It needs an owner who has signed in. Nothing is sent to LinkedIn."
+        : 'Spurly stops syncing this organization right away. Nothing is deleted.',
+      confirmLabel: next ? 'Turn on' : 'Turn off',
+      tone: next ? 'primary' : 'danger',
+    }).then((ok) => {
+      if (!ok) return;
+      setWorkspaceBusy(true);
+      adminController.setOrgWorkspace(eventEmitter, orgId, next);
     });
   }
 
@@ -149,6 +207,40 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
                 </ul>
               ) : (
                 <p className="text-[var(--ui-text-secondary)]">No LinkedIn accounts yet.</p>
+              )}
+            </Section>
+
+            <Section title="Workspace">
+              <div className="flex items-center justify-between gap-3 rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] px-3 py-2">
+                <span className="flex min-w-0 flex-col">
+                  <span className="font-medium text-[var(--ui-text-primary)]">Shared inbox in the app</span>
+                  <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)]">
+                    {workspaceOn ? 'On. Spurly keeps this organization\'s inbox for its owner.' : 'Off. Nothing of this organization is stored.'}
+                  </span>
+                </span>
+                <span className="flex items-center gap-2">
+                  <Badge size="sm" tone={workspaceOn ? 'success' : 'neutral'}>{workspaceOn ? 'On' : 'Off'}</Badge>
+                  <Button size="sm" variant={workspaceOn ? 'secondary' : 'primary'} loading={workspaceBusy} onClick={handleWorkspaceToggle}>
+                    {workspaceOn ? 'Turn off' : 'Turn on'}
+                  </Button>
+                </span>
+              </div>
+              {org.credits != null && (
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] px-3 py-2">
+                  <Fact label="Credits in the pool" value={org.credits} />
+                  <span className="flex items-end gap-2">
+                    <Input
+                      type="number"
+                      min="1"
+                      max="100000"
+                      aria-label="Credits to add"
+                      placeholder="Credits to add"
+                      value={creditsAmount}
+                      onChange={(e) => setCreditsAmount(e.target.value)}
+                    />
+                    <Button size="sm" variant="secondary" loading={creditsBusy} disabled={!creditsValid} onClick={handleAddCredits}>Add credits</Button>
+                  </span>
+                </div>
               )}
             </Section>
 

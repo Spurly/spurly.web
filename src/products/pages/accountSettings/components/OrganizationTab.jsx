@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Badge, Button, EmptyState, StatTile, useConfirm } from 'src/core/primitives';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { getToastError } from 'src/shared/utils/apiError';
-import { useOrganizations, useOrgAccounts } from 'src/core/org/hooks/useOrganization.js';
+import { useOrganizations, useOrgAccounts, useOrgWorkspace } from 'src/core/org/hooks/useOrganization.js';
 import { ORG_ACCOUNT_LABEL, ORG_ACCOUNT_TONE, ORG_COPY } from 'src/core/org/constants/constants.js';
 import { useLinkedInConnect } from 'src/products/settings/hooks/useLinkedInConnect.js';
 import { createOrgConnectController } from 'src/products/settings/controller/orgConnect.js';
@@ -34,6 +34,54 @@ function AccountRow({ account, disconnecting, onDisconnect, onReconnect }) {
         </Button>
       )}
     </div>
+  );
+}
+
+/**
+ * The org's workspace switch (V3b.2). Everyone sees the state. Only an owner gets a button: OFF is
+ * always theirs; ON only for an organization Spurly does not manage (the server decides, this just
+ * does not offer a button it would refuse).
+ */
+function WorkspaceCard({ org, onChanged }) {
+  const confirm = useConfirm();
+  const copy = ORG_COPY.tab;
+  const { setWorkspace, busy, error } = useOrgWorkspace({ onChanged });
+  const on = org.workspaceEnabled === true;
+  const isOwner = org.role === 'owner';
+  const canTurnOn = isOwner && org.kind === 'direct' && org.status !== 'suspended';
+
+  function handleToggle() {
+    const next = !on;
+    confirm({
+      title: next ? copy.workspaceConfirmOn : copy.workspaceConfirmOff,
+      description: next ? copy.workspaceConfirmOnBody : copy.workspaceConfirmOffBody,
+      confirmLabel: next ? copy.workspaceTurnOn : copy.workspaceTurnOff,
+      tone: next ? 'primary' : 'danger',
+    }).then((ok) => {
+      if (ok) setWorkspace(org.id, next);
+    });
+  }
+
+  let note = on ? copy.workspaceOn : copy.workspaceOff;
+  if (!on && isOwner && !canTurnOn && org.status !== 'suspended') note = copy.workspaceByUs;
+  const showButton = isOwner && (on || canTurnOn);
+
+  return (
+    <SectionCard title={copy.workspaceTitle}>
+      <div className="flex items-center gap-3">
+        <p className="min-w-0 flex-1 text-[length:var(--ui-t-control)] text-[var(--ui-text-secondary)]">{note}</p>
+        <Badge size="sm" tone={on ? 'success' : 'neutral'}>{on ? 'On' : 'Off'}</Badge>
+        {showButton && (
+          <Button size="sm" variant={on ? 'secondary' : 'primary'} loading={busy} onClick={handleToggle}>
+            {on ? copy.workspaceTurnOff : copy.workspaceTurnOn}
+          </Button>
+        )}
+      </div>
+      {on && org.credits != null && (
+        <p className="mt-2 text-[length:var(--ui-t-control)] text-[var(--ui-text-secondary)]">{copy.credits(org.credits)}</p>
+      )}
+      {error && <p role="alert" className="mt-2 text-[var(--ui-danger-fg)]">{getToastError(error, "Couldn't change the workspace")}</p>}
+    </SectionCard>
   );
 }
 
@@ -79,6 +127,7 @@ function OrgBlock({ org, onChanged }) {
         <StatTile label={copy.peak} value={org.usage?.peak?.count ?? 0} countUp={false} />
         <StatTile label={copy.distinct} value={org.usage?.distinct ?? 0} countUp={false} />
       </div>
+      <WorkspaceCard org={org} onChanged={onChanged} />
       <SectionCard title={copy.accountsTitle} noPadding>
         {org.status === 'suspended' ? (
           <p role="status" className="px-4 py-3 text-[var(--ui-warning-fg)]">{copy.suspended}</p>

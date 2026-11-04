@@ -376,6 +376,26 @@ function setOrgStatus(eventEmitter, orgId, status) {
   );
 }
 
+function setOrgWorkspace(eventEmitter, orgId, enabled) {
+  return call(
+    eventEmitter,
+    () => adminGateway.setOrgWorkspace(orgId, enabled),
+    ADMIN_EVENTS.SET_ORG_WORKSPACE_SUCCESS,
+    ADMIN_EVENTS.SET_ORG_WORKSPACE_FAILURE,
+    "Couldn't change the organization's workspace",
+  );
+}
+
+function addOrgCredits(eventEmitter, orgId, amount, reason) {
+  return call(
+    eventEmitter,
+    () => adminGateway.addOrgCredits(orgId, amount, reason),
+    ADMIN_EVENTS.ADD_ORG_CREDITS_SUCCESS,
+    ADMIN_EVENTS.ADD_ORG_CREDITS_FAILURE,
+    "Couldn't add credits",
+  );
+}
+
 const adminController = {
   getAllUsers,
   getUserCredits,
@@ -411,6 +431,8 @@ const adminController = {
   getOrgPartners,
   getOrg,
   setOrgStatus,
+  setOrgWorkspace,
+  addOrgCredits,
 };
 
 export default adminController;

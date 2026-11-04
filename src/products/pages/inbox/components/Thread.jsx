@@ -73,7 +73,7 @@ function Bubble({ message, onReact, onOpenAttachment }) {
 }
 
 export function Thread({ chatId, onChanged }) {
-  const { data, loading, draft, setDraft, sending, uploading, chat, messages, readOnly, send, react, attach, openAttachment } = useThread({ chatId, onChanged });
+  const { data, loading, draft, setDraft, sending, uploading, chat, messages, readOnly, orgReadOnly, send, react, attach, openAttachment } = useThread({ chatId, onChanged });
   const bottomRef = useRef(null);
 
   // Jump to the newest message — the bottom of a conversation is where a
@@ -166,7 +166,7 @@ export function Thread({ chatId, onChanged }) {
           <Lock size={13} aria-hidden="true" />
           {/* Not a disabled composer. A box you can type into and never send
               from is worse than no box — it invites the work, then refuses it. */}
-          {t.thread.readOnly}
+          {orgReadOnly ? t.thread.orgReadOnly : t.thread.readOnly}
         </div>
       ) : (
         <form onSubmit={send} className="shrink-0 border-t border-[var(--ui-border)] bg-[var(--ui-surface-card)] px-5 pt-3.5 pb-4">

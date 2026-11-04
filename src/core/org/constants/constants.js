@@ -13,6 +13,10 @@ export const ORG_EVENTS = {
   ACCOUNTS_FAILED: 'ORG_ACCOUNTS_FAILED',
   ACCOUNT_DISCONNECTED: 'ORG_ACCOUNT_DISCONNECTED',
   ACCOUNT_DISCONNECT_FAILED: 'ORG_ACCOUNT_DISCONNECT_FAILED',
+  STATE_LOADED: 'ORG_STATE_LOADED',
+  STATE_FAILED: 'ORG_STATE_FAILED',
+  WORKSPACE_SET: 'ORG_WORKSPACE_SET',
+  WORKSPACE_FAILED: 'ORG_WORKSPACE_FAILED',
 };
 
 export const ORG_PATHS = {
@@ -39,6 +43,7 @@ export const ORG_ACCOUNT_TONE = {
 };
 
 export const ORG_COPY = {
+  switcher: { label: 'Acting as', unnamed: 'LinkedIn account' },
   login: {
     title: 'Sign in to your organization',
     subEmail: "Enter your organization's email. We'll send you a 6-digit code.",
@@ -64,6 +69,17 @@ export const ORG_COPY = {
     confirmBody: 'Spurly stops working with this LinkedIn account. It can be connected again later.',
     connect: 'Connect LinkedIn account',
     reconnect: 'Reconnect',
+    workspaceTitle: 'Workspace',
+    credits: (n) => `Your organization has ${n} ${n === 1 ? 'credit' : 'credits'} left. Everyone in the organization draws from the same pool.`,
+    workspaceOn: 'On. Spurly keeps your organization\'s inbox in the app.',
+    workspaceOff: 'Off. Spurly stores nothing of your organization.',
+    workspaceByUs: 'Spurly turns the workspace on for organizations like yours.',
+    workspaceTurnOn: 'Turn on',
+    workspaceTurnOff: 'Turn off',
+    workspaceConfirmOff: 'Turn the workspace off?',
+    workspaceConfirmOffBody: 'Spurly stops syncing your organization right away. Nothing is deleted.',
+    workspaceConfirmOn: 'Turn the workspace on?',
+    workspaceConfirmOnBody: 'Spurly will keep your organization\'s inbox in the app. It is read-only: nothing is sent to LinkedIn.',
   },
   connect: {
     headings: {
@@ -76,3 +92,22 @@ export const ORG_COPY = {
     successPlain: 'The account is now part of your organization.',
   },
 };
+
+/**
+ * Navigation for an organization member (V3a.4), decided by the server (`GET /org/state`), never by
+ * the browser marker alone. Settings -> Account, Organization and Billing are always there; each
+ * workspace feature adds its own rows once the server says it is on (all off in V3a).
+ * Every other row (Home, Discover, Network, Profile viewers, Invitations, Enrichment, Import, Posts,
+ * LinkedIn) stays hidden until its module is migrated to organizations.
+ */
+export const ORG_NAV_ALWAYS = ['/dashboard/settings'];
+export const ORG_NAV_BY_FEATURE = {
+  inbox: ['/hub/inbox'],
+  campaigns: ['/hub/campaigns', '/dashboard/templates'],
+  // V3f: everything that sources, finds or contacts people runs through the org's accounts (the "Acting as" switcher).
+  leads: ['/hub/dashboard', '/hub/leads', '/hub/discover', '/hub/network', '/hub/viewers', '/hub/invitations', '/hub/enrichment', '/dashboard/import'],
+  sequences: ['/hub/sequences'],
+  content: ['/hub/posts'],
+};
+export const ORG_SETTINGS_TABS = ['account', 'organization', 'billing'];
+export const ORG_STATE_NONE = { isMember: false, workspaceEnabled: false, features: { inbox: false, campaigns: false, leads: false, sequences: false, content: false } };
