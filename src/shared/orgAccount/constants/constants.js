@@ -7,13 +7,16 @@
  */
 export const ORG_ACTIVE_ACCOUNT_KEY = 'orgActiveAccount';
 export const ORG_ACTIVE_ACCOUNT_EVENT = 'org-active-account-changed';
+/** The member's usable accounts as last seen, so the default choice is known before any page asks. */
+export const ORG_KNOWN_ACCOUNTS_KEY = 'orgKnownAccounts';
 
 /** Paths (without the /api base, without the query string) whose requests act through one account. */
 export const ORG_ACCOUNT_BOUND_PATHS = [
-  /^\/hub\/(profile-viewers|invitations|discover|companies|searches|posts)(\/|$)/,
-  /^\/hub\/leads\/[^/]+\/(follow|skills|endorse|posts|invitation)(\/|$)/,
+  /^\/hub\/(profile-viewers|invitations|discover|companies|searches|posts|network|audience|sourcing)(\/|$)/,
+  /^\/hub\/leads\/[^/]+\/(follow|skills|endorse|posts|invitation|profile)(\/|$)/,
+  /^\/hub\/leads\/enrich\/queue$/,
   /^\/imported-leads(\/|$)/,
 ];
 
 /** Create calls that read the account from the request BODY (everything else reads it from the query). */
-export const ORG_ACCOUNT_BODY_PATHS = [/^\/hub\/campaigns$/, /^\/hub\/sequences$/];
+export const ORG_ACCOUNT_BODY_PATHS = [/^\/hub\/campaigns$/, /^\/hub\/sequences$/, /^\/hub\/network\/sync$/];

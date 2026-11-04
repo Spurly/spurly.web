@@ -65,7 +65,7 @@ function Bubble({ message, onReact, onOpenAttachment }) {
         <Reactions message={message} />
         <div className={`mt-1.5 font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)] tabular-nums ${mine ? 'text-right' : ''}`}>
           {mine ? 'You' : message.senderName || ''}{mine || message.senderName ? ' · ' : ''}{absoluteTime(message.timestamp)}<SeenTick message={message} />
-          {!mine && <ReactionPicker message={message} onReact={onReact} />}
+          {!mine && onReact && <ReactionPicker message={message} onReact={onReact} />}
         </div>
       </div>
     </li>
@@ -73,7 +73,7 @@ function Bubble({ message, onReact, onOpenAttachment }) {
 }
 
 export function Thread({ chatId, onChanged }) {
-  const { data, loading, draft, setDraft, sending, uploading, chat, messages, readOnly, orgReadOnly, send, react, attach, openAttachment } = useThread({ chatId, onChanged });
+  const { data, loading, draft, setDraft, sending, uploading, chat, messages, readOnly, orgReadOnly, isOrgChat, send, react, attach, openAttachment } = useThread({ chatId, onChanged });
   const bottomRef = useRef(null);
 
   // Jump to the newest message — the bottom of a conversation is where a
@@ -151,7 +151,7 @@ export function Thread({ chatId, onChanged }) {
                       <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-tertiary)] tabular-nums">{day}</span>
                     </li>
                   )}
-                  <Bubble message={message} onReact={react} onOpenAttachment={openAttachment} />
+                  <Bubble message={message} onReact={isOrgChat ? undefined : react} onOpenAttachment={openAttachment} />
                 </div>
               );
             })}
@@ -199,21 +199,24 @@ export function Thread({ chatId, onChanged }) {
                 className="block w-full resize-none bg-transparent px-3.5 py-3 text-[length:var(--ui-t-control)] leading-[1.6] text-[var(--ui-text-primary)] placeholder:text-[var(--ui-text-quaternary)] focus:outline-none"
               />
               <div className="flex items-center gap-2 px-3 py-2 border-t border-[var(--ui-border-hairline)] bg-[var(--ui-surface-header)] rounded-b-[var(--ui-radius-md)]">
-                <AttachMenu onPick={attach} disabled={sending || uploading} />
+                {/* An organization may send text only: media and reactions stay refused for it. */}
+                {!isOrgChat && <AttachMenu onPick={attach} disabled={sending || uploading} />}
                 <span className="flex-1 min-w-0 truncate font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)]">
                   {uploading ? 'Uploading…' : '⌘↵ to send · edit freely'}
                 </span>
                 {/* A reply is always a DIRECT_MESSAGE to one already-open
                     thread, to one known person — recipientName tells the
                     server to write literal text, never a {{token}}. */}
-                <AiWriteButton
-                  content={draft}
-                  type="DIRECT_MESSAGE"
-                  recipientName={chat?.display?.name || ''}
-                  maxLength={2000}
-                  disabled={sending}
-                  onApply={setDraft}
-                />
+                {!isOrgChat && (
+                  <AiWriteButton
+                    content={draft}
+                    type="DIRECT_MESSAGE"
+                    recipientName={chat?.display?.name || ''}
+                    maxLength={2000}
+                    disabled={sending}
+                    onApply={setDraft}
+                  />
+                )}
                 <Button
                   type="submit"
                   size="sm"

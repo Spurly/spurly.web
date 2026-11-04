@@ -202,8 +202,10 @@ export function useThread({ chatId, onChanged }) {
 
   const chat = data?.chat;
   const messages = data?.messages ?? [];
-  // An organization's workspace is read only for now (V3b): its chats carry `account`, a personal chat never does.
-  const orgReadOnly = Boolean(chat?.account);
+  // An organization's chats carry `account`, a personal chat never does. The server says whether replies are on
+  // (`canReply`); until then the shared workspace stays read only. A reply is the only write an org may make.
+  const isOrgChat = Boolean(chat?.account);
+  const orgReadOnly = isOrgChat && !chat?.canReply;
   const readOnly = Boolean(chat?.readOnly) || orgReadOnly;
 
   const send = (event) => {
@@ -230,5 +232,5 @@ export function useThread({ chatId, onChanged }) {
 
   const openAttachment = (messageId, attachment) => { inboxController.openAttachment(eventEmitter, { messageId, attachment }); };
 
-  return { data, loading, draft, setDraft, sending, uploading, chat, messages, readOnly, orgReadOnly, send, react, attach, openAttachment };
+  return { data, loading, draft, setDraft, sending, uploading, chat, messages, readOnly, orgReadOnly, isOrgChat, send, react, attach, openAttachment };
 }

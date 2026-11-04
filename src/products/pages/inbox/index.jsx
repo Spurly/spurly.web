@@ -136,6 +136,7 @@ export function HubInboxPage() {
     chats,
     loading,
     refreshing,
+    switching,
     live,
     query,
     setQuery,
@@ -243,7 +244,8 @@ export function HubInboxPage() {
                 {t.list.syncing}
               </p>
             )}
-            <div className="flex-1 min-h-0 overflow-auto">
+            {/* Filters change the rows in place; dim them while the new ones load so it reads as one move, not a flash. */}
+            <div className={`flex-1 min-h-0 overflow-auto transition-opacity duration-[var(--ui-dur-fast)] ${switching ? 'opacity-50 pointer-events-none' : ''}`} aria-busy={switching}>
               {loading ? (
                 <ChatRowsSkeleton label={t.list.loading} />
               ) : chats.length === 0 ? (
