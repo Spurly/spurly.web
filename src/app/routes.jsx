@@ -70,6 +70,9 @@ const VerifyEmailPage = lazyWithProgress(
 const LoginPage = lazyWithProgress(
   () => import("src/core/pages/auth/LoginPage.jsx"),
 );
+const OrgLoginPage = lazyWithProgress(
+  () => import("src/core/pages/auth/OrgLoginPage.jsx"),
+);
 const PartnerEnterPage = lazyWithProgress(
   () => import("src/core/pages/partner/PartnerEnterPage.jsx"),
 );
@@ -227,6 +230,11 @@ const AdminPaymentsPage = lazyWithProgress(() =>
     default: m.AdminPaymentsPage,
   })),
 );
+const AdminOrgsPage = lazyWithProgress(() =>
+  import("src/core/pages/admin/Orgs").then((m) => ({
+    default: m.AdminOrgsPage,
+  })),
+);
 const AdminBillingPage = lazyWithProgress(() =>
   import("src/core/pages/admin/Billing").then((m) => ({
     default: m.AdminBillingPage,
@@ -261,6 +269,7 @@ export function AppRoutes() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/signup/verify" element={<VerifyEmailPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/login/org" element={<OrgLoginPage />} />
           {/* "Open in Spurly": reached from a partner's app. Not public marketing: no sitemap, no prerender, never indexed. */}
           <Route path="/partner/enter" element={<PartnerEnterPage />} />
           <Route path="/partner/ended" element={<PartnerEndedPage />} />
@@ -668,6 +677,14 @@ export function AppRoutes() {
             element={
               <AdminRoute>
                 <AdminPaymentsPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/orgs"
+            element={
+              <AdminRoute>
+                <AdminOrgsPage />
               </AdminRoute>
             }
           />

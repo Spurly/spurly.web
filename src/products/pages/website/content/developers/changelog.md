@@ -5,10 +5,18 @@ path: /developers/changelog
 template: docs
 section: Resources
 order: 2
-date: 2026-10-31
+date: 2026-11-04
 parent: /developers
 ---
 Non-breaking additions ship without notice and are listed here. Breaking changes only ship in a new API version, with at least 90 days of overlap. See [Limits and versioning](/developers/limits).
+
+## 4 November 2026
+
+The organisation API (`/v2`) is documented. It does not change `/v1`.
+
+- New: [Spurly organisation API](/developers/v2). Create organisations, connect a LinkedIn member under each, call LinkedIn through `/accounts/{accountId}/...`, and read usage with `GET /usage`. `/v2` is enabled per partner.
+- `/v1` requests, responses and webhooks are unchanged.
+- The OpenAPI description for `/v2` is published next to the `/v1` one as `openapi.v2.json`.
 
 ## 31 October 2026
 

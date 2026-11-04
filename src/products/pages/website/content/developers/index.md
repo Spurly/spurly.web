@@ -45,6 +45,10 @@ The Spurly LinkedIn API is a REST API with webhooks. Spurly runs the hard parts 
 - [Webhooks](/developers/guides/webhooks): receive messages and status changes in real time.
 - [API reference](/developers/api/accounts): every endpoint, parameter and response.
 
+## Managing organisations?
+
+If your customers are companies with their own LinkedIn accounts, see the [organisation API (v2)](/developers/v2). It groups accounts under organisations and adds LinkedIn search, profiles, invitations and posts.
+
 ## Getting access
 
 API access is set up per partner. [Book a call](/book-demo) or email founders@getspurly.com and we issue your API key and webhook signing secret.

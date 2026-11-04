@@ -4,7 +4,7 @@ import ContentShell from "../website/components/ContentShell.jsx";
 import { Inline } from "../website/components/ContentBody.jsx";
 import ContentBody from "../website/components/ContentBody.jsx";
 import { webPageLd, trailLd } from "../website/templates/seoParts.js";
-import { docsNav, docsSequence } from "./nav.js";
+import { docsNav, docsSequence, isV2Path } from "./nav.js";
 import { Embed, tocFor } from "./Embeds.jsx";
 
 /* Developer docs layout: sidebar (all docs pages by section), the page, and an
@@ -82,6 +82,16 @@ function PrevNext({ path }) {
   );
 }
 
+/** v1 pages say which API they describe, and point at the organisation API (v2). */
+function VersionNote({ path }) {
+  if (isV2Path(path)) return null;
+  return (
+    <p className="docs-note docs-version-note" role="note">
+      This page describes the account API (<code>/v1</code>). Managing LinkedIn accounts for organisations under your partner account? See the <Link to="/developers/v2">organisation API (v2)</Link>.
+    </p>
+  );
+}
+
 export default function DocsTemplate({ meta, body }) {
   const { pathname } = useLocation();
   const current = meta.path || pathname;
@@ -114,6 +124,7 @@ export default function DocsTemplate({ meta, body }) {
           </p>
           <h1 className="h1">{meta.title}</h1>
           {meta.lead && <p className="docs-lead">{meta.lead}</p>}
+          <VersionNote path={current} />
           <DocsBody blocks={body} />
           <PrevNext path={current} />
           <p className="docs-help">

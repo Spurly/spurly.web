@@ -1,6 +1,7 @@
 import { Badge, Button } from 'src/core/primitives';
 import { TextCell, ActionsCell, CalendarCell } from 'src/core/DataTable';
 import { PartnerCell } from './PartnerCell.jsx';
+import { OrgCell } from './OrgCell.jsx';
 
 /**
  * Admin Users columns. Action handlers are injected so each row can manage
@@ -21,6 +22,13 @@ export function buildUserColumns({ onManageCredits, onManagePlan, onImpersonate 
       width: 220,
       title: (row) => (row.partner ? `Partner: ${row.partner.slug}` : ''),
       render: (_v, row) => <PartnerCell partner={row.partner} />,
+    },
+    {
+      key: 'org',
+      label: 'Organization',
+      width: 220,
+      title: (row) => (row.org ? `Org: ${row.org.name}` : ''),
+      render: (_v, row) => <OrgCell org={row.org} />,
     },
     {
       key: 'plan',

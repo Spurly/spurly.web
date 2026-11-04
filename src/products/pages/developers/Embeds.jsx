@@ -1,4 +1,5 @@
-import { OPENAPI, resolveRef } from "./openapi.js";
+import { OPENAPI, resolveRef, operationById } from "./openapi.js";
+import { OPENAPI_V2 } from "./openapi.v2.js";
 import Endpoint, { endpointAnchor, endpointsWithTag } from "./Endpoint.jsx";
 import SchemaTable, { objectAnchor } from "./SchemaTable.jsx";
 import CodeBlock from "./CodeBlock.jsx";
@@ -7,15 +8,19 @@ import InlineText from "./Inline.jsx";
 /* Renderers for the `::name arg` directives in docs pages, and the headings
    they contribute to the "On this page" list. */
 
+/** The /v2 spec prefixes its object names with "V2" so a `$ref` is unambiguous; readers never see it. */
+export const displayName = (name) => (/^V2[A-Z]/.test(name) ? name.slice(2) : name);
+
 function SchemaBlock({ name }) {
-  const schema = OPENAPI.components.schemas[name];
+  const schema = OPENAPI.components.schemas[name] || OPENAPI_V2.components.schemas[name];
   if (!schema) return <p className="docs-note">Unknown object: {name}</p>;
+  const shown = displayName(name);
   return (
     <section className="docs-object" id={objectAnchor(name)}>
-      <h2>{name}</h2>
+      <h2>{shown}</h2>
       {schema.description && <p><InlineText text={schema.description} /></p>}
       <SchemaTable schema={schema} />
-      {schema.example && <CodeBlock code={JSON.stringify(schema.example, null, 2)} lang="json" title={`${name} example`} />}
+      {schema.example && <CodeBlock code={JSON.stringify(schema.example, null, 2)} lang="json" title={`${shown} example`} />}
     </section>
   );
 }
@@ -77,11 +82,11 @@ export function tocFor(block) {
   if (block.type === "h2") return [{ id: block.id, label: block.inline, depth: 2 }];
   if (block.type !== "embed") return [];
   if (block.name === "endpoint") {
-    const op = Object.values(OPENAPI.paths).flatMap((p) => Object.values(p)).find((o) => o?.operationId === block.arg);
+    const op = operationById(block.arg);
     return op ? [{ id: endpointAnchor(op), text: op.summary, depth: 2 }] : [];
   }
   if (block.name === "endpoints") return endpointsWithTag(block.arg).map((op) => ({ id: endpointAnchor(op), text: op.summary, depth: 2 }));
-  if (block.name === "schema") return [{ id: objectAnchor(block.arg), text: block.arg, depth: 2 }];
+  if (block.name === "schema") return [{ id: objectAnchor(block.arg), text: displayName(block.arg), depth: 2 }];
   if (block.name === "event") return [{ id: block.arg.replace(".", "-"), text: block.arg, depth: 2 }];
   if (block.name === "events") return Object.keys(OPENAPI.webhooks).map((t) => ({ id: t.replace(".", "-"), text: t, depth: 2 }));
   return [];

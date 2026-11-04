@@ -25,10 +25,11 @@ function typeLabel(schema) {
 function TypeCell({ schema }) {
   const label = typeLabel(schema);
   if (typeof label === "string") return <code>{label}</code>;
+  const v2 = /^V2[A-Z]/.test(label.link);
   return (
     <code>
       {label.prefix || ""}
-      <Link to={`/developers/objects#${objectAnchor(label.link)}`}>{label.link}</Link>
+      <Link to={`/developers/${v2 ? "v2/objects" : "objects"}#${objectAnchor(label.link)}`}>{v2 ? label.link.slice(2) : label.link}</Link>
     </code>
   );
 }

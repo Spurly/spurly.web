@@ -11,6 +11,8 @@
  * is added here.
  */
 
+import { OPENAPI_V2 } from './openapi.v2.js';
+
 const ID = { type: 'string', pattern: '^[a-f0-9]{24}$' };
 const TS = { type: ['string', 'null'], format: 'date-time' };
 
@@ -945,26 +947,32 @@ export const OPENAPI = {
 // `delete: undefined` above keeps the connect block readable; drop it from the published spec.
 delete OPENAPI.paths['/accounts/{accountId}/linkedin/connect'].delete;
 
-/** Every operation, in document order, with its path and method. */
-export function operations() {
+/** Every operation of one spec, in document order, with its path and method. `v2` is the organisation API. */
+export function operations(version = 'v1') {
+  const spec = version === 'v2' ? OPENAPI_V2 : OPENAPI;
   const out = [];
-  for (const [path, item] of Object.entries(OPENAPI.paths)) {
+  for (const [path, item] of Object.entries(spec.paths)) {
     for (const method of ['get', 'post', 'put', 'patch', 'delete']) {
-      if (item[method]) out.push({ path, method, ...item[method] });
+      if (item[method]) out.push({ path, method, ...(version === 'v2' ? { server: spec.servers[0].url, version } : {}), ...item[method] });
     }
   }
   return out;
 }
 
-export function operationById(id) {
-  return operations().find((op) => op.operationId === id) || null;
+/** Operations of both specs (operation ids are unique across them). */
+export function allOperations() {
+  return [...operations('v1'), ...operations('v2')];
 }
 
-/** Resolve a local `$ref` ("#/components/...") to its object. */
+export function operationById(id) {
+  return allOperations().find((op) => op.operationId === id) || null;
+}
+
+/** Resolve a local `$ref` ("#/components/...") to its object. `V2` names live in the /v2 spec. */
 export function resolveRef(node) {
   if (!node || typeof node !== 'object' || !node.$ref) return node;
   const parts = node.$ref.replace(/^#\//, '').split('/');
-  let cur = OPENAPI;
+  let cur = parts[parts.length - 1].startsWith('V2') ? OPENAPI_V2 : OPENAPI;
   for (const p of parts) cur = cur?.[p];
   return cur ? { ...cur, ...(cur.$ref ? resolveRef(cur) : {}) } : null;
 }

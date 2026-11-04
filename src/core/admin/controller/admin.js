@@ -335,6 +335,37 @@ function getUserPayments(eventEmitter, userId) {
   );
 }
 
+// ── Organizations ─────────────────────────────────────────────────────
+function getOrgs(eventEmitter, options) {
+  return call(
+    eventEmitter,
+    () => adminGateway.getOrgs(options),
+    ADMIN_EVENTS.GET_ORGS_SUCCESS,
+    ADMIN_EVENTS.GET_ORGS_FAILURE,
+    'Failed to load organizations',
+  );
+}
+
+function getOrg(eventEmitter, orgId) {
+  return call(
+    eventEmitter,
+    () => adminGateway.getOrg(orgId),
+    ADMIN_EVENTS.GET_ORG_SUCCESS,
+    ADMIN_EVENTS.GET_ORG_FAILURE,
+    'Failed to load the organization',
+  );
+}
+
+function setOrgStatus(eventEmitter, orgId, status) {
+  return call(
+    eventEmitter,
+    () => adminGateway.setOrgStatus(orgId, status),
+    ADMIN_EVENTS.SET_ORG_STATUS_SUCCESS,
+    ADMIN_EVENTS.SET_ORG_STATUS_FAILURE,
+    "Couldn't change the organization's status",
+  );
+}
+
 const adminController = {
   getAllUsers,
   getUserCredits,
@@ -366,6 +397,9 @@ const adminController = {
   setLimitOverride,
   clearLimitOverride,
   setLimitEnforcement,
+  getOrgs,
+  getOrg,
+  setOrgStatus,
 };
 
 export default adminController;

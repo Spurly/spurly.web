@@ -20,7 +20,8 @@ export function bodyExample(op) {
 }
 
 export function isBinaryUpload(op) {
-  return Boolean(op.requestBody?.content?.["application/octet-stream"]);
+  const content = op.requestBody?.content || {};
+  return Boolean(content["application/octet-stream"]) && !content["application/json"];
 }
 
 export function isBinaryDownload(op) {
@@ -32,9 +33,9 @@ function urlFor(op) {
   const query = [];
   for (const p of paramsOf(op)) {
     if (p.in === "path") path = path.replace(`{${p.name}}`, encodeURIComponent(p.example ?? `<${p.name}>`));
-    if (p.in === "query" && p.example !== undefined) query.push(`${p.name}=${encodeURIComponent(p.example)}`);
+    if (p.in === "query" && p.example !== undefined && !p["x-omit-sample"]) query.push(`${p.name}=${encodeURIComponent(p.example)}`);
   }
-  return `${SERVER}${path}${query.length ? `?${query.join("&")}` : ""}`;
+  return `${op.server || SERVER}${path}${query.length ? `?${query.join("&")}` : ""}`;
 }
 
 const indent = (text, pad) => text.split("\n").map((l, i) => (i === 0 ? l : pad + l)).join("\n");
