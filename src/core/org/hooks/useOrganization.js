@@ -25,6 +25,32 @@ export function useOrganizations() {
   return { orgs, error, reload };
 }
 
+/** Switch the member's org workspace on or off (owners). `onChanged` runs after a success so the page reloads. */
+export function useOrgWorkspace({ onChanged } = {}) {
+  const emitter = useMemo(() => new EventEmitter(), []);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const onSet = () => { setBusy(false); setError(null); onChanged?.(); };
+    const onFailed = (err) => { setBusy(false); setError(err); };
+    emitter.on(ORG_EVENTS.WORKSPACE_SET, onSet);
+    emitter.on(ORG_EVENTS.WORKSPACE_FAILED, onFailed);
+    return () => {
+      emitter.off(ORG_EVENTS.WORKSPACE_SET, onSet);
+      emitter.off(ORG_EVENTS.WORKSPACE_FAILED, onFailed);
+    };
+  }, [emitter, onChanged]);
+
+  const setWorkspace = useCallback((orgId, enabled) => {
+    setBusy(true);
+    setError(null);
+    orgController.setWorkspace(emitter, orgId, enabled);
+  }, [emitter]);
+
+  return { setWorkspace, busy, error };
+}
+
 /** One org's LinkedIn accounts, and disconnecting one. `onDisconnected` runs after a success. */
 export function useOrgAccounts(orgId, { onDisconnected } = {}) {
   const emitter = useMemo(() => new EventEmitter(), []);

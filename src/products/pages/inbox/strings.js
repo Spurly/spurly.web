@@ -20,6 +20,10 @@ export const inboxStrings = {
     unread: 'Unread',
     unreadTitle: 'Show only conversations with unread messages',
   },
+  accounts: {
+    all: 'All accounts',
+    ariaLabel: 'Filter by LinkedIn account',
+  },
   list: {
     loading: 'Loading…',
     noneUnread: 'Nothing unread.',
@@ -36,6 +40,7 @@ export const inboxStrings = {
     historyPending: 'Still fetching this conversation’s history — there may be more above.',
     noMessages: 'No messages in this conversation.',
     readOnly: 'LinkedIn has this conversation as read-only, so it cannot be replied to.',
+    orgReadOnly: 'The shared workspace is read-only for now. Reply from LinkedIn.',
     composerPlaceholder: 'Write a reply…  (⌘↵ to send)',
     composerAriaLabel: 'Reply',
     sendTitle: 'Send now',

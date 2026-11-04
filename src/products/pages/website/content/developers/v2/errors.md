@@ -45,7 +45,10 @@ Every failure has the same shape and a matching HTTP status:
 |---|---|---|
 | `UNAUTHORIZED` | 401 | Missing, invalid or revoked API key |
 | `NOT_ENABLED` | 403 | `/v2` is not enabled for your key |
-| `RATE_LIMITED` | 429 | Too many requests, too many connects, or LinkedIn is limiting the account |
+| `RATE_LIMITED` | 429 | Too many requests for your key or for one LinkedIn account |
+| `ORG_CONNECT_LIMIT` | 429 | Connect calls only: your organisation used its 5 sign-in attempts for the hour. `Retry-After` and `retryAfterSeconds` say when to try again |
+| `LINKEDIN_RATE_LIMITED` | 429 | Connect calls only: LinkedIn asked for a pause on sign-in attempts. Wait a few minutes |
+| `ACCOUNT_LIMIT` | 429 | Sends only (invitations, messages, new chats): the LinkedIn account has reached its safety limit for that kind of action, which applies to accounts that also use the Spurly workspace. `Retry-After` and `retryAfterSeconds` say when to try again. Nothing was sent |
 | `NOT_FOUND` | 404 | No such organisation, account or LinkedIn object under your key. Also any path that is not in this reference. |
 | `INVALID_FIELD`, `MISSING_FIELD`, `INVALID_REQUEST` | 400 | An input is missing or wrong; `field` names it |
 | `INVALID_CURSOR` | 400 | `after` is not an event id |

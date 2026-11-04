@@ -90,6 +90,8 @@ export const CONNECT_ERROR_TITLES = {
   MISSING_FIELD: 'Something’s missing',
   EXPIRED: 'Sign-in expired',
   RATE_LIMITED: 'Too many attempts',
+  ORG_CONNECT_LIMIT: 'Sign-in limit reached',
+  LINKEDIN_RATE_LIMITED: 'LinkedIn asked for a pause',
   IN_PROGRESS: 'A sign-in is already running',
   ACCOUNT_RESTRICTED: 'LinkedIn has restricted this account',
   PROXY_INVALID: 'Proxy problem',

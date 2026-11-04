@@ -17,9 +17,13 @@ parent: /developers/v2
 |---|---|---|
 | Per API key | 600 requests per minute | `429 RATE_LIMITED` with `Retry-After` |
 | Per LinkedIn account | 60 requests per minute | `429 RATE_LIMITED` with `Retry-After` |
-| Connects per organisation | 5 per hour | `429 RATE_LIMITED` |
+| Connects per organisation | 5 per hour | `429 ORG_CONNECT_LIMIT` with `Retry-After` |
 
-LinkedIn also limits what an account can do. When it does, you get `429 RATE_LIMITED` and `Retry-After: 60`. Back off and retry reads; for writes see [Errors](/developers/v2/errors#retrying-writes).
+LinkedIn also limits what an account can do. When it does, you get `429 RATE_LIMITED` and `Retry-After: 60`; if it asks for a pause on sign-in attempts, the connect calls answer `429 LINKEDIN_RATE_LIMITED`. Back off and retry reads; for writes see [Errors](/developers/v2/errors#retrying-writes).
+
+### Safety limit for accounts that also use the Spurly workspace
+
+Pacing is yours: Spurly does not slow your sends. One exception protects the LinkedIn member. When an organisation also uses the Spurly workspace, the same account may be driven from both places, so Spurly keeps one rolling count of connection requests and messages sent from the account, from both. If an account reaches its safety limit (connection requests: 10 an hour, 80 a day, 200 a week; messages: 20 an hour, 100 a day, 500 a week) a further send answers `429 ACCOUNT_LIMIT` with `Retry-After`, and nothing is sent. Organisations that use only the API are not counted and never see this error.
 
 ## Input limits
 

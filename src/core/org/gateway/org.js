@@ -4,7 +4,9 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  * Org gateway.
  *   POST   /org/login/request   { email }          -> { sent }
  *   POST   /org/login/verify    { email, code }    -> { token, user: { id, name, email }, orgs }
- *   GET    /org                                     -> { orgs }
+ *   GET    /org                                     -> { orgs, isMember, features }   (members only)
+ *   GET    /org/state                               -> { isMember, features }          (any signed-in user)
+ *   PATCH  /org/workspace                           { orgId, enabled }  -> { id, workspaceEnabled, changed }   (owners only)
  *   GET    /org/accounts        ?orgId&page&limit   -> { items, total, page, limit }
  *   DELETE /org/accounts/:accountId                 -> { ... }
  *   POST   /org/accounts/connect                    { orgId, method, ... }   -> { state, account | connectId, checkpoint }
@@ -33,6 +35,7 @@ async function unwrap(request) {
 const requestLoginCode = (email) => unwrap(apiGateway.post('/org/login/request', { email }));
 const verifyLoginCode = (email, code) => unwrap(apiGateway.post('/org/login/verify', { email, code }));
 const getOrgs = () => unwrap(apiGateway.get('/org'));
+const getState = () => unwrap(apiGateway.get('/org/state'));
 
 function getAccounts({ orgId, page = 1, limit = 50 }) {
   const params = new URLSearchParams({ orgId, page: String(page), limit: String(limit) });
@@ -40,6 +43,8 @@ function getAccounts({ orgId, page = 1, limit = 50 }) {
 }
 
 const disconnectAccount = (accountId) => unwrap(apiGateway.delete(`/org/accounts/${accountId}`));
+
+const setWorkspace = (orgId, enabled) => unwrap(apiGateway.patch('/org/workspace', { orgId, enabled }));
 
 /** A LinkedIn sign-in happens on the provider's servers and can take well over the default timeout. */
 const SIGN_IN_TIMEOUT_MS = 65000;
@@ -57,7 +62,7 @@ const connectStatus = (orgId, connectId) => unwrap(
 );
 
 const orgGateway = {
-  requestLoginCode, verifyLoginCode, getOrgs, getAccounts, disconnectAccount,
+  requestLoginCode, verifyLoginCode, getOrgs, getState, getAccounts, disconnectAccount, setWorkspace,
   connectAccount, solveCheckpoint, tryAnotherWay, resendCheckpoint, connectStatus,
 };
 

@@ -27,14 +27,16 @@ import { Message } from '../entities/message.js';
  * tell them apart. A screen that cannot explain why it is blank gets read as
  * broken.
  */
-async function getSummary() {
-  const res = await apiGateway.get('/hub/inbox');
+async function getSummary({ accountId } = {}) {
+  const res = await apiGateway.get('/hub/inbox', { params: accountId ? { accountId } : undefined });
   return res.data?.data ?? null;
 }
 
 /** GET /hub/inbox/chats — the conversation list, newest activity first. */
-async function listChats({ q, unread, page = 1, limit = 30 } = {}) {
+async function listChats({ q, unread, accountId, page = 1, limit = 30 } = {}) {
   const params = { page, limit };
+  // An organization's workspace can narrow the list to one of its LinkedIn accounts (V3b.5).
+  if (accountId) params.accountId = accountId;
   if (q) params.q = q;
   if (unread) params.unread = 'true';
   const res = await apiGateway.get('/hub/inbox/chats', { params });

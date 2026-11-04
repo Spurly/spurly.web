@@ -296,3 +296,15 @@ export async function setOrgStatus(orgId, status) {
   const res = await apiGateway.patch(`/admin/orgs/${orgId}/status`, { status });
   return res.data;
 }
+
+/** Turn an org's workspace on or off (`enabled` boolean). Answers { id, workspaceEnabled, changed }. */
+export async function setOrgWorkspace(orgId, enabled) {
+  const res = await apiGateway.patch(`/admin/orgs/${orgId}/workspace`, { enabled });
+  return res.data;
+}
+
+/** Top up an org's credit pool with whole credits. Answers { creditBalance, added }. */
+export async function addOrgCredits(orgId, amount, reason) {
+  const res = await apiGateway.post(`/admin/orgs/${orgId}/credits`, { amount, reason });
+  return res.data;
+}

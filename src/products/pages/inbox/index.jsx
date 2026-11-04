@@ -58,7 +58,7 @@ function LoadMore({ onLoadMore, loading }) {
   );
 }
 
-function ChatRow({ chat, active }) {
+function ChatRow({ chat, active, showAccount }) {
   const unread = (chat.unreadCount ?? 0) > 0;
   const degree = DEGREE_LABEL[chat.connectionDegree];
 
@@ -96,6 +96,12 @@ function ChatRow({ chat, active }) {
           {chat.lastMessageIsSender && <span className="text-[var(--ui-text-quaternary)]">You: </span>}
           {chat.lastMessageText || (chat.backfilledAt === null ? 'Fetching history…' : 'No messages')}
         </span>
+
+        {showAccount && chat.account?.name && (
+          <span className="block mt-1.5 truncate text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)]" title="LinkedIn account">
+            via {chat.account.name}
+          </span>
+        )}
 
         {(unread || degree || chat.display?.headline) && (
           <span className="flex items-center gap-2 mt-2 min-w-0">
@@ -135,6 +141,9 @@ export function HubInboxPage() {
     setQuery,
     unreadOnly,
     setUnreadOnly,
+    accounts,
+    accountId,
+    setAccountId,
     debouncedQuery,
     load,
     refresh,
@@ -206,6 +215,16 @@ export function HubInboxPage() {
                 leadingIcon={<SearchIcon size={13} strokeWidth={2} />}
                 className="w-full mt-3 [&>input]:w-full"
               />
+              {accounts.length > 1 && (
+                <FilterPills
+                  size="sm"
+                  className="mt-2.5"
+                  ariaLabel={t.accounts.ariaLabel}
+                  value={accountId || 'all'}
+                  onChange={(v) => setAccountId(v === 'all' ? '' : v)}
+                  options={[{ id: 'all', label: t.accounts.all }, ...accounts.map((a) => ({ id: a.key, label: a.name || a.publicIdentifier || 'LinkedIn' }))]}
+                />
+              )}
               <FilterPills
                 size="sm"
                 className="mt-2.5"
@@ -236,7 +255,7 @@ export function HubInboxPage() {
                 </p>
               ) : (
                 <>
-                  {chats.map((chat) => <ChatRow key={chat._id} chat={chat} active={chat._id === openId} />)}
+                  {chats.map((chat) => <ChatRow key={chat._id} chat={chat} active={chat._id === openId} showAccount={accounts.length > 1} />)}
                   {hasMore && <LoadMore onLoadMore={loadMore} loading={loadingMore} />}
                 </>
               )}

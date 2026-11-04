@@ -3,7 +3,8 @@ import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { PageTabs } from 'src/core/primitives';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { MANAGED_HIDDEN_TABS } from 'src/products/accountSettings/constants/constants.js';
-import { isOrgSessionFor } from 'src/shared/utils/orgSession.js';
+import { useOrgState } from 'src/core/org/hooks/useOrgState.js';
+import { ORG_SETTINGS_TABS } from 'src/core/org/constants/constants.js';
 import { settingsStrings as t } from '../strings.js';
 
 /**
@@ -30,8 +31,10 @@ export const SETTINGS_TABS = [
 export function SettingsFrame({ activeTab, children }) {
   const navigate = useNavigate();
   const { user } = useAuth();
-  /* The Organization tab belongs to an org member's session only. */
-  const visible = SETTINGS_TABS.filter((x) => x.id !== 'organization' || isOrgSessionFor(user));
+  /* Decided by the server, however the person signed in. A member sees Account, Organization and
+     Billing; everyone else never sees Organization. */
+  const { isMember } = useOrgState();
+  const visible = SETTINGS_TABS.filter((x) => (isMember ? ORG_SETTINGS_TABS.includes(x.id) : x.id !== 'organization'));
   const tabs = user?.isManaged ? visible.filter((x) => !MANAGED_HIDDEN_TABS.includes(x.id)) : visible;
   const go = (id) =>
     navigate(id === 'linkedin' ? '/dashboard/settings/linkedin' : id === 'assistants' ? '/dashboard/settings/ai-assistants' : id === 'account' ? '/dashboard/settings' : `/dashboard/settings?tab=${id}`);

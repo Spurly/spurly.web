@@ -202,7 +202,9 @@ export function useThread({ chatId, onChanged }) {
 
   const chat = data?.chat;
   const messages = data?.messages ?? [];
-  const readOnly = Boolean(chat?.readOnly);
+  // An organization's workspace is read only for now (V3b): its chats carry `account`, a personal chat never does.
+  const orgReadOnly = Boolean(chat?.account);
+  const readOnly = Boolean(chat?.readOnly) || orgReadOnly;
 
   const send = (event) => {
     event?.preventDefault();
@@ -228,5 +230,5 @@ export function useThread({ chatId, onChanged }) {
 
   const openAttachment = (messageId, attachment) => { inboxController.openAttachment(eventEmitter, { messageId, attachment }); };
 
-  return { data, loading, draft, setDraft, sending, uploading, chat, messages, readOnly, send, react, attach, openAttachment };
+  return { data, loading, draft, setDraft, sending, uploading, chat, messages, readOnly, orgReadOnly, send, react, attach, openAttachment };
 }

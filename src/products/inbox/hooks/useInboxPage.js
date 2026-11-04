@@ -16,6 +16,20 @@ import { POLL_MS, INBOX_EVENTS, LIVE_RELOAD_DEBOUNCE_MS } from '../constants/con
  * function.
  */
 export function emptyStateFor(summary) {
+  // An organization's workspace that is not switched on (or is owners-only): said plainly, with a way forward (V3b.5).
+  if (summary?.workspaceState === 'off') {
+    return {
+      title: 'The shared workspace is off',
+      hint: 'Your organization has not switched on the shared inbox. An owner can turn it on in Settings, under Organization.',
+      cta: { label: 'Go to Organization settings', to: '/dashboard/settings?tab=organization' },
+    };
+  }
+  if (summary?.workspaceState === 'owner-only') {
+    return {
+      title: 'The shared inbox is for owners',
+      hint: 'Only an owner of your organization can use the shared inbox for now.',
+    };
+  }
   if (!summary || summary.connected === false) {
     return {
       title: 'LinkedIn is not connected',
@@ -84,6 +98,9 @@ export function useInboxPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [query, setQuery] = useState('');
   const [unreadOnly, setUnreadOnly] = useState(false);
+  // Organization workspace: which of its LinkedIn accounts to show ('' = all). Ignored for a solo user.
+  const [accountId, setAccountId] = useState('');
+  const [workspaceState, setWorkspaceState] = useState(null);
 
   const toast = useToast();
   const navigate = useNavigate();
@@ -113,7 +130,7 @@ export function useInboxPage() {
    * the list, which is what you want when the query is served from our own
    * database in milliseconds.
    */
-  const sig = `${debouncedQuery}|${unreadOnly ? 1 : 0}`;
+  const sig = `${debouncedQuery}|${unreadOnly ? 1 : 0}|${accountId}`;
   const sigRef = useRef(sig);
   useEffect(() => { sigRef.current = sig; });
   const loadedPage = more.sig === sig ? more.page : 1;
@@ -129,8 +146,8 @@ export function useInboxPage() {
   const hasMore = head.length > 0 && chats.length < listTotal;
 
   const load = useCallback(() => {
-    inboxController.loadInboxPage(eventEmitter, { q: debouncedQuery, unread: unreadOnly });
-  }, [eventEmitter, debouncedQuery, unreadOnly]);
+    inboxController.loadInboxPage(eventEmitter, { q: debouncedQuery, unread: unreadOnly, accountId });
+  }, [eventEmitter, debouncedQuery, unreadOnly, accountId]);
 
   // Every controller call reports back through this one subscription — no
   // .then()/.catch() and nothing awaited here.
@@ -140,11 +157,20 @@ export function useInboxPage() {
       setHead(nextChats);
       setListTotal(pagination?.total ?? nextChats.length);
       setSummary(nextSummary);
+      setWorkspaceState(null);
       setLoading(false);
       setRefreshing(false);
     };
     const onPageLoadFailure = (err) => {
       if (!mountedRef.current) return;
+      // Not an error to toast: the workspace is simply not available to this person (V3b.5).
+      const code = err?.response?.data?.error ?? err?.response?.data?.code;
+      if (code === 'WORKSPACE_FEATURE_OFF' || code === 'WORKSPACE_OWNER_ONLY') {
+        setWorkspaceState(code === 'WORKSPACE_OWNER_ONLY' ? 'owner-only' : 'off');
+        setLoading(false);
+        setRefreshing(false);
+        return;
+      }
       toast.error(getToastError(err, 'Could not load your inbox'));
       setLoading(false);
       setRefreshing(false);
@@ -238,8 +264,8 @@ export function useInboxPage() {
   const loadMore = useCallback(() => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);
-    inboxController.loadMoreChats(eventEmitter, { page: loadedPage + 1, q: debouncedQuery, unread: unreadOnly, sig });
-  }, [loadingMore, hasMore, eventEmitter, loadedPage, debouncedQuery, unreadOnly, sig]);
+    inboxController.loadMoreChats(eventEmitter, { page: loadedPage + 1, q: debouncedQuery, unread: unreadOnly, accountId, sig });
+  }, [loadingMore, hasMore, eventEmitter, loadedPage, debouncedQuery, unreadOnly, accountId, sig]);
 
   const refresh = () => {
     setRefreshing(true);
@@ -250,13 +276,15 @@ export function useInboxPage() {
     inboxController.sync(eventEmitter);
   };
 
-  const empty = useMemo(() => emptyStateFor(summary), [summary]);
+  const empty = useMemo(() => emptyStateFor(workspaceState ? { workspaceState } : summary), [summary, workspaceState]);
+  // An organization's inbox lists its LinkedIn accounts; a solo summary has none. One account needs no picker.
+  const accounts = Array.isArray(summary?.accounts) ? summary.accounts : [];
   // Still catching up — the first sweep, a wider re-sweep, or history yet to
   // download. Said quietly above the list so the reader knows more is coming.
   const syncing = Boolean(summary?.sync)
     && summary.sync.status !== 'failed'
     && (summary.sync.phase !== 'done' || (summary.historyPending ?? 0) > 0);
-  const nothingAtAll = !loading && chats.length === 0 && !debouncedQuery && !unreadOnly;
+  const nothingAtAll = !loading && chats.length === 0 && !debouncedQuery && !unreadOnly && !accountId || Boolean(workspaceState);
 
   return {
     openId,
@@ -273,6 +301,9 @@ export function useInboxPage() {
     setQuery,
     unreadOnly,
     setUnreadOnly,
+    accounts,
+    accountId,
+    setAccountId,
     debouncedQuery,
     load,
     refresh,
