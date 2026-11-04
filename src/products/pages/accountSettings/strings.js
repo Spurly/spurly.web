@@ -18,6 +18,7 @@ export const settingsStrings = {
     extension: 'Extension',
     team: 'Team',
     billing: 'Billing',
+    organization: 'Organization',
     // kept for anything still reading the old key
     profile: 'Account',
   },

@@ -3,6 +3,7 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
 import { AUTH_EVENTS } from '../constants/constants.js';
 import { track } from 'src/shared/analytics/analytics.js';
 import { clearManagedSession, isManagedSession } from 'src/shared/utils/managedSession.js';
+import { clearOrgSession } from 'src/shared/utils/orgSession.js';
 
 /**
  * Auth Controller
@@ -216,6 +217,7 @@ async function logout(eventEmitter) {
   // Clear local storage and API gateway
   localStorage.removeItem('authToken');
   localStorage.removeItem('user');
+  clearOrgSession();
   apiGateway.removeToken();
 
   eventEmitter.emit(AUTH_EVENTS.LOGOUT_SUCCESS, { managed });

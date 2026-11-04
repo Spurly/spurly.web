@@ -266,3 +266,26 @@ export async function clearLimitOverride(id) {
   const res = await apiGateway.delete(`/admin/limits/overrides/${id}`);
   return res.data;
 }
+
+/**
+ * Organizations (partner -> org -> LinkedIn accounts). Counts only: nothing here
+ * bills anyone. GET list returns { items, total, page, limit }; GET one adds
+ * `members` and `accountList`; PATCH status takes 'active' | 'suspended'.
+ */
+export async function getOrgs({ page = 1, limit = 20, status = '', q = '' } = {}) {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (status) params.set('status', status);
+  if (q) params.set('q', q);
+  const res = await apiGateway.get(`/admin/orgs?${params}`);
+  return res.data;
+}
+
+export async function getOrg(orgId) {
+  const res = await apiGateway.get(`/admin/orgs/${orgId}`);
+  return res.data;
+}
+
+export async function setOrgStatus(orgId, status) {
+  const res = await apiGateway.patch(`/admin/orgs/${orgId}/status`, { status });
+  return res.data;
+}

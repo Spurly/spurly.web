@@ -36,3 +36,4 @@ src/products/pages/website/content/*.generated.js
 
 # Generated from src/products/pages/developers/openapi.js (scripts/buildOpenApi.mjs)
 public/developers/openapi.json
+public/developers/openapi.v2.json

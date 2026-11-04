@@ -99,6 +99,9 @@ export default function LoginPage() {
         <p className="sp-foot-switch" style={{ marginTop: 18 }}>
           New to Spurly? <Link className="sp-link" to="/signup">Create an account</Link>
         </p>
+        <p className="sp-foot-switch" style={{ marginTop: 8 }}>
+          Part of an organization? <Link className="sp-link" to="/login/org">Sign in with your organization email</Link>
+        </p>
       </div>
     </AuthShell>
   );

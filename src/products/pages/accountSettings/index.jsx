@@ -9,6 +9,8 @@ import { ServerSendingCard } from './components/ServerSendingCard.jsx';
 import { AiContextTab } from './components/AiContextTab.jsx';
 import { SendingLimitsTab } from './components/SendingLimitsTab.jsx';
 import { TeamTab } from './components/TeamTab.jsx';
+import { OrganizationTab } from './components/OrganizationTab.jsx';
+import { isOrgSessionFor } from 'src/shared/utils/orgSession.js';
 
 export { SettingsFrame } from './components/SettingsFrame.jsx';
 
@@ -22,7 +24,8 @@ export function SettingsPage() {
   const { user } = useAuth();
   const requested = params.get('tab');
   const hidden = user?.isManaged && MANAGED_HIDDEN_TABS.includes(requested);
-  const activeTab = SETTINGS_TABS.some((x) => x.id === requested) && requested !== 'linkedin' && requested !== 'assistants' && !hidden ? requested : 'account';
+  const orgHidden = requested === 'organization' && !isOrgSessionFor(user);
+  const activeTab = SETTINGS_TABS.some((x) => x.id === requested) && requested !== 'linkedin' && requested !== 'assistants' && !hidden && !orgHidden ? requested : 'account';
 
   return (
     <SettingsFrame activeTab={activeTab}>
@@ -37,6 +40,7 @@ export function SettingsPage() {
       )}
       {activeTab === 'team' && <TeamTab />}
       {activeTab === 'billing' && <BillingTab />}
+      {activeTab === 'organization' && <OrganizationTab />}
     </SettingsFrame>
   );
 }

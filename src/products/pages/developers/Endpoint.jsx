@@ -1,4 +1,4 @@
-import { OPENAPI, operationById, resolveRef } from "./openapi.js";
+import { allOperations, operationById, resolveRef } from "./openapi.js";
 import { samplesFor } from "./samples.js";
 import SchemaTable from "./SchemaTable.jsx";
 import CodeBlock, { CodeTabs } from "./CodeBlock.jsx";
@@ -102,7 +102,7 @@ export default function Endpoint({ operationId }) {
       {binary && (
         <>
           <h3>Request body</h3>
-          <p>The raw file bytes. Set <code>Content-Type</code> to the file&apos;s type.</p>
+          <p>{body ? "Or the raw file bytes, with the options in the query string." : "The raw file bytes."} Set <code>Content-Type</code> to the file&apos;s type.</p>
         </>
       )}
 
@@ -117,13 +117,7 @@ export default function Endpoint({ operationId }) {
 
 export const tagSlug = (tag) => tag.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
-/** Every endpoint whose tag matches (by name or slug, "linkedin-connection"), in spec order. */
+/** Every endpoint whose tag matches (by name or slug, "linkedin-connection"), in spec order, v1 then v2. */
 export function endpointsWithTag(tag) {
-  const out = [];
-  for (const [path, item] of Object.entries(OPENAPI.paths)) {
-    for (const method of ["get", "post", "put", "patch", "delete"]) {
-      if (item[method]?.tags?.some((t) => t === tag || tagSlug(t) === tag)) out.push({ path, method, ...item[method] });
-    }
-  }
-  return out;
+  return allOperations().filter((op) => op.tags?.some((t) => t === tag || tagSlug(t) === tag));
 }
