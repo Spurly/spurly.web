@@ -272,11 +272,18 @@ export async function clearLimitOverride(id) {
  * bills anyone. GET list returns { items, total, page, limit }; GET one adds
  * `members` and `accountList`; PATCH status takes 'active' | 'suspended'.
  */
-export async function getOrgs({ page = 1, limit = 20, status = '', q = '' } = {}) {
+export async function getOrgs({ page = 1, limit = 20, status = '', q = '', partnerId = '' } = {}) {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (status) params.set('status', status);
   if (q) params.set('q', q);
+  if (partnerId) params.set('partnerId', partnerId);
   const res = await apiGateway.get(`/admin/orgs?${params}`);
+  return res.data;
+}
+
+/** Partners that have at least one org -> { items: [{ id, name, slug, kind, status }] }, for the filter. */
+export async function getOrgPartners() {
+  const res = await apiGateway.get('/admin/orgs/partners');
   return res.data;
 }
 

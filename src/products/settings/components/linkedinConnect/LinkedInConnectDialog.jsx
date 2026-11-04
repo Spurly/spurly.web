@@ -37,9 +37,9 @@ const HEADINGS = {
   },
 };
 
-export function LinkedInConnectDialog({ connect, onUseHosted, hostedBusy = false }) {
+export function LinkedInConnectDialog({ connect, onUseHosted, hostedBusy = false, headings = null, renderSuccess = null }) {
   const { open, step, checkpoint, busy, error, notice, offerHosted, options, connectedAccount } = connect;
-  const heading = HEADINGS[step] ?? HEADINGS.form;
+  const heading = headings?.[step] ?? HEADINGS[step] ?? HEADINGS.form;
   const bodyRef = useRef(null);
 
   // A new problem is shown at the top of the step; bring it into view, since
@@ -146,7 +146,7 @@ export function LinkedInConnectDialog({ connect, onUseHosted, hostedBusy = false
             codeInvalid={error?.code === 'INVALID_CODE'}
           />
         )}
-        {step === 'success' && <SuccessStep account={connectedAccount} />}
+        {step === 'success' && (renderSuccess ? renderSuccess(connectedAccount) : <SuccessStep account={connectedAccount} />)}
 
         {busy === 'signin' && (
           <Working title="Signing in to LinkedIn…" detail="This can take up to a minute. Keep this window open." />

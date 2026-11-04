@@ -59,5 +59,5 @@ export function useOrgAccounts(orgId, { onDisconnected } = {}) {
     orgController.disconnectAccount(emitter, accountId);
   }, [emitter]);
 
-  return { accounts, error, disconnecting, disconnectError, disconnect };
+  return { accounts, error, disconnecting, disconnectError, disconnect, reload };
 }

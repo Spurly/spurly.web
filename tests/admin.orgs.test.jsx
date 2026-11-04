@@ -28,6 +28,10 @@ vi.mock('src/shared/gateway/apiGateway.js', () => stubGateway({
     listUrls.push(url);
     return { success: true, data: { items: orgs, total: orgs.length, page: 1, limit: 20 } };
   },
+  'GET /admin/orgs/partners': () => ({
+    success: true,
+    data: { items: [partner, { id: 'p2', name: 'Zeta Partners', slug: 'zeta', kind: 'external', status: 'active' }] },
+  }),
   'GET /admin/orgs/*': () => ({
     success: true,
     data: {
@@ -89,6 +93,21 @@ describe('Admin Orgs list', () => {
     await waitFor(() => expect(screen.getByText('ABC Ltd')).toBeInTheDocument());
     expect(listUrls[0]).toContain('page=1');
     expect(listUrls[0]).not.toContain('status=');
+  });
+});
+
+describe('Admin Orgs partner filter', () => {
+  it('lists the partners that have orgs, and filters the list by the one picked', async () => {
+    renderPage();
+    await waitFor(() => expect(screen.getByText('ABC Ltd')).toBeInTheDocument());
+    expect(listUrls[0]).not.toContain('partnerId=');
+
+    await userEvent.click(screen.getByRole('button', { name: /filter by partner/i }));
+    expect(await screen.findByRole('option', { name: 'Zeta Partners' })).toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('option', { name: 'Acme Partners' }));
+
+    await waitFor(() => expect(listUrls.some((u) => u.includes('partnerId=p1'))).toBe(true));
+    expect(listUrls.at(-1)).toContain('page=1');
   });
 });
 

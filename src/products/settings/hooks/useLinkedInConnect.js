@@ -74,8 +74,11 @@ export function toConnectError(err) {
  * (password, cookie, proxy password) are never kept here: the form owns them
  * and hands them to signIn(), which passes them straight to the controller.
  */
-export function useLinkedInConnect({ onConnected } = {}) {
+export function useLinkedInConnect({ onConnected, controller } = {}) {
   const eventEmitter = useMemo(() => new EventEmitter(), []);
+  // Optional: an organization account connects through its own endpoints, same method names.
+  const controllerRef = useRef(controller ?? accountController);
+  useEffect(() => { controllerRef.current = controller ?? accountController; }, [controller]);
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState('form'); // 'form' | 'checkpoint' | 'success'
   const [checkpoint, setCheckpoint] = useState(null); // { type, expiresAt }
@@ -139,7 +142,7 @@ export function useLinkedInConnect({ onConnected } = {}) {
       (next) => setOptions({ detectedCountry: next?.detectedCountry ?? null, loaded: true }),
       () => setOptions({ detectedCountry: null, loaded: true }),
     );
-    accountController.getConnectOptions(eventEmitter);
+    controllerRef.current.getConnectOptions(eventEmitter);
   }, [eventEmitter]);
 
   const closeDialog = useCallback(() => {
@@ -189,11 +192,11 @@ export function useLinkedInConnect({ onConnected } = {}) {
     call();
   };
 
-  const signIn = (input) => runStep('signin', () => accountController.connectWithCredentials(eventEmitter, input));
+  const signIn = (input) => runStep('signin', () => controllerRef.current.connectWithCredentials(eventEmitter, input));
 
-  const submitCode = (code) => runStep('code', () => accountController.solveCheckpoint(eventEmitter, code));
+  const submitCode = (code) => runStep('code', () => controllerRef.current.solveCheckpoint(eventEmitter, code));
 
-  const tryAnotherWay = () => runStep('another', () => accountController.tryAnotherWay(eventEmitter));
+  const tryAnotherWay = () => runStep('another', () => controllerRef.current.tryAnotherWay(eventEmitter));
 
   /** "Use a different account" from a checkpoint — the open sign-in is simply superseded. */
   const startOver = () => {
@@ -227,7 +230,7 @@ export function useLinkedInConnect({ onConnected } = {}) {
         else setError(info);
       },
     );
-    accountController.resendCheckpoint(eventEmitter);
+    controllerRef.current.resendCheckpoint(eventEmitter);
   };
 
   /**
@@ -284,7 +287,7 @@ export function useLinkedInConnect({ onConnected } = {}) {
           }
         },
       );
-      accountController.checkpointStatus(eventEmitter);
+      controllerRef.current.checkpointStatus(eventEmitter);
     }, APPROVAL_POLL_INTERVAL_MS);
 
     return () => {

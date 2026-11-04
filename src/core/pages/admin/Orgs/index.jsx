@@ -33,14 +33,16 @@ export function AdminOrgsPage() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [status, setStatus] = useState('');
+  const [partnerId, setPartnerId] = useState('');
+  const [partners, setPartners] = useState([]);
   const [search, setSearch] = useState('');
   const [openId, setOpenId] = useState(null);
 
   const fetchOrgs = useCallback(() => {
     setLoading(true);
     setError('');
-    adminController.getOrgs(eventEmitter, { page, limit: PAGE_SIZE, status, q: search });
-  }, [eventEmitter, page, status, search]);
+    adminController.getOrgs(eventEmitter, { page, limit: PAGE_SIZE, status, q: search, partnerId });
+  }, [eventEmitter, page, status, search, partnerId]);
 
   useEffect(() => {
     function handleSuccess(data) {
@@ -53,9 +55,16 @@ export function AdminOrgsPage() {
       toast.error(getToastError(err, "Couldn't load organizations"));
       setLoading(false);
     }
+    // The partner filter is a nicety: if its list does not load, the page still works with "All partners".
+    function handlePartners(data) {
+      setPartners(data.items || []);
+    }
+    eventEmitter.on(ADMIN_EVENTS.GET_ORG_PARTNERS_SUCCESS, handlePartners);
+    adminController.getOrgPartners(eventEmitter);
     eventEmitter.on(ADMIN_EVENTS.GET_ORGS_SUCCESS, handleSuccess);
     eventEmitter.on(ADMIN_EVENTS.GET_ORGS_FAILURE, handleFailure);
     return () => {
+      eventEmitter.off(ADMIN_EVENTS.GET_ORG_PARTNERS_SUCCESS, handlePartners);
       eventEmitter.off(ADMIN_EVENTS.GET_ORGS_SUCCESS, handleSuccess);
       eventEmitter.off(ADMIN_EVENTS.GET_ORGS_FAILURE, handleFailure);
     };
@@ -64,6 +73,11 @@ export function AdminOrgsPage() {
   useEffect(() => {
     fetchOrgs();
   }, [fetchOrgs]);
+
+  const partnerOptions = useMemo(
+    () => [['', 'All partners'], ...partners.map((p) => [p.id, p.name || p.slug])],
+    [partners],
+  );
 
   const handleSearch = useCallback((value) => {
     setPage(1);
@@ -78,13 +92,27 @@ export function AdminOrgsPage() {
         loading={loading}
         error={error}
         onRowClick={(row) => setOpenId(row.id)}
-        emptyMessage={search || status ? 'No organizations match your filters' : 'No organizations yet'}
+        emptyMessage={search || status || partnerId ? 'No organizations match your filters' : 'No organizations yet'}
         emptyHint="Organizations appear here when a partner creates one."
         toolbar={{
           searchValue: search,
           onSearch: handleSearch,
           searchPlaceholder: 'Search org id or name',
           filters: (
+            <>
+            <div className="w-48">
+              <Dropdown
+                id="org-partner-filter"
+                ariaLabel="Filter by partner"
+                variant="dashboard"
+                value={partnerId}
+                onChange={(value) => {
+                  setPage(1);
+                  setPartnerId(value);
+                }}
+                options={partnerOptions}
+              />
+            </div>
             <div className="w-48">
               <Dropdown
                 id="org-status-filter"
@@ -97,6 +125,7 @@ export function AdminOrgsPage() {
                 options={STATUS_OPTIONS}
               />
             </div>
+            </>
           ),
         }}
         pagination={{ page, pageSize: PAGE_SIZE, total, onPageChange: setPage }}
