@@ -45,6 +45,14 @@ beforeEach(() => {
     user({ _id: 'o1', name: 'Owner Person', email: 'abc@example.com', org: { orgId: 'org1', name: 'ABC Ltd', status: 'active', role: 'owner' } }),
     user({ _id: 'o2', name: 'Gone Person', email: 'zed@example.com', org: { orgId: 'org2', name: 'zed@example.com', status: 'suspended', role: 'member' } }),
     user({ _id: 'n1', name: 'Plain Person', email: 'plain@example.com' }),
+    user({
+      _id: 'm1', name: 'Multi Person', email: 'multi@example.com',
+      org: { orgId: 'org1', name: 'ABC Ltd', status: 'active', role: 'member' },
+      orgs: [
+        { orgId: 'org1', name: 'ABC Ltd', status: 'active', role: 'member' },
+        { orgId: 'org3', name: 'Zed Corp', status: 'suspended', role: 'owner' },
+      ],
+    }),
   ];
 });
 
@@ -59,6 +67,16 @@ describe('the Organization column', () => {
     expect(within(rowOf('Owner Person')).queryByText('Suspended')).not.toBeInTheDocument();
     expect(within(rowOf('Gone Person')).getByText('Suspended')).toBeInTheDocument();
     expect(within(rowOf('Plain Person')).queryByText(/org:/i)).not.toBeInTheDocument();
+  });
+
+  it('a user in several orgs shows the first and a +N that lists the others', async () => {
+    renderPage();
+    await waitFor(() => expect(screen.getByText('Multi Person')).toBeInTheDocument());
+    const row = screen.getByText('Multi Person').closest('tr');
+    expect(within(row).getByText('Org: ABC Ltd')).toBeInTheDocument();
+    const more = within(row).getByText('+1');
+    expect(more.closest('[title]')).toHaveAttribute('title', 'ABC Ltd, Zed Corp (suspended)');
+    expect(within(row).queryByText('Zed Corp')).not.toBeInTheDocument();
   });
 
   it('never shows an org member in the Partner column', async () => {

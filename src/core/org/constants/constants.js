@@ -62,5 +62,17 @@ export const ORG_COPY = {
     suspended: 'This organization is suspended.',
     confirmTitle: (name) => `Disconnect ${name}?`,
     confirmBody: 'Spurly stops working with this LinkedIn account. It can be connected again later.',
+    connect: 'Connect LinkedIn account',
+    reconnect: 'Reconnect',
+  },
+  connect: {
+    headings: {
+      form: { title: 'Connect a LinkedIn account', sub: "Sign in with the LinkedIn account you want to add to your organization." },
+      checkpoint: { title: 'Verify it’s you', sub: 'LinkedIn wants to confirm this sign-in. This is normal for a new device.' },
+      success: { title: 'Account connected', sub: 'It now counts toward your organization’s connected accounts.' },
+    },
+    successTitle: 'LinkedIn account connected',
+    successNamed: 'Connected as',
+    successPlain: 'The account is now part of your organization.',
   },
 };

@@ -346,6 +346,16 @@ function getOrgs(eventEmitter, options) {
   );
 }
 
+function getOrgPartners(eventEmitter) {
+  return call(
+    eventEmitter,
+    () => adminGateway.getOrgPartners(),
+    ADMIN_EVENTS.GET_ORG_PARTNERS_SUCCESS,
+    ADMIN_EVENTS.GET_ORG_PARTNERS_FAILURE,
+    'Failed to load partners',
+  );
+}
+
 function getOrg(eventEmitter, orgId) {
   return call(
     eventEmitter,
@@ -398,6 +408,7 @@ const adminController = {
   clearLimitOverride,
   setLimitEnforcement,
   getOrgs,
+  getOrgPartners,
   getOrg,
   setOrgStatus,
 };

@@ -27,8 +27,8 @@ export function buildUserColumns({ onManageCredits, onManagePlan, onImpersonate 
       key: 'org',
       label: 'Organization',
       width: 220,
-      title: (row) => (row.org ? `Org: ${row.org.name}` : ''),
-      render: (_v, row) => <OrgCell org={row.org} />,
+      title: (row) => (row.orgs?.length ? `Org: ${row.orgs.map((o) => o.name).join(', ')}` : row.org ? `Org: ${row.org.name}` : ''),
+      render: (_v, row) => <OrgCell org={row.org} orgs={row.orgs} />,
     },
     {
       key: 'plan',
