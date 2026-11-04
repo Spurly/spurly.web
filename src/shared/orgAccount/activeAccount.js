@@ -1,6 +1,7 @@
 import {
   ORG_ACTIVE_ACCOUNT_KEY,
   ORG_ACTIVE_ACCOUNT_EVENT,
+  ORG_KNOWN_ACCOUNTS_KEY,
   ORG_ACCOUNT_BOUND_PATHS,
   ORG_ACCOUNT_BODY_PATHS,
 } from './constants/constants.js';
@@ -30,12 +31,43 @@ function sessionUserId() {
   }
 }
 
-/** The chosen account id, or '' when none is chosen (the server then picks the only account, or asks). */
+/** The usable accounts last seen for this member (so the default is known before the first request). */
+export function getKnownAccounts() {
+  const userId = sessionUserId();
+  try {
+    const seen = JSON.parse(localStorage.getItem(ORG_KNOWN_ACCOUNTS_KEY) || 'null');
+    if (!seen || !userId || String(seen.userId) !== userId) return { orgId: '', accounts: [] };
+    return { orgId: String(seen.orgId || ''), accounts: Array.isArray(seen.accounts) ? seen.accounts : [] };
+  } catch {
+    return { orgId: '', accounts: [] };
+  }
+}
+
+export function rememberAccounts(orgId, accounts) {
+  const userId = sessionUserId();
+  if (!userId) return;
+  const slim = accounts.map((a) => ({ id: String(a.id), name: a.name, publicIdentifier: a.publicIdentifier }));
+  try {
+    localStorage.setItem(ORG_KNOWN_ACCOUNTS_KEY, JSON.stringify({ userId, orgId: String(orgId), accounts: slim }));
+  } catch {
+    /* storage unavailable: the list is simply fetched again next time */
+  }
+}
+
+/**
+ * The account requests act through, or '' when the server should pick (one account) or nothing is known yet.
+ * With several accounts one is ALWAYS in effect: the member's choice if it is still valid, otherwise the first one.
+ * Pure and synchronous, so a request fired before any component has mounted still carries the right account.
+ */
 export function getActiveAccountId() {
   const stored = readStored();
   const userId = sessionUserId();
-  if (!stored || !userId || String(stored.userId) !== userId) return '';
-  return String(stored.accountId || '');
+  if (!userId) return '';
+  const chosen = stored && String(stored.userId) === userId ? String(stored.accountId || '') : '';
+  const { accounts } = getKnownAccounts();
+  if (accounts.length < 2) return chosen;
+  if (chosen && accounts.some((a) => String(a.id) === chosen)) return chosen;
+  return String(accounts[0].id);
 }
 
 export function setActiveAccountId(accountId) {

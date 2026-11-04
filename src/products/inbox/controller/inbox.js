@@ -15,15 +15,16 @@ import { INBOX_EVENTS } from '../constants/constants.js';
  * looks the way it does. Orchestrating that pairing here, in one place,
  * is exactly the kind of thing this layer exists for.
  */
-async function loadInboxPage(eventEmitter, { q, unread, accountId } = {}) {
+async function loadInboxPage(eventEmitter, { q, unread, accountId, sig } = {}) {
   try {
     const [list, summary] = await Promise.all([
       hubInboxGateway.listChats({ q, unread, accountId }),
       hubInboxGateway.getSummary({ accountId }),
     ]);
-    eventEmitter.emit(INBOX_EVENTS.PAGE_LOAD_SUCCESS, { chats: list.chats ?? [], pagination: list.pagination, summary });
+    eventEmitter.emit(INBOX_EVENTS.PAGE_LOAD_SUCCESS, { chats: list.chats ?? [], pagination: list.pagination, summary, sig });
   } catch (error) {
-    eventEmitter.emit(INBOX_EVENTS.PAGE_LOAD_FAILURE, error);
+    // `sig` is echoed so the hook can ignore a failure of a request the reader has since replaced.
+    eventEmitter.emit(INBOX_EVENTS.PAGE_LOAD_FAILURE, { error, sig });
   }
 }
 

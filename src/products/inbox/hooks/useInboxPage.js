@@ -101,6 +101,8 @@ export function useInboxPage() {
   // Organization workspace: which of its LinkedIn accounts to show ('' = all). Ignored for a solo user.
   const [accountId, setAccountId] = useState('');
   const [workspaceState, setWorkspaceState] = useState(null);
+  // The filters the rows on screen were fetched under. While it differs from `sig` the list is being swapped.
+  const [settledSig, setSettledSig] = useState(null);
 
   const toast = useToast();
   const navigate = useNavigate();
@@ -146,14 +148,17 @@ export function useInboxPage() {
   const hasMore = head.length > 0 && chats.length < listTotal;
 
   const load = useCallback(() => {
-    inboxController.loadInboxPage(eventEmitter, { q: debouncedQuery, unread: unreadOnly, accountId });
-  }, [eventEmitter, debouncedQuery, unreadOnly, accountId]);
+    inboxController.loadInboxPage(eventEmitter, { q: debouncedQuery, unread: unreadOnly, accountId, sig });
+  }, [eventEmitter, debouncedQuery, unreadOnly, accountId, sig]);
 
   // Every controller call reports back through this one subscription — no
   // .then()/.catch() and nothing awaited here.
   useEffect(() => {
-    const onPageLoadSuccess = ({ chats: nextChats, pagination, summary: nextSummary }) => {
+    const onPageLoadSuccess = ({ chats: nextChats, pagination, summary: nextSummary, sig: forSig }) => {
       if (!mountedRef.current) return;
+      // A slower answer to filters the reader has since changed must never overwrite the newer list.
+      if (forSig !== undefined && forSig !== sigRef.current) return;
+      setSettledSig(forSig ?? sigRef.current);
       setHead(nextChats);
       setListTotal(pagination?.total ?? nextChats.length);
       setSummary(nextSummary);
@@ -161,8 +166,9 @@ export function useInboxPage() {
       setLoading(false);
       setRefreshing(false);
     };
-    const onPageLoadFailure = (err) => {
+    const onPageLoadFailure = ({ error: err, sig: forSig }) => {
       if (!mountedRef.current) return;
+      if (forSig !== undefined && forSig !== sigRef.current) return;
       // Not an error to toast: the workspace is simply not available to this person (V3b.5).
       const code = err?.response?.data?.error ?? err?.response?.data?.code;
       if (code === 'WORKSPACE_FEATURE_OFF' || code === 'WORKSPACE_OWNER_ONLY') {
@@ -310,6 +316,7 @@ export function useInboxPage() {
     startSync,
     empty,
     nothingAtAll,
+    switching: !loading && settledSig !== null && settledSig !== sig,
     navigate,
   };
 }

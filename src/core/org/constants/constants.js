@@ -43,7 +43,7 @@ export const ORG_ACCOUNT_TONE = {
 };
 
 export const ORG_COPY = {
-  switcher: { label: 'Acting as', unnamed: 'LinkedIn account' },
+  switcher: { label: 'Acting as', unnamed: 'LinkedIn account', notUsedHere: 'This page does not use a LinkedIn account' },
   login: {
     title: 'Sign in to your organization',
     subEmail: "Enter your organization's email. We'll send you a 6-digit code.",
@@ -109,5 +109,10 @@ export const ORG_NAV_BY_FEATURE = {
   sequences: ['/hub/sequences'],
   content: ['/hub/posts'],
 };
+/** Pages whose data comes from one LinkedIn account. On any other page the "Acting as" control stays put but fades. */
+export const ORG_ACCOUNT_PAGES = [
+  '/hub/leads', '/hub/discover', '/hub/network', '/hub/viewers', '/hub/invitations', '/hub/enrichment',
+  '/hub/posts', '/hub/campaigns', '/hub/sequences', '/dashboard/import',
+];
 export const ORG_SETTINGS_TABS = ['account', 'organization', 'billing'];
 export const ORG_STATE_NONE = { isMember: false, workspaceEnabled: false, features: { inbox: false, campaigns: false, leads: false, sequences: false, content: false } };

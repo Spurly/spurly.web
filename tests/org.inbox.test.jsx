@@ -176,4 +176,13 @@ describe('an organization conversation', () => {
     expect(screen.getByText(/shared workspace is read-only/i)).toBeInTheDocument();
     expect(screen.queryByRole('textbox', { name: /reply/i })).not.toBeInTheDocument();
   });
+
+  it('when the server says replies are on, shows the composer for text only', async () => {
+    thread = { ...thread, chat: aChat({ account: ACCOUNTS[0], canReply: true }) };
+    renderAt('/hub/inbox?chat=chat-1');
+    expect(await screen.findByText('Hello from the prospect')).toBeInTheDocument();
+    expect(await screen.findByRole('textbox', { name: /reply/i })).toBeInTheDocument();
+    expect(screen.queryByText(/shared workspace is read-only/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /attach/i })).not.toBeInTheDocument();
+  });
 });

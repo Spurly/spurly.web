@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { withActiveAccount, setActiveAccountId, getActiveAccountId } from 'src/shared/orgAccount/activeAccount.js';
+import { withActiveAccount, setActiveAccountId, getActiveAccountId, rememberAccounts } from 'src/shared/orgAccount/activeAccount.js';
 
 /** The chosen org account rides on account-bound requests only, for that org member only. */
 beforeEach(() => {
@@ -40,5 +40,28 @@ describe('active org account', () => {
     expect(getActiveAccountId()).toBe('');
     localStorage.removeItem('user');
     expect(withActiveAccount({ method: 'get', url: '/hub/posts' }).params).toBeUndefined();
+  });
+
+  test('network, audience, sourcing and lead profile calls are account-bound too', () => {
+    setActiveAccountId('acc1');
+    for (const url of ['/hub/network', '/hub/audience/params', '/hub/sourcing/usage', '/hub/leads/L1/profile', '/hub/leads/enrich/queue']) {
+      expect(withActiveAccount({ method: 'get', url }).params).toEqual({ accountId: 'acc1' });
+    }
+    expect(withActiveAccount({ method: 'post', url: '/hub/network/sync', data: {} }).data).toEqual({ accountId: 'acc1' });
+  });
+
+  test('with several accounts known and none chosen, the first is used before any component mounts', () => {
+    rememberAccounts('org1', [{ id: 'a1' }, { id: 'a2' }]);
+    expect(getActiveAccountId()).toBe('a1');
+    expect(withActiveAccount({ method: 'get', url: '/hub/network' }).params).toEqual({ accountId: 'a1' });
+    setActiveAccountId('a2');
+    expect(getActiveAccountId()).toBe('a2');
+    setActiveAccountId('gone');
+    expect(getActiveAccountId()).toBe('a1');
+  });
+
+  test('with one account known, no choice is added (the server uses it)', () => {
+    rememberAccounts('org1', [{ id: 'a1' }]);
+    expect(getActiveAccountId()).toBe('');
   });
 });
