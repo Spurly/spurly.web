@@ -30,7 +30,7 @@ import { TemplatePickerModal } from 'src/products/pages/templates/components/Tem
  * Up/Down buttons stay as the keyboard/accessible fallback, as before.
  */
 
-function ConfigFields({ step, onConfigChange, disabled }) {
+export function ConfigFields({ step, onConfigChange, disabled }) {
   const { type, config } = step;
   const [pickingTemplate, setPickingTemplate] = useState(false);
 

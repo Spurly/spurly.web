@@ -1,14 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
-import { SectionCard } from 'src/core/primitives/SectionCard';
 import { Button, Input, Dialog } from 'src/core/primitives';
 import { SendingAsChip } from 'src/core/org/components/SendingAsChip.jsx';
 import { useSendingAs } from 'src/core/org/hooks/useSendingAs.js';
 import { useNewSequencePage } from 'src/products/sequences/hooks/useNewSequencePage.js';
 import { SequenceTreeBuilder } from './components/SequenceTreeBuilder.jsx';
-import { ExitRulesPanel } from './components/ExitRulesPanel.jsx';
+import { StopRulesButton } from './components/StopRulesButton.jsx';
 import { sequencesStrings } from './strings.js';
 
 const t = sequencesStrings.new;
@@ -46,29 +43,22 @@ export function NewSequencePage() {
     <DashboardLayout
       title={t.pageTitle}
       subtitle={t.pageSubtitle}
+      layout="fill"
       actions={<Button disabled={!canCreate || sending.needsPick} title={sending.needsPick ? 'Pick an account in "Acting as" first.' : undefined} loading={creating} onClick={openNameDialog}>{t.createButton}</Button>}
     >
-      <div className="flex flex-col h-full min-h-0 gap-3">
-        <Link to="/hub/sequences" className="shrink-0 inline-flex items-center gap-1 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] hover:underline">
-          <ArrowLeft size={13} aria-hidden="true" /> {t.allSequences}
-        </Link>
-
-        <div className="shrink-0"><SendingAsChip /></div>
-
-        <div className="shrink-0"><ExitRulesPanel exit={exit} onChange={setExit} inbox={inbox} isOrg={isOrg} /></div>
+      <div className="flex flex-col flex-1 min-h-0 gap-3">
+        <div className="shrink-0 flex items-center justify-between gap-3 flex-wrap">
+          <SendingAsChip />
+          <StopRulesButton exit={exit} onChange={setExit} inbox={inbox} isOrg={isOrg} />
+        </div>
 
         {validationError && (
           <p className="shrink-0 text-[length:var(--ui-t-label)] text-[var(--ui-danger-fg)]">{validationError}</p>
         )}
 
-        <SectionCard
-          title={t.stepsSectionTitle}
-          noPadding
-          className="flex-1 min-h-0 flex flex-col"
-          bodyClassName="flex-1 min-h-0 overflow-y-auto"
-        >
-          <SequenceTreeBuilder steps={steps} onChange={setSteps} inbox={inbox} />
-        </SectionCard>
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] shadow-[var(--ui-shadow-sm)]">
+          <SequenceTreeBuilder steps={steps} onChange={setSteps} inbox={inbox} className="flex-1 min-h-[420px]" />
+        </div>
       </div>
 
       <Dialog

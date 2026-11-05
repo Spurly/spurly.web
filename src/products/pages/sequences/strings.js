@@ -68,6 +68,8 @@ export const sequencesStrings = {
   },
   exit: {
     title: 'Stop rules',
+    dialogDescription: 'When Spurly should pull someone out of this sequence. Applies to this sequence only.',
+    done: 'Done',
     repliesElsewhere: "Reply stopping is off: replies are tracked by your partner's app, not here.",
     maxDaysBefore: 'Stop anyone still in the sequence after',
     maxDaysAfter: 'days (blank = never)',

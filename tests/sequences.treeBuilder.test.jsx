@@ -20,27 +20,38 @@ function Harness({ initial, inbox = true, onChangeSpy }) {
 const cond = { id: 's1', type: 'condition', config: { op: 'all', checks: [{ check: 'is_connected', params: {} }] }, delayDays: 0 };
 const msg = { id: 's2', type: 'message', config: { text: 'hi' }, delayDays: 0, parentId: 's1', branch: 'yes' };
 const follow = { id: 's3', type: 'follow', config: {}, delayDays: 0, parentId: 's1', branch: 'no' };
+const lone = (id) => ({ id, type: 'follow', config: {}, delayDays: 0 });
 
 describe('SequenceTreeBuilder', () => {
-  it('renders a Yes column and a No column, each holding its own steps', () => {
+  it('draws every step as a node, with each branch labelled by what it means', () => {
     render(<Harness initial={[cond, msg, follow]} />);
-    const yes = document.querySelector('[data-branch="yes"]');
-    const no = document.querySelector('[data-branch="no"]');
-    expect(within(yes).getByText('Send a message')).toBeInTheDocument();
-    expect(within(no).getByText('Follow')).toBeInTheDocument();
-    expect(within(yes).queryByText('Follow')).toBeNull();
-    expect(within(yes).getByText('Step 2 · Yes')).toBeInTheDocument();
+    for (const id of ['s1', 's2', 's3']) expect(document.querySelector(`[data-node-id="${id}"]`)).toBeInTheDocument();
+    expect(document.querySelector('[data-branch="yes"]')).toHaveTextContent('Connected');
+    expect(document.querySelector('[data-branch="no"]')).toHaveTextContent('Not connected');
+    expect(document.querySelectorAll('[data-terminal="start"]')).toHaveLength(1);
+    expect(document.querySelectorAll('[data-terminal="stop"]')).toHaveLength(2);
   });
 
   it('adding a step from a branch’s “+” puts it in that branch only', async () => {
     const spy = vi.fn();
     render(<Harness initial={[cond]} onChangeSpy={spy} />);
-    const noCol = document.querySelector('[data-branch="no"]');
-    await userEvent.click(within(noCol).getByRole('button', { name: 'Add a step here' }));
+    // one "+" above the condition, then one at the end of Yes and one at the end of No
+    const plus = screen.getAllByRole('button', { name: 'Add a step here' });
+    expect(plus).toHaveLength(3);
+    await userEvent.click(plus[2]);
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Follow' }));
     const next = spy.mock.calls.at(-1)[0];
     expect(next.at(-1)).toMatchObject({ type: 'follow', parentId: 's1', branch: 'no' });
-    expect(within(document.querySelector('[data-branch="no"]')).getByText('Follow')).toBeInTheDocument();
+    expect(next.filter((n) => n.branch === 'yes')).toHaveLength(0);
+  });
+
+  it('selects the new step and opens its editor', async () => {
+    render(<Harness initial={[cond]} />);
+    await userEvent.click(screen.getAllByRole('button', { name: 'Add a step here' })[1]);
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Send a message' }));
+    expect(await screen.findByTestId('step-editor')).toHaveTextContent('Send a message');
+    await userEvent.type(screen.getByLabelText('Message'), 'hello');
+    expect(document.querySelector('[data-node-id="s2"]')).toHaveTextContent('hello');
   });
 
   it('the top-level “+” offers Condition, Wait for event and A/B split; adding one creates both columns', async () => {
@@ -92,13 +103,58 @@ describe('SequenceTreeBuilder', () => {
     expect(await screen.findByText('Wait 1 to 90 days at most')).toBeInTheDocument();
   });
 
-  it('removing a condition removes everything inside it', async () => {
+  it('removing a condition asks first, then removes everything inside it', async () => {
     const spy = vi.fn();
     render(<Harness initial={[cond, msg, follow]} onChangeSpy={spy} />);
-    const actions = screen.getAllByRole('button', { name: 'Step actions' });
-    await userEvent.click(actions[0]);
-    await userEvent.click(await screen.findByRole('menuitem', { name: /Remove \(and everything inside\)/ }));
+    await userEvent.click(document.querySelector('[data-node-id="s1"]'));
+    await userEvent.click(await screen.findByRole('button', { name: /Remove \(and everything inside\)/ }));
+    expect(await screen.findByText(/also removes the 2 steps inside it/)).toBeInTheDocument();
+    expect(spy).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Remove all' }));
     expect(spy.mock.calls.at(-1)[0]).toEqual([]);
+  });
+
+  it('“Keep” backs out of removing a branch', async () => {
+    const spy = vi.fn();
+    render(<Harness initial={[cond, msg]} onChangeSpy={spy} />);
+    await userEvent.click(document.querySelector('[data-node-id="s1"]'));
+    await userEvent.click(await screen.findByRole('button', { name: /Remove \(and everything inside\)/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Keep' }));
+    expect(spy).not.toHaveBeenCalled();
+    expect(screen.queryByText(/also removes/)).toBeNull();
+  });
+
+  it('removes a lone step straight away and Undo brings it back', async () => {
+    const spy = vi.fn();
+    render(<Harness initial={[lone('a'), lone('b')]} onChangeSpy={spy} />);
+    await userEvent.click(within(document.querySelector('[data-node-id="a"]')).getByRole('button', { name: /^Remove/ }));
+    expect(spy.mock.calls.at(-1)[0].map((n) => n.id)).toEqual(['b']);
+    await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(spy.mock.calls.at(-1)[0].map((n) => n.id)).toEqual(['a', 'b']);
+    await userEvent.click(screen.getByRole('button', { name: 'Redo' }));
+    expect(spy.mock.calls.at(-1)[0].map((n) => n.id)).toEqual(['b']);
+  });
+
+  it('Delete removes the selected step from the keyboard, and typing in the editor does not', async () => {
+    const spy = vi.fn();
+    render(<Harness initial={[{ ...lone('a'), type: 'message', config: { text: 'hi' } }, lone('b')]} onChangeSpy={spy} />);
+    await userEvent.click(document.querySelector('[data-node-id="a"]'));
+    const box = await screen.findByLabelText('Message');
+    await userEvent.type(box, '{Backspace}{Backspace}');
+    expect(spy.mock.calls.every(([next]) => next.length === 2)).toBe(true);
+    document.querySelector('[data-node-id="a"]').focus();
+    await userEvent.keyboard('{Delete}');
+    expect(spy.mock.calls.at(-1)[0].map((n) => n.id)).toEqual(['b']);
+  });
+
+  it('typing in one field is a single undo step', async () => {
+    const spy = vi.fn();
+    render(<Harness initial={[{ ...lone('a'), type: 'message', config: { text: '' } }]} onChangeSpy={spy} />);
+    await userEvent.click(document.querySelector('[data-node-id="a"]'));
+    await userEvent.type(await screen.findByLabelText('Message'), 'hello');
+    await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(spy.mock.calls.at(-1)[0][0].config.text).toBe('');
+    expect(screen.getByRole('button', { name: 'Undo' })).toBeDisabled();
   });
 });
 

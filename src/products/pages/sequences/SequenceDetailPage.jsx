@@ -17,7 +17,7 @@ import {
 import { SequenceFlowBuilder } from './components/SequenceFlowBuilder.jsx';
 import { SequenceTreeBuilder } from './components/SequenceTreeBuilder.jsx';
 import { BranchCounts } from './components/BranchCounts.jsx';
-import { ExitRulesPanel } from './components/ExitRulesPanel.jsx';
+import { StopRulesButton } from './components/StopRulesButton.jsx';
 import { isTreeSequence } from 'src/products/sequences/treeModel.js';
 import { hubEnrollmentColumns } from './components/columns.jsx';
 import { SEQUENCE_STATUS_VIEW as STATUS_VIEW } from './components/statusView.js';
@@ -178,6 +178,52 @@ export function SequenceDetailPage() {
           </div>
 
           {pane === 'flow' ? (
+            isTreeSequence(sequence) ? (
+              <div className="flex-1 min-h-0 flex flex-col">
+                <div className="shrink-0 flex items-center justify-between gap-3 flex-wrap px-[var(--ui-shell-x)] pt-4 pb-3">
+                  <div className="min-w-0 flex flex-col gap-1.5">
+                    {running && (
+                      <WorkingLine verbs={['Waiting', 'Visiting', 'Sending', 'Watching']} trailing={`${inFlight.toLocaleString()} in flight`}>
+                        this sequence is running while you look at it
+                      </WorkingLine>
+                    )}
+                    {sequence.error && (
+                      <p className="px-3 py-1.5 rounded-[var(--ui-radius-md)] bg-[var(--ui-warning-tint)] text-[length:var(--ui-t-label)] text-[var(--ui-warning-fg)]">{sequence.error}</p>
+                    )}
+                    {totalEnrolled === 0 ? (
+                      <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">
+                        {t.noEnrollmentsBefore}
+                        <Link to="/hub/leads" className="underline">{t.noEnrollmentsLink}</Link>
+                        {t.noEnrollmentsAfter}
+                      </p>
+                    ) : null}
+                    {!isDraft && (
+                      <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)]">
+                        Locked while running — pause and duplicate to change the plan
+                      </p>
+                    )}
+                  </div>
+                  {sequence.exit && <StopRulesButton exit={sequence.exit} inbox={inbox} isOrg={orgState.isMember} readOnly />}
+                </div>
+                <div className="flex-1 min-h-0 px-[var(--ui-shell-x)] pb-5 flex flex-col">
+                  <div className="flex-1 min-h-0 flex flex-col rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] overflow-hidden">
+                    <SequenceTreeBuilder
+                      steps={steps}
+                      onChange={setDraftSteps}
+                      readOnly={!isDraft}
+                      inbox={inbox}
+                      selectedId={selectedStep}
+                      onSelect={(id) => setSelectedStep((cur) => (cur === id && !isDraft ? null : id))}
+                      branchCounts={data.branchCounts}
+                      className="flex-1 min-h-0"
+                    />
+                  </div>
+                  {isDraft && stepsValidation && (
+                    <p className="mt-2 text-center text-[length:var(--ui-t-label)] text-[var(--ui-danger-fg)]">{stepsValidation}</p>
+                  )}
+                </div>
+              </div>
+            ) : (
             <div className="flex-1 min-h-0 overflow-y-auto px-[var(--ui-shell-x)] pt-5 pb-10">
               <div className="max-w-[560px] mx-auto flex flex-col gap-3">
                 {running && (
@@ -203,33 +249,20 @@ export function SequenceDetailPage() {
                   </p>
                 )}
               </div>
-              {isTreeSequence(sequence) && sequence.exit && (
-                <div className="max-w-[560px] mx-auto mt-3"><ExitRulesPanel exit={sequence.exit} inbox={inbox} isOrg={orgState.isMember} readOnly /></div>
-              )}
               <div className="mt-3">
-                {isTreeSequence(sequence) ? (
-                  <SequenceTreeBuilder
-                    steps={steps}
-                    onChange={setDraftSteps}
-                    readOnly={!isDraft}
-                    inbox={inbox}
-                    selectedId={selectedStep}
-                    onSelect={(id) => setSelectedStep((cur) => (cur === id && !isDraft ? null : id))}
-                  />
-                ) : (
-                  <SequenceFlowBuilder
-                    steps={steps}
-                    onChange={setDraftSteps}
-                    readOnly={!isDraft}
-                    selectedIndex={selectedStep}
-                    onSelect={(i) => setSelectedStep((cur) => (cur === i && !isDraft ? null : i))}
-                  />
-                )}
+                <SequenceFlowBuilder
+                  steps={steps}
+                  onChange={setDraftSteps}
+                  readOnly={!isDraft}
+                  selectedIndex={selectedStep}
+                  onSelect={(i) => setSelectedStep((cur) => (cur === i && !isDraft ? null : i))}
+                />
               </div>
               {isDraft && stepsValidation && (
                 <p className="mt-2 text-center text-[length:var(--ui-t-label)] text-[var(--ui-danger-fg)]">{stepsValidation}</p>
               )}
             </div>
+            )
           ) : (
             <div className="flex-1 min-h-0 flex flex-col px-[var(--ui-shell-x)] pt-4 pb-5">
               <div className="flex-1 min-h-0 flex flex-col rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-sm)] overflow-hidden">
@@ -262,7 +295,7 @@ export function SequenceDetailPage() {
 
         {/* Right: the inspector — a selected step, or the sequence overview. */}
         <aside className="w-[352px] shrink-0 border-l border-[var(--ui-border)] bg-[var(--ui-surface-card)] overflow-y-auto">
-          {selected ? (
+          {selected && !(isTreeSequence(sequence) && isDraft) ? (
             <StepInspector
               step={selected}
               index={isTreeSequence(sequence) ? steps.indexOf(selected) : selectedStep}

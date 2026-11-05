@@ -141,6 +141,15 @@ export function depthOf(steps, id) {
   return depth;
 }
 
+/** Depth of the nodes that sit directly in the list (parentId, branch): 0 at the top level. */
+export const listDepth = (steps, parentId = null) => (parentId ? depthOf(steps, parentId) + 1 : 0);
+
+/** How many levels of nesting sit below a node (0 for a node with nothing inside). */
+export function heightOf(steps, id) {
+  const base = depthOf(steps, id);
+  return descendantsOf(steps, id).reduce((max, d) => Math.max(max, depthOf(steps, d) - base), 0);
+}
+
 /* ---------------------------- edits (all return a new array) ---------------------------- */
 
 /**
@@ -148,6 +157,7 @@ export function depthOf(steps, id) {
  * A branching node inserted before other steps takes those steps into its Yes branch, so nothing becomes unreachable.
  */
 export function addNode(steps, { parentId = null, branch = null, index }, type) {
+  if (insertBlocker(steps, { parentId, branch, index }, type)) return steps;
   const nested = nest(steps);
   const list = listInNested(nested, parentId, branch);
   if (!list) return steps;
@@ -156,6 +166,72 @@ export function addNode(steps, { parentId = null, branch = null, index }, type) 
   const entry = { node, yes: [], no: [] };
   if (isBranching(node)) entry.yes = list.splice(at, list.length - at);
   list.splice(at, 0, entry);
+  return flatten(nested);
+}
+
+/**
+ * Why a node of `type` cannot be inserted at `where`, in words, or null when it can. Same limits the server enforces
+ * (40 nodes, 4 levels deep). A branching node inserted before other steps takes them into its Yes branch, which pushes
+ * them one level deeper, so that has to fit too.
+ */
+export function insertBlocker(steps, { parentId = null, branch = null, index }, type) {
+  if ((steps || []).length >= MAX_NODES) return `A sequence can have at most ${MAX_NODES} steps`;
+  const depth = listDepth(steps, parentId);
+  // The server counts ancestors: a step in a list deeper than MAX_DEPTH is refused whatever its type.
+  if (depth > MAX_DEPTH) return `Branches can be nested at most ${MAX_DEPTH} deep`;
+  if (!BRANCHING_TYPES.includes(type)) return null;
+  if (depth >= MAX_DEPTH) return `Branches can be nested at most ${MAX_DEPTH} deep`;
+  const list = listOf(steps, parentId, branch);
+  const at = index == null ? list.length : Math.max(0, Math.min(index, list.length));
+  for (const taken of list.slice(at)) {
+    if (depth + 1 + heightOf(steps, taken.id) > MAX_DEPTH) return `Branches can be nested at most ${MAX_DEPTH} deep`;
+  }
+  return null;
+}
+
+/** Where a moved node really lands: `index` counts the target list as it is now, including the node itself when it moves within one list. */
+function landingIndex(steps, node, { parentId = null, branch = null, index }) {
+  const sameList = (node.parentId || null) === (parentId || null) && (node.branch || null) === (branch || null);
+  const target = listOf(steps.filter((n) => n.id !== node.id), parentId, branch);
+  const from = sameList ? listOf(steps, parentId, branch).findIndex((n) => n.id === node.id) : -1;
+  const raw = index == null ? target.length : index;
+  const adjusted = sameList && raw > from ? raw - 1 : raw;
+  return { at: Math.max(0, Math.min(adjusted, target.length)), target, sameList, from };
+}
+
+/**
+ * Why `id` cannot be dropped at `where`, in words, or null when it can. A node carries everything inside it, so a move
+ * must not land inside its own subtree, must keep every branching node last in its list, and must fit within the depth limit.
+ */
+export function moveBlocker(steps, id, where) {
+  const node = (steps || []).find((n) => n.id === id);
+  if (!node) return 'That step no longer exists';
+  const { parentId = null, branch = null } = where;
+  if (parentId) {
+    const parent = steps.find((n) => n.id === parentId);
+    if (!parent || !isBranching(parent)) return 'Steps can only sit inside a condition, wait or split';
+    if (branch !== 'yes' && branch !== 'no') return 'Pick the Yes or No side';
+    if (parentId === id || descendantsOf(steps, id).includes(parentId)) return 'A step cannot move inside itself';
+  }
+  const { at, target, sameList, from } = landingIndex(steps, node, where);
+  if (sameList && at === from) return 'It is already there';
+  const after = [...target.slice(0, at), node, ...target.slice(at)];
+  if (after.some((n, k) => isBranching(n) && k < after.length - 1)) return 'Nothing can follow a condition, wait or split';
+  if (listDepth(steps, parentId) + heightOf(steps, id) > MAX_DEPTH) return `Branches can be nested at most ${MAX_DEPTH} deep`;
+  return null;
+}
+
+export const canMoveTo = (steps, id, where) => moveBlocker(steps, id, where) === null;
+
+/** Move a node (with everything inside it) to any valid list and position, including another branch. Returns the same array when the move is not allowed. */
+export function moveNodeTo(steps, id, where) {
+  if (moveBlocker(steps, id, where)) return steps;
+  const node = steps.find((n) => n.id === id);
+  const { at } = landingIndex(steps, node, where);
+  const nested = nest(steps);
+  const source = listInNested(nested, node.parentId || null, node.branch || null);
+  const [entry] = source.splice(source.findIndex((e) => e.node.id === id), 1);
+  listInNested(nested, where.parentId || null, where.branch || null).splice(at, 0, entry);
   return flatten(nested);
 }
 
@@ -299,6 +375,39 @@ export function treeError(steps, { inbox = true } = {}) {
   return null;
 }
 
+/**
+ * What to call the two sides of a branching node on the canvas. The data only knows 'yes' and 'no'; these are display
+ * names over them. `tone` picks the pill colour: yes/no are green/red, a/b (an A/B split) are neutral.
+ */
+const CHECK_SIDES = {
+  is_connected: ['Connected', 'Not connected'],
+  invitation_pending: ['Pending', 'Not pending'],
+  other_account_holds: ['Held elsewhere', 'Not held'],
+  enrichment_done: ['Enriched', 'Not enriched'],
+  lead_premium: ['Premium', 'Not premium'],
+  replied: ['Replied', 'No reply'],
+  lead_has_recent_posts: ['Posted lately', 'No recent post'],
+  limit_reached: ['Limit reached', 'Under limit'],
+};
+
+export function branchLabels(node) {
+  const config = node?.config || {};
+  let yes = 'Yes';
+  let no = 'No';
+  let tones = ['yes', 'no'];
+  if (node?.type === 'wait_for') {
+    [yes, no] = config.event === 'replied' ? ['Replied', 'No reply'] : ['Accepted', 'Not accepted'];
+  } else if (node?.type === 'split') {
+    const ratio = Number.isInteger(config.ratio) ? config.ratio : 50;
+    yes = `A · ${ratio}%`;
+    no = `B · ${100 - ratio}%`;
+    tones = ['a', 'b'];
+  } else if (node?.type === 'condition' && (config.checks || []).length === 1 && CHECK_SIDES[config.checks[0]?.check]) {
+    [yes, no] = CHECK_SIDES[config.checks[0].check];
+  }
+  return { yes: { text: yes, tone: tones[0] }, no: { text: no, tone: tones[1] } };
+}
+
 /** Action steps a "step result" condition can look at (everything that is not itself branching). */
 export const actionNodes = (steps) => (steps || []).filter((n) => !isBranching(n));
 
@@ -349,6 +458,11 @@ export const EXIT_RULES = [
   { key: 'onOtherAccount', label: 'Stop if another account of the organization takes the lead', needsInbox: false, orgOnly: true },
 ];
 export const availableExitRules = ({ inbox = true, isOrg = false } = {}) => EXIT_RULES.filter((r) => (inbox || !r.needsInbox) && (isOrg || !r.orgOnly));
+/** How many stop rules are switched on (the max-days limit counts as one). */
+export function activeExitCount(exit, opts) {
+  const on = availableExitRules(opts).filter((r) => exit?.[r.key] === true).length;
+  return on + (Number.isInteger(exit?.maxDays) && exit.maxDays >= 1 ? 1 : 0);
+}
 /** Drop empty values so an untouched panel sends nothing. */
 export function cleanExit(exit) {
   const out = {};
