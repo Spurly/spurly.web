@@ -15,6 +15,8 @@ export const ORG_ACCOUNT_BOUND_PATHS = [
   /^\/hub\/(profile-viewers|invitations|discover|companies|searches|posts|network|audience|sourcing)(\/|$)/,
   /^\/hub\/leads\/[^/]+\/(follow|skills|endorse|posts|invitation|profile)(\/|$)/,
   /^\/hub\/leads\/enrich\/queue$/,
+  // Account isolation: the lists an account works are its own, so these carry the account too.
+  /^\/hub\/(leads|lead-companies|lists|campaigns|sequences)$/,
   /^\/imported-leads(\/|$)/,
 ];
 
