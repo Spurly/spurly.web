@@ -4,8 +4,11 @@ import { ArrowLeft } from 'lucide-react';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { Button, Input, Dialog } from 'src/core/primitives';
+import { SendingAsChip } from 'src/core/org/components/SendingAsChip.jsx';
+import { useSendingAs } from 'src/core/org/hooks/useSendingAs.js';
 import { useNewSequencePage } from 'src/products/sequences/hooks/useNewSequencePage.js';
-import { SequenceFlowBuilder } from './components/SequenceFlowBuilder.jsx';
+import { SequenceTreeBuilder } from './components/SequenceTreeBuilder.jsx';
+import { ExitRulesPanel } from './components/ExitRulesPanel.jsx';
 import { sequencesStrings } from './strings.js';
 
 const t = sequencesStrings.new;
@@ -26,11 +29,12 @@ const t = sequencesStrings.new;
  * canvas for space above the fold.
  */
 export function NewSequencePage() {
-  const { name, setName, steps, setSteps, creating, validationError, canCreate, create } = useNewSequencePage();
+  const { name, setName, steps, setSteps, creating, validationError, canCreate, create, inbox, exit, setExit, isOrg } = useNewSequencePage();
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
+  const sending = useSendingAs();
 
   const openNameDialog = () => {
-    if (!canCreate) return;
+    if (!canCreate || sending.needsPick) return;
     setNameDialogOpen(true);
   };
 
@@ -42,12 +46,16 @@ export function NewSequencePage() {
     <DashboardLayout
       title={t.pageTitle}
       subtitle={t.pageSubtitle}
-      actions={<Button disabled={!canCreate} loading={creating} onClick={openNameDialog}>{t.createButton}</Button>}
+      actions={<Button disabled={!canCreate || sending.needsPick} title={sending.needsPick ? 'Pick an account in "Acting as" first.' : undefined} loading={creating} onClick={openNameDialog}>{t.createButton}</Button>}
     >
       <div className="flex flex-col h-full min-h-0 gap-3">
         <Link to="/hub/sequences" className="shrink-0 inline-flex items-center gap-1 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] hover:underline">
           <ArrowLeft size={13} aria-hidden="true" /> {t.allSequences}
         </Link>
+
+        <div className="shrink-0"><SendingAsChip /></div>
+
+        <div className="shrink-0"><ExitRulesPanel exit={exit} onChange={setExit} inbox={inbox} isOrg={isOrg} /></div>
 
         {validationError && (
           <p className="shrink-0 text-[length:var(--ui-t-label)] text-[var(--ui-danger-fg)]">{validationError}</p>
@@ -59,7 +67,7 @@ export function NewSequencePage() {
           className="flex-1 min-h-0 flex flex-col"
           bodyClassName="flex-1 min-h-0 overflow-y-auto"
         >
-          <SequenceFlowBuilder steps={steps} onChange={setSteps} />
+          <SequenceTreeBuilder steps={steps} onChange={setSteps} inbox={inbox} />
         </SectionCard>
       </div>
 

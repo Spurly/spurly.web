@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import sidebarSummaryController from '../controller/sidebarSummary.js';
 import { SIDEBAR_SUMMARY_EVENTS } from '../constants/constants.js';
+import { subscribeActiveAccount } from 'src/shared/orgAccount/activeAccount.js';
 
 /**
  * Polled, same interval as the notifications bell — none of these numbers
@@ -81,6 +82,9 @@ export function useSidebarSummary() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // D59: choosing another "Acting as" account refetches at once, so the badges are never another account's.
+  useEffect(() => subscribeActiveAccount(() => load()), [load]);
 
   useEffect(() => {
     const t = setInterval(() => load(), POLL_MS);

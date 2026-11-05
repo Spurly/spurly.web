@@ -5,6 +5,7 @@ import { getToastError } from 'src/shared/utils/apiError';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import sequenceController from '../controller/sequence.js';
 import { stepsError } from '../stepTypes.js';
+import { treeError, isTreeSequence } from '../treeModel.js';
 import { POLL_MS, SEQUENCE_EVENTS } from '../constants/constants.js';
 
 /**
@@ -13,7 +14,7 @@ import { POLL_MS, SEQUENCE_EVENTS } from '../constants/constants.js';
  * error-toast path below is the same as when it lived there. `id` is read
  * internally via useParams(), same shape as useCampaignDetail.
  */
-export function useSequenceDetail() {
+export function useSequenceDetail({ inbox = true } = {}) {
   const { id } = useParams();
   const eventEmitter = useMemo(() => new EventEmitter(), []);
 
@@ -61,7 +62,9 @@ export function useSequenceDetail() {
   const running = sequence?.status === 'running';
 
   const stepsDirty = sequence && draftSteps && JSON.stringify(draftSteps) !== JSON.stringify(sequence.steps);
-  const stepsValidation = draftSteps ? stepsError(draftSteps) : null;
+  const stepsValidation = draftSteps
+    ? (isTreeSequence(sequence) ? treeError(draftSteps, { inbox }) : stepsError(draftSteps))
+    : null;
 
   const saveSteps = useCallback(() => {
     if (!stepsDirty || stepsValidation) return;

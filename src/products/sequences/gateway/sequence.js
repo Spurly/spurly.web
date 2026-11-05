@@ -15,8 +15,8 @@ import { Sequence } from '../entities/sequence.js';
  */
 
 /** POST /hub/sequences — create a draft. Needs at least one step. */
-async function createSequence({ name, steps } = {}) {
-  const res = await apiGateway.post('/hub/sequences', { name, steps });
+async function createSequence({ name, steps, exit } = {}) {
+  const res = await apiGateway.post('/hub/sequences', { name, steps, ...(exit ? { exit } : {}) });
   return Sequence.fromResponse(res.data?.data?.sequence ?? null);
 }
 

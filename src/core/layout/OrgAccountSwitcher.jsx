@@ -1,10 +1,11 @@
 import { useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import { Dropdown } from "src/core/primitives";
+import { Dropdown, useConfirm } from "src/core/primitives";
 import { useOrganizations, useOrgAccounts } from "src/core/org/hooks/useOrganization.js";
 import { useActiveAccount } from "src/core/org/hooks/useActiveAccount.js";
 import { ORG_COPY, ORG_ACCOUNT_PAGES } from "src/core/org/constants/constants.js";
 import { getKnownAccounts, rememberAccounts } from "src/shared/orgAccount/activeAccount.js";
+import { hasDirtyDraft } from "src/shared/orgAccount/draftGuard.js";
 
 const usesAccount = (pathname) => ORG_ACCOUNT_PAGES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
@@ -23,6 +24,7 @@ function Picker({ orgId, expanded }) {
   const { pathname } = useLocation();
   const { accounts } = useOrgAccounts(orgId);
   const [activeId, setActive] = useActiveAccount();
+  const confirm = useConfirm();
   const usable = useMemo(() => (accounts || []).filter((a) => a.status === "OK"), [accounts]);
   const known = useMemo(() => getKnownAccounts(), [accounts]); // eslint-disable-line react-hooks/exhaustive-deps
   const shown = accounts ? usable : known.accounts;
@@ -63,6 +65,16 @@ function Picker({ orgId, expanded }) {
         className="w-full [--ui-control-bg:none] [--ui-control-shadow:none] [--ui-control-shadow-hover:none] [&_button]:w-full [&_button]:max-w-none [&_button]:h-[34px] [&_button]:!rounded-[var(--ui-radius-btn)] [&_button]:!text-[var(--ui-text-primary)] [&_svg]:!text-[var(--ui-text-secondary)]"
         onChange={(next) => {
           if (next === activeId) return;
+          // D60: a builder draft is built for one account. Never lose it or re-point it silently: ask first.
+          if (hasDirtyDraft()) {
+            confirm({
+              title: ORG_COPY.sendingAs.discardTitle,
+              description: ORG_COPY.sendingAs.discardBody,
+              confirmLabel: ORG_COPY.sendingAs.discardConfirm,
+              tone: "danger",
+            }).then((ok) => { if (ok) setActive(next); });
+            return;
+          }
           // No reload: the page content re-mounts (AccountScope) and its requests carry the new account.
           setActive(next);
         }}

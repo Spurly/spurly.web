@@ -34,6 +34,7 @@ export const sequencesStrings = {
   },
   detail: {
     loadingPageTitle: 'Sequence',
+    repliesElsewhere: "Replies are tracked by your partner's app, not here.",
     loading: 'Loading…',
     notFound: 'That sequence is not here.',
     backToSequences: 'Back to sequences',
@@ -53,5 +54,22 @@ export const sequencesStrings = {
       emptyHintFiltered: 'Try another filter.',
       emptyHintAll: 'Enroll leads from the leads page.',
     },
+  },
+  tree: {
+    yes: 'Yes',
+    no: 'No',
+    branches: 'Branches',
+    emptyBranch: 'Nothing here: leads on this side finish.',
+    addCheck: 'Add a check',
+    removeBranching: 'Remove (and everything inside)',
+    repliesElsewhere: "Reply checks are hidden: replies are tracked by your partner's app, not here.",
+    waitForHint: 'The event happening first sends the lead down Yes. The deadline passing first sends them down No.',
+    stepLabel: (node, steps) => `Step ${steps.indexOf(node) + 1}${node.parentId ? ` · ${node.branch === 'yes' ? 'Yes' : 'No'}` : ''}`,
+  },
+  exit: {
+    title: 'Stop rules',
+    repliesElsewhere: "Reply stopping is off: replies are tracked by your partner's app, not here.",
+    maxDaysBefore: 'Stop anyone still in the sequence after',
+    maxDaysAfter: 'days (blank = never)',
   },
 };

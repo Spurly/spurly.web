@@ -18,6 +18,8 @@ export const ORG_ACCOUNT_BOUND_PATHS = [
   // Account isolation: the lists an account works are its own, so these carry the account too.
   /^\/hub\/(leads|lead-companies|lists|campaigns|sequences)$/,
   /^\/imported-leads(\/|$)/,
+  // D59: the sidebar counts follow the acting account.
+  /^\/hub\/summary(\/dashboard)?$/,
 ];
 
 /** Create calls that read the account from the request BODY (everything else reads it from the query). */

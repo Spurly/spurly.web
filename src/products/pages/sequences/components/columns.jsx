@@ -28,11 +28,26 @@ const STOP_REASON = {
   self: 'This is you',
   'acceptance-timeout': 'Invite not accepted in time',
   manual: 'Stopped manually',
+  accepted: 'Stopped: the lead accepted',
+  'other-account': 'Stopped: another account holds this lead',
+  'max-days': 'Stopped: maximum days reached',
+  'branch-ended': 'Finished: nothing left on this branch',
   // The backend stops an enrollment the moment the lead replies (Phase 10, sequences/service runOneEnrollment).
   'lead-replied': 'Replied — handed to you',
 };
 
-export function hubEnrollmentColumns(steps = []) {
+/** v2 history reads "Condition → Yes", "Message → done". */
+export function historyLabel(entry) {
+  const label = stepTypeLabel(entry.type);
+  if (entry.branch && (entry.type === 'condition' || entry.type === 'wait_for' || entry.type === 'split')) {
+    return `${label} → ${entry.branch === 'yes' ? 'Yes' : 'No'}`;
+  }
+  return `${label} — ${entry.outcome}${entry.branch ? ` (${entry.branch === 'yes' ? 'Yes' : 'No'} side)` : ''}`;
+}
+
+export function hubEnrollmentColumns(steps = [], { tree = false } = {}) {
+  // v2 enrollments point at a node id; v1 at a list index.
+  const nodeIndex = (row) => (tree ? steps.findIndex((n) => n.id === row.currentStepId) : row.currentStepIndex);
   return [
     {
       key: 'profileUrl',
@@ -68,14 +83,17 @@ export function hubEnrollmentColumns(steps = []) {
       key: 'currentStepIndex',
       label: 'Step',
       width: 220,
-      title: (row) => (steps[row.currentStepIndex] ? stepTypeLabel(steps[row.currentStepIndex].type) : ''),
+      title: (row) => (steps[nodeIndex(row)] ? stepTypeLabel(steps[nodeIndex(row)].type) : ''),
       render: (value, row) => {
         const total = steps.length;
-        const type = steps[value]?.type;
+        const at = nodeIndex(row);
+        const node = steps[at];
         if (row.status === 'completed') return <TextCell value="Finished" tone="secondary" />;
+        if (tree && !node) return <TextCell value="Starting" tone="secondary" />;
+        const side = tree && node?.parentId ? ` · ${node.branch === 'yes' ? 'Yes' : 'No'}` : '';
         return (
           <TextCell
-            value={type ? `${value + 1}/${total} — ${stepTypeLabel(type)}` : `${value + 1}/${total}`}
+            value={node ? `${at + 1}/${total} — ${stepTypeLabel(node.type)}${side}` : `${at + 1}/${total}`}
             tone="secondary"
           />
         );
@@ -85,12 +103,15 @@ export function hubEnrollmentColumns(steps = []) {
       key: 'lastEvent',
       label: 'Last event',
       width: 260,
-      title: (row) => STOP_REASON[row.stopReason] || row.lastError || row.history?.[row.history.length - 1]?.detail || '',
+      // The tooltip is the whole path the lead took (branches included), the cell is the last event.
+      title: (row) => (tree && row.history?.length
+        ? row.history.map(historyLabel).join(' › ')
+        : STOP_REASON[row.stopReason] || row.lastError || row.history?.[row.history.length - 1]?.detail || ''),
       render: (value, row) => {
         const last = row.history?.[row.history.length - 1];
         const text = STOP_REASON[row.stopReason]
           || row.lastError
-          || (last ? `${stepTypeLabel(last.type)} — ${last.outcome}` : '—');
+          || (last ? (tree ? historyLabel(last) : `${stepTypeLabel(last.type)} — ${last.outcome}`) : '—');
         return <TextCell value={text} tone="secondary" />;
       },
     },

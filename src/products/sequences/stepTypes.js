@@ -1,4 +1,4 @@
-import { Eye, UserPlus, ThumbsUp, MessageSquare, Send, Clock, Award, UserCheck, Mail } from 'lucide-react';
+import { Eye, UserPlus, ThumbsUp, MessageSquare, Send, Clock, Award, UserCheck, Mail, GitBranch, Hourglass, Shuffle, ScanSearch } from 'lucide-react';
 
 /**
  * Frontend mirror of the backend's step type catalogue
@@ -85,7 +85,52 @@ export const STEP_TYPES = [
   },
 ];
 
-export const STEP_TYPE_MAP = Object.fromEntries(STEP_TYPES.map((t) => [t.value, t]));
+/**
+ * v2 (tree) nodes. They are NOT in STEP_TYPES: the flat v1 builder never offers them. They branch: a Yes list and a No list.
+ * Mirror of the backend's TREE_STEP_TYPES (sequences/service/stepTypes.js).
+ */
+export const TREE_STEP_TYPES = [
+  {
+    value: 'condition',
+    label: 'Condition',
+    icon: GitBranch,
+    description: 'Branches on something already known about the lead. Free: it uses no pacing and makes no LinkedIn call.',
+    defaultConfig: { op: 'all', checks: [{ check: 'is_connected', params: {} }] },
+  },
+  {
+    value: 'wait_for',
+    label: 'Wait for event',
+    icon: Hourglass,
+    description: 'Waits for the lead to accept or reply. Event first goes Yes, deadline first goes No.',
+    defaultConfig: { event: 'accepted', maxDays: 3 },
+  },
+  {
+    value: 'split',
+    label: 'A/B split',
+    icon: Shuffle,
+    description: 'Sends a share of leads down Yes and the rest down No. A lead always gets the same side.',
+    defaultConfig: { ratio: 50 },
+  },
+];
+
+/** v2-only action: a paced read whose answer a later condition uses. Not branching. Mirror of the backend's check_recent_posts. */
+export const TREE_ACTION_TYPES = [
+  {
+    value: 'check_recent_posts',
+    label: 'Check recent posts',
+    icon: ScanSearch,
+    description: 'Looks at the lead’s latest post (paced like a profile visit) so a later condition can branch on it.',
+    defaultConfig: { withinDays: 30 },
+  },
+];
+
+export const BRANCHING_TYPES = TREE_STEP_TYPES.map((t) => t.value);
+
+export const STEP_TYPE_MAP = {
+  ...Object.fromEntries(STEP_TYPES.map((t) => [t.value, t])),
+  ...Object.fromEntries(TREE_STEP_TYPES.map((t) => [t.value, t])),
+  ...Object.fromEntries(TREE_ACTION_TYPES.map((t) => [t.value, t])),
+};
 
 export const stepTypeLabel = (type) => STEP_TYPE_MAP[type]?.label ?? type;
 

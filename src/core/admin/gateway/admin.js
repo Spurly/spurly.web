@@ -303,6 +303,12 @@ export async function setOrgWorkspace(orgId, enabled) {
   return res.data;
 }
 
+/** D50: set an org's inbox switch (`mode` is 'on', 'off' or 'default'). Answers { id, inboxMode, inbox, changed }. */
+export async function setOrgInbox(orgId, mode) {
+  const res = await apiGateway.patch(`/admin/orgs/${orgId}/inbox`, { mode });
+  return res.data;
+}
+
 /** Top up an org's credit pool with whole credits. Answers { creditBalance, added }. */
 export async function addOrgCredits(orgId, amount, reason) {
   const res = await apiGateway.post(`/admin/orgs/${orgId}/credits`, { amount, reason });

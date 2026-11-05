@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { GripVertical, ChevronUp, ChevronDown, Trash2, Plus, Clock, MoreVertical, FileText } from 'lucide-react';
 import { Field, Checkbox, IconButton, Button } from 'src/core/primitives';
 import { STEP_TYPES, STEP_TYPE_MAP, WAIT_MODES, makeStep, stepError } from 'src/products/sequences/stepTypes.js';
+import { nodeSummary } from 'src/products/sequences/treeModel.js';
 import { TemplatePickerModal } from 'src/products/pages/templates/components/TemplatePickerModal.jsx';
 
 /**
@@ -205,6 +206,25 @@ function ConfigFields({ step, onConfigChange, disabled }) {
     );
   }
 
+  if (type === 'check_recent_posts') {
+    return (
+      <label className="flex items-center gap-1.5 text-[length:var(--ui-t-micro)] text-[var(--ui-text-secondary)]">
+        Counts as recent if posted within
+        <input
+          type="number"
+          min={1}
+          max={365}
+          value={config.withinDays ?? 30}
+          disabled={disabled}
+          aria-label="Days"
+          onChange={(e) => onConfigChange({ withinDays: Number(e.target.value) })}
+          className="w-14 h-6 text-[length:var(--ui-t-micro)] text-center rounded-[var(--ui-radius-sm)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)]"
+        />
+        days
+      </label>
+    );
+  }
+
   if (type === 'endorse_skill') {
     return (
       <Field
@@ -243,7 +263,7 @@ export function stepSummary(step) {
     case 'follow':
       return 'Follows the lead';
     default:
-      return '';
+      return nodeSummary(step);
   }
 }
 
@@ -273,7 +293,7 @@ const MENU_MIN_HEIGHT = 120;
  * a height capped to whatever space is actually available. No refs touched
  * here, so this is safe to share as a plain helper.
  */
-function computeMenuPosition(rect, widthPx, align) {
+export function computeMenuPosition(rect, widthPx, align) {
   if (!rect) return null;
   const rawLeft = align === 'end'
     ? rect.right - widthPx
@@ -304,7 +324,7 @@ function computeMenuPosition(rect, widthPx, align) {
  * that object as an unsafe ref access during render, even for plain state
  * fields like `open`.
  */
-function useMenuDismiss(open, btnRef, menuRef, reposition, onClose) {
+export function useMenuDismiss(open, btnRef, menuRef, reposition, onClose) {
   useEffect(() => {
     if (!open) return undefined;
 
@@ -331,7 +351,7 @@ function useMenuDismiss(open, btnRef, menuRef, reposition, onClose) {
 }
 
 /** The portal-rendered popover body for a floating-menu trigger. Pure presentation — it only reads the caller's already-computed open/pos state, so no ref indirection to flag. */
-function FloatingMenuList({ open, pos, menuRef, widthPx, children }) {
+export function FloatingMenuList({ open, pos, menuRef, widthPx, children }) {
   if (!open || !pos) return null;
   return createPortal(
     <div
@@ -354,7 +374,7 @@ function FloatingMenuList({ open, pos, menuRef, widthPx, children }) {
 }
 
 /** One row inside a `FloatingMenuList`. Not a `<button>` — matches the existing `Dropdown.jsx` convention for menu items in this codebase. */
-function MenuItem({ icon: Icon, tone = 'default', disabled, onSelect, children }) {
+export function MenuItem({ icon: Icon, tone = 'default', disabled, onSelect, children }) {
   return (
     <div
       role="menuitem"
@@ -382,8 +402,8 @@ function MenuItem({ icon: Icon, tone = 'default', disabled, onSelect, children }
   );
 }
 
-function NodeCard({
-  step, index, isFirst, isLast, readOnly,
+export function NodeCard({
+  step, index, isFirst, isLast, readOnly, stepLabel = null, draggable = true,
   expanded, onToggleExpand, selected = false, onSelect,
   onChange, onRemove, onMove,
   isDragSource, onDragStartHandle, onDragEndHandle,
@@ -434,7 +454,7 @@ function NodeCard({
         className={`flex items-start gap-3 px-3.5 py-3.5 ${!readOnly || onSelect ? 'cursor-pointer' : ''}`}
         onClick={readOnly ? (onSelect ? () => onSelect(index) : undefined) : () => { onToggleExpand(); onSelect?.(index); }}
       >
-        {!readOnly && (
+        {!readOnly && draggable && (
           <span
             draggable
             onDragStart={(e) => {
@@ -456,7 +476,7 @@ function NodeCard({
         </span>
         <div className="flex-1 min-w-0">
           <p className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] font-medium tracking-[var(--ui-track-meta)] text-[var(--ui-accent-fg)]">
-            Step {index + 1}
+            {stepLabel ?? `Step ${index + 1}`}
             {(step.delayDays ?? 0) > 0 && <span className="text-[var(--ui-text-quaternary)]"> · after {step.delayDays}d</span>}
           </p>
           <p className="mt-0.5 text-[length:var(--ui-t-body)] font-medium text-[var(--ui-text-primary)] truncate">{def?.label ?? step.type}</p>
@@ -522,7 +542,7 @@ function NodeCard({
  * Doubles as: the `delayDays` reading for the step below it, the drop
  * target for a reorder in flight, and the "insert a step here" control.
  */
-function Gap({ nextStep, readOnly, isDragActive, isOver, onDragOver, onDrop, onAddType }) {
+export function Gap({ nextStep, readOnly, isDragActive = false, isOver = false, onDragOver = () => {}, onDrop = () => {}, onAddType, types = STEP_TYPES }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPos, setMenuPos] = useState(null);
   const menuBtnRef = useRef(null);
@@ -577,7 +597,7 @@ function Gap({ nextStep, readOnly, isDragActive, isOver, onDragOver, onDrop, onA
               />
             </span>
             <FloatingMenuList open={menuOpen} pos={menuPos} menuRef={menuListRef} widthPx={200}>
-              {STEP_TYPES.map((stepType) => (
+              {types.map((stepType) => (
                 <MenuItem
                   key={stepType.value}
                   icon={stepType.icon}

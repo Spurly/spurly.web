@@ -4,6 +4,7 @@ import adminController from 'src/core/admin/controller/admin.js';
 import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
 import { Badge, Button, Drawer, Input, useConfirm, useToast } from 'src/core/primitives';
 import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
+import { Dropdown } from 'src/core/primitives/Dropdown';
 import { OrgStatusBadge } from './orgColumns.jsx';
 import { shortDate } from './format.js';
 
@@ -25,6 +26,12 @@ function Section({ title, children }) {
   );
 }
 
+const INBOX_OPTIONS = [
+  ['default', 'Default for this kind'],
+  ['on', 'On'],
+  ['off', 'Off'],
+];
+
 const ACCOUNT_TONE = { OK: 'success', CONNECTING: 'info', CREDENTIALS: 'warning', STOPPED: 'warning', DELETED: 'neutral' };
 const ACCOUNT_LABEL = { OK: 'Connected', CONNECTING: 'Connecting', CREDENTIALS: 'Needs reconnect', STOPPED: 'Stopped', DELETED: 'Disconnected' };
 
@@ -42,6 +49,7 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [workspaceBusy, setWorkspaceBusy] = useState(false);
+  const [inboxBusy, setInboxBusy] = useState(false);
   const [creditsBusy, setCreditsBusy] = useState(false);
   const [creditsAmount, setCreditsAmount] = useState('');
 
@@ -66,6 +74,16 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
     function handleStatusFailed(err) {
       setBusy(false);
       toast.error(getToastError(err, "Couldn't change the organization's status"));
+    }
+    function handleInboxSet() {
+      setInboxBusy(false);
+      toast.success('Inbox setting updated');
+      load();
+      onChanged?.();
+    }
+    function handleInboxFailed(err) {
+      setInboxBusy(false);
+      toast.error(getToastError(err, "Couldn't change the inbox setting"));
     }
     function handleWorkspaceSet() {
       setWorkspaceBusy(false);
@@ -93,6 +111,8 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
     eventEmitter.on(ADMIN_EVENTS.GET_ORG_FAILURE, handleLoadFailed);
     eventEmitter.on(ADMIN_EVENTS.SET_ORG_STATUS_SUCCESS, handleStatusSet);
     eventEmitter.on(ADMIN_EVENTS.SET_ORG_STATUS_FAILURE, handleStatusFailed);
+    eventEmitter.on(ADMIN_EVENTS.SET_ORG_INBOX_SUCCESS, handleInboxSet);
+    eventEmitter.on(ADMIN_EVENTS.SET_ORG_INBOX_FAILURE, handleInboxFailed);
     eventEmitter.on(ADMIN_EVENTS.SET_ORG_WORKSPACE_SUCCESS, handleWorkspaceSet);
     eventEmitter.on(ADMIN_EVENTS.SET_ORG_WORKSPACE_FAILURE, handleWorkspaceFailed);
     return () => {
@@ -100,6 +120,8 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
       eventEmitter.off(ADMIN_EVENTS.GET_ORG_FAILURE, handleLoadFailed);
       eventEmitter.off(ADMIN_EVENTS.SET_ORG_STATUS_SUCCESS, handleStatusSet);
       eventEmitter.off(ADMIN_EVENTS.SET_ORG_STATUS_FAILURE, handleStatusFailed);
+      eventEmitter.off(ADMIN_EVENTS.SET_ORG_INBOX_SUCCESS, handleInboxSet);
+      eventEmitter.off(ADMIN_EVENTS.SET_ORG_INBOX_FAILURE, handleInboxFailed);
       eventEmitter.off(ADMIN_EVENTS.SET_ORG_WORKSPACE_SUCCESS, handleWorkspaceSet);
       eventEmitter.off(ADMIN_EVENTS.SET_ORG_WORKSPACE_FAILURE, handleWorkspaceFailed);
       eventEmitter.off(ADMIN_EVENTS.ADD_ORG_CREDITS_SUCCESS, handleCreditsAdded);
@@ -140,6 +162,14 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
     if (!creditsValid) return;
     setCreditsBusy(true);
     adminController.addOrgCredits(eventEmitter, orgId, creditsNumber, '');
+  }
+
+  const inboxMode = org?.inboxMode ?? 'default';
+  const inboxEffective = inboxMode === 'on' || (inboxMode === 'default' && org?.kind === 'direct');
+  function handleInboxChange(value) {
+    if (value === inboxMode) return;
+    setInboxBusy(true);
+    adminController.setOrgInbox(eventEmitter, orgId, value);
   }
 
   function handleWorkspaceToggle() {
@@ -223,6 +253,27 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
                   <Button size="sm" variant={workspaceOn ? 'secondary' : 'primary'} loading={workspaceBusy} onClick={handleWorkspaceToggle}>
                     {workspaceOn ? 'Turn off' : 'Turn on'}
                   </Button>
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-3 rounded-[var(--ui-radius-md)] border border-[var(--ui-border-hairline)] px-3 py-2">
+                <span className="flex min-w-0 flex-col">
+                  <span className="font-medium text-[var(--ui-text-primary)]">Inbox</span>
+                  <span className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)]">
+                    {inboxEffective
+                      ? 'Spurly syncs this organization\'s conversations.'
+                      : 'Off. Spurly does not sync conversations; the partner\'s app does.'}
+                  </span>
+                </span>
+                <span className="w-44 shrink-0">
+                  <Dropdown
+                    id="org-inbox-mode"
+                    ariaLabel="Inbox"
+                    variant="dashboard"
+                    value={inboxMode}
+                    disabled={inboxBusy}
+                    onChange={handleInboxChange}
+                    options={INBOX_OPTIONS}
+                  />
                 </span>
               </div>
               {org.credits != null && (

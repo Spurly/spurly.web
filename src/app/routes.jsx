@@ -1,3 +1,4 @@
+import { OrgFeatureGate } from 'src/core/org/components/OrgFeatureGate.jsx';
 import { Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "src/app/ProtectedRoute";
@@ -590,7 +591,9 @@ export function AppRoutes() {
             element={
               <ProtectedRoute>
                 <SubscribeGate>
-                  <HubInboxPage />
+                  <OrgFeatureGate feature="inbox">
+                    <HubInboxPage />
+                  </OrgFeatureGate>
                 </SubscribeGate>
               </ProtectedRoute>
             }

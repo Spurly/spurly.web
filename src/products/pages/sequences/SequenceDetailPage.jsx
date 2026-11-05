@@ -15,8 +15,13 @@ import {
   DetailSubtitleSkeleton,
 } from '../components/DetailPageSkeleton.jsx';
 import { SequenceFlowBuilder } from './components/SequenceFlowBuilder.jsx';
+import { SequenceTreeBuilder } from './components/SequenceTreeBuilder.jsx';
+import { BranchCounts } from './components/BranchCounts.jsx';
+import { ExitRulesPanel } from './components/ExitRulesPanel.jsx';
+import { isTreeSequence } from 'src/products/sequences/treeModel.js';
 import { hubEnrollmentColumns } from './components/columns.jsx';
 import { SEQUENCE_STATUS_VIEW as STATUS_VIEW } from './components/statusView.js';
+import { useOrgState } from 'src/core/org/hooks/useOrgState.js';
 import { sequencesStrings } from './strings.js';
 
 const t = sequencesStrings.detail;
@@ -36,6 +41,10 @@ const t = sequencesStrings.detail;
  * the space the editor used to occupy.
  */
 export function SequenceDetailPage() {
+  const orgState = useOrgState();
+  // D50/L1: a partner-managed organization has no inbox here, so reply-stop does not exist for it.
+  const repliesTrackedElsewhere = orgState.isMember && orgState.features.inbox !== true;
+  const inbox = !orgState.isMember || orgState.features.inbox === true;
   const {
     data,
     sequence,
@@ -58,7 +67,7 @@ export function SequenceDetailPage() {
     stepsDirty,
     stepsValidation,
     loadEnrollments,
-  } = useSequenceDetail();
+  } = useSequenceDetail({ inbox });
   const [pane, setPane] = useState('flow');
   const [selectedStep, setSelectedStep] = useState(null);
 
@@ -113,7 +122,7 @@ export function SequenceDetailPage() {
   ];
 
   const inFlight = (counts.active ?? 0) + (counts.waiting ?? 0);
-  const selected = selectedStep != null ? steps[selectedStep] : null;
+  const selected = selectedStep != null ? (isTreeSequence(sequence) ? steps.find((n) => n.id === selectedStep) : steps[selectedStep]) : null;
 
   return (
     <DashboardLayout
@@ -194,14 +203,28 @@ export function SequenceDetailPage() {
                   </p>
                 )}
               </div>
+              {isTreeSequence(sequence) && sequence.exit && (
+                <div className="max-w-[560px] mx-auto mt-3"><ExitRulesPanel exit={sequence.exit} inbox={inbox} isOrg={orgState.isMember} readOnly /></div>
+              )}
               <div className="mt-3">
-                <SequenceFlowBuilder
-                  steps={steps}
-                  onChange={setDraftSteps}
-                  readOnly={!isDraft}
-                  selectedIndex={selectedStep}
-                  onSelect={(i) => setSelectedStep((cur) => (cur === i && !isDraft ? null : i))}
-                />
+                {isTreeSequence(sequence) ? (
+                  <SequenceTreeBuilder
+                    steps={steps}
+                    onChange={setDraftSteps}
+                    readOnly={!isDraft}
+                    inbox={inbox}
+                    selectedId={selectedStep}
+                    onSelect={(id) => setSelectedStep((cur) => (cur === id && !isDraft ? null : id))}
+                  />
+                ) : (
+                  <SequenceFlowBuilder
+                    steps={steps}
+                    onChange={setDraftSteps}
+                    readOnly={!isDraft}
+                    selectedIndex={selectedStep}
+                    onSelect={(i) => setSelectedStep((cur) => (cur === i && !isDraft ? null : i))}
+                  />
+                )}
               </div>
               {isDraft && stepsValidation && (
                 <p className="mt-2 text-center text-[length:var(--ui-t-label)] text-[var(--ui-danger-fg)]">{stepsValidation}</p>
@@ -212,7 +235,7 @@ export function SequenceDetailPage() {
               <div className="flex-1 min-h-0 flex flex-col rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-sm)] overflow-hidden">
                 <DataTable
                   className="flex-1 min-h-0"
-                  columns={hubEnrollmentColumns(sequence.steps)}
+                  columns={hubEnrollmentColumns(sequence.steps, { tree: isTreeSequence(sequence) })}
                   data={enrollments}
                   loading={loading}
                   emptyMessage={statusFilter ? t.table.emptyMessageFiltered : t.table.emptyMessageAll}
@@ -242,9 +265,10 @@ export function SequenceDetailPage() {
           {selected ? (
             <StepInspector
               step={selected}
-              index={selectedStep}
+              index={isTreeSequence(sequence) ? steps.indexOf(selected) : selectedStep}
               onClose={() => setSelectedStep(null)}
               readOnly={!isDraft}
+              repliesTrackedElsewhere={repliesTrackedElsewhere}
             />
           ) : (
             <div className="flex flex-col">
@@ -263,6 +287,7 @@ export function SequenceDetailPage() {
                   <p className="ui-micro !text-[var(--ui-text-secondary)] mb-1">Outcomes</p>
                   <FactList items={outcomeFacts} />
                 </div>
+                <BranchCounts steps={sequence.steps} counts={data.branchCounts} />
                 <ProgressMeter
                   label="Reached the last step"
                   valueLabel={`${finishedCount} / ${totalEnrolled}`}
@@ -297,7 +322,7 @@ export function SequenceDetailPage() {
  * drafted/edited counts, "Rewrite" — and the per-step rules are shown in
  * place, marked SOON.
  */
-function StepInspector({ step, index, onClose, readOnly }) {
+function StepInspector({ step, index, onClose, readOnly, repliesTrackedElsewhere }) {
   const def = STEP_TYPE_MAP[step.type];
   const text = step.type === 'connect' ? step.config?.note : step.config?.text;
   const hasText = ['connect', 'message', 'comment_post'].includes(step.type);
@@ -370,8 +395,11 @@ function StepInspector({ step, index, onClose, readOnly }) {
             <SoonTag />
           </div>
           <div className="flex flex-col gap-2 opacity-70">
+            {repliesTrackedElsewhere && (
+              <p className="text-[length:var(--ui-t-meta)] text-[var(--ui-text-secondary)]">{t.repliesElsewhere}</p>
+            )}
             {[
-              'Stop everything for this person the moment they reply',
+              ...(repliesTrackedElsewhere ? [] : ['Stop everything for this person the moment they reply']),
               'Only send inside the working-hours window',
               'Skip anyone another campaign contacted in the last 30 days',
             ].map((rule) => (

@@ -5,7 +5,9 @@ import { getToastError } from 'src/shared/utils/apiError';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import sequenceController from '../controller/sequence.js';
 import { SEQUENCE_EVENTS } from '../constants/constants.js';
-import { makeStep, stepsError } from '../stepTypes.js';
+import { makeNode, treeError, cleanExit, exitError } from '../treeModel.js';
+import { useOrgState } from 'src/core/org/hooks/useOrgState.js';
+import { setDraftDirty } from 'src/shared/orgAccount/draftGuard.js';
 
 /**
  * State for the new-sequence page: local-only until "Create sequence" is
@@ -16,12 +18,25 @@ export function useNewSequencePage() {
   const eventEmitter = useMemo(() => new EventEmitter(), []);
 
   const [name, setName] = useState('');
-  const [steps, setSteps] = useState(() => [makeStep('connect')]);
+  const orgState = useOrgState();
+  // D50/L1: an organization whose inbox is off has no reply data, so reply conditions are not offered or accepted.
+  const inbox = !orgState.isMember || orgState.features.inbox === true;
+  const [steps, setStepsState] = useState(() => [makeNode('connect', [])]);
+  const [touched, setTouched] = useState(false);
+  const [exit, setExitState] = useState({});
+  const setExit = useCallback((next) => { setTouched(true); setExitState(next); }, []);
+  const setSteps = useCallback((next) => { setTouched(true); setStepsState(next); }, []);
   const [creating, setCreating] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
 
-  const validationError = stepsError(steps);
+  // D60: while the draft has been edited (and not yet created), the account switch asks before discarding it.
+  useEffect(() => {
+    setDraftDirty('new-sequence', touched && !creating);
+    return () => setDraftDirty('new-sequence', false);
+  }, [touched, creating]);
+
+  const validationError = treeError(steps, { inbox }) || exitError(exit);
   // The steps must be valid before there's anything worth naming — but the
   // name itself is collected later, in the "name this sequence" dialog
   // shown when "Create sequence" is pressed, not up front on the page.
@@ -55,8 +70,8 @@ export function useNewSequencePage() {
     const trimmedName = name.trim();
     if (!trimmedName || validationError || creating) return;
     setCreating(true);
-    sequenceController.createSequence(eventEmitter, { name: trimmedName, steps });
-  }, [name, validationError, creating, eventEmitter, steps]);
+    sequenceController.createSequence(eventEmitter, { name: trimmedName, steps, exit: cleanExit(exit) });
+  }, [name, validationError, creating, eventEmitter, steps, exit]);
 
-  return { name, setName, steps, setSteps, creating, validationError, canCreate, create };
+  return { name, setName, steps, setSteps, creating, validationError, canCreate, create, inbox, exit, setExit, isOrg: orgState.isMember };
 }

@@ -386,6 +386,16 @@ function setOrgWorkspace(eventEmitter, orgId, enabled) {
   );
 }
 
+function setOrgInbox(eventEmitter, orgId, mode) {
+  return call(
+    eventEmitter,
+    () => adminGateway.setOrgInbox(orgId, mode),
+    ADMIN_EVENTS.SET_ORG_INBOX_SUCCESS,
+    ADMIN_EVENTS.SET_ORG_INBOX_FAILURE,
+    "Couldn't change the organization's inbox",
+  );
+}
+
 function addOrgCredits(eventEmitter, orgId, amount, reason) {
   return call(
     eventEmitter,
@@ -432,6 +442,7 @@ const adminController = {
   getOrg,
   setOrgStatus,
   setOrgWorkspace,
+  setOrgInbox,
   addOrgCredits,
 };
 

@@ -14,6 +14,8 @@ import {
   LinkedInLineIcon,
 } from "src/core/icons";
 import { useAuth } from "src/core/auth/hooks/useAuth.js";
+import { SendingAsChip } from "src/core/org/components/SendingAsChip.jsx";
+import { useSendingAs } from "src/core/org/hooks/useSendingAs.js";
 import { useLeadsPage } from "src/products/leads/hooks/useLeadsPage.js";
 import { isBusy } from "src/products/leads/hooks/audience.js";
 import { ArrowUpRight, PanelRight } from "lucide-react";
@@ -121,6 +123,10 @@ export function HubLeadsPage() {
   } = useLeadsPage();
 
   const { user } = useAuth();
+  const sending = useSendingAs();
+  // D52: a send/enrol/create action runs through one account; with none in effect they wait (reason shown).
+  const sendBlocked = sending.needsPick;
+  const sendBlockedReason = sendBlocked ? "Pick an account in 'Acting as' first." : undefined;
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [audienceOpen, setAudienceOpen] = useState(false);
@@ -302,13 +308,15 @@ export function HubLeadsPage() {
             filters: picker,
             bulkActions: (
               <>
+                <SendingAsChip />
                 <Button
                   size="sm"
                   variant="primary"
                   leadingIcon={<SendIcon size={13} strokeWidth={1.9} />}
                   onClick={createCampaign}
                   loading={creating}
-                  disabled={creating || selected.size === 0}
+                  disabled={creating || selected.size === 0 || sendBlocked}
+                  title={sendBlockedReason}
                 >
                   {t.table.createCampaign}
                 </Button>
@@ -321,9 +329,11 @@ export function HubLeadsPage() {
                   leadingIcon={<MessageIcon size={13} />}
                   onClick={createMessageCampaign}
                   loading={creating}
-                  disabled={creating || selected.size === 0 || !selectedAreAllFirstDegree}
+                  disabled={creating || selected.size === 0 || !selectedAreAllFirstDegree || sendBlocked}
                   title={
-                    selected.size > 0 && !selectedAreAllFirstDegree
+                    sendBlocked
+                      ? sendBlockedReason
+                      : selected.size > 0 && !selectedAreAllFirstDegree
                       ? "Everyone selected must already be a 1st-degree connection to message them"
                       : undefined
                   }
@@ -384,9 +394,9 @@ export function HubLeadsPage() {
                   size="sm"
                   value=""
                   onChange={(val) => enrollInSequence(val)}
-                  disabled={enrolling || selected.size === 0 || sequences.length === 0}
+                  disabled={enrolling || selected.size === 0 || sequences.length === 0 || sendBlocked}
                   ariaLabel="Enroll selection in a sequence"
-                  title={sequences.length === 0 ? t.table.enrollTitleDisabled : t.table.enrollTitleEnabled}
+                  title={sendBlocked ? sendBlockedReason : sequences.length === 0 ? t.table.enrollTitleDisabled : t.table.enrollTitleEnabled}
                   placeholder={enrolling ? t.table.enrolling : t.table.enrollPlaceholder}
                   options={sequences.map((s) => [s._id, s.name])}
                 />
