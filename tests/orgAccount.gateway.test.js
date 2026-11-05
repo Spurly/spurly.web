@@ -50,6 +50,14 @@ describe('active org account', () => {
     expect(withActiveAccount({ method: 'post', url: '/hub/network/sync', data: {} }).data).toEqual({ accountId: 'acc1' });
   });
 
+  test('the lead, audience, campaign and sequence lists are account-bound (account isolation)', () => {
+    setActiveAccountId('acc1');
+    for (const url of ['/hub/leads', '/hub/lead-companies', '/hub/searches', '/hub/campaigns', '/hub/sequences']) {
+      expect(withActiveAccount({ method: 'get', url }).params).toEqual({ accountId: 'acc1' });
+    }
+    expect(withActiveAccount({ method: 'post', url: '/hub/lists', data: { name: 'l' } }).params).toEqual({ accountId: 'acc1' });
+  });
+
   test('with several accounts known and none chosen, the first is used before any component mounts', () => {
     rememberAccounts('org1', [{ id: 'a1' }, { id: 'a2' }]);
     expect(getActiveAccountId()).toBe('a1');
