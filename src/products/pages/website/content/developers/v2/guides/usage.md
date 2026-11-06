@@ -24,7 +24,7 @@ curl "https://api.getspurly.com/v2/usage?days=30" \
     "window": { "from": "2026-10-05T00:00:00.000Z", "to": "2026-11-04T00:00:00.000Z" },
     "total": { "connected": 3, "distinct": 4, "peak": { "count": 3, "at": "2026-10-20T10:00:00.000Z" } },
     "orgs": [
-      { "id": "6720a1b2c3d4e5f607182930", "externalId": "acme-inc", "name": "Acme Inc.", "connected": 1, "distinct": 2, "peak": { "count": 1, "at": "2026-10-21T10:00:00.000Z" }, "refusedConnects": 0 }
+      { "id": "6720a1b2c3d4e5f607182930", "externalId": "jane@acme.com", "name": "Acme Inc.", "connected": 1, "distinct": 2, "peak": { "count": 1, "at": "2026-10-21T10:00:00.000Z" }, "refusedConnects": 0 }
     ]
   }
 }

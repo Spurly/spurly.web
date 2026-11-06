@@ -18,13 +18,13 @@ export SPURLY_API_KEY="spk_partner_..."
 
 ## 1. Create an organisation
 
-`externalId` is your own id for the customer. Reusing it returns the same organisation, so a retry is safe.
+`externalId` is your customer's **email address**. It is also the address they use to sign in to Spurly (a one-time code is emailed to it), so it must be a real, valid email. Spurly lowercases it. Reusing it returns the same organisation, so a retry is safe. Anything that is not an email is refused with `400 INVALID_FIELD`.
 
 ```bash
 curl -X POST "https://api.getspurly.com/v2/orgs" \
   -H "Authorization: Bearer $SPURLY_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"externalId":"acme-inc","name":"Acme Inc."}'
+  -d '{"externalId":"jane@acme.com","name":"Acme Inc."}'
 ```
 
 Keep the `id` from the answer.
