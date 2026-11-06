@@ -29,7 +29,6 @@ import { NotificationBell } from "src/core/pages/notifications/components/Notifi
 import { SidebarBrand } from "./SidebarBrand";
 import { AskSpurly } from "./AskSpurly";
 import { OrgAccountSwitcher } from "./OrgAccountSwitcher";
-import { AccountScope } from "./AccountScope";
 import { AccountStatusBanner } from "./AccountStatusBanner";
 import { TrialBanner } from "./TrialBanner";
 import { ImpersonationBanner } from "./ImpersonationBanner";
@@ -716,18 +715,18 @@ export function DashboardLayout({
 
         {layout === "bare" ? (
           <main className={`flex-1 min-h-0 flex flex-col overflow-hidden ${hasHeader || tabs ? "mt-4 border-t border-[var(--ui-border)]" : ""}`}>
-            <AccountScope>{children}</AccountScope>
+            {children}
           </main>
         ) : layout === "fill" ? (
-          <main className="flex-1 min-h-0 flex flex-col overflow-hidden px-[var(--ui-shell-x)] pt-4 pb-5"><AccountScope>{children}</AccountScope></main>
+          <main className="flex-1 min-h-0 flex flex-col overflow-hidden px-[var(--ui-shell-x)] pt-4 pb-5">{children}</main>
         ) : layout === "plain" ? (
-          <main className="flex-1 flex flex-col px-[var(--ui-shell-x)] pt-4 pb-5"><AccountScope>{children}</AccountScope></main>
+          <main className="flex-1 flex flex-col px-[var(--ui-shell-x)] pt-4 pb-5">{children}</main>
         ) : layout === "page" ? (
-          <main className="flex-1 px-[var(--ui-shell-x)] pt-4 pb-6"><AccountScope>{children}</AccountScope></main>
+          <main className="flex-1 px-[var(--ui-shell-x)] pt-4 pb-6">{children}</main>
         ) : (
           <main className="flex-1 min-h-0 flex flex-col overflow-hidden px-[var(--ui-shell-x)] pt-4 pb-5">
             <div className="flex-1 min-h-0 flex flex-col overflow-hidden rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-card)]">
-              <AccountScope>{children}</AccountScope>
+              {children}
             </div>
           </main>
         )}

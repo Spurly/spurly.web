@@ -9,6 +9,7 @@ import { DashboardHomeRedirect } from "src/app/DashboardHomeRedirect";
 import { RouteFallback } from "src/app/RouteFallback";
 import { lazyWithProgress } from "src/app/lazyWithProgress";
 import { RouteProgressBar } from "src/app/RouteProgressBar";
+import { AccountScope } from "src/core/layout/AccountScope";
 
 /**
  * Route-level code splitting.
@@ -251,6 +252,7 @@ export function AppRoutes() {
     <>
       <RouteProgressBar />
       <Suspense fallback={<RouteFallback />}>
+        <AccountScope>
         <Routes>
           {/* Public marketing site */}
           <Route element={<WebsiteLayout />}>
@@ -713,6 +715,7 @@ export function AppRoutes() {
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
+        </AccountScope>
       </Suspense>
     </>
   );
