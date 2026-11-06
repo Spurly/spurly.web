@@ -12,7 +12,7 @@ parent: /developers/v2
 ---
 ## Organisations
 
-An organisation is one of your customers. You create it with your own `externalId`. It has a `status` of `active` or `suspended`. A suspended organisation cannot connect accounts or make LinkedIn calls (`403 ORG_SUSPENDED`); you can still read it and disconnect its accounts.
+An organisation is one of your customers. You create it with the customer's email address as its `externalId`; that address is how the customer signs in to Spurly. It has a `status` of `active` or `suspended`. A suspended organisation cannot connect accounts or make LinkedIn calls (`403 ORG_SUSPENDED`); you can still read it and disconnect its accounts.
 
 ## Accounts
 

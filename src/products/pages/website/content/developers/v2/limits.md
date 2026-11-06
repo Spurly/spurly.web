@@ -31,7 +31,7 @@ Pacing is yours: Spurly does not slow your sends. One exception protects the Lin
 |---|---|
 | Message text | 8,000 characters |
 | Post text | 3,000 characters |
-| Organisation `externalId` | 1 to 128 characters |
+| Organisation `externalId` | A valid email address, up to 200 characters |
 | Verification `code` | 64 characters |
 
 Files are sent as the raw request body with their own `Content-Type`, and a `Content-Length`. Spurly checks size and type before anything is sent to LinkedIn.

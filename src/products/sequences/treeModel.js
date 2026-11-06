@@ -455,9 +455,15 @@ export { TREE_STEP_TYPES };
 export const EXIT_RULES = [
   { key: 'onReply', label: 'Stop when the lead replies', needsInbox: true, hint: 'Hands the conversation to you. Off by default if the sequence branches on replies.' },
   { key: 'onAccepted', label: 'Stop when the lead accepts the invitation', needsInbox: false },
-  { key: 'onOtherAccount', label: 'Stop if another account of the organization takes the lead', needsInbox: false, orgOnly: true },
+  { key: 'onOtherAccount', label: 'Stop if another account of the organization takes the lead', needsInbox: false, orgOnly: true, hideWhenManaged: true },
 ];
-export const availableExitRules = ({ inbox = true, isOrg = false } = {}) => EXIT_RULES.filter((r) => (inbox || !r.needsInbox) && (isOrg || !r.orgOnly));
+/**
+ * `inbox: false` marks a partner-managed org: its replies live in the partner's app, not here. Such an account must
+ * not be offered the "another account took the lead" rule (D58), so `hideWhenManaged` rules are dropped alongside the
+ * reply-only ones. A regular org (inbox on) still sees every org rule.
+ */
+export const availableExitRules = ({ inbox = true, isOrg = false } = {}) =>
+  EXIT_RULES.filter((r) => (inbox || !r.needsInbox) && (isOrg || !r.orgOnly) && (inbox || !r.hideWhenManaged));
 /** How many stop rules are switched on (the max-days limit counts as one). */
 export function activeExitCount(exit, opts) {
   const on = availableExitRules(opts).filter((r) => exit?.[r.key] === true).length;

@@ -30,7 +30,7 @@ const ex = {
 
 const exampleOrg = {
   id: ex.orgId,
-  externalId: 'acme-inc',
+  externalId: 'jane@acme.com',
   name: 'Acme Inc.',
   status: 'active',
   createdAt: '2026-11-01T09:00:00.000Z',
@@ -140,15 +140,15 @@ const ORG_OPS = {
   '/orgs': {
     post: op({
       id: 'v2CreateOrg', tag: T.orgs, summary: 'Create or fetch an organisation',
-      description: 'Creates the organisation for `externalId`, or returns the existing one. Idempotent: a retry is safe. The first call answers `201`, later calls `200`. An organisation holds at most one live LinkedIn member.',
-      body: { type: 'object', required: ['externalId'], properties: { externalId: { type: 'string', minLength: 1, maxLength: 128, description: 'Your own id for the customer. Reusing it returns the same organisation.' }, name: { type: 'string', maxLength: 100, description: 'A display name.' } } },
-      bodyExample: { externalId: 'acme-inc', name: 'Acme Inc.' },
+      description: 'Creates the organisation for `externalId` (the customer\'s email address), or returns the existing one. Idempotent: a retry is safe. The first call answers `201`, later calls `200`. An organisation holds at most one live LinkedIn member.',
+      body: { type: 'object', required: ['externalId'], properties: { externalId: { type: 'string', format: 'email', minLength: 3, maxLength: 200, description: "The customer's email address. They sign in to Spurly with it. Lowercased by Spurly. Reusing it returns the same organisation." }, name: { type: 'string', maxLength: 100, description: 'A display name.' } } },
+      bodyExample: { externalId: 'jane@acme.com', name: 'Acme Inc.' },
       success: ok('Created.', ref('V2Org'), exampleOrg), status: 201, extra: ['400:V2ValidationError'],
     }),
     get: op({
       id: 'v2ListOrgs', tag: T.orgs, summary: 'List organisations',
       description: 'Your organisations, newest first.',
-      query: [q('page', 'Page number, from 1.', 1, { type: 'integer', minimum: 1 }), q('limit', 'Items per page, 1 to 200. Default 50.', 50, { type: 'integer', minimum: 1, maximum: 200 }), q('externalId', 'Only the organisation with this `externalId`.', 'acme-inc')],
+      query: [q('page', 'Page number, from 1.', 1, { type: 'integer', minimum: 1 }), q('limit', 'Items per page, 1 to 200. Default 50.', 50, { type: 'integer', minimum: 1, maximum: 200 }), q('externalId', 'Only the organisation with this `externalId`.', 'jane@acme.com')],
       success: ok('A page of organisations.', { type: 'object', properties: { items: { type: 'array', items: ref('V2Org') }, total: { type: 'integer' }, page: { type: 'integer' }, limit: { type: 'integer' } } }, { items: [exampleOrg], total: 1, page: 1, limit: 50 }),
     }),
   },
@@ -234,7 +234,7 @@ const USAGE_OPS = {
       id: 'v2GetUsage', tag: T.usage, summary: 'Usage',
       description: 'What you are billed on: distinct LinkedIn members connected now, over the window, and at peak. Counts only. A member counts once however many times they connect or move between organisations.',
       query: [q('orgId', 'Only this organisation.', ex.orgId), q('days', 'Window length in days, ending now. Default 30.', 30, { type: 'integer', minimum: 1 }), q('from', 'Window start (ISO 8601). Use with `to`.', '2026-10-01T00:00:00.000Z'), q('to', 'Window end (ISO 8601). Default now.', '2026-11-01T00:00:00.000Z')],
-      success: ok('Usage.', ref('V2Usage'), { window: { from: '2026-10-05T00:00:00.000Z', to: '2026-11-04T00:00:00.000Z' }, total: exampleStats, orgs: [{ id: ex.orgId, externalId: 'acme-inc', name: 'Acme Inc.', ...exampleStats, refusedConnects: 0 }] }),
+      success: ok('Usage.', ref('V2Usage'), { window: { from: '2026-10-05T00:00:00.000Z', to: '2026-11-04T00:00:00.000Z' }, total: exampleStats, orgs: [{ id: ex.orgId, externalId: 'jane@acme.com', name: 'Acme Inc.', ...exampleStats, refusedConnects: 0 }] }),
       extra: ['400:V2ValidationError', '404:V2NotFound'],
     }),
   },
@@ -243,7 +243,7 @@ const USAGE_OPS = {
       id: 'v2ListEvents', tag: T.usage, summary: 'Event feed',
       description: 'Everything your webhook was sent in the last 7 days, oldest first, so you can catch up after downtime. Pass the last `id` you processed as `after`.',
       query: [q('after', 'An event id. Only later events are returned.', 'evt_6720a2c3d4e5f60718293099'), q('limit', 'Events per page, 1 to 200. Default 100.', 100, { type: 'integer', minimum: 1, maximum: 200 }), q('type', 'Only this event type.', 'message.created', { type: 'string', enum: ['account.updated', 'message.created', 'message.updated'] }), q('orgId', 'Only this organisation.', ex.orgId)],
-      success: ok('Events.', { type: 'object', properties: { events: { type: 'array', items: ref('V2Event') }, hasMore: { type: 'boolean' }, next: { type: ['string', 'null'], description: 'Pass as `after` for the next page.' } } }, { events: [{ id: 'evt_6720a2c3d4e5f60718293099', type: 'account.updated', createdAt: '2026-11-01T09:05:00.000Z', data: { accountId: ex.accountId, orgId: ex.orgId, orgExternalId: 'acme-inc', previousStatus: 'CREDENTIALS', account: exampleAccount }, delivery: { deliveredAt: '2026-11-01T09:05:01.000Z', attempts: 1, lastStatus: 200 } }], hasMore: false, next: 'evt_6720a2c3d4e5f60718293099' }),
+      success: ok('Events.', { type: 'object', properties: { events: { type: 'array', items: ref('V2Event') }, hasMore: { type: 'boolean' }, next: { type: ['string', 'null'], description: 'Pass as `after` for the next page.' } } }, { events: [{ id: 'evt_6720a2c3d4e5f60718293099', type: 'account.updated', createdAt: '2026-11-01T09:05:00.000Z', data: { accountId: ex.accountId, orgId: ex.orgId, orgExternalId: 'jane@acme.com', previousStatus: 'CREDENTIALS', account: exampleAccount }, delivery: { deliveredAt: '2026-11-01T09:05:01.000Z', attempts: 1, lastStatus: 200 } }], hasMore: false, next: 'evt_6720a2c3d4e5f60718293099' }),
       extra: ['400:V2ValidationError', '404:V2NotFound'],
     }),
   },
@@ -419,7 +419,7 @@ const errorResponse = (description, code, message, status) => ({
 });
 
 const person = { type: 'object', properties: { providerId: { type: 'string' }, name: { type: 'string' }, profileUrl: { type: 'string' } } };
-const eventBase = { accountId: ID, orgId: ID, orgExternalId: { type: 'string', description: 'Your `externalId` for the organisation.' } };
+const eventBase = { accountId: ID, orgId: ID, orgExternalId: { type: 'string', description: "The organisation's `externalId` (the customer's email address)." } };
 
 export const OPENAPI_V2 = {
   openapi: '3.1.0',
@@ -460,7 +460,7 @@ export const OPENAPI_V2 = {
       V2identifier: { name: 'identifier', in: 'path', required: true, description: 'A public identifier (the part after `/in/` or `/company/`) or a LinkedIn id.', schema: { type: 'string' }, example: ex.identifier },
     },
     responses: {
-      V2ValidationError: errorResponse('The request is invalid. `field` names the input.', 'INVALID_FIELD', 'externalId is required (1 to 128 characters)', 400),
+      V2ValidationError: errorResponse('The request is invalid. `field` names the input.', 'INVALID_FIELD', "externalId is required: the customer's email address (up to 200 characters)", 400),
       V2Unauthorized: errorResponse('Missing, invalid or revoked API key.', 'UNAUTHORIZED', 'Invalid or revoked API key.', 401),
       V2Forbidden: errorResponse('`ORG_SUSPENDED`, `FEATURE_UNAVAILABLE` or `NOT_ENABLED` (your key is not enabled for /v2).', 'ORG_SUSPENDED', 'This organization is suspended', 403),
       V2NotFound: errorResponse('Not found, or not yours.', 'NOT_FOUND', 'Not found', 404),

@@ -148,9 +148,10 @@ describe('P4 web model: profile checks and exit rules', () => {
     expect(treeError([{ ...check, config: { withinDays: 0 } }])).toMatch(/1 to 365/);
     expect(nodeSummary(cond)).toBe('If has posted recently');
   });
-  it('exit rules: reply hidden without the inbox, org-only rule hidden for solo, clean drops empties', () => {
+  it('exit rules: reply hidden without the inbox, org-only rule hidden for solo and partner-managed, clean drops empties', () => {
     expect(availableExitRules({ inbox: true, isOrg: true }).map((r) => r.key)).toEqual(['onReply', 'onAccepted', 'onOtherAccount']);
-    expect(availableExitRules({ inbox: false, isOrg: true }).map((r) => r.key)).toEqual(['onAccepted', 'onOtherAccount']);
+    // Partner-managed org (inbox off): reply rule and the "another account" rule are both hidden.
+    expect(availableExitRules({ inbox: false, isOrg: true }).map((r) => r.key)).toEqual(['onAccepted']);
     expect(availableExitRules({ inbox: true, isOrg: false }).map((r) => r.key)).toEqual(['onReply', 'onAccepted']);
     expect(cleanExit({})).toBeUndefined();
     expect(cleanExit({ onReply: false, maxDays: 30, junk: 1 })).toEqual({ onReply: false, maxDays: 30 });
