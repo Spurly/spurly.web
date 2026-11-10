@@ -1626,7 +1626,10 @@
                         "lastMessageAt": "2026-10-24T06:09:00.000Z",
                         "lastMessageText": "Sounds good, talk Monday.",
                         "lastMessageDirection": "inbound",
-                        "readOnly": false
+                        "readOnly": false,
+                        "inbox": "personal",
+                        "mailbox": null,
+                        "mailboxName": null
                       }
                     ],
                     "pagination": {
@@ -1738,13 +1741,17 @@
                       "lastMessageAt": "2026-10-24T06:09:00.000Z",
                       "lastMessageText": "Sounds good, talk Monday.",
                       "lastMessageDirection": "inbound",
-                      "readOnly": false
+                      "readOnly": false,
+                      "inbox": "personal",
+                      "mailbox": null,
+                      "mailboxName": null
                     },
                     "messages": [
                       {
                         "id": "6719f2bb4d5e6f7081122334",
                         "chatId": "6719f1aa3c4d5e6f70811223",
                         "direction": "inbound",
+                        "providerMessageId": "2-ZXhhbXBsZS1saW5rZWRpbi1tZXNzYWdlLWlk",
                         "text": "Sounds good, talk Monday.",
                         "sentAt": "2026-10-24T06:09:00.000Z",
                         "delivered": true,
@@ -1924,6 +1931,7 @@
                       "id": "6719f2cc5e6f708112233445",
                       "chatId": "6719f1aa3c4d5e6f70811223",
                       "direction": "outbound",
+                      "providerMessageId": "2-ZXhhbXBsZS1saW5rZWRpbi1tZXNzYWdlLWlk",
                       "text": "Thanks Bob, talk Monday.",
                       "sentAt": "2026-10-24T06:12:00.000Z",
                       "delivered": true,
@@ -2057,12 +2065,16 @@
                       "lastMessageAt": "2026-10-24T06:09:00.000Z",
                       "lastMessageText": "Sounds good, talk Monday.",
                       "lastMessageDirection": "outbound",
-                      "readOnly": false
+                      "readOnly": false,
+                      "inbox": "personal",
+                      "mailbox": null,
+                      "mailboxName": null
                     },
                     "message": {
                       "id": "6719f2cc5e6f708112233445",
                       "chatId": "6719f1aa3c4d5e6f70811223",
                       "direction": "outbound",
+                      "providerMessageId": "2-ZXhhbXBsZS1saW5rZWRpbi1tZXNzYWdlLWlk",
                       "text": "Hi Bob, great meeting you today.",
                       "sentAt": "2026-10-24T06:12:00.000Z",
                       "delivered": true,
@@ -2205,6 +2217,7 @@
                       "id": "6719f2cc5e6f708112233445",
                       "chatId": "6719f1aa3c4d5e6f70811223",
                       "direction": "outbound",
+                      "providerMessageId": "2-ZXhhbXBsZS1saW5rZWRpbi1tZXNzYWdlLWlk",
                       "text": "",
                       "sentAt": "2026-10-24T06:12:00.000Z",
                       "delivered": true,
@@ -2804,12 +2817,16 @@
                             "lastMessageAt": "2026-10-24T06:09:00.000Z",
                             "lastMessageText": "Sounds good, talk Monday.",
                             "lastMessageDirection": "inbound",
-                            "readOnly": false
+                            "readOnly": false,
+                            "inbox": "personal",
+                            "mailbox": null,
+                            "mailboxName": null
                           },
                           "message": {
                             "id": "6719f2bb4d5e6f7081122334",
                             "chatId": "6719f1aa3c4d5e6f70811223",
                             "direction": "inbound",
+                            "providerMessageId": "2-ZXhhbXBsZS1saW5rZWRpbi1tZXNzYWdlLWlk",
                             "text": "Sounds good, talk Monday.",
                             "sentAt": "2026-10-24T06:09:00.000Z",
                             "delivered": true,
@@ -2882,12 +2899,16 @@
                     "lastMessageAt": "2026-10-24T06:09:00.000Z",
                     "lastMessageText": "Sounds good, talk Monday.",
                     "lastMessageDirection": "inbound",
-                    "readOnly": false
+                    "readOnly": false,
+                    "inbox": "personal",
+                    "mailbox": null,
+                    "mailboxName": null
                   },
                   "message": {
                     "id": "6719f2bb4d5e6f7081122334",
                     "chatId": "6719f1aa3c4d5e6f70811223",
                     "direction": "inbound",
+                    "providerMessageId": "2-ZXhhbXBsZS1saW5rZWRpbi1tZXNzYWdlLWlk",
                     "text": "Sounds good, talk Monday.",
                     "sentAt": "2026-10-24T06:09:00.000Z",
                     "delivered": true,
@@ -2940,12 +2961,16 @@
                     "lastMessageAt": "2026-10-24T06:09:00.000Z",
                     "lastMessageText": "Sounds good, talk Monday.",
                     "lastMessageDirection": "inbound",
-                    "readOnly": false
+                    "readOnly": false,
+                    "inbox": "personal",
+                    "mailbox": null,
+                    "mailboxName": null
                   },
                   "message": {
                     "id": "6719f2cc5e6f708112233445",
                     "chatId": "6719f1aa3c4d5e6f70811223",
                     "direction": "outbound",
+                    "providerMessageId": "2-ZXhhbXBsZS1saW5rZWRpbi1tZXNzYWdlLWlk",
                     "text": "Thanks Bob, talk Monday.",
                     "sentAt": "2026-10-24T06:12:00.000Z",
                     "delivered": true,
@@ -3692,6 +3717,28 @@
           "readOnly": {
             "type": "boolean",
             "description": "LinkedIn does not allow replies here (for example some InMail or sponsored threads)."
+          },
+          "inbox": {
+            "type": "string",
+            "enum": [
+              "personal",
+              "company_page"
+            ],
+            "description": "`company_page` means the conversation is in a LinkedIn company page's inbox and is answered AS that page. Every connected account that administers the page sees the same conversation under its own chat id, so a page message reaches you once per connected admin account. Answer it from one account only; match the copies with `providerMessageId`."
+          },
+          "mailbox": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The company page's LinkedIn id, for a `company_page` chat. Group the chats of the same page by this value. `null` for a personal chat, and for a page chat that has not received a new message since this field was introduced."
+          },
+          "mailboxName": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The company page's name, when known."
           }
         },
         "example": {
@@ -3705,7 +3752,10 @@
           "lastMessageAt": "2026-10-24T06:09:00.000Z",
           "lastMessageText": "Sounds good, talk Monday.",
           "lastMessageDirection": "inbound",
-          "readOnly": false
+          "readOnly": false,
+          "inbox": "personal",
+          "mailbox": null,
+          "mailboxName": null
         }
       },
       "Message": {
@@ -3726,7 +3776,14 @@
               "inbound",
               "outbound"
             ],
-            "description": "`outbound` was sent by the account's owner."
+            "description": "`outbound` was sent by the account's owner, or, in a `company_page` chat, by the page. Never reply to an `outbound` message."
+          },
+          "providerMessageId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "LinkedIn's own id for the message. It is identical on every connected account that sees the message, so use it to recognise the same company-page message arriving through several accounts and to answer it once. `null` for messages stored before this field was introduced."
           },
           "text": {
             "type": "string",
@@ -3777,6 +3834,7 @@
           "id": "6719f2bb4d5e6f7081122334",
           "chatId": "6719f1aa3c4d5e6f70811223",
           "direction": "inbound",
+          "providerMessageId": "2-ZXhhbXBsZS1saW5rZWRpbi1tZXNzYWdlLWlk",
           "text": "Sounds good, talk Monday.",
           "sentAt": "2026-10-24T06:09:00.000Z",
           "delivered": true,
