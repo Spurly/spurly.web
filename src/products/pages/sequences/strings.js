@@ -31,6 +31,10 @@ export const sequencesStrings = {
     nameDialogDescription: 'Give it a name you\'ll recognize on the sequences list.',
     nameDialogCancel: 'Cancel',
     nameDialogConfirm: 'Create sequence',
+    sendFrom: 'Send from',
+    sendFromHint: 'Tick two or more accounts to send this sequence from several; each person is handled by one account. Leave empty to use the acting account.',
+    sendFromToggle: 'Send from several accounts…',
+    sendFromBlocked: 'Pick at least 2 accounts, or untick them to use the acting account.',
   },
   detail: {
     loadingPageTitle: 'Sequence',

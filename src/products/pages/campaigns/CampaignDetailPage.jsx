@@ -16,7 +16,8 @@ import { NoteEditor } from './components/NoteEditor.jsx';
 import { MessageEditor } from './components/MessageEditor.jsx';
 import { SendMessagePreviewDialog } from './components/SendMessagePreviewDialog.jsx';
 import { sinceLabel } from './components/sinceLabel.js';
-import { hubMemberColumns } from './components/columns.jsx';
+import { hubMemberColumns, hubPoolMemberColumns } from './components/columns.jsx';
+import { SendersPanel, hasSenderToRebalance } from './components/SendersPanel.jsx';
 import { CAMPAIGN_STATUS_VIEW as STATUS_VIEW } from './components/statusView.js';
 import { campaignsStrings } from './strings.js';
 
@@ -64,6 +65,7 @@ export function CampaignDetailPage() {
     confirmStart,
     senderName,
     pause,
+    rebalance,
     retryFailed,
     saveNote,
     saveMessageTemplate,
@@ -101,6 +103,10 @@ export function CampaignDetailPage() {
   }
 
   const view = STATUS_VIEW[campaign.status] ?? STATUS_VIEW.draft;
+  const senders = data.senders ?? null; // present only for a campaign that sends from several accounts
+  const isPool = Array.isArray(senders);
+  const memberColumns = isPool ? hubPoolMemberColumns : hubMemberColumns;
+  const canRebalance = isPool && campaign.status === 'paused' && hasSenderToRebalance(senders);
   const counts = data.counts ?? {};
   const isMessage = (campaign.type || 'connect') === 'message';
   const doneCount = isMessage ? (counts.messaged ?? 0) : (counts.invited ?? 0);
@@ -177,6 +183,16 @@ export function CampaignDetailPage() {
       }
       actions={
         <>
+          {isPool && hasSenderToRebalance(senders) && (
+            <Button
+              variant="secondary"
+              disabled={busy || !canRebalance}
+              onClick={rebalance}
+              title={canRebalance ? campaignsStrings.senders.rebalanceTitle : campaignsStrings.senders.pauseFirst}
+            >
+              {busy ? campaignsStrings.senders.rebalanceBusy : campaignsStrings.senders.rebalance}
+            </Button>
+          )}
           {counts.failed > 0 && (
             <Button leadingIcon={<RotateCcw size={13} />} disabled={busy} onClick={retryFailed}>
               {t.retryFailed}
@@ -213,10 +229,14 @@ export function CampaignDetailPage() {
 
             <div className="flex-1 min-h-0 flex flex-col rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-sm)] overflow-hidden">
               <SenderDownBanner sender={data.sender} />
-              <PacingBanner campaign={campaign} pacing={data.pacing} sender={data.sender} />
+              {isPool ? (
+                <SendersPanel senders={senders} pacingBySender={data.pacingBySender} sentKey={isMessage ? 'messaged' : 'invited'} />
+              ) : (
+                <PacingBanner campaign={campaign} pacing={data.pacing} sender={data.sender} />
+              )}
               <DataTable
                 className="flex-1 min-h-0"
-                columns={hubMemberColumns}
+                columns={memberColumns}
                 data={members}
                 loading={loading}
                 emptyMessage={statusFilter ? 'Nobody in this state' : 'Nobody in this campaign'}

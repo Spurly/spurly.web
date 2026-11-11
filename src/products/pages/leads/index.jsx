@@ -17,6 +17,10 @@ import { useAuth } from "src/core/auth/hooks/useAuth.js";
 import { SendingAsChip } from "src/core/org/components/SendingAsChip.jsx";
 import { useSendingAs } from "src/core/org/hooks/useSendingAs.js";
 import { useLeadsPage } from "src/products/leads/hooks/useLeadsPage.js";
+import { useSenderPool } from "src/products/campaigns/hooks/useSenderPool.js";
+import { SenderPoolDialog } from "./../campaigns/components/SenderPoolDialog.jsx";
+import { campaignsStrings } from "./../campaigns/strings.js";
+import { getKnownAccounts } from "src/shared/orgAccount/activeAccount.js";
 import { isBusy } from "src/products/leads/hooks/audience.js";
 import { ArrowUpRight, PanelRight } from "lucide-react";
 import { hubLeadColumns, hubLeadEnrichColumns, leadRowTone } from "./components/columns.jsx";
@@ -103,6 +107,8 @@ export function HubLeadsPage() {
     deleteSearch,
     createCampaign,
     createMessageCampaign,
+    createPoolCampaign,
+    poolCreateError,
     selectedAreAllFirstDegree,
     enrollInSequence,
     handleLeadResolved,
@@ -124,6 +130,9 @@ export function HubLeadsPage() {
 
   const { user } = useAuth();
   const sending = useSendingAs();
+  const pool = useSenderPool({ kind: 'campaign' });
+  const [poolOpen, setPoolOpen] = useState(false);
+  const canPool = sending.isOrg && getKnownAccounts().accounts.length >= 2;
   // D52: a send/enrol/create action runs through one account; with none in effect they wait (reason shown).
   const sendBlocked = sending.needsPick;
   const sendBlockedReason = sendBlocked ? "Pick an account in 'Acting as' first." : undefined;
@@ -323,6 +332,17 @@ export function HubLeadsPage() {
                 {/* A message campaign may only ever be ALL 1st-degree
                     connections — the server rejects a mixed selection
                     (NOT_ALL_FIRST_DEGREE), so the button says so up front. */}
+                {canPool && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setPoolOpen(true)}
+                    disabled={creating || selected.size === 0}
+                    title={selected.size === 0 ? campaignsStrings.pool.needSelection : campaignsStrings.pool.openTitle}
+                  >
+                    {campaignsStrings.pool.open}
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant="secondary"
@@ -455,6 +475,19 @@ export function HubLeadsPage() {
             total: enrichPagination.total,
             onPageChange: (page) => loadEnrichLeads({ page }),
           }}
+        />
+      )}
+
+      {canPool && (
+        <SenderPoolDialog
+          open={poolOpen}
+          onClose={() => { setPoolOpen(false); pool.reset(); }}
+          pool={pool}
+          leadCount={selected.size}
+          previewParams={{ leadIds: [...selected] }}
+          onConfirm={createPoolCampaign}
+          creating={creating}
+          createError={poolCreateError}
         />
       )}
 

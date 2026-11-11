@@ -8,6 +8,8 @@ import { SEQUENCE_EVENTS } from '../constants/constants.js';
 import { makeNode, treeError, cleanExit, exitError } from '../treeModel.js';
 import { useOrgState } from 'src/core/org/hooks/useOrgState.js';
 import { setDraftDirty } from 'src/shared/orgAccount/draftGuard.js';
+import { useSenderPool } from 'src/products/campaigns/hooks/useSenderPool.js';
+import { getKnownAccounts } from 'src/shared/orgAccount/activeAccount.js';
 
 /**
  * State for the new-sequence page: local-only until "Create sequence" is
@@ -27,6 +29,10 @@ export function useNewSequencePage() {
   const setExit = useCallback((next) => { setTouched(true); setExitState(next); }, []);
   const setSteps = useCallback((next) => { setTouched(true); setStepsState(next); }, []);
   const [creating, setCreating] = useState(false);
+  // Optional: send this sequence from several accounts (an org with two or more). Nothing ticked = the acting account, as before.
+  const pool = useSenderPool({ kind: 'sequence', draftKey: 'new-sequence-pool' });
+  const canPool = orgState.isMember && getKnownAccounts().accounts.length >= 2;
+  const poolBlocked = pool.selected.length > 0 && !pool.validation.ok;
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -40,7 +46,7 @@ export function useNewSequencePage() {
   // The steps must be valid before there's anything worth naming — but the
   // name itself is collected later, in the "name this sequence" dialog
   // shown when "Create sequence" is pressed, not up front on the page.
-  const canCreate = !validationError && !creating;
+  const canCreate = !validationError && !creating && !poolBlocked;
 
   useEffect(() => {
     function handleCreateSuccess(sequence) {
@@ -68,10 +74,13 @@ export function useNewSequencePage() {
 
   const create = useCallback(() => {
     const trimmedName = name.trim();
-    if (!trimmedName || validationError || creating) return;
+    if (!trimmedName || validationError || creating || poolBlocked) return;
     setCreating(true);
-    sequenceController.createSequence(eventEmitter, { name: trimmedName, steps, exit: cleanExit(exit) });
-  }, [name, validationError, creating, eventEmitter, steps, exit]);
+    sequenceController.createSequence(eventEmitter, {
+      name: trimmedName, steps, exit: cleanExit(exit),
+      ...(pool.selected.length >= 2 ? { accountIds: pool.selected } : {}),
+    });
+  }, [name, validationError, creating, eventEmitter, steps, exit, pool.selected, poolBlocked]);
 
-  return { name, setName, steps, setSteps, creating, validationError, canCreate, create, inbox, exit, setExit, isOrg: orgState.isMember };
+  return { name, setName, steps, setSteps, creating, validationError, canCreate, create, inbox, exit, setExit, isOrg: orgState.isMember, pool, canPool, poolBlocked };
 }

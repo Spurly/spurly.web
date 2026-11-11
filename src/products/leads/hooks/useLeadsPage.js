@@ -61,6 +61,7 @@ export function useLeadsPage() {
   const [creatingEnrichment, setCreatingEnrichment] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
   const [sequences, setSequences] = useState([]);
+  const [poolCreateError, setPoolCreateError] = useState(null);
   const [enrolling, setEnrolling] = useState(false);
 
   // ---- Sourcing: fetch counts, same-search choice, custom lists ----
@@ -637,8 +638,7 @@ export function useLeadsPage() {
    * is deliberately the same "instant action, land on the result" shape as
    * createCampaign above, just against a sequence someone already made.
    */
-  const enrollInSequence = useCallback((sequenceId) => {
-    if (!sequenceId || selected.size === 0 || enrolling) return;
+  const doEnroll = useCallback((sequenceId) => {
     setEnrolling(true);
     const callEmitter = new EventEmitter();
     callEmitter.once(SEQUENCE_EVENTS.ENROLL_LEADS_SUCCESS, ({ enrolled }) => {
@@ -651,7 +651,64 @@ export function useLeadsPage() {
       if (mountedRef.current) setEnrolling(false);
     });
     sequenceController.enrollLeads(callEmitter, sequenceId, { leadIds: [...selected] });
-  }, [selected, enrolling, toast, navigate]);
+  }, [selected, toast, navigate]);
+
+  /**
+   * A sequence that sends from several accounts binds each lead to one of them when it is enrolled, so the person sees
+   * the split first (read-only preview) and confirms. A single-account sequence enrols at once, exactly as before.
+   */
+  const enrollInSequence = useCallback((sequenceId) => {
+    if (!sequenceId || selected.size === 0 || enrolling) return;
+    const sequence = sequences.find((q) => String(q._id) === String(sequenceId));
+    if (sequence?.senderMode !== 'pool') {
+      doEnroll(sequenceId);
+      return;
+    }
+    setEnrolling(true);
+    const previewEmitter = new EventEmitter();
+    previewEmitter.once(SEQUENCE_EVENTS.PREVIEW_SEQUENCE_SUCCESS, (summary) => {
+      const lines = (summary.perAccount || []).map((r) => `${r.name || 'An account'}: ${r.count}`).join(', ');
+      const left = (summary.refused || []).reduce((n, r) => n + r.count, 0);
+      if (mountedRef.current) setEnrolling(false);
+      if (!summary.total) {
+        toast.error('None of these people can be enrolled from this sequence\'s accounts right now. Try different leads.');
+        return;
+      }
+      confirm({
+        title: 'Enroll from several accounts?',
+        body: `${summary.total} ${summary.total === 1 ? 'person' : 'people'} will be enrolled (${lines}).${left ? ` ${left} cannot be enrolled from these accounts and will be left out.` : ''}`,
+        confirmLabel: 'Enroll',
+      }).then((ok) => { if (ok) doEnroll(sequenceId); });
+    });
+    previewEmitter.once(SEQUENCE_EVENTS.PREVIEW_SEQUENCE_FAILURE, (error) => {
+      toast.error(getToastError(error, 'Could not work out who would send to whom. Nothing was enrolled.'));
+      if (mountedRef.current) setEnrolling(false);
+    });
+    sequenceController.previewSequence(previewEmitter, { sequenceId, leadIds: [...selected] });
+  }, [selected, enrolling, sequences, confirm, toast, doEnroll]);
+
+  /** Create a campaign that sends from several accounts (the dialog has already shown the split). */
+  const createPoolCampaign = useCallback(({ accountIds, type }) => {
+    if (selected.size === 0 || creating) return;
+    setCreating(true);
+    setPoolCreateError(null);
+    const callEmitter = new EventEmitter();
+    callEmitter.once(CAMPAIGN_EVENTS.CREATE_CAMPAIGN_SUCCESS, ({ campaign, enrolled }) => {
+      if (!campaign?._id) {
+        setPoolCreateError(new Error('missing campaign'));
+        if (mountedRef.current) setCreating(false);
+        return;
+      }
+      toast.success(`${enrolled} lead(s) added. Nothing sends until you start it.`);
+      if (mountedRef.current) setCreating(false);
+      navigate(`/hub/campaigns/${campaign._id}`);
+    });
+    callEmitter.once(CAMPAIGN_EVENTS.CREATE_CAMPAIGN_FAILURE, (error) => {
+      setPoolCreateError(error);
+      if (mountedRef.current) setCreating(false);
+    });
+    campaignController.createCampaign(callEmitter, { type, leadIds: [...selected], accountIds });
+  }, [selected, creating, toast, navigate]);
 
   /**
    * Folds a resolved profile back into the table row that's already on
@@ -797,6 +854,8 @@ export function useLeadsPage() {
     createMessageCampaign,
     selectedAreAllFirstDegree,
     enrollInSequence,
+    createPoolCampaign,
+    poolCreateError,
     handleLeadResolved,
 
     // Enrich tab

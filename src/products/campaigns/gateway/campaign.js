@@ -19,8 +19,11 @@ import { Campaign } from '../entities/campaign.js';
  * joined. Those differ whenever a lead was already enrolled, and the page
  * says so rather than implying every selected row was added.
  */
-async function createCampaign({ name, type, note, messageTemplate, leadIds, searchId } = {}) {
-  const res = await apiGateway.post('/hub/campaigns', { name, type, note, messageTemplate, leadIds, searchId });
+async function createCampaign({ name, type, note, messageTemplate, leadIds, searchId, accountIds } = {}) {
+  const res = await apiGateway.post('/hub/campaigns', {
+    name, type, note, messageTemplate, leadIds, searchId,
+    ...(Array.isArray(accountIds) && accountIds.length ? { accountIds } : {}),
+  });
   const data = res.data?.data ?? { campaign: null, enrolled: 0 };
   return { ...data, campaign: Campaign.fromResponse(data.campaign) };
 }
@@ -108,6 +111,21 @@ async function deleteCampaign(id) {
   return res.data?.data ?? {};
 }
 
+/**
+ * POST /hub/campaigns/preview — who would send to whom, before anything is created. Read-only.
+ * Returns the per-lead plan and the refusal reasons; the dialog shows both.
+ */
+async function previewCampaign({ accountIds, type, leadIds, searchId } = {}) {
+  const res = await apiGateway.post('/hub/campaigns/preview', { accountIds, type, leadIds, searchId });
+  return res.data?.data ?? { rows: [], counts: {} };
+}
+
+/** POST /hub/campaigns/:id/rebalance — move waiting leads off a paused or removed sender (campaign must be paused). */
+async function rebalanceCampaign(id, { fromAccountId } = {}) {
+  const res = await apiGateway.post(`/hub/campaigns/${id}/rebalance`, fromAccountId ? { fromAccountId } : {});
+  return res.data?.data ?? { moved: 0, left: 0 };
+}
+
 const hubCampaignsGateway = {
   createCampaign,
   listCampaigns,
@@ -119,6 +137,8 @@ const hubCampaignsGateway = {
   pauseCampaign,
   retryFailed,
   deleteCampaign,
+  previewCampaign,
+  rebalanceCampaign,
 };
 
 export default hubCampaignsGateway;

@@ -6,6 +6,8 @@ import { useAuth } from 'src/core/auth/hooks/useAuth.js';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import campaignController from '../controller/campaign.js';
 import { POLL_MS, CAMPAIGN_EVENTS } from '../constants/constants.js';
+import { campaignsStrings } from 'src/products/pages/campaigns/strings.js';
+import { poolErrorText } from 'src/products/pages/campaigns/components/refusalCopy.js';
 
 /**
  * All state for one campaign's detail page: the campaign envelope (campaign +
@@ -123,6 +125,12 @@ export function useCampaignDetail() {
     campaignController.pauseCampaign(eventEmitter, id);
   }, [eventEmitter, id]);
 
+  /** Hand the people still waiting on a paused or removed account to the accounts that can send (pool, paused only). */
+  const rebalance = useCallback(() => {
+    setBusy(true);
+    campaignController.rebalanceCampaign(eventEmitter, id, {});
+  }, [eventEmitter, id]);
+
   const retryFailed = useCallback(() => {
     setBusy(true);
     campaignController.retryFailed(eventEmitter, id);
@@ -189,6 +197,18 @@ export function useCampaignDetail() {
       load();
       loadMembers(pagination.page);
     }
+    function handleRebalanceSuccess(result) {
+      const moved = result?.moved ?? 0;
+      if (moved > 0) toast.success(campaignsStrings.senders.rebalanced(moved, (result?.refused || []).reduce((n, r) => n + (r.count || 0), 0)));
+      else toast.error(campaignsStrings.senders.rebalanceNone);
+      if (mountedRef.current) setBusy(false);
+      load();
+      loadMembers(pagination.page);
+    }
+    function handleRebalanceFailure(error) {
+      toast.error(poolErrorText(error));
+      if (mountedRef.current) setBusy(false);
+    }
     function handleRetryFailure(error) {
       toast.error(getToastError(error, 'Could not queue those again'));
       if (mountedRef.current) setBusy(false);
@@ -218,6 +238,8 @@ export function useCampaignDetail() {
     eventEmitter.on(CAMPAIGN_EVENTS.PAUSE_CAMPAIGN_FAILURE, handlePauseFailure);
     eventEmitter.on(CAMPAIGN_EVENTS.RETRY_FAILED_SUCCESS, handleRetrySuccess);
     eventEmitter.on(CAMPAIGN_EVENTS.RETRY_FAILED_FAILURE, handleRetryFailure);
+    eventEmitter.on(CAMPAIGN_EVENTS.REBALANCE_CAMPAIGN_SUCCESS, handleRebalanceSuccess);
+    eventEmitter.on(CAMPAIGN_EVENTS.REBALANCE_CAMPAIGN_FAILURE, handleRebalanceFailure);
     eventEmitter.on(CAMPAIGN_EVENTS.UPDATE_CAMPAIGN_SUCCESS, handleUpdateSuccess);
     eventEmitter.on(CAMPAIGN_EVENTS.UPDATE_CAMPAIGN_FAILURE, handleUpdateFailure);
 
@@ -232,6 +254,8 @@ export function useCampaignDetail() {
       eventEmitter.off(CAMPAIGN_EVENTS.PAUSE_CAMPAIGN_FAILURE, handlePauseFailure);
       eventEmitter.off(CAMPAIGN_EVENTS.RETRY_FAILED_SUCCESS, handleRetrySuccess);
       eventEmitter.off(CAMPAIGN_EVENTS.RETRY_FAILED_FAILURE, handleRetryFailure);
+      eventEmitter.off(CAMPAIGN_EVENTS.REBALANCE_CAMPAIGN_SUCCESS, handleRebalanceSuccess);
+      eventEmitter.off(CAMPAIGN_EVENTS.REBALANCE_CAMPAIGN_FAILURE, handleRebalanceFailure);
       eventEmitter.off(CAMPAIGN_EVENTS.UPDATE_CAMPAIGN_SUCCESS, handleUpdateSuccess);
       eventEmitter.off(CAMPAIGN_EVENTS.UPDATE_CAMPAIGN_FAILURE, handleUpdateFailure);
     };
@@ -270,6 +294,7 @@ export function useCampaignDetail() {
     confirmStart,
     senderName,
     pause,
+    rebalance,
     retryFailed,
     saveNote,
     saveMessageTemplate,

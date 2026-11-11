@@ -34,6 +34,7 @@ const STOP_REASON = {
   'branch-ended': 'Finished: nothing left on this branch',
   // The backend stops an enrollment the moment the lead replies (Phase 10, sequences/service runOneEnrollment).
   'lead-replied': 'Replied — handed to you',
+  'sender-removed': 'Stopped: the account that was sending was removed',
 };
 
 /** v2 history reads "Condition → Yes", "Message → done". */
@@ -45,7 +46,7 @@ export function historyLabel(entry) {
   return `${label} — ${entry.outcome}${entry.branch ? ` (${entry.branch === 'yes' ? 'Yes' : 'No'} side)` : ''}`;
 }
 
-export function hubEnrollmentColumns(steps = [], { tree = false } = {}) {
+export function hubEnrollmentColumns(steps = [], { tree = false, pool = false } = {}) {
   // v2 enrollments point at a node id; v1 at a list index.
   const nodeIndex = (row) => (tree ? steps.findIndex((n) => n.id === row.currentStepId) : row.currentStepIndex);
   return [
@@ -63,6 +64,12 @@ export function hubEnrollmentColumns(steps = [], { tree = false } = {}) {
       title: (row) => row.name,
       render: (value, row) => <PersonCell name={value} avatar={row.profilePictureUrl} profileUrl={row.profileUrl} />,
     },
+    ...(pool ? [{
+      key: 'senderName',
+      label: 'Sent from',
+      width: 150,
+      render: (value) => <TextCell value={value || null} tone="secondary" />,
+    }] : []),
     {
       key: 'headline',
       label: 'Headline',

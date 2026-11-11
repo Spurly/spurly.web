@@ -107,7 +107,8 @@ export function withActiveAccount(config) {
 
   const method = String(config.method || 'get').toLowerCase();
   if (method === 'post' && ORG_ACCOUNT_BODY_PATHS.some((rule) => rule.test(path))) {
-    if (isPlainObject(config.data) && !config.data.accountId) config.data = { ...config.data, accountId };
+    // A body that names several accounts (`accountIds`, a pool) already says who sends: never add a single one.
+    if (isPlainObject(config.data) && !config.data.accountId && !Array.isArray(config.data.accountIds)) config.data = { ...config.data, accountId };
     return config;
   }
   config.params = { ...(config.params || {}), accountId };

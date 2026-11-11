@@ -1,4 +1,5 @@
 import { Badge, Menu, Meter, SoonTag } from 'src/core/primitives';
+import { AccountsBadge } from '../../components/AccountsBadge.jsx';
 import { relativeTime } from 'src/shared/utils/outreach';
 import { isLive } from 'src/products/campaigns/hooks/useCampaigns.js';
 import { CAMPAIGN_STATUS_VIEW as STATUS_VIEW } from './statusView.js';
@@ -114,6 +115,7 @@ export function CampaignCard({ campaign, onOpen, onStart, onPause, onDelete, bus
         <Badge tone={view.tone} dot pulse={running} size="sm">
           {view.label}
         </Badge>
+        <AccountsBadge row={campaign} />
         {when && (
           <span className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)] truncate">
             {when}

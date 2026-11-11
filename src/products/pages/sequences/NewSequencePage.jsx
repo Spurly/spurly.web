@@ -6,6 +6,7 @@ import { useSendingAs } from 'src/core/org/hooks/useSendingAs.js';
 import { useNewSequencePage } from 'src/products/sequences/hooks/useNewSequencePage.js';
 import { SequenceTreeBuilder } from './components/SequenceTreeBuilder.jsx';
 import { StopRulesButton } from './components/StopRulesButton.jsx';
+import { SendFromControl } from './components/SendFromControl.jsx';
 import { sequencesStrings } from './strings.js';
 
 const t = sequencesStrings.new;
@@ -26,7 +27,7 @@ const t = sequencesStrings.new;
  * canvas for space above the fold.
  */
 export function NewSequencePage() {
-  const { name, setName, steps, setSteps, creating, validationError, canCreate, create, inbox, exit, setExit, isOrg } = useNewSequencePage();
+  const { name, setName, steps, setSteps, creating, validationError, canCreate, create, inbox, exit, setExit, isOrg, pool, canPool, poolBlocked } = useNewSequencePage();
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
   const sending = useSendingAs();
 
@@ -44,11 +45,14 @@ export function NewSequencePage() {
       title={t.pageTitle}
       subtitle={t.pageSubtitle}
       layout="fill"
-      actions={<Button disabled={!canCreate || sending.needsPick} title={sending.needsPick ? 'Pick an account in "Acting as" first.' : undefined} loading={creating} onClick={openNameDialog}>{t.createButton}</Button>}
+      actions={<Button disabled={!canCreate || sending.needsPick} title={sending.needsPick ? 'Pick an account in "Acting as" first.' : poolBlocked ? t.sendFromBlocked : undefined} loading={creating} onClick={openNameDialog}>{t.createButton}</Button>}
     >
       <div className="flex flex-col flex-1 min-h-0 gap-3">
         <div className="shrink-0 flex items-center justify-between gap-3 flex-wrap">
-          <SendingAsChip />
+          <div className="flex items-start gap-3 flex-wrap">
+            <SendingAsChip />
+            {canPool && <SendFromControl pool={pool} />}
+          </div>
           <StopRulesButton exit={exit} onChange={setExit} inbox={inbox} isOrg={isOrg} />
         </div>
 
