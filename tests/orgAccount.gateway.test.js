@@ -72,4 +72,25 @@ describe('active org account', () => {
     rememberAccounts('org1', [{ id: 'a1' }]);
     expect(getActiveAccountId()).toBe('');
   });
+  test('M6.7: a create body that names several accounts is left untouched', () => {
+    setActiveAccountId('acc1');
+    const data = { name: 'n', accountIds: ['a1', 'a2'] };
+    expect(withActiveAccount({ method: 'post', url: '/hub/campaigns', data }).data).toEqual(data);
+    expect(withActiveAccount({ method: 'post', url: '/hub/sequences', data }).data).toEqual(data);
+  });
+
+  test('M6.7: a create body without accountIds still gets the active account', () => {
+    setActiveAccountId('acc1');
+    expect(withActiveAccount({ method: 'post', url: '/hub/campaigns', data: { name: 'n' } }).data).toEqual({ name: 'n', accountId: 'acc1' });
+    expect(withActiveAccount({ method: 'post', url: '/hub/sequences', data: { name: 'n' } }).data).toEqual({ name: 'n', accountId: 'acc1' });
+  });
+
+  test('M6.7: preview and rebalance calls never get an account added', () => {
+    setActiveAccountId('acc1');
+    for (const url of ['/hub/campaigns/preview', '/hub/sequences/preview', '/hub/campaigns/C1/rebalance', '/hub/sequences/S1/rebalance']) {
+      const out = withActiveAccount({ method: 'post', url, data: { accountIds: ['a1', 'a2'] } });
+      expect(out.params).toBeUndefined();
+      expect(out.data).toEqual({ accountIds: ['a1', 'a2'] });
+    }
+  });
 });

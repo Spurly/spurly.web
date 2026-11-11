@@ -6,6 +6,7 @@ import { CampaignIcon, PlusIcon } from 'src/core/icons';
 import { useCampaigns, isLive } from 'src/products/campaigns/hooks/useCampaigns.js';
 import { useSidebarSummary } from 'src/core/sidebarSummary/hooks/useSidebarSummary.js';
 import { CampaignCard } from './components/CampaignCard.jsx';
+import { isPoolRow } from '../components/AccountsBadge.jsx';
 import { campaignsStrings } from './strings.js';
 
 export { CampaignDetailPage as HubCampaignDetailPage } from './CampaignDetailPage.jsx';
@@ -52,7 +53,8 @@ export function HubCampaignsPage() {
 
   const running = campaigns.filter(isLive).length;
   const counts = Object.fromEntries(STATUS_FILTERS.map((f) => [f.id, f.id === 'all' ? campaigns.length : campaigns.filter((c) => c.status === f.id).length]));
-  const visible = status === 'all' ? campaigns : campaigns.filter((c) => c.status === status);
+  const poolCount = campaigns.filter(isPoolRow).length;
+  const visible = status === 'all' ? campaigns : status === 'pool' ? campaigns.filter(isPoolRow) : campaigns.filter((c) => c.status === status);
   const cap = summary.pacing?.dailyCap;
   const acceptPct = totals.reached ? Math.round((totals.connected / totals.reached) * 100) : 0;
   const open = (c) => navigate(`/hub/campaigns/${c._id}`);
@@ -113,7 +115,11 @@ export function HubCampaignsPage() {
           ariaLabel="Filter campaigns by status"
           value={status}
           onChange={setStatus}
-          options={STATUS_FILTERS.filter((f) => f.id === 'all' || f.id !== 'draft' || counts.draft > 0).map((f) => ({ ...f, count: counts[f.id] }))}
+          options={[
+            ...STATUS_FILTERS.filter((f) => f.id === 'all' || f.id !== 'draft' || counts.draft > 0).map((f) => ({ ...f, count: counts[f.id] })),
+            // Only offered when something here sends from several accounts, so a solo or single-account list has no new control.
+            ...(poolCount > 0 ? [{ id: 'pool', label: 'Several accounts', count: poolCount }] : []),
+          ]}
         />
         </div>
 

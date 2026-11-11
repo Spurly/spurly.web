@@ -15,8 +15,12 @@ import { Sequence } from '../entities/sequence.js';
  */
 
 /** POST /hub/sequences — create a draft. Needs at least one step. */
-async function createSequence({ name, steps, exit } = {}) {
-  const res = await apiGateway.post('/hub/sequences', { name, steps, ...(exit ? { exit } : {}) });
+async function createSequence({ name, steps, exit, accountIds } = {}) {
+  const res = await apiGateway.post('/hub/sequences', {
+    name, steps,
+    ...(exit ? { exit } : {}),
+    ...(Array.isArray(accountIds) && accountIds.length ? { accountIds } : {}),
+  });
   return Sequence.fromResponse(res.data?.data?.sequence ?? null);
 }
 
@@ -86,6 +90,18 @@ async function deleteSequence(id) {
   return res.data?.data ?? {};
 }
 
+/** POST /hub/sequences/preview — who would be bound to which account, before enrolling. Read-only. */
+async function previewSequence({ accountIds, sequenceId, steps, leadIds, searchId } = {}) {
+  const res = await apiGateway.post('/hub/sequences/preview', { accountIds, sequenceId, steps, leadIds, searchId });
+  return res.data?.data ?? { rows: [], counts: {} };
+}
+
+/** POST /hub/sequences/:id/rebalance — move waiting enrolments off a paused or removed sender (sequence must be paused). */
+async function rebalanceSequence(id, { fromAccountId } = {}) {
+  const res = await apiGateway.post(`/hub/sequences/${id}/rebalance`, fromAccountId ? { fromAccountId } : {});
+  return res.data?.data ?? { moved: 0, left: 0 };
+}
+
 const hubSequencesGateway = {
   createSequence,
   listSequences,
@@ -96,5 +112,7 @@ const hubSequencesGateway = {
   startSequence,
   pauseSequence,
   deleteSequence,
+  previewSequence,
+  rebalanceSequence,
 };
 export default hubSequencesGateway;

@@ -105,6 +105,24 @@ async function deleteCampaign(eventEmitter, id) {
   }
 }
 
+async function previewCampaign(eventEmitter, params) {
+  try {
+    const data = await hubCampaignsGateway.previewCampaign(params);
+    eventEmitter.emit(CAMPAIGN_EVENTS.PREVIEW_CAMPAIGN_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(CAMPAIGN_EVENTS.PREVIEW_CAMPAIGN_FAILURE, error);
+  }
+}
+
+async function rebalanceCampaign(eventEmitter, id, params) {
+  try {
+    const data = await hubCampaignsGateway.rebalanceCampaign(id, params);
+    eventEmitter.emit(CAMPAIGN_EVENTS.REBALANCE_CAMPAIGN_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(CAMPAIGN_EVENTS.REBALANCE_CAMPAIGN_FAILURE, error);
+  }
+}
+
 const campaignController = {
   createCampaign,
   listCampaigns,
@@ -116,6 +134,8 @@ const campaignController = {
   pauseCampaign,
   retryFailed,
   deleteCampaign,
+  previewCampaign,
+  rebalanceCampaign,
 };
 
 export default campaignController;

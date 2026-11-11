@@ -5,6 +5,7 @@ import { STEP_TYPES } from 'src/products/sequences/stepTypes.js';
 import { isLive } from 'src/products/sequences/hooks/useSequencesPage.js';
 import { SEQUENCE_STATUS_VIEW as STATUS_VIEW } from './statusView.js';
 import { ListStatusCell } from '../../components/ListStatusCell.jsx';
+import { AccountsBadge } from '../../components/AccountsBadge.jsx';
 
 /**
  * Columns for the sequences list — the campaigns list's twin, and deliberately
@@ -58,6 +59,7 @@ export function hubSequenceListColumns({ onStart, onPause, onDelete, busy }) {
           <span className="truncate text-[length:var(--ui-t-nav)] font-medium text-[var(--ui-text-primary)] leading-[1.3]">
             {value || 'Untitled sequence'}
           </span>
+          <AccountsBadge row={row} />
           <span className="font-[family-name:var(--ui-font-mono)] text-[length:var(--ui-t-micro)] text-[var(--ui-text-quaternary)] leading-[1.35]">
             {row.steps?.length ?? 0} {row.steps?.length === 1 ? 'step' : 'steps'}
           </span>

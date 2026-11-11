@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { useToast, useConfirm } from 'src/core/primitives';
 import { getToastError } from 'src/shared/utils/apiError';
 import EventEmitter from 'src/shared/utils/EventEmitter.js';
+import { campaignsStrings } from 'src/products/pages/campaigns/strings.js';
+import { poolErrorText } from 'src/products/pages/campaigns/components/refusalCopy.js';
 import sequenceController from '../controller/sequence.js';
 import { stepsError } from '../stepTypes.js';
 import { treeError, isTreeSequence } from '../treeModel.js';
@@ -56,6 +58,12 @@ export function useSequenceDetail({ inbox = true } = {}) {
   const pause = useCallback(() => {
     setBusy(true);
     sequenceController.pauseSequence(eventEmitter, id);
+  }, [eventEmitter, id]);
+
+  /** Hand the people still waiting on a paused or removed account to the accounts that can send (pool, paused only). */
+  const rebalance = useCallback(() => {
+    setBusy(true);
+    sequenceController.rebalanceSequence(eventEmitter, id, {});
   }, [eventEmitter, id]);
 
   const sequence = data?.sequence ?? null;
@@ -127,6 +135,17 @@ export function useSequenceDetail({ inbox = true } = {}) {
       if (mountedRef.current) setBusy(false);
       load();
     }
+    function handleRebalanceSuccess(result) {
+      const moved = result?.moved ?? 0;
+      if (moved > 0) toast.success(campaignsStrings.senders.rebalanced(moved, (result?.refused || []).reduce((n, r) => n + (r.count || 0), 0)));
+      else toast.error(campaignsStrings.senders.rebalanceNone);
+      if (mountedRef.current) setBusy(false);
+      load();
+    }
+    function handleRebalanceFailure(error) {
+      toast.error(poolErrorText(error));
+      if (mountedRef.current) setBusy(false);
+    }
     function handlePauseFailure(error) {
       toast.error(getToastError(error, 'Could not pause that sequence'));
       if (mountedRef.current) setBusy(false);
@@ -158,6 +177,8 @@ export function useSequenceDetail({ inbox = true } = {}) {
     eventEmitter.on(SEQUENCE_EVENTS.START_SEQUENCE_FAILURE, handleStartFailure);
     eventEmitter.on(SEQUENCE_EVENTS.PAUSE_SEQUENCE_SUCCESS, handlePauseSuccess);
     eventEmitter.on(SEQUENCE_EVENTS.PAUSE_SEQUENCE_FAILURE, handlePauseFailure);
+    eventEmitter.on(SEQUENCE_EVENTS.REBALANCE_SEQUENCE_SUCCESS, handleRebalanceSuccess);
+    eventEmitter.on(SEQUENCE_EVENTS.REBALANCE_SEQUENCE_FAILURE, handleRebalanceFailure);
     eventEmitter.on(SEQUENCE_EVENTS.UPDATE_SEQUENCE_SUCCESS, handleUpdateSuccess);
     eventEmitter.on(SEQUENCE_EVENTS.UPDATE_SEQUENCE_FAILURE, handleUpdateFailure);
     eventEmitter.on(SEQUENCE_EVENTS.DELETE_SEQUENCE_SUCCESS, handleDeleteSuccess);
@@ -172,6 +193,8 @@ export function useSequenceDetail({ inbox = true } = {}) {
       eventEmitter.off(SEQUENCE_EVENTS.START_SEQUENCE_FAILURE, handleStartFailure);
       eventEmitter.off(SEQUENCE_EVENTS.PAUSE_SEQUENCE_SUCCESS, handlePauseSuccess);
       eventEmitter.off(SEQUENCE_EVENTS.PAUSE_SEQUENCE_FAILURE, handlePauseFailure);
+      eventEmitter.off(SEQUENCE_EVENTS.REBALANCE_SEQUENCE_SUCCESS, handleRebalanceSuccess);
+      eventEmitter.off(SEQUENCE_EVENTS.REBALANCE_SEQUENCE_FAILURE, handleRebalanceFailure);
       eventEmitter.off(SEQUENCE_EVENTS.UPDATE_SEQUENCE_SUCCESS, handleUpdateSuccess);
       eventEmitter.off(SEQUENCE_EVENTS.UPDATE_SEQUENCE_FAILURE, handleUpdateFailure);
       eventEmitter.off(SEQUENCE_EVENTS.DELETE_SEQUENCE_SUCCESS, handleDeleteSuccess);
@@ -190,6 +213,7 @@ export function useSequenceDetail({ inbox = true } = {}) {
 
   return {
     data,
+    rebalance,
     sequence,
     draftSteps,
     setDraftSteps,

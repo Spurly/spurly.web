@@ -20,6 +20,8 @@ import { BranchCounts } from './components/BranchCounts.jsx';
 import { StopRulesButton } from './components/StopRulesButton.jsx';
 import { isTreeSequence } from 'src/products/sequences/treeModel.js';
 import { hubEnrollmentColumns } from './components/columns.jsx';
+import { SendersPanel, hasSenderToRebalance } from '../campaigns/components/SendersPanel.jsx';
+import { campaignsStrings } from '../campaigns/strings.js';
 import { SEQUENCE_STATUS_VIEW as STATUS_VIEW } from './components/statusView.js';
 import { useOrgState } from 'src/core/org/hooks/useOrgState.js';
 import { sequencesStrings } from './strings.js';
@@ -62,6 +64,7 @@ export function SequenceDetailPage() {
     running,
     start,
     pause,
+    rebalance,
     saveSteps,
     remove,
     stepsDirty,
@@ -100,6 +103,9 @@ export function SequenceDetailPage() {
   }
 
   const view = STATUS_VIEW[sequence.status] ?? STATUS_VIEW.draft;
+  const senders = data.senders ?? null; // present only for a sequence that sends from several accounts
+  const isPool = Array.isArray(senders);
+  const canRebalance = isPool && sequence.status === 'paused' && hasSenderToRebalance(senders);
   const counts = data.enrollmentCounts ?? {};
   const totalEnrolled = Object.values(counts).reduce((a, b) => a + b, 0);
   const isDraft = sequence.status === 'draft';
@@ -149,6 +155,16 @@ export function SequenceDetailPage() {
           {isDraft && stepsDirty && (
             <Button disabled={saving || !!stepsValidation} loading={saving} onClick={saveSteps}>
               {t.saveSteps}
+            </Button>
+          )}
+          {isPool && hasSenderToRebalance(senders) && (
+            <Button
+              variant="secondary"
+              disabled={busy || !canRebalance}
+              onClick={rebalance}
+              title={canRebalance ? campaignsStrings.senders.rebalanceTitle : campaignsStrings.senders.pauseFirst}
+            >
+              {busy ? campaignsStrings.senders.rebalanceBusy : campaignsStrings.senders.rebalance}
             </Button>
           )}
           {running ? (
@@ -266,9 +282,15 @@ export function SequenceDetailPage() {
           ) : (
             <div className="flex-1 min-h-0 flex flex-col px-[var(--ui-shell-x)] pt-4 pb-5">
               <div className="flex-1 min-h-0 flex flex-col rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-sm)] overflow-hidden">
+                {isPool && (
+                  <SendersPanel
+                    senders={senders}
+                    describe={(c) => `${(c.active ?? 0) + (c.waiting ?? 0)} in progress · ${c.completed ?? 0} finished`}
+                  />
+                )}
                 <DataTable
                   className="flex-1 min-h-0"
-                  columns={hubEnrollmentColumns(sequence.steps, { tree: isTreeSequence(sequence) })}
+                  columns={hubEnrollmentColumns(sequence.steps, { tree: isTreeSequence(sequence), pool: isPool })}
                   data={enrollments}
                   loading={loading}
                   emptyMessage={statusFilter ? t.table.emptyMessageFiltered : t.table.emptyMessageAll}

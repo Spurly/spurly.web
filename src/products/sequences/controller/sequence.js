@@ -92,6 +92,24 @@ async function deleteSequence(eventEmitter, id) {
   }
 }
 
+async function previewSequence(eventEmitter, params) {
+  try {
+    const data = await hubSequencesGateway.previewSequence(params);
+    eventEmitter.emit(SEQUENCE_EVENTS.PREVIEW_SEQUENCE_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(SEQUENCE_EVENTS.PREVIEW_SEQUENCE_FAILURE, error);
+  }
+}
+
+async function rebalanceSequence(eventEmitter, id, params) {
+  try {
+    const data = await hubSequencesGateway.rebalanceSequence(id, params);
+    eventEmitter.emit(SEQUENCE_EVENTS.REBALANCE_SEQUENCE_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(SEQUENCE_EVENTS.REBALANCE_SEQUENCE_FAILURE, error);
+  }
+}
+
 const sequenceController = {
   createSequence,
   listSequences,
@@ -102,5 +120,7 @@ const sequenceController = {
   startSequence,
   pauseSequence,
   deleteSequence,
+  previewSequence,
+  rebalanceSequence,
 };
 export default sequenceController;

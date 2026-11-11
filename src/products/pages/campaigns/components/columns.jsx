@@ -37,6 +37,7 @@ const SKIP_REASON = {
   'not-connected': 'Not a 1st-degree connection yet',
   unresolvable: 'No LinkedIn id to send to',
   self: 'This is you',
+  'sender-removed': 'The account that would send was removed',
 };
 
 export const hubMemberColumns = [
@@ -77,4 +78,16 @@ export const hubMemberColumns = [
     width: 130,
     render: (value) => <ActivityCell label={value ? 'Sent' : null} at={value} />,
   },
+];
+
+/** A pool's members also show which account works each person. Solo and single-account tables are unchanged. */
+export const hubPoolMemberColumns = [
+  hubMemberColumns[0],
+  {
+    key: 'senderName',
+    label: 'Sent from',
+    width: 160,
+    render: (value) => <TextCell value={value || null} tone="secondary" />,
+  },
+  ...hubMemberColumns.slice(1),
 ];

@@ -6,6 +6,7 @@ import { DataTable, sortRows, filterRows } from 'src/core/DataTable';
 import { Button, FilterPills } from 'src/core/primitives';
 import { useSequencesPage } from 'src/products/sequences/hooks/useSequencesPage.js';
 import { hubSequenceListColumns } from './components/listColumns.jsx';
+import { isPoolRow } from '../components/AccountsBadge.jsx';
 import { sequencesStrings } from './strings.js';
 
 export { NewSequencePage as HubNewSequencePage } from './NewSequencePage.jsx';
@@ -42,7 +43,8 @@ export function HubSequencesPage() {
   }, [sequences, search, sort]);
 
   const [status, setStatus] = useState('all');
-  const byStatus = status === 'all' ? visibleSequences : visibleSequences.filter((q) => q.status === status);
+  const byStatus = status === 'all' ? visibleSequences : status === 'pool' ? visibleSequences.filter(isPoolRow) : visibleSequences.filter((q) => q.status === status);
+  const poolCount = sequences.filter(isPoolRow).length;
   const countOf = (id) => sequences.filter((q) => q.status === id).length;
 
   return (
@@ -90,6 +92,7 @@ export function HubSequencesPage() {
                 { id: 'paused', label: 'Paused', count: countOf('paused') },
                 { id: 'draft', label: 'Draft', count: countOf('draft') },
                 { id: 'done', label: 'Finished', count: countOf('done') },
+                { id: 'pool', label: 'Several accounts', count: poolCount },
               ].filter((o) => o.id === 'all' || o.count > 0)}
             />
           ),
