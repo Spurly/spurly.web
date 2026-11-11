@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { DashboardLayout } from "src/core/layout/DashboardLayout";
 import { DataTable } from "src/core/DataTable";
 import { Button, Dropdown, ExportMenu, PageTabs, SoonTag, WorkingLine } from "src/core/primitives";
@@ -18,10 +18,12 @@ import { SendingAsChip } from "src/core/org/components/SendingAsChip.jsx";
 import { useSendingAs } from "src/core/org/hooks/useSendingAs.js";
 import { useLeadsPage } from "src/products/leads/hooks/useLeadsPage.js";
 import { campaignsStrings } from "./../campaigns/strings.js";
-import { getKnownAccounts } from "src/shared/orgAccount/activeAccount.js";
+import { getKnownAccounts, setActiveAccountId } from "src/shared/orgAccount/activeAccount.js";
+import { useActiveAccount } from "src/core/org/hooks/useActiveAccount.js";
+import { useAllAccountsView } from "src/core/org/hooks/useAllAccountsView.js";
 import { isBusy } from "src/products/leads/hooks/audience.js";
 import { ArrowUpRight, PanelRight } from "lucide-react";
-import { hubLeadColumns, hubLeadEnrichColumns, leadRowTone } from "./components/columns.jsx";
+import { hubLeadColumns, hubLeadColumnsForAllAccounts, hubLeadEnrichColumns, leadRowTone } from "./components/columns.jsx";
 import { LeadDrawer } from "./components/LeadDrawer.jsx";
 import { NewAudienceModal } from "./components/NewAudienceModal.jsx";
 import { AudiencePicker } from "./components/AudiencePicker.jsx";
@@ -135,6 +137,16 @@ export function HubLeadsPage() {
   const sendBlocked = sending.needsPick;
   const sendBlockedReason = sendBlocked ? "Pick an account in 'Acting as' first." : undefined;
   const location = useLocation();
+  const navigate = useNavigate();
+  const [activeAccountId] = useActiveAccount();
+  const [allView, setAllView] = useAllAccountsView();
+  const knownAccounts = getKnownAccounts().accounts;
+  const activeName = knownAccounts.find((a) => String(a.id) === String(activeAccountId));
+  // Every account's leads at once: the single Degree column and filter do not apply, "Found by" does.
+  const leadColumns = allView ? hubLeadColumnsForAllAccounts(knownAccounts) : hubLeadColumns;
+  // Acting as an account that has found nothing yet looks like an empty app: say so, and offer the way out.
+  const hasFilters = Boolean(activeSearchId || query || (companies && companies.length) || (connectionDegree && connectionDegree.length) || activityType);
+  const showAllHint = !allView && !loading && leads.length === 0 && !hasFilters && knownAccounts.length >= 2 && sending.isOrg;
   const [searchParams, setSearchParams] = useSearchParams();
   const [audienceOpen, setAudienceOpen] = useState(false);
   const [newListOpen, setNewListOpen] = useState(false);
@@ -162,10 +174,18 @@ export function HubLeadsPage() {
       setAudiencePrefill({ company: { id: String(arrivalCompanyId), title: arrivalCompanyName || "Company" } });
     }
   }, [arrivalTab, arrivalNewAudience, arrivalCompanyId, arrivalCompanyName, setActiveTab]);
-  const closeAudience = useCallback(() => {
+  const closeAudience = () => {
     setAudienceOpen(false);
     setAudiencePrefill(null);
-  }, []);
+    // Arrived through a one-shot "open the dialog" state: drop it so a re-mount (another account) does not reopen it.
+    if (location.state?.newAudience) navigate(location.pathname + location.search, { replace: true, state: null });
+  };
+
+  // Fetching goes through ONE account. Changing it here re-points the page to that account and reopens this dialog.
+  const changeFetchAccount = (id) => {
+    setActiveAccountId(id);
+    navigate(location.pathname + location.search, { replace: true, state: { newAudience: true } });
+  };
 
   /* Arriving from a notification's "?lead=<id>" deep link (connection
      accepted, enrichment finished) — open that lead's drawer straight away.
@@ -241,7 +261,7 @@ export function HubLeadsPage() {
 
   const picker = (
     <>
-      <DegreeFilter value={connectionDegree} onChange={setConnectionDegree} />
+      {!allView && <DegreeFilter value={connectionDegree} onChange={setConnectionDegree} />}
       <ActivityFilter value={activityType} onChange={setActivityType} />
       <CompanyFilter value={companies} onChange={setCompanies} searchId={activeSearchId} />
       <AudiencePicker
@@ -289,17 +309,24 @@ export function HubLeadsPage() {
       {activeTab === "all" && (
         <DataTable
           className="flex-1"
-          columns={hubLeadColumns}
+          columns={leadColumns}
           data={leads}
           loading={loading}
           banner={workingLine}
-          emptyMessage={activeSearchId ? t.table.emptyMessageFiltered : t.table.emptyMessageAll}
-          emptyHint={searches.length === 0 ? t.table.emptyHintNoAudience : t.table.emptyHintImporting}
+          emptyMessage={showAllHint ? t.table.emptyForAccount(activeName?.name || activeName?.publicIdentifier || "this account") : activeSearchId ? t.table.emptyMessageFiltered : t.table.emptyMessageAll}
+          emptyHint={showAllHint ? t.table.emptyForAccountHint : searches.length === 0 ? t.table.emptyHintNoAudience : t.table.emptyHintImporting}
           emptyIcon={<LeadsIcon size={22} strokeWidth={1.6} />}
           emptyAction={
-            <Button variant="primary" onClick={() => setAudienceOpen(true)} disabled={needsAccount}>
-              {t.newAudience}
-            </Button>
+            <div className="flex items-center gap-2">
+              {showAllHint && (
+                <Button variant="secondary" onClick={() => setAllView(true)}>
+                  {t.table.viewAllAccounts}
+                </Button>
+              )}
+              <Button variant="primary" onClick={() => setAudienceOpen(true)} disabled={needsAccount}>
+                {t.newAudience}
+              </Button>
+            </div>
           }
           selectable
           selectedKeys={selected}
@@ -473,6 +500,9 @@ export function HubLeadsPage() {
         usage={usage}
         companyPages={companyPages}
         prefill={audiencePrefill}
+        accounts={sending.isOrg ? knownAccounts : []}
+        accountId={activeAccountId}
+        onAccountChange={changeFetchAccount}
       />
 
       <DuplicateSearchDialog duplicate={duplicate} onChoose={resolveDuplicate} submitting={submitting} />

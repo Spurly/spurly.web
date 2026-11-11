@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { useLocation } from "react-router-dom";
 import { useActiveAccount } from "src/core/org/hooks/useActiveAccount.js";
+import { useAllAccountsView } from "src/core/org/hooks/useAllAccountsView.js";
 import { ORG_ACCOUNT_PAGES } from "src/core/org/constants/constants.js";
 
 /**
@@ -13,6 +14,7 @@ import { ORG_ACCOUNT_PAGES } from "src/core/org/constants/constants.js";
 export function AccountScope({ children }) {
   const { pathname } = useLocation();
   const [accountId] = useActiveAccount();
+  const [allView] = useAllAccountsView();
   const bound = ORG_ACCOUNT_PAGES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-  return <Fragment key={bound ? accountId || "none" : "static"}>{children}</Fragment>;
+  return <Fragment key={bound ? (allView ? "all" : accountId || "none") : "static"}>{children}</Fragment>;
 }

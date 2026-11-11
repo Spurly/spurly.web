@@ -44,7 +44,7 @@ export const ORG_ACCOUNT_TONE = {
 
 export const ORG_COPY = {
   sendingAs: { label: 'Sending as ', pick: 'Pick an account in "Acting as" to continue', blocked: 'Pick an account in "Acting as" first.', discardTitle: 'Switch account?', discardBody: 'Your unsaved draft is built for the current account and would be discarded.', discardConfirm: 'Switch and discard' },
-  switcher: { label: 'Acting as', unnamed: 'LinkedIn account', notUsedHere: 'This page does not use a LinkedIn account' },
+  switcher: { label: 'Acting as', all: 'All accounts', unnamed: 'LinkedIn account', notUsedHere: 'This page does not use a LinkedIn account' },
   login: {
     title: 'Sign in to your organization',
     subEmail: "Enter your organization's email. We'll send you a 6-digit code.",

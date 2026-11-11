@@ -24,3 +24,13 @@ export const ORG_ACCOUNT_BOUND_PATHS = [
 
 /** Create calls that read the account from the request BODY (everything else reads it from the query). */
 export const ORG_ACCOUNT_BODY_PATHS = [/^\/hub\/campaigns$/, /^\/hub\/sequences$/, /^\/hub\/network\/sync$/];
+
+/**
+ * "All accounts" view: on these pages the member may look at every account's data at once (no account is sent on the
+ * list reads below). Everywhere else one account is always in effect.
+ */
+export const ORG_ALL_VIEW_PAGES = ['/hub/leads'];
+/** GET requests that, in the all-accounts view, are sent WITHOUT an account so the server returns every account's rows. */
+export const ORG_ALL_VIEW_READS = [/^\/hub\/leads$/, /^\/hub\/lead-companies$/, /^\/hub\/searches(\/[^/]+)?$/];
+/** One lead's own requests (open, enrich, follow...) in the all-accounts view act through an account that holds that lead. */
+export const ORG_LEAD_PATH = /^\/hub\/leads\/([^/]+)\//;

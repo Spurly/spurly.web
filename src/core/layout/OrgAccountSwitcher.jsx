@@ -3,10 +3,12 @@ import { useLocation } from "react-router-dom";
 import { Dropdown, useConfirm } from "src/core/primitives";
 import { useOrganizations, useOrgAccounts } from "src/core/org/hooks/useOrganization.js";
 import { useActiveAccount } from "src/core/org/hooks/useActiveAccount.js";
+import { useAllAccountsView } from "src/core/org/hooks/useAllAccountsView.js";
 import { ORG_COPY, ORG_ACCOUNT_PAGES } from "src/core/org/constants/constants.js";
 import { getKnownAccounts, rememberAccounts } from "src/shared/orgAccount/activeAccount.js";
 import { hasDirtyDraft } from "src/shared/orgAccount/draftGuard.js";
 
+const ALL_VALUE = "__all__";
 const usesAccount = (pathname) => ORG_ACCOUNT_PAGES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
 /**
@@ -24,6 +26,7 @@ function Picker({ orgId, expanded }) {
   const { pathname } = useLocation();
   const { accounts } = useOrgAccounts(orgId);
   const [activeId, setActive] = useActiveAccount();
+  const [allView, setAllView, allSupported] = useAllAccountsView();
   const confirm = useConfirm();
   const usable = useMemo(() => (accounts || []).filter((a) => a.status === "OK"), [accounts]);
   const known = useMemo(() => getKnownAccounts(), [accounts]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -44,7 +47,9 @@ function Picker({ orgId, expanded }) {
   }, [accounts, usable, activeId, orgId, setActive]);
 
   if (!expanded || shown.length < 2) return null;
-  const options = shown.map((a) => [String(a.id), a.name || a.publicIdentifier || ORG_COPY.switcher.unnamed]);
+  const accountOptions = shown.map((a) => [String(a.id), a.name || a.publicIdentifier || ORG_COPY.switcher.unnamed]);
+  // The leads page can also show every account's leads at once.
+  const options = allSupported ? [[ALL_VALUE, ORG_COPY.switcher.all], ...accountOptions] : accountOptions;
   const active = usesAccount(pathname);
 
   return (
@@ -57,14 +62,15 @@ function Picker({ orgId, expanded }) {
       <Dropdown
         variant="dashboard"
         size="sm"
-        value={activeId || options[0][0]}
+        value={allView ? ALL_VALUE : activeId || accountOptions[0][0]}
         options={options}
         ariaLabel={ORG_COPY.switcher.label}
         disabled={!active}
         // Same surface as "Ask Spurly" above it: the rail's translucent card and hairline border, light text, flat (no white gradient).
         className="w-full [--ui-control-bg:none] [--ui-control-shadow:none] [--ui-control-shadow-hover:none] [&_button]:w-full [&_button]:max-w-none [&_button]:h-[34px] [&_button]:!rounded-[var(--ui-radius-btn)] [&_button]:!text-[var(--ui-text-primary)] [&_svg]:!text-[var(--ui-text-secondary)]"
         onChange={(next) => {
-          if (next === activeId) return;
+          if (next === ALL_VALUE) { if (!allView) setAllView(true); return; }
+          if (next === activeId && !allView) return;
           // D60: a builder draft is built for one account. Never lose it or re-point it silently: ask first.
           if (hasDirtyDraft()) {
             confirm({

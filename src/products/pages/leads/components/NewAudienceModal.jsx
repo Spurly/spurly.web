@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Checkbox, Dialog, Input, SoonTag, StatTile } from 'src/core/primitives';
+import { Button, Checkbox, Dialog, Dropdown, Input, SoonTag, StatTile } from 'src/core/primitives';
 import { ArrowRightIcon, ImportIcon, LeadsIcon, LinkIcon, MessageIcon, SlidersIcon, SparkIcon } from 'src/core/icons';
 import { FilterTagPicker } from './FilterTagPicker.jsx';
 import { postUrlProblem, urlProblem } from './AudienceForm.jsx';
@@ -140,7 +140,7 @@ function SourceOption({ source, active, onPick }) {
   );
 }
 
-export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, creditBalance = 0, usage = null, companyPages = [], prefill = null }) {
+export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, creditBalance = 0, usage = null, companyPages = [], prefill = null, accounts = [], accountId = '', onAccountChange = null }) {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [source, setSource] = useState('url');
@@ -467,6 +467,27 @@ export function NewAudienceModal({ open, onClose, onSubmit, submitting = false, 
             <MicroLabel htmlFor="audience-name">Audience name</MicroLabel>
             <Input id="audience-name" size="sm" fullWidth value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. EU logistics — VP+ (optional)" />
           </div>
+
+          {/* An organization with several accounts fetches through ONE of them: highlighted, right before the limits it decides. */}
+          {accounts.length >= 2 && onAccountChange && (
+            <div className="rounded-[var(--ui-radius-md)] border border-[var(--ui-accent-border)] bg-[var(--ui-accent-tint)] p-3 shadow-[0_6px_20px_-8px_var(--ui-accent-border)]">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <span className="block text-[length:var(--ui-t-body)] font-medium text-[var(--ui-accent-fg)]">Fetch from</span>
+                  <p className="mt-0.5 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">Fetched with this LinkedIn account, under its own limits below. The audience belongs to it.</p>
+                </div>
+                <Dropdown
+                  variant="dashboard"
+                  size="sm"
+                  value={String(accountId || accounts[0].id)}
+                  onChange={(v) => { if (String(v) !== String(accountId)) onAccountChange(String(v)); }}
+                  ariaLabel="Fetch from"
+                  disabled={submitting}
+                  options={accounts.map((a) => [String(a.id), a.name || a.publicIdentifier || 'LinkedIn account'])}
+                />
+              </div>
+            </div>
+          )}
 
           <FetchCountField id="audience-count" value={fetchCount} onChange={setFetchCount} usage={usage} disabled={submitting} />
 

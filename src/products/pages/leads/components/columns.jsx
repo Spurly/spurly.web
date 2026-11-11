@@ -120,6 +120,12 @@ function activityOf(row = {}) {
   return { label: null, at: null };
 }
 
+/** Names of the accounts that hold a lead, for the all-accounts view. */
+function foundByText(row, names) {
+  const list = (row.orgAccountIds || []).map((id) => names.get(String(id))).filter(Boolean);
+  return list.join(', ');
+}
+
 export const hubLeadColumns = [
   {
     key: 'name',
@@ -227,3 +233,21 @@ export function EnrichStatusCell({ value, row = {} }) {
  * (kept so the page, and anything importing it, stays unchanged).
  */
 export const hubLeadEnrichColumns = hubLeadColumns;
+
+/**
+ * The leads table for the all-accounts view: how far each account is connected to a person is different per account, so
+ * the single "Degree" column makes no sense here and is dropped; "Found by" says which accounts hold each person.
+ */
+export function hubLeadColumnsForAllAccounts(accounts = []) {
+  const names = new Map(accounts.map((a) => [String(a.id), a.name || a.publicIdentifier || 'LinkedIn account']));
+  const found = {
+    key: 'orgAccountIds',
+    label: 'Found by',
+    width: 170,
+    title: (row) => foundByText(row, names),
+    render: (value, row) => <TextCell value={foundByText(row, names) || null} tone="secondary" />,
+  };
+  const rest = hubLeadColumns.filter((col) => col.key !== 'connectionDegree');
+  const at = rest.findIndex((col) => col.key === 'location');
+  return [...rest.slice(0, at + 1), found, ...rest.slice(at + 1)];
+}

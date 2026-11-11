@@ -1,6 +1,7 @@
 import apiGateway from 'src/shared/gateway/apiGateway.js';
 import { Audience } from '../entities/audience.js';
 import { Lead } from '../entities/lead.js';
+import { rememberLeadAccounts } from 'src/shared/orgAccount/activeAccount.js';
 
 /**
  * Hub sourcing API client.
@@ -167,6 +168,7 @@ async function listLeads({ searchId, q, enrichmentStatus, connectionDegree, acti
   if (activityType) params.activityType = activityType;
   const res = await apiGateway.get('/hub/leads', { params });
   const data = res.data?.data ?? { leads: [], pagination: { page: 1, limit, total: 0 } };
+  rememberLeadAccounts(data.leads ?? []);
   return { ...data, leads: Lead.fromList(data.leads ?? []) };
 }
 
