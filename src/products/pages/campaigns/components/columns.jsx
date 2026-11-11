@@ -38,7 +38,25 @@ const SKIP_REASON = {
   unresolvable: 'No LinkedIn id to send to',
   self: 'This is you',
   'sender-removed': 'The account that would send was removed',
+  'held-by-other-account': 'Already in another campaign or sequence',
+  'degree-unknown': 'Could not tell how your accounts are linked to them',
 };
+
+/** Why an account did NOT send to this person, in the user's words (shown next to the account's name). */
+const EXCLUDED_REASON = {
+  'already-connected': 'already connected',
+  'not-connected': 'not connected yet',
+  'degree-unknown': 'link unknown',
+  'held-by-other-account': 'already in another campaign or sequence',
+};
+
+/** "Not sent from Sarthak (already connected)" for the accounts that skipped this person; '' when none. */
+export function excludedText(notes = []) {
+  const parts = notes.map((n) => `${n.name || 'An account'} (${EXCLUDED_REASON[n.reason] || n.reason})`);
+  return parts.length ? `Not sent from ${parts.join(', ')}` : '';
+}
+
+const whyText = (row) => [SKIP_REASON[row.skipReason] || row.lastError || '', excludedText(row.excludedNotes)].filter(Boolean).join(' · ');
 
 export const hubMemberColumns = [
   {
@@ -87,7 +105,15 @@ export const hubPoolMemberColumns = [
     key: 'senderName',
     label: 'Sent from',
     width: 160,
-    render: (value) => <TextCell value={value || null} tone="secondary" />,
+    render: (value, row) => <TextCell value={value || (row.status === 'pending' ? 'Decided when it is sent' : null)} tone="secondary" />,
   },
-  ...hubMemberColumns.slice(1),
+  hubMemberColumns[1],
+  {
+    key: 'skipReason',
+    label: 'Why',
+    width: 320,
+    title: (row) => whyText(row),
+    render: (value, row) => <TextCell value={whyText(row) || null} tone="secondary" />,
+  },
+  hubMemberColumns[3],
 ];

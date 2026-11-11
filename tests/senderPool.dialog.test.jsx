@@ -146,3 +146,29 @@ describe('error copy (D97)', () => {
     expect(poolErrorText({ response: { data: { code: 'NEW_ONE', message: 'NEW_ONE' } } })).toBe(campaignsStrings.errors.fallback);
   });
 });
+
+describe('SenderPoolDialog: ask who sends (one account or several)', () => {
+  it('defaults to one account, the acting one, and creates straight away with just that account', async () => {
+    const onConfirm = vi.fn();
+    render(<SenderPoolDialog open onClose={() => {}} askWho allowTypeChoice={false} defaultType="message" actingAccountId="a2" pool={makePool({ selected: [] })} leadCount={3} onConfirm={onConfirm} />);
+    expect(screen.queryByRole('button', { name: campaignsStrings.pool.previewButton })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: campaignsStrings.pool.create }));
+    expect(onConfirm).toHaveBeenCalledWith({ accountIds: ['a2'], type: 'message' });
+  });
+
+  it('several accounts needs the preview before it can create, then sends the ticked accounts', async () => {
+    const onConfirm = vi.fn();
+    const { rerender } = render(<SenderPoolDialog open onClose={() => {}} askWho allowTypeChoice={false} defaultType="connect" pool={makePool()} leadCount={3} onConfirm={onConfirm} />);
+    await userEvent.click(screen.getByRole('radio', { name: campaignsStrings.pool.whoSeveral }));
+    expect(screen.getByRole('button', { name: campaignsStrings.pool.create })).toBeDisabled();
+    const preview = { total: 2, perAccount: [], refused: [] };
+    rerender(<SenderPoolDialog open onClose={() => {}} askWho allowTypeChoice={false} defaultType="connect" pool={makePool({ preview })} leadCount={3} onConfirm={onConfirm} />);
+    await userEvent.click(screen.getByRole('button', { name: campaignsStrings.pool.create }));
+    expect(onConfirm).toHaveBeenCalledWith({ accountIds: ['a1', 'a2'], type: 'connect' });
+  });
+
+  it('needs selected leads even for one account', () => {
+    render(<SenderPoolDialog open onClose={() => {}} askWho allowTypeChoice={false} pool={makePool({ selected: [] })} leadCount={0} onConfirm={() => {}} />);
+    expect(screen.getByRole('button', { name: campaignsStrings.pool.create })).toBeDisabled();
+  });
+});

@@ -50,9 +50,9 @@ export function useSequenceDetail({ inbox = true } = {}) {
     sequenceController.listEnrollments(eventEmitter, id, { status: statusFilter || undefined, q: search || undefined, page });
   }, [eventEmitter, id, statusFilter, search]);
 
-  const start = useCallback(() => {
+  const start = useCallback((accountIds = null) => {
     setBusy(true);
-    sequenceController.startSequence(eventEmitter, id);
+    sequenceController.startSequence(eventEmitter, id, accountIds);
   }, [eventEmitter, id]);
 
   const pause = useCallback(() => {
@@ -127,7 +127,7 @@ export function useSequenceDetail({ inbox = true } = {}) {
       load();
     }
     function handleStartFailure(error) {
-      toast.error(getToastError(error, 'Could not start that sequence'));
+      toast.error(getToastError(error, poolErrorText(error) === campaignsStrings.errors.fallback ? 'Could not start that sequence' : poolErrorText(error)));
       if (mountedRef.current) setBusy(false);
     }
     function handlePauseSuccess() {

@@ -669,6 +669,7 @@ export function useLeadsPage() {
     previewEmitter.once(SEQUENCE_EVENTS.PREVIEW_SEQUENCE_SUCCESS, (summary) => {
       const lines = (summary.perAccount || []).map((r) => `${r.name || 'An account'}: ${r.count}`).join(', ');
       const left = (summary.refused || []).reduce((n, r) => n + r.count, 0);
+      const picked = selected.size;
       if (mountedRef.current) setEnrolling(false);
       if (!summary.total) {
         toast.error('None of these people can be enrolled from this sequence\'s accounts right now. Try different leads.');
@@ -676,7 +677,7 @@ export function useLeadsPage() {
       }
       confirm({
         title: 'Enroll from several accounts?',
-        body: `${summary.total} ${summary.total === 1 ? 'person' : 'people'} will be enrolled (${lines}).${left ? ` ${left} cannot be enrolled from these accounts and will be left out.` : ''}`,
+        body: `${picked} ${picked === 1 ? 'person' : 'people'} will be enrolled. Each account that can run the first step sends from its own account, under its own limits. Right now: ${lines}.${left ? ` ${left} cannot be reached from these accounts yet and will be skipped, with the reason shown.` : ''}`,
         confirmLabel: 'Enroll',
       }).then((ok) => { if (ok) doEnroll(sequenceId); });
     });
@@ -687,7 +688,7 @@ export function useLeadsPage() {
     sequenceController.previewSequence(previewEmitter, { sequenceId, leadIds: [...selected] });
   }, [selected, enrolling, sequences, confirm, toast, doEnroll]);
 
-  /** Create a campaign that sends from several accounts (the dialog has already shown the split). */
+  /** Create a campaign ready for several accounts. Nobody is assigned yet: the run decides, person by person, who sends. */
   const createPoolCampaign = useCallback(({ accountIds, type }) => {
     if (selected.size === 0 || creating) return;
     setCreating(true);
@@ -705,6 +706,7 @@ export function useLeadsPage() {
     });
     callEmitter.once(CAMPAIGN_EVENTS.CREATE_CAMPAIGN_FAILURE, (error) => {
       setPoolCreateError(error);
+      toast.error(getToastError(error, 'Could not create that campaign. Nothing was sent.'));
       if (mountedRef.current) setCreating(false);
     });
     campaignController.createCampaign(callEmitter, { type, leadIds: [...selected], accountIds });

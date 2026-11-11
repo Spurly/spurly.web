@@ -10,6 +10,15 @@
 const pageSubtitle = 'Steps Spurly runs for everyone you enroll — visit, connect, wait, message — spaced like a person would.';
 
 export const sequencesStrings = {
+  start: {
+    title: 'Start this sequence',
+    resumeTitle: 'Resume this sequence',
+    description: 'Choose which LinkedIn accounts run it. Each account sends from its own account, under its own limits, paced like a person would.',
+    cancel: 'Cancel',
+    start: 'Start',
+    resume: 'Resume',
+    starting: 'Starting…',
+  },
   list: {
     pageTitle: 'Sequences',
     pageSubtitle,

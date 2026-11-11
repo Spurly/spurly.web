@@ -2,6 +2,7 @@ import { LinkedInIcon } from 'src/core/icons';
 import { TextCell, PersonCell, LinkCell, DateCell } from 'src/core/DataTable';
 import { Badge } from 'src/core/primitives';
 import { stepTypeLabel } from 'src/products/sequences/stepTypes.js';
+import { excludedText } from '../../campaigns/components/columns.jsx';
 
 /**
  * Columns for one sequence's enrollments table.
@@ -35,6 +36,10 @@ const STOP_REASON = {
   // The backend stops an enrollment the moment the lead replies (Phase 10, sequences/service runOneEnrollment).
   'lead-replied': 'Replied — handed to you',
   'sender-removed': 'Stopped: the account that was sending was removed',
+  'held-by-other-account': 'Not started: already in another campaign or sequence',
+  'degree-unknown': 'Not started: could not tell how your accounts are linked to them',
+  'not-connected': 'Not started: none of your accounts is connected to them yet',
+  'no-usable-sender': 'Stopped: no account was able to send',
 };
 
 /** v2 history reads "Condition → Yes", "Message → done". */
@@ -106,6 +111,13 @@ export function hubEnrollmentColumns(steps = [], { tree = false, pool = false } 
         );
       },
     },
+    ...(pool ? [{
+      key: 'excludedNotes',
+      label: 'Why',
+      width: 260,
+      title: (row) => excludedText(row.excludedNotes),
+      render: (value, row) => <TextCell value={excludedText(row.excludedNotes) || null} tone="secondary" />,
+    }] : []),
     {
       key: 'lastEvent',
       label: 'Last event',

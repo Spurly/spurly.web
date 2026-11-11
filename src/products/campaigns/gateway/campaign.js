@@ -77,8 +77,8 @@ async function updateCampaign(id, { name, note, messageTemplate } = {}) {
 }
 
 /** POST /hub/campaigns/:id/start — begin or resume sending. */
-async function startCampaign(id) {
-  const res = await apiGateway.post(`/hub/campaigns/${id}/start`);
+async function startCampaign(id, accountIds = null) {
+  const res = await apiGateway.post(`/hub/campaigns/${id}/start`, Array.isArray(accountIds) && accountIds.length ? { accountIds } : undefined);
   return Campaign.fromResponse(res.data?.data?.campaign ?? null);
 }
 

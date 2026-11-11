@@ -18,7 +18,9 @@ import { SequenceFlowBuilder } from './components/SequenceFlowBuilder.jsx';
 import { SequenceTreeBuilder } from './components/SequenceTreeBuilder.jsx';
 import { BranchCounts } from './components/BranchCounts.jsx';
 import { StopRulesButton } from './components/StopRulesButton.jsx';
-import { isTreeSequence } from 'src/products/sequences/treeModel.js';
+import { isTreeSequence, listOf } from 'src/products/sequences/treeModel.js';
+import { StartSequenceDialog } from './components/StartSequenceDialog.jsx';
+import { getKnownAccounts } from 'src/shared/orgAccount/activeAccount.js';
 import { hubEnrollmentColumns } from './components/columns.jsx';
 import { SendersPanel, hasSenderToRebalance } from '../campaigns/components/SendersPanel.jsx';
 import { campaignsStrings } from '../campaigns/strings.js';
@@ -72,6 +74,7 @@ export function SequenceDetailPage() {
     loadEnrollments,
   } = useSequenceDetail({ inbox });
   const [pane, setPane] = useState('flow');
+  const [startOpen, setStartOpen] = useState(false);
   const [selectedStep, setSelectedStep] = useState(null);
 
   if (loading && !sequence) {
@@ -105,9 +108,15 @@ export function SequenceDetailPage() {
   const view = STATUS_VIEW[sequence.status] ?? STATUS_VIEW.draft;
   const senders = data.senders ?? null; // present only for a sequence that sends from several accounts
   const isPool = Array.isArray(senders);
+  // The "who sends" question is asked when starting a sequence that is not already running, for an org with several accounts.
+  const knownAccounts = getKnownAccounts().accounts;
+  const canChooseAccounts = knownAccounts.length >= 2 && (isPool ? sequence.status === 'draft' : sequence.status !== 'running' && sequence.status !== 'done');
+  const firstStep = (isTreeSequence(sequence) ? listOf(sequence.steps || [])[0] : (sequence.steps || [])[0])?.type || 'connect';
   const canRebalance = isPool && sequence.status === 'paused' && hasSenderToRebalance(senders);
   const counts = data.enrollmentCounts ?? {};
-  const totalEnrolled = Object.values(counts).reduce((a, b) => a + b, 0);
+  // `people` counts each person once (several accounts can run the same person), so it is not one of the row statuses.
+  const { people: peopleCount, ...rowCounts } = counts;
+  const totalEnrolled = Object.values(rowCounts).reduce((a, b) => a + b, 0);
   const isDraft = sequence.status === 'draft';
   const finishedCount = counts.completed ?? 0;
   const steps = isDraft ? draftSteps ?? sequence.steps : sequence.steps;
@@ -122,6 +131,7 @@ export function SequenceDetailPage() {
   ];
 
   const outcomeFacts = [
+    ...(peopleCount != null && isPool ? [{ label: 'People', value: peopleCount }] : []),
     { label: 'Completed', value: counts.completed ?? 0, tone: 'var(--ui-success-fg)' },
     { label: 'Stopped', value: counts.stopped ?? 0 },
     { label: 'Failed', value: counts.failed ?? 0, tone: (counts.failed ?? 0) > 0 ? 'var(--ui-danger-fg)' : undefined },
@@ -172,7 +182,7 @@ export function SequenceDetailPage() {
               {t.pause}
             </Button>
           ) : (
-            <Button variant="primary" leadingIcon={<Play size={13} />} disabled={busy || sequence.status === 'done'} onClick={start}>
+            <Button variant="primary" leadingIcon={<Play size={13} />} disabled={busy || sequence.status === 'done'} onClick={() => (canChooseAccounts ? setStartOpen(true) : start())}>
               {sequence.status === 'paused' ? t.resume : t.start}
             </Button>
           )}
@@ -366,6 +376,18 @@ export function SequenceDetailPage() {
           )}
         </aside>
       </div>
+      {startOpen && (
+        <StartSequenceDialog
+          onClose={() => setStartOpen(false)}
+          confirming={busy}
+          onConfirm={(accountIds) => { setStartOpen(false); start(accountIds); }}
+          accounts={knownAccounts}
+          ownAccountId={sequence.orgAccountId || null}
+          poolAccountIds={isPool ? senders.map((x) => String(x.accountId)) : []}
+          firstStep={firstStep}
+          resume={sequence.status === 'paused'}
+        />
+      )}
     </DashboardLayout>
   );
 }

@@ -75,9 +75,9 @@ export function useCampaignDetail() {
   const campaign = data?.campaign ?? null;
   const running = campaign?.status === 'running';
 
-  const start = useCallback(() => {
+  const start = useCallback((accountIds = null) => {
     setBusy(true);
-    campaignController.startCampaign(eventEmitter, id);
+    campaignController.startCampaign(eventEmitter, id, accountIds);
   }, [eventEmitter, id]);
 
   /**
@@ -115,8 +115,9 @@ export function useCampaignDetail() {
     setPreviewOpen(false);
   }, [busy]);
 
-  const confirmStart = useCallback(() => {
-    start();
+  // `accountIds`: the accounts chosen in the Start dialog (several = one campaign sent from all of them), or none.
+  const confirmStart = useCallback((accountIds = null) => {
+    start(accountIds);
     setPreviewOpen(false);
   }, [start]);
 
@@ -176,7 +177,7 @@ export function useCampaignDetail() {
       loadMembers(pagination.page);
     }
     function handleStartFailure(error) {
-      toast.error(getToastError(error, 'Could not start that campaign'));
+      toast.error(getToastError(error, poolErrorText(error) === campaignsStrings.errors.fallback ? 'Could not start that campaign' : poolErrorText(error)));
       if (mountedRef.current) setBusy(false);
     }
     function handlePauseSuccess() {

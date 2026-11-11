@@ -20,6 +20,7 @@ import { hubMemberColumns, hubPoolMemberColumns } from './components/columns.jsx
 import { SendersPanel, hasSenderToRebalance } from './components/SendersPanel.jsx';
 import { CAMPAIGN_STATUS_VIEW as STATUS_VIEW } from './components/statusView.js';
 import { campaignsStrings } from './strings.js';
+import { getKnownAccounts } from 'src/shared/orgAccount/activeAccount.js';
 
 const TONE_DOT = {
   neutral: 'var(--ui-text-quaternary)',
@@ -106,6 +107,8 @@ export function CampaignDetailPage() {
   const senders = data.senders ?? null; // present only for a campaign that sends from several accounts
   const isPool = Array.isArray(senders);
   const memberColumns = isPool ? hubPoolMemberColumns : hubMemberColumns;
+  // An organization with several accounts can choose, at Start, whether several of them send this campaign.
+  const canChooseAccounts = isPool ? campaign.status === 'draft' : campaign.status !== 'running' && campaign.status !== 'done';
   const canRebalance = isPool && campaign.status === 'paused' && hasSenderToRebalance(senders);
   const counts = data.counts ?? {};
   const isMessage = (campaign.type || 'connect') === 'message';
@@ -124,13 +127,13 @@ export function CampaignDetailPage() {
 
   const readings = isMessage
     ? [
-        { label: 'People', value: counts.total ?? 0 },
+        { label: 'People', value: counts.people ?? counts.total ?? 0 },
         { label: 'Queued', value: counts.pending ?? 0 },
         { label: 'Messaged', value: counts.messaged ?? 0 },
         { label: 'Failed', value: counts.failed ?? 0 },
       ]
     : [
-        { label: 'People', value: counts.total ?? 0 },
+        { label: 'People', value: counts.people ?? counts.total ?? 0 },
         { label: 'Queued', value: counts.pending ?? 0 },
         { label: 'Invited', value: counts.invited ?? 0 },
         { label: 'Failed', value: counts.failed ?? 0 },
@@ -159,7 +162,7 @@ export function CampaignDetailPage() {
     : null;
 
   const metaParts = [
-    `${(counts.total ?? 0).toLocaleString()} people`,
+    `${(counts.people ?? counts.total ?? 0).toLocaleString()} people`,
     `${doneCount.toLocaleString()} ${doneVerb}`,
     isMessage ? null : `${(counts.connected ?? 0).toLocaleString()} accepted`,
     campaign.lastRunAt ? `last send ${sinceLabel(campaign.lastRunAt)}` : null,
@@ -342,6 +345,9 @@ export function CampaignDetailPage() {
           membersLoading={previewLoading}
           pendingCount={counts.pending ?? 0}
           senderName={senderName}
+          accounts={canChooseAccounts ? getKnownAccounts().accounts : []}
+          ownAccountId={campaign.orgAccountId || null}
+          poolAccountIds={isPool ? senders.map((x) => String(x.accountId)) : []}
         />
       )}
     </DashboardLayout>

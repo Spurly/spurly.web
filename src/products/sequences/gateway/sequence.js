@@ -73,8 +73,8 @@ async function enrollLeads(id, { leadIds, searchId } = {}) {
 }
 
 /** POST /hub/sequences/:id/start — begin or resume running. */
-async function startSequence(id) {
-  const res = await apiGateway.post(`/hub/sequences/${id}/start`);
+async function startSequence(id, accountIds = null) {
+  const res = await apiGateway.post(`/hub/sequences/${id}/start`, Array.isArray(accountIds) && accountIds.length ? { accountIds } : undefined);
   return Sequence.fromResponse(res.data?.data?.sequence ?? null);
 }
 

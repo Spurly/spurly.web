@@ -65,9 +65,9 @@ async function enrollLeads(eventEmitter, id, options) {
   }
 }
 
-async function startSequence(eventEmitter, id) {
+async function startSequence(eventEmitter, id, accountIds = null) {
   try {
-    const sequence = await hubSequencesGateway.startSequence(id);
+    const sequence = await hubSequencesGateway.startSequence(id, accountIds);
     eventEmitter.emit(SEQUENCE_EVENTS.START_SEQUENCE_SUCCESS, sequence);
   } catch (error) {
     eventEmitter.emit(SEQUENCE_EVENTS.START_SEQUENCE_FAILURE, error);

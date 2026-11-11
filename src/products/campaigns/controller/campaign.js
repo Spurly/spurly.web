@@ -69,9 +69,9 @@ async function updateCampaign(eventEmitter, id, patch) {
   }
 }
 
-async function startCampaign(eventEmitter, id) {
+async function startCampaign(eventEmitter, id, accountIds = null) {
   try {
-    const data = await hubCampaignsGateway.startCampaign(id);
+    const data = await hubCampaignsGateway.startCampaign(id, accountIds);
     eventEmitter.emit(CAMPAIGN_EVENTS.START_CAMPAIGN_SUCCESS, data);
   } catch (error) {
     eventEmitter.emit(CAMPAIGN_EVENTS.START_CAMPAIGN_FAILURE, error);

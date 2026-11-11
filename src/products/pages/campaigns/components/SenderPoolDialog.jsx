@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, Button, Checkbox, Dropdown } from 'src/core/primitives';
+import { Dialog, Button, Checkbox, Dropdown, FilterPills } from 'src/core/primitives';
 import { campaignsStrings } from '../strings.js';
 import { refusalText, poolErrorText } from './refusalCopy.js';
 
@@ -10,15 +10,27 @@ const t = campaignsStrings.pool;
  * The preview is read-only. Nothing here pre-checks 1st-degree for the acting account: the server decides per person
  * which ticked account can reach them and the table says who is left out and why.
  *
+ * With `askWho` the dialog first asks WHO sends: one account (default: the acting account) or several. One account
+ * needs no preview, several shows the split first. `onConfirm({ accountIds, type })` gets one id or the ticked ids.
+ *
  * `pool` is the useSenderPool state; `onConfirm({ accountIds, type })` creates (the page owns what happens next).
  */
-export function SenderPoolDialog({ open, onClose, pool, leadCount = 0, allowTypeChoice = true, defaultType = 'connect', previewParams = {}, onConfirm, creating = false, createError = null }) {
-  const [type, setType] = useState(defaultType);
+export function SenderPoolDialog({ open, onClose, pool, leadCount = 0, allowTypeChoice = true, defaultType = 'connect', askWho = false, actingAccountId = null, previewParams = {}, onConfirm, creating = false, createError = null }) {
+  const [pickedType, setType] = useState(defaultType);
+  // With askWho the caller says which button opened this (it can change while the dialog stays mounted).
+  const type = askWho ? defaultType : pickedType;
+  const [who, setWho] = useState('one');
+  const [oneId, setOneId] = useState(null);
   const { accounts, selected, toggle, validation, preview, loading, error, requestPreview } = pool;
   const noLeads = leadCount === 0;
   const canPreview = validation.ok && !noLeads && !loading;
   const nothingToSend = preview && (preview.total ?? 0) === 0;
-  const canCreate = canPreview && !!preview && !nothingToSend && !creating;
+  const several = !askWho || who === 'several';
+  const actingKnown = accounts.some((a) => String(a.id) === String(actingAccountId));
+  const oneChosen = oneId || (actingKnown ? String(actingAccountId) : accounts[0] ? String(accounts[0].id) : null);
+  const canCreate = several
+    ? canPreview && !!preview && !nothingToSend && !creating
+    : !noLeads && !!oneChosen && !creating;
 
   const footer = (
     <>
@@ -26,10 +38,10 @@ export function SenderPoolDialog({ open, onClose, pool, leadCount = 0, allowType
       <Button
         variant="primary"
         size="sm"
-        onClick={() => onConfirm({ accountIds: selected, type })}
+        onClick={() => onConfirm({ accountIds: several ? selected : [oneChosen], type })}
         loading={creating}
         disabled={!canCreate}
-        title={!validation.ok ? validation.reason : noLeads ? t.needSelection : !preview ? t.previewButton : nothingToSend ? t.previewEmpty : undefined}
+        title={noLeads ? t.needSelection : !several ? undefined : !validation.ok ? validation.reason : !preview ? t.previewButton : nothingToSend ? t.previewEmpty : undefined}
       >
         {creating ? t.creating : t.create}
       </Button>
@@ -37,9 +49,36 @@ export function SenderPoolDialog({ open, onClose, pool, leadCount = 0, allowType
   );
 
   return (
-    <Dialog open={open} onClose={onClose} title={t.title} description={t.description} size="lg" footer={footer}>
+    <Dialog open={open} onClose={onClose} title={askWho ? t.whoTitle : t.title} description={askWho ? t.whoDescription : t.description} size="lg" footer={footer}>
       <div className="space-y-4 px-5 pb-4">
-        {accounts.length < 2 ? (
+        {askWho && (
+          <div>
+            <span className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-1.5">{t.whoLabel}</span>
+            <FilterPills
+              size="sm"
+              ariaLabel={t.whoLabel}
+              value={who}
+              onChange={(v) => { setWho(v); pool.reset?.(); }}
+              options={[{ id: 'one', label: t.whoOne }, { id: 'several', label: t.whoSeveral }]}
+            />
+          </div>
+        )}
+
+        {askWho && who === 'one' && (
+          <div>
+            <span className="block text-[length:var(--ui-t-label)] font-medium text-[var(--ui-text-secondary)] mb-1.5">{t.oneAccountLabel}</span>
+            <Dropdown
+              variant="dashboard"
+              size="sm"
+              value={oneChosen}
+              onChange={(v) => setOneId(String(v))}
+              ariaLabel={t.oneAccountLabel}
+              options={accounts.map((a) => [String(a.id), a.name || a.publicIdentifier || 'LinkedIn account'])}
+            />
+          </div>
+        )}
+
+        {several && (accounts.length < 2 ? (
           <p className="text-[length:var(--ui-t-control)] text-[var(--ui-text-secondary)]">{t.noAccounts}</p>
         ) : (
           <fieldset>
@@ -58,7 +97,7 @@ export function SenderPoolDialog({ open, onClose, pool, leadCount = 0, allowType
               <p className="mt-1.5 text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">{validation.reason}</p>
             )}
           </fieldset>
-        )}
+        ))}
 
         {allowTypeChoice && (
           <div>
@@ -74,6 +113,7 @@ export function SenderPoolDialog({ open, onClose, pool, leadCount = 0, allowType
           </div>
         )}
 
+        {several && (
         <div>
           <Button
             variant="secondary"
@@ -86,12 +126,13 @@ export function SenderPoolDialog({ open, onClose, pool, leadCount = 0, allowType
             {t.previewButton}
           </Button>
         </div>
+        )}
 
-        {loading && <p role="status" className="text-[length:var(--ui-t-control)] text-[var(--ui-text-secondary)]">{t.previewing}</p>}
-        {error && !loading && <p role="alert" className="text-[length:var(--ui-t-control)] text-[var(--ui-danger-fg,inherit)]">{poolErrorText(error) === campaignsStrings.errors.fallback ? t.previewError : poolErrorText(error)}</p>}
+        {several && loading && <p role="status" className="text-[length:var(--ui-t-control)] text-[var(--ui-text-secondary)]">{t.previewing}</p>}
+        {several && error && !loading && <p role="alert" className="text-[length:var(--ui-t-control)] text-[var(--ui-danger-fg,inherit)]">{poolErrorText(error) === campaignsStrings.errors.fallback ? t.previewError : poolErrorText(error)}</p>}
         {createError && <p role="alert" className="text-[length:var(--ui-t-control)]">{poolErrorText(createError) === campaignsStrings.errors.fallback ? t.createFailed : poolErrorText(createError)}</p>}
 
-        {preview && !loading && (
+        {several && preview && !loading && (
           <div data-testid="pool-preview" className="rounded-[var(--ui-radius-md)] border border-[var(--ui-border)] p-3 space-y-2">
             <p className="font-medium text-[length:var(--ui-t-control)]">{t.total(preview.total ?? 0)}</p>
             {nothingToSend && <p className="text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)]">{t.previewEmpty}</p>}
