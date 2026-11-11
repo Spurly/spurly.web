@@ -5,10 +5,19 @@ path: /developers/changelog
 template: docs
 section: Resources
 order: 2
-date: 2026-11-04
+date: 2026-11-11
 parent: /developers
 ---
 Non-breaking additions ship without notice and are listed here. Breaking changes only ship in a new API version, with at least 90 days of overlap. See [Limits and versioning](/developers/limits).
+
+## 11 November 2026
+
+Three new organisation API (`/v2`) endpoints and four new guides. `/v1` is unchanged.
+
+- New: `GET /accounts/{accountId}/messages/{messageId}` returns one message.
+- New: `POST /accounts/{accountId}/follows` follows a member.
+- New: `POST /accounts/{accountId}/endorsements` endorses a skill of a 1st-degree connection. You name the skill; Spurly looks it up on the profile just before endorsing.
+- New guides: [LinkedIn limits](/developers/v2/guides/linkedin-limits), [What each account can do](/developers/v2/guides/linkedin-features), [Connection methods](/developers/v2/guides/connection-methods) and [Migrate from v1](/developers/v2/guides/migrate-from-v1).
 
 ## 4 November 2026
 

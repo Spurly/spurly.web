@@ -68,6 +68,7 @@ Every failure has the same shape and a matching HTTP status:
 | `UNSUPPORTED_CHECKPOINT` | 422 | LinkedIn asked for a step this API cannot complete |
 | `PROXY_INVALID` | 422 | LinkedIn could not be reached through the proxy you gave |
 | `TOO_LONG`, `BAD_REQUEST`, `UNRESOLVED_TOKEN` | 422 | LinkedIn or Spurly did not accept the text or details |
+| `NOT_ENDORSABLE` | 422 | An endorsement was refused: the member is not a 1st-degree connection, or does not list that skill |
 | `INTERNAL`, `INTERNAL_ERROR` | 500 | Something went wrong on our side |
 | `PROVIDER_ERROR` | 502 | LinkedIn could not be reached. Retry later. |
 | `NOT_AVAILABLE`, `UNAVAILABLE` | 503 | Temporarily unavailable |

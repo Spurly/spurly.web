@@ -36,6 +36,10 @@ If you manage one LinkedIn inbox per user rather than organisations, the [accoun
 - [Concepts](/developers/v2/concepts): organisations, accounts, one member one organisation, statuses.
 - [Connect LinkedIn](/developers/v2/guides/connect-linkedin): the sign-in and verification flow.
 - [API reference](/developers/v2/api/orgs): every endpoint, parameter and response.
+- [LinkedIn limits](/developers/v2/guides/linkedin-limits): a safe pace for each action, and what to do when an account hits a limit.
+- [What each account can do](/developers/v2/guides/linkedin-features): which features work on every account, depend on the plan, or are not offered.
+- [Connection methods](/developers/v2/guides/connection-methods): credentials or cookie, where LinkedIn sees the sign-in from, and reconnects.
+- [Migrate from v1](/developers/v2/guides/migrate-from-v1): the endpoint map, webhook differences and a switch plan.
 
 ## Getting access
 

@@ -295,6 +295,7 @@ const MESSAGING_OPS = {
     }),
   },
   '/accounts/{accountId}/messages/{messageId}': {
+    get: op({ id: 'v2GetMessage', tag: T.messaging, summary: 'Get a message', description: 'One message, by its id from a chat\'s message list or a `message.created` webhook.', params: [...A, 'messageId'], success: ok('The message.', ref('V2Message'), msgEx), extra: ACCOUNT_ERRORS }),
     delete: op({ id: 'v2DeleteMessage', tag: T.messaging, summary: 'Delete a message', description: 'Deletes one of the member\'s own messages.', params: [...A, 'messageId'], success: done('deleted', 'Deleted.'), extra: ACCOUNT_ERRORS }),
   },
   '/accounts/{accountId}/messages/{messageId}/reactions': {
@@ -344,6 +345,22 @@ const PROFILE_OPS = {
 };
 
 const NETWORK_OPS = {
+  '/accounts/{accountId}/follows': {
+    post: op({
+      id: 'v2FollowMember', tag: T.network, summary: 'Follow a member',
+      description: 'Follows a LinkedIn member as the connected account. Space follows out: see [LinkedIn limits](/developers/v2/guides/linkedin-limits).',
+      params: A, body: { type: 'object', required: ['memberId'], properties: { memberId: { type: 'string', description: 'The member\'s `id`, from a profile, search or relations call.' } } }, bodyExample: { memberId: 'ACoAAB1x2y3' },
+      success: done('followed', 'Followed.'), status: 201, extra: ACCOUNT_ERRORS_W,
+    }),
+  },
+  '/accounts/{accountId}/endorsements': {
+    post: op({
+      id: 'v2EndorseSkill', tag: T.network, summary: 'Endorse a skill',
+      description: 'Endorses one skill of a 1st-degree connection. Name the skill; Spurly reads the member\'s skills just before endorsing, because LinkedIn only allows endorsing a connection\'s listed skills. Answers `422 NOT_ENDORSABLE` when the member is not a 1st-degree connection or does not list that skill.',
+      params: A, body: { type: 'object', required: ['memberId', 'skillName'], properties: { memberId: { type: 'string', description: 'The member\'s `id`.' }, skillName: { type: 'string', maxLength: 100, description: 'The skill as it is written on their profile. Matching ignores upper and lower case.' } } }, bodyExample: { memberId: 'ACoAAB1x2y3', skillName: 'Sales' },
+      success: done('endorsed', 'Endorsed.'), status: 201, extra: ACCOUNT_ERRORS_W,
+    }),
+  },
   '/accounts/{accountId}/invitations': {
     post: op({ id: 'v2SendInvitation', tag: T.network, summary: 'Send a connection request', description: 'Invites a member to connect, with an optional note.', params: A, body: { type: 'object', required: ['memberId'], properties: { memberId: { type: 'string' }, note: { type: 'string', maxLength: 300 } } }, bodyExample: { memberId: 'ACoAAB1x2y3', note: 'Great talk yesterday.' }, success: ok('Sent.', { type: 'object', properties: { sent: { type: 'boolean' }, id: { type: ['string', 'null'] } } }, { sent: true, id: ex.invitationId }), status: 201, extra: ACCOUNT_ERRORS_W }),
   },
