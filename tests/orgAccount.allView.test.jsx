@@ -56,6 +56,40 @@ describe('all-accounts view', () => {
   });
 });
 
+describe('all accounts is the default', () => {
+  beforeEach(() => {
+    localStorage.removeItem('orgActiveAccount');
+  });
+
+  test('with several accounts and no choice yet, leads and network both show every account', () => {
+    for (const page of ['/hub/leads', '/hub/network']) {
+      goto(page);
+      expect(isAllAccountsView()).toBe(true);
+    }
+  });
+
+  test('the network status read and "sync all" carry no account in the all view', () => {
+    goto('/hub/network');
+    expect(withActiveAccount({ method: 'get', url: '/hub/network' }).params).toBeUndefined();
+    expect(withActiveAccount({ method: 'post', url: '/hub/network/sync', data: {} }).data.accountId).toBeUndefined();
+  });
+
+  test('the switcher filling in a first account by itself keeps the default', () => {
+    setActiveAccountId('a1', { auto: true });
+    goto('/hub/network');
+    expect(isAllAccountsView()).toBe(true);
+  });
+
+  test('choosing one account turns it off, and choosing All turns it back on', () => {
+    goto('/hub/network');
+    setActiveAccountId('a2');
+    expect(isAllAccountsView()).toBe(false);
+    expect(withActiveAccount({ method: 'post', url: '/hub/network/sync', data: {} }).data.accountId).toBe('a2');
+    setAllAccountsView(true);
+    expect(isAllAccountsView()).toBe(true);
+  });
+});
+
 describe('leads table in the all view', () => {
   test('no Degree column, a Found by column naming the accounts', () => {
     expect(hubLeadColumns.some((c) => c.key === 'connectionDegree')).toBe(true);

@@ -37,7 +37,8 @@ export function useNetworkPage() {
   const [starting, setStarting] = useState(false);
   const [needsAccount, setNeedsAccount] = useState(false);
 
-  const audienceId = network?.audienceId ?? null;
+  // All-accounts view: one audience per account, listed together (a comma-separated id list).
+  const audienceId = network?.aggregate ? (network.audienceIds?.join(',') || null) : (network?.audienceId ?? null);
   const pageRef = useRef(1);
   const qRef = useRef('');
 

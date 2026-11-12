@@ -42,13 +42,13 @@ function Picker({ orgId, expanded }) {
     }
     if (!usable.some((a) => String(a.id) === activeId)) {
       // First time on this browser: the page re-mounts (AccountScope) so its requests carry the account.
-      setActive(String(usable[0].id));
+      setActive(String(usable[0].id), { auto: true });
     }
   }, [accounts, usable, activeId, orgId, setActive]);
 
   if (!expanded || shown.length < 2) return null;
   const accountOptions = shown.map((a) => [String(a.id), a.name || a.publicIdentifier || ORG_COPY.switcher.unnamed]);
-  // The leads page can also show every account's leads at once.
+  // The leads and network pages can also show every account at once (and do, by default).
   const options = allSupported ? [[ALL_VALUE, ORG_COPY.switcher.all], ...accountOptions] : accountOptions;
   const active = usesAccount(pathname);
 

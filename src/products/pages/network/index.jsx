@@ -2,12 +2,12 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { DataTable } from 'src/core/DataTable';
-import { Button, StatTile, WorkingLine } from 'src/core/primitives';
+import { Badge, Button, StatTile, WorkingLine } from 'src/core/primitives';
 import { NetworkIcon } from 'src/core/icons';
 import { useNetworkPage } from 'src/products/network/hooks/useNetworkPage.js';
 import { LeadDrawer } from 'src/products/pages/leads/components/LeadDrawer.jsx';
 import { relativeTime } from 'src/shared/utils/outreach.js';
-import { networkColumns } from './components/columns.jsx';
+import { networkColumns, networkColumnsForAllAccounts } from './components/columns.jsx';
 import { networkStrings } from './strings.js';
 
 const t = networkStrings;
@@ -39,7 +39,9 @@ export function HubNetworkPage() {
   const { network, loading, connections, pagination, listLoading, q, search, goToPage, sync, starting, needsAccount } =
     useNetworkPage();
   const [selectedLead, setSelectedLead] = useState(null);
-  const columns = useMemo(() => networkColumns, []);
+  const aggregate = Boolean(network?.aggregate);
+  const accounts = network?.accounts;
+  const columns = useMemo(() => (aggregate ? networkColumnsForAllAccounts(accounts) : networkColumns), [aggregate, accounts]);
 
   const exists = Boolean(network?.exists);
   const syncing = Boolean(network?.syncing);
@@ -54,7 +56,7 @@ export function HubNetworkPage() {
       actions={
         exists ? (
           <Button variant="primary" onClick={sync} disabled={starting || syncing}>
-            {t.syncNow}
+            {aggregate ? t.syncAll : t.syncNow}
           </Button>
         ) : null
       }
@@ -97,6 +99,25 @@ export function HubNetworkPage() {
             />
             <StatTile label={t.tiles.lastChecked} value={ago(network.lastCheckedAt)} caption="Newest connections are checked first" />
             <StatTile label={t.tiles.nextCheck} value={until(network.nextCheckAt)} caption="Runs on its own" />
+          </div>
+        )}
+
+        {aggregate && (
+          <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] p-4 flex flex-col gap-2">
+            <p className="text-[var(--ui-text-secondary)]">{t.allAccountsHint}</p>
+            <ul className="flex flex-col gap-1">
+              {accounts.map((a) => (
+                <li key={a.accountKey} className="flex items-center justify-between gap-3">
+                  <span className="font-medium">{a.name || a.publicIdentifier || 'LinkedIn account'}</span>
+                  <span className="flex items-center gap-3 text-[var(--ui-text-secondary)]">
+                    {a.connectionCount.toLocaleString()} · {ago(a.lastCheckedAt)}
+                    <Badge tone={!a.connected || a.failed ? 'danger' : a.syncing || !a.exists ? 'info' : 'success'} dot>
+                      {!a.connected ? t.accountNeedsAttention : a.failed ? t.accountFailed : a.syncing ? t.accountSyncing : !a.exists || !a.firstSyncDone ? t.accountPending : t.accountUpToDate}
+                    </Badge>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 

@@ -6,6 +6,7 @@ import {
   ORG_ACCOUNT_BODY_PATHS,
   ORG_ALL_VIEW_PAGES,
   ORG_ALL_VIEW_READS,
+  ORG_ALL_VIEW_WRITES,
   ORG_LEAD_PATH,
 } from './constants/constants.js';
 
@@ -75,14 +76,15 @@ export function getActiveAccountId() {
 
 /**
  * Choose one account. This leaves the "All accounts" view, unless `keepAll` is set (the New audience dialog picks the
- * account to fetch from without leaving the all-accounts list behind it).
+ * account to fetch from without leaving the all-accounts list behind it). `auto` is the switcher filling in a first
+ * account by itself: nobody chose it, so it must not turn the default "All accounts" view off.
  */
-export function setActiveAccountId(accountId, { keepAll = false } = {}) {
+export function setActiveAccountId(accountId, { keepAll = false, auto = false } = {}) {
   const userId = sessionUserId();
   if (!userId) return;
   try {
-    const all = keepAll && readStored()?.all === true;
-    if (accountId) localStorage.setItem(ORG_ACTIVE_ACCOUNT_KEY, JSON.stringify({ userId, accountId: String(accountId), ...(all ? { all: true } : {}) }));
+    const stayAll = (keepAll || auto) && wantsAllAccounts();
+    if (accountId) localStorage.setItem(ORG_ACTIVE_ACCOUNT_KEY, JSON.stringify({ userId, accountId: String(accountId), ...(stayAll ? {} : { view: 'one' }) }));
     else localStorage.removeItem(ORG_ACTIVE_ACCOUNT_KEY);
   } catch {
     /* storage unavailable: the choice just does not persist */
@@ -90,11 +92,15 @@ export function setActiveAccountId(accountId, { keepAll = false } = {}) {
   window.dispatchEvent(new Event(ORG_ACTIVE_ACCOUNT_EVENT));
 }
 
-/** The member asked to see every account's leads (kept next to the account choice, so the last single account stays known). */
+/**
+ * Whether the member sees every account's data at once. This is the DEFAULT for an organization with several accounts;
+ * only an explicit choice of one account (`view: 'one'`) turns it off, and choosing "All accounts" turns it back on.
+ */
 export function wantsAllAccounts() {
   const stored = readStored();
   const userId = sessionUserId();
-  return Boolean(userId && stored && String(stored.userId) === userId && stored.all === true && getKnownAccounts().accounts.length >= 2);
+  const choseOne = Boolean(stored && String(stored.userId) === userId && stored.view === 'one');
+  return Boolean(userId && !choseOne && getKnownAccounts().accounts.length >= 2);
 }
 
 export function setAllAccountsView(on) {
@@ -102,7 +108,7 @@ export function setAllAccountsView(on) {
   if (!userId) return;
   const accountId = getActiveAccountId();
   try {
-    localStorage.setItem(ORG_ACTIVE_ACCOUNT_KEY, JSON.stringify({ userId, accountId: String(accountId || ''), ...(on ? { all: true } : {}) }));
+    localStorage.setItem(ORG_ACTIVE_ACCOUNT_KEY, JSON.stringify({ userId, accountId: String(accountId || ''), view: on ? 'all' : 'one' }));
   } catch {
     /* storage unavailable: the choice just does not persist */
   }
@@ -147,6 +153,8 @@ export function withActiveAccount(config) {
     const isGet = String(config.method || 'get').toLowerCase() === 'get';
     // Every account's rows: the list reads carry no account at all.
     if (isGet && ORG_ALL_VIEW_READS.some((rule) => rule.test(path))) return config;
+    // "Sync all": the server starts every account's own sync, so the request names none.
+    if (String(config.method || 'get').toLowerCase() === 'post' && ORG_ALL_VIEW_WRITES.some((rule) => rule.test(path))) return config;
     // One lead's own calls: use the current account if it holds the lead, otherwise the first account that does.
     const m = ORG_LEAD_PATH.exec(path);
     const holders = m ? leadAccounts.get(m[1]) : null;
