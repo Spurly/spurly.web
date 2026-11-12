@@ -1,5 +1,6 @@
 import { TextCell, PersonCell, ActivityCell } from 'src/core/DataTable';
 import { Badge } from 'src/core/primitives';
+import { recentContactStrings } from '../../components/recentContactStrings.js';
 
 /**
  * Columns for the people in a campaign.
@@ -40,6 +41,17 @@ const SKIP_REASON = {
   'sender-removed': 'The account that would send was removed',
   'held-by-other-account': 'Already in another campaign or sequence',
   'degree-unknown': 'Could not tell how your accounts are linked to them',
+  'recently-messaged': recentContactStrings.skippedLabel,
+};
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** The row's skip reason in words; a recently-messaged row says how long ago, from the date the server stored. */
+const skipText = (row) => {
+  if (row.skipReason === 'recently-messaged' && row.lastMessagedAt) {
+    return recentContactStrings.skippedChip(Math.max(0, Math.floor((Date.now() - new Date(row.lastMessagedAt).getTime()) / DAY_MS)));
+  }
+  return SKIP_REASON[row.skipReason] || '';
 };
 
 /** Why an account did NOT send to this person, in the user's words (shown next to the account's name). */
@@ -56,7 +68,7 @@ export function excludedText(notes = []) {
   return parts.length ? `Not sent from ${parts.join(', ')}` : '';
 }
 
-const whyText = (row) => [SKIP_REASON[row.skipReason] || row.lastError || '', excludedText(row.excludedNotes)].filter(Boolean).join(' · ');
+const whyText = (row) => [skipText(row) || row.lastError || '', excludedText(row.excludedNotes)].filter(Boolean).join(' · ');
 
 export const hubMemberColumns = [
   {
@@ -87,8 +99,8 @@ export const hubMemberColumns = [
     width: 260,
     // One column for both explanations: a row is skipped or it failed, never
     // both, and two half-empty columns would read as missing data.
-    title: (row) => SKIP_REASON[row.skipReason] || row.lastError || '',
-    render: (value, row) => <TextCell value={SKIP_REASON[value] || row.lastError || null} tone="secondary" />,
+    title: (row) => skipText(row) || row.lastError || '',
+    render: (value, row) => <TextCell value={skipText(row) || row.lastError || null} tone="secondary" />,
   },
   {
     key: 'sentAt',

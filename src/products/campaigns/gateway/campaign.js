@@ -65,13 +65,15 @@ async function addLeads(id, { leadIds, searchId } = {}) {
 }
 
 /** PATCH /hub/campaigns/:id — rename, or edit the note/message while stopped. */
-async function updateCampaign(id, { name, note, messageTemplate } = {}) {
+async function updateCampaign(id, { name, note, messageTemplate, recentContact } = {}) {
   const body = {};
   if (name !== undefined) body.name = name;
   // Sent even when empty: clearing the note is a real edit, and `undefined`
   // would be indistinguishable from "leave it alone".
   if (note !== undefined) body.note = note;
   if (messageTemplate !== undefined) body.messageTemplate = messageTemplate;
+  // { enabled, days, scope }: "skip people I've already messaged"
+  if (recentContact !== undefined) body.recentContact = recentContact;
   const res = await apiGateway.patch(`/hub/campaigns/${id}`, body);
   return Campaign.fromResponse(res.data?.data?.campaign ?? null);
 }

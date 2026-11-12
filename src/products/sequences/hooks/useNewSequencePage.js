@@ -7,6 +7,7 @@ import sequenceController from '../controller/sequence.js';
 import { SEQUENCE_EVENTS } from '../constants/constants.js';
 import { makeNode, treeError, cleanExit, exitError } from '../treeModel.js';
 import { useOrgState } from 'src/core/org/hooks/useOrgState.js';
+import { useRecentContactDefault } from 'src/products/settings/hooks/useRecentContactDefault.js';
 import { setDraftDirty } from 'src/shared/orgAccount/draftGuard.js';
 import { useSenderPool } from 'src/products/campaigns/hooks/useSenderPool.js';
 import { getKnownAccounts } from 'src/shared/orgAccount/activeAccount.js';
@@ -27,6 +28,11 @@ export function useNewSequencePage() {
   const [touched, setTouched] = useState(false);
   const [exit, setExitState] = useState({});
   const setExit = useCallback((next) => { setTouched(true); setExitState(next); }, []);
+  // "Skip people I've already messaged": starts as the workspace default; the server copies the default itself when nothing is sent.
+  const { rule: defaultRecentContact } = useRecentContactDefault();
+  const [recentContactEdit, setRecentContactEdit] = useState(null);
+  const recentContact = recentContactEdit ?? defaultRecentContact;
+  const setRecentContact = useCallback((next) => { setTouched(true); setRecentContactEdit(next); }, []);
   const setSteps = useCallback((next) => { setTouched(true); setStepsState(next); }, []);
   const [creating, setCreating] = useState(false);
   // Optional: send this sequence from several accounts (an org with two or more). Nothing ticked = the acting account, as before.
@@ -78,9 +84,10 @@ export function useNewSequencePage() {
     setCreating(true);
     sequenceController.createSequence(eventEmitter, {
       name: trimmedName, steps, exit: cleanExit(exit),
+      ...(recentContactEdit ? { recentContact: recentContactEdit } : {}),
       ...(pool.selected.length >= 2 ? { accountIds: pool.selected } : {}),
     });
-  }, [name, validationError, creating, eventEmitter, steps, exit, pool.selected, poolBlocked]);
+  }, [name, validationError, creating, eventEmitter, steps, exit, recentContactEdit, pool.selected, poolBlocked]);
 
-  return { name, setName, steps, setSteps, creating, validationError, canCreate, create, inbox, exit, setExit, isOrg: orgState.isMember, pool, canPool, poolBlocked };
+  return { name, setName, steps, setSteps, creating, validationError, canCreate, create, inbox, exit, setExit, recentContact, setRecentContact, isOrg: orgState.isMember, pool, canPool, poolBlocked };
 }

@@ -167,3 +167,29 @@ export const ICP_NOTES_MAX_LENGTH = 400;
 export const ICP_COMPANY_SIZES = [
   '1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5001-10000', '10001+',
 ];
+
+/** Events the auto-enrich controller emits and useAutoEnrich listens for. */
+export const AUTO_ENRICH_EVENTS = {
+  GET_SUCCESS: 'AUTO_ENRICH_GET_SUCCESS',
+  GET_FAILURE: 'AUTO_ENRICH_GET_FAILURE',
+  SET_SUCCESS: 'AUTO_ENRICH_SET_SUCCESS',
+  SET_FAILURE: 'AUTO_ENRICH_SET_FAILURE',
+};
+
+/** Quick picks for "how many profiles a day"; the server's own range (10-100) is read from the response. */
+export const AUTO_ENRICH_AMOUNT_PICKS = [25, 50, 60, 100];
+
+/** Events the "skip people I've messaged recently" default controller emits. */
+export const RECENT_CONTACT_EVENTS = {
+  GET_SUCCESS: 'RECENT_CONTACT_GET_SUCCESS',
+  GET_FAILURE: 'RECENT_CONTACT_GET_FAILURE',
+  SET_SUCCESS: 'RECENT_CONTACT_SET_SUCCESS',
+  SET_FAILURE: 'RECENT_CONTACT_SET_FAILURE',
+};
+
+/** Quick picks for the window, in days; a custom number from MIN to MAX is also allowed (the server enforces the same range). */
+export const RECENT_CONTACT_DAY_PICKS = [7, 14, 30, 60, 90];
+export const RECENT_CONTACT_MIN_DAYS = 1;
+export const RECENT_CONTACT_MAX_DAYS = 365;
+export const RECENT_CONTACT_DEFAULT = { enabled: false, days: 30, scope: 'org' };
+export const RECENT_CONTACT_SCOPES = { ORG: 'org', ACCOUNT: 'account' };

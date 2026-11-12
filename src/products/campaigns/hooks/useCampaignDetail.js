@@ -150,6 +150,13 @@ export function useCampaignDetail() {
     campaignController.updateCampaign(eventEmitter, id, { messageTemplate });
   }, [eventEmitter, id]);
 
+  /** "Skip people I've already messaged": the whole rule, saved as one edit (the server refuses it while running). */
+  const saveRecentContact = useCallback((recentContact) => {
+    setSaving(true);
+    pendingSaveKindRef.current = 'recentContact';
+    campaignController.updateCampaign(eventEmitter, id, { recentContact });
+  }, [eventEmitter, id]);
+
   useEffect(() => {
     function handleGetSuccess(next) {
       if (!mountedRef.current) return;
@@ -215,15 +222,19 @@ export function useCampaignDetail() {
       if (mountedRef.current) setBusy(false);
     }
     function handleUpdateSuccess() {
-      toast.success(pendingSaveKindRef.current === 'message' ? 'Message saved' : 'Note saved');
+      const savedKind = pendingSaveKindRef.current;
+      toast.success(savedKind === 'message' ? 'Message saved' : savedKind === 'recentContact' ? 'Saved' : 'Note saved');
       pendingSaveKindRef.current = null;
       if (mountedRef.current) setSaving(false);
       load();
     }
     function handleUpdateFailure(error) {
-      const failMessage = pendingSaveKindRef.current === 'message'
+      const failKind = pendingSaveKindRef.current;
+      const failMessage = failKind === 'message'
         ? 'Could not save that message'
-        : 'Could not save that note';
+        : failKind === 'recentContact'
+          ? 'Could not save that'
+          : 'Could not save that note';
       pendingSaveKindRef.current = null;
       toast.error(getToastError(error, failMessage));
       if (mountedRef.current) setSaving(false);
@@ -299,6 +310,7 @@ export function useCampaignDetail() {
     retryFailed,
     saveNote,
     saveMessageTemplate,
+    saveRecentContact,
     goToPage: loadMembers,
   };
 }

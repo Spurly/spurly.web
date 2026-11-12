@@ -1,3 +1,4 @@
+import { recentContactStrings } from '../../components/recentContactStrings.js';
 import { LinkedInIcon } from 'src/core/icons';
 import { TextCell, PersonCell, LinkCell, DateCell } from 'src/core/DataTable';
 import { Badge } from 'src/core/primitives';
@@ -24,6 +25,7 @@ const STATUS_VIEW = {
 };
 
 const STOP_REASON = {
+  'recently-messaged': recentContactStrings.skippedSequenceFallback,
   'already-connected': 'Already a connection',
   unresolvable: 'No LinkedIn id to act on',
   self: 'This is you',
@@ -40,6 +42,16 @@ const STOP_REASON = {
   'degree-unknown': 'Not started: could not tell how your accounts are linked to them',
   'not-connected': 'Not started: none of your accounts is connected to them yet',
   'no-usable-sender': 'Stopped: no account was able to send',
+};
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** The stop reason in words; a recently-messaged stop says how long ago, from the date the server stored. */
+const stopText = (row) => {
+  if (row.stopReason === 'recently-messaged' && row.lastMessagedAt) {
+    return recentContactStrings.skippedSequence(Math.max(0, Math.floor((Date.now() - new Date(row.lastMessagedAt).getTime()) / DAY_MS)));
+  }
+  return STOP_REASON[row.stopReason] || '';
 };
 
 /** v2 history reads "Condition → Yes", "Message → done". */
@@ -125,10 +137,10 @@ export function hubEnrollmentColumns(steps = [], { tree = false, pool = false } 
       // The tooltip is the whole path the lead took (branches included), the cell is the last event.
       title: (row) => (tree && row.history?.length
         ? row.history.map(historyLabel).join(' › ')
-        : STOP_REASON[row.stopReason] || row.lastError || row.history?.[row.history.length - 1]?.detail || ''),
+        : stopText(row) || row.lastError || row.history?.[row.history.length - 1]?.detail || ''),
       render: (value, row) => {
         const last = row.history?.[row.history.length - 1];
-        const text = STOP_REASON[row.stopReason]
+        const text = stopText(row)
           || row.lastError
           || (last ? (tree ? historyLabel(last) : `${stepTypeLabel(last.type)} — ${last.outcome}`) : '—');
         return <TextCell value={text} tone="secondary" />;

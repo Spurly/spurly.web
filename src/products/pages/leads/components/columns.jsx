@@ -224,7 +224,9 @@ export function EnrichStatusCell({ value, row = {} }) {
   // The failure reason is the most useful thing here, and a tooltip keeps it
   // out of the way until something has actually gone wrong.
   const title = value === 'failed' && row.lastEnrichError ? row.lastEnrichError : undefined;
-  return <Badge variant="minimal" tone={s.tone} dot={s.dot} pulse={s.pulse} title={title}>{s.label}</Badge>;
+  // Queued by the automatic daily sweep rather than by a person: say so, so a lead nobody selected does not look like a mystery.
+  const auto = value === 'queued' && row.enrichAuto === true;
+  return <Badge variant="minimal" tone={s.tone} dot={s.dot} pulse={s.pulse} title={auto ? 'Queued automatically' : title}>{auto ? 'Queued · auto' : s.label}</Badge>;
 }
 
 /**
