@@ -19,11 +19,10 @@ export function LinkedInCallbackPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    /* `detail` is for the inline strip; the toast gets fixed copy. Every path
-       into here already fails for the same user-visible reason. */
+    /* The toast and the inline strip both say what actually went wrong. */
     const fail = (detail) => {
       setError(detail);
-      toast.error("Couldn't finish signing you in with LinkedIn");
+      toast.error(detail || "Couldn't finish signing you in with LinkedIn");
       setTimeout(() => navigate('/login'), 3000);
     };
 
