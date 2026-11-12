@@ -47,19 +47,23 @@ export function clearImpersonation() {
  * logout, LinkedIn OAuth) — a full navigation rebuilds every provider from
  * the new localStorage state instead of leaving stale React state behind.
  *
- * Refuses to stack a second impersonation on top of a first, so the saved
- * "admin" session is always the real admin, not a previous target user.
+ * Switching from one impersonated user to another keeps the first saved
+ * "admin" session untouched, so it is always the real admin, never a previous
+ * target user. (Only an admin token can reach this: the call that mints the
+ * target token is admin-only. A leftover saved slot used to make this a silent
+ * no-op, so "Open as this org" appeared to do nothing.)
  *
  * @param {{ targetToken: string, targetUser: object }} params
  */
 export function startImpersonation({ targetToken, targetUser }) {
   if (!targetToken || !targetUser) return;
-  if (isImpersonating()) return;
 
-  const adminToken = localStorage.getItem('authToken');
-  const adminUser = localStorage.getItem('user');
-  if (adminToken) localStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
-  if (adminUser) localStorage.setItem(ADMIN_USER_KEY, adminUser);
+  if (!isImpersonating()) {
+    const adminToken = localStorage.getItem('authToken');
+    const adminUser = localStorage.getItem('user');
+    if (adminToken) localStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
+    if (adminUser) localStorage.setItem(ADMIN_USER_KEY, adminUser);
+  }
 
   localStorage.setItem('authToken', targetToken);
   localStorage.setItem('user', JSON.stringify(targetUser));
