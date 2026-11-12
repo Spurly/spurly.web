@@ -5,10 +5,17 @@ path: /developers/changelog
 template: docs
 section: Resources
 order: 2
-date: 2026-11-11
+date: 2026-11-12
 parent: /developers
 ---
 Non-breaking additions ship without notice and are listed here. Breaking changes only ship in a new API version, with at least 90 days of overlap. See [Limits and versioning](/developers/limits).
+
+## 12 November 2026
+
+Two organisation API (`/v2`) additions. Nothing existing changed, and `/v1` is unchanged.
+
+- New: `POST /orgs/{orgId}/login-link` returns a one-time "Open in Spurly" URL that signs your customer in to their organisation, optionally with one LinkedIn account already chosen (`accountId`). It works once and expires after 2 minutes. See the [Open in Spurly](/developers/v2/guides/open-in-spurly) guide.
+- New: `GET /connect-options` returns the country LinkedIn will most likely see a sign-in from (pass the end user's IP as `endUserIp`) and the accepted proxy protocols, for your connect screen.
 
 ## 11 November 2026
 

@@ -159,9 +159,29 @@ const ORG_OPS = {
       params: ['orgId'], success: ok('The organisation.', ref('V2Org'), exampleOrg), extra: ['404:V2NotFound'],
     }),
   },
+  '/orgs/{orgId}/login-link': {
+    post: op({
+      id: 'v2CreateLoginLink', tag: T.orgs, summary: 'Create an "Open in Spurly" link',
+      description: 'Returns a one-time URL that signs the customer in to Spurly as this organisation, so they can use the full app without a password or an emailed code. Create it when the person clicks, never in advance: it works once and expires after 2 minutes. Add `accountId` to open the organisation with that LinkedIn account already chosen. The secret is after the `#`, so it never reaches a server log. Who may click is your decision: check it on your server first. The session lasts 12 hours. The answer is never cached.',
+      params: ['orgId'],
+      body: { type: 'object', properties: { accountId: { ...ID, description: 'Open with this LinkedIn account chosen. It must belong to this organisation and not be disconnected, else `404`.' }, actor: { type: 'string', maxLength: 200, description: 'Your own id or email for the person who clicked. Kept on an audit trail only.' } } },
+      bodyExample: { accountId: ex.accountId, actor: 'user_42' },
+      success: ok('The link.', { type: 'object', properties: { url: { type: 'string', description: 'Send the person here, straight away. The ticket is in the URL fragment.' }, expiresAt: { type: 'string', format: 'date-time' }, orgId: ID, accountId: { type: ['string', 'null'], pattern: '^[a-f0-9]{24}$', description: 'The account the link opens, or `null` for the organisation as a whole.' } } }, { url: 'https://www.getspurly.com/login/org/enter#t=3f9c\u2026', expiresAt: '2026-11-12T09:02:00.000Z', orgId: ex.orgId, accountId: ex.accountId }),
+      extra: ['400:V2ValidationError', '403:V2Forbidden', '404:V2NotFound', '409:V2Conflict'],
+    }),
+  },
 };
 
 const CONNECT_OPS = {
+  '/connect-options': {
+    get: op({
+      id: 'v2ConnectOptions', tag: T.connect, summary: 'Connect screen options',
+      description: 'What your "connect LinkedIn" screen can show before anything is sent: the country LinkedIn will most likely see the sign-in from, and the proxy protocols `location.proxy` accepts. Pass the end user\'s own public IP as `endUserIp`; Spurly never guesses from your server\'s address, so without one `detectedCountry` is `null` and the connect uses the Spurly default. A lookup that fails is also `null`: treat the answer as a convenience.',
+      query: [q('endUserIp', 'The end user\'s public IPv4 address.', '203.0.113.7')],
+      success: ok('The options.', { type: 'object', properties: { detectedCountry: { type: ['string', 'null'], description: 'A 2-letter country code, or `null`.' }, proxyProtocols: { type: 'array', items: { type: 'string' } } } }, { detectedCountry: 'DE', proxyProtocols: ['http', 'https', 'socks5'] }),
+      extra: ['400:V2ValidationError'],
+    }),
+  },
   '/orgs/{orgId}/accounts/connect': {
     post: op({
       id: 'v2ConnectAccount', tag: T.connect, summary: 'Connect a LinkedIn account',
@@ -481,7 +501,7 @@ export const OPENAPI_V2 = {
       V2Unauthorized: errorResponse('Missing, invalid or revoked API key.', 'UNAUTHORIZED', 'Invalid or revoked API key.', 401),
       V2Forbidden: errorResponse('`ORG_SUSPENDED`, `FEATURE_UNAVAILABLE` or `NOT_ENABLED` (your key is not enabled for /v2).', 'ORG_SUSPENDED', 'This organization is suspended', 403),
       V2NotFound: errorResponse('Not found, or not yours.', 'NOT_FOUND', 'Not found', 404),
-      V2Conflict: errorResponse('`ACCOUNT_NOT_CONNECTED` (`details.state` says why), `ACCOUNT_NEEDS_RECONNECT`, `ALREADY_CONNECTED`, `IN_PROGRESS`, `NO_ALTERNATIVE`, `PROFILE_IN_USE` (`details.heldBy` names your own organisation when it is yours) or `PROFILE_MISMATCH`.', 'ACCOUNT_NOT_CONNECTED', 'This account is not connected.', 409),
+      V2Conflict: errorResponse('`ACCOUNT_NOT_CONNECTED` (`details.state` says why), `ACCOUNT_NEEDS_RECONNECT`, `ALREADY_CONNECTED`, `IN_PROGRESS`, `NO_ALTERNATIVE`, `PROFILE_IN_USE` (`details.heldBy` names your own organisation when it is yours), `PROFILE_MISMATCH`, or `EMAIL_TAKEN` (an "Open in Spurly" link cannot sign in to an email that already has a Spurly account: the person signs in with the emailed code instead).', 'ACCOUNT_NOT_CONNECTED', 'This account is not connected.', 409),
       V2Gone: errorResponse('The sign-in expired. Start the connection again.', 'EXPIRED', 'This sign-in expired. Start the connection again.', 410),
       V2Unprocessable: errorResponse('LinkedIn refused the sign-in, or the text is too long (`TOO_LONG`).', 'TOO_LONG', 'The text is too long.', 422),
       V2RateLimited: {

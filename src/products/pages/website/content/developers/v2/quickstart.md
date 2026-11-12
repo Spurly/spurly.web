@@ -61,3 +61,5 @@ curl -X POST "https://api.getspurly.com/v2/accounts/$ACCOUNT_ID/chats/$CHAT_ID/m
 ## 4. Listen for events
 
 Spurly sends `message.created`, `message.updated` and `account.updated` to your webhook. See [Webhooks](/developers/v2/webhooks). Check what you are billed on with `GET /usage`.
+
+Want to send a customer into the full Spurly app? `POST /orgs/{orgId}/login-link` returns a one-time link: see [Open in Spurly](/developers/v2/guides/open-in-spurly).

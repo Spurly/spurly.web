@@ -35,6 +35,7 @@ If you manage one LinkedIn inbox per user rather than organisations, the [accoun
 - [Quickstart](/developers/v2/quickstart): from API key to your first LinkedIn call.
 - [Concepts](/developers/v2/concepts): organisations, accounts, one member one organisation, statuses.
 - [Connect LinkedIn](/developers/v2/guides/connect-linkedin): the sign-in and verification flow.
+- [Open in Spurly](/developers/v2/guides/open-in-spurly): send a customer into the full Spurly app with a one-time link.
 - [API reference](/developers/v2/api/orgs): every endpoint, parameter and response.
 - [LinkedIn limits](/developers/v2/guides/linkedin-limits): a safe pace for each action, and what to do when an account hits a limit.
 - [What each account can do](/developers/v2/guides/linkedin-features): which features work on every account, depend on the plan, or are not offered.

@@ -7,6 +7,7 @@ export const ORG_EVENTS = {
   CODE_FAILED: 'ORG_CODE_FAILED',
   SESSION_OPENED: 'ORG_SESSION_OPENED',
   SESSION_FAILED: 'ORG_SESSION_FAILED',
+  ENTER_CONFIRM_REQUIRED: 'ORG_ENTER_CONFIRM_REQUIRED',
   ORGS_LOADED: 'ORG_ORGS_LOADED',
   ORGS_FAILED: 'ORG_ORGS_FAILED',
   ACCOUNTS_LOADED: 'ORG_ACCOUNTS_LOADED',
@@ -21,6 +22,7 @@ export const ORG_EVENTS = {
 
 export const ORG_PATHS = {
   LOGIN: '/login/org',
+  ENTER: '/login/org/enter',
   SETTINGS: '/dashboard/settings?tab=organization',
 };
 
@@ -56,6 +58,21 @@ export const ORG_COPY = {
     useDifferentEmail: 'Use a different email',
     personal: 'Have a personal Spurly account?',
     personalLink: 'Sign in here',
+  },
+  // "Open in Spurly": a partner's app sends a person here with a one-time link.
+  enter: {
+    opening: 'Opening your organization…',
+    expiredTitle: 'This link has expired',
+    expiredBody: 'This link has expired. Go back and click Open in Spurly again.',
+    busyTitle: 'Too many attempts',
+    busyBody: 'Please wait a minute, then click Open in Spurly again.',
+    offlineTitle: 'Cannot reach Spurly',
+    offlineBody: 'Check your connection, then go back and click Open in Spurly again.',
+    confirmTitle: 'Open this organization?',
+    // {email} is the person's own, already signed-in Spurly address.
+    confirmBody: (email) => (email ? `You're signed in to Spurly as ${email}. Opening this organization will sign you out of it.` : "You're signed in to Spurly. Opening this organization will sign you out of it."),
+    continue: 'Continue',
+    stay: 'Stay signed in',
   },
   tab: {
     title: 'Organization',

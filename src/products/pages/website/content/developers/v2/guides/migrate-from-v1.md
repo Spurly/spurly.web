@@ -54,7 +54,9 @@ Treat every id as belonging to the version that returned it. Do not carry a v1 c
 | `GET /events` | `GET /events` |
 | `GET /accounts/{accountId}/inbox`, `POST .../inbox/sync` | No equivalent. There is no stored inbox to sync |
 | `GET`, `PUT /webhook`, `POST /webhook/test`, `POST /webhook/rotate-secret` | No equivalent. Spurly manages them with you |
-| `POST /accounts/{accountId}/login-link`, `DELETE .../login`, `GET /linkedin/connect-options` | No equivalent. Customers sign in to Spurly with their email address |
+| `POST /accounts/{accountId}/login-link` | `POST /orgs/{orgId}/login-link`, optionally with an `accountId`. See [Open in Spurly](/developers/v2/guides/open-in-spurly) |
+| `GET /linkedin/connect-options` | `GET /connect-options` |
+| `DELETE /accounts/{accountId}/login` | No equivalent. Customers sign in to Spurly with their email address, so there is no separate login to remove |
 
 New in v2, with no v1 equivalent: profiles and search, invitations and connections, followers, profile viewers, posts and comments, companies, InMail balance, follow, endorse, delete a chat or a message, and `GET /usage`. See the [API reference](/developers/v2/api/orgs).
 

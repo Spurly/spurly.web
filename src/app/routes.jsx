@@ -75,6 +75,9 @@ const LoginPage = lazyWithProgress(
 const OrgLoginPage = lazyWithProgress(
   () => import("src/core/pages/auth/OrgLoginPage.jsx"),
 );
+const OrgEnterPage = lazyWithProgress(
+  () => import("src/core/pages/auth/OrgEnterPage.jsx"),
+);
 const PartnerEnterPage = lazyWithProgress(
   () => import("src/core/pages/partner/PartnerEnterPage.jsx"),
 );
@@ -273,6 +276,8 @@ export function AppRoutes() {
           <Route path="/signup/verify" element={<VerifyEmailPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/login/org" element={<OrgLoginPage />} />
+          {/* "Open in Spurly" for an organization: reached from a partner's app with a one-time link. Never indexed. */}
+          <Route path="/login/org/enter" element={<OrgEnterPage />} />
           {/* "Open in Spurly": reached from a partner's app. Not public marketing: no sitemap, no prerender, never indexed. */}
           <Route path="/partner/enter" element={<PartnerEnterPage />} />
           <Route path="/partner/ended" element={<PartnerEndedPage />} />

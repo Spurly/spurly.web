@@ -47,6 +47,8 @@ LinkedIn pays attention to where a session comes from. If many accounts sign in 
 2. **`location`**: `{ "mode": "country", "country": "US" }` to choose a country by its two-letter code.
 3. **`location`**: `{ "mode": "proxy", "proxy": { "protocol": "https", "host": "...", "port": 1234, "username": "...", "password": "..." } }` to use your own proxy. `protocol` is `http`, `https` or `socks5`. If LinkedIn cannot be reached through it, you get `422 PROXY_INVALID`.
 
+`GET /connect-options?endUserIp=...` returns the country Spurly detects for that address (`detectedCountry`, or `null`) and the supported proxy protocols: use it to pre-select a country picker.
+
 Keep the same location for the life of the account. Moving a member across the world between sign-ins is itself a warning sign.
 
 ## Verification steps

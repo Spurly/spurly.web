@@ -19,7 +19,7 @@ There is no hosted sign-in page in `/v2`: you collect the details in your own UI
 - `{ "method": "credentials", "username": "...", "password": "..." }`
 - `{ "method": "cookies", "accessToken": "<li_at value>", "premiumToken": "<li_a value, optional>", "userAgent": "<optional>" }`
 
-Send `endUserIp` (your end user's own IPv4 address) so LinkedIn sees the sign-in from where the person is. You can also choose a `location` (a country, or your own proxy). To reconnect an account that needs it, add its id as `accountId`.
+Send `endUserIp` (your end user's own IPv4 address) so LinkedIn sees the sign-in from where the person is. You can also choose a `location` (a country, or your own proxy). To show a country picker with the right default, call `GET /connect-options` first: it returns `detectedCountry` (from the `endUserIp` you pass, or `null`) and the supported `proxyProtocols`. To reconnect an account that needs it, add its id as `accountId`.
 
 The answer is one of two states:
 
