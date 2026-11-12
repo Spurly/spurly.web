@@ -68,6 +68,7 @@ You have **5 minutes** to finish a checkpoint (`410 EXPIRED` after that, so star
 ## Things to plan for
 
 - **One member, one organisation.** A member who is live elsewhere answers `409 PROFILE_IN_USE`. See [Concepts](/developers/v2/concepts#one-member-one-organisation).
-- **Five connects an hour.** Each organisation can start 5 sign-ins an hour (`429 ORG_CONNECT_LIMIT`). Do not retry failed sign-ins in a loop: repeated attempts make LinkedIn suspicious.
+- **No connect cap, but go gently.** We do not limit how many sign-ins an organisation starts, but LinkedIn does react to bursts. Do not retry failed sign-ins in a loop: repeated attempts make LinkedIn suspicious.
+- **Allow 60 seconds for a connect call.** A LinkedIn sign-in can take up to about 50 seconds. If your client times out sooner, the account may still finish connecting: list the organisation's accounts before you retry.
 - **Watch `account.updated`.** Status `CREDENTIALS` is the one that needs the member. Build your reconnect prompt around it.
 - **Reconnect as the same member.** A different LinkedIn profile answers `409 PROFILE_MISMATCH` and is disconnected.

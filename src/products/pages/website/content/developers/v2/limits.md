@@ -17,7 +17,7 @@ parent: /developers/v2
 |---|---|---|
 | Per API key | 600 requests per minute | `429 RATE_LIMITED` with `Retry-After` |
 | Per LinkedIn account | 60 requests per minute | `429 RATE_LIMITED` with `Retry-After` |
-| Connects per organisation | 5 per hour | `429 ORG_CONNECT_LIMIT` with `Retry-After` |
+| Connects per organisation | No limit | Only LinkedIn's own `429 LINKEDIN_RATE_LIMITED` |
 
 LinkedIn also limits what an account can do. When it does, you get `429 RATE_LIMITED` and `Retry-After: 60`; if it asks for a pause on sign-in attempts, the connect calls answer `429 LINKEDIN_RATE_LIMITED`. Back off and retry reads; for writes see [Errors](/developers/v2/errors#retrying-writes).
 
