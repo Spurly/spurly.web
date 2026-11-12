@@ -5,6 +5,9 @@ import { DataTable } from 'src/core/DataTable';
 import { DetailConsole, RailCard, ReadingsGrid, FactList, ProgressMeter } from 'src/core/layout';
 import { Button, Badge, FilterPills } from 'src/core/primitives';
 import { useCampaignDetail } from 'src/products/campaigns/hooks/useCampaignDetail.js';
+import { useOrgState } from 'src/core/org/hooks/useOrgState.js';
+import { RecentContactRule } from '../components/RecentContactRule.jsx';
+import { recentContactStrings } from '../components/recentContactStrings.js';
 import {
   DetailPageSkeleton,
   DetailActionsSkeleton,
@@ -70,8 +73,10 @@ export function CampaignDetailPage() {
     retryFailed,
     saveNote,
     saveMessageTemplate,
+    saveRecentContact,
     goToPage,
   } = useCampaignDetail();
+  const { isMember } = useOrgState();
 
   const t = campaignsStrings.detail;
 
@@ -294,6 +299,20 @@ export function CampaignDetailPage() {
                 />
               )}
             </RailCard>
+
+            {isMessage && (
+              <RailCard title={recentContactStrings.railTitle}>
+                <div className="p-[var(--ui-pad-lg)]">
+                  <RecentContactRule
+                    value={campaign.recentContact}
+                    onChange={saveRecentContact}
+                    showScope={isMember}
+                    disabled={saving || running}
+                    lockedNote={running ? recentContactStrings.locked : ''}
+                  />
+                </div>
+              </RailCard>
+            )}
 
             <RailCard title="Delivery">
               <div className="p-[var(--ui-pad-lg)] flex flex-col gap-3.5">

@@ -27,7 +27,7 @@ const t = sequencesStrings.new;
  * canvas for space above the fold.
  */
 export function NewSequencePage() {
-  const { name, setName, steps, setSteps, creating, validationError, canCreate, create, inbox, exit, setExit, isOrg, pool, canPool, poolBlocked } = useNewSequencePage();
+  const { name, setName, steps, setSteps, creating, validationError, canCreate, create, inbox, exit, setExit, recentContact, setRecentContact, isOrg, pool, canPool, poolBlocked } = useNewSequencePage();
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
   const sending = useSendingAs();
 
@@ -53,7 +53,7 @@ export function NewSequencePage() {
             <SendingAsChip />
             {canPool && <SendFromControl pool={pool} />}
           </div>
-          <StopRulesButton exit={exit} onChange={setExit} inbox={inbox} isOrg={isOrg} />
+          <StopRulesButton exit={exit} onChange={setExit} inbox={inbox} isOrg={isOrg} recentContact={recentContact} onRecentContactChange={setRecentContact} />
         </div>
 
         {validationError && (

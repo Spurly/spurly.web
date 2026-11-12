@@ -2,6 +2,8 @@ import { Dropdown, SwitchRow } from 'src/core/primitives';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { useLimits } from 'src/core/limits/hooks/useLimits.js';
 import { settingsStrings as t } from '../strings.js';
+import { AutoEnrichCard } from '../../components/AutoEnrichCard.jsx';
+import { RecentContactDefaultCard } from '../../components/RecentContactDefaultCard.jsx';
 
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => [String(h), `${String(h).padStart(2, '0')}:00`]);
 
@@ -102,6 +104,9 @@ export function SendingLimitsTab() {
           {saveError && <p className="text-[length:var(--ui-t-label)] text-[var(--ui-danger-fg)]">{saveError}</p>}
         </div>
       </SectionCard>
+
+      <AutoEnrichCard />
+      <RecentContactDefaultCard />
 
       <SectionCard title="Safety rules">
         <div className="flex flex-col gap-3">

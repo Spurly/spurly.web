@@ -68,6 +68,7 @@ export function SequenceDetailPage() {
     pause,
     rebalance,
     saveSteps,
+    saveRecentContact,
     remove,
     stepsDirty,
     stepsValidation,
@@ -229,7 +230,15 @@ export function SequenceDetailPage() {
                       </p>
                     )}
                   </div>
-                  {sequence.exit && <StopRulesButton exit={sequence.exit} inbox={inbox} isOrg={orgState.isMember} readOnly />}
+                  <StopRulesButton
+                    exit={sequence.exit || {}}
+                    inbox={inbox}
+                    isOrg={orgState.isMember}
+                    readOnly
+                    recentContact={sequence.recentContact}
+                    onRecentContactChange={saveRecentContact}
+                    ruleDisabled={saving}
+                  />
                 </div>
                 <div className="flex-1 min-h-0 px-[var(--ui-shell-x)] pb-5 flex flex-col">
                   <div className="flex-1 min-h-0 flex flex-col rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] overflow-hidden">

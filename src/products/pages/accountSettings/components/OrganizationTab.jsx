@@ -8,6 +8,8 @@ import { useLinkedInConnect } from 'src/products/settings/hooks/useLinkedInConne
 import { createOrgConnectController } from 'src/products/settings/controller/orgConnect.js';
 import { LinkedInConnectDialog } from 'src/products/settings/components/linkedinConnect/LinkedInConnectDialog.jsx';
 import { OrgConnectSuccess } from './OrgConnectSuccess.jsx';
+import { AutoEnrichCard } from '../../components/AutoEnrichCard.jsx';
+import { RecentContactDefaultCard } from '../../components/RecentContactDefaultCard.jsx';
 
 const shortDate = (d) =>
   d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' }) : '';
@@ -206,6 +208,13 @@ function OrgBlock({ org, onChanged }) {
           <AccountRow key={a.id} account={a} disconnecting={disconnecting} onDisconnect={handleDisconnect} onReconnect={handleReconnect} />
         ))}
       </SectionCard>
+      {/* The workspace's own leads and campaigns: only its owner changes how they run. */}
+      {org.role === 'owner' && org.workspaceEnabled === true && (
+        <>
+          <AutoEnrichCard org />
+          <RecentContactDefaultCard org />
+        </>
+      )}
       <LinkedInConnectDialog
         connect={connect}
         headings={ORG_COPY.connect.headings}

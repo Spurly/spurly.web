@@ -15,10 +15,11 @@ import { Sequence } from '../entities/sequence.js';
  */
 
 /** POST /hub/sequences — create a draft. Needs at least one step. */
-async function createSequence({ name, steps, exit, accountIds } = {}) {
+async function createSequence({ name, steps, exit, accountIds, recentContact } = {}) {
   const res = await apiGateway.post('/hub/sequences', {
     name, steps,
     ...(exit ? { exit } : {}),
+    ...(recentContact ? { recentContact } : {}),
     ...(Array.isArray(accountIds) && accountIds.length ? { accountIds } : {}),
   });
   return Sequence.fromResponse(res.data?.data?.sequence ?? null);
@@ -45,10 +46,12 @@ async function getSequence(id) {
  * (SEQUENCE_NOT_EDITABLE), since a step already mid-flight for an enrolled
  * lead cannot be safely rewritten out from under it.
  */
-async function updateSequence(id, { name, steps } = {}) {
+async function updateSequence(id, { name, steps, recentContact } = {}) {
   const body = {};
   if (name !== undefined) body.name = name;
   if (steps !== undefined) body.steps = steps;
+  // { enabled, days, scope }: "skip people I've already messaged". Allowed any time; it applies to people not yet messaged.
+  if (recentContact !== undefined) body.recentContact = recentContact;
   const res = await apiGateway.patch(`/hub/sequences/${id}`, body);
   return Sequence.fromResponse(res.data?.data?.sequence ?? null);
 }

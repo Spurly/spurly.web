@@ -33,6 +33,8 @@ export function useSequenceDetail({ inbox = true } = {}) {
   const toast = useToast();
   const confirm = useConfirm();
   const mountedRef = useRef(true);
+  // True while a "skip people I've already messaged" save is in flight, so the shared update events word their toast right.
+  const savedRuleRef = useRef(false);
 
   // Set on every mount (not just cleared on unmount) — StrictMode's dev
   // double-mount otherwise leaves this false for the real mount's whole life
@@ -79,6 +81,13 @@ export function useSequenceDetail({ inbox = true } = {}) {
     setSaving(true);
     sequenceController.updateSequence(eventEmitter, id, { steps: draftSteps });
   }, [stepsDirty, stepsValidation, eventEmitter, id, draftSteps]);
+
+  /** "Skip people I've already messaged" on this sequence: the whole rule, saved as one edit. */
+  const saveRecentContact = useCallback((recentContact) => {
+    setSaving(true);
+    savedRuleRef.current = true;
+    sequenceController.updateSequence(eventEmitter, id, { recentContact });
+  }, [eventEmitter, id]);
 
   const remove = useCallback(() => {
     const total = data?.enrollmentCounts
@@ -151,13 +160,15 @@ export function useSequenceDetail({ inbox = true } = {}) {
       if (mountedRef.current) setBusy(false);
     }
     function handleUpdateSuccess(updated) {
-      toast.success('Steps saved');
+      toast.success(savedRuleRef.current ? 'Saved' : 'Steps saved');
+      savedRuleRef.current = false;
       setData((prev) => ({ ...prev, sequence: updated }));
       setDraftSteps(updated?.steps ?? draftSteps);
       if (mountedRef.current) setSaving(false);
     }
     function handleUpdateFailure(error) {
-      toast.error(getToastError(error, 'Could not save those steps'));
+      toast.error(getToastError(error, savedRuleRef.current ? 'Could not save that' : 'Could not save those steps'));
+      savedRuleRef.current = false;
       if (mountedRef.current) setSaving(false);
     }
     function handleDeleteSuccess() {
@@ -230,6 +241,7 @@ export function useSequenceDetail({ inbox = true } = {}) {
     start,
     pause,
     saveSteps,
+    saveRecentContact,
     remove,
     stepsDirty,
     stepsValidation,
