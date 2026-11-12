@@ -55,6 +55,28 @@ async function verifyLoginCode(eventEmitter, email, code) {
   }
 }
 
+/** Sign in with the member's own password. On failure nothing is stored. */
+async function passwordLogin(eventEmitter, email, password) {
+  try {
+    const data = await orgGateway.passwordLogin(email, password);
+    const user = adoptSession(data);
+    eventEmitter.emit(ORG_EVENTS.SESSION_OPENED, { user, orgs: data.orgs || [] });
+  } catch (error) {
+    eventEmitter.emit(ORG_EVENTS.SESSION_FAILED, error);
+  }
+}
+
+/** Set the password with the emailed code and become that member. On failure nothing is stored. */
+async function resetPassword(eventEmitter, email, code, password) {
+  try {
+    const data = await orgGateway.resetPassword(email, code, password);
+    const user = adoptSession(data);
+    eventEmitter.emit(ORG_EVENTS.SESSION_OPENED, { user, orgs: data.orgs || [] });
+  } catch (error) {
+    eventEmitter.emit(ORG_EVENTS.SESSION_FAILED, error);
+  }
+}
+
 /**
  * Spend a partner's one-time "Open in Spurly" ticket and become that organization's member.
  * The link may also have chosen one LinkedIn account: it becomes the "Acting as" account
@@ -109,6 +131,6 @@ const setWorkspace = (eventEmitter, orgId, enabled) => run(
   eventEmitter, () => orgGateway.setWorkspace(orgId, enabled), ORG_EVENTS.WORKSPACE_SET, ORG_EVENTS.WORKSPACE_FAILED,
 );
 
-const orgController = { requestLoginCode, verifyLoginCode, openFromLink, getExistingSession, loadOrgs, loadState, loadAccounts, disconnectAccount, setWorkspace };
+const orgController = { requestLoginCode, verifyLoginCode, passwordLogin, resetPassword, openFromLink, getExistingSession, loadOrgs, loadState, loadAccounts, disconnectAccount, setWorkspace };
 
 export default orgController;

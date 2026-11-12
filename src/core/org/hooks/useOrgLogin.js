@@ -4,15 +4,19 @@ import orgController from '../controller/org.js';
 import { ORG_EVENTS, ORG_PATHS } from '../constants/constants.js';
 
 export const LOGIN_STEPS = { EMAIL: 'email', CODE: 'code' };
+/** How the person signs in: an emailed code, their password, or setting a password with a code. */
+export const LOGIN_MODES = { CODE: 'code', PASSWORD: 'password', RESET: 'reset' };
 
 /**
- * Drives /login/org: email -> 6-digit code -> a signed-in session, then a full
+ * Drives /login/org: email -> 6-digit code (or email + password, or a code that sets a
+ * password) -> a signed-in session, then a full
  * page load into Settings -> Organization (the same hand-off "Open in Spurly"
  * uses, so every provider rebuilds around the new session).
  */
 export function useOrgLogin() {
   const emitter = useMemo(() => new EventEmitter(), []);
   const [step, setStep] = useState(LOGIN_STEPS.EMAIL);
+  const [mode, setModeState] = useState(LOGIN_MODES.CODE);
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -46,7 +50,23 @@ export function useOrgLogin() {
     orgController.verifyLoginCode(emitter, email, code);
   }, [emitter, email]);
 
+  const signInWithPassword = useCallback((address, password) => {
+    setBusy(true);
+    setError(null);
+    setEmail(address);
+    orgController.passwordLogin(emitter, address, password);
+  }, [emitter]);
+
+  const resetPassword = useCallback((code, password) => {
+    setBusy(true);
+    setError(null);
+    orgController.resetPassword(emitter, email, code, password);
+  }, [emitter, email]);
+
   const changeEmail = useCallback(() => { setStep(LOGIN_STEPS.EMAIL); setError(null); }, []);
 
-  return { step, email, busy, error, sendCode, verify, changeEmail };
+  /** Switch between code / password / reset; always back to the email step. */
+  const setMode = useCallback((next) => { setModeState(next); setStep(LOGIN_STEPS.EMAIL); setError(null); }, []);
+
+  return { step, mode, email, busy, error, sendCode, verify, signInWithPassword, resetPassword, changeEmail, setMode };
 }
