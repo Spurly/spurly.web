@@ -87,3 +87,39 @@ export function useOrgAccounts(orgId, { onDisconnected } = {}) {
 
   return { accounts, error, disconnecting, disconnectError, disconnect, reload };
 }
+
+/** One org's members and pending invites, plus invite / withdraw / remove (owners). */
+export function useOrgMembers(orgId) {
+  const emitter = useMemo(() => new EventEmitter(), []);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [changeError, setChangeError] = useState(null);
+
+  const reload = useCallback(() => orgController.loadMembers(emitter, orgId), [emitter, orgId]);
+
+  useEffect(() => {
+    const onLoaded = (next) => { setData(next); setError(null); };
+    const onFailed = (err) => setError(err);
+    const onChanged = () => { setBusy(false); setChangeError(null); reload(); };
+    const onChangeFailed = (err) => { setBusy(false); setChangeError(err); };
+    emitter.on(ORG_EVENTS.MEMBERS_LOADED, onLoaded);
+    emitter.on(ORG_EVENTS.MEMBERS_FAILED, onFailed);
+    emitter.on(ORG_EVENTS.MEMBER_CHANGED, onChanged);
+    emitter.on(ORG_EVENTS.MEMBER_CHANGE_FAILED, onChangeFailed);
+    reload();
+    return () => {
+      emitter.off(ORG_EVENTS.MEMBERS_LOADED, onLoaded);
+      emitter.off(ORG_EVENTS.MEMBERS_FAILED, onFailed);
+      emitter.off(ORG_EVENTS.MEMBER_CHANGED, onChanged);
+      emitter.off(ORG_EVENTS.MEMBER_CHANGE_FAILED, onChangeFailed);
+    };
+  }, [emitter, reload]);
+
+  const run = useCallback((fn) => { setBusy(true); setChangeError(null); fn(); }, []);
+  const invite = useCallback((email) => run(() => orgController.inviteMember(emitter, orgId, email)), [emitter, orgId, run]);
+  const revoke = useCallback((inviteId) => run(() => orgController.revokeInvite(emitter, orgId, inviteId)), [emitter, orgId, run]);
+  const remove = useCallback((memberId) => run(() => orgController.removeMember(emitter, orgId, memberId)), [emitter, orgId, run]);
+
+  return { data, error, busy, changeError, invite, revoke, remove };
+}

@@ -18,6 +18,10 @@ export const ORG_EVENTS = {
   STATE_FAILED: 'ORG_STATE_FAILED',
   WORKSPACE_SET: 'ORG_WORKSPACE_SET',
   WORKSPACE_FAILED: 'ORG_WORKSPACE_FAILED',
+  MEMBERS_LOADED: 'ORG_MEMBERS_LOADED',
+  MEMBERS_FAILED: 'ORG_MEMBERS_FAILED',
+  MEMBER_CHANGED: 'ORG_MEMBER_CHANGED',
+  MEMBER_CHANGE_FAILED: 'ORG_MEMBER_CHANGE_FAILED',
 };
 
 export const ORG_PATHS = {
@@ -113,6 +117,21 @@ export const ORG_COPY = {
     workspaceConfirmOff: 'Turn the workspace off?',
     workspaceConfirmOffBody: 'Spurly stops syncing your organization right away. Nothing is deleted.',
     workspaceConfirmOn: 'Turn the workspace on?',
+    membersTitle: 'Members',
+    membersHelp: 'Everyone here signs in with their own email and sees the same organization.',
+    owner: 'Owner',
+    member: 'Member',
+    you: 'You',
+    invited: 'Invited',
+    invitePlaceholder: 'name@company.com',
+    inviteSend: 'Invite',
+    inviteHelp: (url) => `They sign in at ${url} with this email.`,
+    remove: 'Remove',
+    revoke: 'Withdraw',
+    removeTitle: (name) => `Remove ${name}?`,
+    removeBody: 'They lose access to this organization right away. Nothing is deleted.',
+    revokeTitle: 'Withdraw this invite?',
+    revokeBody: 'They will not be able to join with it.',
     workspaceConfirmOnBody: 'Spurly will keep your organization\'s inbox in the app. It is read-only: nothing is sent to LinkedIn.',
   },
   connect: {

@@ -131,6 +131,20 @@ const setWorkspace = (eventEmitter, orgId, enabled) => run(
   eventEmitter, () => orgGateway.setWorkspace(orgId, enabled), ORG_EVENTS.WORKSPACE_SET, ORG_EVENTS.WORKSPACE_FAILED,
 );
 
-const orgController = { requestLoginCode, verifyLoginCode, passwordLogin, resetPassword, openFromLink, getExistingSession, loadOrgs, loadState, loadAccounts, disconnectAccount, setWorkspace };
+const loadMembers = (eventEmitter, orgId) => run(eventEmitter, () => orgGateway.getMembers(orgId), ORG_EVENTS.MEMBERS_LOADED, ORG_EVENTS.MEMBERS_FAILED);
+
+const inviteMember = (eventEmitter, orgId, email) => run(
+  eventEmitter, () => orgGateway.inviteMember(orgId, email), ORG_EVENTS.MEMBER_CHANGED, ORG_EVENTS.MEMBER_CHANGE_FAILED,
+);
+
+const revokeInvite = (eventEmitter, orgId, inviteId) => run(
+  eventEmitter, () => orgGateway.revokeInvite(orgId, inviteId), ORG_EVENTS.MEMBER_CHANGED, ORG_EVENTS.MEMBER_CHANGE_FAILED,
+);
+
+const removeMember = (eventEmitter, orgId, memberId) => run(
+  eventEmitter, () => orgGateway.removeMember(orgId, memberId), ORG_EVENTS.MEMBER_CHANGED, ORG_EVENTS.MEMBER_CHANGE_FAILED,
+);
+
+const orgController = { loadMembers, inviteMember, revokeInvite, removeMember, requestLoginCode, verifyLoginCode, passwordLogin, resetPassword, openFromLink, getExistingSession, loadOrgs, loadState, loadAccounts, disconnectAccount, setWorkspace };
 
 export default orgController;

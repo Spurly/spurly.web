@@ -7,6 +7,10 @@ import apiGateway from 'src/shared/gateway/apiGateway.js';
  *   POST   /org/login/password  { email, password }       -> { token, user, orgs }   (optional password sign-in)
  *   POST   /org/login/reset-password { email, code, password } -> { token, user, orgs }   (sets the password with the emailed code)
  *   POST   /org/login/exchange  { ticket }         -> { token, user, orgs, orgId, accountId }   ("Open in Spurly" one-time link)
+ *   GET    /org/members         ?orgId              -> { canManage, members, invites }
+ *   POST   /org/members/invite  { orgId, email }    -> { id, email }                  (owner)
+ *   DELETE /org/members/invites/:inviteId ?orgId    (owner)
+ *   DELETE /org/members/:memberId ?orgId            (owner)
  *   GET    /org                                     -> { orgs, isMember, features }   (members only)
  *   GET    /org/state                               -> { isMember, features }          (any signed-in user)
  *   PATCH  /org/workspace                           { orgId, enabled }  -> { id, workspaceEnabled, changed }   (owners only)
@@ -41,6 +45,10 @@ const passwordLogin = (email, password) => unwrap(apiGateway.post('/org/login/pa
 const resetPassword = (email, code, password) => unwrap(apiGateway.post('/org/login/reset-password', { email, code, password }));
 /** 🔴 The ticket is a one-time secret: sent once, never logged or kept. */
 const exchangeLoginTicket = (ticket) => unwrap(apiGateway.post('/org/login/exchange', { ticket }));
+const getMembers = (orgId) => unwrap(apiGateway.get(`/org/members?${new URLSearchParams({ orgId })}`));
+const inviteMember = (orgId, email) => unwrap(apiGateway.post('/org/members/invite', { orgId, email }));
+const revokeInvite = (orgId, inviteId) => unwrap(apiGateway.delete(`/org/members/invites/${inviteId}?${new URLSearchParams({ orgId })}`));
+const removeMember = (orgId, memberId) => unwrap(apiGateway.delete(`/org/members/${memberId}?${new URLSearchParams({ orgId })}`));
 const getOrgs = () => unwrap(apiGateway.get('/org'));
 const getState = () => unwrap(apiGateway.get('/org/state'));
 
@@ -69,7 +77,7 @@ const connectStatus = (orgId, connectId) => unwrap(
 );
 
 const orgGateway = {
-  requestLoginCode, verifyLoginCode, passwordLogin, resetPassword, exchangeLoginTicket, getOrgs, getState, getAccounts, disconnectAccount, setWorkspace,
+  requestLoginCode, verifyLoginCode, passwordLogin, resetPassword, exchangeLoginTicket, getMembers, inviteMember, revokeInvite, removeMember, getOrgs, getState, getAccounts, disconnectAccount, setWorkspace,
   connectAccount, solveCheckpoint, tryAnotherWay, resendCheckpoint, connectStatus,
 };
 
