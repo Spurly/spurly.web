@@ -3,7 +3,7 @@ import EventEmitter from 'src/shared/utils/EventEmitter.js';
 import adminController from 'src/core/admin/controller/admin.js';
 import { ADMIN_EVENTS } from 'src/core/admin/constants/constants.js';
 import { Badge, Button, Drawer, Input, useConfirm, useToast } from 'src/core/primitives';
-import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
+import { getApiErrorMessage } from 'src/shared/utils/apiError';
 import { Dropdown } from 'src/core/primitives/Dropdown';
 import { OrgStatusBadge } from './orgColumns.jsx';
 import { shortDate } from './format.js';
@@ -73,9 +73,10 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
       load();
       onChanged?.();
     }
+    // Admin screen: the operator needs the server's real reason (e.g. EMAIL_TAKEN), so these toasts relay it in full.
     function handleStatusFailed(err) {
       setBusy(false);
-      toast.error(getToastError(err, "Couldn't change the organization's status"));
+      toast.error(getApiErrorMessage(err, "Couldn't change the organization's status"));
     }
     function handleInboxSet() {
       setInboxBusy(false);
@@ -85,7 +86,7 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
     }
     function handleInboxFailed(err) {
       setInboxBusy(false);
-      toast.error(getToastError(err, "Couldn't change the inbox setting"));
+      toast.error(getApiErrorMessage(err, "Couldn't change the inbox setting"));
     }
     function handleWorkspaceSet() {
       setWorkspaceBusy(false);
@@ -95,7 +96,7 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
     }
     function handleWorkspaceFailed(err) {
       setWorkspaceBusy(false);
-      toast.error(getToastError(err, "Couldn't change the workspace"));
+      toast.error(getApiErrorMessage(err, "Couldn't change the workspace"));
     }
     function handleCreditsAdded(data) {
       setCreditsBusy(false);
@@ -105,21 +106,21 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
     }
     function handleCreditsFailed(err) {
       setCreditsBusy(false);
-      toast.error(getToastError(err, "Couldn't add credits"));
+      toast.error(getApiErrorMessage(err, "Couldn't add credits"));
     }
     function handleOpened(data) {
       adminController.impersonateUser(eventEmitter, data?.userId);
     }
     function handleOpenFailed(err) {
       setOpenBusy(false);
-      toast.error(getToastError(err, "Couldn't open this organization"));
+      toast.error(getApiErrorMessage(err, "Couldn't open this organization"));
     }
     function handleImpersonated({ user: impersonatedUser, token }) {
       startImpersonation({ targetToken: token, targetUser: impersonatedUser });
     }
     function handleImpersonateFailed(err) {
       setOpenBusy(false);
-      toast.error(getToastError(err, "Couldn't log in as this organization"));
+      toast.error(getApiErrorMessage(err, "Couldn't log in as this organization"));
     }
     eventEmitter.on(ADMIN_EVENTS.OPEN_ORG_AS_SUCCESS, handleOpened);
     eventEmitter.on(ADMIN_EVENTS.OPEN_ORG_AS_FAILURE, handleOpenFailed);
