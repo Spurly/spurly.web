@@ -7,6 +7,7 @@ import { getToastError, getApiErrorMessage } from 'src/shared/utils/apiError';
 import { Dropdown } from 'src/core/primitives/Dropdown';
 import { OrgStatusBadge } from './orgColumns.jsx';
 import { shortDate } from './format.js';
+import { startImpersonation } from 'src/shared/utils/impersonation.js';
 
 function Fact({ label, value }) {
   return (
@@ -51,6 +52,7 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
   const [workspaceBusy, setWorkspaceBusy] = useState(false);
   const [inboxBusy, setInboxBusy] = useState(false);
   const [creditsBusy, setCreditsBusy] = useState(false);
+  const [openBusy, setOpenBusy] = useState(false);
   const [creditsAmount, setCreditsAmount] = useState('');
 
   const load = useCallback(() => {
@@ -105,6 +107,24 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
       setCreditsBusy(false);
       toast.error(getToastError(err, "Couldn't add credits"));
     }
+    function handleOpened(data) {
+      adminController.impersonateUser(eventEmitter, data?.userId);
+    }
+    function handleOpenFailed(err) {
+      setOpenBusy(false);
+      toast.error(getToastError(err, "Couldn't open this organization"));
+    }
+    function handleImpersonated({ user: impersonatedUser, token }) {
+      startImpersonation({ targetToken: token, targetUser: impersonatedUser });
+    }
+    function handleImpersonateFailed(err) {
+      setOpenBusy(false);
+      toast.error(getToastError(err, "Couldn't log in as this organization"));
+    }
+    eventEmitter.on(ADMIN_EVENTS.OPEN_ORG_AS_SUCCESS, handleOpened);
+    eventEmitter.on(ADMIN_EVENTS.OPEN_ORG_AS_FAILURE, handleOpenFailed);
+    eventEmitter.on(ADMIN_EVENTS.IMPERSONATE_USER_SUCCESS, handleImpersonated);
+    eventEmitter.on(ADMIN_EVENTS.IMPERSONATE_USER_FAILURE, handleImpersonateFailed);
     eventEmitter.on(ADMIN_EVENTS.ADD_ORG_CREDITS_SUCCESS, handleCreditsAdded);
     eventEmitter.on(ADMIN_EVENTS.ADD_ORG_CREDITS_FAILURE, handleCreditsFailed);
     eventEmitter.on(ADMIN_EVENTS.GET_ORG_SUCCESS, handleLoaded);
@@ -116,6 +136,10 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
     eventEmitter.on(ADMIN_EVENTS.SET_ORG_WORKSPACE_SUCCESS, handleWorkspaceSet);
     eventEmitter.on(ADMIN_EVENTS.SET_ORG_WORKSPACE_FAILURE, handleWorkspaceFailed);
     return () => {
+      eventEmitter.off(ADMIN_EVENTS.OPEN_ORG_AS_SUCCESS, handleOpened);
+      eventEmitter.off(ADMIN_EVENTS.OPEN_ORG_AS_FAILURE, handleOpenFailed);
+      eventEmitter.off(ADMIN_EVENTS.IMPERSONATE_USER_SUCCESS, handleImpersonated);
+      eventEmitter.off(ADMIN_EVENTS.IMPERSONATE_USER_FAILURE, handleImpersonateFailed);
       eventEmitter.off(ADMIN_EVENTS.GET_ORG_SUCCESS, handleLoaded);
       eventEmitter.off(ADMIN_EVENTS.GET_ORG_FAILURE, handleLoadFailed);
       eventEmitter.off(ADMIN_EVENTS.SET_ORG_STATUS_SUCCESS, handleStatusSet);
@@ -151,6 +175,11 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
       setBusy(true);
       adminController.setOrgStatus(eventEmitter, orgId, next);
     });
+  }
+
+  function handleOpenAs() {
+    setOpenBusy(true);
+    adminController.openOrgAs(eventEmitter, orgId);
   }
 
   const workspaceOn = org?.workspaceEnabled === true;
@@ -197,9 +226,14 @@ export function OrgDrawer({ orgId, onClose, onChanged }) {
       size="lg"
       footer={
         org && (
-          <Button variant={suspended ? 'primary' : 'danger'} loading={busy} onClick={handleToggle}>
-            {suspended ? 'Resume organization' : 'Suspend organization'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" loading={openBusy} disabled={suspended} onClick={handleOpenAs}>
+              Open as this org
+            </Button>
+            <Button variant={suspended ? 'primary' : 'danger'} loading={busy} onClick={handleToggle}>
+              {suspended ? 'Resume organization' : 'Suspend organization'}
+            </Button>
+          </div>
         )
       }
     >

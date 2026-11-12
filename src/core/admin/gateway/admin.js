@@ -292,6 +292,12 @@ export async function getOrg(orgId) {
   return res.data;
 }
 
+/** The org's sign-in user id (created on first use), so an admin can impersonate it. Answers { userId }. */
+export async function openOrgAs(orgId) {
+  const res = await apiGateway.post(`/admin/orgs/${orgId}/open-as`);
+  return res.data;
+}
+
 export async function setOrgStatus(orgId, status) {
   const res = await apiGateway.patch(`/admin/orgs/${orgId}/status`, { status });
   return res.data;

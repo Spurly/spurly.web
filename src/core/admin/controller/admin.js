@@ -366,6 +366,16 @@ function getOrg(eventEmitter, orgId) {
   );
 }
 
+function openOrgAs(eventEmitter, orgId) {
+  return call(
+    eventEmitter,
+    () => adminGateway.openOrgAs(orgId),
+    ADMIN_EVENTS.OPEN_ORG_AS_SUCCESS,
+    ADMIN_EVENTS.OPEN_ORG_AS_FAILURE,
+    "Couldn't open this organization",
+  );
+}
+
 function setOrgStatus(eventEmitter, orgId, status) {
   return call(
     eventEmitter,
@@ -440,6 +450,7 @@ const adminController = {
   getOrgs,
   getOrgPartners,
   getOrg,
+  openOrgAs,
   setOrgStatus,
   setOrgWorkspace,
   setOrgInbox,
