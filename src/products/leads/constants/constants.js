@@ -55,3 +55,58 @@ export const ACTIVITY_TYPES = [
   { value: 'imported', label: 'Imported' },
   { value: 'enriched', label: 'Enriched' },
 ];
+
+/**
+ * Title-column filters. The `value` keys are the server's (spurly.backend products/hub/sourcing/constants/titleTaxonomy.js);
+ * a key the server does not know is ignored there, so keep the two lists in step.
+ */
+export const LEAD_SENIORITY_OPTIONS = [
+  { value: 'owner', label: 'Founder / Owner' },
+  { value: 'c_level', label: 'C-level' },
+  { value: 'vp', label: 'VP' },
+  { value: 'director', label: 'Director / Head' },
+  { value: 'manager', label: 'Manager' },
+  { value: 'senior', label: 'Senior' },
+  { value: 'entry', label: 'Entry / Intern' },
+];
+
+export const LEAD_FUNCTION_OPTIONS = [
+  { value: 'engineering', label: 'Engineering / IT' },
+  { value: 'product_design', label: 'Product & Design' },
+  { value: 'sales', label: 'Sales & BD' },
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'hr', label: 'HR & Recruiting' },
+  { value: 'finance', label: 'Finance' },
+  { value: 'operations', label: 'Operations' },
+  { value: 'customer', label: 'Support & CS' },
+  { value: 'legal', label: 'Legal' },
+  { value: 'healthcare', label: 'Healthcare' },
+  { value: 'education', label: 'Education' },
+  { value: 'consulting', label: 'Consulting' },
+  { value: 'executive', label: 'General mgmt' },
+];
+
+/** "Last activity" as a date window; the server reads these presets (d7 | d30 | d90 | older90). */
+export const LAST_ACTIVITY_WINDOWS = [
+  { value: '', label: 'Any time' },
+  { value: 'd7', label: '7 days' },
+  { value: 'd30', label: '30 days' },
+  { value: 'd90', label: '90 days' },
+  { value: 'older90', label: 'Idle 90d+' },
+];
+
+export const EMPTY_LEAD_FILTERS = { title: '', seniority: [], jobFunction: [], location: '', lastActivity: '' };
+
+/** The query params for a leadFilters object; only the filters that are set. */
+export function leadFilterParams(f = EMPTY_LEAD_FILTERS) {
+  const out = {};
+  if (f.title?.trim()) out.title = f.title.trim();
+  if (f.seniority?.length) out.seniority = f.seniority.join(',');
+  if (f.jobFunction?.length) out.jobFunction = f.jobFunction.join(',');
+  if (f.location?.trim()) out.location = f.location.trim();
+  if (f.lastActivity) out.lastActivity = f.lastActivity;
+  return out;
+}
+
+/** How many of the Filter menu's filters are set (the badge on its button). */
+export const countLeadFilters = (f = EMPTY_LEAD_FILTERS) => Object.keys(leadFilterParams(f)).length;

@@ -32,7 +32,7 @@ export function AutoEnrichCard({ org = false }) {
     );
   }
 
-  const { min = 10, max = 100 } = setting.limits || {};
+  const { min = 10, max = 250 } = setting.limits || {};
   const picks = AUTO_ENRICH_AMOUNT_PICKS.filter((n) => n >= min && n <= max);
   const progress = setting.progress;
 

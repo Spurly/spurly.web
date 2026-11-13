@@ -35,6 +35,21 @@ export const leadsStrings = {
     hint: 'Searches run through your own account, so there is nothing to read results with until it is linked.',
     cta: 'Go to LinkedIn settings',
   },
+  // The Filter menu (Title, Seniority, Function, Location, Last activity).
+  filterMenu: {
+    button: 'Filters',
+    title: 'Filter leads by title, location and activity',
+    titleLabel: 'Title',
+    titlePlaceholder: 'e.g. CTO, VP Sales, Leiter Personal',
+    titleHint: 'Finds other spellings too: CTO also matches Chief Technical Officer.',
+    seniorityLabel: 'Seniority',
+    functionLabel: 'Function',
+    groupHint: 'Read from the job title, in English and German. A title can match more than one.',
+    locationLabel: 'Location',
+    locationPlaceholder: 'City, region or country',
+    activityLabel: 'Last activity',
+    clear: 'Clear all',
+  },
   filteredBy: 'Filtered by',
   untitledAudience: 'Untitled audience',
   table: {

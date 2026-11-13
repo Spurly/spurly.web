@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from "react-router-do
 import { DashboardLayout } from "src/core/layout/DashboardLayout";
 import { DataTable } from "src/core/DataTable";
 import { Button, Dropdown, ExportMenu, PageTabs, SoonTag, WorkingLine } from "src/core/primitives";
-import { LEAD_PAGE_SIZES } from "src/products/leads/constants/constants.js";
+import { LEAD_PAGE_SIZES, countLeadFilters } from "src/products/leads/constants/constants.js";
 import {
   PlusIcon,
   SendIcon,
@@ -30,6 +30,7 @@ import { AudiencePicker } from "./components/AudiencePicker.jsx";
 import { DegreeFilter } from "./components/DegreeFilter.jsx";
 import { ActivityFilter } from "./components/ActivityFilter.jsx";
 import { CompanyFilter } from './components/CompanyFilter.jsx';
+import { LeadFilterMenu } from './components/LeadFilterMenu.jsx';
 import { DuplicateSearchDialog, FetchMoreDialog, NewListDialog } from "./components/SourcingDialogs.jsx";
 import { leadsStrings as t } from "./strings.js";
 
@@ -73,6 +74,8 @@ export function HubLeadsPage() {
     setActivityType,
     companies,
     setCompanies,
+    leadFilters,
+    setLeadFilters,
     loading,
     exporting,
     exportLeads,
@@ -145,7 +148,7 @@ export function HubLeadsPage() {
   // Every account's leads at once: the single Degree column and filter do not apply, "Found by" does.
   const leadColumns = allView ? hubLeadColumnsForAllAccounts(knownAccounts) : hubLeadColumns;
   // Acting as an account that has found nothing yet looks like an empty app: say so, and offer the way out.
-  const hasFilters = Boolean(activeSearchId || query || (companies && companies.length) || (connectionDegree && connectionDegree.length) || activityType);
+  const hasFilters = Boolean(activeSearchId || query || (companies && companies.length) || (connectionDegree && connectionDegree.length) || activityType || countLeadFilters(leadFilters) > 0);
   const showAllHint = !allView && !loading && leads.length === 0 && !hasFilters && knownAccounts.length >= 2 && sending.isOrg;
   const [searchParams, setSearchParams] = useSearchParams();
   const [audienceOpen, setAudienceOpen] = useState(false);
@@ -245,22 +248,9 @@ export function HubLeadsPage() {
     </div>
   ) : null;
 
-  /* "+ Filter" — the handoff's status / fit filter popover. Lead-status and
-     fit filters need server-side support that isn't built yet, so the
-     control is shown in its place, marked SOON. */
-  const filterChip = (
-    <span
-      className="inline-flex items-center gap-1.5 h-[var(--ui-ctl-h)] px-2.5 rounded-[var(--ui-radius-sm)] border border-dashed border-[var(--ui-border-strong)] text-[length:var(--ui-t-label)] text-[var(--ui-text-secondary)] whitespace-nowrap cursor-not-allowed shrink-0"
-      title="Status and fit filters are coming soon"
-    >
-      <PlusIcon size={12} strokeWidth={2} />
-      Filter
-      <SoonTag />
-    </span>
-  );
-
   const picker = (
     <>
+      <LeadFilterMenu value={leadFilters} onChange={setLeadFilters} />
       {!allView && <DegreeFilter value={connectionDegree} onChange={setConnectionDegree} />}
       <ActivityFilter value={activityType} onChange={setActivityType} />
       <CompanyFilter value={companies} onChange={setCompanies} searchId={activeSearchId} />
@@ -338,7 +328,6 @@ export function HubLeadsPage() {
             searchValue: query,
             onSearch: setQuery,
             searchPlaceholder: t.table.searchPlaceholder,
-            chips: filterChip,
             filters: picker,
             bulkActions: (
               <>
