@@ -176,8 +176,8 @@ export const AUTO_ENRICH_EVENTS = {
   SET_FAILURE: 'AUTO_ENRICH_SET_FAILURE',
 };
 
-/** Quick picks for "how many profiles a day"; the server's own range (10-100) is read from the response. */
-export const AUTO_ENRICH_AMOUNT_PICKS = [25, 50, 60, 100];
+/** Quick picks for "how many profiles a day"; the server's own range (10-250) is read from the response. */
+export const AUTO_ENRICH_AMOUNT_PICKS = [25, 50, 60, 100, 250];
 
 /** Events the "skip people I've messaged recently" default controller emits. */
 export const RECENT_CONTACT_EVENTS = {

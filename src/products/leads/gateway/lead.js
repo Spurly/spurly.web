@@ -156,7 +156,7 @@ async function deleteSearch(id, { deleteLeads = false } = {}) {
  * table is paginated, so filtering only what's already loaded would miss
  * matches on other pages.
  */
-async function listLeads({ searchId, q, enrichmentStatus, connectionDegree, activityType, companies, page = 1, limit = 50 } = {}) {
+async function listLeads({ searchId, q, enrichmentStatus, connectionDegree, activityType, companies, title, seniority, jobFunction, location, lastActivity, page = 1, limit = 50 } = {}) {
   const params = { page, limit };
   // Exact company names, sent as companies[]=… (names can contain commas).
   if (Array.isArray(companies) && companies.length > 0) params.companies = companies;
@@ -166,6 +166,12 @@ async function listLeads({ searchId, q, enrichmentStatus, connectionDegree, acti
   if (connectionDegree) params.connectionDegree = connectionDegree;
   // Comma-separated 'invite,message,imported,enriched' — see the Activity filter.
   if (activityType) params.activityType = activityType;
+  // The Filter menu: free text (title, location), comma-separated keys (seniority, jobFunction), one last-activity preset.
+  if (title) params.title = title;
+  if (seniority) params.seniority = seniority;
+  if (jobFunction) params.jobFunction = jobFunction;
+  if (location) params.location = location;
+  if (lastActivity) params.lastActivity = lastActivity;
   const res = await apiGateway.get('/hub/leads', { params });
   const data = res.data?.data ?? { leads: [], pagination: { page: 1, limit, total: 0 } };
   rememberLeadAccounts(data.leads ?? []);

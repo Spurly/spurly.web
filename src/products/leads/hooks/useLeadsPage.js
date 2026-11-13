@@ -11,7 +11,7 @@ import { ENRICHMENT_EVENTS } from 'src/products/enrichment/constants/constants.j
 import sequenceController from 'src/products/sequences/controller/sequence.js';
 import { SEQUENCE_EVENTS } from 'src/products/sequences/constants/constants.js';
 import { isBusy } from './audience.js';
-import { PAGE_SIZE, POLL_MS, LEAD_EVENTS } from '../constants/constants.js';
+import { PAGE_SIZE, POLL_MS, LEAD_EVENTS, EMPTY_LEAD_FILTERS, leadFilterParams } from '../constants/constants.js';
 import { buildLeadsCsv, leadsExportFilename } from '../exportCsv.js';
 import { downloadFile } from 'src/shared/utils/csvExport.js';
 
@@ -50,6 +50,8 @@ export function useLeadsPage() {
   // Company filter — exact company names (the Company dropdown, which pages
   // its options from GET /hub/lead-companies). Server-side like the rest.
   const [companies, setCompanies] = useState([]);
+  // The Filter menu: Title (synonym-aware), Seniority, Function, Location and a Last-activity window. Server-side, same reason.
+  const [leadFilters, setLeadFilters] = useState(EMPTY_LEAD_FILTERS);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   // Rows per page on the All leads table (50 / 75 / 100). The server takes it as `limit`.
@@ -143,7 +145,8 @@ export function useLeadsPage() {
     connectionDegree: connectionDegree.length > 0 ? connectionDegree.join(',') : undefined,
     activityType: activityType.length > 0 ? activityType.join(',') : undefined,
     companies: companies.length > 0 ? companies : undefined,
-  }), [activeSearchId, query, connectionDegree, activityType, companies]);
+    ...leadFilterParams(leadFilters),
+  }), [activeSearchId, query, connectionDegree, activityType, companies, leadFilters]);
 
   const download = useCallback((rows) => {
     const csv = buildLeadsCsv(rows);
@@ -204,10 +207,11 @@ export function useLeadsPage() {
       connectionDegree: connectionDegree.length > 0 ? connectionDegree.join(',') : undefined,
       activityType: activityType.length > 0 ? activityType.join(',') : undefined,
       companies: companies.length > 0 ? companies : undefined,
+      ...leadFilterParams(leadFilters),
       page,
       limit: pageSize,
     });
-  }, [activeSearchId, query, connectionDegree, activityType, companies, pageSize, toast]);
+  }, [activeSearchId, query, connectionDegree, activityType, companies, leadFilters, pageSize, toast]);
 
   useEffect(() => {
     loadSearches();
@@ -821,6 +825,8 @@ export function useLeadsPage() {
     setActivityType,
     companies,
     setCompanies,
+    leadFilters,
+    setLeadFilters,
     loading,
     exporting,
     exportLeads,
