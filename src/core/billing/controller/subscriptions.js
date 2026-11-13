@@ -134,6 +134,22 @@ async function startCheckout(eventEmitter, opts = {}) {
   }
 }
 
+/**
+ * Redeem a promo code for a free trial.
+ *
+ * Emits exactly one of:
+ *   PROMO_REDEEM_SUCCESS(summary) — trial started; summary is the fresh /me payload
+ *   PROMO_REDEEM_FAILURE(error)   — the server's reason, as written
+ */
+async function redeemPromoCode(eventEmitter, code) {
+  try {
+    const summary = await subscriptionsGateway.redeemPromoCode(code);
+    eventEmitter.emit(SUBSCRIPTION_EVENTS.PROMO_REDEEM_SUCCESS, summary);
+  } catch (error) {
+    eventEmitter.emit(SUBSCRIPTION_EVENTS.PROMO_REDEEM_FAILURE, error);
+  }
+}
+
 /** Stop autopay; access runs to the end of the paid period (or trial end). */
 async function cancelSubscription(eventEmitter) {
   try {
@@ -166,6 +182,7 @@ const subscriptionsController = {
   getPublicRegion,
   getPricing,
   startCheckout,
+  redeemPromoCode,
   cancelSubscription,
   getMySubscription,
   getInvoices,

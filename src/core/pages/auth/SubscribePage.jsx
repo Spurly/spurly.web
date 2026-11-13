@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/core/auth/hooks/useAuth';
 import { useSubscription } from 'src/core/billing/hooks/useSubscription';
@@ -23,6 +23,8 @@ const FEATURES = [
 
 const CONFIRM_POLL_MS = 2000;
 const CONFIRM_POLLS = 10;
+// Mirrors the backend's PROMO_CODE_MAX_LENGTH: nothing longer can be a code.
+const PROMO_CODE_MAX_LENGTH = 40;
 
 const longDate = (d) =>
   d ? new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }) : '';
@@ -54,15 +56,32 @@ export default function SubscribePage() {
   const onTrial = Boolean(status?.isAppTrial());
   const trialEnded = Boolean(status?.isTrialEnded());
 
+  // Promo code: a hidden-until-asked box. The server decides whether the code
+  // is valid and the account eligible; this page only relays its answer.
+  const [promoOpen, setPromoOpen] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoApplying, setPromoApplying] = useState(false);
+  const [promoError, setPromoError] = useState('');
+  // The code was accepted; we leave for the app as soon as the app-wide
+  // status (what the gates read) shows the trial as active.
+  const [trialStarted, setTrialStarted] = useState(false);
+  const promoInputRef = useRef(null);
+
   // Already active (paid in another tab, comped)? Nothing to do here. A user
   // on the FREE TRIAL is active too but may be here on purpose (the "Add
   // payment" banner), so they stay until they have actually paid.
   const settled = (s) => Boolean(s?.isActive() && !s.isAppTrial());
   useEffect(() => {
-    if (settled(status)) {
+    // A promo trial is active but not "settled"; once the code was accepted
+    // AND the status shows it, go — the gates would bounce us back otherwise.
+    if (settled(status) || (trialStarted && status?.isActive())) {
       navigate(postAuthDestination(user), { replace: true });
     }
-  }, [status, user, navigate]);
+  }, [status, user, navigate, trialStarted]);
+
+  useEffect(() => {
+    if (promoOpen) promoInputRef.current?.focus();
+  }, [promoOpen]);
 
   const loadPricing = useCallback(() => {
     setPricingLoading(true);
@@ -142,6 +161,42 @@ export default function SubscribePage() {
     });
   }
 
+  function onApplyPromo(event) {
+    event.preventDefault();
+    if (promoApplying || phase !== 'idle') return;
+    const code = promoCode.trim();
+    if (!code) {
+      setPromoError('Enter a promo code.');
+      return;
+    }
+    setPromoApplying(true);
+    setPromoError('');
+    const emitter = new EventEmitter();
+    subscriptionsController.redeemPromoCode(emitter, code);
+    emitter.once(SUBSCRIPTION_EVENTS.PROMO_REDEEM_SUCCESS, () => {
+      toast.success('Promo code applied — your free trial has started');
+      // The gates read SubscriptionContext, so let it learn about the trial
+      // before we leave (the effect above navigates once it is active).
+      const refreshed = refetch();
+      refreshed.once(SUBSCRIPTION_EVENTS.GET_MY_SUBSCRIPTION_SUCCESS, (summary) => {
+        if (summary?.isActive()) {
+          setTrialStarted(true);
+          return;
+        }
+        setPromoApplying(false);
+        setPromoError('Your promo code was applied, but your account has not updated yet. Reload the page to continue.');
+      });
+      refreshed.once(SUBSCRIPTION_EVENTS.GET_MY_SUBSCRIPTION_FAILURE, () => {
+        setPromoApplying(false);
+        setPromoError('Your promo code was applied, but we could not refresh your account. Reload the page to continue.');
+      });
+    });
+    emitter.once(SUBSCRIPTION_EVENTS.PROMO_REDEEM_FAILURE, (err) => {
+      setPromoApplying(false);
+      setPromoError(getToastError(err, "Couldn't apply that promo code"));
+    });
+  }
+
   const isPastDue = status?.isPastDue();
   const loading = statusLoading || pricingLoading;
   const price = pricing ? formatMoney(pricing.amount, pricing.currency) : '';
@@ -184,6 +239,10 @@ export default function SubscribePage() {
   }
 
   const busy = phase !== 'idle';
+  // Only an account that has never had a trial or a subscription can redeem
+  // (the server enforces it); these are just the screens where offering the
+  // box would be pointless.
+  const showPromo = Boolean(pricing) && !onTrial && !trialEnded && !isPastDue && !pricing.exempt && !pricing.firstChargeAt;
 
   // A managed account never sees a paywall: its access is handled elsewhere.
   if (user?.isManaged) return <PartnerEndedPage reason={ENDED_REASONS.ACCESS} />;
@@ -241,7 +300,7 @@ export default function SubscribePage() {
                 International checkout opens soon. We'll email you as soon as you can subscribe.
               </div>
             ) : (
-              <button type="button" className="sp-btn sp-btn--primary" onClick={onSubscribe} disabled={busy}>
+              <button type="button" className="sp-btn sp-btn--primary" onClick={onSubscribe} disabled={busy || promoApplying}>
                 {phase === 'confirming' ? (
                   <>
                     <span className="sp-spin" /> Confirming…
@@ -269,6 +328,57 @@ export default function SubscribePage() {
               >
                 Maybe later
               </Link>
+            )}
+
+            {showPromo && (
+              <div style={{ marginTop: 12, textAlign: 'center' }}>
+                {!promoOpen ? (
+                  <button type="button" className="sp-link" onClick={() => setPromoOpen(true)} disabled={busy}>
+                    Have a promo code?
+                  </button>
+                ) : (
+                  <form className="sp-promo" onSubmit={onApplyPromo} noValidate style={{ textAlign: 'left' }}>
+                    <div className="sp-promo__row">
+                      <input
+                        ref={promoInputRef}
+                        className={`sp-input${promoError ? ' is-error' : ''}`}
+                        type="text"
+                        name="promo-code"
+                        aria-label="Promo code"
+                        placeholder="Enter promo code"
+                        value={promoCode}
+                        onChange={(e) => {
+                          setPromoCode(e.target.value);
+                          if (promoError) setPromoError('');
+                        }}
+                        maxLength={PROMO_CODE_MAX_LENGTH}
+                        autoComplete="off"
+                        autoCapitalize="characters"
+                        spellCheck={false}
+                        disabled={promoApplying || busy}
+                      />
+                      <button
+                        type="submit"
+                        className="sp-btn sp-btn--ghost"
+                        disabled={promoApplying || busy || !promoCode.trim()}
+                      >
+                        {promoApplying ? (
+                          <>
+                            <span className="sp-spin" /> Applying…
+                          </>
+                        ) : (
+                          'Apply'
+                        )}
+                      </button>
+                    </div>
+                    {promoError && (
+                      <div className="sp-field__err" role="alert">
+                        {promoError}
+                      </div>
+                    )}
+                  </form>
+                )}
+              </div>
             )}
 
             <p className="sp-legal" style={{ marginTop: 16 }}>

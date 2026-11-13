@@ -17,6 +17,11 @@ export const SUBSCRIPTION_EVENTS = {
   // User closed the Razorpay modal without finishing. Not an error.
   CHECKOUT_DISMISSED: 'SUBSCRIPTION_CHECKOUT_DISMISSED',
 
+  // Promo code → free trial. SUCCESS carries the fresh status summary;
+  // FAILURE carries the server's own reason (invalid code, already used, …).
+  PROMO_REDEEM_SUCCESS: 'SUBSCRIPTION_PROMO_REDEEM_SUCCESS',
+  PROMO_REDEEM_FAILURE: 'SUBSCRIPTION_PROMO_REDEEM_FAILURE',
+
   CANCEL_SUCCESS: 'SUBSCRIPTION_CANCEL_SUCCESS',
   CANCEL_FAILURE: 'SUBSCRIPTION_CANCEL_FAILURE',
 

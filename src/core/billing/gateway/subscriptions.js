@@ -113,6 +113,24 @@ async function verifyPayment({ razorpay_payment_id, razorpay_subscription_id, ra
 }
 
 /**
+ * Redeem a promo code for a free trial. The server decides everything
+ * (is the code valid, is this account eligible) and answers with the fresh
+ * status summary, or an error carrying the exact reason.
+ * POST /subscriptions/promo/redeem
+ * @param {string} code
+ * @returns {Promise<SubscriptionSummary>}
+ */
+async function redeemPromoCode(code) {
+  try {
+    return SubscriptionSummary.fromResponse(
+      await unwrap(apiGateway.post('/subscriptions/promo/redeem', { code }))
+    );
+  } catch (error) {
+    throw handleError(error);
+  }
+}
+
+/**
  * Stop autopay. Access continues to the end of the paid period.
  * POST /subscriptions/cancel
  * @returns {Promise<SubscriptionSummary>}
@@ -162,6 +180,7 @@ const subscriptionsGateway = {
   getPricing,
   createSubscription,
   verifyPayment,
+  redeemPromoCode,
   cancelSubscription,
   getMySubscription,
   getInvoices,
