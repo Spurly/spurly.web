@@ -3,12 +3,12 @@ title: Errors
 seoTitle: Errors | Spurly API v2
 description: The Spurly organisation API error format, HTTP status codes and every error code with what to do about it.
 lead: One error shape, stable codes.
-path: /developers/v2/errors
+path: /developers/errors
 template: docs
 section: Get started
 order: 4
 date: 2026-11-04
-parent: /developers/v2
+parent: /developers
 ---
 Every failure has the same shape and a matching HTTP status:
 
@@ -61,7 +61,7 @@ Every failure has the same shape and a matching HTTP status:
 | `PROFILE_IN_USE` | 409 | The member is live in another organisation |
 | `EMAIL_TAKEN` | 409 | `POST /orgs/{orgId}/login-link` only: the organisation's email already belongs to a personal Spurly account, so it cannot be opened with a link. Nothing is created |
 | `PROFILE_MISMATCH` | 409 | A reconnect signed in as a different member; it was disconnected |
-| `LENGTH_REQUIRED`, `FILE_TOO_LARGE`, `UNSUPPORTED_MEDIA` | 411, 413, 415 | An upload has no size, is too large, or is not an allowed type. See [Limits](/developers/v2/limits#input-limits) |
+| `LENGTH_REQUIRED`, `FILE_TOO_LARGE`, `UNSUPPORTED_MEDIA` | 411, 413, 415 | An upload has no size, is too large, or is not an allowed type. See [Limits](/developers/limits#input-limits) |
 | `EXPIRED` | 410 | The sign-in expired; start again |
 | `LINK_EXPIRED` | 410 | An Open in Spurly link was used twice or after its 2 minutes. Shown to the person by Spurly, not returned to your API calls; create a new link |
 | `INVALID_CREDENTIALS`, `INVALID_COOKIE`, `INVALID_CODE` | 422 | LinkedIn did not accept it; `field` names the input |

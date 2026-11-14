@@ -3,12 +3,12 @@ title: Quickstart
 seoTitle: Quickstart | Spurly API v2
 description: Create an organisation, connect a LinkedIn account and make your first LinkedIn call through the Spurly organisation API in a few minutes.
 lead: From API key to your first LinkedIn call in four steps.
-path: /developers/v2/quickstart
+path: /developers/quickstart
 template: docs
 section: Get started
 order: 2
 date: 2026-11-04
-parent: /developers/v2
+parent: /developers
 ---
 You need your API key (`spk_partner_...`), enabled for `/v2`, and a LinkedIn account to test with.
 
@@ -38,7 +38,7 @@ curl -X POST "https://api.getspurly.com/v2/orgs/$ORG_ID/accounts/connect" \
   -d '{"method":"credentials","username":"jane@example.com","password":"..."}'
 ```
 
-The answer is either `{"state":"connected","account":{...}}` or `{"state":"checkpoint","connectId":"..."}`. A checkpoint means LinkedIn wants a code or an in-app approval: see [Connect LinkedIn](/developers/v2/guides/connect-linkedin). Keep the account `id`.
+The answer is either `{"state":"connected","account":{...}}` or `{"state":"checkpoint","connectId":"..."}`. A checkpoint means LinkedIn wants a code or an in-app approval: see [Connect LinkedIn](/developers/guides/connect-linkedin). Keep the account `id`.
 
 ## 3. Call LinkedIn
 
@@ -60,6 +60,6 @@ curl -X POST "https://api.getspurly.com/v2/accounts/$ACCOUNT_ID/chats/$CHAT_ID/m
 
 ## 4. Listen for events
 
-Spurly sends `message.created`, `message.updated` and `account.updated` to your webhook. See [Webhooks](/developers/v2/webhooks). Check what you are billed on with `GET /usage`.
+Spurly sends `message.created`, `message.updated` and `account.updated` to your webhook. See [Webhooks](/developers/webhooks). Check what you are billed on with `GET /usage`.
 
-Want to send a customer into the full Spurly app? `POST /orgs/{orgId}/login-link` returns a one-time link: see [Open in Spurly](/developers/v2/guides/open-in-spurly).
+Want to send a customer into the full Spurly app? `POST /orgs/{orgId}/login-link` returns a one-time link: see [Open in Spurly](/developers/guides/open-in-spurly).

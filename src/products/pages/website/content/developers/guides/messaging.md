@@ -4,14 +4,14 @@ seoTitle: Messaging and LinkedIn calls | Spurly API v2
 navTitle: LinkedIn calls
 description: How LinkedIn calls work in the Spurly organisation API: chats and messages, sending files, search filters, profiles, invitations and posts through one account.
 lead: Everything on a connected account lives under /accounts/{accountId}.
-path: /developers/v2/guides/messaging
+path: /developers/guides/messaging
 template: docs
 section: Guides
 order: 3
 date: 2026-11-04
-parent: /developers/v2
+parent: /developers
 ---
-Spurly checks every call before it reaches LinkedIn: the account must be yours and `OK`, the organisation not suspended, and chat and message ids must belong to that account. A path that is not in the [API reference](/developers/v2/api/messaging) is a plain `404`.
+Spurly checks every call before it reaches LinkedIn: the account must be yours and `OK`, the organisation not suspended, and chat and message ids must belong to that account. A path that is not in the [API reference](/developers/api/messaging) is a plain `404`.
 
 ## Chats and messages
 
@@ -30,7 +30,7 @@ curl -X POST "https://api.getspurly.com/v2/accounts/$ACCOUNT_ID/chats/$CHAT_ID/m
   --data-binary @report.pdf
 ```
 
-`kind` is `attachment`, `voice` (.m4a) or `video`. Add `&text=` for a caption. Download a received file from `GET /messages/{messageId}/attachments/{attachmentId}`: Spurly streams the bytes and you never see a storage link. Limits are on the [Limits](/developers/v2/limits#input-limits) page.
+`kind` is `attachment`, `voice` (.m4a) or `video`. Add `&text=` for a caption. Download a received file from `GET /messages/{messageId}/attachments/{attachmentId}`: Spurly streams the bytes and you never see a storage link. Limits are on the [Limits](/developers/limits#input-limits) page.
 
 ## Search
 

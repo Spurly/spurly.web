@@ -4,12 +4,12 @@ seoTitle: Limits and pagination | Spurly API v2
 navTitle: Limits and pagination
 description: Request limits, connect limits, upload and text limits, pagination cursors and the event window of the Spurly organisation API.
 lead: What is limited, and how to page through lists.
-path: /developers/v2/limits
+path: /developers/limits
 template: docs
 section: Get started
 order: 5
 date: 2026-11-04
-parent: /developers/v2
+parent: /developers
 ---
 ## Rate limits
 
@@ -19,7 +19,7 @@ parent: /developers/v2
 | Per LinkedIn account | 60 requests per minute | `429 RATE_LIMITED` with `Retry-After` |
 | Connects per organisation | No limit | Only LinkedIn's own `429 LINKEDIN_RATE_LIMITED` |
 
-LinkedIn also limits what an account can do. When it does, you get `429 RATE_LIMITED` and `Retry-After: 60`; if it asks for a pause on sign-in attempts, the connect calls answer `429 LINKEDIN_RATE_LIMITED`. Back off and retry reads; for writes see [Errors](/developers/v2/errors#retrying-writes).
+LinkedIn also limits what an account can do. When it does, you get `429 RATE_LIMITED` and `Retry-After: 60`; if it asks for a pause on sign-in attempts, the connect calls answer `429 LINKEDIN_RATE_LIMITED`. Back off and retry reads; for writes see [Errors](/developers/errors#retrying-writes).
 
 ### Safety limit for accounts that also use the Spurly workspace
 

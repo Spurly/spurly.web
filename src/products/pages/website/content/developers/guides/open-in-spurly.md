@@ -4,12 +4,12 @@ seoTitle: Open in Spurly | Spurly API v2
 navTitle: Open in Spurly
 description: Let your customers open their organisation, or one LinkedIn account in it, in the full Spurly app with a one-time link: no password and no emailed code.
 lead: Add an "Open in Spurly" button to your product. Your server asks for a one-time link and the customer lands in Spurly, signed in to their organisation.
-path: /developers/v2/guides/open-in-spurly
+path: /developers/guides/open-in-spurly
 template: docs
 section: Guides
 order: 8
 date: 2026-11-12
-parent: /developers/v2
+parent: /developers
 ---
 ## The flow
 

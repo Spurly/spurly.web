@@ -3,13 +3,13 @@ title: Network
 seoTitle: Network | Spurly API v2
 description: Spurly organisation API reference for LinkedIn invitations, connections and followers.
 lead: Invitations, connections and followers.
-path: /developers/v2/api/network
+path: /developers/api/network
 template: docs
 section: API reference
 order: 7
 date: 2026-11-04
-parent: /developers/v2
+parent: /developers
 ---
-Invitations, connections and followers. Every call needs `Authorization: Bearer <key>`; see [Quickstart](/developers/v2/quickstart). Base URL `https://api.getspurly.com/v2`.
+Invitations, connections and followers. Every call needs `Authorization: Bearer <key>`; see [Quickstart](/developers/quickstart). Base URL `https://api.getspurly.com/v2`.
 
 ::endpoints v2-network

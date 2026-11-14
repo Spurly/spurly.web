@@ -4,14 +4,14 @@ seoTitle: LinkedIn limits and safe sending | Spurly API v2
 navTitle: LinkedIn limits
 description: What LinkedIn tolerates per account, a safe pace for each kind of action, and how to handle the errors LinkedIn and Spurly return when an account goes too fast.
 lead: LinkedIn limits belong to the member's account, not to an endpoint. Here is a safe pace for each action, and what to do when an account hits a limit.
-path: /developers/v2/guides/linkedin-limits
+path: /developers/guides/linkedin-limits
 template: docs
 section: Guides
 order: 4
 date: 2026-11-11
-parent: /developers/v2
+parent: /developers
 ---
-Every limit on this page belongs to **one LinkedIn account**. It does not matter which endpoint made the call, and the limits do not add up across accounts: ten connected members each have their own. Spurly does not slow your calls down (see [Limits and pagination](/developers/v2/limits)), so the pace is yours to keep. Going too fast does not break the API; it puts the member's LinkedIn account at risk of warnings and restrictions.
+Every limit on this page belongs to **one LinkedIn account**. It does not matter which endpoint made the call, and the limits do not add up across accounts: ten connected members each have their own. Spurly does not slow your calls down (see [Limits and pagination](/developers/limits)), so the pace is yours to keep. Going too fast does not break the API; it puts the member's LinkedIn account at risk of warnings and restrictions.
 
 ## Rules that matter more than any number
 
@@ -72,8 +72,8 @@ Spurly reads chats from LinkedIn live in `/v2`, so do not poll them. Listen for 
 ## What Spurly does for you
 
 - **Per-account throttle.** 60 requests a minute per LinkedIn account and 600 a minute per API key, with `Retry-After` on `429`.
-- **Safety limit.** If an organisation also uses the Spurly workspace, the same account may be driven from both places, so Spurly counts connection requests and messages from both and answers `429 ACCOUNT_LIMIT` at the limits in [Limits and pagination](/developers/v2/limits#safety-limit-for-accounts-that-also-use-the-spurly-workspace). Organisations that use only the API are not counted.
-- **Never retrying a write.** A send that times out may or may not have gone through. Spurly never repeats it for you. See [Errors](/developers/v2/errors#retrying-writes).
+- **Safety limit.** If an organisation also uses the Spurly workspace, the same account may be driven from both places, so Spurly counts connection requests and messages from both and answers `429 ACCOUNT_LIMIT` at the limits in [Limits and pagination](/developers/limits#safety-limit-for-accounts-that-also-use-the-spurly-workspace). Organisations that use only the API are not counted.
+- **Never retrying a write.** A send that times out may or may not have gone through. Spurly never repeats it for you. See [Errors](/developers/errors#retrying-writes).
 
 ## Handling the errors
 
@@ -82,8 +82,8 @@ Spurly reads chats from LinkedIn live in `/v2`, so do not poll them. Listen for 
 | `429 RATE_LIMITED` with `Retry-After` | You are over Spurly's throttle, or LinkedIn is limiting the account | Wait the time given, then retry reads. For sends, slow the whole account down |
 | `429 ACCOUNT_LIMIT` | The account reached its safety limit for that action. Nothing was sent | Wait for `Retry-After`; do not queue more for that account today |
 | `422 TOO_LONG` | The text is longer than LinkedIn allows for that account | Shorten the note or message |
-| `403 FEATURE_UNAVAILABLE` | The account's LinkedIn plan does not include that feature | See [What each account can do](/developers/v2/guides/linkedin-features) |
-| `409 ACCOUNT_NEEDS_RECONNECT` | LinkedIn wants the member to sign in again | Reconnect; see [Connect LinkedIn](/developers/v2/guides/connect-linkedin) |
+| `403 FEATURE_UNAVAILABLE` | The account's LinkedIn plan does not include that feature | See [What each account can do](/developers/guides/linkedin-features) |
+| `409 ACCOUNT_NEEDS_RECONNECT` | LinkedIn wants the member to sign in again | Reconnect; see [Connect LinkedIn](/developers/guides/connect-linkedin) |
 | `504 TIMEOUT` on a send | It may have gone through | Read first, then repeat only if it did not |
 
 LinkedIn's own limits are set by LinkedIn and can change without notice. If an account is restricted, the member has to sort it out on linkedin.com; the API reports `422 ACCOUNT_RESTRICTED`.

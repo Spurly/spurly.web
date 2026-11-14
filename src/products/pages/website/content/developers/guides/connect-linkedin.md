@@ -3,12 +3,12 @@ title: Connect LinkedIn
 seoTitle: Connect LinkedIn | Spurly API v2
 description: Sign a LinkedIn account in under an organisation with credentials or a session cookie, handle verification codes and in-app approvals, and reconnect an account.
 lead: Credentials or a cookie in, a connected account out, with every LinkedIn verification step handled.
-path: /developers/v2/guides/connect-linkedin
+path: /developers/guides/connect-linkedin
 template: docs
 section: Guides
 order: 1
 date: 2026-11-04
-parent: /developers/v2
+parent: /developers
 ---
 There is no hosted sign-in page in `/v2`: you collect the details in your own UI and pass them to Spurly. The password or cookie is used for that one request and is never stored or logged.
 
@@ -46,7 +46,7 @@ Each of these answers with the next state, so you loop until `connected`. A chec
 
 ## One member, one organisation
 
-If the member who signs in is live in another organisation, you get `409 PROFILE_IN_USE` and nothing stays connected. If the member is already connected in this organisation, the existing account is reused. See [Concepts](/developers/v2/concepts#one-member-one-organisation).
+If the member who signs in is live in another organisation, you get `409 PROFILE_IN_USE` and nothing stays connected. If the member is already connected in this organisation, the existing account is reused. See [Concepts](/developers/concepts#one-member-one-organisation).
 
 ## Reconnect
 
@@ -54,4 +54,4 @@ When an account's `status` is `CREDENTIALS` (or you receive an `account.updated`
 
 ## Limits
 
-An organisation can start 5 connects per hour. Wrong credentials answer `422 INVALID_CREDENTIALS` with `field`; an expired cookie answers `422 INVALID_COOKIE`. See [Errors](/developers/v2/errors).
+An organisation can start 5 connects per hour. Wrong credentials answer `422 INVALID_CREDENTIALS` with `field`; an expired cookie answers `422 INVALID_COOKIE`. See [Errors](/developers/errors).

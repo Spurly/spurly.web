@@ -3,12 +3,12 @@ title: Objects
 seoTitle: Objects | Spurly API v2
 description: Every object the Spurly organisation API returns: organisations, accounts, chats, messages, profiles, posts, usage, events and errors, field by field.
 lead: The shape of everything the API returns.
-path: /developers/v2/objects
+path: /developers/objects
 template: docs
 section: Get started
 order: 6
 date: 2026-11-04
-parent: /developers/v2
+parent: /developers
 ---
 ::schema V2Org
 ::schema V2Account

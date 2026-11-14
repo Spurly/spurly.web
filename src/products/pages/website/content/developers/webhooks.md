@@ -3,12 +3,12 @@ title: Webhooks
 seoTitle: Webhooks | Spurly API v2
 description: Receive LinkedIn messages and account changes in real time from the Spurly organisation API, verify signatures and catch up with the 7-day event feed.
 lead: Real-time events for new messages, message changes and LinkedIn connection changes.
-path: /developers/v2/webhooks
+path: /developers/webhooks
 template: docs
 section: Webhooks
 order: 1
 date: 2026-11-04
-parent: /developers/v2
+parent: /developers
 ---
 ## Your endpoint
 
@@ -49,7 +49,7 @@ export function verify(rawBody, header, secret) {
 
 ## Catch up after downtime
 
-`GET /events?after=<last id>` replays the last 7 days, oldest first. Process events in order and keep the last `id`. See [Usage and events](/developers/v2/api/usage-events).
+`GET /events?after=<last id>` replays the last 7 days, oldest first. Process events in order and keep the last `id`. See [Usage and events](/developers/api/usage-events).
 
 ## Payloads
 

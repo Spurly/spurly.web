@@ -21,7 +21,7 @@ describe('developer docs', () => {
     const nav = docsNav();
     expect(nav.map((s) => s.name)).toEqual(['Get started', 'Guides', 'API reference', 'Webhooks', 'Resources']);
     expect(nav[0].pages[0].path).toBe('/developers');
-    expect(nav[0].pages.map((p) => p.path)).toContain('/developers/v2');
+    expect(nav[0].pages.map((p) => p.path)).toContain('/developers');
   });
 
   it.each(embeds.map((e) => [`${e.page} ::${e.name} ${e.arg}`, e]))('%s resolves', (_label, e) => {
@@ -83,7 +83,7 @@ describe('developer docs', () => {
   it('never names the outside services behind LinkedIn in the docs or the spec', () => {
     const vendor = /unipile|dexkor/i;
     expect(JSON.stringify(OPENAPI_V2)).not.toMatch(vendor);
-        const v2Pages = docs.filter((p) => p.path === '/developers/v2' || p.path.startsWith('/developers/v2/'));
+        const v2Pages = docs.filter((p) => p.path === '/developers' || p.path.startsWith('/developers/'));
     expect(v2Pages.length).toBeGreaterThan(10);
     for (const p of v2Pages) {
       expect(JSON.stringify([p, CONTENT_BODIES[p.path]])).not.toMatch(vendor);

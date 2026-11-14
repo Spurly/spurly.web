@@ -3,16 +3,16 @@ title: Concepts
 seoTitle: Concepts | Spurly API v2
 description: How organisations, LinkedIn accounts, the one-member-one-organisation rule, account statuses and billing counts work in the Spurly organisation API.
 lead: The few ideas the rest of the API rests on.
-path: /developers/v2/concepts
+path: /developers/concepts
 template: docs
 section: Get started
 order: 3
 date: 2026-11-04
-parent: /developers/v2
+parent: /developers
 ---
 ## Organisations
 
-An organisation is one of your customers. You create it with the customer's email address as its `externalId`; that address is how the customer signs in to Spurly, or you can open it for them with an [Open in Spurly](/developers/v2/guides/open-in-spurly) link. It has a `status` of `active` or `suspended`. A suspended organisation cannot connect accounts or make LinkedIn calls (`403 ORG_SUSPENDED`); you can still read it and disconnect its accounts.
+An organisation is one of your customers. You create it with the customer's email address as its `externalId`; that address is how the customer signs in to Spurly, or you can open it for them with an [Open in Spurly](/developers/guides/open-in-spurly) link. It has a `status` of `active` or `suspended`. A suspended organisation cannot connect accounts or make LinkedIn calls (`403 ORG_SUSPENDED`); you can still read it and disconnect its accounts.
 
 ## Accounts
 
@@ -34,7 +34,7 @@ A LinkedIn member can be live in one organisation at a time. Connecting a member
 
 ## What you are billed on
 
-Billing counts **distinct LinkedIn members**, not accounts or connects. A member who disconnects and reconnects, or moves between organisations, counts once. `GET /usage` returns the numbers: `connected` now, `distinct` in the window and the `peak`. See the [usage guide](/developers/v2/guides/usage).
+Billing counts **distinct LinkedIn members**, not accounts or connects. A member who disconnects and reconnects, or moves between organisations, counts once. `GET /usage` returns the numbers: `connected` now, `distinct` in the window and the `peak`. See the [usage guide](/developers/guides/usage).
 
 ## Ids
 

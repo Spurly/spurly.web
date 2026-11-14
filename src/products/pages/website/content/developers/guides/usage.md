@@ -3,12 +3,12 @@ title: Usage and billing
 seoTitle: Usage and billing | Spurly API v2
 description: Read what you are billed on in the Spurly organisation API: distinct LinkedIn members connected now, over a window and at peak, per organisation.
 lead: Billing counts distinct LinkedIn members. Here is how to read the numbers.
-path: /developers/v2/guides/usage
+path: /developers/guides/usage
 template: docs
 section: Guides
 order: 2
 date: 2026-11-04
-parent: /developers/v2
+parent: /developers
 ---
 `GET /usage` returns counts only: no amounts, no invoices.
 
