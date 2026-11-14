@@ -5,7 +5,7 @@ description: Create an organisation, connect a LinkedIn account and make your fi
 lead: From API key to your first LinkedIn call in four steps.
 path: /developers/v2/quickstart
 template: docs
-section: v2: Get started
+section: Get started
 order: 2
 date: 2026-11-04
 parent: /developers/v2

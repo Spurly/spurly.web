@@ -6,7 +6,7 @@ description: Which LinkedIn features the Spurly organisation API offers, which d
 lead: Most of the API works on any LinkedIn account. A few features depend on the member's plan. A few are not offered at all.
 path: /developers/v2/guides/linkedin-features
 template: docs
-section: v2: Guides
+section: Guides
 order: 5
 date: 2026-11-11
 parent: /developers/v2

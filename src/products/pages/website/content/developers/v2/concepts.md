@@ -5,7 +5,7 @@ description: How organisations, LinkedIn accounts, the one-member-one-organisati
 lead: The few ideas the rest of the API rests on.
 path: /developers/v2/concepts
 template: docs
-section: v2: Get started
+section: Get started
 order: 3
 date: 2026-11-04
 parent: /developers/v2

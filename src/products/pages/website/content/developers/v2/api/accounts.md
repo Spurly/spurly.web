@@ -5,7 +5,7 @@ description: Spurly organisation API reference for accounts. List, fetch and dis
 lead: Read and disconnect the LinkedIn accounts of an organisation.
 path: /developers/v2/api/accounts
 template: docs
-section: v2: API reference
+section: API reference
 order: 3
 date: 2026-11-04
 parent: /developers/v2

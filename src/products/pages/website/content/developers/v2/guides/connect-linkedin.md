@@ -5,7 +5,7 @@ description: Sign a LinkedIn account in under an organisation with credentials o
 lead: Credentials or a cookie in, a connected account out, with every LinkedIn verification step handled.
 path: /developers/v2/guides/connect-linkedin
 template: docs
-section: v2: Guides
+section: Guides
 order: 1
 date: 2026-11-04
 parent: /developers/v2

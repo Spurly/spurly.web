@@ -5,7 +5,7 @@ description: Spurly organisation API reference for LinkedIn invitations, connect
 lead: Invitations, connections and followers.
 path: /developers/v2/api/network
 template: docs
-section: v2: API reference
+section: API reference
 order: 7
 date: 2026-11-04
 parent: /developers/v2

@@ -5,7 +5,7 @@ description: Spurly organisation API reference for connecting LinkedIn: sign in,
 lead: Sign a LinkedIn account in under an organisation and finish verification.
 path: /developers/v2/api/connect
 template: docs
-section: v2: API reference
+section: API reference
 order: 2
 date: 2026-11-04
 parent: /developers/v2

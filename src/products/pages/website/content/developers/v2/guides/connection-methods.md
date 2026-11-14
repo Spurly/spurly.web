@@ -6,7 +6,7 @@ description: Compare signing a LinkedIn account in with credentials or a session
 lead: Two ways to connect a member, when to use each, and how to keep the connection healthy.
 path: /developers/v2/guides/connection-methods
 template: docs
-section: v2: Guides
+section: Guides
 order: 6
 date: 2026-11-11
 parent: /developers/v2

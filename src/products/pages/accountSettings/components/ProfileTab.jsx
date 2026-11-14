@@ -2,7 +2,6 @@ import { Avatar, Button, Input, SoonTag, SwitchRow } from 'src/core/primitives';
 import { SectionCard } from 'src/core/primitives/SectionCard';
 import { useProfileTab } from 'src/products/accountSettings/hooks/useProfileTab.js';
 import { settingsStrings as t } from '../strings.js';
-import { DirectLoginCard } from './DirectLoginCard.jsx';
 
 function FieldLabel({ htmlFor, children }) {
   return (
@@ -80,7 +79,6 @@ export function ProfileTab() {
         </form>
       </SectionCard>
 
-      {managed && <DirectLoginCard />}
 
       <SectionCard title={t.notifications.sectionTitle} action={<SoonTag />}>
         <div className="flex flex-col gap-2">

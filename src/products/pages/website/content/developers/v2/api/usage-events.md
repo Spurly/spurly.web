@@ -5,7 +5,7 @@ description: Spurly organisation API reference for usage and the 7-day event fee
 lead: What you are billed on, and the event feed.
 path: /developers/v2/api/usage-events
 template: docs
-section: v2: API reference
+section: API reference
 order: 4
 date: 2026-11-04
 parent: /developers/v2

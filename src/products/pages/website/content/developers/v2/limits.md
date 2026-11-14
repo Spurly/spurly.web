@@ -6,7 +6,7 @@ description: Request limits, connect limits, upload and text limits, pagination 
 lead: What is limited, and how to page through lists.
 path: /developers/v2/limits
 template: docs
-section: v2: Get started
+section: Get started
 order: 5
 date: 2026-11-04
 parent: /developers/v2
@@ -58,4 +58,4 @@ Organisation and account lists use `page` and `limit` (default 50, up to 200) an
 
 ## Versioning
 
-Additions ship without notice and are listed in the [changelog](/developers/changelog). A breaking change only ships in a new API version, with at least 90 days of overlap. `/v1` is unaffected by `/v2`.
+Additions ship without notice and are listed in the [changelog](/developers/changelog). A breaking change only ships in a new API version, with at least 90 days of overlap.

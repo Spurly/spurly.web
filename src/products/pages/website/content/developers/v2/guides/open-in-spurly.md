@@ -6,7 +6,7 @@ description: Let your customers open their organisation, or one LinkedIn account
 lead: Add an "Open in Spurly" button to your product. Your server asks for a one-time link and the customer lands in Spurly, signed in to their organisation.
 path: /developers/v2/guides/open-in-spurly
 template: docs
-section: v2: Guides
+section: Guides
 order: 8
 date: 2026-11-12
 parent: /developers/v2

@@ -5,7 +5,7 @@ description: Spurly organisation API reference for LinkedIn company pages, profi
 lead: Companies, profile viewers and InMail credits.
 path: /developers/v2/api/insights
 template: docs
-section: v2: API reference
+section: API reference
 order: 9
 date: 2026-11-04
 parent: /developers/v2

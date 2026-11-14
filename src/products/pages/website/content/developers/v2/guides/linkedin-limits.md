@@ -6,7 +6,7 @@ description: What LinkedIn tolerates per account, a safe pace for each kind of a
 lead: LinkedIn limits belong to the member's account, not to an endpoint. Here is a safe pace for each action, and what to do when an account hits a limit.
 path: /developers/v2/guides/linkedin-limits
 template: docs
-section: v2: Guides
+section: Guides
 order: 4
 date: 2026-11-11
 parent: /developers/v2

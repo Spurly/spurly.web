@@ -5,7 +5,7 @@ description: Read what you are billed on in the Spurly organisation API: distinc
 lead: Billing counts distinct LinkedIn members. Here is how to read the numbers.
 path: /developers/v2/guides/usage
 template: docs
-section: v2: Guides
+section: Guides
 order: 2
 date: 2026-11-04
 parent: /developers/v2

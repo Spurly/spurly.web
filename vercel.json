@@ -2,6 +2,16 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "buildCommand": "npm run build",
+  "redirects": [
+    { "source": "/developers/quickstart", "destination": "/developers/v2/quickstart", "permanent": true },
+    { "source": "/developers/errors", "destination": "/developers/v2/errors", "permanent": true },
+    { "source": "/developers/limits", "destination": "/developers/v2/limits", "permanent": true },
+    { "source": "/developers/objects", "destination": "/developers/v2/objects", "permanent": true },
+    { "source": "/developers/webhook-events", "destination": "/developers/v2/webhooks", "permanent": true },
+    { "source": "/developers/(authentication|pagination|openapi)", "destination": "/developers/v2", "permanent": true },
+    { "source": "/developers/(api|guides)/(.*)", "destination": "/developers/v2", "permanent": true },
+    { "source": "/developers/openapi.json", "destination": "/developers/openapi.v2.json", "permanent": true }
+  ],
   "rewrites": [
     {
       "source": "/(dashboard|hub|admin|onboarding|subscribe|signup|login|forgot-password|reset-password|oauth|partner|dev)(/.*)?",

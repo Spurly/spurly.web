@@ -5,7 +5,7 @@ description: The Spurly organisation API error format, HTTP status codes and eve
 lead: One error shape, stable codes.
 path: /developers/v2/errors
 template: docs
-section: v2: Get started
+section: Get started
 order: 4
 date: 2026-11-04
 parent: /developers/v2

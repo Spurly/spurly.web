@@ -6,7 +6,7 @@ description: How LinkedIn calls work in the Spurly organisation API: chats and m
 lead: Everything on a connected account lives under /accounts/{accountId}.
 path: /developers/v2/guides/messaging
 template: docs
-section: v2: Guides
+section: Guides
 order: 3
 date: 2026-11-04
 parent: /developers/v2

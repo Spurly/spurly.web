@@ -5,14 +5,12 @@ description: Group LinkedIn accounts under organisations, connect members, messa
 lead: Partners, organisations and their LinkedIn accounts: connect a member, call LinkedIn on their behalf, and see what you are billed on.
 path: /developers/v2
 template: docs
-section: v2: Get started
+section: Get started
 order: 1
 date: 2026-11-04
 seoTitle: Spurly Organisation API (v2) for LinkedIn Accounts
 ---
 The organisation API (`/v2`) is for products that serve companies. Each of your customers is an **organisation**. An organisation connects one LinkedIn member, and you work with that member's LinkedIn through Spurly: inbox, messages, search, profiles, invitations, posts and more. Spurly runs the sign-in, verification, session health and delivery.
-
-If you manage one LinkedIn inbox per user rather than organisations, the [account API (v1)](/developers) is the one you want. Both use the same API key format.
 
 ## How it fits together
 
@@ -40,7 +38,6 @@ If you manage one LinkedIn inbox per user rather than organisations, the [accoun
 - [LinkedIn limits](/developers/v2/guides/linkedin-limits): a safe pace for each action, and what to do when an account hits a limit.
 - [What each account can do](/developers/v2/guides/linkedin-features): which features work on every account, depend on the plan, or are not offered.
 - [Connection methods](/developers/v2/guides/connection-methods): credentials or cookie, where LinkedIn sees the sign-in from, and reconnects.
-- [Migrate from v1](/developers/v2/guides/migrate-from-v1): the endpoint map, webhook differences and a switch plan.
 
 ## Getting access
 

@@ -5,7 +5,7 @@ description: Spurly organisation API reference for organisations. Create, list a
 lead: Create, list and fetch the organisations under your partner account.
 path: /developers/v2/api/orgs
 template: docs
-section: v2: API reference
+section: API reference
 order: 1
 date: 2026-11-04
 parent: /developers/v2

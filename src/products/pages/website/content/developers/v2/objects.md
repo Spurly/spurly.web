@@ -5,7 +5,7 @@ description: Every object the Spurly organisation API returns: organisations, ac
 lead: The shape of everything the API returns.
 path: /developers/v2/objects
 template: docs
-section: v2: Get started
+section: Get started
 order: 6
 date: 2026-11-04
 parent: /developers/v2

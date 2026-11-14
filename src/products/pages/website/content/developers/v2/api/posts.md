@@ -5,7 +5,7 @@ description: Spurly organisation API reference for LinkedIn posts, comments and 
 lead: Posts, comments and reactions.
 path: /developers/v2/api/posts
 template: docs
-section: v2: API reference
+section: API reference
 order: 8
 date: 2026-11-04
 parent: /developers/v2

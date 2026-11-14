@@ -16,7 +16,7 @@ The whole API, including webhook payloads, is described in one OpenAPI 3.1 file.
 ## Postman
 
 1. In Postman, choose **Import**, then **Link**.
-2. Paste `https://www.getspurly.com/developers/openapi.json` and import it as a collection.
+2. Paste `https://www.getspurly.com/developers/openapi.v2.json` and import it as a collection.
 3. In the collection's **Authorization** tab, choose Bearer Token and paste your API key.
 
 ## Generate a client
@@ -24,11 +24,11 @@ The whole API, including webhook payloads, is described in one OpenAPI 3.1 file.
 Any OpenAPI 3.1 generator works. For example, TypeScript types with `openapi-typescript`:
 
 ```bash
-npx openapi-typescript https://www.getspurly.com/developers/openapi.json -o spurly.d.ts
+npx openapi-typescript https://www.getspurly.com/developers/openapi.v2.json -o spurly.d.ts
 ```
 
 Or a Python client with `openapi-python-client`:
 
 ```bash
-pipx run openapi-python-client generate --url https://www.getspurly.com/developers/openapi.json
+pipx run openapi-python-client generate --url https://www.getspurly.com/developers/openapi.v2.json
 ```

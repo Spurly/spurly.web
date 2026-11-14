@@ -5,21 +5,28 @@ path: /developers/changelog
 template: docs
 section: Resources
 order: 2
-date: 2026-11-12
+date: 2026-11-14
 parent: /developers
 ---
-Non-breaking additions ship without notice and are listed here. Breaking changes only ship in a new API version, with at least 90 days of overlap. See [Limits and versioning](/developers/limits).
+Non-breaking additions ship without notice and are listed here. Breaking changes only ship in a new API version, with at least 90 days of overlap. See [Limits](/developers/v2/limits).
+
+## 14 November 2026
+
+The account API (`/v1`) is retired. The organisation API (`/v2`) is the Spurly LinkedIn API, and its pages are now the whole of these docs.
+
+- Requests to `/v1` are no longer served. Move to `/v2`: create an organisation per customer, connect a LinkedIn account under it, and call LinkedIn through `/accounts/{accountId}/...`.
+- The `/v1` pages, guides and `openapi.json` are removed. `openapi.v2.json` is unchanged.
 
 ## 12 November 2026
 
-Two organisation API (`/v2`) additions. Nothing existing changed, and `/v1` is unchanged.
+Two organisation API (`/v2`) additions. Nothing existing changed.
 
 - New: `POST /orgs/{orgId}/login-link` returns a one-time "Open in Spurly" URL that signs your customer in to their organisation, optionally with one LinkedIn account already chosen (`accountId`). It works once and expires after 2 minutes. See the [Open in Spurly](/developers/v2/guides/open-in-spurly) guide.
 - New: `GET /connect-options` returns the country LinkedIn will most likely see a sign-in from (pass the end user's IP as `endUserIp`) and the accepted proxy protocols, for your connect screen.
 
 ## 11 November 2026
 
-Three new organisation API (`/v2`) endpoints and four new guides. `/v1` is unchanged.
+Three new organisation API (`/v2`) endpoints and four new guides.
 
 - New: `GET /accounts/{accountId}/messages/{messageId}` returns one message.
 - New: `POST /accounts/{accountId}/follows` follows a member.
@@ -28,54 +35,7 @@ Three new organisation API (`/v2`) endpoints and four new guides. `/v1` is uncha
 
 ## 4 November 2026
 
-The organisation API (`/v2`) is documented. It does not change `/v1`.
+The organisation API (`/v2`) is documented.
 
 - New: [Spurly organisation API](/developers/v2). Create organisations, connect a LinkedIn member under each, call LinkedIn through `/accounts/{accountId}/...`, and read usage with `GET /usage`. `/v2` is enabled per partner.
-- `/v1` requests, responses and webhooks are unchanged.
-- The OpenAPI description for `/v2` is published next to the `/v1` one as `openapi.v2.json`.
-
-## 31 October 2026
-
-Inbox sync covers more history, and the inbox status gains one field. Nothing existing changed.
-
-- Inbox sync now covers the newest 5,000 conversations per account (it was 300). Accounts that were synced earlier are re-synced automatically in the background, so older conversations appear over the following hours, newest first. `historyPending` counts the conversations still waiting for their messages. See [Limits](/developers/limits#inbox-sync).
-- `GET /accounts/{accountId}/inbox` now also returns `unreadChats`, the number of conversations with unread messages. `unread` still counts unread messages, so it can be larger.
-
-## 30 October 2026
-
-Inbox fixes and documentation. No request or response shapes changed.
-
-- `GET /accounts/{accountId}/chats` returns one row per person and only conversations from the account's current LinkedIn connection. Reconnecting LinkedIn no longer leaves repeated people in the list.
-- `pagination.total` counts those people, and every page is full.
-- Inbox sync now covers the newest 300 conversations per account (it was 100) and starts again on its own after a reconnect. See [Limits](/developers/limits#inbox-sync).
-- The [inbox guide](/developers/guides/inbox) now explains what is included in the sync, and what a `failed` sync means: the person must reconnect LinkedIn.
-
-## 29 October 2026
-
-Additions, not breaking changes.
-
-- A person who opens an account with an Open in Spurly link can set up their own Spurly sign-in (email and password). Accounts carry `directLogin`.
-- `DELETE /accounts/{accountId}/login` removes it. Your Open in Spurly links keep working either way.
-- On an account with a direct login, connecting a different LinkedIn profile answers `409 DIFFERENT_PROFILE` and is disconnected. Reconnecting the same profile works as before, from your product or from Spurly.
-
-## 28 October 2026
-
-Additions, not breaking changes.
-
-- **Open in Spurly.** `POST /accounts/{accountId}/login-link` (optional `actor`) returns a one-time link that signs the person into that account in the Spurly web app for 12 hours. Create it from your server when they click, and open it straight away: it works once and expires after 120 seconds. See the [Open in Spurly guide](/developers/guides/open-in-spurly).
-- `externalId` identifies **one LinkedIn profile**, not one of your users: a user with three LinkedIn accounts has three (for example `user_123:1`, `user_123:2`). Reuse the same value when that profile reconnects.
-- `DELETE /accounts/{accountId}` closes an account and disconnects its LinkedIn connection. Creating the same `externalId` again reopens it.
-- Accounts carry `status` (`open` or `closed`) and `closedAt`.
-- Calls on a closed account answer `409 ACCOUNT_CLOSED`.
-
-## 24 October 2026: v1
-
-The first release of the Spurly LinkedIn API.
-
-- Accounts, keyed by your own `externalId`.
-- Connect LinkedIn with email and password or a session cookie, with every verification checkpoint.
-- Full inbox sync: conversations, messages, attachments, reactions and read receipts.
-- Reply, message someone new, send files, voice notes and video, react, download attachments.
-- Webhooks: `message.created`, `message.updated` and `account.updated`, HMAC-signed, with a 30-day event feed.
-- Rate limit of 600 requests per minute per key.
-- OpenAPI 3.1 description.
+- The OpenAPI description is published as `openapi.v2.json`.

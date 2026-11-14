@@ -5,7 +5,7 @@ description: Spurly organisation API reference for LinkedIn profiles, search and
 lead: Profiles, people, company and post search.
 path: /developers/v2/api/profiles-search
 template: docs
-section: v2: API reference
+section: API reference
 order: 6
 date: 2026-11-04
 parent: /developers/v2

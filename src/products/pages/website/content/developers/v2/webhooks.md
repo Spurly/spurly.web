@@ -5,7 +5,7 @@ description: Receive LinkedIn messages and account changes in real time from the
 lead: Real-time events for new messages, message changes and LinkedIn connection changes.
 path: /developers/v2/webhooks
 template: docs
-section: v2: Webhooks
+section: Webhooks
 order: 1
 date: 2026-11-04
 parent: /developers/v2
