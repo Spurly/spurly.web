@@ -12,7 +12,7 @@ export const HOME_FAQ = [
   },
   {
     q: "Is there a free trial?",
-    a: "No. You subscribe to start, with a card or UPI in India, and the full product is active straight away. You pay the price shown above, then monthly until you cancel. If you cancel, you keep access to the end of the month you paid for; after that your LinkedIn account is disconnected and campaigns pause, but nothing is deleted.",
+    a: "Not by default. Book a call with us, and depending on how the conversation goes we may offer you a free trial. Otherwise, to start, you subscribe with a card or UPI in India, and the full product is active straight away. You pay the price shown above, then monthly until you cancel. If you cancel, you keep access to the end of the month you paid for; after that your LinkedIn account is disconnected and campaigns pause, but nothing is deleted.",
   },
   {
     q: "Can I cancel anytime?",

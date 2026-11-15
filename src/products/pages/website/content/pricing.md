@@ -16,7 +16,7 @@ faq:
   - q: What is the launch offer?
     a: The first 100 members to subscribe keep the launch price of $14.99 per month (₹1,499 in India) for as long as they stay subscribed, even after the price goes back to $24.99 (₹2,499 in India) for everyone else. It is limited by the number of members, not by a date.
   - q: Is there a free trial?
-    a: No. Spurly has no free trial. You subscribe first, and the full product with every feature is active as soon as you do. You can cancel anytime and keep access to the end of the month you paid for.
+    a: Not by default. Book a call with us, and depending on how the conversation goes we may offer you a free trial. Otherwise you subscribe, and the full product with every feature is active as soon as you do. You can cancel anytime and keep access to the end of the month you paid for.
   - q: How do I get started?
     a: Create an account, then subscribe on the next screen with a card, or UPI in India. You are charged for the first month straight away, then monthly until you cancel. After that you connect LinkedIn, build an audience and launch a campaign.
   - q: What happens if I cancel?
