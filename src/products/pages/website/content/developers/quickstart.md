@@ -1,90 +1,65 @@
 ---
 title: Quickstart
-description: Go from an API key to a connected LinkedIn account, a synced inbox and your first message sent through the Spurly LinkedIn API.
-lead: From API key to your first LinkedIn message in five steps.
+seoTitle: Quickstart | Spurly API v2
+description: Create an organisation, connect a LinkedIn account and make your first LinkedIn call through the Spurly organisation API in a few minutes.
+lead: From API key to your first LinkedIn call in four steps.
 path: /developers/quickstart
 template: docs
 section: Get started
 order: 2
-date: 2026-10-24
+date: 2026-11-04
 parent: /developers
 ---
-You need your API key (`spk_partner_...`) and a LinkedIn account to test with. The examples use curl; every endpoint page also has Node.js and Python.
+You need your API key (`spk_partner_...`), enabled for `/v2`, and a LinkedIn account to test with.
 
 ```bash
 export SPURLY_API_KEY="spk_partner_..."
 ```
 
-## 1. Create an account
+## 1. Create an organisation
 
-One account per LinkedIn profile. `externalId` is your own id for that profile: a user with two LinkedIn accounts needs two, such as `user_123:1` and `user_123:2`. Reuse it when the same profile reconnects.
+`externalId` is your customer's **email address**. It is also the address they use to sign in to Spurly (a one-time code is emailed to it), so it must be a real, valid email. Spurly lowercases it. Reusing it returns the same organisation, so a retry is safe. Anything that is not an email is refused with `400 INVALID_FIELD`.
 
 ```bash
-curl -X POST "https://api.getspurly.com/v1/accounts" \
+curl -X POST "https://api.getspurly.com/v2/orgs" \
   -H "Authorization: Bearer $SPURLY_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"externalId":"user_123:1","name":"Jane Doe"}'
+  -d '{"externalId":"jane@acme.com","name":"Acme Inc."}'
 ```
 
-Keep the `id` from the answer; the next calls use it as `accountId`.
+Keep the `id` from the answer.
 
-## 2. Connect LinkedIn
-
-Send the LinkedIn email and password your user typed into your form, with their IP address.
+## 2. Connect a LinkedIn account
 
 ```bash
-curl -X POST "https://api.getspurly.com/v1/accounts/ACCOUNT_ID/linkedin/connect" \
+curl -X POST "https://api.getspurly.com/v2/orgs/$ORG_ID/accounts/connect" \
   -H "Authorization: Bearer $SPURLY_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"method":"credentials","username":"jane@acme.com","password":"their-password","endUserIp":"49.36.1.1"}'
+  -d '{"method":"credentials","username":"jane@example.com","password":"..."}'
 ```
 
-The answer is either `"state": "connected"`, or `"state": "checkpoint"` when LinkedIn wants a verification code:
+The answer is either `{"state":"connected","account":{...}}` or `{"state":"checkpoint","connectId":"..."}`. A checkpoint means LinkedIn wants a code or an in-app approval: see [Connect LinkedIn](/developers/guides/connect-linkedin). Keep the account `id`.
+
+## 3. Call LinkedIn
+
+Everything on the account lives under `/accounts/{accountId}`. List the member's chats:
 
 ```bash
-curl -X POST "https://api.getspurly.com/v1/accounts/ACCOUNT_ID/linkedin/checkpoint" \
-  -H "Authorization: Bearer $SPURLY_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"code":"123456"}'
-```
-
-Repeat until the state is `connected`. [Connect LinkedIn](/developers/guides/connect-linkedin) covers every checkpoint type.
-
-## 3. Set your webhook
-
-```bash
-curl -X PUT "https://api.getspurly.com/v1/webhook" \
-  -H "Authorization: Bearer $SPURLY_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"url":"https://your-app.com/spurly/webhook"}'
-```
-
-Then send yourself a test event with `POST /webhook/test`. New messages now arrive as `message.created`. See [Webhooks](/developers/guides/webhooks) to verify signatures.
-
-## 4. Read the inbox
-
-The history import starts on its own and takes a few minutes for a small inbox and can take hours for one with thousands of conversations.
-
-```bash
-curl "https://api.getspurly.com/v1/accounts/ACCOUNT_ID/chats" \
+curl "https://api.getspurly.com/v2/accounts/$ACCOUNT_ID/chats" \
   -H "Authorization: Bearer $SPURLY_API_KEY"
 ```
 
-Open one conversation with `GET /accounts/ACCOUNT_ID/chats/CHAT_ID`.
-
-## 5. Send a message
+Send a message:
 
 ```bash
-curl -X POST "https://api.getspurly.com/v1/accounts/ACCOUNT_ID/chats/CHAT_ID/messages" \
+curl -X POST "https://api.getspurly.com/v2/accounts/$ACCOUNT_ID/chats/$CHAT_ID/messages" \
   -H "Authorization: Bearer $SPURLY_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"text":"Hi from the Spurly API"}'
+  -d '{"text":"Thanks, talk Monday."}'
 ```
 
-It appears in the person's LinkedIn messages straight away. To message someone you have no conversation with yet, use [Message someone new](/developers/api/messages).
+## 4. Listen for events
 
-## Next
+Spurly sends `message.created`, `message.updated` and `account.updated` to your webhook. See [Webhooks](/developers/webhooks). Check what you are billed on with `GET /usage`.
 
-- [Authentication](/developers/authentication) and [Errors](/developers/errors)
-- [The inbox guide](/developers/guides/inbox): sync, pagination and keeping your copy in step
-- [API reference](/developers/api/accounts)
+Want to send a customer into the full Spurly app? `POST /orgs/{orgId}/login-link` returns a one-time link: see [Open in Spurly](/developers/guides/open-in-spurly).

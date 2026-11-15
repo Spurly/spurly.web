@@ -1,54 +1,47 @@
 ---
-title: Spurly LinkedIn API
-seoTitle: Spurly LinkedIn API: Inbox, Messaging and Account Sync
+title: Spurly organisation API
 navTitle: Overview
-shortTitle: Developers
-description: Connect your users' LinkedIn accounts, sync their inbox and send and receive LinkedIn messages in real time with one REST API and webhooks.
-lead: Give your product a LinkedIn inbox. Your users connect their LinkedIn account, and you read, send and receive their messages in real time.
+description: Group LinkedIn accounts under organisations, connect members, message, search and post through Spurly, and read usage with one REST API.
+lead: Partners, organisations and their LinkedIn accounts: connect a member, call LinkedIn on their behalf, and see what you are billed on.
 path: /developers
 template: docs
 section: Get started
 order: 1
-date: 2026-10-24
+date: 2026-11-04
+seoTitle: Spurly Organisation API for LinkedIn Accounts
+shortTitle: Developers
 priority: 0.6
 target_query: linkedin messaging api
 ---
-The Spurly LinkedIn API is a REST API with webhooks. Spurly runs the hard parts of LinkedIn: the sign-in and its verification codes, keeping the session alive, importing recent message history and delivering every new message the moment it arrives. You build the experience in your own product.
+The organisation API is for products that serve companies. Each of your customers is an **organisation**. An organisation connects one LinkedIn member, and you work with that member's LinkedIn through Spurly: inbox, messages, search, profiles, invitations, posts and more. Spurly runs the sign-in, verification, session health and delivery.
 
-## What you can build
+## How it fits together
 
-- **Connect LinkedIn.** Your users sign in with email and password or a session cookie, inside your own UI. Spurly handles every LinkedIn verification step.
-- **A full LinkedIn inbox.** Conversations with names, headlines and photos; complete message history; attachments; reactions; read receipts.
-- **Send and receive in real time.** Reply, start new conversations, send files, voice notes and video. New messages, reads, reactions and edits reach your webhook within seconds.
-- **Live connection health.** Know the moment a LinkedIn session needs reconnecting.
-
-## How it works
-
-1. You create an **account** for each of your users with `POST /accounts`.
-2. The user connects LinkedIn through your form; you pass the details to `/linkedin/connect`.
-3. Spurly imports their conversation history in the background.
-4. You list conversations and messages, and send messages, through the API.
-5. Spurly POSTs every new event to your **webhook**: new messages, read receipts, reactions, and connection changes.
+1. You create an **organisation** for each customer with `POST /orgs`.
+2. You **connect** a LinkedIn account under it, with credentials or a session cookie, and handle any verification step.
+3. You call LinkedIn through `/accounts/{accountId}/...`: chats, messages, search, profiles, invitations, posts.
+4. Spurly sends **webhooks** when messages arrive or a connection changes, and keeps a 7-day event feed for catch-up.
+5. `GET /usage` tells you what you are billed on: distinct LinkedIn members.
 
 | | |
 |---|---|
-| Base URL | `https://api.getspurly.com/v1` |
+| Base URL | `https://api.getspurly.com/v2` |
 | Auth | `Authorization: Bearer spk_partner_...` |
 | Format | JSON over HTTPS |
-| Real time | Signed webhooks, plus a 30-day event feed |
-| Spec | [OpenAPI 3.1](/developers/openapi) |
+| Real time | Signed webhooks, plus a 7-day event feed |
+| Spec | OpenAPI 3.1, `https://www.getspurly.com/developers/openapi.v2.json` |
 
 ## Start here
 
-- [Quickstart](/developers/quickstart): from API key to first message in a few minutes.
+- [Quickstart](/developers/quickstart): from API key to your first LinkedIn call.
+- [Concepts](/developers/concepts): organisations, accounts, one member one organisation, statuses.
 - [Connect LinkedIn](/developers/guides/connect-linkedin): the sign-in and verification flow.
-- [Webhooks](/developers/guides/webhooks): receive messages and status changes in real time.
-- [API reference](/developers/api/accounts): every endpoint, parameter and response.
-
-## Managing organisations?
-
-If your customers are companies with their own LinkedIn accounts, see the [organisation API (v2)](/developers/v2). It groups accounts under organisations and adds LinkedIn search, profiles, invitations and posts.
+- [Open in Spurly](/developers/guides/open-in-spurly): send a customer into the full Spurly app with a one-time link.
+- [API reference](/developers/api/orgs): every endpoint, parameter and response.
+- [LinkedIn limits](/developers/guides/linkedin-limits): a safe pace for each action, and what to do when an account hits a limit.
+- [What each account can do](/developers/guides/linkedin-features): which features work on every account, depend on the plan, or are not offered.
+- [Connection methods](/developers/guides/connection-methods): credentials or cookie, where LinkedIn sees the sign-in from, and reconnects.
 
 ## Getting access
 
-API access is set up per partner. [Book a call](/book-demo) or email founders@getspurly.com and we issue your API key and webhook signing secret.
+`/v2` is enabled per partner. [Book a call](/book-demo) or email founders@getspurly.com and we enable it on your API key.

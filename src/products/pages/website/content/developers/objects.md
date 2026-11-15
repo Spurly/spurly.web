@@ -1,25 +1,27 @@
 ---
 title: Objects
-description: Every object the Spurly LinkedIn API returns, with each field type and meaning: account, LinkedIn connection, chat, message, attachment, event and error.
+seoTitle: Objects | Spurly API v2
+description: Every object the Spurly organisation API returns: organisations, accounts, chats, messages, profiles, posts, usage, events and errors, field by field.
+lead: The shape of everything the API returns.
 path: /developers/objects
 template: docs
-section: API reference
+section: Get started
 order: 6
-date: 2026-10-24
+date: 2026-11-04
 parent: /developers
 ---
-Fields may be added to these objects at any time; ignore the ones you do not use. Fields are never removed or renamed within `/v1`.
-
-::schema Account
-::schema LinkedinConnection
-::schema Chat
-::schema Message
-::schema Attachment
-::schema Reaction
-::schema InboxStatus
-::schema ConnectRequest
-::schema ConnectResult
-::schema Checkpoint
-::schema Pagination
-::schema Event
-::schema Error
+::schema V2Org
+::schema V2Account
+::schema V2ConnectState
+::schema V2Chat
+::schema V2Message
+::schema V2Attachment
+::schema V2Attendee
+::schema V2Lead
+::schema V2OwnProfile
+::schema V2Profile
+::schema V2Post
+::schema V2UsageStats
+::schema V2Usage
+::schema V2Event
+::schema V2Error

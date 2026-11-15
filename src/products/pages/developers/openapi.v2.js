@@ -3,7 +3,7 @@
  *
  * Partner -> organisation -> LinkedIn accounts. Like openapi.js this is the single
  * source of truth for its docs: every endpoint, table, object and code sample on
- * /developers/v2 is rendered from this object.
+ * /developers is rendered from this object.
  *
  * Keep it in step with spurly.backend src/products/hub/gateway (route/routes.js,
  * service/passthrough.js, service/sanitise.js). A /v2 route is not documented until
@@ -368,7 +368,7 @@ const NETWORK_OPS = {
   '/accounts/{accountId}/follows': {
     post: op({
       id: 'v2FollowMember', tag: T.network, summary: 'Follow a member',
-      description: 'Follows a LinkedIn member as the connected account. Space follows out: see [LinkedIn limits](/developers/v2/guides/linkedin-limits).',
+      description: 'Follows a LinkedIn member as the connected account. Space follows out: see [LinkedIn limits](/developers/guides/linkedin-limits).',
       params: A, body: { type: 'object', required: ['memberId'], properties: { memberId: { type: 'string', description: 'The member\'s `id`, from a profile, search or relations call.' } } }, bodyExample: { memberId: 'ACoAAB1x2y3' },
       success: done('followed', 'Followed.'), status: 201, extra: ACCOUNT_ERRORS_W,
     }),

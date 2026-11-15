@@ -2,6 +2,14 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "buildCommand": "npm run build",
+  "redirects": [
+    { "source": "/developers/v2", "destination": "/developers", "permanent": true },
+    { "source": "/developers/v2/:path*", "destination": "/developers/:path*", "permanent": true },
+    { "source": "/developers/webhook-events", "destination": "/developers/webhooks", "permanent": true },
+    { "source": "/developers/authentication", "destination": "/developers/quickstart", "permanent": true },
+    { "source": "/developers/pagination", "destination": "/developers/limits", "permanent": true },
+    { "source": "/developers/openapi.json", "destination": "/developers/openapi.v2.json", "permanent": true }
+  ],
   "rewrites": [
     {
       "source": "/(dashboard|hub|admin|onboarding|subscribe|signup|login|forgot-password|reset-password|oauth|partner|dev)(/.*)?",

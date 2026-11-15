@@ -1,110 +1,57 @@
 ---
 title: Connect LinkedIn
-description: Build the LinkedIn sign-in in your own product with the Spurly API, including email and password, session cookies and every verification checkpoint.
-lead: Your users sign in to LinkedIn inside your product. Spurly handles LinkedIn's verification steps and keeps the session alive.
+seoTitle: Connect LinkedIn | Spurly API v2
+description: Sign a LinkedIn account in under an organisation with credentials or a session cookie, handle verification codes and in-app approvals, and reconnect an account.
+lead: Credentials or a cookie in, a connected account out, with every LinkedIn verification step handled.
 path: /developers/guides/connect-linkedin
 template: docs
 section: Guides
 order: 1
-date: 2026-10-24
+date: 2026-11-04
 parent: /developers
 ---
-## The flow
+There is no hosted sign-in page in `/v2`: you collect the details in your own UI and pass them to Spurly. The password or cookie is used for that one request and is never stored or logged.
 
-1. Create (or fetch) the account: `POST /accounts` with an `externalId` for this one LinkedIn profile, such as `<yourUserId>:<slot>`.
-2. Show your sign-in form. Offer **Email and password**, and optionally **Browser cookie** (the LinkedIn session cookie).
-3. Send what the user entered to `POST /accounts/:accountId/linkedin/connect`, with their IP address.
-4. If the answer is a **checkpoint**, show the matching step and continue until the state is `connected`.
-5. From then on, the `account.updated` webhook tells you whenever the connection changes.
+## Sign in
 
-## Your sign-in form
+`POST /orgs/{orgId}/accounts/connect` takes one of:
 
-Spurly's own dialog is a good model: two tabs, then a collapsed "Sync and location" section.
+- `{ "method": "credentials", "username": "...", "password": "..." }`
+- `{ "method": "cookies", "accessToken": "<li_at value>", "premiumToken": "<li_a value, optional>", "userAgent": "<optional>" }`
 
-| Input | Sent as | Notes |
-|---|---|---|
-| Email or phone | `username` | Email and password tab |
-| LinkedIn password | `password` | Email and password tab. Used once, never stored |
-| `li_at` cookie | `accessToken` | Browser cookie tab. Required there |
-| `li_a` cookie | `premiumToken` | Browser cookie tab. Only for Sales Navigator and Recruiter |
-| Browser user agent | `userAgent` | Browser cookie tab. Recommended |
-| Sync history | `sync.chats`, `sync.messages` | Both default to true |
-| Location | `location` | Automatic, a chosen country, or the user's own proxy |
+Send `endUserIp` (your end user's own IPv4 address) so LinkedIn sees the sign-in from where the person is. You can also choose a `location` (a country, or your own proxy). To show a country picker with the right default, call `GET /connect-options` first: it returns `detectedCountry` (from the `endUserIp` you pass, or `null`) and the supported `proxyProtocols`. To reconnect an account that needs it, add its id as `accountId`.
 
-Tell users that two-step verification is expected: LinkedIn often sends a code on a new sign-in.
+The answer is one of two states:
 
-## Send the user's IP
-
-Always pass `endUserIp`, the IP address of the person signing in (from your own request to your server). With automatic location, LinkedIn then sees the sign-in from that person's country. Without it, the sign-in looks like it comes from a data centre, and LinkedIn asks for more verification or blocks it.
-
-`GET /linkedin/connect-options?endUserIp=...` answers the detected country, so your form can say "Automatic (India)".
-
-## Start the sign-in
-
-::endpoint connectLinkedin
-
-## Checkpoints
-
-LinkedIn often asks the person to verify a new sign-in. The answer then carries `state: "checkpoint"` and a `checkpoint.type`:
-
-| Type | Show | Then |
-|---|---|---|
-| `OTP` | "LinkedIn sent a code to the email or phone on your account" | `POST .../linkedin/checkpoint` with `{ "code": "123456" }` |
-| `2FA` | "Enter the 6-digit code from your authenticator app" | `POST .../linkedin/checkpoint` with `{ "code": "123456" }` |
-| `PHONE_REGISTER` | "LinkedIn wants a phone number on this account first" with a country code and number field | `POST .../linkedin/checkpoint` with the number as `code`, written `(+91)9876543210`. LinkedIn then texts a code, which comes back as an `OTP` checkpoint |
-| `IN_APP_VALIDATION` | "Open the LinkedIn app and tap Yes, it's me" (approving from LinkedIn's email works too) | Poll `POST .../linkedin/checkpoint/status` every 3 to 5 seconds, or wait for `account.updated` |
-
-Every checkpoint step answers the same two states, so one loop handles all of them. Offer:
-
-- **Resend code** (or resend the app notification): `POST .../linkedin/checkpoint/resend`
-- **Try another way**: `POST .../linkedin/checkpoint/another-way`, which answers the new checkpoint (or `NO_ALTERNATIVE`)
-
-A checkpoint expires after a few minutes (`EXPIRED`, 410). Start again from the sign-in.
-
-If LinkedIn asks for something the API cannot complete (`UNSUPPORTED_CHECKPOINT`), ask the user to sign in with a session cookie instead.
-
-## Connection states
-
-| `linkedin.state` | Meaning | Your UI |
-|---|---|---|
-| `not_connected` | Never connected, or disconnected | "Connect LinkedIn" |
-| `connecting` | Signed in; LinkedIn is finishing setup | "Connecting..." |
-| `connected` | Live | Inbox |
-| `needs_reconnect` | LinkedIn ended the session: password changed, signed out everywhere, or a security check | "Reconnect LinkedIn", which runs this same flow |
-
-LinkedIn signs accounts out from time to time, roughly monthly for many of them. That is normal; the `account.updated` webhook tells you the moment it happens, so you can prompt the user straight away.
-
-## Disconnecting
-
-`DELETE /accounts/:accountId/linkedin` signs the account out of Spurly. Conversations already synced stay readable.
-
-## A minimal loop (Node.js)
-
-```js
-async function connect(accountId, form, endUserIp) {
-  let res = await spurly(`/accounts/${accountId}/linkedin/connect`, { ...form, endUserIp });
-  while (res.state === "checkpoint") {
-    if (res.checkpoint.type === "IN_APP_VALIDATION") {
-      await sleep(4000);
-      res = await spurly(`/accounts/${accountId}/linkedin/checkpoint/status`, {});
-    } else {
-      const code = await askUserForCode(res.checkpoint.type);
-      res = await spurly(`/accounts/${accountId}/linkedin/checkpoint`, { code });
-    }
-  }
-  return res.account;
-}
-
-async function spurly(path, body) {
-  const r = await fetch(`https://api.getspurly.com/v1${path}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${process.env.SPURLY_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const json = await r.json();
-  if (!json.success) throw Object.assign(new Error(json.message), { code: json.code, field: json.field });
-  return json.data;
-}
+```json
+{ "success": true, "data": { "state": "connected", "account": { "id": "6720a2c3d4e5f60718293041", "status": "OK" } } }
 ```
 
-In a real product each step is a separate request from your UI; the loop shows the order.
+```json
+{ "success": true, "data": { "state": "checkpoint", "connectId": "cn_5d3f", "checkpoint": { "type": "OTP", "expiresAt": "2026-11-01T09:20:00.000Z" } } }
+```
+
+## Verification
+
+On `checkpoint`, LinkedIn wants one more step. Keep the `connectId` and match `checkpoint.type`:
+
+| What the member does | You call |
+|---|---|
+| Types a code LinkedIn sent (email, SMS or authenticator) | `POST .../connect/checkpoint` with `{ connectId, code }` |
+| Has not received a code | `POST .../connect/checkpoint/resend` with `{ connectId }` |
+| Wants another method | `POST .../connect/checkpoint/another-way` with `{ connectId }` |
+| Approves in the LinkedIn app | Poll `GET .../connect/status?connectId=` every few seconds |
+
+Each of these answers with the next state, so you loop until `connected`. A checkpoint lasts 5 minutes (`410 EXPIRED` after that: start again). Steps this API cannot complete answer `422 UNSUPPORTED_CHECKPOINT`.
+
+## One member, one organisation
+
+If the member who signs in is live in another organisation, you get `409 PROFILE_IN_USE` and nothing stays connected. If the member is already connected in this organisation, the existing account is reused. See [Concepts](/developers/concepts#one-member-one-organisation).
+
+## Reconnect
+
+When an account's `status` is `CREDENTIALS` (or you receive an `account.updated` for it), repeat the sign-in with `accountId`. The member must sign in as the same LinkedIn profile, or the attempt is refused with `409 PROFILE_MISMATCH` and disconnected.
+
+## Limits
+
+An organisation can start 5 connects per hour. Wrong credentials answer `422 INVALID_CREDENTIALS` with `field`; an expired cookie answers `422 INVALID_COOKIE`. See [Errors](/developers/errors).

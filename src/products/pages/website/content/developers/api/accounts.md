@@ -1,13 +1,15 @@
 ---
 title: Accounts
-description: Spurly LinkedIn API reference for accounts. Create, fetch and list the accounts that hold your users' LinkedIn connections.
+seoTitle: Accounts | Spurly API v2
+description: Spurly organisation API reference for accounts. List, fetch and disconnect the LinkedIn accounts of an organisation.
+lead: Read and disconnect the LinkedIn accounts of an organisation.
 path: /developers/api/accounts
 template: docs
 section: API reference
-order: 1
-date: 2026-10-24
+order: 3
+date: 2026-11-04
 parent: /developers
 ---
-An account is one LinkedIn profile you connect. Create it with your own id for that profile as `externalId` (one per LinkedIn account, reused when it reconnects); the account then carries that LinkedIn connection and inbox. To let a person work in the Spurly app on it, see [Open in Spurly](/developers/guides/open-in-spurly). See the [Account object](/developers/objects#account).
+Read and disconnect the LinkedIn accounts of an organisation. Every call needs `Authorization: Bearer <key>`; see [Quickstart](/developers/quickstart). Base URL `https://api.getspurly.com/v2`.
 
-::endpoints accounts
+::endpoints v2-accounts

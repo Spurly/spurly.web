@@ -29,7 +29,7 @@ function TypeCell({ schema }) {
   return (
     <code>
       {label.prefix || ""}
-      <Link to={`/developers/${v2 ? "v2/objects" : "objects"}#${objectAnchor(label.link)}`}>{v2 ? label.link.slice(2) : label.link}</Link>
+      <Link to={`/developers/objects#${objectAnchor(label.link)}`}>{v2 ? label.link.slice(2) : label.link}</Link>
     </code>
   );
 }
