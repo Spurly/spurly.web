@@ -1,6 +1,6 @@
 ---
 title: Objects
-seoTitle: Objects | Spurly API v2
+seoTitle: Objects | Spurly API
 description: Every object the Spurly organisation API returns: organisations, accounts, chats, messages, profiles, posts, usage, events and errors, field by field.
 lead: The shape of everything the API returns.
 path: /developers/objects

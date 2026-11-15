@@ -1,6 +1,6 @@
 ---
 title: Quickstart
-seoTitle: Quickstart | Spurly API v2
+seoTitle: Quickstart | Spurly API
 description: Create an organisation, connect a LinkedIn account and make your first LinkedIn call through the Spurly organisation API in a few minutes.
 lead: From API key to your first LinkedIn call in four steps.
 path: /developers/quickstart
@@ -10,7 +10,7 @@ order: 2
 date: 2026-11-04
 parent: /developers
 ---
-You need your API key (`spk_partner_...`), enabled for `/v2`, and a LinkedIn account to test with.
+You need your API key (`spk_partner_...`), enabled, and a LinkedIn account to test with.
 
 ```bash
 export SPURLY_API_KEY="spk_partner_..."

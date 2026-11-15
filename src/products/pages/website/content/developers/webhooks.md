@@ -1,6 +1,6 @@
 ---
 title: Webhooks
-seoTitle: Webhooks | Spurly API v2
+seoTitle: Webhooks | Spurly API
 description: Receive LinkedIn messages and account changes in real time from the Spurly organisation API, verify signatures and catch up with the 7-day event feed.
 lead: Real-time events for new messages, message changes and LinkedIn connection changes.
 path: /developers/webhooks

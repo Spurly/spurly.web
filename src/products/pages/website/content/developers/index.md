@@ -38,10 +38,10 @@ The organisation API is for products that serve companies. Each of your customer
 - [Connect LinkedIn](/developers/guides/connect-linkedin): the sign-in and verification flow.
 - [Open in Spurly](/developers/guides/open-in-spurly): send a customer into the full Spurly app with a one-time link.
 - [API reference](/developers/api/orgs): every endpoint, parameter and response.
-- [LinkedIn limits](/developers/guides/linkedin-limits): a safe pace for each action, and what to do when an account hits a limit.
+- [LinkedIn limits](/developers/guides/linkedin-limits): the limits and restrictions LinkedIn applies to each connected account.
 - [What each account can do](/developers/guides/linkedin-features): which features work on every account, depend on the plan, or are not offered.
 - [Connection methods](/developers/guides/connection-methods): credentials or cookie, where LinkedIn sees the sign-in from, and reconnects.
 
 ## Getting access
 
-`/v2` is enabled per partner. [Book a call](/book-demo) or email founders@getspurly.com and we enable it on your API key.
+The API is enabled per partner. [Book a call](/book-demo) or email founders@getspurly.com and we enable it on your API key.

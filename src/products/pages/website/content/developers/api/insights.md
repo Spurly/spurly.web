@@ -1,6 +1,6 @@
 ---
 title: Companies and insights
-seoTitle: Companies and insights | Spurly API v2
+seoTitle: Companies and insights | Spurly API
 description: Spurly organisation API reference for LinkedIn company pages, profile viewers and InMail credit balance.
 lead: Companies, profile viewers and InMail credits.
 path: /developers/api/insights

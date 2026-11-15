@@ -1,6 +1,6 @@
 ---
 title: Connection methods
-seoTitle: LinkedIn connection methods | Spurly API v2
+seoTitle: LinkedIn connection methods | Spurly API
 navTitle: Connection methods
 description: Compare signing a LinkedIn account in with credentials or a session cookie, choose where LinkedIn sees the sign-in from, and plan for verification steps and reconnects.
 lead: Two ways to connect a member, when to use each, and how to keep the connection healthy.
@@ -11,7 +11,7 @@ order: 6
 date: 2026-11-11
 parent: /developers
 ---
-There is no hosted sign-in page in `/v2`. You collect the details in your own screen and send them to `POST /orgs/{orgId}/accounts/connect`. The [Connect LinkedIn](/developers/guides/connect-linkedin) guide walks through the calls. This page helps you choose how.
+There is no hosted sign-in page. You collect the details in your own screen and send them to `POST /orgs/{orgId}/accounts/connect`. The [Connect LinkedIn](/developers/guides/connect-linkedin) guide walks through the calls. This page helps you choose how.
 
 ## Credentials or cookie?
 

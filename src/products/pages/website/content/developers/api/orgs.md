@@ -1,6 +1,6 @@
 ---
 title: Organisations
-seoTitle: Organisations | Spurly API v2
+seoTitle: Organisations | Spurly API
 description: Spurly organisation API reference for organisations. Create, list and fetch the customers whose LinkedIn accounts you connect.
 lead: Create, list and fetch the organisations under your partner account.
 path: /developers/api/orgs

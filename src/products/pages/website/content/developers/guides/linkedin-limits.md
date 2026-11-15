@@ -1,89 +1,81 @@
 ---
-title: LinkedIn limits and safe sending
-seoTitle: LinkedIn limits and safe sending | Spurly API v2
+title: LinkedIn limits and restrictions
+seoTitle: LinkedIn limits and restrictions | Spurly API
 navTitle: LinkedIn limits
-description: What LinkedIn tolerates per account, a safe pace for each kind of action, and how to handle the errors LinkedIn and Spurly return when an account goes too fast.
-lead: LinkedIn limits belong to the member's account, not to an endpoint. Here is a safe pace for each action, and what to do when an account hits a limit.
+description: The limits and restrictions LinkedIn applies to a connected account: connection requests, profile reads, search, new connections, InMail and LinkedIn Recruiter.
+lead: Every limit here belongs to the member's LinkedIn account, not to an endpoint. Keep to them and handle the errors LinkedIn returns when you go over.
 path: /developers/guides/linkedin-limits
 template: docs
 section: Guides
 order: 4
-date: 2026-11-11
+date: 2026-11-15
 parent: /developers
 ---
-Every limit on this page belongs to **one LinkedIn account**. It does not matter which endpoint made the call, and the limits do not add up across accounts: ten connected members each have their own. Spurly does not slow your calls down (see [Limits and pagination](/developers/limits)), so the pace is yours to keep. Going too fast does not break the API; it puts the member's LinkedIn account at risk of warnings and restrictions.
+These limits are conservative recommendations. You may raise the values at your own risk. Going over LinkedIn's limits makes the call fail (see [Errors](/developers/errors), for example `429 RATE_LIMITED` or `502 PROVIDER_ERROR`), so make sure your system handles it, to avoid automation warnings on the member's account.
 
-## Rules that matter more than any number
+To look like a person, space all calls out instead of chaining them at regular intervals. Use random gaps and spread the calls across several runs during working hours.
 
-- **Spread calls out at random.** Do not chain calls at a fixed interval or run a job at the same minute every day. Pick random gaps and spread them across the member's working hours.
-- **Start low, then grow.** An account that is new, rarely used, or has fewer than about 150 connections can have connection requests delayed or held for a check by LinkedIn before they show up. Ramp up over weeks, not days.
-- **Use real accounts.** LinkedIn detects fake accounts even when nothing is automated.
-- **Stop when LinkedIn says stop.** A `429` or a refused request means that kind of action is done for the day on that account. Do not retry in a loop.
-- **Anything not listed below:** keep it small, space it out, and stay under about 100 a day per account.
+For new or inactive accounts, start with low quantities and increase gradually. An account with fewer than about 150 connections, or one created recently, can have invitations delayed or held for a manual check by LinkedIn before they appear in the app. LinkedIn detects fake accounts well, even without automation, so use only real accounts.
 
-## A safe pace for each action
+*These limits are defined per LinkedIn account. They are independent of the route and do not add up.*
 
-These are the numbers Spurly itself uses to pace its own workspace. They are conservative starting points, not guarantees: you may go higher at your own risk, and LinkedIn can change what it tolerates at any time.
-
-| Action | Calls | Per hour | Per day | Per week |
-|---|---|---|---|---|
-| Connection requests | `POST /invitations` | 10 | 80 | 200 |
-| Messages | `POST /chats/{chatId}/messages`, `POST /chats` | 20 | 100 | 500 |
-| InMail | `POST /chats` with `subject` | 3 | 10 | 40 |
-| Message files | `POST /chats/{chatId}/messages` with `kind` | 6 | 20 | 80 |
-| Profile visits | `GET /profiles/{identifier}` | 25 | about 100 | 600 |
-| Follows | `POST /follows` | 6 | 30 | 150 |
-| Post likes | `POST /posts/{postId}/reactions` | 12 | 60 | 300 |
-| Comments | `POST /posts/{postId}/comments` | 3 | 15 | 60 |
-| Skill endorsements | `POST /endorsements` | 5 | 20 | 80 |
-| Posts | `POST /posts` | 1 | 2 | 7 |
-
-Leave at least a minute or two between two sends of the same kind, and add a random pause now and then. Overnight, in the member's time zone, slow down further.
+Spurly's own request limits and the safety limit are described in [Limits and pagination](/developers/limits).
 
 ## Connection requests
 
-- A paid, active account can send roughly 80 to 100 requests a day and about 200 a week. A free account is far tighter: a handful of requests with a note each month, and a few hundred a week without one.
-- The note is at most 300 characters on a paid account and 200 on a free one. A note that is too long answers `422 TOO_LONG`.
-- When LinkedIn refuses a request because the account has used its allowance, you get an error instead of a `201`. Treat it as "no more requests today" and try again tomorrow. LinkedIn shows the same refusal in its own app.
-- Do not check for accepted requests by polling on a schedule. See [Checking for new connections](#checking-for-new-connections).
+- **Paid and active account:** between 80 and 100 invitations a day, and about 200 a week, with a message of up to 300 characters.
+- **Free account:** about 5 invitations a month with a message of up to 200 characters, and about 150 invitations a week without a note.
 
-## Search
+When you hit the invitation limit, LinkedIn refuses the invitation and the call fails with an error instead of succeeding. LinkedIn enforces this limit itself, so it is the same limit the member sees in the LinkedIn app. You can try the same action in the app with the same invitation type (with or without a note). The app only shows LinkedIn's error at the last step, so you can start the process and think the invitation will be sent, but it fails at the end.
 
-LinkedIn returns at most **1,000 results for a single search**, however many the page claims to match. To go deeper, split the search with filters (location, company, industry) and run several. Across a day, fetch no more than about 1,000 results in total. That counts results read, not requests.
+## Retrieve a profile
 
-## Profile reads
+About 100 profiles per account per day (profile visits and id conversion). This is a recommendation, not a hard limit.
 
-Reading profiles is how most accounts get flagged. Stay near 100 a day per account, space the reads out, and do not ask for `sections` you do not need: each section is more work for LinkedIn.
+An account with Sales Navigator or Recruiter has more room per day. Recruiter Lite has an [official limit of 2,000](https://www.linkedin.com/help/recruiter/answer/a497998?hcppcid=search).
 
-## Checking for new connections
+## Search results
 
-Do not poll `GET /relations` or `GET /invitations/sent` every hour or at a fixed time such as 8:00 each morning. That pattern is easy for LinkedIn to see. Do one full read when you first import an account, then fetch only the first page a few times a day, at random gaps of several hours. Connections are listed newest first, so the first page is enough to see who is new.
+There are two separate limits to keep in mind.
+
+1. **Per-search cap (LinkedIn limit).**
+   - Standard LinkedIn: at most 1,000 profiles returned for a single search.
+   - Sales Navigator and Recruiter: at most 2,500 profiles for a single search. Company search on Sales Navigator is still 1,000.
+   - Even when the LinkedIn app shows more total results, LinkedIn only returns the first 1,000 (or 2,500) for that search. To get everything, narrow the search with filters and run several searches.
+2. **Daily usage (recommendation, not enforced).** Retrieve no more than 1,000 profiles a day (standard) or 2,500 (Sales Navigator and Recruiter). This is the number of result lines actually fetched in a day, not the number of requests.
+
+## Relations and the invitation list
+
+You may want to poll relations or the invitation list to find accepted invitations. Do not poll every hour or at fixed times such as 8:00 every morning: that pattern is easy to flag as automation.
+
+Do one initial sync, during which you can call the endpoint several times. After that, retrieve only the first page, a few times a day, at random intervals of several hours.
+
+## Retrieving chats
+
+LinkedIn's chats and messages are read from the member's inbox for you, so you can list chats and fetch messages through the chat routes without pacing them like invitations. Spurly's request limits still apply: see [Limits and pagination](/developers/limits).
 
 ## InMail
 
-How many InMails an account can send depends on its LinkedIn plan: a Premium subscription includes a small monthly number, and Sales Navigator or Recruiter seats include more. Read the balance with `GET /inmail-balance`. A value of `null` means LinkedIn did not report that balance. It does not mean zero.
+How many InMails a member can send depends on their LinkedIn subscription. For example, Career subscriptions start with 5 InMails a month, while some Recruiter contracts include thousands of shared InMails. Read the available credit with `GET /accounts/{accountId}/inmail-balance`.
 
-LinkedIn lets accounts message members with an open profile for free, up to a monthly cap that LinkedIn sets and can lower per account. Even then, LinkedIn may still insist on an available credit. If you send InMails in volume, keep to a few a day so the month's allowance lasts.
+**Free InMail to open profiles.** You can send free InMails to open profiles. An open profile shows as `openProfile` when you retrieve it (the value is for the given account and can differ on another account). LinkedIn caps free InMails at a maximum of 800 a month per account. It lowers that number for some account types and depends on other factors such as history, acceptance and the LinkedIn product you send from (classic, Sales Navigator or Recruiter can give different results). You get the same result as in LinkedIn's own app. There is more on the Recruiter limit [in LinkedIn's help](https://www.linkedin.com/help/recruiter/answer/a745199).
 
-## Messages and chats
+In some cases LinkedIn still requires an available InMail credit, even for a free InMail to an open profile. If the account has no credit left, the send can fail depending on the product and LinkedIn's rules.
 
-Spurly reads chats from LinkedIn live in `/v2`, so do not poll them. Listen for `message.created` and `message.updated` webhooks instead, and read a chat only when you need to. Each LinkedIn account is also held to 60 requests a minute by Spurly (`429 RATE_LIMITED`).
+Space InMails out at random and limit sends to 30 to 50 a day, to make the monthly allowance go further.
 
-## What Spurly does for you
+## Other routes
 
-- **Per-account throttle.** 60 requests a minute per LinkedIn account and 600 a minute per API key, with `Retry-After` on `429`.
-- **Safety limit.** If an organisation also uses the Spurly workspace, the same account may be driven from both places, so Spurly counts connection requests and messages from both and answers `429 ACCOUNT_LIMIT` at the limits in [Limits and pagination](/developers/limits#safety-limit-for-accounts-that-also-use-the-spurly-workspace). Organisations that use only the API are not counted.
-- **Never retrying a write.** A send that times out may or may not have gone through. Spurly never repeats it for you. See [Errors](/developers/errors#retrying-writes).
+For every route not listed above, follow the same principles:
 
-## Handling the errors
+- Use as little as possible.
+- Space calls out at random intervals.
+- By default, limit each action to 100 a day per account, for example retrieving company profiles, retrieving posts, sending messages to connections, commenting or adding reactions.
 
-| You get | It means | Do this |
-|---|---|---|
-| `429 RATE_LIMITED` with `Retry-After` | You are over Spurly's throttle, or LinkedIn is limiting the account | Wait the time given, then retry reads. For sends, slow the whole account down |
-| `429 ACCOUNT_LIMIT` | The account reached its safety limit for that action. Nothing was sent | Wait for `Retry-After`; do not queue more for that account today |
-| `422 TOO_LONG` | The text is longer than LinkedIn allows for that account | Shorten the note or message |
-| `403 FEATURE_UNAVAILABLE` | The account's LinkedIn plan does not include that feature | See [What each account can do](/developers/guides/linkedin-features) |
-| `409 ACCOUNT_NEEDS_RECONNECT` | LinkedIn wants the member to sign in again | Reconnect; see [Connect LinkedIn](/developers/guides/connect-linkedin) |
-| `504 TIMEOUT` on a send | It may have gone through | Read first, then repeat only if it did not |
+## LinkedIn Recruiter
 
-LinkedIn's own limits are set by LinkedIn and can change without notice. If an account is restricted, the member has to sort it out on linkedin.com; the API reports `422 ACCOUNT_RESTRICTED`.
+LinkedIn Recruiter limits the number of simultaneous sessions. Signing a member in with their LinkedIn credentials can trigger a LinkedIn warning that reminds them not to share their credentials, and the member has to acknowledge it. If LinkedIn then sees a new session, it lists the current sessions and asks the member to choose which one to end before they can keep using LinkedIn in their browser.
+
+This is not a long-term risk to the account, but it is a poor experience: the member has to reconnect the account each time the pop-up appears.
+
+If you need Recruiter, connect the account with cookies (`method: cookies`, with the `li_at` value as `accessToken` and the `li_a` value as `premiumToken`). Spurly does not host a sign-in page, so you collect these in your own product. Asking a member to open their browser's developer tools to find cookies needs a clear explanation for non-technical members. The best way to handle it is a Chrome extension that collects the cookies in the background after the member installs it. See [Connection methods](/developers/guides/connection-methods#smooth-reconnects-with-a-browser-extension).

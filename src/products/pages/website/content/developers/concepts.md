@@ -1,6 +1,6 @@
 ---
 title: Concepts
-seoTitle: Concepts | Spurly API v2
+seoTitle: Concepts | Spurly API
 description: How organisations, LinkedIn accounts, the one-member-one-organisation rule, account statuses and billing counts work in the Spurly organisation API.
 lead: The few ideas the rest of the API rests on.
 path: /developers/concepts

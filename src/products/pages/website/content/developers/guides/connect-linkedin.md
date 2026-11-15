@@ -1,6 +1,6 @@
 ---
 title: Connect LinkedIn
-seoTitle: Connect LinkedIn | Spurly API v2
+seoTitle: Connect LinkedIn | Spurly API
 description: Sign a LinkedIn account in under an organisation with credentials or a session cookie, handle verification codes and in-app approvals, and reconnect an account.
 lead: Credentials or a cookie in, a connected account out, with every LinkedIn verification step handled.
 path: /developers/guides/connect-linkedin
@@ -10,7 +10,7 @@ order: 1
 date: 2026-11-04
 parent: /developers
 ---
-There is no hosted sign-in page in `/v2`: you collect the details in your own UI and pass them to Spurly. The password or cookie is used for that one request and is never stored or logged.
+There is no hosted sign-in page: you collect the details in your own UI and pass them to Spurly. The password or cookie is used for that one request and is never stored or logged.
 
 ## Sign in
 

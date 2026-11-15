@@ -1,6 +1,6 @@
 ---
 title: Limits and pagination
-seoTitle: Limits and pagination | Spurly API v2
+seoTitle: Limits and pagination | Spurly API
 navTitle: Limits and pagination
 description: Request limits, connect limits, upload and text limits, pagination cursors and the event window of the Spurly organisation API.
 lead: What is limited, and how to page through lists.

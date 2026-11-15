@@ -1,6 +1,6 @@
 ---
 title: Messaging and LinkedIn calls
-seoTitle: Messaging and LinkedIn calls | Spurly API v2
+seoTitle: Messaging and LinkedIn calls | Spurly API
 navTitle: LinkedIn calls
 description: How LinkedIn calls work in the Spurly organisation API: chats and messages, sending files, search filters, profiles, invitations and posts through one account.
 lead: Everything on a connected account lives under /accounts/{accountId}.

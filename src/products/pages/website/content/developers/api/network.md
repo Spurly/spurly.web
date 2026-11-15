@@ -1,6 +1,6 @@
 ---
 title: Network
-seoTitle: Network | Spurly API v2
+seoTitle: Network | Spurly API
 description: Spurly organisation API reference for LinkedIn invitations, connections and followers.
 lead: Invitations, connections and followers.
 path: /developers/api/network

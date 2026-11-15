@@ -1,6 +1,6 @@
 ---
 title: Accounts
-seoTitle: Accounts | Spurly API v2
+seoTitle: Accounts | Spurly API
 description: Spurly organisation API reference for accounts. List, fetch and disconnect the LinkedIn accounts of an organisation.
 lead: Read and disconnect the LinkedIn accounts of an organisation.
 path: /developers/api/accounts
