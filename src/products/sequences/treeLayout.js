@@ -29,7 +29,7 @@ function shift(part, dx) {
 }
 
 /** Lay out one list (a column), and the branches under it if it ends in a branching node. Local coordinates, own column centred on 0. */
-function layoutList(steps, parentId, branch, top, source, label) {
+function layoutList(steps, parentId, branch, top, source, label, nodeH) {
   const list = listOf(steps, parentId, branch);
   const nodes = [];
   const edges = [];
@@ -37,18 +37,18 @@ function layoutList(steps, parentId, branch, top, source, label) {
   let y = top;
 
   list.forEach((step, index) => {
-    const node = { key: step.id, kind: 'step', step, x: -NODE_W / 2, y, w: NODE_W, h: NODE_H };
+    const node = { key: step.id, kind: 'step', step, x: -NODE_W / 2, y, w: NODE_W, h: nodeH };
     edges.push({ key: `e:${prev.key}>${node.key}`, from: prev, to: node, slot: { parentId, branch, index }, label: index === 0 ? label : null });
     nodes.push(node);
     prev = node;
-    y += NODE_H + V_GAP;
+    y += nodeH + V_GAP;
   });
 
   const last = list[list.length - 1];
   if (last && isBranching(last)) {
     const labels = branchLabels(last);
-    const yes = layoutList(steps, last.id, 'yes', y, prev, { ...labels.yes, side: 'yes' });
-    const no = layoutList(steps, last.id, 'no', y, prev, { ...labels.no, side: 'no' });
+    const yes = layoutList(steps, last.id, 'yes', y, prev, { ...labels.yes, side: 'yes' }, nodeH);
+    const no = layoutList(steps, last.id, 'no', y, prev, { ...labels.no, side: 'no' }, nodeH);
     shift(no, yes.maxX + H_GAP - no.minX);
     const cx = (yes.cx + no.cx) / 2;
     for (const n of nodes) n.x += cx;
@@ -68,10 +68,11 @@ function layoutList(steps, parentId, branch, top, source, label) {
   return { nodes, edges, cx: 0, minX: -half, maxX: half };
 }
 
-/** @returns {{ nodes: Array, edges: Array, minX: number, maxX: number, width: number, height: number }} in canvas pixels. Start is pinned at x = 0 (centre) and y = 0, so the top of the flow does not move when branches are added below it. */
-export function layoutTree(steps) {
+/** `nodeH` is the height of a step node: the editor draws the slim default, the Journey view draws taller nodes that also hold the lead bubbles.
+ * @returns {{ nodes: Array, edges: Array, minX: number, maxX: number, width: number, height: number }} in canvas pixels. Start is pinned at x = 0 (centre) and y = 0, so the top of the flow does not move when branches are added below it. */
+export function layoutTree(steps, { nodeH = NODE_H } = {}) {
   const start = { key: 'start', kind: 'start', x: 0, y: 0, w: TERM_W, h: TERM_H };
-  const body = layoutList(steps || [], null, null, TERM_H + V_GAP, start, null);
+  const body = layoutList(steps || [], null, null, TERM_H + V_GAP, start, null, nodeH);
   const nodes = [start, ...body.nodes];
   const edges = body.edges;
   // The first column's centre is x = 0, and Start is directly above it, so adding a fork below never moves the top of the flow.

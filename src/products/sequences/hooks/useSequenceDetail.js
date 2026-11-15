@@ -7,7 +7,7 @@ import { campaignsStrings } from 'src/products/pages/campaigns/strings.js';
 import { poolErrorText } from 'src/products/pages/campaigns/components/refusalCopy.js';
 import sequenceController from '../controller/sequence.js';
 import { stepsError } from '../stepTypes.js';
-import { treeError, isTreeSequence } from '../treeModel.js';
+import { treeError, isTreeSequence, insertAcceptanceWait } from '../treeModel.js';
 import { POLL_MS, SEQUENCE_EVENTS } from '../constants/constants.js';
 
 /**
@@ -81,6 +81,16 @@ export function useSequenceDetail({ inbox = true } = {}) {
     setSaving(true);
     sequenceController.updateSequence(eventEmitter, id, { steps: draftSteps });
   }, [stepsDirty, stepsValidation, eventEmitter, id, draftSteps]);
+
+  /** Insert a "wait until accepted" at `where` of the sequence as it is saved (paused sequences only; the server refuses a finished one). */
+  const insertAcceptanceWaitAt = useCallback((where, config) => {
+    const base = data?.sequence?.steps;
+    if (!base) return;
+    const next = insertAcceptanceWait(base, where, config);
+    if (next === base) return;
+    setSaving(true);
+    sequenceController.updateSequence(eventEmitter, id, { steps: next });
+  }, [data, eventEmitter, id]);
 
   /** "Skip people I've already messaged" on this sequence: the whole rule, saved as one edit. */
   const saveRecentContact = useCallback((recentContact) => {
@@ -241,6 +251,7 @@ export function useSequenceDetail({ inbox = true } = {}) {
     start,
     pause,
     saveSteps,
+    insertAcceptanceWaitAt,
     saveRecentContact,
     remove,
     stepsDirty,

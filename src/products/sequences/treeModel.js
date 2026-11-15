@@ -477,3 +477,11 @@ export function cleanExit(exit) {
   return Object.keys(out).length ? out : undefined;
 }
 export const exitError = (exit) => (exit?.maxDays != null && !(Number.isInteger(exit.maxDays) && exit.maxDays >= 1 && exit.maxDays <= 365) ? 'Maximum days must be 1 to 365' : null);
+
+/** A wait step with the chosen `config` inserted into the list at `where` (parentId, branch, index). Nothing else changes. */
+export function insertAcceptanceWait(steps, where, config = { mode: 'until-accepted', days: 2, maxDays: 7 }) {
+  const next = addNode(steps, where, 'wait');
+  if (next === steps) return steps;
+  const added = next.find((n) => !steps.some((o) => o.id === n.id));
+  return next.map((n) => (n.id === added.id ? { ...n, config: { ...config } } : n));
+}

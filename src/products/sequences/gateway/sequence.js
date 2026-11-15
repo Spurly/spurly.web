@@ -105,6 +105,36 @@ async function rebalanceSequence(id, { fromAccountId } = {}) {
   return res.data?.data ?? { moved: 0, left: 0 };
 }
 
+/** GET /hub/sequences/:id/flow-state — where every lead is in the tree, per step and per sender (the Journey view). */
+async function getFlowState(id) {
+  const res = await apiGateway.get(`/hub/sequences/${id}/flow-state`);
+  return res.data?.data ?? null;
+}
+
+/** GET /hub/sequences/:id/enrollments/:eid — everything about one lead in this sequence. */
+async function getEnrollment(id, enrollmentId) {
+  const res = await apiGateway.get(`/hub/sequences/${id}/enrollments/${enrollmentId}`);
+  return res.data?.data ?? null;
+}
+
+/** POST /hub/sequences/:id/enrollments/:eid/retry — put one failed lead back on the step it failed on. */
+async function retryEnrollment(id, enrollmentId) {
+  const res = await apiGateway.post(`/hub/sequences/${id}/enrollments/${enrollmentId}/retry`);
+  return res.data?.data ?? { retried: 0 };
+}
+
+/** POST /hub/sequences/:id/enrollments/retry — put every retryable failed lead back, optionally one step and/or one error. */
+async function retryFailed(id, { stepId, errorCode } = {}) {
+  const res = await apiGateway.post(`/hub/sequences/${id}/enrollments/retry`, { ...(stepId ? { stepId } : {}), ...(errorCode ? { errorCode } : {}) });
+  return res.data?.data ?? { retried: 0, skipped: 0 };
+}
+
+/** POST /hub/sequences/:id/duplicate — a draft copy to edit the flow of a running or paused sequence. */
+async function duplicateSequence(id) {
+  const res = await apiGateway.post(`/hub/sequences/${id}/duplicate`);
+  return res.data?.data;
+}
+
 const hubSequencesGateway = {
   createSequence,
   listSequences,
@@ -117,5 +147,10 @@ const hubSequencesGateway = {
   deleteSequence,
   previewSequence,
   rebalanceSequence,
+  getFlowState,
+  getEnrollment,
+  retryEnrollment,
+  retryFailed,
+  duplicateSequence,
 };
 export default hubSequencesGateway;

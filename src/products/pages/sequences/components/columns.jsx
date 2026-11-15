@@ -3,6 +3,7 @@ import { LinkedInIcon } from 'src/core/icons';
 import { TextCell, PersonCell, LinkCell, DateCell } from 'src/core/DataTable';
 import { Badge } from 'src/core/primitives';
 import { stepTypeLabel } from 'src/products/sequences/stepTypes.js';
+import { waitReasonWords, dueText } from 'src/products/sequences/journeyModel.js';
 import { excludedText } from '../../campaigns/components/columns.jsx';
 
 /**
@@ -129,6 +130,18 @@ export function hubEnrollmentColumns(steps = [], { tree = false, pool = false } 
       width: 260,
       title: (row) => excludedText(row.excludedNotes),
       render: (value, row) => <TextCell value={excludedText(row.excludedNotes) || null} tone="secondary" />,
+    }] : []),
+    ...(tree ? [{
+      key: 'waitReason',
+      label: 'Why / next',
+      width: 280,
+      title: (row) => waitReasonWords(row.waitReason),
+      render: (value, row) => {
+        if (row.status === 'failed') return <TextCell value="Failed: open to see why and retry" tone="secondary" />;
+        const words = waitReasonWords(value);
+        const due = row.nextEligibleAt && (row.status === 'waiting' || row.status === 'active') ? dueText(row.nextEligibleAt) : '';
+        return <TextCell value={[words, due && `next ${due}`].filter(Boolean).join(' · ') || null} tone="secondary" />;
+      },
     }] : []),
     {
       key: 'lastEvent',

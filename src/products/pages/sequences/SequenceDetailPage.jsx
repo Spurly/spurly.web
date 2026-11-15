@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Pause, Play, Trash2 } from 'lucide-react';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { DataTable } from 'src/core/DataTable';
@@ -17,6 +17,11 @@ import {
 import { SequenceFlowBuilder } from './components/SequenceFlowBuilder.jsx';
 import { SequenceTreeBuilder } from './components/SequenceTreeBuilder.jsx';
 import { BranchCounts } from './components/BranchCounts.jsx';
+import { JourneyView } from './components/journey/JourneyView.jsx';
+import { JourneyStepList } from './components/journey/JourneyStepList.jsx';
+import { LeadDrawer } from './components/journey/LeadDrawer.jsx';
+import { useDuplicateSequence } from 'src/products/sequences/hooks/useDuplicateSequence.js';
+import { useSequenceJourney } from 'src/products/sequences/hooks/useSequenceJourney.js';
 import { StopRulesButton } from './components/StopRulesButton.jsx';
 import { isTreeSequence, listOf } from 'src/products/sequences/treeModel.js';
 import { StartSequenceDialog } from './components/StartSequenceDialog.jsx';
@@ -45,6 +50,7 @@ const t = sequencesStrings.detail;
  * the space the editor used to occupy.
  */
 export function SequenceDetailPage() {
+  const { id: sequenceId } = useParams();
   const orgState = useOrgState();
   // D50/L1: a partner-managed organization has no inbox here, so reply-stop does not exist for it.
   const repliesTrackedElsewhere = orgState.isMember && orgState.features.inbox !== true;
@@ -69,14 +75,21 @@ export function SequenceDetailPage() {
     rebalance,
     saveSteps,
     saveRecentContact,
+    insertAcceptanceWaitAt,
     remove,
     stepsDirty,
     stepsValidation,
     loadEnrollments,
   } = useSequenceDetail({ inbox });
-  const [pane, setPane] = useState('flow');
+  const [paneChoice, setPane] = useState(null);
   const [startOpen, setStartOpen] = useState(false);
   const [selectedStep, setSelectedStep] = useState(null);
+
+  const isTree = !!sequence && isTreeSequence(sequence);
+  const hasJourney = isTree && sequence.status !== 'draft';
+  const pane = paneChoice ?? (hasJourney ? 'journey' : 'flow');
+  const { duplicate, duplicating } = useDuplicateSequence(sequenceId);
+  const journey = useSequenceJourney({ id: sequenceId, enabled: hasJourney && pane === 'journey', version: sequence?.updatedAt ?? '' });
 
   if (loading && !sequence) {
     return (
@@ -163,6 +176,11 @@ export function SequenceDetailPage() {
           <Button disabled title="Dry-run a sequence against one lead — coming soon">
             Test run <SoonTag className="ml-1" />
           </Button>
+          {!isDraft && (
+            <Button variant="secondary" disabled={duplicating} loading={duplicating} onClick={duplicate} title="The plan is locked while leads are in it. This makes an editable copy and leaves this sequence as it is.">
+              Edit flow
+            </Button>
+          )}
           {isDraft && stepsDirty && (
             <Button disabled={saving || !!stepsValidation} loading={saving} onClick={saveSteps}>
               {t.saveSteps}
@@ -196,6 +214,7 @@ export function SequenceDetailPage() {
           <div className="shrink-0 px-[var(--ui-shell-x)] pt-4">
             <PageTabs
               tabs={[
+                ...(hasJourney ? [{ id: 'journey', label: 'Journey' }] : []),
                 { id: 'flow', label: 'Flow', count: steps.length },
                 { id: 'enrolled', label: 'Enrolled', count: totalEnrolled },
               ]}
@@ -204,7 +223,9 @@ export function SequenceDetailPage() {
             />
           </div>
 
-          {pane === 'flow' ? (
+          {pane === 'journey' && hasJourney ? (
+            <JourneyView sequence={sequence} journey={journey} branchCounts={data.branchCounts} onOpenEnrolled={() => setPane('enrolled')} onInsertWait={insertAcceptanceWaitAt} saving={saving} />
+          ) : pane === 'flow' ? (
             isTreeSequence(sequence) ? (
               <div className="flex-1 min-h-0 flex flex-col">
                 <div className="shrink-0 flex items-center justify-between gap-3 flex-wrap px-[var(--ui-shell-x)] pt-4 pb-3">
@@ -311,6 +332,7 @@ export function SequenceDetailPage() {
                   className="flex-1 min-h-0"
                   columns={hubEnrollmentColumns(sequence.steps, { tree: isTreeSequence(sequence), pool: isPool })}
                   data={enrollments}
+                  onRowClick={isTree && hasJourney ? (row) => { setPane('journey'); journey.openLead(String(row._id || row.id)); } : undefined}
                   loading={loading}
                   emptyMessage={statusFilter ? t.table.emptyMessageFiltered : t.table.emptyMessageAll}
                   emptyHint={statusFilter ? t.table.emptyHintFiltered : t.table.emptyHintAll}
@@ -336,7 +358,9 @@ export function SequenceDetailPage() {
 
         {/* Right: the inspector — a selected step, or the sequence overview. */}
         <aside className="w-[352px] shrink-0 border-l border-[var(--ui-border)] bg-[var(--ui-surface-card)] overflow-y-auto">
-          {selected && !(isTreeSequence(sequence) && isDraft) ? (
+          {pane === 'journey' && journey.openId ? (
+            <LeadDrawer detail={journey.detail} loading={!journey.detail} retrying={journey.retrying} onRetry={journey.retryLead} onClose={() => journey.openLead(null)} />
+          ) : selected && !(isTreeSequence(sequence) && isDraft) ? (
             <StepInspector
               step={selected}
               index={isTreeSequence(sequence) ? steps.indexOf(selected) : selectedStep}
@@ -361,7 +385,7 @@ export function SequenceDetailPage() {
                   <p className="ui-micro !text-[var(--ui-text-secondary)] mb-1">Outcomes</p>
                   <FactList items={outcomeFacts} />
                 </div>
-                <BranchCounts steps={sequence.steps} counts={data.branchCounts} />
+                {pane === 'journey' && journey.flow ? <JourneyStepList steps={sequence.steps} flow={journey.flow} /> : <BranchCounts steps={sequence.steps} counts={data.branchCounts} />}
                 <ProgressMeter
                   label="Reached the last step"
                   valueLabel={`${finishedCount} / ${totalEnrolled}`}

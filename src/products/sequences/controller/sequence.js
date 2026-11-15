@@ -110,6 +110,51 @@ async function rebalanceSequence(eventEmitter, id, params) {
   }
 }
 
+async function getFlowState(eventEmitter, id) {
+  try {
+    const data = await hubSequencesGateway.getFlowState(id);
+    eventEmitter.emit(SEQUENCE_EVENTS.GET_FLOW_STATE_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(SEQUENCE_EVENTS.GET_FLOW_STATE_FAILURE, error);
+  }
+}
+
+async function getEnrollment(eventEmitter, id, enrollmentId) {
+  try {
+    const data = await hubSequencesGateway.getEnrollment(id, enrollmentId);
+    eventEmitter.emit(SEQUENCE_EVENTS.GET_ENROLLMENT_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(SEQUENCE_EVENTS.GET_ENROLLMENT_FAILURE, error);
+  }
+}
+
+async function retryEnrollment(eventEmitter, id, enrollmentId) {
+  try {
+    const data = await hubSequencesGateway.retryEnrollment(id, enrollmentId);
+    eventEmitter.emit(SEQUENCE_EVENTS.RETRY_ENROLLMENT_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(SEQUENCE_EVENTS.RETRY_ENROLLMENT_FAILURE, error);
+  }
+}
+
+async function retryFailed(eventEmitter, id, options) {
+  try {
+    const data = await hubSequencesGateway.retryFailed(id, options);
+    eventEmitter.emit(SEQUENCE_EVENTS.RETRY_FAILED_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(SEQUENCE_EVENTS.RETRY_FAILED_FAILURE, error);
+  }
+}
+
+async function duplicateSequence(eventEmitter, id) {
+  try {
+    const data = await hubSequencesGateway.duplicateSequence(id);
+    eventEmitter.emit(SEQUENCE_EVENTS.DUPLICATE_SUCCESS, data);
+  } catch (error) {
+    eventEmitter.emit(SEQUENCE_EVENTS.DUPLICATE_FAILURE, error);
+  }
+}
+
 const sequenceController = {
   createSequence,
   listSequences,
@@ -122,5 +167,10 @@ const sequenceController = {
   deleteSequence,
   previewSequence,
   rebalanceSequence,
+  getFlowState,
+  getEnrollment,
+  retryEnrollment,
+  retryFailed,
+  duplicateSequence,
 };
 export default sequenceController;

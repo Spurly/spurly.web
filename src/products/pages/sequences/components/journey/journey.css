@@ -1,0 +1,9 @@
+/* Lead bubbles drift gently so a step with people on it reads as alive. Amplitude and speed come from per-bubble custom
+   properties (set in LeadBubble from the lead's id), and a failed lead moves a little more than a waiting one. */
+@keyframes journey-bob {
+  from { transform: translate(0, 0) rotate(0deg); }
+  to { transform: translate(var(--jx, 1px), var(--jy, -3px)) rotate(var(--jr, 0deg)); }
+}
+.journey-bubble { will-change: transform; animation: journey-bob var(--jd, 5s) ease-in-out var(--jdelay, 0s) infinite alternate; }
+.journey-bubble:hover, .journey-bubble:focus-visible { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .journey-bubble { animation: none; } }

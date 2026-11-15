@@ -33,8 +33,10 @@ const isTyping = (el) => ['INPUT', 'TEXTAREA', 'SELECT'].includes(el?.tagName) |
 
 export function SequenceCanvas({
   steps, readOnly = false, selectedId = null, onSelect, onAdd, onMove, onRemove, errors = {}, branchCounts = null, rightInset = 0, history = null,
+  // Journey view: taller nodes, a custom node body, and an overlay drawn inside the canvas world (both read-only).
+  nodeH, renderNode = null, overlay = null, renderStart = null, fitMinZoom = 0,
 }) {
-  const layout = useMemo(() => layoutTree(steps), [steps]);
+  const layout = useMemo(() => layoutTree(steps, nodeH ? { nodeH } : undefined), [steps, nodeH]);
   const viewportRef = useRef(null);
   const [view, setView] = useState(DEFAULT_VIEW);
   const [panning, setPanning] = useState(false);
@@ -61,9 +63,15 @@ export function SequenceCanvas({
   }, [layout, size]);
 
   const fit = useCallback(() => {
-    const next = fitTransform(latest.current.layout ?? layout, size(), { inset: latest.current.rightInset ?? 0 });
+    const lay = latest.current.layout ?? layout;
+    let next = fitTransform(lay, size(), { inset: latest.current.rightInset ?? 0 });
+    // A tall journey would fit at a size nobody can read: start at a readable zoom from the top instead.
+    if (next && fitMinZoom && next.k < fitMinZoom) {
+      const w = size().w - (latest.current.rightInset ?? 0);
+      next = { k: fitMinZoom, x: w / 2 - ((lay.minX + lay.maxX) / 2) * fitMinZoom, y: 32 };
+    }
     if (next) setView(next);
-  }, [layout, size]);
+  }, [layout, size, fitMinZoom]);
 
   // Fit once the canvas has a size, and again if the window resizes before the user has taken over.
   useLayoutEffect(() => {
@@ -257,7 +265,7 @@ export function SequenceCanvas({
           </svg>
 
           {layout.nodes.map((node) => (node.kind === 'step'
-            ? (
+            ? (renderNode ? renderNode(node, { selected: selectedId === node.key }) : (
               <StepNode
                 key={node.key}
                 node={node}
@@ -268,14 +276,16 @@ export function SequenceCanvas({
                 onActivate={activate}
                 onRemove={(id) => onRemove?.(id)}
               />
-            )
-            : <TerminalNode key={node.key} node={node} />))}
+            ))
+            : (node.kind === 'start' && renderStart ? renderStart(node) : <TerminalNode key={node.key} node={node} />)))}
 
           {layout.edges.filter((edge) => edge.label).map((edge) => {
             const { label: at } = edgeGeometry(edge);
             const count = branchCounts?.[edge.slot.parentId]?.[edge.slot.branch];
             return <BranchPill key={`l:${edge.key}`} label={edge.label} count={count} x={at.x} y={at.y} />;
           })}
+
+          {overlay?.(layout)}
 
           {!readOnly && !dragging && layout.edges.map((edge) => {
             const at = plusPoint(edge);
