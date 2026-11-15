@@ -1,6 +1,6 @@
 ---
 title: Connect LinkedIn
-seoTitle: Connect LinkedIn Endpoints | Spurly API v2
+seoTitle: Connect LinkedIn Endpoints | Spurly API
 description: Spurly organisation API reference for connecting LinkedIn: sign in, submit codes, verify another way, resend and poll in-app approvals.
 lead: Sign a LinkedIn account in under an organisation and finish verification.
 path: /developers/api/connect

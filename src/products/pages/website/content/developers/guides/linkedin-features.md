@@ -1,6 +1,6 @@
 ---
 title: What each LinkedIn account can do
-seoTitle: LinkedIn features by account type | Spurly API v2
+seoTitle: LinkedIn features by account type | Spurly API
 navTitle: Features by account
 description: Which LinkedIn features the Spurly organisation API offers, which depend on the member's LinkedIn plan, and which are not offered.
 lead: Most of the API works on any LinkedIn account. A few features depend on the member's plan. A few are not offered at all.
@@ -38,13 +38,13 @@ Spurly calls LinkedIn as the connected member, so what you can do is what that m
 | Followers | The member's own followers, and the followers of a company page the member administers. Anyone else's page returns an empty list, so an empty page does not mean zero followers. |
 | Sales Navigator and Recruiter | Connect with the `cookies` method and send `premiumToken` (the `li_a` cookie) so LinkedIn recognises the seat. See [Connection methods](/developers/guides/connection-methods). |
 
-## Not offered in `/v2`
+## Not offered
 
 - **Job posting, job search and applicants.** Search covers people, companies and posts only.
 - **LinkedIn Recruiter and Sales Navigator search and inboxes.** Search runs as standard LinkedIn search.
 - **A "following" list.** Followers only.
 - **Raw access to LinkedIn.** Every call is one of the documented endpoints. Anything else is `404 NOT_FOUND`.
 - **A hosted sign-in page.** You collect the sign-in in your own screen. See [Connect LinkedIn](/developers/guides/connect-linkedin).
-- **Email, calendar and other messengers.** `/v2` is LinkedIn only.
+- **Email, calendar and other messengers.** The API is LinkedIn only.
 
 If you need something that is not offered, [email us](mailto:founders@getspurly.com). The [changelog](/developers/changelog) lists what has been added.

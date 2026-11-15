@@ -1,6 +1,6 @@
 ---
 title: Posts
-seoTitle: Posts | Spurly API v2
+seoTitle: Posts | Spurly API
 description: Spurly organisation API reference for LinkedIn posts, comments and reactions.
 lead: Posts, comments and reactions.
 path: /developers/api/posts

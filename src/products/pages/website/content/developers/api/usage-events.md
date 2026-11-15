@@ -1,6 +1,6 @@
 ---
 title: Usage and events
-seoTitle: Usage and events | Spurly API v2
+seoTitle: Usage and events | Spurly API
 description: Spurly organisation API reference for usage and the 7-day event feed used to catch up after webhook downtime.
 lead: What you are billed on, and the event feed.
 path: /developers/api/usage-events

@@ -1,6 +1,6 @@
 ---
 title: Messaging
-seoTitle: Messaging | Spurly API v2
+seoTitle: Messaging | Spurly API
 description: Spurly organisation API reference for LinkedIn messaging: chats, messages, files, reactions and attachment downloads.
 lead: Chats, messages, files and reactions on a connected account.
 path: /developers/api/messaging

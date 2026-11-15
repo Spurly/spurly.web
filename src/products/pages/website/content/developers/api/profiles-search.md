@@ -1,6 +1,6 @@
 ---
 title: Profiles and search
-seoTitle: Profiles and search | Spurly API v2
+seoTitle: Profiles and search | Spurly API
 description: Spurly organisation API reference for LinkedIn profiles, search and search filter lookups.
 lead: Profiles, people, company and post search.
 path: /developers/api/profiles-search

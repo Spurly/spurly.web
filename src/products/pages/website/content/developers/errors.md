@@ -1,6 +1,6 @@
 ---
 title: Errors
-seoTitle: Errors | Spurly API v2
+seoTitle: Errors | Spurly API
 description: The Spurly organisation API error format, HTTP status codes and every error code with what to do about it.
 lead: One error shape, stable codes.
 path: /developers/errors
@@ -44,7 +44,7 @@ Every failure has the same shape and a matching HTTP status:
 | Code | Status | Meaning |
 |---|---|---|
 | `UNAUTHORIZED` | 401 | Missing, invalid or revoked API key |
-| `NOT_ENABLED` | 403 | `/v2` is not enabled for your key |
+| `NOT_ENABLED` | 403 | The API is not enabled for your key |
 | `RATE_LIMITED` | 429 | Too many requests for your key or for one LinkedIn account |
 | `LINKEDIN_RATE_LIMITED` | 429 | Connect calls only: LinkedIn asked for a pause on sign-in attempts. Wait a few minutes |
 | `ACCOUNT_LIMIT` | 429 | Sends only (invitations, messages, new chats): the LinkedIn account has reached its safety limit for that kind of action, which applies to accounts that also use the Spurly workspace. `Retry-After` and `retryAfterSeconds` say when to try again. Nothing was sent |
