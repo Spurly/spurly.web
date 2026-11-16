@@ -2,6 +2,7 @@ export const viewersStrings = {
   pageTitle: 'Profile viewers',
   pageSubtitle: 'Who looked at your LinkedIn profile, newest first. Spurly keeps the ones it has seen, so the list outlives LinkedIn\'s short window.',
   syncNow: 'Sync now',
+  syncAll: 'Sync all',
   exportCsv: 'Export CSV',
   exportHint: 'Download viewers as a spreadsheet',
   exportPage: 'Export this page',
@@ -34,6 +35,6 @@ export const viewersStrings = {
     stored: 'Everyone Spurly has seen',
     private: 'In the latest check',
   },
-  columns: { viewer: 'Viewer', degree: 'Deg', lastViewed: 'Last viewed', timesSeen: 'Times seen' },
+  columns: { viewer: 'Viewer', degree: 'Deg', lastViewed: 'Last viewed', timesSeen: 'Times seen', viewedAccount: 'Viewed account' },
   footnote: 'LinkedIn only gives a rough age ("Viewed 5h ago"), so every time here is approximate. Viewers are checked every 12 hours on Premium accounts.',
 };

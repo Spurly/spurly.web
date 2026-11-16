@@ -1,4 +1,4 @@
-import { PersonCell } from 'src/core/DataTable';
+import { PersonCell, TextCell } from 'src/core/DataTable';
 import { degreeLabel } from 'src/shared/utils/connectionDegree.js';
 import { formatViewed } from 'src/products/profileViewers/format.js';
 import { viewersStrings } from '../strings.js';
@@ -43,3 +43,19 @@ export const viewerColumns = [
     ),
   },
 ];
+
+/**
+ * The All-accounts view: the same table plus "Viewed account", which says whose profile each person looked at. A person
+ * who looked at two accounts is two rows, one per account, each with its own last-viewed time and count.
+ */
+export function viewerColumnsForAllAccounts() {
+  const viewedAccount = {
+    key: 'accountName',
+    label: viewersStrings.columns.viewedAccount,
+    width: 190,
+    title: (row) => row.accountName,
+    render: (value) => <TextCell value={value || null} tone="secondary" />,
+  };
+  const at = viewerColumns.findIndex((c) => c.key === 'connectionDegree');
+  return [...viewerColumns.slice(0, at), viewedAccount, ...viewerColumns.slice(at)];
+}

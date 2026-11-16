@@ -21,7 +21,7 @@ async function exportViewers(eventEmitter, { degree } = {}) {
         const data = await hubProfileViewersGateway.getViewers({ page, limit: EXPORT_PAGE_SIZE, degree });
         return { rows: data.viewers ?? [], total: data.total ?? 0 };
       },
-      { pageSize: EXPORT_PAGE_SIZE, maxRows: EXPORT_MAX_ROWS, keyOf: (viewer) => viewer.providerId },
+      { pageSize: EXPORT_PAGE_SIZE, maxRows: EXPORT_MAX_ROWS, keyOf: (viewer) => `${viewer.accountKey ?? ''}:${viewer.providerId}` },
     );
     eventEmitter.emit(PROFILE_VIEWERS_EVENTS.EXPORT_VIEWERS_SUCCESS, { viewers: rows, total, truncated });
   } catch (error) {

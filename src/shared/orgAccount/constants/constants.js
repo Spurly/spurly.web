@@ -29,10 +29,10 @@ export const ORG_ACCOUNT_BODY_PATHS = [/^\/hub\/campaigns$/, /^\/hub\/sequences$
  * "All accounts" view: on these pages the member may look at every account's data at once (no account is sent on the
  * list reads below). Everywhere else one account is always in effect.
  */
-export const ORG_ALL_VIEW_PAGES = ['/hub/leads', '/hub/network'];
+export const ORG_ALL_VIEW_PAGES = ['/hub/leads', '/hub/network', '/hub/viewers'];
 /** GET requests that, in the all-accounts view, are sent WITHOUT an account so the server returns every account's rows. */
-export const ORG_ALL_VIEW_READS = [/^\/hub\/leads$/, /^\/hub\/lead-companies$/, /^\/hub\/searches(\/[^/]+)?$/, /^\/hub\/network$/];
+export const ORG_ALL_VIEW_READS = [/^\/hub\/leads$/, /^\/hub\/lead-companies$/, /^\/hub\/searches(\/[^/]+)?$/, /^\/hub\/network$/, /^\/hub\/profile-viewers$/];
 /** POST requests that, in the all-accounts view, are also sent without an account (the server acts on every account). */
-export const ORG_ALL_VIEW_WRITES = [/^\/hub\/network\/sync$/];
+export const ORG_ALL_VIEW_WRITES = [/^\/hub\/network\/sync$/, /^\/hub\/profile-viewers\/sync$/];
 /** One lead's own requests (open, enrich, follow...) in the all-accounts view act through an account that holds that lead. */
 export const ORG_LEAD_PATH = /^\/hub\/leads\/([^/]+)\//;

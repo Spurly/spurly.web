@@ -22,8 +22,14 @@ export const VIEWER_EXPORT_COLUMNS = [
   ['LinkedIn ID', (v) => v.providerId],
 ];
 
+/** The All-accounts view names whose profile each person looked at; a single account's export has no such column. */
+const VIEWED_ACCOUNT_COLUMN = ['Viewed account', (v) => v.accountName];
+
 export function buildViewersCsv(viewers) {
-  return buildCsvTable(VIEWER_EXPORT_COLUMNS, viewers);
+  const columns = viewers.some((v) => v.accountName)
+    ? [VIEWER_EXPORT_COLUMNS[0], VIEWED_ACCOUNT_COLUMN, ...VIEWER_EXPORT_COLUMNS.slice(1)]
+    : VIEWER_EXPORT_COLUMNS;
+  return buildCsvTable(columns, viewers);
 }
 
 /** `spurly-profile-viewers-2nd-2026-10-30.csv`; the connection level is in the name when one is filtered. */

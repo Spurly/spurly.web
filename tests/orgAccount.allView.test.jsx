@@ -25,6 +25,17 @@ describe('all-accounts view', () => {
     expect(getActiveAccountId()).toBe('a1');
   });
 
+  test('profile viewers: reads and "Sync all" carry no account in the all view, one account is still named otherwise', () => {
+    goto('/hub/viewers');
+    setAllAccountsView(true);
+    expect(isAllAccountsView()).toBe(true);
+    expect(withActiveAccount({ method: 'get', url: '/hub/profile-viewers', params: { page: 1 } }).params).toEqual({ page: 1 });
+    expect(withActiveAccount({ method: 'post', url: '/hub/profile-viewers/sync' }).params).toBeUndefined();
+    setActiveAccountId('a2');
+    expect(withActiveAccount({ method: 'get', url: '/hub/profile-viewers' }).params).toEqual({ accountId: 'a2' });
+    expect(withActiveAccount({ method: 'post', url: '/hub/profile-viewers/sync' }).params).toEqual({ accountId: 'a2' });
+  });
+
   test('one lead acts through an account that holds it', () => {
     setAllAccountsView(true);
     rememberLeadAccounts([{ _id: 'L1', orgAccountIds: ['a2'] }, { _id: 'L2', orgAccountIds: ['a1', 'a2'] }]);

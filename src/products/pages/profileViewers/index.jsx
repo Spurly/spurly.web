@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from 'src/core/layout/DashboardLayout';
 import { DataTable } from 'src/core/DataTable';
@@ -7,7 +8,7 @@ import { useProfileViewersPage } from 'src/products/profileViewers/hooks/useProf
 import { DEGREE_FILTERS } from 'src/products/profileViewers/constants/constants.js';
 import { formatViewedAgo } from 'src/products/profileViewers/format.js';
 import { relativeTime } from 'src/shared/utils/outreach.js';
-import { viewerColumns } from './components/columns.jsx';
+import { viewerColumns, viewerColumnsForAllAccounts } from './components/columns.jsx';
 import { viewersStrings } from './strings.js';
 
 const t = viewersStrings;
@@ -30,6 +31,8 @@ export function HubProfileViewersPage() {
   const navigate = useNavigate();
   const { data, loading, degreeId, changeDegree, goToPage, sync, syncing, needsAccount, rejected, exporting, exportViewers } = useProfileViewersPage();
 
+  const aggregate = Boolean(data?.aggregate);
+  const columns = useMemo(() => (aggregate ? viewerColumnsForAllAccounts() : viewerColumns), [aggregate]);
   const viewers = data?.viewers ?? [];
   const summary = data?.summary;
   const state = data?.state;
@@ -58,7 +61,7 @@ export function HubProfileViewersPage() {
             ]}
           />
           <Button variant="primary" onClick={sync} disabled={syncing || noAccount}>
-            {t.syncNow}
+            {aggregate ? t.syncAll : t.syncNow}
           </Button>
         </>
       }
@@ -105,9 +108,9 @@ export function HubProfileViewersPage() {
 
         <div className="rounded-[var(--ui-radius-lg)] border border-[var(--ui-border)] bg-[var(--ui-surface-card)] shadow-[var(--ui-shadow-sm)] overflow-hidden">
           <DataTable
-            columns={viewerColumns}
+            columns={columns}
             data={viewers}
-            rowKey={(row) => row.providerId}
+            rowKey={(row) => `${row.accountKey ?? ''}:${row.providerId}`}
             loading={loading}
             stickyHeader={false}
             emptyIcon={<EyeIcon size={22} strokeWidth={1.6} />}
